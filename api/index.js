@@ -83,8 +83,28 @@ module.exports = async (req, res) => {
                 res.setHeader('Access-Control-Allow-Origin', '*');
 
                 // Ler e enviar arquivo
-                const fileContent = fs.readFileSync(fullPath, 'utf8');
-                return res.status(200).send(fileContent);
+                try {
+                    const fileContent = fs.readFileSync(fullPath, 'utf8');
+
+                    // Log para debug CSS
+                    if (ext === '.css') {
+                        console.log('CSS sendo servido:', cleanPath);
+                        console.log(
+                            'Tamanho do CSS:',
+                            fileContent.length,
+                            'caracteres'
+                        );
+                        console.log(
+                            'Primeiros 100 caracteres:',
+                            fileContent.substring(0, 100)
+                        );
+                    }
+
+                    return res.status(200).send(fileContent);
+                } catch (readError) {
+                    console.error('Erro ao ler arquivo:', readError);
+                    return res.status(500).send('Erro ao ler arquivo');
+                }
             }
         }
 
