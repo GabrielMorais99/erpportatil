@@ -39,28 +39,6 @@ app.get('/login.html', (req, res) => {
     }
 });
 
-// Rota catch-all para SPA (deve ser a última)
-app.get('*', (req, res) => {
-    // Se for uma rota de API, não fazer nada (deixa para as API routes)
-    if (req.path.startsWith('/api/')) {
-        return res.status(404).json({ error: 'API route not found' });
-    }
-
-    // Tentar servir o arquivo estático
-    const filePath = path.join(__dirname, req.path);
-    if (fs.existsSync(filePath) && fs.statSync(filePath).isFile()) {
-        return res.sendFile(filePath);
-    }
-
-    // Se não encontrar, redirecionar para index.html (SPA)
-    const indexPath = path.join(__dirname, 'index.html');
-    if (fs.existsSync(indexPath)) {
-        return res.sendFile(indexPath);
-    }
-
-    res.status(404).send('Página não encontrada');
-});
-
 // Tratamento de erros
 app.use((err, req, res, next) => {
     console.error('Erro:', err);
