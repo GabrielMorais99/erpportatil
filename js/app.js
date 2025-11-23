@@ -19,8 +19,15 @@ class LojaApp {
             return;
         }
 
-        // Carregar dados
-        this.loadData();
+        // Carregar dados (assíncrono)
+        this.loadData().then(() => {
+            // Renderizar após carregar dados
+            this.renderItems();
+            this.renderGroups();
+            this.renderCosts();
+            this.updateMonthFilter();
+            this.updateOverallSummary();
+        });
 
         // Event listeners
         this.setupEventListeners();
@@ -834,7 +841,7 @@ class LojaApp {
 
     // ========== PERSISTÊNCIA DE DADOS ==========
 
-    saveData() {
+    async saveData() {
         const data = {
             items: this.items,
             groups: this.groups,
@@ -842,10 +849,57 @@ class LojaApp {
             version: '1.0',
             lastUpdate: new Date().toISOString()
         };
+        
+        // Salvar no localStorage (sempre)
         localStorage.setItem('lojaData', JSON.stringify(data));
+        
+        // Tentar salvar na nuvem (se estiver na Vercel)
+        try {
+            const response = await fetch('/api/save', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(data)
+            });
+            
+            if (response.ok) {
+                console.log('Dados salvos na nuvem com sucesso');
+            } else {
+                console.warn('Erro ao salvar na nuvem, usando apenas localStorage');
+            }
+        } catch (error) {
+            // Se não houver API, usar apenas localStorage (modo offline)
+            console.log('Modo offline: dados salvos apenas localmente');
+        }
     }
 
-    loadData() {
+    async loadData() {
+        // Tentar carregar da nuvem primeiro
+        try {
+            const response = await fetch('/api/load');
+            if (response.ok) {
+                const result = await response.json();
+                if (result.success && result.data) {
+                    const cloudData = result.data;
+                    if (cloudData.items || cloudData.groups || cloudData.costs) {
+                        // Dados da nuvem encontrados
+                        this.items = cloudData.items || [];
+                        this.groups = cloudData.groups || [];
+                        this.costs = cloudData.costs || [];
+                        
+                        // Sincronizar com localStorage
+                        localStorage.setItem('lojaData', JSON.stringify(cloudData));
+                        console.log('✅ Dados carregados da nuvem');
+                        return Promise.resolve();
+                    }
+                }
+            }
+        } catch (error) {
+            console.log('⚠️ Não foi possível carregar da nuvem, usando localStorage');
+        }
+        
+        // Fallback: carregar do localStorage
         const saved = localStorage.getItem('lojaData');
         if (saved) {
             try {
@@ -853,13 +907,18 @@ class LojaApp {
                 this.items = data.items || [];
                 this.groups = data.groups || [];
                 this.costs = data.costs || [];
+                console.log('✅ Dados carregados do localStorage');
             } catch (e) {
-                console.error('Erro ao carregar dados:', e);
+                console.error('❌ Erro ao carregar dados:', e);
                 this.items = [];
                 this.groups = [];
                 this.costs = [];
             }
+        } else {
+            console.log('ℹ️ Nenhum dado encontrado, iniciando vazio');
         }
+        
+        return Promise.resolve();
     }
 
     exportData() {
