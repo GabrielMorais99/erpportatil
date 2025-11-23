@@ -1,3 +1,14 @@
+// Carregar variáveis de ambiente do arquivo .env (apenas em desenvolvimento local)
+if (process.env.NODE_ENV !== 'production' && !process.env.VERCEL) {
+    try {
+        require('dotenv').config();
+        console.log('📝 [SERVER] Variáveis de ambiente carregadas do arquivo .env');
+    } catch (e) {
+        // dotenv não instalado ou arquivo .env não existe - isso é OK
+        console.log('ℹ️ [SERVER] Arquivo .env não encontrado - usando apenas localStorage (modo offline)');
+    }
+}
+
 const express = require('express');
 const path = require('path');
 const fs = require('fs');
@@ -5,14 +16,45 @@ const fs = require('fs');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+// Middleware para parsing JSON
+app.use(express.json());
+
+// Rotas da API (serverless functions) - DEVEM VIR ANTES do express.static
+app.get('/api/load', async (req, res) => {
+    try {
+        const loadFunction = require('./api/load.js');
+        await loadFunction(req, res);
+    } catch (error) {
+        console.error('Erro ao executar api/load.js:', error);
+        res.status(500).json({ 
+            error: 'Erro ao carregar dados',
+            message: error.message 
+        });
+    }
+});
+
+app.post('/api/save', async (req, res) => {
+    try {
+        const saveFunction = require('./api/save.js');
+        await saveFunction(req, res);
+    } catch (error) {
+        console.error('Erro ao executar api/save.js:', error);
+        res.status(500).json({ 
+            error: 'Erro ao salvar dados',
+            message: error.message 
+        });
+    }
+});
+
 // Servir arquivos estáticos com caminhos absolutos
+// IMPORTANTE: Excluir pasta /api/ do static para não servir arquivos .js como estáticos
 app.use(
     express.static(path.join(__dirname), {
         index: 'index.html',
         extensions: ['html', 'css', 'js', 'json', 'png', 'jpg', 'ico', 'svg'],
-        setHeaders: (res, path) => {
+        setHeaders: (res, filePath) => {
             // Headers para cache de arquivos estáticos
-            if (path.endsWith('.css') || path.endsWith('.js')) {
+            if (filePath.endsWith('.css') || filePath.endsWith('.js')) {
                 res.setHeader('Cache-Control', 'public, max-age=31536000');
             }
         },
@@ -41,9 +83,12 @@ app.get('/gerenciamento.html', (req, res) => {
 
 // Rota catch-all para servir arquivos estáticos ou index.html
 app.get('*', (req, res) => {
-    // Ignorar rotas de API (já tratadas pelo vercel.json)
+    // Ignorar rotas de API - elas são funções serverless, não arquivos estáticos
     if (req.path.startsWith('/api/')) {
-        return res.status(404).json({ error: 'API route not found' });
+        return res.status(404).json({ 
+            error: 'API route not found',
+            message: 'Esta rota deve ser tratada por uma função serverless'
+        });
     }
 
     // Normalizar o caminho (remover query string e hash)

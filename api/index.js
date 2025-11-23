@@ -11,6 +11,14 @@ module.exports = async (req, res) => {
         // Normalizar o caminho - Vercel usa req.url
         let filePath = (req.url || req.path || '/').split('?')[0].split('#')[0];
 
+        // NÃO servir arquivos da pasta /api/ - eles são funções serverless
+        if (filePath.startsWith('/api/')) {
+            return res.status(404).json({ 
+                error: 'Not found',
+                message: 'API routes should be handled by serverless functions, not static file server'
+            });
+        }
+
         // Log para debug
         console.log('=== DEBUG ===');
         console.log('Request URL:', req.url);

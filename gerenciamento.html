@@ -10,7 +10,7 @@
             name="description"
             content="Sistema de gestão de loja de roupas - Controle de vendas e custos"
         />
-        <meta name="theme-color" content="#dc3545" />
+        <meta name="theme-color" content="#dc3545" id="theme-color-meta" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta
             name="apple-mobile-web-app-status-bar-style"
@@ -19,6 +19,7 @@
         <meta name="apple-mobile-web-app-title" content="Loja Vendas" />
         <title>Gestão Financeira</title>
         <link rel="stylesheet" href="/css/style.css" id="css-link" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
         <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
         <link rel="manifest" href="/manifest.json" />
         <link
@@ -44,13 +45,13 @@
                 <h1>Gestão Financeira</h1>
                 <div class="header-actions">
                     <button id="themeToggleBtn" class="theme-toggle-btn" title="Alternar tema">
-                        🎨
+                        <i class="fas fa-palette"></i>
                     </button>
                     <button id="importBtn" class="btn-secondary">
-                        Importar Dados
+                        <i class="fas fa-upload"></i> Importar Dados
                     </button>
                     <button id="exportBtn" class="btn-secondary">
-                        Exportar Dados
+                        <i class="fas fa-download"></i> Exportar Dados
                     </button>
                     <input
                         type="file"
@@ -58,24 +59,30 @@
                         accept=".txt"
                         style="display: none"
                     />
-                    <button type="button" id="logoutBtn" class="btn-secondary">Sair</button>
+                    <button type="button" id="logoutBtn" class="btn-secondary">
+                        <i class="fas fa-sign-out-alt"></i> Sair
+                    </button>
                 </div>
             </header>
 
             <main class="main-content">
                 <div class="toolbar">
                     <button type="button" id="newItemBtn" class="btn-primary">
-                        + Novo Produto
+                        <i class="fas fa-plus-circle"></i> Novo Produto
                     </button>
                     <button type="button" id="newGroupBtn" class="btn-primary">
-                        + Grupo Mensal
+                        <i class="fas fa-calendar-alt"></i> Grupo Mensal
                     </button>
                     <div class="search-filter">
-                        <input
-                            type="text"
-                            id="searchInput"
-                            placeholder="Pesquisar por nome, marca, modelo, capacidade, cor ou tamanho..."
-                        />
+                        <div style="position: relative; flex: 1;">
+                            <i class="fas fa-search" style="position: absolute; left: 0.75rem; top: 50%; transform: translateY(-50%); color: var(--gray-400); pointer-events: none;"></i>
+                            <input
+                                type="text"
+                                id="searchInput"
+                                placeholder="Pesquisar por nome, marca, modelo, capacidade, cor ou tamanho..."
+                                style="padding-left: 2.5rem;"
+                            />
+                        </div>
                         <select id="monthFilter">
                             <option value="">Todos os meses</option>
                         </select>
@@ -84,19 +91,19 @@
 
                 <div class="content-tabs">
                     <button class="tab-btn" data-tab="dashboard">
-                        Dashboard
+                        <i class="fas fa-chart-line"></i> Dashboard
                     </button>
                     <button class="tab-btn active" data-tab="items">
-                        Itens
+                        <i class="fas fa-box"></i> Itens
                     </button>
                     <button class="tab-btn" data-tab="groups">
-                        Grupos Mensais
+                        <i class="fas fa-calendar-check"></i> Grupos Mensais
                     </button>
                     <button class="tab-btn" data-tab="costs">
-                        Custos de Compra
+                        <i class="fas fa-receipt"></i> Custos de Compra
                     </button>
                     <button class="tab-btn" data-tab="goals">
-                        Metas
+                        <i class="fas fa-bullseye"></i> Metas
                     </button>
                 </div>
 
@@ -115,7 +122,7 @@
                                 </select>
                             </div>
                             <button type="button" class="btn-secondary" id="refreshDashboard">
-                                Atualizar Gráficos
+                                <i class="fas fa-sync-alt"></i> Atualizar Gráficos
                             </button>
                         </div>
 
@@ -184,7 +191,7 @@
                                 </select>
                             </div>
                             <button type="button" class="btn-secondary" id="refreshDashboard">
-                                Atualizar Gráficos
+                                <i class="fas fa-sync-alt"></i> Atualizar Gráficos
                             </button>
                         </div>
 
@@ -307,7 +314,7 @@
                         <div class="costs-content">
                             <div class="toolbar-costs">
                                 <button type="button" id="newCostBtn" class="btn-primary">
-                                    + Cadastrar Novo Custo
+                                    <i class="fas fa-plus-circle"></i> Cadastrar Novo Custo
                                 </button>
                             </div>
                             <div id="costsList" class="costs-list">
@@ -344,7 +351,7 @@
                         <div class="goals-content">
                             <div class="toolbar-goals">
                                 <button type="button" id="newGoalBtn" class="btn-primary">
-                                    + Criar Nova Meta
+                                    <i class="fas fa-bullseye"></i> Criar Nova Meta
                                 </button>
                             </div>
                             <div id="goalsList" class="goals-list">
@@ -530,7 +537,7 @@
                         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
                             <h3>Vendas por Dia</h3>
                             <button type="button" class="btn-primary" id="manageStockBtn" style="padding: 0.5rem 1rem; font-size: 0.9rem;">
-                                Gerenciar Estoque do Dia
+                                <i class="fas fa-warehouse"></i> Gerenciar Estoque do Dia
                             </button>
                         </div>
                         <div id="daysList" class="days-list">

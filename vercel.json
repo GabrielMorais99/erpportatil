@@ -10,6 +10,14 @@
     },
     "routes": [
         {
+            "src": "/api/load",
+            "dest": "/api/load.js"
+        },
+        {
+            "src": "/api/save",
+            "dest": "/api/save.js"
+        },
+        {
             "src": "/css/(.*)",
             "dest": "/api/index.js",
             "headers": {

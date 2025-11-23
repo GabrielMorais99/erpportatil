@@ -27,3 +27,8 @@ Thumbs.db
 *.swp
 *.swo
 
+# Variáveis de ambiente (não commitar credenciais!)
+.env
+.env.local
+.env.*.local
+

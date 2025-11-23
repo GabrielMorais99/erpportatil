@@ -10,7 +10,7 @@
             name="description"
             content="Sistema de gestão de loja de roupas - Controle de vendas e custos"
         />
-        <meta name="theme-color" content="#dc3545" />
+        <meta name="theme-color" content="#dc3545" id="theme-color-meta" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta
             name="apple-mobile-web-app-status-bar-style"
@@ -19,6 +19,10 @@
         <meta name="apple-mobile-web-app-title" content="Loja Vendas" />
         <title>Ger Loja - Login</title>
         <link rel="stylesheet" href="/css/style.css" id="css-link" />
+        <link
+            rel="stylesheet"
+            href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+        />
         <link rel="manifest" href="/manifest.json" />
         <link
             rel="icon"
@@ -164,9 +168,20 @@
         <script>
             // Carregar tema salvo
             (function () {
+                function updateThemeColor(color) {
+                    const metaThemeColor =
+                        document.getElementById('theme-color-meta');
+                    if (metaThemeColor) {
+                        metaThemeColor.setAttribute('content', color);
+                    }
+                }
+
                 const savedTheme = localStorage.getItem('appTheme');
                 if (savedTheme === 'blue') {
                     document.body.classList.add('theme-blue');
+                    updateThemeColor('#007bff');
+                } else {
+                    updateThemeColor('#dc3545');
                 }
 
                 // Botão de troca de tema
@@ -179,9 +194,11 @@
                         if (isBlue) {
                             document.body.classList.remove('theme-blue');
                             localStorage.setItem('appTheme', 'red');
+                            updateThemeColor('#dc3545');
                         } else {
                             document.body.classList.add('theme-blue');
                             localStorage.setItem('appTheme', 'blue');
+                            updateThemeColor('#007bff');
                         }
                     });
                 }

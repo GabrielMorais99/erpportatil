@@ -2187,8 +2187,10 @@ class LojaApp {
         const savedTheme = localStorage.getItem('appTheme');
         if (savedTheme === 'blue') {
             document.body.classList.add('theme-blue');
+            this.updateThemeColor('#007bff');
         } else {
             document.body.classList.remove('theme-blue');
+            this.updateThemeColor('#dc3545');
         }
     }
 
@@ -2197,9 +2199,18 @@ class LojaApp {
         if (isBlue) {
             document.body.classList.remove('theme-blue');
             localStorage.setItem('appTheme', 'red');
+            this.updateThemeColor('#dc3545');
         } else {
             document.body.classList.add('theme-blue');
             localStorage.setItem('appTheme', 'blue');
+            this.updateThemeColor('#007bff');
+        }
+    }
+
+    updateThemeColor(color) {
+        const metaThemeColor = document.getElementById('theme-color-meta');
+        if (metaThemeColor) {
+            metaThemeColor.setAttribute('content', color);
         }
     }
 
@@ -2216,10 +2227,16 @@ class LojaApp {
         };
         
         // Salvar no localStorage (sempre)
-        localStorage.setItem('lojaData', JSON.stringify(data));
+        try {
+            localStorage.setItem('lojaData', JSON.stringify(data));
+            console.log('💾 [SAVE DATA] Dados salvos no localStorage');
+        } catch (e) {
+            console.error('❌ [SAVE DATA] Erro ao salvar no localStorage:', e);
+        }
         
         // Tentar salvar na nuvem (se estiver na Vercel)
         try {
+            console.log('☁️ [SAVE DATA] Tentando salvar na nuvem (API: /api/save)...');
             const response = await fetch('/api/save', {
                 method: 'POST',
                 headers: {
@@ -2228,40 +2245,92 @@ class LojaApp {
                 body: JSON.stringify(data)
             });
             
+            console.log(`📡 [SAVE DATA] Status HTTP: ${response.status} ${response.statusText}`);
+            
+            // Verificar se a resposta é JSON
+            const contentType = response.headers.get('content-type');
+            if (!contentType || !contentType.includes('application/json')) {
+                const text = await response.text();
+                console.error('❌ [SAVE DATA] Resposta da API não é JSON!');
+                console.error(`❌ [SAVE DATA] Status: ${response.status}`);
+                console.error(`❌ [SAVE DATA] Resposta (primeiros 200 chars):`, text.substring(0, 200));
+                
+                if (response.status === 404) {
+                    console.error('❌ [SAVE DATA] Erro 404: Rota /api/save não encontrada');
+                    console.error('💡 [SAVE DATA] Verifique se a API está configurada corretamente na Vercel');
+                }
+                
+                throw new Error(`Resposta da API não é JSON (Status: ${response.status})`);
+            }
+            
             const result = await response.json();
+            console.log('📦 [SAVE DATA] Resposta JSON recebida:', {
+                success: result.success,
+                hasError: !!result.error,
+                hasMessage: !!result.message
+            });
             
             if (response.ok && result.success) {
-                console.log('✅ Dados salvos na nuvem com sucesso');
+                console.log('✅ [SAVE DATA] Dados salvos na nuvem com sucesso!');
             } else {
                 if (result.error && result.error.includes('não estão definidas')) {
-                    console.warn('⚠️ Variáveis de ambiente não configuradas na Vercel. Dados salvos apenas localmente.');
-                    console.warn('💡 Configure JSONBIN_API_KEY e JSONBIN_BIN_ID no painel da Vercel para habilitar sincronização na nuvem.');
+                    console.warn('⚠️ [SAVE DATA] Variáveis de ambiente não configuradas na Vercel');
+                    console.warn('💡 [SAVE DATA] Configure JSONBIN_API_KEY e JSONBIN_BIN_ID no painel da Vercel para habilitar sincronização na nuvem');
                 } else {
-                    console.warn('⚠️ Erro ao salvar na nuvem:', result.error || result.message);
-                    console.warn('💾 Dados salvos apenas localmente (localStorage)');
+                    console.warn('⚠️ [SAVE DATA] Erro ao salvar na nuvem:', result.error || result.message);
+                    console.warn('💾 [SAVE DATA] Dados salvos apenas localmente (localStorage)');
+                }
+                if (!response.ok) {
+                    console.error(`❌ [SAVE DATA] HTTP ${response.status}: ${response.statusText}`);
                 }
             }
         } catch (error) {
             // Se não houver API, usar apenas localStorage (modo offline)
-            console.log('📱 Modo offline: dados salvos apenas localmente');
-            console.log('ℹ️ Isso é normal se você estiver testando localmente (localhost)');
+            console.warn('⚠️ [SAVE DATA] Erro ao salvar na nuvem:', error);
+            console.warn('⚠️ [SAVE DATA] Tipo do erro:', error.constructor.name);
+            console.warn('⚠️ [SAVE DATA] Mensagem:', error.message);
+            console.log('📱 [SAVE DATA] Modo offline: dados salvos apenas localmente');
+            console.log('ℹ️ [SAVE DATA] Isso é normal se você estiver testando localmente (localhost)');
         }
     }
 
     async loadData() {
+        console.log('🔄 [LOAD DATA] Iniciando carregamento de dados...');
+        
         // Tentar carregar da nuvem primeiro
         try {
+            console.log('☁️ [LOAD DATA] Tentando carregar da nuvem (API: /api/load)...');
             const response = await fetch('/api/load');
+            
+            console.log(`📡 [LOAD DATA] Status HTTP: ${response.status} ${response.statusText}`);
             
             // Verificar se a resposta é JSON antes de fazer parse
             const contentType = response.headers.get('content-type');
+            console.log(`📋 [LOAD DATA] Content-Type: ${contentType || 'não especificado'}`);
+            
             if (!contentType || !contentType.includes('application/json')) {
                 const text = await response.text();
-                console.warn('⚠️ Resposta da API não é JSON:', text.substring(0, 100));
-                throw new Error('Resposta da API não é JSON. Possível erro 404 ou rota não encontrada.');
+                console.error('❌ [LOAD DATA] Resposta da API não é JSON!');
+                console.error(`❌ [LOAD DATA] Status: ${response.status}`);
+                console.error(`❌ [LOAD DATA] Resposta (primeiros 200 chars):`, text.substring(0, 200));
+                
+                if (response.status === 404) {
+                    console.error('❌ [LOAD DATA] Erro 404: Rota /api/load não encontrada');
+                    console.error('💡 [LOAD DATA] Verifique se a API está configurada corretamente na Vercel');
+                } else if (response.status >= 500) {
+                    console.error('❌ [LOAD DATA] Erro do servidor (5xx)');
+                }
+                
+                throw new Error(`Resposta da API não é JSON (Status: ${response.status}). Possível erro 404 ou rota não encontrada.`);
             }
             
             const result = await response.json();
+            console.log('📦 [LOAD DATA] Resposta JSON recebida:', {
+                success: result.success,
+                hasData: !!result.data,
+                hasError: !!result.error,
+                hasMessage: !!result.message
+            });
             
             if (response.ok && result.success && result.data) {
                 const cloudData = result.data;
@@ -2314,25 +2383,45 @@ class LojaApp {
                         localStorage.setItem('lojaData', JSON.stringify(cloudData));
                     }
                     
-                    console.log('✅ Dados carregados da nuvem');
-                    console.log(`📊 Items: ${this.items.length} | Grupos: ${this.groups.length} | Custos: ${this.costs.length}`);
+                    console.log('✅ [LOAD DATA] Dados carregados da nuvem com sucesso!');
+                    console.log(`📊 [LOAD DATA] Items: ${this.items.length} | Grupos: ${this.groups.length} | Custos: ${this.costs.length} | Metas: ${this.goals.length}`);
                     return Promise.resolve();
                 } else {
-                    console.log('ℹ️ Nenhum dado encontrado na nuvem (bin vazio)');
+                    console.log('ℹ️ [LOAD DATA] Nenhum dado encontrado na nuvem (bin vazio ou apenas estrutura vazia)');
+                    console.log(`📊 [LOAD DATA] Estrutura: Items: ${cloudData.items?.length || 0} | Grupos: ${cloudData.groups?.length || 0} | Custos: ${cloudData.costs?.length || 0} | Metas: ${cloudData.goals?.length || 0}`);
                 }
-            } else if (result.error && result.error.includes('não estão definidas')) {
-                console.warn('⚠️ Variáveis de ambiente não configuradas na Vercel');
-                console.warn('💡 Configure JSONBIN_API_KEY e JSONBIN_BIN_ID no painel da Vercel');
+            } else {
+                // Resposta não OK ou sem sucesso
+                if (result.error) {
+                    console.error('❌ [LOAD DATA] Erro na resposta da API:', result.error);
+                    if (result.error.includes('não estão definidas')) {
+                        console.warn('⚠️ [LOAD DATA] Variáveis de ambiente não configuradas na Vercel');
+                        console.warn('💡 [LOAD DATA] Configure JSONBIN_API_KEY e JSONBIN_BIN_ID no painel da Vercel');
+                    }
+                }
+                if (result.message) {
+                    console.warn('⚠️ [LOAD DATA] Mensagem da API:', result.message);
+                }
+                if (!response.ok) {
+                    console.error(`❌ [LOAD DATA] HTTP ${response.status}: ${response.statusText}`);
+                }
             }
         } catch (error) {
-            console.log('⚠️ Não foi possível carregar da nuvem:', error.message);
-            console.log('💾 Usando localStorage como fallback');
+            console.error('❌ [LOAD DATA] Erro ao carregar da nuvem:', error);
+            console.error('❌ [LOAD DATA] Tipo do erro:', error.constructor.name);
+            console.error('❌ [LOAD DATA] Mensagem:', error.message);
+            if (error.stack) {
+                console.error('❌ [LOAD DATA] Stack:', error.stack);
+            }
+            console.log('💾 [LOAD DATA] Usando localStorage como fallback...');
         }
         
         // Fallback: carregar do localStorage
+        console.log('💾 [LOAD DATA] Verificando localStorage...');
         const saved = localStorage.getItem('lojaData');
         if (saved) {
             try {
+                console.log('📦 [LOAD DATA] Dados encontrados no localStorage, parseando...');
                 const data = JSON.parse(saved);
                 this.items = data.items || [];
                 this.groups = data.groups || [];
@@ -2361,6 +2450,7 @@ class LojaApp {
                 
                 // Se houve migração, salvar novamente
                 if (needsSave) {
+                    console.log('🔄 [LOAD DATA] Migração de dados detectada, salvando...');
                     const updatedData = {
                         items: this.items,
                         groups: this.groups,
@@ -2371,18 +2461,26 @@ class LojaApp {
                     this.saveData(); // Salvar na nuvem também
                 }
                 
-                console.log('✅ Dados carregados do localStorage');
+                console.log('✅ [LOAD DATA] Dados carregados do localStorage com sucesso!');
+                console.log(`📊 [LOAD DATA] Items: ${this.items.length} | Grupos: ${this.groups.length} | Custos: ${this.costs.length} | Metas: ${this.goals.length}`);
             } catch (e) {
-                console.error('❌ Erro ao carregar dados:', e);
+                console.error('❌ [LOAD DATA] Erro ao carregar dados do localStorage:', e);
+                console.error('❌ [LOAD DATA] Tipo do erro:', e.constructor.name);
+                console.error('❌ [LOAD DATA] Mensagem:', e.message);
+                if (e.stack) {
+                    console.error('❌ [LOAD DATA] Stack:', e.stack);
+                }
+                console.warn('⚠️ [LOAD DATA] Inicializando com dados vazios devido ao erro');
                 this.items = [];
                 this.groups = [];
                 this.costs = [];
                 this.goals = [];
             }
         } else {
-            console.log('ℹ️ Nenhum dado encontrado, iniciando vazio');
+            console.log('ℹ️ [LOAD DATA] Nenhum dado encontrado no localStorage, iniciando vazio');
         }
         
+        console.log('✅ [LOAD DATA] Carregamento de dados concluído');
         return Promise.resolve();
     }
 

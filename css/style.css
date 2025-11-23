@@ -15,6 +15,18 @@
     --dark-gray: #343a40;
     --border-color: #dee2e6;
     
+    /* Paleta cinza adicional */
+    --gray-50: #f9fafb;
+    --gray-100: #f3f4f6;
+    --gray-200: #e5e7eb;
+    --gray-300: #d1d5db;
+    --gray-400: #9ca3af;
+    --gray-500: #6b7280;
+    --gray-600: #4b5563;
+    --gray-700: #374151;
+    --gray-800: #1f2937;
+    --gray-900: #111827;
+    
     /* Variáveis de tema padrão (vermelho) */
     --primary-color: var(--primary-red);
     --primary-color-dark: var(--primary-red-dark);
@@ -28,9 +40,20 @@ body.theme-blue {
 
 body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background-color: var(--light-gray);
+    background-color: var(--gray-50);
     color: var(--dark-gray);
     line-height: 1.6;
+}
+
+/* Estilos para ícones */
+.btn-primary i,
+.btn-secondary i,
+.tab-btn i {
+    margin-right: 0.5rem;
+}
+
+.tab-btn i {
+    font-size: 0.9rem;
 }
 
 /* Login Page */
@@ -156,7 +179,7 @@ body {
     margin-top: 2rem;
     padding-top: 1.5rem;
     border-top: 1px solid var(--border-color);
-    color: var(--gray);
+    color: var(--gray-600);
     font-size: 0.9rem;
 }
 
@@ -216,7 +239,7 @@ body {
 /* Botão de troca de tema na página de login */
 .theme-toggle-btn-login {
     background: transparent;
-    border: 2px solid var(--primary-color);
+    border: 2px solid var(--gray-300);
     color: var(--primary-color);
     padding: 0.5rem 0.75rem;
     border-radius: 5px;
@@ -280,6 +303,10 @@ body {
     margin-bottom: 2rem;
     flex-wrap: wrap;
     align-items: center;
+    background: var(--white);
+    padding: 1rem;
+    border-radius: 8px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
 .toolbar .btn-primary {
@@ -296,11 +323,20 @@ body {
 .search-filter input,
 .search-filter select {
     padding: 0.5rem;
-    border: 2px solid var(--border-color);
+    border: 2px solid var(--gray-200);
     border-radius: 5px;
     font-size: 1rem;
     font-weight: normal;
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: var(--white);
+    color: var(--dark-gray);
+}
+
+.search-filter input:focus,
+.search-filter select:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
 }
 
 .search-filter input {
@@ -311,7 +347,10 @@ body {
     display: flex;
     gap: 0.5rem;
     margin-bottom: 2rem;
-    border-bottom: 2px solid var(--border-color);
+    border-bottom: 2px solid var(--gray-200);
+    background: var(--white);
+    padding: 0.5rem;
+    border-radius: 8px 8px 0 0;
 }
 
 .tab-btn {
@@ -322,8 +361,9 @@ body {
     cursor: pointer;
     font-size: 1rem;
     font-weight: 500;
-    color: var(--gray);
+    color: var(--gray-600);
     transition: all 0.3s;
+    border-radius: 4px 4px 0 0;
 }
 
 .tab-btn:hover {
@@ -352,16 +392,18 @@ body {
 
 .item-card {
     background: var(--white);
-    border: 2px solid var(--border-color);
-    border-radius: 6px;
+    border: 2px solid var(--gray-200);
+    border-radius: 8px;
     padding: 0.9rem;
     transition: transform 0.3s, box-shadow 0.3s;
     position: relative;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
 }
 
 .item-card:hover {
     transform: translateY(-3px);
-    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    border-color: var(--gray-300);
 }
 
 .item-category-badge {
@@ -387,7 +429,7 @@ body {
 
 .item-info {
     margin-bottom: 0.3rem;
-    color: var(--gray);
+    color: var(--gray-600);
     font-size: 0.8rem;
     line-height: 1.4;
 }
@@ -460,7 +502,7 @@ body {
     background: var(--white);
     padding: 1.5rem;
     border-radius: 8px;
-    border: 2px solid var(--primary-color);
+    border: 2px solid var(--gray-300);
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
     position: sticky;
     top: 2rem;
@@ -492,8 +534,8 @@ body {
 
 .goal-card {
     background: var(--white);
-    border: 2px solid var(--border-color);
-    border-radius: 6px;
+    border: 2px solid var(--gray-200);
+    border-radius: 8px;
     padding: 0.9rem;
     transition: transform 0.3s, box-shadow 0.3s;
     position: relative;
@@ -513,7 +555,7 @@ body {
 
 .goal-info {
     margin-bottom: 0.5rem;
-    color: var(--gray);
+    color: var(--gray-600);
     font-size: 0.85rem;
     line-height: 1.5;
 }
@@ -574,10 +616,11 @@ body {
     background: var(--white);
     padding: 1.5rem;
     border-radius: 8px;
-    border: 2px solid var(--primary-color);
+    border: 2px solid var(--gray-300);
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
     position: sticky;
     top: 2rem;
+    background: linear-gradient(to bottom, var(--white) 0%, var(--gray-50) 100%);
 }
 
 .costs-summary-card h3 {
@@ -606,15 +649,17 @@ body {
 
 .cost-card {
     background: var(--white);
-    border: 2px solid var(--border-color);
-    border-radius: 6px;
+    border: 2px solid var(--gray-200);
+    border-radius: 8px;
     padding: 0.9rem;
     transition: transform 0.3s, box-shadow 0.3s;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
 }
 
 .cost-card:hover {
     transform: translateY(-3px);
-    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    border-color: var(--gray-300);
 }
 
 .cost-card h3 {
@@ -626,7 +671,7 @@ body {
 
 .cost-info {
     margin-bottom: 0.5rem;
-    color: var(--gray);
+    color: var(--gray-600);
     font-size: 0.85rem;
     line-height: 1.5;
 }
@@ -661,7 +706,7 @@ body {
     background: var(--white);
     padding: 1.5rem;
     border-radius: 8px;
-    border: 2px solid var(--primary-color);
+    border: 2px solid var(--gray-300);
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
     position: sticky;
     top: 2rem;
@@ -693,8 +738,8 @@ body {
 
 .goal-card {
     background: var(--white);
-    border: 2px solid var(--border-color);
-    border-radius: 6px;
+    border: 2px solid var(--gray-200);
+    border-radius: 8px;
     padding: 0.9rem;
     transition: transform 0.3s, box-shadow 0.3s;
     position: relative;
@@ -714,7 +759,7 @@ body {
 
 .goal-info {
     margin-bottom: 0.5rem;
-    color: var(--gray);
+    color: var(--gray-600);
     font-size: 0.85rem;
     line-height: 1.5;
 }
@@ -775,10 +820,11 @@ body {
     background: var(--white);
     padding: 1.5rem;
     border-radius: 8px;
-    border: 2px solid var(--primary-color);
+    border: 2px solid var(--gray-300);
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
     position: sticky;
     top: 2rem;
+    background: linear-gradient(to bottom, var(--white) 0%, var(--gray-50) 100%);
 }
 
 .overall-summary-card h3 {
@@ -800,13 +846,18 @@ body {
 .stat-item {
     text-align: center;
     padding: 1rem;
-    background: var(--light-gray);
+    background: var(--gray-50);
     border-radius: 6px;
-    border: 1px solid var(--border-color);
+    border: 1px solid var(--gray-200);
+    transition: background-color 0.2s;
+}
+
+.stat-item:hover {
+    background-color: var(--gray-100);
 }
 
 .stat-item h4 {
-    color: var(--gray);
+    color: var(--gray-600);
     font-size: 0.85rem;
     margin-bottom: 0.5rem;
     font-weight: 500;
@@ -833,15 +884,17 @@ body {
 
 .group-card {
     background: var(--white);
-    border: 2px solid var(--border-color);
-    border-radius: 6px;
+    border: 2px solid var(--gray-200);
+    border-radius: 8px;
     padding: 0.9rem;
     transition: transform 0.3s, box-shadow 0.3s;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
 }
 
 .group-card:hover {
     transform: translateY(-3px);
-    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    border-color: var(--gray-300);
 }
 
 .group-card h3 {
@@ -853,7 +906,7 @@ body {
 
 .group-info {
     margin-bottom: 0.6rem;
-    color: var(--gray);
+    color: var(--gray-600);
     font-size: 0.85rem;
     line-height: 1.5;
 }
@@ -898,6 +951,7 @@ body {
     max-height: 90vh;
     overflow-y: auto;
     box-shadow: 0 5px 20px rgba(0, 0, 0, 0.3);
+    border: 1px solid var(--gray-200);
 }
 
 .modal-content.large {
@@ -960,15 +1014,16 @@ body {
 }
 
 .summary-card {
-    background: var(--light-gray);
+    background: var(--gray-50);
     padding: 1.5rem;
     border-radius: 8px;
     text-align: center;
-    border: 2px solid var(--border-color);
+    border: 2px solid var(--gray-200);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
 }
 
 .summary-card h3 {
-    color: var(--gray);
+    color: var(--gray-600);
     font-size: 0.9rem;
     margin-bottom: 0.5rem;
     text-transform: uppercase;
@@ -996,11 +1051,19 @@ body {
 }
 
 .day-card {
-    background: var(--light-gray);
-    border: 2px solid var(--border-color);
+    background: var(--gray-50);
+    border: 2px solid var(--gray-200);
     border-radius: 8px;
     padding: 1rem;
     text-align: center;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    transition: transform 0.3s, box-shadow 0.3s;
+}
+
+.day-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+    border-color: var(--gray-300);
 }
 
 .day-card h4 {
@@ -1010,7 +1073,7 @@ body {
 
 .day-sales {
     font-size: 0.9rem;
-    color: var(--gray);
+    color: var(--gray-600);
     margin-bottom: 0.5rem;
 }
 
@@ -1029,16 +1092,23 @@ body {
 }
 
 .items-summary-list {
-    background: var(--light-gray);
+    background: var(--gray-50);
     border-radius: 8px;
     padding: 1rem;
+    border: 1px solid var(--gray-200);
 }
 
 .summary-item {
     display: flex;
     justify-content: space-between;
     padding: 0.75rem;
-    border-bottom: 1px solid var(--border-color);
+    border-bottom: 1px solid var(--gray-200);
+    transition: background-color 0.2s;
+}
+
+.summary-item:hover {
+    background-color: var(--gray-100);
+    border-radius: 4px;
 }
 
 .summary-item:last-child {
@@ -1079,6 +1149,7 @@ body {
     background: var(--white);
     border-radius: 8px;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    border: 1px solid var(--gray-200);
 }
 
 .filter-group {
@@ -1094,11 +1165,18 @@ body {
 
 .filter-select {
     padding: 0.5rem 1rem;
-    border: 2px solid var(--border-color);
+    border: 2px solid var(--gray-200);
     border-radius: 5px;
     font-size: 0.9rem;
     background: var(--white);
     cursor: pointer;
+    color: var(--dark-gray);
+}
+
+.filter-select:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
 }
 
 .charts-grid {
@@ -1112,8 +1190,8 @@ body {
     background: var(--white);
     padding: 1.5rem;
     border-radius: 8px;
+    border: 1px solid var(--gray-200);
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-    border: 2px solid var(--border-color);
 }
 
 .chart-card h3 {
@@ -1141,12 +1219,18 @@ body {
     padding: 1.5rem;
     border-radius: 8px;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-    border: 2px solid var(--border-color);
+    border: 2px solid var(--gray-200);
     text-align: center;
+    transition: transform 0.3s, box-shadow 0.3s;
+}
+
+.stat-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
 .stat-card h4 {
-    color: var(--gray);
+    color: var(--gray-600);
     font-size: 0.9rem;
     margin-bottom: 0.5rem;
     font-weight: 500;
