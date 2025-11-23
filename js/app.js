@@ -474,9 +474,48 @@ class LojaApp {
         
         if (costPrice) {
             costPrice.addEventListener('input', () => this.calculateCostTotal());
+            // Converter vírgula em ponto automaticamente
+            costPrice.addEventListener('input', (e) => {
+                let value = e.target.value;
+                if (value.includes(',')) {
+                    e.target.value = value.replace(',', '.');
+                }
+            });
             console.log('✅ [APP.JS] Listener anexado ao costPrice');
         } else {
             console.error('❌ [APP.JS] costPrice não encontrado!');
+        }
+        
+        // Adicionar conversão de vírgula para ponto em todos os campos de preço
+        const itemPrice = document.getElementById('itemPrice');
+        const salePrice = document.getElementById('salePrice');
+        const goalAmount = document.getElementById('goalAmount');
+        
+        if (itemPrice) {
+            itemPrice.addEventListener('input', (e) => {
+                let value = e.target.value;
+                if (value.includes(',')) {
+                    e.target.value = value.replace(',', '.');
+                }
+            });
+        }
+        
+        if (salePrice) {
+            salePrice.addEventListener('input', (e) => {
+                let value = e.target.value;
+                if (value.includes(',')) {
+                    e.target.value = value.replace(',', '.');
+                }
+            });
+        }
+        
+        if (goalAmount) {
+            goalAmount.addEventListener('input', (e) => {
+                let value = e.target.value;
+                if (value.includes(',')) {
+                    e.target.value = value.replace(',', '.');
+                }
+            });
         }
 
         // Modal de meta
@@ -626,6 +665,7 @@ class LojaApp {
         if (item) {
             title.textContent = 'Editar Item';
             document.getElementById('itemCategory').value = item.category || 'Roupas';
+            // Exibir preço com ponto (input type="number" usa ponto)
             document.getElementById('itemPrice').value = item.price || '';
             
             // Preencher campos baseado na categoria
@@ -670,7 +710,7 @@ class LojaApp {
         const item = {
             id: this.currentEditingItem ? this.currentEditingItem.id : Date.now().toString(),
             category: category,
-            price: parseFloat(document.getElementById('itemPrice').value)
+            price: this.parsePrice(document.getElementById('itemPrice').value)
         };
 
         // Adicionar campos baseado na categoria
@@ -1190,7 +1230,7 @@ class LojaApp {
 
         const itemId = document.getElementById('saleItem').value;
         const quantity = parseInt(document.getElementById('saleQuantity').value);
-        const price = parseFloat(document.getElementById('salePrice').value);
+        const price = this.parsePrice(document.getElementById('salePrice').value);
 
         if (!itemId) {
             alert('Por favor, selecione um item.');
@@ -1388,7 +1428,7 @@ class LojaApp {
 
     calculateCostTotal() {
         const quantity = parseFloat(document.getElementById('costQuantity').value) || 0;
-        const price = parseFloat(document.getElementById('costPrice').value) || 0;
+        const price = this.parsePrice(document.getElementById('costPrice').value);
         const total = quantity * price;
         document.getElementById('costTotal').value = total.toFixed(2);
     }
@@ -1399,7 +1439,7 @@ class LojaApp {
         const itemId = document.getElementById('costItem').value;
         const date = document.getElementById('costDate').value;
         const quantity = parseInt(document.getElementById('costQuantity').value);
-        const price = parseFloat(document.getElementById('costPrice').value);
+        const price = this.parsePrice(document.getElementById('costPrice').value);
 
         if (!itemId) {
             alert('Por favor, selecione um item.');
@@ -1525,7 +1565,7 @@ class LojaApp {
         e.preventDefault();
 
         const month = document.getElementById('goalMonth').value;
-        const amount = parseFloat(document.getElementById('goalAmount').value);
+        const amount = this.parsePrice(document.getElementById('goalAmount').value);
         const description = document.getElementById('goalDescription').value.trim();
 
         if (amount <= 0) {
@@ -1766,6 +1806,16 @@ class LojaApp {
         const div = document.createElement('div');
         div.textContent = text;
         return div.innerHTML;
+    }
+    
+    // Função para converter vírgula em ponto (formato brasileiro para formato numérico)
+    parsePrice(value) {
+        if (!value) return 0;
+        // Converter string para número, substituindo vírgula por ponto
+        const stringValue = String(value).trim();
+        const normalizedValue = stringValue.replace(',', '.');
+        const parsed = parseFloat(normalizedValue);
+        return isNaN(parsed) ? 0 : parsed;
     }
     
     // ========== GERENCIAMENTO DE ESTOQUE ==========
