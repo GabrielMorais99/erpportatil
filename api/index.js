@@ -69,21 +69,30 @@ module.exports = async (req, res) => {
 
                 // Headers AGRESSIVOS para evitar cache (forçar sempre 200 OK)
                 // IMPORTANTE: Sempre retornar 200, nunca 304
+                // Vercel CDN também respeita esses headers
                 res.setHeader(
                     'Cache-Control',
-                    'no-cache, no-store, must-revalidate, max-age=0, private'
+                    'no-cache, no-store, must-revalidate, max-age=0, private, proxy-revalidate'
                 );
                 res.setHeader('Pragma', 'no-cache');
                 res.setHeader('Expires', '0');
+                res.setHeader('X-Content-Type-Options', 'nosniff');
 
                 // Sempre atualizar Last-Modified para forçar recarregamento
                 const now = new Date();
                 res.setHeader('Last-Modified', now.toUTCString());
+                
+                // Adicionar header para evitar cache do Vercel CDN
+                res.setHeader('Vary', '*');
 
                 // Remover headers que podem causar 304
                 res.removeHeader('ETag');
                 res.removeHeader('If-Modified-Since');
                 res.removeHeader('If-None-Match');
+                
+                // IMPORTANTE: Garantir que Vercel CDN não faça cache
+                res.setHeader('CDN-Cache-Control', 'no-cache');
+                res.setHeader('Surrogate-Control', 'no-store');
 
                 // CORS headers (caso necessário)
                 res.setHeader('Access-Control-Allow-Origin', '*');

@@ -13,15 +13,24 @@
         },
         {
             "src": "/css/(.*)",
-            "dest": "/api/index.js"
+            "dest": "/api/index.js",
+            "headers": {
+                "Cache-Control": "no-cache, no-store, must-revalidate, max-age=0"
+            }
         },
         {
             "src": "/js/(.*)",
-            "dest": "/api/index.js"
+            "dest": "/api/index.js",
+            "headers": {
+                "Cache-Control": "no-cache, no-store, must-revalidate, max-age=0"
+            }
         },
         {
-            "src": "/(.*\\.(css|js|json|png|jpg|ico|svg|woff|woff2))",
-            "dest": "/api/index.js"
+            "src": "/(.*\\.(css|js))",
+            "dest": "/api/index.js",
+            "headers": {
+                "Cache-Control": "no-cache, no-store, must-revalidate, max-age=0"
+            }
         },
         {
             "src": "/(.*)",
