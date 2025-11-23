@@ -18,7 +18,9 @@
         />
         <meta name="apple-mobile-web-app-title" content="Loja Vendas" />
         <title>Gestão Financeira</title>
-        <link rel="stylesheet" href="/css/style.css" id="css-link" />
+        <!-- Preload CSS para evitar FOUC -->
+        <link rel="preload" href="/css/style.css" as="style" />
+        <link rel="stylesheet" href="/css/style.css" />
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
         <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
         <link rel="manifest" href="/manifest.json" />
@@ -29,14 +31,16 @@
             href="/icon-192.png"
         />
         <link rel="apple-touch-icon" href="/icon-192.png" />
+        <!-- Estilo inline para evitar FOUC - esconde conteúdo até CSS carregar -->
+        <style>
+            body { visibility: hidden; opacity: 0; }
+            body.loaded { visibility: visible; opacity: 1; transition: opacity 0.2s; }
+        </style>
         <script>
-            // Forçar recarregamento do CSS adicionando timestamp
-            (function () {
-                const cssLink = document.getElementById('css-link');
-                if (cssLink) {
-                    cssLink.href = '/css/style.css?v=' + Date.now();
-                }
-            })();
+            // Mostrar conteúdo quando CSS carregar
+            window.addEventListener('load', function() {
+                document.body.classList.add('loaded');
+            });
         </script>
     </head>
     <body>
