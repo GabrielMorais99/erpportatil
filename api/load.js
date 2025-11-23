@@ -26,7 +26,8 @@ module.exports = async (req, res) => {
                 data: {
                     items: [],
                     groups: [],
-                    costs: []
+                    costs: [],
+                    goals: []
                 },
                 timestamp: new Date().toISOString()
             });
@@ -46,7 +47,8 @@ module.exports = async (req, res) => {
                 data: result.record || {
                     items: [],
                     groups: [],
-                    costs: []
+                    costs: [],
+                    goals: []
                 },
                 timestamp: new Date().toISOString(),
                 binId: JSONBIN_BIN_ID
@@ -59,7 +61,8 @@ module.exports = async (req, res) => {
                 data: {
                     items: [],
                     groups: [],
-                    costs: []
+                    costs: [],
+                    goals: []
                 },
                 timestamp: new Date().toISOString()
             });
