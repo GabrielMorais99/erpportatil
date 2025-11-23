@@ -12,6 +12,7 @@ Thumbs.db
 
 # Arquivos de backup
 *.txt
+*.md
 !exemplo-dados.txt
 
 # Ícones PWA (manter no repositório)
