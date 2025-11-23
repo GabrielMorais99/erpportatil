@@ -17,7 +17,7 @@
             content="black-translucent"
         />
         <meta name="apple-mobile-web-app-title" content="Loja Vendas" />
-        <title>Loja - Gestão financeira</title>
+        <title>Gestão Financeira</title>
         <link rel="stylesheet" href="/css/style.css" id="css-link" />
         <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
         <link rel="manifest" href="/manifest.json" />
@@ -41,7 +41,7 @@
     <body>
         <div class="app-container">
             <header class="header">
-                <h1>Loja - Gestão financeira</h1>
+                <h1>Gestão Financeira</h1>
                 <div class="header-actions">
                     <button id="themeToggleBtn" class="theme-toggle-btn" title="Alternar tema">
                         🎨
@@ -65,16 +65,16 @@
             <main class="main-content">
                 <div class="toolbar">
                     <button type="button" id="newItemBtn" class="btn-primary">
-                        + Cadastrar Novo Item
+                        + Novo Produto
                     </button>
                     <button type="button" id="newGroupBtn" class="btn-primary">
-                        + Criar Grupo Mensal
+                        + Grupo Mensal
                     </button>
                     <div class="search-filter">
                         <input
                             type="text"
                             id="searchInput"
-                            placeholder="Pesquisar por nome ou marca..."
+                            placeholder="Pesquisar por nome, marca, modelo, capacidade, cor ou tamanho..."
                         />
                         <select id="monthFilter">
                             <option value="">Todos os meses</option>
@@ -364,10 +364,18 @@
         <div id="itemModal" class="modal">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h2 id="modalTitle">Cadastrar Novo Item</h2>
+                    <h2 id="modalTitle">Novo Produto</h2>
                     <span class="close">&times;</span>
                 </div>
                 <form id="itemForm">
+                    <div class="form-group">
+                        <label for="itemCategory">Categoria *</label>
+                        <select id="itemCategory" required>
+                            <option value="">Selecione...</option>
+                            <option value="Roupas">Roupas</option>
+                            <option value="Eletrônicos">Eletrônicos</option>
+                        </select>
+                    </div>
                     <div class="form-group">
                         <label for="itemName">Nome do Item *</label>
                         <input type="text" id="itemName" required />
@@ -376,10 +384,40 @@
                         <label for="itemBrand">Marca *</label>
                         <input type="text" id="itemBrand" required />
                     </div>
-                    <div class="form-group">
-                        <label for="itemSize">Tamanho *</label>
-                        <input type="text" id="itemSize" required />
+                    
+                    <!-- Campos específicos para Roupas -->
+                    <div id="clothingFields" class="category-specific-fields" style="display: none;">
+                        <div class="form-group">
+                            <label for="itemSize">Tamanho (opcional)</label>
+                            <input type="text" id="itemSize" placeholder="Ex: P, M, G, 42, etc." />
+                        </div>
+                        <div class="form-group">
+                            <label for="itemGender">Gênero (opcional)</label>
+                            <select id="itemGender">
+                                <option value="">Selecione...</option>
+                                <option value="Masculino">Masculino</option>
+                                <option value="Feminino">Feminino</option>
+                                <option value="Unissex">Unissex</option>
+                            </select>
+                        </div>
                     </div>
+                    
+                    <!-- Campos específicos para Eletrônicos -->
+                    <div id="electronicsFields" class="category-specific-fields" style="display: none;">
+                        <div class="form-group">
+                            <label for="itemModel">Modelo (opcional)</label>
+                            <input type="text" id="itemModel" placeholder="Ex: iPhone 14, Galaxy S23, etc." />
+                        </div>
+                        <div class="form-group">
+                            <label for="itemCapacity">Capacidade (opcional)</label>
+                            <input type="text" id="itemCapacity" placeholder="Ex: 128GB, 256GB, 512GB, etc." />
+                        </div>
+                        <div class="form-group">
+                            <label for="itemColor">Cor (opcional)</label>
+                            <input type="text" id="itemColor" placeholder="Ex: Preto, Branco, Azul, etc." />
+                        </div>
+                    </div>
+                    
                     <div class="form-group">
                         <label for="itemPrice">Preço *</label>
                         <input
@@ -389,15 +427,6 @@
                             min="0.01"
                             required
                         />
-                    </div>
-                    <div class="form-group">
-                        <label for="itemGender">Gênero *</label>
-                        <select id="itemGender" required>
-                            <option value="">Selecione...</option>
-                            <option value="Masculino">Masculino</option>
-                            <option value="Feminino">Feminino</option>
-                            <option value="Unissex">Unissex</option>
-                        </select>
                     </div>
                     <div class="modal-actions">
                         <button
@@ -419,7 +448,7 @@
         <div id="groupModal" class="modal">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h2>Criar Grupo Mensal</h2>
+                    <h2>Grupo Mensal</h2>
                     <span class="close">&times;</span>
                 </div>
                 <form id="groupForm">
@@ -498,7 +527,12 @@
                         </div>
                     </div>
                     <div class="days-container">
-                        <h3>Vendas por Dia</h3>
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                            <h3>Vendas por Dia</h3>
+                            <button type="button" class="btn-primary" id="manageStockBtn" style="padding: 0.5rem 1rem; font-size: 0.9rem;">
+                                Gerenciar Estoque do Dia
+                            </button>
+                        </div>
                         <div id="daysList" class="days-list">
                             <!-- Dias serão inseridos aqui -->
                         </div>
@@ -632,6 +666,60 @@
                         </button>
                     </div>
                 </form>
+            </div>
+        </div>
+
+        <!-- Modal: Gerenciar Estoque do Dia -->
+        <div id="stockModal" class="modal">
+            <div class="modal-content large">
+                <div class="modal-header">
+                    <h2 id="stockModalTitle">Gerenciar Estoque do Dia</h2>
+                    <span class="close">&times;</span>
+                </div>
+                <div class="stock-content">
+                    <div class="form-group">
+                        <label for="stockDay">Dia *</label>
+                        <input type="number" id="stockDay" min="1" max="31" required />
+                    </div>
+                    <div class="stock-items-list" id="stockItemsList">
+                        <!-- Itens com estoque serão inseridos aqui -->
+                    </div>
+                </div>
+                <div class="modal-actions">
+                    <button type="button" class="btn-secondary" id="cancelStockBtn">
+                        Cancelar
+                    </button>
+                    <button type="button" class="btn-primary" id="saveStockBtn">
+                        Salvar Estoque
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal: Gerenciar Estoque do Dia -->
+        <div id="stockModal" class="modal">
+            <div class="modal-content large">
+                <div class="modal-header">
+                    <h2 id="stockModalTitle">Gerenciar Estoque do Dia</h2>
+                    <span class="close">&times;</span>
+                </div>
+                <div class="stock-content">
+                    <div class="form-group">
+                        <label for="stockDay">Dia *</label>
+                        <input type="number" id="stockDay" min="1" max="31" required />
+                    </div>
+                    <div class="stock-items-list" id="stockItemsList" style="max-height: 400px; overflow-y: auto; margin-top: 1rem;">
+                        <!-- Itens com estoque serão inseridos aqui -->
+                    </div>
+                </div>
+                <div class="modal-actions">
+                    <button type="button" class="btn-secondary" id="cancelStockBtn">
+                        Cancelar
+                    </button>
+                    <button type="button" class="btn-primary" id="saveStockBtn">
+                        Salvar Estoque
+                    </button>
+                </div>
             </div>
         </div>
 

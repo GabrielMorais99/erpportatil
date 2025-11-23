@@ -339,12 +339,20 @@ class LojaApp {
         const itemForm = document.getElementById('itemForm');
         const cancelBtn = document.getElementById('cancelBtn');
         const itemModalClose = document.querySelector('#itemModal .close');
+        const itemCategory = document.getElementById('itemCategory');
         
         if (itemForm) {
             itemForm.addEventListener('submit', (e) => this.saveItem(e));
             console.log('✅ [APP.JS] Listener anexado ao itemForm');
         } else {
             console.error('❌ [APP.JS] itemForm não encontrado!');
+        }
+        
+        if (itemCategory) {
+            itemCategory.addEventListener('change', () => this.toggleCategoryFields());
+            console.log('✅ [APP.JS] Listener anexado ao itemCategory');
+        } else {
+            console.error('❌ [APP.JS] itemCategory não encontrado!');
         }
         
         if (cancelBtn) {
@@ -491,6 +499,45 @@ class LojaApp {
             console.log('✅ [APP.JS] Listener anexado ao goalModal .close');
         }
 
+        // Modal de estoque
+        const manageStockBtn = document.getElementById('manageStockBtn');
+        const saveStockBtn = document.getElementById('saveStockBtn');
+        const cancelStockBtn = document.getElementById('cancelStockBtn');
+        const stockModalClose = document.querySelector('#stockModal .close');
+        const stockDay = document.getElementById('stockDay');
+        
+        if (manageStockBtn) {
+            manageStockBtn.addEventListener('click', () => this.openStockModal());
+            console.log('✅ [APP.JS] Listener anexado ao manageStockBtn');
+        }
+        
+        if (saveStockBtn) {
+            saveStockBtn.addEventListener('click', () => this.saveStock());
+            console.log('✅ [APP.JS] Listener anexado ao saveStockBtn');
+        }
+        
+        if (cancelStockBtn) {
+            cancelStockBtn.addEventListener('click', () => this.closeStockModal());
+            console.log('✅ [APP.JS] Listener anexado ao cancelStockBtn');
+        }
+        
+        if (stockModalClose) {
+            stockModalClose.addEventListener('click', () => this.closeStockModal());
+            console.log('✅ [APP.JS] Listener anexado ao stockModal .close');
+        }
+        
+        if (stockDay) {
+            stockDay.addEventListener('change', () => this.updateStockItemsList());
+            console.log('✅ [APP.JS] Listener anexado ao stockDay');
+        }
+
+        // Atualizar estoque disponível ao selecionar item no modal de venda
+        const saleItem = document.getElementById('saleItem');
+        if (saleItem) {
+            saleItem.addEventListener('change', () => this.updateStockInfo());
+            console.log('✅ [APP.JS] Listener anexado ao saleItem para atualizar estoque');
+        }
+
         // Fechar modais ao clicar fora
         window.addEventListener('click', (e) => {
             if (e.target.classList.contains('modal')) {
@@ -501,6 +548,30 @@ class LojaApp {
 
     // ========== GESTÃO DE ITENS ==========
     
+    toggleCategoryFields() {
+        const category = document.getElementById('itemCategory').value;
+        const clothingFields = document.getElementById('clothingFields');
+        const electronicsFields = document.getElementById('electronicsFields');
+        
+        if (category === 'Roupas') {
+            clothingFields.style.display = 'block';
+            electronicsFields.style.display = 'none';
+            // Limpar campos de eletrônicos
+            document.getElementById('itemModel').value = '';
+            document.getElementById('itemCapacity').value = '';
+            document.getElementById('itemColor').value = '';
+        } else if (category === 'Eletrônicos') {
+            clothingFields.style.display = 'none';
+            electronicsFields.style.display = 'block';
+            // Limpar campos de roupas
+            document.getElementById('itemSize').value = '';
+            document.getElementById('itemGender').value = '';
+        } else {
+            clothingFields.style.display = 'none';
+            electronicsFields.style.display = 'none';
+        }
+    }
+
     openItemModal(item = null) {
         this.currentEditingItem = item;
         const modal = document.getElementById('itemModal');
@@ -509,14 +580,29 @@ class LojaApp {
 
         if (item) {
             title.textContent = 'Editar Item';
-            document.getElementById('itemName').value = item.name;
-            document.getElementById('itemBrand').value = item.brand;
-            document.getElementById('itemSize').value = item.size;
-            document.getElementById('itemPrice').value = item.price;
-            document.getElementById('itemGender').value = item.gender;
+            document.getElementById('itemCategory').value = item.category || 'Roupas';
+            document.getElementById('itemName').value = item.name || '';
+            document.getElementById('itemBrand').value = item.brand || '';
+            document.getElementById('itemPrice').value = item.price || '';
+            
+            // Preencher campos específicos baseado na categoria
+            if (item.category === 'Roupas') {
+                document.getElementById('itemSize').value = item.size || '';
+                document.getElementById('itemGender').value = item.gender || '';
+            } else if (item.category === 'Eletrônicos') {
+                document.getElementById('itemModel').value = item.model || '';
+                document.getElementById('itemCapacity').value = item.capacity || '';
+                document.getElementById('itemColor').value = item.color || '';
+            }
+            
+            // Atualizar campos visíveis
+            this.toggleCategoryFields();
         } else {
-            title.textContent = 'Cadastrar Novo Item';
+            title.textContent = 'Novo Produto';
             form.reset();
+            // Esconder campos específicos ao criar novo item
+            document.getElementById('clothingFields').style.display = 'none';
+            document.getElementById('electronicsFields').style.display = 'none';
         }
 
         modal.classList.add('active');
@@ -530,16 +616,32 @@ class LojaApp {
     saveItem(e) {
         e.preventDefault();
 
+        const category = document.getElementById('itemCategory').value;
+        
         const item = {
             id: this.currentEditingItem ? this.currentEditingItem.id : Date.now().toString(),
+            category: category,
             name: document.getElementById('itemName').value.trim(),
             brand: document.getElementById('itemBrand').value.trim(),
-            size: document.getElementById('itemSize').value.trim(),
-            price: parseFloat(document.getElementById('itemPrice').value),
-            gender: document.getElementById('itemGender').value
+            price: parseFloat(document.getElementById('itemPrice').value)
         };
 
+        // Adicionar campos específicos baseado na categoria
+        if (category === 'Roupas') {
+            item.size = document.getElementById('itemSize').value.trim() || '';
+            item.gender = document.getElementById('itemGender').value || '';
+        } else if (category === 'Eletrônicos') {
+            item.model = document.getElementById('itemModel').value.trim() || '';
+            item.capacity = document.getElementById('itemCapacity').value.trim() || '';
+            item.color = document.getElementById('itemColor').value.trim() || '';
+        }
+
         // Validações
+        if (!category) {
+            alert('Por favor, selecione uma categoria.');
+            return;
+        }
+        
         if (item.price <= 0) {
             alert('O preço deve ser maior que zero.');
             return;
@@ -583,10 +685,19 @@ class LojaApp {
 
         // Filtro de pesquisa
         if (searchTerm) {
-            filteredItems = filteredItems.filter(item => 
-                item.name.toLowerCase().includes(searchTerm) ||
-                item.brand.toLowerCase().includes(searchTerm)
-            );
+            filteredItems = filteredItems.filter(item => {
+                const search = searchTerm.toLowerCase();
+                const category = item.category || 'Roupas';
+                
+                return (
+                    item.name.toLowerCase().includes(search) ||
+                    item.brand.toLowerCase().includes(search) ||
+                    (category === 'Roupas' && item.size && item.size.toLowerCase().includes(search)) ||
+                    (category === 'Eletrônicos' && item.model && item.model.toLowerCase().includes(search)) ||
+                    (category === 'Eletrônicos' && item.capacity && item.capacity.toLowerCase().includes(search)) ||
+                    (category === 'Eletrônicos' && item.color && item.color.toLowerCase().includes(search))
+                );
+            });
         }
 
         // Filtro por mês (itens vendidos no mês)
@@ -609,19 +720,37 @@ class LojaApp {
             return;
         }
 
-        grid.innerHTML = filteredItems.map(item => `
+        grid.innerHTML = filteredItems.map(item => {
+            const category = item.category || 'Roupas'; // Compatibilidade com itens antigos
+            let categoryInfo = '';
+            
+            if (category === 'Roupas') {
+                categoryInfo = `
+                    ${item.size ? `<div class="item-info">Tamanho: ${this.escapeHtml(item.size)}</div>` : ''}
+                    ${item.gender ? `<div class="item-info">Gênero: ${this.escapeHtml(item.gender)}</div>` : ''}
+                `;
+            } else if (category === 'Eletrônicos') {
+                categoryInfo = `
+                    ${item.model ? `<div class="item-info">Modelo: ${this.escapeHtml(item.model)}</div>` : ''}
+                    ${item.capacity ? `<div class="item-info">Capacidade: ${this.escapeHtml(item.capacity)}</div>` : ''}
+                    ${item.color ? `<div class="item-info">Cor: ${this.escapeHtml(item.color)}</div>` : ''}
+                `;
+            }
+            
+            return `
             <div class="item-card">
+                <div class="item-category-badge">${this.escapeHtml(category)}</div>
                 <h3>${this.escapeHtml(item.name)}</h3>
                 <div class="item-info">Marca: ${this.escapeHtml(item.brand)}</div>
-                <div class="item-info">Tamanho: ${this.escapeHtml(item.size)}</div>
-                <div class="item-info">Gênero: ${this.escapeHtml(item.gender)}</div>
+                ${categoryInfo}
                 <div class="item-price">R$ ${item.price.toFixed(2).replace('.', ',')}</div>
                 <div class="item-actions">
                     <button class="btn-small btn-edit" onclick="app.openItemModal(${JSON.stringify(item).replace(/"/g, '&quot;')})">Editar</button>
                     <button class="btn-small btn-delete" onclick="app.deleteItem('${item.id}')">Excluir</button>
                 </div>
             </div>
-        `).join('');
+        `;
+        }).join('');
     }
 
     // ========== GRUPOS MENSAIS ==========
@@ -654,10 +783,15 @@ class LojaApp {
         const [year, monthNum] = month.split('-');
         const daysInMonth = new Date(year, monthNum, 0).getDate();
         for (let day = 1; day <= daysInMonth; day++) {
-            group.days.push({
+            const dayObj = {
                 day: day,
                 sales: []
-            });
+            };
+            // Adicionar stock apenas se não existir (para compatibilidade)
+            if (!dayObj.stock) {
+                dayObj.stock = {};
+            }
+            group.days.push(dayObj);
         }
 
         this.groups.push(group);
@@ -794,6 +928,9 @@ class LojaApp {
         // Resetar formulário
         document.getElementById('saleForm').reset();
         document.getElementById('saleDate').value = day;
+        
+        // Atualizar informação de estoque
+        this.updateStockInfo();
 
         // Se houver vendas, mostrar lista antes do formulário
         if (dayData && dayData.sales.length > 0) {
@@ -806,6 +943,44 @@ class LojaApp {
         }
 
         document.getElementById('saleModal').classList.add('active');
+    }
+    
+    updateStockInfo() {
+        if (!this.currentGroup || !this.currentSaleDay) return;
+        
+        const itemId = document.getElementById('saleItem').value;
+        const stockInfo = document.getElementById('stockInfo');
+        
+        if (!itemId || !stockInfo) return;
+        
+        const dayData = this.currentGroup.days.find(d => d.day === this.currentSaleDay);
+        if (!dayData) return;
+        
+        // Garantir que stock existe
+        if (!dayData.stock) {
+            dayData.stock = {};
+        }
+        
+        const stockQuantity = dayData.stock[itemId] || 0;
+        const soldQuantity = dayData.sales
+            .filter(sale => sale.itemId === itemId)
+            .reduce((sum, sale) => sum + sale.quantity, 0);
+        const availableStock = stockQuantity - soldQuantity;
+        
+        if (stockQuantity > 0) {
+            stockInfo.textContent = `Estoque disponível: ${availableStock} un. (Total: ${stockQuantity} un. - Vendido: ${soldQuantity} un.)`;
+            if (availableStock < 0) {
+                stockInfo.style.color = '#dc3545';
+                stockInfo.textContent += ' ⚠️ Estoque negativo!';
+            } else if (availableStock === 0) {
+                stockInfo.style.color = '#ffc107';
+            } else {
+                stockInfo.style.color = '#28a745';
+            }
+        } else {
+            stockInfo.textContent = 'Nenhum estoque cadastrado para este item neste dia.';
+            stockInfo.style.color = '#6c757d';
+        }
     }
 
     showDaySales(dayData) {
@@ -923,6 +1098,24 @@ class LojaApp {
 
         const dayData = group.days.find(d => d.day === this.currentSaleDay);
         if (!dayData) return;
+        
+        // Garantir que stock existe
+        if (!dayData.stock) {
+            dayData.stock = {};
+        }
+        
+        // Verificar estoque disponível
+        const stockQuantity = dayData.stock[itemId] || 0;
+        const soldQuantity = dayData.sales
+            .filter(sale => sale.itemId === itemId)
+            .reduce((sum, sale) => sum + sale.quantity, 0);
+        const availableStock = stockQuantity - soldQuantity;
+        
+        if (stockQuantity > 0 && quantity > availableStock) {
+            if (!confirm(`Atenção! Estoque disponível: ${availableStock} un. Deseja registrar ${quantity} un. mesmo assim?`)) {
+                return;
+            }
+        }
 
         // Adicionar venda
         dayData.sales.push({
@@ -1412,6 +1605,132 @@ class LojaApp {
         const div = document.createElement('div');
         div.textContent = text;
         return div.innerHTML;
+    }
+    
+    // ========== GERENCIAMENTO DE ESTOQUE ==========
+    
+    openStockModal() {
+        if (!this.currentGroup) {
+            alert('Por favor, abra um grupo mensal primeiro.');
+            return;
+        }
+        
+        const modal = document.getElementById('stockModal');
+        const [year, month] = this.currentGroup.month.split('-');
+        const monthNames = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 
+                           'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'];
+        
+        document.getElementById('stockModalTitle').textContent = 
+            `Gerenciar Estoque - ${monthNames[parseInt(month) - 1]} ${year}`;
+        
+        // Definir dia padrão como 1
+        document.getElementById('stockDay').value = 1;
+        this.updateStockItemsList();
+        
+        modal.classList.add('active');
+    }
+    
+    closeStockModal() {
+        document.getElementById('stockModal').classList.remove('active');
+    }
+    
+    updateStockItemsList() {
+        if (!this.currentGroup) return;
+        
+        const day = parseInt(document.getElementById('stockDay').value);
+        if (!day || day < 1 || day > 31) {
+            document.getElementById('stockItemsList').innerHTML = 
+                '<p style="text-align: center; color: var(--gray); padding: 1rem;">Selecione um dia válido.</p>';
+            return;
+        }
+        
+        const dayData = this.currentGroup.days.find(d => d.day === day);
+        if (!dayData) {
+            document.getElementById('stockItemsList').innerHTML = 
+                '<p style="text-align: center; color: var(--gray); padding: 1rem;">Dia não encontrado.</p>';
+            return;
+        }
+        
+        // Garantir que stock existe
+        if (!dayData.stock) {
+            dayData.stock = {};
+        }
+        
+        const stockItemsList = document.getElementById('stockItemsList');
+        
+        if (this.items.length === 0) {
+            stockItemsList.innerHTML = 
+                '<p style="text-align: center; color: var(--gray); padding: 1rem;">Nenhum item cadastrado.</p>';
+            return;
+        }
+        
+        stockItemsList.innerHTML = this.items.map(item => {
+            const stockQuantity = dayData.stock[item.id] || 0;
+            const soldQuantity = dayData.sales
+                .filter(sale => sale.itemId === item.id)
+                .reduce((sum, sale) => sum + sale.quantity, 0);
+            const availableStock = stockQuantity - soldQuantity;
+            
+            return `
+                <div style="display: flex; justify-content: space-between; align-items: center; padding: 1rem; background: white; margin-bottom: 0.5rem; border-radius: 5px; border: 1px solid var(--border-color);">
+                    <div style="flex: 1;">
+                        <strong>${this.escapeHtml(item.name)}</strong> - ${this.escapeHtml(item.brand)}
+                        <div style="font-size: 0.85rem; color: var(--gray); margin-top: 0.25rem;">
+                            Estoque: ${stockQuantity} un. | Vendido: ${soldQuantity} un. | Disponível: ${availableStock} un.
+                        </div>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 0.5rem;">
+                        <input 
+                            type="number" 
+                            id="stock_${item.id}" 
+                            value="${stockQuantity}" 
+                            min="0" 
+                            style="width: 80px; padding: 0.5rem; border: 2px solid var(--border-color); border-radius: 5px;"
+                            placeholder="0"
+                        />
+                        <span style="font-size: 0.9rem; color: var(--gray);">un.</span>
+                    </div>
+                </div>
+            `;
+        }).join('');
+    }
+    
+    saveStock() {
+        if (!this.currentGroup) return;
+        
+        const day = parseInt(document.getElementById('stockDay').value);
+        if (!day || day < 1 || day > 31) {
+            alert('Por favor, selecione um dia válido.');
+            return;
+        }
+        
+        const dayData = this.currentGroup.days.find(d => d.day === day);
+        if (!dayData) {
+            alert('Dia não encontrado.');
+            return;
+        }
+        
+        // Garantir que stock existe
+        if (!dayData.stock) {
+            dayData.stock = {};
+        }
+        
+        // Salvar estoque de cada item
+        this.items.forEach(item => {
+            const input = document.getElementById(`stock_${item.id}`);
+            if (input) {
+                const quantity = parseInt(input.value) || 0;
+                if (quantity >= 0) {
+                    dayData.stock[item.id] = quantity;
+                }
+            }
+        });
+        
+        this.saveData();
+        this.updateStockItemsList();
+        this.renderGroupView(this.currentGroup);
+        
+        alert('Estoque salvo com sucesso!');
     }
 
     closeViewGroupModal() {
@@ -1951,8 +2270,41 @@ class LojaApp {
                     this.costs = cloudData.costs || [];
                     this.goals = cloudData.goals || [];
                     
-                    // Sincronizar com localStorage
-                    localStorage.setItem('lojaData', JSON.stringify(cloudData));
+                    // Migração: adicionar categoria "Roupas" para itens antigos sem categoria
+                    let needsSave = false;
+                    this.items = this.items.map(item => {
+                        if (!item.category) {
+                            item.category = 'Roupas';
+                            needsSave = true;
+                        }
+                        return item;
+                    });
+                    
+                    // Migração: adicionar stock: {} para dias antigos sem estoque
+                    this.groups.forEach(group => {
+                        group.days.forEach(day => {
+                            if (!day.stock) {
+                                day.stock = {};
+                                needsSave = true;
+                            }
+                        });
+                    });
+                    
+                    // Se houve migração, salvar novamente
+                    if (needsSave) {
+                        const updatedData = {
+                            items: this.items,
+                            groups: this.groups,
+                            costs: this.costs,
+                            goals: this.goals
+                        };
+                        localStorage.setItem('lojaData', JSON.stringify(updatedData));
+                        this.saveData(); // Salvar na nuvem também
+                    } else {
+                        // Sincronizar com localStorage
+                        localStorage.setItem('lojaData', JSON.stringify(cloudData));
+                    }
+                    
                     console.log('✅ Dados carregados da nuvem');
                     console.log(`📊 Items: ${this.items.length} | Grupos: ${this.groups.length} | Custos: ${this.costs.length}`);
                     return Promise.resolve();
@@ -1977,6 +2329,39 @@ class LojaApp {
                 this.groups = data.groups || [];
                 this.costs = data.costs || [];
                 this.goals = data.goals || [];
+                
+                // Migração: adicionar categoria "Roupas" para itens antigos sem categoria
+                let needsSave = false;
+                this.items = this.items.map(item => {
+                    if (!item.category) {
+                        item.category = 'Roupas';
+                        needsSave = true;
+                    }
+                    return item;
+                });
+                
+                // Migração: adicionar stock: {} para dias antigos sem estoque
+                this.groups.forEach(group => {
+                    group.days.forEach(day => {
+                        if (!day.stock) {
+                            day.stock = {};
+                            needsSave = true;
+                        }
+                    });
+                });
+                
+                // Se houve migração, salvar novamente
+                if (needsSave) {
+                    const updatedData = {
+                        items: this.items,
+                        groups: this.groups,
+                        costs: this.costs,
+                        goals: this.goals
+                    };
+                    localStorage.setItem('lojaData', JSON.stringify(updatedData));
+                    this.saveData(); // Salvar na nuvem também
+                }
+                
                 console.log('✅ Dados carregados do localStorage');
             } catch (e) {
                 console.error('❌ Erro ao carregar dados:', e);
@@ -2029,6 +2414,15 @@ class LojaApp {
                     this.groups = data.groups || [];
                     this.costs = data.costs || [];
                     this.goals = data.goals || [];
+                    
+                    // Migração: adicionar categoria "Roupas" para itens antigos sem categoria
+                    this.items = this.items.map(item => {
+                        if (!item.category) {
+                            item.category = 'Roupas';
+                        }
+                        return item;
+                    });
+                    
                     this.saveData();
                     this.renderItems();
                     this.renderGroups();

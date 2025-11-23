@@ -83,6 +83,12 @@ body {
     transition: border-color 0.3s;
 }
 
+.category-specific-fields {
+    margin-top: 1rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--border-color);
+}
+
 .form-group input:focus,
 .form-group select:focus {
     outline: none;
@@ -350,6 +356,7 @@ body {
     border-radius: 6px;
     padding: 0.9rem;
     transition: transform 0.3s, box-shadow 0.3s;
+    position: relative;
 }
 
 .item-card:hover {
@@ -357,11 +364,25 @@ body {
     box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
 }
 
+.item-category-badge {
+    position: absolute;
+    top: 0.5rem;
+    right: 0.5rem;
+    background: var(--primary-color);
+    color: var(--white);
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    font-size: 0.7rem;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
 .item-card h3 {
     color: var(--primary-color);
     margin-bottom: 0.4rem;
     font-size: 1rem;
     font-weight: 600;
+    padding-right: 4rem;
 }
 
 .item-info {
