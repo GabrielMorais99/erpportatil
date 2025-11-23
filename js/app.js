@@ -1971,6 +1971,11 @@ class LojaApp {
     };
 
     renderDashboard() {
+        console.log('📊 [DASHBOARD] ========== INICIANDO RENDERIZAÇÃO DO DASHBOARD ==========');
+        console.log('📊 [DASHBOARD] Verificando Chart.js...');
+        console.log('📊 [DASHBOARD] typeof Chart:', typeof Chart);
+        console.log('📊 [DASHBOARD] window.chartJsLoaded:', window.chartJsLoaded);
+        
         // Verificar se Chart.js está carregado, se não, aguardar
         if (typeof Chart === 'undefined' || (window.chartJsLoaded === false)) {
             console.warn('⚠️ [DASHBOARD] Chart.js não está carregado ainda, aguardando...');
@@ -1983,6 +1988,7 @@ class LojaApp {
                     console.error('❌ [DASHBOARD] Chart.js não está disponível após aguardar. Verifique se o CDN está acessível.');
                     // Tentar carregar Chart.js manualmente
                     if (!document.querySelector('script[src*="chart.js"]')) {
+                        console.log('🔄 [DASHBOARD] Tentando carregar Chart.js manualmente...');
                         const script = document.createElement('script');
                         script.src = 'https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js';
                         script.onload = () => {
@@ -1996,9 +2002,13 @@ class LojaApp {
                         document.head.appendChild(script);
                     } else {
                         // Script já existe, aguardar mais um pouco
+                        console.log('⏳ [DASHBOARD] Script Chart.js já existe, aguardando carregamento...');
                         setTimeout(() => {
                             if (typeof Chart !== 'undefined') {
+                                console.log('✅ [DASHBOARD] Chart.js carregado após espera, renderizando...');
                                 this.renderDashboard();
+                            } else {
+                                console.error('❌ [DASHBOARD] Chart.js ainda não está disponível após 1.5s');
                             }
                         }, 1000);
                     }
@@ -2007,6 +2017,7 @@ class LojaApp {
             return;
         }
 
+        console.log('✅ [DASHBOARD] Chart.js está disponível!');
         console.log('📊 [DASHBOARD] Renderizando dashboard...');
         console.log('📊 [DASHBOARD] Groups:', this.groups.length);
         console.log('📊 [DASHBOARD] Costs:', this.costs.length);
@@ -2060,18 +2071,26 @@ class LojaApp {
     }
 
     renderSalesByMonthChart() {
+        console.log('📊 [CHART] Iniciando renderSalesByMonthChart...');
+        
         if (typeof Chart === 'undefined') {
-            console.warn('⚠️ [CHART] Chart.js não está disponível para renderSalesByMonthChart');
+            console.error('❌ [CHART] Chart.js não está disponível para renderSalesByMonthChart');
             return;
         }
         
+        console.log('✅ [CHART] Chart.js está disponível');
+        
         const ctx = document.getElementById('salesByMonthChart');
         if (!ctx) {
-            console.warn('⚠️ [CHART] Canvas salesByMonthChart não encontrado');
+            console.error('❌ [CHART] Canvas salesByMonthChart não encontrado');
             return;
         }
+        
+        console.log('✅ [CHART] Canvas salesByMonthChart encontrado');
 
         const filteredGroups = this.getFilteredData();
+        console.log(`📊 [CHART] Grupos filtrados: ${filteredGroups.length}`);
+        
         const monthlyData = {};
 
         // CORRIGIDO: Percorrer days -> sales
@@ -2098,56 +2117,76 @@ class LojaApp {
         const salesData = labels.map(label => monthlyData[label].sales);
         const valuesData = labels.map(label => monthlyData[label].value);
 
+        console.log(`📊 [CHART] Labels: ${labels.join(', ')}`);
+        console.log(`📊 [CHART] Sales Data: ${salesData.join(', ')}`);
+        console.log(`📊 [CHART] Values Data: ${valuesData.join(', ')}`);
+
         if (labels.length === 0) {
+            console.warn('⚠️ [CHART] Nenhum dado para renderizar, limpando canvas');
             ctx.getContext('2d').clearRect(0, 0, ctx.width, ctx.height);
             return;
         }
 
-        this.charts.salesByMonth = new Chart(ctx, {
-            type: 'line',
-            data: {
-                labels: labels,
-                datasets: [{
-                    label: 'Quantidade de Vendas',
-                    data: salesData,
-                    borderColor: '#dc3545',
-                    backgroundColor: 'rgba(220, 53, 69, 0.1)',
-                    tension: 0.4
-                }, {
-                    label: 'Valor (R$)',
-                    data: valuesData,
-                    borderColor: '#28a745',
-                    backgroundColor: 'rgba(40, 167, 69, 0.1)',
-                    tension: 0.4,
-                    yAxisID: 'y1'
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: true,
-                scales: {
-                    y: {
-                        beginAtZero: true,
-                        title: {
-                            display: true,
-                            text: 'Quantidade'
-                        }
-                    },
-                    y1: {
-                        type: 'linear',
-                        display: true,
-                        position: 'right',
-                        title: {
-                            display: true,
-                            text: 'Valor (R$)'
+        console.log('📊 [CHART] Criando gráfico Chart.js...');
+        
+        // Destruir gráfico anterior se existir
+        if (this.charts.salesByMonth) {
+            console.log('🔄 [CHART] Destruindo gráfico anterior');
+            this.charts.salesByMonth.destroy();
+        }
+
+        try {
+            this.charts.salesByMonth = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Quantidade de Vendas',
+                        data: salesData,
+                        borderColor: '#dc3545',
+                        backgroundColor: 'rgba(220, 53, 69, 0.1)',
+                        tension: 0.4
+                    }, {
+                        label: 'Valor (R$)',
+                        data: valuesData,
+                        borderColor: '#28a745',
+                        backgroundColor: 'rgba(40, 167, 69, 0.1)',
+                        tension: 0.4,
+                        yAxisID: 'y1'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: 'Quantidade'
+                            }
                         },
-                        grid: {
-                            drawOnChartArea: false
+                        y1: {
+                            type: 'linear',
+                            display: true,
+                            position: 'right',
+                            title: {
+                                display: true,
+                                text: 'Valor (R$)'
+                            },
+                            grid: {
+                                drawOnChartArea: false
+                            }
                         }
                     }
                 }
-            }
-        });
+            });
+            console.log('✅ [CHART] Gráfico salesByMonth criado com sucesso!');
+            console.log('📊 [CHART] Chart instance:', this.charts.salesByMonth);
+        } catch (error) {
+            console.error('❌ [CHART] Erro ao criar gráfico salesByMonth:', error);
+            console.error('❌ [CHART] Erro stack:', error.stack);
+        }
     }
 
     renderProfitVsCostsChart() {
