@@ -7,10 +7,12 @@ class LojaApp {
         this.items = [];
         this.groups = [];
         this.costs = [];
+        this.goals = [];
         this.currentEditingItem = null;
         this.currentGroup = null;
         this.currentSaleDay = null;
         this.currentEditingCost = null;
+        this.currentEditingGoal = null;
         
         this.init();
     }
@@ -70,6 +72,7 @@ class LojaApp {
                 this.renderItems();
                 this.renderGroups();
                 this.renderCosts();
+                this.renderGoals();
                 this.updateMonthFilter();
                 this.updateOverallSummary();
             });
@@ -78,6 +81,7 @@ class LojaApp {
             this.renderItems();
             this.renderGroups();
             this.renderCosts();
+            this.renderGoals();
             this.updateMonthFilter();
             this.updateOverallSummary();
         }, 100);
@@ -459,6 +463,32 @@ class LojaApp {
             console.log('✅ [APP.JS] Listener anexado ao costPrice');
         } else {
             console.error('❌ [APP.JS] costPrice não encontrado!');
+        }
+
+        // Modal de meta
+        const goalForm = document.getElementById('goalForm');
+        const newGoalBtn = document.getElementById('newGoalBtn');
+        const cancelGoalBtn = document.getElementById('cancelGoalBtn');
+        const goalModalClose = document.querySelector('#goalModal .close');
+        
+        if (newGoalBtn) {
+            newGoalBtn.addEventListener('click', () => this.openGoalModal());
+            console.log('✅ [APP.JS] Listener anexado ao newGoalBtn');
+        }
+        
+        if (goalForm) {
+            goalForm.addEventListener('submit', (e) => this.saveGoal(e));
+            console.log('✅ [APP.JS] Listener anexado ao goalForm');
+        }
+        
+        if (cancelGoalBtn) {
+            cancelGoalBtn.addEventListener('click', () => this.closeGoalModal());
+            console.log('✅ [APP.JS] Listener anexado ao cancelGoalBtn');
+        }
+        
+        if (goalModalClose) {
+            goalModalClose.addEventListener('click', () => this.closeGoalModal());
+            console.log('✅ [APP.JS] Listener anexado ao goalModal .close');
         }
 
         // Fechar modais ao clicar fora
@@ -1141,6 +1171,191 @@ class LojaApp {
         }).join('');
     }
 
+    // ========== GERENCIAMENTO DE METAS ==========
+
+    openGoalModal(goal = null) {
+        this.currentEditingGoal = goal;
+        const modal = document.getElementById('goalModal');
+        const form = document.getElementById('goalForm');
+        const title = document.getElementById('goalModalTitle');
+
+        if (goal) {
+            title.textContent = 'Editar Meta';
+            document.getElementById('goalMonth').value = goal.month;
+            document.getElementById('goalAmount').value = goal.amount;
+            document.getElementById('goalDescription').value = goal.description || '';
+        } else {
+            title.textContent = 'Criar Nova Meta';
+            // Definir mês atual como padrão
+            const now = new Date();
+            const currentMonth = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+            document.getElementById('goalMonth').value = currentMonth;
+            form.reset();
+            document.getElementById('goalMonth').value = currentMonth;
+        }
+
+        modal.classList.add('active');
+    }
+
+    closeGoalModal() {
+        document.getElementById('goalModal').classList.remove('active');
+        document.getElementById('goalForm').reset();
+        this.currentEditingGoal = null;
+    }
+
+    saveGoal(e) {
+        e.preventDefault();
+
+        const month = document.getElementById('goalMonth').value;
+        const amount = parseFloat(document.getElementById('goalAmount').value);
+        const description = document.getElementById('goalDescription').value.trim();
+
+        if (amount <= 0) {
+            alert('O valor da meta deve ser maior que zero.');
+            return;
+        }
+
+        const goal = {
+            id: this.currentEditingGoal ? this.currentEditingGoal.id : Date.now().toString(),
+            month: month,
+            amount: amount,
+            description: description,
+            createdAt: this.currentEditingGoal ? this.currentEditingGoal.createdAt : new Date().toISOString()
+        };
+
+        if (this.currentEditingGoal) {
+            const index = this.goals.findIndex(g => g.id === this.currentEditingGoal.id);
+            if (index !== -1) {
+                this.goals[index] = goal;
+            }
+        } else {
+            // Verificar se já existe meta para este mês
+            const existingGoal = this.goals.find(g => g.month === month);
+            if (existingGoal) {
+                if (!confirm('Já existe uma meta para este mês. Deseja substituí-la?')) {
+                    return;
+                }
+                this.goals = this.goals.filter(g => g.month !== month);
+            }
+            this.goals.push(goal);
+        }
+
+        this.saveData();
+        this.renderGoals();
+        this.closeGoalModal();
+    }
+
+    deleteGoal(goalId) {
+        if (confirm('Tem certeza que deseja excluir esta meta?')) {
+            this.goals = this.goals.filter(g => g.id !== goalId);
+            this.saveData();
+            this.renderGoals();
+        }
+    }
+
+    getMonthSales(month) {
+        const group = this.groups.find(g => g.month === month);
+        if (!group) return 0;
+
+        let total = 0;
+        group.days.forEach(day => {
+            day.sales.forEach(sale => {
+                total += sale.price * sale.quantity;
+            });
+        });
+        return total;
+    }
+
+    renderGoals() {
+        const list = document.getElementById('goalsList');
+        const currentMonthGoalEl = document.getElementById('currentMonthGoal');
+        const currentMonthSalesEl = document.getElementById('currentMonthSales');
+        const goalProgressEl = document.getElementById('goalProgress');
+        const goalStatusEl = document.getElementById('goalStatus');
+        const goalProgressItem = document.getElementById('goalProgressItem');
+        const goalStatusItem = document.getElementById('goalStatusItem');
+
+        // Calcular meta e vendas do mês atual
+        const now = new Date();
+        const currentMonth = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+        const currentGoal = this.goals.find(g => g.month === currentMonth);
+        const currentSales = this.getMonthSales(currentMonth);
+
+        if (currentGoal) {
+            const progress = (currentSales / currentGoal.amount) * 100;
+            const remaining = currentGoal.amount - currentSales;
+
+            if (currentMonthGoalEl) {
+                currentMonthGoalEl.textContent = `R$ ${currentGoal.amount.toFixed(2).replace('.', ',')}`;
+            }
+            if (currentMonthSalesEl) {
+                currentMonthSalesEl.textContent = `R$ ${currentSales.toFixed(2).replace('.', ',')}`;
+            }
+            if (goalProgressEl) {
+                goalProgressEl.textContent = `${Math.min(progress, 100).toFixed(1)}%`;
+            }
+            if (goalStatusEl) {
+                if (progress >= 100) {
+                    goalStatusEl.textContent = '✅ Meta Atingida!';
+                    goalStatusEl.style.color = '#28a745';
+                    if (goalProgressItem) {
+                        goalProgressItem.querySelector('.goal-progress-fill')?.classList.add('success');
+                    }
+                } else if (progress >= 75) {
+                    goalStatusEl.textContent = '🟡 Quase lá!';
+                    goalStatusEl.style.color = '#ffc107';
+                } else {
+                    goalStatusEl.textContent = `Faltam R$ ${remaining.toFixed(2).replace('.', ',')}`;
+                    goalStatusEl.style.color = '#dc3545';
+                }
+            }
+        } else {
+            if (currentMonthGoalEl) currentMonthGoalEl.textContent = 'R$ 0,00';
+            if (currentMonthSalesEl) currentMonthSalesEl.textContent = `R$ ${currentSales.toFixed(2).replace('.', ',')}`;
+            if (goalProgressEl) goalProgressEl.textContent = '-';
+            if (goalStatusEl) {
+                goalStatusEl.textContent = 'Sem meta definida';
+                goalStatusEl.style.color = '#6c757d';
+            }
+        }
+
+        if (this.goals.length === 0) {
+            list.innerHTML = '<p style="grid-column: 1/-1; text-align: center; color: var(--gray); padding: 2rem;">Nenhuma meta cadastrada ainda.</p>';
+            return;
+        }
+
+        // Ordenar por mês (mais recente primeiro)
+        const sortedGoals = [...this.goals].sort((a, b) => b.month.localeCompare(a.month));
+
+        list.innerHTML = sortedGoals.map(goal => {
+            const [year, month] = goal.month.split('-');
+            const monthNames = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 
+                              'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'];
+            const monthName = monthNames[parseInt(month) - 1];
+            const sales = this.getMonthSales(goal.month);
+            const progress = (sales / goal.amount) * 100;
+            const progressClass = progress >= 100 ? 'success' : progress >= 75 ? 'warning' : 'danger';
+
+            return `
+                <div class="goal-card">
+                    <h3>${monthName}/${year}</h3>
+                    ${goal.description ? `<div class="goal-info"><strong>Descrição:</strong> ${this.escapeHtml(goal.description)}</div>` : ''}
+                    <div class="goal-info"><strong>Meta:</strong> R$ ${goal.amount.toFixed(2).replace('.', ',')}</div>
+                    <div class="goal-info"><strong>Vendas:</strong> R$ ${sales.toFixed(2).replace('.', ',')}</div>
+                    <div class="goal-progress-bar">
+                        <div class="goal-progress-fill ${progressClass}" style="width: ${Math.min(progress, 100)}%">
+                            ${Math.min(progress, 100).toFixed(1)}%
+                        </div>
+                    </div>
+                    <div class="goal-actions">
+                        <button class="btn-small btn-edit" onclick="app.openGoalModal(${JSON.stringify(goal).replace(/"/g, '&quot;')})">Editar</button>
+                        <button class="btn-small btn-delete" onclick="app.deleteGoal('${goal.id}')">Excluir</button>
+                    </div>
+                </div>
+            `;
+        }).join('');
+    }
+
     calculateTotalCosts() {
         return this.costs.reduce((sum, cost) => sum + cost.total, 0);
     }
@@ -1181,6 +1396,11 @@ class LojaApp {
         if (tab === 'dashboard') {
             this.renderDashboard();
         }
+        
+        // Se for a aba goals, renderizar as metas
+        if (tab === 'goals') {
+            this.renderGoals();
+        }
     }
 
     getItemName(itemId) {
@@ -1205,6 +1425,7 @@ class LojaApp {
         this.currentGroup = null;
         this.currentSaleDay = null;
         this.currentEditingCost = null;
+        this.currentEditingGoal = null;
     }
 
     // ========== DASHBOARD E GRÁFICOS ==========
@@ -1670,6 +1891,7 @@ class LojaApp {
             items: this.items,
             groups: this.groups,
             costs: this.costs,
+            goals: this.goals,
             version: '1.0',
             lastUpdate: new Date().toISOString()
         };
@@ -1719,13 +1941,15 @@ class LojaApp {
                 // Verificar se há dados ou se é apenas estrutura vazia
                 const hasData = (cloudData.items && cloudData.items.length > 0) ||
                                (cloudData.groups && cloudData.groups.length > 0) ||
-                               (cloudData.costs && cloudData.costs.length > 0);
+                               (cloudData.costs && cloudData.costs.length > 0) ||
+                               (cloudData.goals && cloudData.goals.length > 0);
                 
                 if (hasData) {
                     // Dados da nuvem encontrados
                     this.items = cloudData.items || [];
                     this.groups = cloudData.groups || [];
                     this.costs = cloudData.costs || [];
+                    this.goals = cloudData.goals || [];
                     
                     // Sincronizar com localStorage
                     localStorage.setItem('lojaData', JSON.stringify(cloudData));
@@ -1752,12 +1976,14 @@ class LojaApp {
                 this.items = data.items || [];
                 this.groups = data.groups || [];
                 this.costs = data.costs || [];
+                this.goals = data.goals || [];
                 console.log('✅ Dados carregados do localStorage');
             } catch (e) {
                 console.error('❌ Erro ao carregar dados:', e);
                 this.items = [];
                 this.groups = [];
                 this.costs = [];
+                this.goals = [];
             }
         } else {
             console.log('ℹ️ Nenhum dado encontrado, iniciando vazio');
@@ -1771,6 +1997,7 @@ class LojaApp {
             items: this.items,
             groups: this.groups,
             costs: this.costs,
+            goals: this.goals,
             version: '1.0',
             exportDate: new Date().toISOString()
         };
@@ -1801,10 +2028,12 @@ class LojaApp {
                     this.items = data.items || [];
                     this.groups = data.groups || [];
                     this.costs = data.costs || [];
+                    this.goals = data.goals || [];
                     this.saveData();
                     this.renderItems();
                     this.renderGroups();
                     this.renderCosts();
+                    this.renderGoals();
                     this.updateMonthFilter();
                     this.updateOverallSummary();
                     alert('Dados importados com sucesso!');

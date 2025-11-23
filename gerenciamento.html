@@ -95,6 +95,9 @@
                     <button class="tab-btn" data-tab="costs">
                         Custos de Compra
                     </button>
+                    <button class="tab-btn" data-tab="goals">
+                        Metas
+                    </button>
                 </div>
 
                 <!-- Tab: Dashboard -->
@@ -309,6 +312,43 @@
                             </div>
                             <div id="costsList" class="costs-list">
                                 <!-- Custos serão inseridos aqui via JavaScript -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tab: Metas -->
+                <div id="goalsTab" class="tab-content">
+                    <div class="goals-layout">
+                        <div class="goals-summary-card">
+                            <h3>Resumo de Metas</h3>
+                            <div class="summary-stats">
+                                <div class="stat-item">
+                                    <h4>Meta do Mês Atual</h4>
+                                    <p id="currentMonthGoal">R$ 0,00</p>
+                                </div>
+                                <div class="stat-item">
+                                    <h4>Vendas do Mês</h4>
+                                    <p id="currentMonthSales">R$ 0,00</p>
+                                </div>
+                                <div class="stat-item" id="goalProgressItem">
+                                    <h4>Progresso</h4>
+                                    <p id="goalProgress">0%</p>
+                                </div>
+                                <div class="stat-item" id="goalStatusItem">
+                                    <h4>Status</h4>
+                                    <p id="goalStatus">-</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="goals-content">
+                            <div class="toolbar-goals">
+                                <button type="button" id="newGoalBtn" class="btn-primary">
+                                    + Criar Nova Meta
+                                </button>
+                            </div>
+                            <div id="goalsList" class="goals-list">
+                                <!-- Metas serão inseridas aqui via JavaScript -->
                             </div>
                         </div>
                     </div>
@@ -584,6 +624,48 @@
                             type="button"
                             class="btn-secondary"
                             id="cancelCostBtn"
+                        >
+                            Cancelar
+                        </button>
+                        <button type="submit" class="btn-primary">
+                            Salvar
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Modal: Criar/Editar Meta -->
+        <div id="goalModal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2 id="goalModalTitle">Criar Nova Meta</h2>
+                    <span class="close">&times;</span>
+                </div>
+                <form id="goalForm">
+                    <div class="form-group">
+                        <label for="goalMonth">Mês/Ano *</label>
+                        <input type="month" id="goalMonth" required />
+                    </div>
+                    <div class="form-group">
+                        <label for="goalAmount">Valor da Meta (R$) *</label>
+                        <input
+                            type="number"
+                            id="goalAmount"
+                            step="0.01"
+                            min="0.01"
+                            required
+                        />
+                    </div>
+                    <div class="form-group">
+                        <label for="goalDescription">Descrição (opcional)</label>
+                        <input type="text" id="goalDescription" placeholder="Ex: Meta de vendas de verão" />
+                    </div>
+                    <div class="modal-actions">
+                        <button
+                            type="button"
+                            class="btn-secondary"
+                            id="cancelGoalBtn"
                         >
                             Cancelar
                         </button>
