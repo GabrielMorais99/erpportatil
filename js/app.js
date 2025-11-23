@@ -566,7 +566,7 @@ class LojaApp {
             // Mostrar campos básicos (Nome e Marca)
             if (clothingBasicFields) clothingBasicFields.style.display = 'block';
             if (itemName) {
-                itemName.required = true;
+                itemName.required = false; // Nome da roupa é opcional
                 itemName.parentElement.style.display = 'block';
             }
             if (itemBrand) {
@@ -598,6 +598,7 @@ class LojaApp {
             // Mostrar campos específicos de eletrônicos
             if (electronicsFields) electronicsFields.style.display = 'block';
             // Limpar campos de roupas
+            document.getElementById('itemStyle').value = '';
             document.getElementById('itemSize').value = '';
             document.getElementById('itemGender').value = '';
         } else {
@@ -631,6 +632,7 @@ class LojaApp {
             if (item.category === 'Roupas') {
                 document.getElementById('itemName').value = item.name || '';
                 document.getElementById('itemBrand').value = item.brand || '';
+                document.getElementById('itemStyle').value = item.style || '';
                 document.getElementById('itemSize').value = item.size || '';
                 document.getElementById('itemGender').value = item.gender || '';
             } else if (item.category === 'Eletrônicos') {
@@ -673,8 +675,9 @@ class LojaApp {
 
         // Adicionar campos baseado na categoria
         if (category === 'Roupas') {
-            item.name = document.getElementById('itemName').value.trim();
+            item.name = document.getElementById('itemName').value.trim() || '';
             item.brand = document.getElementById('itemBrand').value.trim();
+            item.style = document.getElementById('itemStyle').value.trim() || '';
             item.size = document.getElementById('itemSize').value.trim() || '';
             item.gender = document.getElementById('itemGender').value || '';
         } else if (category === 'Eletrônicos') {
@@ -703,10 +706,6 @@ class LojaApp {
         }
         
         if (category === 'Roupas') {
-            if (!item.name) {
-                alert('Por favor, preencha o nome do item.');
-                return;
-            }
             if (!item.brand) {
                 alert('Por favor, preencha a marca.');
                 return;
@@ -768,6 +767,7 @@ class LojaApp {
                 return (
                     item.name.toLowerCase().includes(search) ||
                     (category === 'Roupas' && item.brand && item.brand.toLowerCase().includes(search)) ||
+                    (category === 'Roupas' && item.style && item.style.toLowerCase().includes(search)) ||
                     (category === 'Roupas' && item.size && item.size.toLowerCase().includes(search)) ||
                     (category === 'Eletrônicos' && item.model && item.model.toLowerCase().includes(search)) ||
                     (category === 'Eletrônicos' && item.capacity && item.capacity.toLowerCase().includes(search)) ||
@@ -802,6 +802,7 @@ class LojaApp {
             
             if (category === 'Roupas') {
                 categoryInfo = `
+                    ${item.style ? `<div class="item-info">Estilo: ${this.escapeHtml(item.style)}</div>` : ''}
                     ${item.size ? `<div class="item-info">Tamanho: ${this.escapeHtml(item.size)}</div>` : ''}
                     ${item.gender ? `<div class="item-info">Gênero: ${this.escapeHtml(item.gender)}</div>` : ''}
                 `;
@@ -814,15 +815,28 @@ class LojaApp {
             }
             
             // Para eletrônicos, mostrar modelo como título principal
-            const displayName = category === 'Eletrônicos' && item.model 
-                ? item.model 
-                : item.name;
+            // Para roupas, se não tiver nome, usar marca + estilo ou apenas marca
+            let displayName;
+            if (category === 'Eletrônicos' && item.model) {
+                displayName = item.model;
+            } else if (category === 'Roupas') {
+                if (item.name) {
+                    displayName = item.name;
+                } else {
+                    // Se não tiver nome, usar marca + estilo ou apenas marca
+                    const parts = [item.brand || ''];
+                    if (item.style) parts.push(item.style);
+                    displayName = parts.filter(p => p).join(' - ') || 'Roupa';
+                }
+            } else {
+                displayName = item.name || 'Item';
+            }
             
             return `
             <div class="item-card">
                 <div class="item-category-badge">${this.escapeHtml(category)}</div>
                 <h3>${this.escapeHtml(displayName)}</h3>
-                ${category === 'Roupas' ? `<div class="item-info">Marca: ${this.escapeHtml(item.brand)}</div>` : ''}
+                ${category === 'Roupas' && item.name ? `<div class="item-info">Marca: ${this.escapeHtml(item.brand)}</div>` : ''}
                 ${categoryInfo}
                 <div class="item-price">R$ ${item.price.toFixed(2).replace('.', ',')}</div>
                 <div class="item-actions">
@@ -1008,7 +1022,16 @@ class LojaApp {
                     const displayName = item.model || item.name;
                     return `<option value="${item.id}">${this.escapeHtml(displayName)}</option>`;
                 } else {
-                    return `<option value="${item.id}">${this.escapeHtml(item.name)} - ${this.escapeHtml(item.brand || '')}</option>`;
+                    // Para roupas, se não tiver nome, usar marca + estilo ou apenas marca
+                    let displayName;
+                    if (item.name) {
+                        displayName = `${item.name} - ${item.brand || ''}`;
+                    } else {
+                        const parts = [item.brand || ''];
+                        if (item.style) parts.push(item.style);
+                        displayName = parts.filter(p => p).join(' - ') || 'Roupa';
+                    }
+                    return `<option value="${item.id}">${this.escapeHtml(displayName)}</option>`;
                 }
             }).join('');
 
@@ -1329,7 +1352,16 @@ class LojaApp {
                     const displayName = item.model || item.name;
                     return `<option value="${item.id}">${this.escapeHtml(displayName)}</option>`;
                 } else {
-                    return `<option value="${item.id}">${this.escapeHtml(item.name)} - ${this.escapeHtml(item.brand || '')}</option>`;
+                    // Para roupas, se não tiver nome, usar marca + estilo ou apenas marca
+                    let displayName;
+                    if (item.name) {
+                        displayName = `${item.name} - ${item.brand || ''}`;
+                    } else {
+                        const parts = [item.brand || ''];
+                        if (item.style) parts.push(item.style);
+                        displayName = parts.filter(p => p).join(' - ') || 'Roupa';
+                    }
+                    return `<option value="${item.id}">${this.escapeHtml(displayName)}</option>`;
                 }
             }).join('');
 
@@ -1710,7 +1742,24 @@ class LojaApp {
 
     getItemName(itemId) {
         const item = this.items.find(i => i.id === itemId);
-        return item ? item.name : 'Item não encontrado';
+        if (!item) return 'Item não encontrado';
+        
+        const category = item.category || 'Roupas';
+        
+        if (category === 'Eletrônicos') {
+            return item.model || item.name || 'Eletrônico';
+        } else if (category === 'Roupas') {
+            if (item.name) {
+                return item.name;
+            } else {
+                // Se não tiver nome, usar marca + estilo ou apenas marca
+                const parts = [item.brand || ''];
+                if (item.style) parts.push(item.style);
+                return parts.filter(p => p).join(' - ') || 'Roupa';
+            }
+        }
+        
+        return item.name || 'Item';
     }
 
     escapeHtml(text) {

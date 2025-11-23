@@ -403,8 +403,8 @@
                     <!-- Campos para Roupas (Nome e Marca) -->
                     <div id="clothingBasicFields">
                         <div class="form-group">
-                            <label for="itemName">Nome do Item *</label>
-                            <input type="text" id="itemName" required />
+                            <label for="itemName">Nome da Roupa (opcional)</label>
+                            <input type="text" id="itemName" placeholder="Ex: Camiseta, Calça, etc." />
                         </div>
                         <div class="form-group">
                             <label for="itemBrand">Marca *</label>
@@ -414,6 +414,10 @@
                     
                     <!-- Campos específicos para Roupas -->
                     <div id="clothingFields" class="category-specific-fields" style="display: none;">
+                        <div class="form-group">
+                            <label for="itemStyle">Estilo da Roupa (opcional)</label>
+                            <input type="text" id="itemStyle" placeholder="Ex: Casual, Esportivo, Social, etc." />
+                        </div>
                         <div class="form-group">
                             <label for="itemSize">Tamanho (opcional)</label>
                             <input type="text" id="itemSize" placeholder="Ex: P, M, G, 42, etc." />
