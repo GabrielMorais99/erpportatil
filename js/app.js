@@ -1194,6 +1194,427 @@ class LojaApp {
         this.currentEditingCost = null;
     }
 
+    // ========== DASHBOARD E GRÁFICOS ==========
+    
+    charts = {
+        salesByMonth: null,
+        profitVsCosts: null,
+        topItems: null,
+        profitEvolution: null
+    };
+
+    renderDashboard() {
+        if (typeof Chart === 'undefined') {
+            console.error('Chart.js não está carregado!');
+            return;
+        }
+
+        console.log('📊 [DASHBOARD] Renderizando dashboard...');
+        console.log('📊 [DASHBOARD] Groups:', this.groups.length);
+        console.log('📊 [DASHBOARD] Costs:', this.costs.length);
+        console.log('📊 [DASHBOARD] Items:', this.items.length);
+
+        // Destruir gráficos existentes
+        Object.values(this.charts).forEach(chart => {
+            if (chart) {
+                chart.destroy();
+            }
+        });
+
+        // Renderizar gráficos
+        this.renderSalesByMonthChart();
+        this.renderProfitVsCostsChart();
+        this.renderTopItemsChart();
+        this.renderProfitEvolutionChart();
+        this.updateDashboardStats();
+    }
+
+    getFilteredData() {
+        const period = document.getElementById('periodFilter')?.value || 'all';
+        const now = new Date();
+        let cutoffDate = null;
+
+        switch(period) {
+            case 'month':
+                cutoffDate = new Date(now.getFullYear(), now.getMonth() - 1, now.getDate());
+                break;
+            case '3months':
+                cutoffDate = new Date(now.getFullYear(), now.getMonth() - 3, now.getDate());
+                break;
+            case '6months':
+                cutoffDate = new Date(now.getFullYear(), now.getMonth() - 6, now.getDate());
+                break;
+            case 'year':
+                cutoffDate = new Date(now.getFullYear() - 1, now.getMonth(), now.getDate());
+                break;
+        }
+
+        let filteredGroups = this.groups;
+        if (cutoffDate) {
+            filteredGroups = this.groups.filter(group => {
+                const [year, month] = group.month.split('-');
+                const groupDate = new Date(parseInt(year), parseInt(month) - 1, 1);
+                return groupDate >= cutoffDate;
+            });
+        }
+
+        return filteredGroups;
+    }
+
+    renderSalesByMonthChart() {
+        const ctx = document.getElementById('salesByMonthChart');
+        if (!ctx) return;
+
+        const filteredGroups = this.getFilteredData();
+        const monthlyData = {};
+
+        // CORRIGIDO: Percorrer days -> sales
+        filteredGroups.forEach(group => {
+            const key = `${group.month.split('-')[1]}/${group.month.split('-')[0]}`;
+            if (!monthlyData[key]) {
+                monthlyData[key] = { sales: 0, value: 0 };
+            }
+            
+            group.days.forEach(day => {
+                day.sales.forEach(sale => {
+                    monthlyData[key].sales += sale.quantity;
+                    monthlyData[key].value += sale.price * sale.quantity;
+                });
+            });
+        });
+
+        const labels = Object.keys(monthlyData).sort((a, b) => {
+            const [m1, y1] = a.split('/').map(Number);
+            const [m2, y2] = b.split('/').map(Number);
+            return y1 === y2 ? m1 - m2 : y1 - y2;
+        });
+
+        const salesData = labels.map(label => monthlyData[label].sales);
+        const valuesData = labels.map(label => monthlyData[label].value);
+
+        if (labels.length === 0) {
+            ctx.getContext('2d').clearRect(0, 0, ctx.width, ctx.height);
+            return;
+        }
+
+        this.charts.salesByMonth = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'Quantidade de Vendas',
+                    data: salesData,
+                    borderColor: '#dc3545',
+                    backgroundColor: 'rgba(220, 53, 69, 0.1)',
+                    tension: 0.4
+                }, {
+                    label: 'Valor (R$)',
+                    data: valuesData,
+                    borderColor: '#28a745',
+                    backgroundColor: 'rgba(40, 167, 69, 0.1)',
+                    tension: 0.4,
+                    yAxisID: 'y1'
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: 'Quantidade'
+                        }
+                    },
+                    y1: {
+                        type: 'linear',
+                        display: true,
+                        position: 'right',
+                        title: {
+                            display: true,
+                            text: 'Valor (R$)'
+                        },
+                        grid: {
+                            drawOnChartArea: false
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+    renderProfitVsCostsChart() {
+        const ctx = document.getElementById('profitVsCostsChart');
+        if (!ctx) return;
+
+        const filteredGroups = this.getFilteredData();
+        const monthlyData = {};
+
+        // CORRIGIDO: Percorrer days -> sales
+        filteredGroups.forEach(group => {
+            const key = `${group.month.split('-')[1]}/${group.month.split('-')[0]}`;
+            if (!monthlyData[key]) {
+                monthlyData[key] = { profit: 0, costs: 0 };
+            }
+            
+            group.days.forEach(day => {
+                day.sales.forEach(sale => {
+                    monthlyData[key].profit += sale.price * sale.quantity;
+                });
+            });
+        });
+
+        // Adicionar custos
+        this.costs.forEach(cost => {
+            const costDate = new Date(cost.date);
+            const key = `${costDate.getMonth() + 1}/${costDate.getFullYear()}`;
+            if (monthlyData[key]) {
+                monthlyData[key].costs += cost.totalCost;
+            } else {
+                monthlyData[key] = { profit: 0, costs: cost.totalCost };
+            }
+        });
+
+        const labels = Object.keys(monthlyData).sort((a, b) => {
+            const [m1, y1] = a.split('/').map(Number);
+            const [m2, y2] = b.split('/').map(Number);
+            return y1 === y2 ? m1 - m2 : y1 - y2;
+        });
+
+        const profitData = labels.map(label => monthlyData[label].profit);
+        const costsData = labels.map(label => monthlyData[label].costs || 0);
+
+        if (labels.length === 0) {
+            ctx.getContext('2d').clearRect(0, 0, ctx.width, ctx.height);
+            return;
+        }
+
+        this.charts.profitVsCosts = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'Lucro (R$)',
+                    data: profitData,
+                    backgroundColor: 'rgba(40, 167, 69, 0.7)',
+                    borderColor: '#28a745',
+                    borderWidth: 1
+                }, {
+                    label: 'Custos (R$)',
+                    data: costsData,
+                    backgroundColor: 'rgba(255, 193, 7, 0.7)',
+                    borderColor: '#ffc107',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: 'Valor (R$)'
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+    renderTopItemsChart() {
+        const ctx = document.getElementById('topItemsChart');
+        if (!ctx) return;
+
+        const itemSales = {};
+        const filteredGroups = this.getFilteredData();
+
+        // CORRIGIDO: Percorrer days -> sales
+        filteredGroups.forEach(group => {
+            group.days.forEach(day => {
+                day.sales.forEach(sale => {
+                    if (!itemSales[sale.itemId]) {
+                        itemSales[sale.itemId] = { quantity: 0, name: this.getItemName(sale.itemId) };
+                    }
+                    itemSales[sale.itemId].quantity += sale.quantity;
+                });
+            });
+        });
+
+        const sortedItems = Object.entries(itemSales)
+            .sort((a, b) => b[1].quantity - a[1].quantity)
+            .slice(0, 10);
+
+        if (sortedItems.length === 0) {
+            ctx.getContext('2d').clearRect(0, 0, ctx.width, ctx.height);
+            return;
+        }
+
+        const labels = sortedItems.map(([id, data]) => data.name.length > 15 ? data.name.substring(0, 15) + '...' : data.name);
+        const data = sortedItems.map(([id, data]) => data.quantity);
+
+        this.charts.topItems = new Chart(ctx, {
+            type: 'doughnut',
+            data: {
+                labels: labels,
+                datasets: [{
+                    data: data,
+                    backgroundColor: [
+                        '#dc3545', '#28a745', '#ffc107', '#17a2b8', '#6f42c1',
+                        '#e83e8c', '#fd7e14', '#20c997', '#6610f2', '#6c757d'
+                    ]
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                plugins: {
+                    legend: {
+                        position: 'bottom'
+                    }
+                }
+            }
+        });
+    }
+
+    renderProfitEvolutionChart() {
+        const ctx = document.getElementById('profitEvolutionChart');
+        if (!ctx) return;
+
+        const filteredGroups = this.getFilteredData();
+        const monthlyData = {};
+
+        // CORRIGIDO: Percorrer days -> sales
+        filteredGroups.forEach(group => {
+            const key = `${group.month.split('-')[1]}/${group.month.split('-')[0]}`;
+            if (!monthlyData[key]) {
+                monthlyData[key] = { sales: 0, costs: 0 };
+            }
+            
+            group.days.forEach(day => {
+                day.sales.forEach(sale => {
+                    monthlyData[key].sales += sale.price * sale.quantity;
+                });
+            });
+        });
+
+        // Adicionar custos
+        this.costs.forEach(cost => {
+            const costDate = new Date(cost.date);
+            const key = `${costDate.getMonth() + 1}/${costDate.getFullYear()}`;
+            if (monthlyData[key]) {
+                monthlyData[key].costs += cost.totalCost;
+            } else {
+                monthlyData[key] = { sales: 0, costs: cost.totalCost };
+            }
+        });
+
+        const labels = Object.keys(monthlyData).sort((a, b) => {
+            const [m1, y1] = a.split('/').map(Number);
+            const [m2, y2] = b.split('/').map(Number);
+            return y1 === y2 ? m1 - m2 : y1 - y2;
+        });
+
+        const profitData = labels.map(label => monthlyData[label].sales - (monthlyData[label].costs || 0));
+
+        if (labels.length === 0) {
+            ctx.getContext('2d').clearRect(0, 0, ctx.width, ctx.height);
+            return;
+        }
+
+        this.charts.profitEvolution = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'Lucro Líquido (R$)',
+                    data: profitData,
+                    borderColor: '#28a745',
+                    backgroundColor: 'rgba(40, 167, 69, 0.1)',
+                    fill: true,
+                    tension: 0.4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: 'Lucro (R$)'
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+    updateDashboardStats() {
+        const filteredGroups = this.getFilteredData();
+        
+        // Média mensal de vendas
+        let totalSales = 0;
+        let monthCount = 0;
+        const monthlyTotals = {};
+
+        // CORRIGIDO: Percorrer days -> sales
+        filteredGroups.forEach(group => {
+            const key = `${group.month.split('-')[1]}/${group.month.split('-')[0]}`;
+            if (!monthlyTotals[key]) {
+                monthlyTotals[key] = 0;
+                monthCount++;
+            }
+            
+            group.days.forEach(day => {
+                day.sales.forEach(sale => {
+                    monthlyTotals[key] += sale.price * sale.quantity;
+                    totalSales += sale.price * sale.quantity;
+                });
+            });
+        });
+
+        const avgMonthly = monthCount > 0 ? totalSales / monthCount : 0;
+        const avgEl = document.getElementById('avgMonthlySales');
+        if (avgEl) {
+            avgEl.textContent = `R$ ${avgMonthly.toFixed(2).replace('.', ',')}`;
+        }
+
+        // Melhor mês
+        let bestMonth = '-';
+        let bestValue = 0;
+        Object.entries(monthlyTotals).forEach(([month, value]) => {
+            if (value > bestValue) {
+                bestValue = value;
+                bestMonth = month;
+            }
+        });
+        const bestMonthEl = document.getElementById('bestMonth');
+        if (bestMonthEl) {
+            bestMonthEl.textContent = bestMonth !== '-' ? bestMonth : '-';
+        }
+
+        // Margem de lucro média
+        let totalCosts = 0;
+        this.costs.forEach(cost => {
+            totalCosts += cost.totalCost;
+        });
+        const profitMargin = totalSales > 0 ? ((totalSales - totalCosts) / totalSales * 100) : 0;
+        const marginEl = document.getElementById('avgProfitMargin');
+        if (marginEl) {
+            marginEl.textContent = `${profitMargin.toFixed(1)}%`;
+        }
+
+        // Total de itens
+        const itemsEl = document.getElementById('totalItemsCount');
+        if (itemsEl) {
+            itemsEl.textContent = this.items.length;
+        }
+    }
+
     logout() {
         if (confirm('Deseja realmente sair?')) {
             sessionStorage.removeItem('loggedIn');
