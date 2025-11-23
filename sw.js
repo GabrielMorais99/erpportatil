@@ -4,7 +4,7 @@ const CACHE_NAME = 'loja-vendas-v2';
 const urlsToCache = [
   '/',
   '/index.html',
-  '/login.html',
+  '/gerenciamento.html',
   '/css/style.css',
   '/js/login.js',
   '/js/app.js',

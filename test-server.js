@@ -16,7 +16,7 @@ try {
 }
 
 // Verificar se os arquivos principais existem
-const filesToCheck = ['index.html', 'login.html', 'server.js'];
+const filesToCheck = ['index.html', 'gerenciamento.html', 'server.js'];
 let allFilesExist = true;
 
 filesToCheck.forEach(file => {

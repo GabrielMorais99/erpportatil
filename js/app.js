@@ -1,3 +1,6 @@
+// ========== APP.JS CARREGADO ==========
+console.log('🟣 [APP.JS] Script carregado e executando...');
+
 // Sistema de Gestão de Loja
 class LojaApp {
     constructor() {
@@ -13,87 +16,421 @@ class LojaApp {
     }
 
     init() {
+        console.log('🟣 [APP.JS] ========== INICIALIZANDO APLICAÇÃO ==========');
+        console.log('🟣 [APP.JS] URL atual:', window.location.href);
+        console.log('🟣 [APP.JS] Document readyState:', document.readyState);
+        console.log('🟣 [APP.JS] SessionStorage:', {
+            loggedIn: sessionStorage.getItem('loggedIn'),
+            username: sessionStorage.getItem('username'),
+            allKeys: Object.keys(sessionStorage)
+        });
+        
         // Verificar autenticação
-        if (sessionStorage.getItem('loggedIn') !== 'true') {
+        const isLoggedIn = sessionStorage.getItem('loggedIn') === 'true';
+        console.log('🟣 [APP.JS] Verificando autenticação...');
+        console.log('🟣 [APP.JS] Status de login:', isLoggedIn);
+        
+        if (!isLoggedIn) {
+            console.warn('⚠️ [APP.JS] Usuário NÃO autenticado!');
+            console.log('🟡 [APP.JS] Redirecionando para /index.html...');
             try {
                 window.location.href = '/index.html';
+                console.log('✅ [APP.JS] Redirecionamento executado');
             } catch (error) {
-                console.error('Erro ao redirecionar:', error);
+                console.error('❌ [APP.JS] Erro ao redirecionar:', error);
                 window.location.href = 'index.html';
             }
             return;
         }
+        
+        console.log('✅ [APP.JS] Usuário autenticado! Continuando inicialização...');
+        
+        // Função para adicionar log (apenas no console)
+        const addDebugLog = (msg) => {
+            if (window.console && console.log) {
+                console.log('🟣 [APP.JS] ' + msg);
+            }
+        };
+        
+        addDebugLog('Usuário autenticado, continuando...');
+        
+        // Aguardar um pouco para garantir que o DOM está totalmente pronto
+        setTimeout(() => {
+            addDebugLog('Iniciando setup...');
+            
+            // Event listeners (deve ser chamado primeiro)
+            this.setupEventListeners();
 
-        // Carregar dados (assíncrono)
-        this.loadData().then(() => {
-            // Renderizar após carregar dados
+            // Carregar dados (assíncrono)
+            this.loadData().then(() => {
+                // Renderizar após carregar dados
+                this.renderItems();
+                this.renderGroups();
+                this.renderCosts();
+                this.updateMonthFilter();
+                this.updateOverallSummary();
+            });
+
+            // Renderizar imediatamente também
             this.renderItems();
             this.renderGroups();
             this.renderCosts();
             this.updateMonthFilter();
             this.updateOverallSummary();
-        });
-
-        // Event listeners
-        this.setupEventListeners();
-
-        // Renderizar
-        this.renderItems();
-        this.renderGroups();
-        this.renderCosts();
-        this.updateMonthFilter();
-        this.updateOverallSummary();
+        }, 100);
     }
 
     setupEventListeners() {
+        // Função para adicionar log (apenas no console)
+        function addDebugLog(msg) {
+            if (window.console && console.log) {
+                console.log('🟣 [APP.JS] ' + msg);
+            }
+        }
+        
+        addDebugLog('Configurando event listeners...');
+        
         // Botões principais
-        document.getElementById('newItemBtn').addEventListener('click', () => this.openItemModal());
-        document.getElementById('newGroupBtn').addEventListener('click', () => this.openGroupModal());
-        document.getElementById('newCostBtn').addEventListener('click', () => this.openCostModal());
-        document.getElementById('logoutBtn').addEventListener('click', () => this.logout());
+        const newItemBtn = document.getElementById('newItemBtn');
+        const newGroupBtn = document.getElementById('newGroupBtn');
+        const newCostBtn = document.getElementById('newCostBtn');
+        const logoutBtn = document.getElementById('logoutBtn');
+        
+        addDebugLog('Elementos encontrados: newItemBtn=' + !!newItemBtn + ', newGroupBtn=' + !!newGroupBtn + ', newCostBtn=' + !!newCostBtn + ', logoutBtn=' + !!logoutBtn);
+        
+        // Teste direto - verificar se os botões são clicáveis
+        if (newItemBtn) {
+            addDebugLog('newItemBtn type: ' + newItemBtn.type + ', disabled: ' + newItemBtn.disabled);
+            addDebugLog('newItemBtn style.pointerEvents: ' + (window.getComputedStyle(newItemBtn).pointerEvents || 'auto'));
+            
+            // Teste de clique direto
+            newItemBtn.style.cursor = 'pointer';
+            newItemBtn.style.pointerEvents = 'auto';
+            const self = this; // Guardar referência ao this
+            
+            // Teste direto - adicionar onclick também como fallback
+            newItemBtn.onclick = function(e) {
+                addDebugLog('newItemBtn CLICADO (onclick)!');
+                e.preventDefault();
+                e.stopPropagation();
+                addDebugLog('Chamando openItemModal()...');
+                try {
+                    self.openItemModal();
+                    addDebugLog('openItemModal() chamado com sucesso!');
+                } catch (error) {
+                    addDebugLog('ERRO ao chamar openItemModal(): ' + error.message);
+                }
+                return false;
+            };
+            
+            // Também adicionar addEventListener como backup
+            newItemBtn.addEventListener('click', function(e) {
+                addDebugLog('newItemBtn CLICADO (addEventListener)!');
+                e.preventDefault();
+                e.stopPropagation();
+                addDebugLog('Chamando openItemModal()...');
+                try {
+                    self.openItemModal();
+                    addDebugLog('openItemModal() chamado com sucesso!');
+                } catch (error) {
+                    addDebugLog('ERRO ao chamar openItemModal(): ' + error.message);
+                }
+            }, true); // Usar capture phase
+            
+            addDebugLog('Listener anexado ao newItemBtn (onclick + addEventListener)');
+        } else {
+            addDebugLog('ERRO: newItemBtn não encontrado!');
+        }
+        
+        if (newGroupBtn) {
+            const self = this;
+            
+            newGroupBtn.onclick = function(e) {
+                addDebugLog('newGroupBtn CLICADO (onclick)!');
+                e.preventDefault();
+                e.stopPropagation();
+                addDebugLog('Chamando openGroupModal()...');
+                try {
+                    self.openGroupModal();
+                    addDebugLog('openGroupModal() chamado com sucesso!');
+                } catch (error) {
+                    addDebugLog('ERRO ao chamar openGroupModal(): ' + error.message);
+                }
+                return false;
+            };
+            
+            newGroupBtn.addEventListener('click', function(e) {
+                addDebugLog('newGroupBtn CLICADO (addEventListener)!');
+                e.preventDefault();
+                e.stopPropagation();
+                addDebugLog('Chamando openGroupModal()...');
+                try {
+                    self.openGroupModal();
+                    addDebugLog('openGroupModal() chamado com sucesso!');
+                } catch (error) {
+                    addDebugLog('ERRO ao chamar openGroupModal(): ' + error.message);
+                }
+            }, true);
+            
+            addDebugLog('Listener anexado ao newGroupBtn (onclick + addEventListener)');
+        } else {
+            addDebugLog('ERRO: newGroupBtn não encontrado!');
+        }
+        
+        if (newCostBtn) {
+            const self = this;
+            
+            newCostBtn.onclick = function(e) {
+                addDebugLog('newCostBtn CLICADO (onclick)!');
+                e.preventDefault();
+                e.stopPropagation();
+                addDebugLog('Chamando openCostModal()...');
+                try {
+                    self.openCostModal();
+                    addDebugLog('openCostModal() chamado com sucesso!');
+                } catch (error) {
+                    addDebugLog('ERRO ao chamar openCostModal(): ' + error.message);
+                }
+                return false;
+            };
+            
+            newCostBtn.addEventListener('click', function(e) {
+                addDebugLog('newCostBtn CLICADO (addEventListener)!');
+                e.preventDefault();
+                e.stopPropagation();
+                addDebugLog('Chamando openCostModal()...');
+                try {
+                    self.openCostModal();
+                    addDebugLog('openCostModal() chamado com sucesso!');
+                } catch (error) {
+                    addDebugLog('ERRO ao chamar openCostModal(): ' + error.message);
+                }
+            }, true);
+            
+            addDebugLog('Listener anexado ao newCostBtn (onclick + addEventListener)');
+        } else {
+            addDebugLog('ERRO: newCostBtn não encontrado!');
+        }
+        
+        if (logoutBtn) {
+            const self = this;
+            
+            logoutBtn.onclick = function(e) {
+                addDebugLog('logoutBtn CLICADO (onclick)!');
+                e.preventDefault();
+                e.stopPropagation();
+                addDebugLog('Chamando logout()...');
+                try {
+                    self.logout();
+                    addDebugLog('logout() chamado com sucesso!');
+                } catch (error) {
+                    addDebugLog('ERRO ao chamar logout(): ' + error.message);
+                }
+                return false;
+            };
+            
+            logoutBtn.addEventListener('click', function(e) {
+                addDebugLog('logoutBtn CLICADO (addEventListener)!');
+                e.preventDefault();
+                e.stopPropagation();
+                addDebugLog('Chamando logout()...');
+                try {
+                    self.logout();
+                    addDebugLog('logout() chamado com sucesso!');
+                } catch (error) {
+                    addDebugLog('ERRO ao chamar logout(): ' + error.message);
+                }
+            }, true);
+            
+            addDebugLog('Listener anexado ao logoutBtn (onclick + addEventListener)');
+        } else {
+            addDebugLog('ERRO: logoutBtn não encontrado!');
+        }
         
         // Importar/Exportar
-        document.getElementById('importBtn').addEventListener('click', () => {
-            document.getElementById('importFile').click();
-        });
-        document.getElementById('importFile').addEventListener('change', (e) => this.importData(e));
-        document.getElementById('exportBtn').addEventListener('click', () => this.exportData());
+        const importBtn = document.getElementById('importBtn');
+        const importFile = document.getElementById('importFile');
+        const exportBtn = document.getElementById('exportBtn');
+        
+        if (importBtn && importFile) {
+            importBtn.addEventListener('click', () => {
+                importFile.click();
+            });
+            console.log('✅ [APP.JS] Listener anexado ao importBtn');
+        } else {
+            console.error('❌ [APP.JS] importBtn ou importFile não encontrado!');
+        }
+        
+        if (importFile) {
+            importFile.addEventListener('change', (e) => this.importData(e));
+            console.log('✅ [APP.JS] Listener anexado ao importFile');
+        }
+        
+        if (exportBtn) {
+            exportBtn.addEventListener('click', () => this.exportData());
+            console.log('✅ [APP.JS] Listener anexado ao exportBtn');
+        } else {
+            console.error('❌ [APP.JS] exportBtn não encontrado!');
+        }
 
         // Tabs
-        document.querySelectorAll('.tab-btn').forEach(btn => {
-            btn.addEventListener('click', (e) => this.switchTab(e.target.dataset.tab));
-        });
+        const tabBtns = document.querySelectorAll('.tab-btn');
+        if (tabBtns.length > 0) {
+            tabBtns.forEach(btn => {
+                btn.addEventListener('click', (e) => this.switchTab(e.target.dataset.tab));
+            });
+            console.log('✅ [APP.JS] Listeners anexados aos tabs (' + tabBtns.length + ' tabs)');
+        } else {
+            console.error('❌ [APP.JS] Nenhum tab-btn encontrado!');
+        }
 
         // Pesquisa e filtro
-        document.getElementById('searchInput').addEventListener('input', () => this.renderItems());
-        document.getElementById('monthFilter').addEventListener('change', () => this.renderItems());
+        const searchInput = document.getElementById('searchInput');
+        const monthFilter = document.getElementById('monthFilter');
+        
+        if (searchInput) {
+            searchInput.addEventListener('input', () => this.renderItems());
+            console.log('✅ [APP.JS] Listener anexado ao searchInput');
+        } else {
+            console.error('❌ [APP.JS] searchInput não encontrado!');
+        }
+        
+        if (monthFilter) {
+            monthFilter.addEventListener('change', () => this.renderItems());
+            console.log('✅ [APP.JS] Listener anexado ao monthFilter');
+        } else {
+            console.error('❌ [APP.JS] monthFilter não encontrado!');
+        }
 
         // Modal de item
-        document.getElementById('itemForm').addEventListener('submit', (e) => this.saveItem(e));
-        document.getElementById('cancelBtn').addEventListener('click', () => this.closeItemModal());
-        document.querySelector('#itemModal .close').addEventListener('click', () => this.closeItemModal());
+        const itemForm = document.getElementById('itemForm');
+        const cancelBtn = document.getElementById('cancelBtn');
+        const itemModalClose = document.querySelector('#itemModal .close');
+        
+        if (itemForm) {
+            itemForm.addEventListener('submit', (e) => this.saveItem(e));
+            console.log('✅ [APP.JS] Listener anexado ao itemForm');
+        } else {
+            console.error('❌ [APP.JS] itemForm não encontrado!');
+        }
+        
+        if (cancelBtn) {
+            cancelBtn.addEventListener('click', () => this.closeItemModal());
+            console.log('✅ [APP.JS] Listener anexado ao cancelBtn');
+        } else {
+            console.error('❌ [APP.JS] cancelBtn não encontrado!');
+        }
+        
+        if (itemModalClose) {
+            itemModalClose.addEventListener('click', () => this.closeItemModal());
+            console.log('✅ [APP.JS] Listener anexado ao itemModal .close');
+        } else {
+            console.error('❌ [APP.JS] itemModal .close não encontrado!');
+        }
 
         // Modal de grupo
-        document.getElementById('groupForm').addEventListener('submit', (e) => this.createGroup(e));
-        document.getElementById('cancelGroupBtn').addEventListener('click', () => this.closeGroupModal());
-        document.querySelector('#groupModal .close').addEventListener('click', () => this.closeGroupModal());
+        const groupForm = document.getElementById('groupForm');
+        const cancelGroupBtn = document.getElementById('cancelGroupBtn');
+        const groupModalClose = document.querySelector('#groupModal .close');
+        
+        if (groupForm) {
+            groupForm.addEventListener('submit', (e) => this.createGroup(e));
+            console.log('✅ [APP.JS] Listener anexado ao groupForm');
+        } else {
+            console.error('❌ [APP.JS] groupForm não encontrado!');
+        }
+        
+        if (cancelGroupBtn) {
+            cancelGroupBtn.addEventListener('click', () => this.closeGroupModal());
+            console.log('✅ [APP.JS] Listener anexado ao cancelGroupBtn');
+        } else {
+            console.error('❌ [APP.JS] cancelGroupBtn não encontrado!');
+        }
+        
+        if (groupModalClose) {
+            groupModalClose.addEventListener('click', () => this.closeGroupModal());
+            console.log('✅ [APP.JS] Listener anexado ao groupModal .close');
+        } else {
+            console.error('❌ [APP.JS] groupModal .close não encontrado!');
+        }
 
         // Modal de venda
-        document.getElementById('saleForm').addEventListener('submit', (e) => this.saveSale(e));
-        document.getElementById('cancelSaleBtn').addEventListener('click', () => this.closeSaleModal());
-        document.querySelector('#saleModal .close').addEventListener('click', () => this.closeSaleModal());
+        const saleForm = document.getElementById('saleForm');
+        const cancelSaleBtn = document.getElementById('cancelSaleBtn');
+        const saleModalClose = document.querySelector('#saleModal .close');
+        
+        if (saleForm) {
+            saleForm.addEventListener('submit', (e) => this.saveSale(e));
+            console.log('✅ [APP.JS] Listener anexado ao saleForm');
+        } else {
+            console.error('❌ [APP.JS] saleForm não encontrado!');
+        }
+        
+        if (cancelSaleBtn) {
+            cancelSaleBtn.addEventListener('click', () => this.closeSaleModal());
+            console.log('✅ [APP.JS] Listener anexado ao cancelSaleBtn');
+        } else {
+            console.error('❌ [APP.JS] cancelSaleBtn não encontrado!');
+        }
+        
+        if (saleModalClose) {
+            saleModalClose.addEventListener('click', () => this.closeSaleModal());
+            console.log('✅ [APP.JS] Listener anexado ao saleModal .close');
+        } else {
+            console.error('❌ [APP.JS] saleModal .close não encontrado!');
+        }
 
         // Modal de visualização de grupo
-        document.querySelector('#viewGroupModal .close').addEventListener('click', () => this.closeViewGroupModal());
+        const viewGroupModalClose = document.querySelector('#viewGroupModal .close');
+        if (viewGroupModalClose) {
+            viewGroupModalClose.addEventListener('click', () => this.closeViewGroupModal());
+            console.log('✅ [APP.JS] Listener anexado ao viewGroupModal .close');
+        } else {
+            console.error('❌ [APP.JS] viewGroupModal .close não encontrado!');
+        }
 
         // Modal de custo
-        document.getElementById('costForm').addEventListener('submit', (e) => this.saveCost(e));
-        document.getElementById('cancelCostBtn').addEventListener('click', () => this.closeCostModal());
-        document.querySelector('#costModal .close').addEventListener('click', () => this.closeCostModal());
+        const costForm = document.getElementById('costForm');
+        const cancelCostBtn = document.getElementById('cancelCostBtn');
+        const costModalClose = document.querySelector('#costModal .close');
+        const costQuantity = document.getElementById('costQuantity');
+        const costPrice = document.getElementById('costPrice');
+        
+        if (costForm) {
+            costForm.addEventListener('submit', (e) => this.saveCost(e));
+            console.log('✅ [APP.JS] Listener anexado ao costForm');
+        } else {
+            console.error('❌ [APP.JS] costForm não encontrado!');
+        }
+        
+        if (cancelCostBtn) {
+            cancelCostBtn.addEventListener('click', () => this.closeCostModal());
+            console.log('✅ [APP.JS] Listener anexado ao cancelCostBtn');
+        } else {
+            console.error('❌ [APP.JS] cancelCostBtn não encontrado!');
+        }
+        
+        if (costModalClose) {
+            costModalClose.addEventListener('click', () => this.closeCostModal());
+            console.log('✅ [APP.JS] Listener anexado ao costModal .close');
+        } else {
+            console.error('❌ [APP.JS] costModal .close não encontrado!');
+        }
         
         // Calcular custo total automaticamente
-        document.getElementById('costQuantity').addEventListener('input', () => this.calculateCostTotal());
-        document.getElementById('costPrice').addEventListener('input', () => this.calculateCostTotal());
+        if (costQuantity) {
+            costQuantity.addEventListener('input', () => this.calculateCostTotal());
+            console.log('✅ [APP.JS] Listener anexado ao costQuantity');
+        } else {
+            console.error('❌ [APP.JS] costQuantity não encontrado!');
+        }
+        
+        if (costPrice) {
+            costPrice.addEventListener('input', () => this.calculateCostTotal());
+            console.log('✅ [APP.JS] Listener anexado ao costPrice');
+        } else {
+            console.error('❌ [APP.JS] costPrice não encontrado!');
+        }
 
         // Fechar modais ao clicar fora
         window.addEventListener('click', (e) => {
@@ -988,7 +1325,40 @@ class LojaApp {
 
 // Inicializar aplicação
 let app;
+
+// Função para inicializar a aplicação
+function inicializarApp() {
+    console.log('🟣 [APP.JS] ========== INICIALIZANDO APLICAÇÃO ==========');
+    console.log('🟣 [APP.JS] Criando instância de LojaApp...');
+    console.log('🟣 [APP.JS] SessionStorage:', {
+        loggedIn: sessionStorage.getItem('loggedIn'),
+        username: sessionStorage.getItem('username')
+    });
+    
+    try {
+        if (!window.app) {
+            window.app = new LojaApp();
+            app = window.app;
+            console.log('✅ [APP.JS] Instância de LojaApp criada com sucesso!');
+        } else {
+            console.log('ℹ️ [APP.JS] Instância de LojaApp já existe');
+            app = window.app;
+        }
+    } catch (error) {
+        console.error('❌ [APP.JS] ERRO ao criar LojaApp:', error);
+        console.error('❌ [APP.JS] Stack:', error.stack);
+    }
+}
+
+// Tentar inicializar quando DOMContentLoaded disparar
 document.addEventListener('DOMContentLoaded', () => {
-    app = new LojaApp();
+    console.log('🟣 [APP.JS] ========== DOMContentLoaded DISPARADO ==========');
+    inicializarApp();
 });
+
+// Se o DOM já estiver pronto quando o script carregar, inicializar imediatamente
+if (document.readyState === 'complete' || document.readyState === 'interactive') {
+    console.log('🟣 [APP.JS] DOM já está pronto, inicializando imediatamente...');
+    setTimeout(inicializarApp, 100);
+}
 

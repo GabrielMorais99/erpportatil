@@ -107,25 +107,48 @@ module.exports = async (req, res) => {
                         'Navegador enviou If-Modified-Since/If-None-Match - IGNORANDO e retornando 200'
                     );
                 }
+                
+                // IMPORTANTE: Para CSS, garantir que o Content-Type está correto
+                if (ext === '.css') {
+                    res.setHeader('Content-Type', 'text/css; charset=utf-8');
+                    console.log('Content-Type definido explicitamente para CSS');
+                }
 
                 // Ler e enviar arquivo
                 try {
                     const fileContent = fs.readFileSync(fullPath, 'utf8');
+                    
+                    // Verificar se o arquivo CSS não está vazio
+                    if (ext === '.css' && fileContent.length === 0) {
+                        console.error('ERRO: Arquivo CSS está vazio!');
+                        res.status(500).send('CSS file is empty');
+                        return;
+                    }
 
                     // Log para debug CSS
                     if (ext === '.css') {
-                        console.log('CSS sendo servido:', cleanPath);
-                        console.log(
-                            'Tamanho do CSS:',
-                            fileContent.length,
-                            'caracteres'
-                        );
-                        console.log(
-                            'Primeiros 100 caracteres:',
-                            fileContent.substring(0, 100)
-                        );
+                        console.log('=== CSS SENDO SERVIDO ===');
+                        console.log('CSS Path:', cleanPath);
+                        console.log('Full Path:', fullPath);
+                        console.log('Content-Type:', res.getHeader('Content-Type'));
+                        console.log('Tamanho do CSS:', fileContent.length, 'caracteres');
+                        console.log('Primeiros 200 caracteres:', fileContent.substring(0, 200));
+                        console.log('Últimos 50 caracteres:', fileContent.substring(fileContent.length - 50));
+                    }
+                    
+                    // Log para debug JS
+                    if (ext === '.js') {
+                        console.log('=== JS SENDO SERVIDO ===');
+                        console.log('JS Path:', cleanPath);
+                        console.log('Content-Type:', res.getHeader('Content-Type'));
+                        console.log('Tamanho do JS:', fileContent.length, 'caracteres');
                     }
 
+                    // Garantir que o CSS está sendo enviado corretamente
+                    if (ext === '.css') {
+                        console.log('Enviando CSS com status 200 OK');
+                    }
+                    
                     return res.status(200).send(fileContent);
                 } catch (readError) {
                     console.error('Erro ao ler arquivo:', readError);
@@ -134,6 +157,28 @@ module.exports = async (req, res) => {
             }
         }
 
+        // Se não encontrar, tentar caminhos alternativos (especialmente para CSS)
+        if (cleanPath.includes('css/style.css') || cleanPath.includes('style.css')) {
+            const altPaths = [
+                path.join(projectRoot, 'css', 'style.css'),
+                path.join(__dirname, '..', 'css', 'style.css'),
+                path.join(process.cwd(), 'css', 'style.css'),
+                path.join(projectRoot, 'style.css')
+            ];
+            
+            for (const altPath of altPaths) {
+                if (fs.existsSync(altPath)) {
+                    console.log('CSS encontrado em caminho alternativo:', altPath);
+                    const fileContent = fs.readFileSync(altPath, 'utf8');
+                    res.setHeader('Content-Type', 'text/css; charset=utf-8');
+                    res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate, max-age=0');
+                    res.setHeader('Pragma', 'no-cache');
+                    res.setHeader('Expires', '0');
+                    return res.status(200).send(fileContent);
+                }
+            }
+        }
+        
         // Se não encontrar, tentar servir index.html
         const indexPath = path.join(projectRoot, 'index.html');
         if (fs.existsSync(indexPath)) {
@@ -143,6 +188,12 @@ module.exports = async (req, res) => {
         }
 
         // 404
+        console.error('Arquivo não encontrado:', filePath);
+        console.error('Caminhos tentados:', {
+            fullPath: fullPath,
+            projectRoot: projectRoot,
+            cleanPath: cleanPath
+        });
         res.status(404).send(`Arquivo não encontrado: ${filePath}`);
     } catch (error) {
         console.error('Erro ao servir arquivo:', error);

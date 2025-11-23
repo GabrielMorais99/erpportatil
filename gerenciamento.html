@@ -54,16 +54,16 @@
                         accept=".txt"
                         style="display: none"
                     />
-                    <button id="logoutBtn" class="btn-secondary">Sair</button>
+                    <button type="button" id="logoutBtn" class="btn-secondary">Sair</button>
                 </div>
             </header>
 
             <main class="main-content">
                 <div class="toolbar">
-                    <button id="newItemBtn" class="btn-primary">
+                    <button type="button" id="newItemBtn" class="btn-primary">
                         + Cadastrar Novo Item
                     </button>
-                    <button id="newGroupBtn" class="btn-primary">
+                    <button type="button" id="newGroupBtn" class="btn-primary">
                         + Criar Grupo Mensal
                     </button>
                     <div class="search-filter">
@@ -172,7 +172,7 @@
                         </div>
                         <div class="costs-content">
                             <div class="toolbar-costs">
-                                <button id="newCostBtn" class="btn-primary">
+                                <button type="button" id="newCostBtn" class="btn-primary">
                                     + Cadastrar Novo Custo
                                 </button>
                             </div>
@@ -465,13 +465,114 @@
         </div>
 
         <script>
+            // TESTE DIRETO - Escrever no DOM para verificar se JavaScript está executando
+            (function() {
+                try {
+                    // Função para adicionar log (apenas no console agora)
+                    function addDebugLog(msg) {
+                        if (window.console && console.log) {
+                            console.log(msg);
+                        }
+                    }
+                    
+                    addDebugLog('Script inline iniciado');
+                    
+                    function tentarInicializar() {
+                        if (typeof LojaApp !== 'undefined') {
+                            if (!window.app) {
+                                console.log('🟡 [GERENCIAMENTO.HTML] Criando LojaApp via script inline...');
+                                try {
+                                    window.app = new LojaApp();
+                                    console.log('✅ [GERENCIAMENTO.HTML] LojaApp criado com sucesso!');
+                                } catch (error) {
+                                    console.error('❌ [GERENCIAMENTO.HTML] Erro ao criar LojaApp:', error);
+                                }
+                            }
+                        } else {
+                            setTimeout(tentarInicializar, 200);
+                        }
+                    }
+                    
+                    if (document.readyState === 'complete' || document.readyState === 'interactive') {
+                        setTimeout(tentarInicializar, 100);
+                    } else {
+                        document.addEventListener('DOMContentLoaded', function() {
+                            setTimeout(tentarInicializar, 100);
+                        });
+                    }
+                } catch (error) {
+                    // Se houver erro, mostrar no DOM
+                    var errorDiv = document.createElement('div');
+                    errorDiv.style.cssText = 'position:fixed;top:10px;right:10px;background:red;color:white;padding:10px;z-index:9999;';
+                    errorDiv.innerHTML = 'ERRO: ' + error.message;
+                    document.body.appendChild(errorDiv);
+                }
+            })();
+        </script>
+        <script>
             // Carregar app.js com timestamp para evitar cache
+            console.log(
+                '🟣 [GERENCIAMENTO.HTML] ========== CARREGANDO APP.JS =========='
+            );
+            console.log('🟣 [GERENCIAMENTO.HTML] URL atual:', window.location.href);
+            console.log('🟣 [GERENCIAMENTO.HTML] Timestamp:', Date.now());
+            console.log(
+                '🟣 [GERENCIAMENTO.HTML] SessionStorage antes de carregar app.js:',
+                {
+                    loggedIn: sessionStorage.getItem('loggedIn'),
+                    username: sessionStorage.getItem('username'),
+                }
+            );
+
             const script = document.createElement('script');
             script.src = '/js/app.js?v=' + Date.now();
-            script.onerror = function () {
+
+            script.onerror = function (e) {
+                console.error('❌ [GERENCIAMENTO.HTML] Erro ao carregar app.js!');
+                console.error('❌ [GERENCIAMENTO.HTML] Erro:', e);
+                // Tentar novamente
                 this.src = '/js/app.js?v=' + Date.now();
             };
+
+            script.onload = function () {
+                console.log('✅ [GERENCIAMENTO.HTML] app.js carregado com sucesso!');
+                // Garantir que a aplicação seja inicializada mesmo se DOMContentLoaded já foi disparado
+                if (document.readyState === 'complete' || document.readyState === 'interactive') {
+                    console.log('🟡 [GERENCIAMENTO.HTML] DOM já está pronto, inicializando app...');
+                    setTimeout(() => {
+                        if (typeof LojaApp !== 'undefined') {
+                            if (!window.app) {
+                                console.log('🟡 [GERENCIAMENTO.HTML] Criando instância de LojaApp...');
+                                window.app = new LojaApp();
+                            }
+                        }
+                    }, 100);
+                }
+            };
+
             document.head.appendChild(script);
+            
+            // Também garantir inicialização quando DOMContentLoaded disparar
+            document.addEventListener('DOMContentLoaded', function() {
+                console.log('🟡 [GERENCIAMENTO.HTML] DOMContentLoaded disparado');
+                setTimeout(() => {
+                    if (typeof LojaApp !== 'undefined') {
+                        if (!window.app) {
+                            console.log('🟡 [GERENCIAMENTO.HTML] Criando instância de LojaApp no DOMContentLoaded...');
+                            window.app = new LojaApp();
+                        }
+                    } else {
+                        console.warn('⚠️ [GERENCIAMENTO.HTML] LojaApp ainda não está definido, aguardando...');
+                        // Tentar novamente após 500ms
+                        setTimeout(() => {
+                            if (typeof LojaApp !== 'undefined' && !window.app) {
+                                console.log('🟡 [GERENCIAMENTO.HTML] Criando instância de LojaApp (tentativa 2)...');
+                                window.app = new LojaApp();
+                            }
+                        }, 500);
+                    }
+                }, 100);
+            });
         </script>
         <script>
             // Service Worker DESABILITADO temporariamente para evitar cache
@@ -504,3 +605,4 @@
         </script>
     </body>
 </html>
+

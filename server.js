@@ -29,13 +29,13 @@ app.get('/', (req, res) => {
     }
 });
 
-// Rota para login.html
-app.get('/login.html', (req, res) => {
-    const loginPath = path.join(__dirname, 'login.html');
-    if (fs.existsSync(loginPath)) {
-        res.sendFile(loginPath);
+// Rota para gerenciamento.html
+app.get('/gerenciamento.html', (req, res) => {
+    const gerenciamentoPath = path.join(__dirname, 'gerenciamento.html');
+    if (fs.existsSync(gerenciamentoPath)) {
+        res.sendFile(gerenciamentoPath);
     } else {
-        res.status(404).send('Arquivo login.html não encontrado');
+        res.status(404).send('Arquivo gerenciamento.html não encontrado');
     }
 });
 
