@@ -294,7 +294,13 @@ class LojaApp {
         const tabBtns = document.querySelectorAll('.tab-btn');
         if (tabBtns.length > 0) {
             tabBtns.forEach(btn => {
-                btn.addEventListener('click', (e) => this.switchTab(e.target.dataset.tab));
+                btn.addEventListener('click', (e) => {
+                    // Usar currentTarget para garantir que pegamos o botão, não o elemento filho (ícone/texto)
+                    const tab = e.currentTarget.dataset.tab || btn.dataset.tab;
+                    if (tab) {
+                        this.switchTab(tab);
+                    }
+                });
             });
             console.log('✅ [APP.JS] Listeners anexados aos tabs (' + tabBtns.length + ' tabs)');
         } else {
@@ -1579,11 +1585,30 @@ class LojaApp {
     // ========== UTILITÁRIOS ==========
 
     switchTab(tab) {
+        if (!tab) {
+            console.warn('⚠️ [SWITCH TAB] Tab não especificado');
+            return;
+        }
+        
+        // Remover active de todos os botões e conteúdos
         document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
         document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
         
-        document.querySelector(`[data-tab="${tab}"]`).classList.add('active');
-        document.getElementById(`${tab}Tab`).classList.add('active');
+        // Adicionar active ao botão da aba selecionada
+        const tabBtn = document.querySelector(`[data-tab="${tab}"]`);
+        if (tabBtn) {
+            tabBtn.classList.add('active');
+        } else {
+            console.warn(`⚠️ [SWITCH TAB] Botão da aba "${tab}" não encontrado`);
+        }
+        
+        // Adicionar active ao conteúdo da aba selecionada
+        const tabContent = document.getElementById(`${tab}Tab`);
+        if (tabContent) {
+            tabContent.classList.add('active');
+        } else {
+            console.warn(`⚠️ [SWITCH TAB] Conteúdo da aba "${tab}Tab" não encontrado`);
+        }
         
         // Se for a aba dashboard, renderizar os gráficos
         if (tab === 'dashboard') {
