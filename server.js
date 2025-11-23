@@ -41,24 +41,41 @@ app.get('/login.html', (req, res) => {
 
 // Rota catch-all para servir arquivos estáticos ou index.html
 app.get('*', (req, res) => {
-    // Ignorar rotas de API
+    // Ignorar rotas de API (já tratadas pelo vercel.json)
     if (req.path.startsWith('/api/')) {
         return res.status(404).json({ error: 'API route not found' });
     }
 
-    // Tentar servir arquivo estático se existir
-    const filePath = path.join(__dirname, req.path);
-    if (fs.existsSync(filePath) && fs.statSync(filePath).isFile()) {
-        return res.sendFile(filePath);
+    // Normalizar o caminho (remover query string e hash)
+    let filePath = req.path.split('?')[0].split('#')[0];
+
+    // Se for raiz, servir index.html
+    if (filePath === '/' || filePath === '') {
+        const indexPath = path.join(__dirname, 'index.html');
+        if (fs.existsSync(indexPath)) {
+            return res.sendFile(indexPath);
+        }
     }
 
-    // Se não encontrar, servir index.html (SPA fallback)
+    // Tentar servir arquivo estático se existir
+    const fullPath = path.join(__dirname, filePath);
+
+    // Verificar se o arquivo existe
+    if (fs.existsSync(fullPath)) {
+        const stats = fs.statSync(fullPath);
+        if (stats.isFile()) {
+            return res.sendFile(fullPath);
+        }
+    }
+
+    // Se não encontrar arquivo, tentar servir index.html (SPA fallback)
     const indexPath = path.join(__dirname, 'index.html');
     if (fs.existsSync(indexPath)) {
         return res.sendFile(indexPath);
     }
 
-    res.status(404).send('Página não encontrada');
+    // Último recurso: 404
+    res.status(404).send(`Página não encontrada: ${req.path}`);
 });
 
 // Tratamento de erros
