@@ -67,20 +67,37 @@ module.exports = async (req, res) => {
 
                 res.setHeader('Content-Type', finalContentType);
 
-                // Headers para evitar cache (forçar recarregamento)
+                // Headers AGRESSIVOS para evitar cache (forçar sempre 200 OK)
+                // IMPORTANTE: Sempre retornar 200, nunca 304
                 res.setHeader(
                     'Cache-Control',
-                    'no-cache, no-store, must-revalidate, max-age=0'
+                    'no-cache, no-store, must-revalidate, max-age=0, private'
                 );
                 res.setHeader('Pragma', 'no-cache');
                 res.setHeader('Expires', '0');
-                res.setHeader('Last-Modified', new Date().toUTCString());
 
-                // Remover ETag se existir (pode causar 304)
+                // Sempre atualizar Last-Modified para forçar recarregamento
+                const now = new Date();
+                res.setHeader('Last-Modified', now.toUTCString());
+
+                // Remover headers que podem causar 304
                 res.removeHeader('ETag');
+                res.removeHeader('If-Modified-Since');
+                res.removeHeader('If-None-Match');
 
                 // CORS headers (caso necessário)
                 res.setHeader('Access-Control-Allow-Origin', '*');
+
+                // IMPORTANTE: Garantir que sempre retorna 200, não 304
+                // Se o navegador enviar If-Modified-Since, ignorar e retornar 200
+                if (
+                    req.headers['if-modified-since'] ||
+                    req.headers['if-none-match']
+                ) {
+                    console.log(
+                        'Navegador enviou If-Modified-Since/If-None-Match - IGNORANDO e retornando 200'
+                    );
+                }
 
                 // Ler e enviar arquivo
                 try {
