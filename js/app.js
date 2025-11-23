@@ -2129,8 +2129,16 @@ class LojaApp {
             return y1 === y2 ? m1 - m2 : y1 - y2;
         });
 
-        const salesData = labels.map(label => monthlyData[label].sales);
-        const valuesData = labels.map(label => monthlyData[label].value);
+        let salesData = labels.map(label => monthlyData[label].sales);
+        let valuesData = labels.map(label => monthlyData[label].value);
+        
+        // Se houver apenas 1 ponto, adicionar um ponto inicial (0) para que a linha apareça
+        if (labels.length === 1) {
+            labels = ['Início', ...labels];
+            salesData = [0, ...salesData];
+            valuesData = [0, ...valuesData];
+            console.log('📊 [CHART] Apenas 1 ponto detectado, adicionando ponto inicial para exibir linha');
+        }
 
         console.log(`📊 [CHART] Labels: ${labels.join(', ')}`);
         console.log(`📊 [CHART] Sales Data: ${salesData.join(', ')}`);
@@ -2160,13 +2168,21 @@ class LojaApp {
                         data: salesData,
                         borderColor: '#dc3545',
                         backgroundColor: 'rgba(220, 53, 69, 0.1)',
-                        tension: 0.4
+                        borderWidth: 2,
+                        pointRadius: 5,
+                        pointHoverRadius: 7,
+                        tension: 0.4,
+                        spanGaps: true
                     }, {
                         label: 'Valor (R$)',
                         data: valuesData,
                         borderColor: '#28a745',
                         backgroundColor: 'rgba(40, 167, 69, 0.1)',
+                        borderWidth: 2,
+                        pointRadius: 5,
+                        pointHoverRadius: 7,
                         tension: 0.4,
+                        spanGaps: true,
                         yAxisID: 'y1'
                     }]
                 },
@@ -2174,6 +2190,27 @@ class LojaApp {
                     responsive: true,
                     maintainAspectRatio: false,
                     aspectRatio: 2,
+                    plugins: {
+                        legend: {
+                            display: true,
+                            position: 'top'
+                        },
+                        tooltip: {
+                            enabled: true,
+                            mode: 'index',
+                            intersect: false
+                        }
+                    },
+                    elements: {
+                        line: {
+                            borderWidth: 2,
+                            tension: 0.4
+                        },
+                        point: {
+                            radius: 5,
+                            hoverRadius: 7
+                        }
+                    },
                     scales: {
                         y: {
                             beginAtZero: true,
@@ -2419,7 +2456,15 @@ class LojaApp {
             return y1 === y2 ? m1 - m2 : y1 - y2;
         });
 
-        const profitData = labels.map(label => monthlyData[label].sales - (monthlyData[label].costs || 0));
+        let profitData = labels.map(label => monthlyData[label].sales - (monthlyData[label].costs || 0));
+        
+        // Se houver apenas 1 ponto, adicionar um ponto inicial (0) para que a linha apareça
+        if (labels.length === 1) {
+            const originalLabels = [...labels];
+            labels = ['Início', ...originalLabels];
+            profitData = [0, ...profitData];
+            console.log('📊 [CHART] Apenas 1 ponto detectado em profitEvolution, adicionando ponto inicial para exibir linha');
+        }
 
         if (labels.length === 0) {
             ctx.getContext('2d').clearRect(0, 0, ctx.width, ctx.height);
@@ -2435,13 +2480,39 @@ class LojaApp {
                     data: profitData,
                     borderColor: '#28a745',
                     backgroundColor: 'rgba(40, 167, 69, 0.1)',
+                    borderWidth: 2,
+                    pointRadius: 5,
+                    pointHoverRadius: 7,
                     fill: true,
-                    tension: 0.4
+                    tension: 0.4,
+                    spanGaps: true
                 }]
             },
             options: {
                 responsive: true,
-                maintainAspectRatio: true,
+                maintainAspectRatio: false,
+                aspectRatio: 2,
+                plugins: {
+                    legend: {
+                        display: true,
+                        position: 'top'
+                    },
+                    tooltip: {
+                        enabled: true,
+                        mode: 'index',
+                        intersect: false
+                    }
+                },
+                elements: {
+                    line: {
+                        borderWidth: 2,
+                        tension: 0.4
+                    },
+                    point: {
+                        radius: 5,
+                        hoverRadius: 7
+                    }
+                },
                 scales: {
                     y: {
                         beginAtZero: true,
