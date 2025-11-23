@@ -5,8 +5,13 @@ const fs = require('fs');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// Servir arquivos estáticos
-app.use(express.static(path.join(__dirname)));
+// Servir arquivos estáticos (prioridade para arquivos reais)
+app.use(
+    express.static(path.join(__dirname), {
+        index: 'index.html',
+        extensions: ['html', 'css', 'js', 'json', 'png', 'jpg', 'ico'],
+    })
+);
 
 // Rota principal - redireciona para index.html
 app.get('/', (req, res) => {
@@ -28,6 +33,28 @@ app.get('/login.html', (req, res) => {
     }
 });
 
+// Rota catch-all para SPA (deve ser a última)
+app.get('*', (req, res) => {
+    // Se for uma rota de API, não fazer nada (deixa para as API routes)
+    if (req.path.startsWith('/api/')) {
+        return res.status(404).json({ error: 'API route not found' });
+    }
+
+    // Tentar servir o arquivo estático
+    const filePath = path.join(__dirname, req.path);
+    if (fs.existsSync(filePath) && fs.statSync(filePath).isFile()) {
+        return res.sendFile(filePath);
+    }
+
+    // Se não encontrar, redirecionar para index.html (SPA)
+    const indexPath = path.join(__dirname, 'index.html');
+    if (fs.existsSync(indexPath)) {
+        return res.sendFile(indexPath);
+    }
+
+    res.status(404).send('Página não encontrada');
+});
+
 // Tratamento de erros
 app.use((err, req, res, next) => {
     console.error('Erro:', err);
@@ -47,7 +74,9 @@ if (process.env.VERCEL !== '1') {
                 console.error('========================================');
                 console.error(`\n❌ A porta ${PORT} já está sendo usada.`);
                 console.error('\n💡 Soluções:');
-                console.error(`   1. Pare o servidor anterior (Ctrl+C no terminal onde está rodando)`);
+                console.error(
+                    `   1. Pare o servidor anterior (Ctrl+C no terminal onde está rodando)`
+                );
                 console.error(`   2. Ou use outra porta: PORT=8000 npm start`);
                 console.error(`   3. Ou mate o processo na porta ${PORT}`);
                 console.error('\n');
@@ -57,7 +86,7 @@ if (process.env.VERCEL !== '1') {
                 process.exit(1);
             }
         }
-        
+
         console.log('========================================');
         console.log('   Loja - Sistema de Gestão');
         console.log('   Projeto por Nilda');
@@ -77,7 +106,9 @@ if (process.env.VERCEL !== '1') {
             console.error('========================================');
             console.error(`\n❌ A porta ${PORT} já está sendo usada.`);
             console.error('\n💡 Soluções:');
-            console.error(`   1. Pare o servidor anterior (Ctrl+C no terminal onde está rodando)`);
+            console.error(
+                `   1. Pare o servidor anterior (Ctrl+C no terminal onde está rodando)`
+            );
             console.error(`   2. Ou use outra porta: PORT=8000 npm start`);
             console.error(`   3. Ou mate o processo na porta ${PORT}`);
             console.error('\n');
@@ -87,4 +118,3 @@ if (process.env.VERCEL !== '1') {
         process.exit(1);
     });
 }
-
