@@ -1,19 +1,5 @@
 {
     "version": 2,
-    "builds": [
-        {
-            "src": "api/load.js",
-            "use": "@vercel/node"
-        },
-        {
-            "src": "api/save.js",
-            "use": "@vercel/node"
-        },
-        {
-            "src": "api/index.js",
-            "use": "@vercel/node"
-        }
-    ],
     "functions": {
         "api/load.js": {
             "maxDuration": 10
@@ -23,14 +9,6 @@
         }
     },
     "routes": [
-        {
-            "src": "/api/load",
-            "dest": "/api/load.js"
-        },
-        {
-            "src": "/api/save",
-            "dest": "/api/save.js"
-        },
         {
             "src": "/css/(.*)",
             "dest": "/api/index.js",
