@@ -25,31 +25,49 @@ module.exports = async (req, res) => {
         const JSONBIN_API_KEY = process.env.JSONBIN_API_KEY;
         const JSONBIN_BIN_ID = process.env.JSONBIN_BIN_ID;
 
-        if (JSONBIN_API_KEY && JSONBIN_BIN_ID) {
-            // Salvar no JSONBin
-            const fetch = require('node-fetch');
-            const response = await fetch(
-                `https://api.jsonbin.io/v3/b/${JSONBIN_BIN_ID}`,
-                {
-                    method: 'PUT',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-Master-Key': JSONBIN_API_KEY,
-                    },
-                    body: JSON.stringify(data),
-                }
-            );
-
-            if (!response.ok) {
-                const errorText = await response.text();
-                throw new Error(`Erro ao salvar no JSONBin: ${errorText}`);
-            }
+        if (!JSONBIN_API_KEY || !JSONBIN_BIN_ID) {
+            return res.status(200).json({
+                success: false,
+                message: 'Variáveis de ambiente não configuradas',
+                error: 'JSONBIN_API_KEY ou JSONBIN_BIN_ID não estão definidas. Configure-as no painel da Vercel.',
+                timestamp: new Date().toISOString(),
+            });
         }
 
+        // Salvar no JSONBin
+        const fetch = require('node-fetch');
+        const response = await fetch(
+            `https://api.jsonbin.io/v3/b/${JSONBIN_BIN_ID}`,
+            {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-Master-Key': JSONBIN_API_KEY,
+                },
+                body: JSON.stringify(data),
+            }
+        );
+
+        if (!response.ok) {
+            const errorText = await response.text();
+            let errorMessage = `Erro ao salvar no JSONBin (${response.status})`;
+            
+            try {
+                const errorJson = JSON.parse(errorText);
+                errorMessage = errorJson.message || errorMessage;
+            } catch {
+                errorMessage = errorText || errorMessage;
+            }
+            
+            throw new Error(errorMessage);
+        }
+
+        const result = await response.json();
         return res.status(200).json({
             success: true,
-            message: 'Dados salvos com sucesso',
+            message: 'Dados salvos na nuvem com sucesso',
             timestamp: new Date().toISOString(),
+            binId: JSONBIN_BIN_ID,
         });
     } catch (error) {
         console.error('Erro ao salvar dados:', error);

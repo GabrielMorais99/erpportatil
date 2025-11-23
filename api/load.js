@@ -18,38 +18,55 @@ module.exports = async (req, res) => {
         const JSONBIN_API_KEY = process.env.JSONBIN_API_KEY;
         const JSONBIN_BIN_ID = process.env.JSONBIN_BIN_ID;
         
-        if (JSONBIN_API_KEY && JSONBIN_BIN_ID) {
-            const fetch = require('node-fetch');
-            const response = await fetch(`https://api.jsonbin.io/v3/b/${JSONBIN_BIN_ID}/latest`, {
-                headers: {
-                    'X-Master-Key': JSONBIN_API_KEY
-                }
+        if (!JSONBIN_API_KEY || !JSONBIN_BIN_ID) {
+            return res.status(200).json({ 
+                success: false,
+                message: 'Variáveis de ambiente não configuradas',
+                error: 'JSONBIN_API_KEY ou JSONBIN_BIN_ID não estão definidas. Configure-as no painel da Vercel.',
+                data: {
+                    items: [],
+                    groups: [],
+                    costs: []
+                },
+                timestamp: new Date().toISOString()
             });
-            
-            if (response.ok) {
-                const result = await response.json();
-                return res.status(200).json({ 
-                    success: true, 
-                    data: result.record || {
-                        items: [],
-                        groups: [],
-                        costs: []
-                    },
-                    timestamp: new Date().toISOString()
-                });
-            }
         }
-
-        // Se não houver dados na nuvem, retornar vazio
-        return res.status(200).json({ 
-            success: true, 
-            data: {
-                items: [],
-                groups: [],
-                costs: []
-            },
-            timestamp: new Date().toISOString()
+        
+        const fetch = require('node-fetch');
+        const response = await fetch(`https://api.jsonbin.io/v3/b/${JSONBIN_BIN_ID}/latest`, {
+            headers: {
+                'X-Master-Key': JSONBIN_API_KEY
+            }
         });
+        
+        if (response.ok) {
+            const result = await response.json();
+            return res.status(200).json({ 
+                success: true, 
+                data: result.record || {
+                    items: [],
+                    groups: [],
+                    costs: []
+                },
+                timestamp: new Date().toISOString(),
+                binId: JSONBIN_BIN_ID
+            });
+        } else if (response.status === 404) {
+            // Bin não encontrado ou vazio - retornar vazio
+            return res.status(200).json({ 
+                success: true,
+                message: 'Bin não encontrado ou vazio',
+                data: {
+                    items: [],
+                    groups: [],
+                    costs: []
+                },
+                timestamp: new Date().toISOString()
+            });
+        } else {
+            const errorText = await response.text();
+            throw new Error(`Erro ao carregar do JSONBin (${response.status}): ${errorText}`);
+        }
     } catch (error) {
         console.error('Erro ao carregar dados:', error);
         return res.status(500).json({ 

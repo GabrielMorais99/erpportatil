@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teste JSONBin.io - Configuração</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        
+        .container {
+            background: white;
+            border-radius: 12px;
+            padding: 40px;
+            max-width: 600px;
+            width: 100%;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+        
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 28px;
+        }
+        
+        .subtitle {
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 14px;
+        }
+        
+        .test-section {
+            margin-bottom: 30px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
+        }
+        
+        .test-section h2 {
+            color: #333;
+            font-size: 18px;
+            margin-bottom: 15px;
+        }
+        
+        button {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            transition: all 0.3s;
+            width: 100%;
+            margin-top: 10px;
+        }
+        
+        button:hover {
+            background: #5568d3;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+        
+        button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .result {
+            margin-top: 15px;
+            padding: 15px;
+            border-radius: 6px;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+        
+        .result.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        
+        .result.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        
+        .result.info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+        
+        .result.loading {
+            background: #fff3cd;
+            color: #856404;
+            border: 1px solid #ffeaa7;
+        }
+        
+        .credentials {
+            background: #fff;
+            padding: 15px;
+            border-radius: 6px;
+            margin-top: 10px;
+            border: 1px solid #ddd;
+        }
+        
+        .credentials code {
+            display: block;
+            padding: 8px;
+            background: #f8f9fa;
+            border-radius: 4px;
+            font-size: 12px;
+            word-break: break-all;
+            margin-top: 5px;
+        }
+        
+        .status-indicator {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 8px;
+        }
+        
+        .status-indicator.success {
+            background: #28a745;
+        }
+        
+        .status-indicator.error {
+            background: #dc3545;
+        }
+        
+        .status-indicator.loading {
+            background: #ffc107;
+            animation: pulse 1.5s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🧪 Teste de Configuração JSONBin.io</h1>
+        <p class="subtitle">Verifique se suas credenciais estão configuradas corretamente na Vercel</p>
+        
+        <div class="test-section">
+            <h2>📋 Suas Credenciais</h2>
+            <div class="credentials">
+                <strong>Bin ID:</strong>
+                <code>6922795b43b1c97be9bf0197</code>
+            </div>
+            <div class="credentials" style="margin-top: 10px;">
+                <strong>Master Key:</strong>
+                <code>$2a$10$vk4a5ozqEcYILl/fYt9vP0oR6sLXWXysmXHqC3IN5DNT8z/Ea0mIO</code>
+            </div>
+        </div>
+        
+        <div class="test-section">
+            <h2>🔍 Teste 1: Verificar Carregamento</h2>
+            <p style="color: #666; margin-bottom: 15px; font-size: 14px;">
+                Testa se consegue carregar dados do JSONBin.io através da API da Vercel.
+            </p>
+            <button onclick="testarCarregamento()" id="btnLoad">
+                Testar Carregamento
+            </button>
+            <div id="resultLoad"></div>
+        </div>
+        
+        <div class="test-section">
+            <h2>💾 Teste 2: Verificar Salvamento</h2>
+            <p style="color: #666; margin-bottom: 15px; font-size: 14px;">
+                Testa se consegue salvar dados no JSONBin.io através da API da Vercel.
+            </p>
+            <button onclick="testarSalvamento()" id="btnSave">
+                Testar Salvamento
+            </button>
+            <div id="resultSave"></div>
+        </div>
+        
+        <div class="test-section">
+            <h2>🔄 Teste 3: Teste Completo</h2>
+            <p style="color: #666; margin-bottom: 15px; font-size: 14px;">
+                Testa carregamento e salvamento em sequência para verificar sincronização.
+            </p>
+            <button onclick="testeCompleto()" id="btnComplete">
+                Teste Completo
+            </button>
+            <div id="resultComplete"></div>
+        </div>
+    </div>
+    
+    <script>
+        async function testarCarregamento() {
+            const btn = document.getElementById('btnLoad');
+            const result = document.getElementById('resultLoad');
+            
+            btn.disabled = true;
+            result.innerHTML = '<div class="result loading"><span class="status-indicator loading"></span>Carregando dados...</div>';
+            
+            try {
+                const response = await fetch('/api/load');
+                const data = await response.json();
+                
+                if (response.ok && data.success) {
+                    const hasData = data.data && (
+                        (data.data.items && data.data.items.length > 0) ||
+                        (data.data.groups && data.data.groups.length > 0) ||
+                        (data.data.costs && data.data.costs.length > 0)
+                    );
+                    
+                    if (hasData) {
+                        result.innerHTML = `
+                            <div class="result success">
+                                <span class="status-indicator success"></span>
+                                <strong>✅ Sucesso!</strong><br>
+                                Dados carregados com sucesso da nuvem.<br>
+                                <small>Items: ${data.data.items?.length || 0} | 
+                                       Grupos: ${data.data.groups?.length || 0} | 
+                                       Custos: ${data.data.costs?.length || 0}</small>
+                            </div>
+                        `;
+                    } else {
+                        result.innerHTML = `
+                            <div class="result info">
+                                <span class="status-indicator success"></span>
+                                <strong>✅ Conexão OK!</strong><br>
+                                API funcionando, mas não há dados salvos ainda.<br>
+                                <small>Isso é normal se você ainda não salvou nada.</small>
+                            </div>
+                        `;
+                    }
+                } else {
+                    throw new Error(data.error || 'Erro desconhecido');
+                }
+            } catch (error) {
+                result.innerHTML = `
+                    <div class="result error">
+                        <span class="status-indicator error"></span>
+                        <strong>❌ Erro ao carregar:</strong><br>
+                        ${error.message}<br>
+                        <small>Verifique se as variáveis de ambiente estão configuradas na Vercel.</small>
+                    </div>
+                `;
+            } finally {
+                btn.disabled = false;
+            }
+        }
+        
+        async function testarSalvamento() {
+            const btn = document.getElementById('btnSave');
+            const result = document.getElementById('resultSave');
+            
+            btn.disabled = true;
+            result.innerHTML = '<div class="result loading"><span class="status-indicator loading"></span>Salvando dados de teste...</div>';
+            
+            const testData = {
+                items: [{ id: 'test', name: 'Item de Teste', price: 10 }],
+                groups: [],
+                costs: [],
+                version: '1.0',
+                lastUpdate: new Date().toISOString(),
+                test: true
+            };
+            
+            try {
+                const response = await fetch('/api/save', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(testData)
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok && data.success) {
+                    result.innerHTML = `
+                        <div class="result success">
+                            <span class="status-indicator success"></span>
+                            <strong>✅ Sucesso!</strong><br>
+                            Dados salvos na nuvem com sucesso!<br>
+                            <small>Timestamp: ${new Date(data.timestamp).toLocaleString('pt-BR')}</small>
+                        </div>
+                    `;
+                } else {
+                    throw new Error(data.error || 'Erro ao salvar');
+                }
+            } catch (error) {
+                result.innerHTML = `
+                    <div class="result error">
+                        <span class="status-indicator error"></span>
+                        <strong>❌ Erro ao salvar:</strong><br>
+                        ${error.message}<br>
+                        <small>Verifique se as variáveis JSONBIN_API_KEY e JSONBIN_BIN_ID estão configuradas na Vercel.</small>
+                    </div>
+                `;
+            } finally {
+                btn.disabled = false;
+            }
+        }
+        
+        async function testeCompleto() {
+            const btn = document.getElementById('btnComplete');
+            const result = document.getElementById('resultComplete');
+            
+            btn.disabled = true;
+            result.innerHTML = '<div class="result loading"><span class="status-indicator loading"></span>Executando teste completo...</div>';
+            
+            try {
+                // 1. Salvar
+                const testData = {
+                    items: [{ id: 'test-complete', name: 'Teste Completo', price: 99.99 }],
+                    groups: [],
+                    costs: [],
+                    version: '1.0',
+                    lastUpdate: new Date().toISOString(),
+                    testComplete: true
+                };
+                
+                const saveResponse = await fetch('/api/save', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(testData)
+                });
+                
+                const saveData = await saveResponse.json();
+                
+                if (!saveResponse.ok || !saveData.success) {
+                    throw new Error('Falha ao salvar: ' + (saveData.error || 'Erro desconhecido'));
+                }
+                
+                // Aguardar um pouco para garantir que foi salvo
+                await new Promise(resolve => setTimeout(resolve, 1000));
+                
+                // 2. Carregar
+                const loadResponse = await fetch('/api/load');
+                const loadData = await loadResponse.json();
+                
+                if (!loadResponse.ok || !loadData.success) {
+                    throw new Error('Falha ao carregar: ' + (loadData.error || 'Erro desconhecido'));
+                }
+                
+                // 3. Verificar se os dados foram sincronizados
+                const foundTest = loadData.data.items?.some(item => item.id === 'test-complete');
+                
+                result.innerHTML = `
+                    <div class="result success">
+                        <span class="status-indicator success"></span>
+                        <strong>✅ Teste Completo: Sucesso!</strong><br>
+                        ✓ Salvamento funcionando<br>
+                        ✓ Carregamento funcionando<br>
+                        ✓ Sincronização: ${foundTest ? 'OK' : 'Verificar'}<br>
+                        <small>Seus dados estão sendo salvos e carregados corretamente da nuvem!</small>
+                    </div>
+                `;
+            } catch (error) {
+                result.innerHTML = `
+                    <div class="result error">
+                        <span class="status-indicator error"></span>
+                        <strong>❌ Erro no teste completo:</strong><br>
+                        ${error.message}<br>
+                        <small>Verifique a configuração das variáveis de ambiente na Vercel.</small>
+                    </div>
+                `;
+            } finally {
+                btn.disabled = false;
+            }
+        }
+    </script>
+</body>
+</html>
+

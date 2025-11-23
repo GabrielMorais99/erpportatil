@@ -1652,14 +1652,23 @@ class LojaApp {
                 body: JSON.stringify(data)
             });
             
-            if (response.ok) {
-                console.log('Dados salvos na nuvem com sucesso');
+            const result = await response.json();
+            
+            if (response.ok && result.success) {
+                console.log('✅ Dados salvos na nuvem com sucesso');
             } else {
-                console.warn('Erro ao salvar na nuvem, usando apenas localStorage');
+                if (result.error && result.error.includes('não estão definidas')) {
+                    console.warn('⚠️ Variáveis de ambiente não configuradas na Vercel. Dados salvos apenas localmente.');
+                    console.warn('💡 Configure JSONBIN_API_KEY e JSONBIN_BIN_ID no painel da Vercel para habilitar sincronização na nuvem.');
+                } else {
+                    console.warn('⚠️ Erro ao salvar na nuvem:', result.error || result.message);
+                    console.warn('💾 Dados salvos apenas localmente (localStorage)');
+                }
             }
         } catch (error) {
             // Se não houver API, usar apenas localStorage (modo offline)
-            console.log('Modo offline: dados salvos apenas localmente');
+            console.log('📱 Modo offline: dados salvos apenas localmente');
+            console.log('ℹ️ Isso é normal se você estiver testando localmente (localhost)');
         }
     }
 
@@ -1667,25 +1676,37 @@ class LojaApp {
         // Tentar carregar da nuvem primeiro
         try {
             const response = await fetch('/api/load');
-            if (response.ok) {
-                const result = await response.json();
-                if (result.success && result.data) {
-                    const cloudData = result.data;
-                    if (cloudData.items || cloudData.groups || cloudData.costs) {
-                        // Dados da nuvem encontrados
-                        this.items = cloudData.items || [];
-                        this.groups = cloudData.groups || [];
-                        this.costs = cloudData.costs || [];
-                        
-                        // Sincronizar com localStorage
-                        localStorage.setItem('lojaData', JSON.stringify(cloudData));
-                        console.log('✅ Dados carregados da nuvem');
-                        return Promise.resolve();
-                    }
+            const result = await response.json();
+            
+            if (response.ok && result.success && result.data) {
+                const cloudData = result.data;
+                
+                // Verificar se há dados ou se é apenas estrutura vazia
+                const hasData = (cloudData.items && cloudData.items.length > 0) ||
+                               (cloudData.groups && cloudData.groups.length > 0) ||
+                               (cloudData.costs && cloudData.costs.length > 0);
+                
+                if (hasData) {
+                    // Dados da nuvem encontrados
+                    this.items = cloudData.items || [];
+                    this.groups = cloudData.groups || [];
+                    this.costs = cloudData.costs || [];
+                    
+                    // Sincronizar com localStorage
+                    localStorage.setItem('lojaData', JSON.stringify(cloudData));
+                    console.log('✅ Dados carregados da nuvem');
+                    console.log(`📊 Items: ${this.items.length} | Grupos: ${this.groups.length} | Custos: ${this.costs.length}`);
+                    return Promise.resolve();
+                } else {
+                    console.log('ℹ️ Nenhum dado encontrado na nuvem (bin vazio)');
                 }
+            } else if (result.error && result.error.includes('não estão definidas')) {
+                console.warn('⚠️ Variáveis de ambiente não configuradas na Vercel');
+                console.warn('💡 Configure JSONBIN_API_KEY e JSONBIN_BIN_ID no painel da Vercel');
             }
         } catch (error) {
-            console.log('⚠️ Não foi possível carregar da nuvem, usando localStorage');
+            console.log('⚠️ Não foi possível carregar da nuvem:', error.message);
+            console.log('💾 Usando localStorage como fallback');
         }
         
         // Fallback: carregar do localStorage
