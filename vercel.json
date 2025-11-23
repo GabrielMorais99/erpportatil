@@ -2,15 +2,7 @@
     "version": 2,
     "builds": [
         {
-            "src": "api/load.js",
-            "use": "@vercel/node"
-        },
-        {
-            "src": "api/save.js",
-            "use": "@vercel/node"
-        },
-        {
-            "src": "api/index.js",
+            "src": "api/**/*.js",
             "use": "@vercel/node"
         }
     ],
@@ -32,6 +24,10 @@
             "dest": "/api/save.js"
         },
         {
+            "src": "/api/(.*)",
+            "dest": "/api/$1"
+        },
+        {
             "src": "/css/(.*)",
             "dest": "/api/index.js",
             "headers": {
@@ -39,7 +35,7 @@
             }
         },
         {
-            "src": "/js/(?!api)(.*)",
+            "src": "/js/(.*)",
             "dest": "/api/index.js",
             "headers": {
                 "Cache-Control": "no-cache, no-store, must-revalidate, max-age=0"
@@ -53,14 +49,14 @@
             }
         },
         {
-            "src": "/(?!api)(.*\\.(css|js|html))",
+            "src": "/(.*\\.(css|js|html))",
             "dest": "/api/index.js",
             "headers": {
                 "Cache-Control": "no-cache, no-store, must-revalidate, max-age=0"
             }
         },
         {
-            "src": "/(?!api)(.*)",
+            "src": "/(.*)",
             "dest": "/api/index.js"
         }
     ]
