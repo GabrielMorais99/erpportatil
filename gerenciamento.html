@@ -41,9 +41,18 @@
             body.loaded { visibility: visible; opacity: 1; transition: opacity 0.2s; }
         </style>
         <script>
-            // Mostrar conteúdo quando CSS carregar
+            // Mostrar conteúdo quando CSS carregar e aplicar animação de entrada
             window.addEventListener('load', function() {
                 document.body.classList.add('loaded');
+                
+                // Aplicar animação de entrada na página de gerenciamento
+                const appContainer = document.querySelector('.app-container');
+                if (appContainer) {
+                    // Pequeno delay para garantir que o CSS está carregado
+                    setTimeout(() => {
+                        appContainer.classList.add('animate-in');
+                    }, 50);
+                }
             });
         </script>
     </head>

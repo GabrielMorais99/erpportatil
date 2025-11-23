@@ -147,8 +147,23 @@
                                     console.log(
                                         '🟡 [INDEX.HTML] Redirecionando para gerenciamento.html...'
                                     );
-                                    window.location.href =
-                                        '/gerenciamento.html';
+
+                                    // Aplicar animação de saída
+                                    const loginContainer =
+                                        document.querySelector(
+                                            '.login-container'
+                                        );
+                                    if (loginContainer) {
+                                        loginContainer.classList.add(
+                                            'fade-out'
+                                        );
+                                    }
+
+                                    // Redirecionar após animação
+                                    setTimeout(() => {
+                                        window.location.href =
+                                            '/gerenciamento.html';
+                                    }, 400);
 
                                     // Fallback após 500ms se não redirecionou
                                     setTimeout(() => {
