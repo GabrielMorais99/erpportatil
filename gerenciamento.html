@@ -536,17 +536,33 @@
 
             script.onload = function () {
                 console.log('✅ [GERENCIAMENTO.HTML] app.js carregado com sucesso!');
+                console.log('✅ [GERENCIAMENTO.HTML] LojaApp definido?', typeof LojaApp !== 'undefined');
+                
                 // Garantir que a aplicação seja inicializada mesmo se DOMContentLoaded já foi disparado
+                function tentarInicializarApp() {
+                    if (typeof LojaApp !== 'undefined') {
+                        if (!window.app) {
+                            console.log('🟡 [GERENCIAMENTO.HTML] Criando instância de LojaApp...');
+                            try {
+                                window.app = new LojaApp();
+                                console.log('✅ [GERENCIAMENTO.HTML] LojaApp criado com sucesso!');
+                            } catch (error) {
+                                console.error('❌ [GERENCIAMENTO.HTML] Erro ao criar LojaApp:', error);
+                            }
+                        } else {
+                            console.log('ℹ️ [GERENCIAMENTO.HTML] LojaApp já existe');
+                        }
+                    } else {
+                        console.warn('⚠️ [GERENCIAMENTO.HTML] LojaApp ainda não está definido, tentando novamente...');
+                        setTimeout(tentarInicializarApp, 200);
+                    }
+                }
+                
                 if (document.readyState === 'complete' || document.readyState === 'interactive') {
                     console.log('🟡 [GERENCIAMENTO.HTML] DOM já está pronto, inicializando app...');
-                    setTimeout(() => {
-                        if (typeof LojaApp !== 'undefined') {
-                            if (!window.app) {
-                                console.log('🟡 [GERENCIAMENTO.HTML] Criando instância de LojaApp...');
-                                window.app = new LojaApp();
-                            }
-                        }
-                    }, 100);
+                    setTimeout(tentarInicializarApp, 100);
+                } else {
+                    document.addEventListener('DOMContentLoaded', tentarInicializarApp);
                 }
             };
 
@@ -555,11 +571,19 @@
             // Também garantir inicialização quando DOMContentLoaded disparar
             document.addEventListener('DOMContentLoaded', function() {
                 console.log('🟡 [GERENCIAMENTO.HTML] DOMContentLoaded disparado');
-                setTimeout(() => {
+                
+                function tentarInicializarApp() {
                     if (typeof LojaApp !== 'undefined') {
                         if (!window.app) {
                             console.log('🟡 [GERENCIAMENTO.HTML] Criando instância de LojaApp no DOMContentLoaded...');
-                            window.app = new LojaApp();
+                            try {
+                                window.app = new LojaApp();
+                                console.log('✅ [GERENCIAMENTO.HTML] LojaApp criado com sucesso no DOMContentLoaded!');
+                            } catch (error) {
+                                console.error('❌ [GERENCIAMENTO.HTML] Erro ao criar LojaApp:', error);
+                            }
+                        } else {
+                            console.log('ℹ️ [GERENCIAMENTO.HTML] LojaApp já existe no DOMContentLoaded');
                         }
                     } else {
                         console.warn('⚠️ [GERENCIAMENTO.HTML] LojaApp ainda não está definido, aguardando...');
@@ -567,11 +591,18 @@
                         setTimeout(() => {
                             if (typeof LojaApp !== 'undefined' && !window.app) {
                                 console.log('🟡 [GERENCIAMENTO.HTML] Criando instância de LojaApp (tentativa 2)...');
-                                window.app = new LojaApp();
+                                try {
+                                    window.app = new LojaApp();
+                                    console.log('✅ [GERENCIAMENTO.HTML] LojaApp criado na tentativa 2!');
+                                } catch (error) {
+                                    console.error('❌ [GERENCIAMENTO.HTML] Erro na tentativa 2:', error);
+                                }
                             }
                         }, 500);
                     }
-                }, 100);
+                }
+                
+                setTimeout(tentarInicializarApp, 200);
             });
         </script>
         <script>

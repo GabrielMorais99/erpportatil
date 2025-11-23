@@ -158,7 +158,28 @@ module.exports = async (req, res) => {
         }
 
         // Se não encontrar, tentar caminhos alternativos
-        // Primeiro para CSS (prioridade)
+        // Primeiro para JS (prioridade para app.js)
+        if (cleanPath.includes('js/app.js') || cleanPath.includes('app.js') || filePath.includes('js/app.js')) {
+            const jsAltPaths = [
+                path.join(projectRoot, 'js', 'app.js'),
+                path.join(__dirname, '..', 'js', 'app.js'),
+                path.join(process.cwd(), 'js', 'app.js')
+            ];
+            
+            for (const altPath of jsAltPaths) {
+                if (fs.existsSync(altPath)) {
+                    console.log('app.js encontrado em caminho alternativo:', altPath);
+                    const fileContent = fs.readFileSync(altPath, 'utf8');
+                    res.setHeader('Content-Type', 'application/javascript; charset=utf-8');
+                    res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate, max-age=0');
+                    res.setHeader('Pragma', 'no-cache');
+                    res.setHeader('Expires', '0');
+                    return res.status(200).send(fileContent);
+                }
+            }
+        }
+        
+        // Para CSS (prioridade)
         if (cleanPath.includes('css/style.css') || cleanPath.includes('style.css') || filePath.includes('css')) {
             const cssAltPaths = [
                 path.join(projectRoot, 'css', 'style.css'),
