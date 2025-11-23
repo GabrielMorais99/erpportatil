@@ -25,7 +25,7 @@
             }
         },
         {
-            "src": "/js/(.*)",
+            "src": "/js/(?!api)(.*)",
             "dest": "/api/index.js",
             "headers": {
                 "Cache-Control": "no-cache, no-store, must-revalidate, max-age=0"
@@ -39,7 +39,7 @@
             }
         },
         {
-            "src": "/(.*\\.(css|js|html))",
+            "src": "/(?!api)(.*\\.(css|js|html))",
             "dest": "/api/index.js",
             "headers": {
                 "Cache-Control": "no-cache, no-store, must-revalidate, max-age=0"
