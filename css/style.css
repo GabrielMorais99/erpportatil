@@ -219,6 +219,9 @@ body {
 
 .header h1 {
     font-size: 1.5rem;
+    font-family: 'Dancing Script', cursive;
+    font-weight: 600;
+    letter-spacing: 0.5px;
 }
 
 .header-actions {
