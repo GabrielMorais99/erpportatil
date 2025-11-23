@@ -26,8 +26,16 @@ document.addEventListener('DOMContentLoaded', function() {
             sessionStorage.setItem('loggedIn', 'true');
             sessionStorage.setItem('username', username);
             
-            // Redirecionar para a tela de gestão
-            window.location.href = 'login.html';
+            console.log('Login bem-sucedido! Redirecionando...');
+            
+            // Redirecionar para a tela de gestão (usar caminho absoluto)
+            try {
+                window.location.href = '/login.html';
+            } catch (error) {
+                console.error('Erro ao redirecionar:', error);
+                // Fallback: tentar caminho relativo
+                window.location.href = 'login.html';
+            }
         } else {
             showError('Usuário ou senha incorretos.');
             passwordInput.value = '';
@@ -41,7 +49,12 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Verificar se já está logado
     if (sessionStorage.getItem('loggedIn') === 'true') {
-        window.location.href = 'login.html';
+        try {
+            window.location.href = '/login.html';
+        } catch (error) {
+            console.error('Erro ao redirecionar:', error);
+            window.location.href = 'login.html';
+        }
     }
 });
 

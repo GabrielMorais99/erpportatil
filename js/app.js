@@ -15,7 +15,12 @@ class LojaApp {
     init() {
         // Verificar autenticação
         if (sessionStorage.getItem('loggedIn') !== 'true') {
-            window.location.href = 'index.html';
+            try {
+                window.location.href = '/index.html';
+            } catch (error) {
+                console.error('Erro ao redirecionar:', error);
+                window.location.href = 'index.html';
+            }
             return;
         }
 
@@ -835,7 +840,12 @@ class LojaApp {
         if (confirm('Deseja realmente sair?')) {
             sessionStorage.removeItem('loggedIn');
             sessionStorage.removeItem('username');
-            window.location.href = 'index.html';
+            try {
+                window.location.href = '/index.html';
+            } catch (error) {
+                console.error('Erro ao redirecionar:', error);
+                window.location.href = 'index.html';
+            }
         }
     }
 

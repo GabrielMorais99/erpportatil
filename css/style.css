@@ -103,6 +103,32 @@ body {
     max-width: 250px;
 }
 
+/* Centralizar botão de login */
+#loginForm {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+}
+
+#loginForm .form-group {
+    width: 100%;
+    text-align: left;
+}
+
+#loginForm .error-message {
+    width: 100%;
+    text-align: center;
+}
+
+#loginForm .btn-primary {
+    width: 100%;
+    max-width: 250px;
+    margin: 0.5rem auto 0 auto;
+    align-self: center;
+    display: block;
+}
+
 .btn-primary:hover {
     background-color: var(--primary-red-dark);
 }
