@@ -17,15 +17,13 @@
     "routes": [
         {
             "src": "/api/load",
-            "dest": "/api/load.js"
+            "dest": "/api/load.js",
+            "continue": false
         },
         {
             "src": "/api/save",
-            "dest": "/api/save.js"
-        },
-        {
-            "src": "/api/(.*)",
-            "dest": "/api/$1"
+            "dest": "/api/save.js",
+            "continue": false
         },
         {
             "src": "/css/(.*)",

@@ -2252,6 +2252,15 @@ class LojaApp {
         // Tentar carregar da nuvem primeiro
         try {
             const response = await fetch('/api/load');
+            
+            // Verificar se a resposta é JSON antes de fazer parse
+            const contentType = response.headers.get('content-type');
+            if (!contentType || !contentType.includes('application/json')) {
+                const text = await response.text();
+                console.warn('⚠️ Resposta da API não é JSON:', text.substring(0, 100));
+                throw new Error('Resposta da API não é JSON. Possível erro 404 ou rota não encontrada.');
+            }
+            
             const result = await response.json();
             
             if (response.ok && result.success && result.data) {
