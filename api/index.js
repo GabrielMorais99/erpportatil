@@ -158,48 +158,46 @@ module.exports = async (req, res) => {
         }
 
         // Se não encontrar, tentar caminhos alternativos
-        const altPaths = [];
-        
-        // Para gerenciamento.html
-        if (cleanPath.includes('gerenciamento.html') || filePath.includes('gerenciamento.html')) {
-            altPaths.push(
-                path.join(projectRoot, 'gerenciamento.html'),
-                path.join(__dirname, '..', 'gerenciamento.html'),
-                path.join(process.cwd(), 'gerenciamento.html')
-            );
-        }
-        
-        // Para CSS
-        if (cleanPath.includes('css/style.css') || cleanPath.includes('style.css')) {
-            altPaths.push(
+        // Primeiro para CSS (prioridade)
+        if (cleanPath.includes('css/style.css') || cleanPath.includes('style.css') || filePath.includes('css')) {
+            const cssAltPaths = [
                 path.join(projectRoot, 'css', 'style.css'),
                 path.join(__dirname, '..', 'css', 'style.css'),
                 path.join(process.cwd(), 'css', 'style.css'),
                 path.join(projectRoot, 'style.css')
-            );
+            ];
+            
+            for (const altPath of cssAltPaths) {
+                if (fs.existsSync(altPath)) {
+                    console.log('CSS encontrado em caminho alternativo:', altPath);
+                    const fileContent = fs.readFileSync(altPath, 'utf8');
+                    res.setHeader('Content-Type', 'text/css; charset=utf-8');
+                    res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate, max-age=0');
+                    res.setHeader('Pragma', 'no-cache');
+                    res.setHeader('Expires', '0');
+                    return res.status(200).send(fileContent);
+                }
+            }
         }
         
-        // Tentar caminhos alternativos
-        for (const altPath of altPaths) {
-            if (fs.existsSync(altPath)) {
-                console.log('Arquivo encontrado em caminho alternativo:', altPath);
-                const ext = path.extname(altPath).toLowerCase();
-                const contentTypes = {
-                    '.html': 'text/html',
-                    '.css': 'text/css',
-                    '.js': 'application/javascript',
-                };
-                const contentType = contentTypes[ext] || 'text/html';
-                const finalContentType = ['.html', '.css', '.js'].includes(ext) 
-                    ? `${contentType}; charset=utf-8` 
-                    : contentType;
-                
-                const fileContent = fs.readFileSync(altPath, 'utf8');
-                res.setHeader('Content-Type', finalContentType);
-                res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate, max-age=0');
-                res.setHeader('Pragma', 'no-cache');
-                res.setHeader('Expires', '0');
-                return res.status(200).send(fileContent);
+        // Para gerenciamento.html
+        if (cleanPath.includes('gerenciamento.html') || filePath.includes('gerenciamento.html')) {
+            const htmlAltPaths = [
+                path.join(projectRoot, 'gerenciamento.html'),
+                path.join(__dirname, '..', 'gerenciamento.html'),
+                path.join(process.cwd(), 'gerenciamento.html')
+            ];
+            
+            for (const altPath of htmlAltPaths) {
+                if (fs.existsSync(altPath)) {
+                    console.log('gerenciamento.html encontrado em caminho alternativo:', altPath);
+                    const fileContent = fs.readFileSync(altPath, 'utf8');
+                    res.setHeader('Content-Type', 'text/html; charset=utf-8');
+                    res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate, max-age=0');
+                    res.setHeader('Pragma', 'no-cache');
+                    res.setHeader('Expires', '0');
+                    return res.status(200).send(fileContent);
+                }
             }
         }
         

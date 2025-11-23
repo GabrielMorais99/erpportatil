@@ -12,13 +12,6 @@
             "dest": "/api/$1"
         },
         {
-            "src": "/gerenciamento.html",
-            "dest": "/api/index.js",
-            "headers": {
-                "Cache-Control": "no-cache, no-store, must-revalidate, max-age=0"
-            }
-        },
-        {
             "src": "/css/(.*)",
             "dest": "/api/index.js",
             "headers": {
@@ -27,6 +20,13 @@
         },
         {
             "src": "/js/(.*)",
+            "dest": "/api/index.js",
+            "headers": {
+                "Cache-Control": "no-cache, no-store, must-revalidate, max-age=0"
+            }
+        },
+        {
+            "src": "/gerenciamento.html",
             "dest": "/api/index.js",
             "headers": {
                 "Cache-Control": "no-cache, no-store, must-revalidate, max-age=0"
