@@ -14,11 +14,16 @@ module.exports = async (req, res) => {
     }
 
     try {
-        const data = req.body;
+        const userData = req.body.data; // Dados do usuário (items, groups, costs, goals)
+        const username = req.body.username; // Nome do usuário
 
         // Validar dados
-        if (!data || typeof data !== 'object') {
+        if (!userData || typeof userData !== 'object') {
             return res.status(400).json({ error: 'Dados inválidos' });
+        }
+
+        if (!username || typeof username !== 'string') {
+            return res.status(400).json({ error: 'Username é obrigatório' });
         }
 
         // Usar JSONBin.io (gratuito) para armazenar na nuvem
@@ -34,6 +39,57 @@ module.exports = async (req, res) => {
             });
         }
 
+        // Carregar dados existentes do bin completo
+        let allUsersData = { users: {} };
+        try {
+            const getResponse = await fetch(
+                `https://api.jsonbin.io/v3/b/${JSONBIN_BIN_ID}/latest`,
+                {
+                    headers: {
+                        'X-Master-Key': JSONBIN_API_KEY,
+                    },
+                }
+            );
+
+            if (getResponse.ok) {
+                const getResult = await getResponse.json();
+                const existingData = getResult.record || {};
+                
+                // Se os dados antigos não têm estrutura de usuários, migrar
+                if (existingData.items || existingData.groups || existingData.costs || existingData.goals) {
+                    // Dados antigos: migrar para estrutura de usuários
+                    // Atribuir ao usuário "default" ou ao primeiro usuário que salvar
+                    console.log('🔄 [SAVE] Migrando dados antigos para estrutura de usuários...');
+                    allUsersData.users = {
+                        [username]: {
+                            items: existingData.items || [],
+                            groups: existingData.groups || [],
+                            costs: existingData.costs || [],
+                            goals: existingData.goals || [],
+                        }
+                    };
+                } else if (existingData.users) {
+                    // Já está na nova estrutura
+                    allUsersData = existingData;
+                }
+            }
+        } catch (error) {
+            console.warn('⚠️ [SAVE] Erro ao carregar dados existentes (bin pode estar vazio):', error.message);
+            // Continuar com estrutura vazia
+        }
+
+        // Atualizar apenas os dados do usuário atual
+        if (!allUsersData.users) {
+            allUsersData.users = {};
+        }
+        allUsersData.users[username] = {
+            items: userData.items || [],
+            groups: userData.groups || [],
+            costs: userData.costs || [],
+            goals: userData.goals || [],
+            lastUpdate: new Date().toISOString(),
+        };
+
         // Salvar no JSONBin - usar fetch nativo do Node.js 18+ (Vercel usa Node.js 18+)
         const response = await fetch(
             `https://api.jsonbin.io/v3/b/${JSONBIN_BIN_ID}`,
@@ -43,7 +99,7 @@ module.exports = async (req, res) => {
                     'Content-Type': 'application/json',
                     'X-Master-Key': JSONBIN_API_KEY,
                 },
-                body: JSON.stringify(data),
+                body: JSON.stringify(allUsersData),
             }
         );
 

@@ -14,6 +14,23 @@ module.exports = async (req, res) => {
     }
 
     try {
+        // Obter username da query string
+        const username = req.query.username;
+
+        if (!username || typeof username !== 'string') {
+            return res.status(400).json({ 
+                success: false,
+                error: 'Username é obrigatório na query string (?username=...)',
+                data: {
+                    items: [],
+                    groups: [],
+                    costs: [],
+                    goals: []
+                },
+                timestamp: new Date().toISOString()
+            });
+        }
+
         // Carregar dados do JSONBin
         const JSONBIN_API_KEY = process.env.JSONBIN_API_KEY;
         const JSONBIN_BIN_ID = process.env.JSONBIN_BIN_ID;
@@ -42,16 +59,37 @@ module.exports = async (req, res) => {
         
         if (response.ok) {
             const result = await response.json();
-            return res.status(200).json({ 
-                success: true, 
-                data: result.record || {
+            const allData = result.record || {};
+            
+            // Verificar se é estrutura antiga (sem users) ou nova (com users)
+            let userData = {
+                items: [],
+                groups: [],
+                costs: [],
+                goals: []
+            };
+
+            if (allData.users && allData.users[username]) {
+                // Nova estrutura: buscar dados do usuário específico
+                userData = allData.users[username];
+            } else if (allData.items || allData.groups || allData.costs || allData.goals) {
+                // Estrutura antiga: retornar dados antigos apenas se for o primeiro acesso
+                // (migração será feita no save)
+                console.log('🔄 [LOAD] Dados antigos detectados, retornando vazios para forçar migração no próximo save');
+                userData = {
                     items: [],
                     groups: [],
                     costs: [],
                     goals: []
-                },
+                };
+            }
+
+            return res.status(200).json({ 
+                success: true, 
+                data: userData,
                 timestamp: new Date().toISOString(),
-                binId: JSONBIN_BIN_ID
+                binId: JSONBIN_BIN_ID,
+                username: username
             });
         } else if (response.status === 404) {
             // Bin não encontrado ou vazio - retornar vazio

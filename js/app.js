@@ -2242,6 +2242,13 @@ class LojaApp {
     // ========== PERSISTÊNCIA DE DADOS ==========
 
     async saveData() {
+        // Obter username do sessionStorage
+        const username = sessionStorage.getItem('username');
+        
+        if (!username) {
+            console.warn('⚠️ [SAVE DATA] Username não encontrado no sessionStorage, salvando apenas localmente');
+        }
+
         const data = {
             items: this.items,
             groups: this.groups,
@@ -2251,23 +2258,32 @@ class LojaApp {
             lastUpdate: new Date().toISOString()
         };
         
-        // Salvar no localStorage (sempre)
+        // Salvar no localStorage por usuário (sempre)
         try {
-            localStorage.setItem('lojaData', JSON.stringify(data));
-            console.log('💾 [SAVE DATA] Dados salvos no localStorage');
+            const localStorageKey = username ? `lojaData_${username}` : 'lojaData';
+            localStorage.setItem(localStorageKey, JSON.stringify(data));
+            console.log(`💾 [SAVE DATA] Dados salvos no localStorage (chave: ${localStorageKey})`);
         } catch (e) {
             console.error('❌ [SAVE DATA] Erro ao salvar no localStorage:', e);
         }
         
-        // Tentar salvar na nuvem (se estiver na Vercel)
+        // Tentar salvar na nuvem (se estiver na Vercel e tiver username)
+        if (!username) {
+            console.warn('⚠️ [SAVE DATA] Username não disponível, pulando salvamento na nuvem');
+            return;
+        }
+
         try {
-            console.log('☁️ [SAVE DATA] Tentando salvar na nuvem (API: /api/save)...');
+            console.log(`☁️ [SAVE DATA] Tentando salvar na nuvem (API: /api/save) para usuário: ${username}...`);
             const response = await fetch('/api/save', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify(data)
+                body: JSON.stringify({
+                    username: username,
+                    data: data
+                })
             });
             
             console.log(`📡 [SAVE DATA] Status HTTP: ${response.status} ${response.statusText}`);
@@ -2322,10 +2338,18 @@ class LojaApp {
     async loadData() {
         console.log('🔄 [LOAD DATA] Iniciando carregamento de dados...');
         
-        // Tentar carregar da nuvem primeiro
-        try {
-            console.log('☁️ [LOAD DATA] Tentando carregar da nuvem (API: /api/load)...');
-            const response = await fetch('/api/load');
+        // Obter username do sessionStorage
+        const username = sessionStorage.getItem('username');
+        
+        if (!username) {
+            console.warn('⚠️ [LOAD DATA] Username não encontrado no sessionStorage, carregando apenas do localStorage');
+        }
+        
+        // Tentar carregar da nuvem primeiro (se tiver username)
+        if (username) {
+            try {
+                console.log(`☁️ [LOAD DATA] Tentando carregar da nuvem (API: /api/load) para usuário: ${username}...`);
+                const response = await fetch(`/api/load?username=${encodeURIComponent(username)}`);
             
             console.log(`📡 [LOAD DATA] Status HTTP: ${response.status} ${response.statusText}`);
             
@@ -2440,10 +2464,27 @@ class LojaApp {
             }
             console.log('💾 [LOAD DATA] Usando localStorage como fallback...');
         }
+        } else {
+            console.log('💾 [LOAD DATA] Username não disponível, carregando apenas do localStorage...');
+        }
         
-        // Fallback: carregar do localStorage
+        // Fallback: carregar do localStorage (por usuário)
         console.log('💾 [LOAD DATA] Verificando localStorage...');
-        const saved = localStorage.getItem('lojaData');
+        const localStorageKey = username ? `lojaData_${username}` : 'lojaData';
+        let saved = localStorage.getItem(localStorageKey);
+        
+        // Migração: Se não encontrou dados por usuário, tentar dados antigos (sem username)
+        if (!saved && username) {
+            const oldData = localStorage.getItem('lojaData');
+            if (oldData) {
+                console.log('🔄 [LOAD DATA] Dados antigos encontrados (sem username), migrando...');
+                // Migrar dados antigos para a nova chave do usuário
+                localStorage.setItem(localStorageKey, oldData);
+                saved = oldData;
+                console.log(`✅ [LOAD DATA] Dados migrados para chave: ${localStorageKey}`);
+            }
+        }
+        
         if (saved) {
             try {
                 console.log('📦 [LOAD DATA] Dados encontrados no localStorage, parseando...');
@@ -2482,7 +2523,7 @@ class LojaApp {
                         costs: this.costs,
                         goals: this.goals
                     };
-                    localStorage.setItem('lojaData', JSON.stringify(updatedData));
+                    localStorage.setItem(localStorageKey, JSON.stringify(updatedData));
                     this.saveData(); // Salvar na nuvem também
                 }
                 
