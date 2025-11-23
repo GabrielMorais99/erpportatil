@@ -44,15 +44,25 @@ module.exports = async (req, res) => {
                 };
                 
                 const contentType = contentTypes[ext] || 'application/octet-stream';
-                res.setHeader('Content-Type', contentType);
+                
+                // Adicionar charset para arquivos de texto
+                let finalContentType = contentType;
+                if (['.html', '.css', '.js', '.json'].includes(ext)) {
+                    finalContentType = `${contentType}; charset=utf-8`;
+                }
+                
+                res.setHeader('Content-Type', finalContentType);
                 
                 // Headers de cache para CSS/JS
                 if (ext === '.css' || ext === '.js') {
                     res.setHeader('Cache-Control', 'public, max-age=31536000');
                 }
                 
+                // CORS headers (caso necessário)
+                res.setHeader('Access-Control-Allow-Origin', '*');
+                
                 // Ler e enviar arquivo
-                const fileContent = fs.readFileSync(fullPath);
+                const fileContent = fs.readFileSync(fullPath, 'utf8');
                 return res.status(200).send(fileContent);
             }
         }
@@ -60,8 +70,8 @@ module.exports = async (req, res) => {
         // Se não encontrar, tentar servir index.html
         const indexPath = path.join(projectRoot, 'index.html');
         if (fs.existsSync(indexPath)) {
-            res.setHeader('Content-Type', 'text/html');
-            const indexContent = fs.readFileSync(indexPath);
+            res.setHeader('Content-Type', 'text/html; charset=utf-8');
+            const indexContent = fs.readFileSync(indexPath, 'utf8');
             return res.status(200).send(indexContent);
         }
         
