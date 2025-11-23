@@ -2087,6 +2087,21 @@ class LojaApp {
         }
         
         console.log('✅ [CHART] Canvas salesByMonthChart encontrado');
+        
+        // Verificar dimensões do canvas antes de criar o gráfico
+        const canvasRect = ctx.getBoundingClientRect();
+        console.log(`📏 [CHART] Dimensões do canvas: width=${canvasRect.width}px, height=${canvasRect.height}px`);
+        console.log(`📏 [CHART] Canvas offsetWidth: ${ctx.offsetWidth}, offsetHeight: ${ctx.offsetHeight}`);
+        
+        // Garantir que o canvas tenha dimensões mínimas
+        if (canvasRect.width === 0 || canvasRect.height === 0) {
+            console.warn('⚠️ [CHART] Canvas tem dimensões zero! Tentando forçar dimensões...');
+            const parent = ctx.parentElement;
+            if (parent) {
+                const parentRect = parent.getBoundingClientRect();
+                console.log(`📏 [CHART] Dimensões do parent: width=${parentRect.width}px, height=${parentRect.height}px`);
+            }
+        }
 
         const filteredGroups = this.getFilteredData();
         console.log(`📊 [CHART] Grupos filtrados: ${filteredGroups.length}`);
@@ -2157,7 +2172,8 @@ class LojaApp {
                 },
                 options: {
                     responsive: true,
-                    maintainAspectRatio: true,
+                    maintainAspectRatio: false,
+                    aspectRatio: 2,
                     scales: {
                         y: {
                             beginAtZero: true,
@@ -2183,6 +2199,23 @@ class LojaApp {
             });
             console.log('✅ [CHART] Gráfico salesByMonth criado com sucesso!');
             console.log('📊 [CHART] Chart instance:', this.charts.salesByMonth);
+            
+            // Verificar dimensões após criação
+            setTimeout(() => {
+                const canvasAfter = document.getElementById('salesByMonthChart');
+                if (canvasAfter) {
+                    const rectAfter = canvasAfter.getBoundingClientRect();
+                    console.log(`📏 [CHART] Dimensões após criação: width=${rectAfter.width}px, height=${rectAfter.height}px`);
+                    console.log(`📏 [CHART] Canvas width/height attributes: ${canvasAfter.width}x${canvasAfter.height}`);
+                    
+                    // Verificar se o gráfico foi renderizado
+                    const chartInstance = this.charts.salesByMonth;
+                    if (chartInstance) {
+                        console.log(`📊 [CHART] Chart width: ${chartInstance.width}, height: ${chartInstance.height}`);
+                        console.log(`📊 [CHART] Chart canvas width: ${chartInstance.canvas.width}, height: ${chartInstance.canvas.height}`);
+                    }
+                }
+            }, 100);
         } catch (error) {
             console.error('❌ [CHART] Erro ao criar gráfico salesByMonth:', error);
             console.error('❌ [CHART] Erro stack:', error.stack);

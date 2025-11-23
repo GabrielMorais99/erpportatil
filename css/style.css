@@ -1329,8 +1329,20 @@ body {
     border-bottom: 2px solid var(--border-color);
 }
 
+.chart-wrapper {
+    position: relative;
+    width: 100%;
+    min-height: 200px;
+    max-height: 300px;
+    margin-top: 0.5rem;
+}
+
 .chart-card canvas {
     max-height: 300px;
+    min-height: 200px;
+    width: 100% !important;
+    height: auto !important;
+    display: block;
 }
 
 .dashboard-stats {
@@ -1647,9 +1659,18 @@ body {
         padding-bottom: 0.5rem;
     }
 
+    .chart-wrapper {
+        min-height: 150px;
+        max-height: 200px;
+    }
+
     .chart-card canvas {
         margin-top: 0.25rem;
         max-height: 200px;
+        min-height: 150px;
+        width: 100% !important;
+        height: auto !important;
+        display: block;
     }
 
     .dashboard-stats {
@@ -1792,8 +1813,17 @@ body {
         padding-bottom: 0.4rem;
     }
 
+    .chart-wrapper {
+        min-height: 120px;
+        max-height: 180px;
+    }
+
     .chart-card canvas {
         max-height: 180px;
+        min-height: 120px;
+        width: 100% !important;
+        height: auto !important;
+        display: block;
     }
 
     .dashboard-stats {
