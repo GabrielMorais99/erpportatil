@@ -8,24 +8,37 @@ const projectRoot = path.join(__dirname, '..');
 
 module.exports = async (req, res) => {
     try {
-        // Normalizar o caminho
-        let filePath = req.url.split('?')[0].split('#')[0];
-        
+        // Normalizar o caminho - Vercel usa req.url
+        let filePath = (req.url || req.path || '/').split('?')[0].split('#')[0];
+
+        // Log para debug
+        console.log('=== DEBUG ===');
+        console.log('Request URL:', req.url);
+        console.log('Request Path:', req.path);
+        console.log('Normalized Path:', filePath);
+
         // Se for raiz, servir index.html
         if (filePath === '/' || filePath === '') {
             filePath = '/index.html';
         }
-        
+
         // Remover barra inicial
-        const cleanPath = filePath.startsWith('/') ? filePath.slice(1) : filePath;
-        
+        const cleanPath = filePath.startsWith('/')
+            ? filePath.slice(1)
+            : filePath;
+
         // Caminho completo do arquivo
         const fullPath = path.join(projectRoot, cleanPath);
-        
+
+        console.log('Clean Path:', cleanPath);
+        console.log('Full Path:', fullPath);
+        console.log('File Exists:', fs.existsSync(fullPath));
+
         // Verificar se o arquivo existe
         if (fs.existsSync(fullPath)) {
             const stats = fs.statSync(fullPath);
-            
+            console.log('Is File:', stats.isFile());
+
             if (stats.isFile()) {
                 // Determinar Content-Type
                 const ext = path.extname(fullPath).toLowerCase();
@@ -40,33 +53,41 @@ module.exports = async (req, res) => {
                     '.ico': 'image/x-icon',
                     '.svg': 'image/svg+xml',
                     '.woff': 'font/woff',
-                    '.woff2': 'font/woff2'
+                    '.woff2': 'font/woff2',
                 };
-                
-                const contentType = contentTypes[ext] || 'application/octet-stream';
-                
+
+                const contentType =
+                    contentTypes[ext] || 'application/octet-stream';
+
                 // Adicionar charset para arquivos de texto
                 let finalContentType = contentType;
                 if (['.html', '.css', '.js', '.json'].includes(ext)) {
                     finalContentType = `${contentType}; charset=utf-8`;
                 }
-                
+
                 res.setHeader('Content-Type', finalContentType);
-                
-                // Headers de cache para CSS/JS
-                if (ext === '.css' || ext === '.js') {
-                    res.setHeader('Cache-Control', 'public, max-age=31536000');
-                }
-                
+
+                // Headers de cache para CSS/JS (desabilitado temporariamente para debug)
+                // if (ext === '.css' || ext === '.js') {
+                //     res.setHeader('Cache-Control', 'public, max-age=31536000');
+                // }
+                // Cache mais curto para desenvolvimento
+                res.setHeader(
+                    'Cache-Control',
+                    'no-cache, no-store, must-revalidate'
+                );
+                res.setHeader('Pragma', 'no-cache');
+                res.setHeader('Expires', '0');
+
                 // CORS headers (caso necessário)
                 res.setHeader('Access-Control-Allow-Origin', '*');
-                
+
                 // Ler e enviar arquivo
                 const fileContent = fs.readFileSync(fullPath, 'utf8');
                 return res.status(200).send(fileContent);
             }
         }
-        
+
         // Se não encontrar, tentar servir index.html
         const indexPath = path.join(projectRoot, 'index.html');
         if (fs.existsSync(indexPath)) {
@@ -74,7 +95,7 @@ module.exports = async (req, res) => {
             const indexContent = fs.readFileSync(indexPath, 'utf8');
             return res.status(200).send(indexContent);
         }
-        
+
         // 404
         res.status(404).send(`Arquivo não encontrado: ${filePath}`);
     } catch (error) {
@@ -82,4 +103,3 @@ module.exports = async (req, res) => {
         res.status(500).send('Erro interno do servidor');
     }
 };
-
