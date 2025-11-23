@@ -32,7 +32,7 @@ module.exports = async (req, res) => {
             });
         }
         
-        const fetch = require('node-fetch');
+        // Usar fetch nativo do Node.js 18+ (Vercel usa Node.js 18+)
         const response = await fetch(`https://api.jsonbin.io/v3/b/${JSONBIN_BIN_ID}/latest`, {
             headers: {
                 'X-Master-Key': JSONBIN_API_KEY

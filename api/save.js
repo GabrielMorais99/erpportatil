@@ -34,8 +34,7 @@ module.exports = async (req, res) => {
             });
         }
 
-        // Salvar no JSONBin
-        const fetch = require('node-fetch');
+        // Salvar no JSONBin - usar fetch nativo do Node.js 18+ (Vercel usa Node.js 18+)
         const response = await fetch(
             `https://api.jsonbin.io/v3/b/${JSONBIN_BIN_ID}`,
             {
