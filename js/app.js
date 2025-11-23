@@ -284,6 +284,22 @@ class LojaApp {
             console.error('❌ [APP.JS] Nenhum tab-btn encontrado!');
         }
 
+        // Dashboard
+        const refreshDashboardBtn = document.getElementById('refreshDashboard');
+        const periodFilter = document.getElementById('periodFilter');
+        
+        if (refreshDashboardBtn) {
+            refreshDashboardBtn.addEventListener('click', () => {
+                this.renderDashboard();
+            });
+        }
+
+        if (periodFilter) {
+            periodFilter.addEventListener('change', () => {
+                this.renderDashboard();
+            });
+        }
+
         // Pesquisa e filtro
         const searchInput = document.getElementById('searchInput');
         const monthFilter = document.getElementById('monthFilter');
@@ -1147,6 +1163,11 @@ class LojaApp {
         
         document.querySelector(`[data-tab="${tab}"]`).classList.add('active');
         document.getElementById(`${tab}Tab`).classList.add('active');
+        
+        // Se for a aba dashboard, renderizar os gráficos
+        if (tab === 'dashboard') {
+            this.renderDashboard();
+        }
     }
 
     getItemName(itemId) {
