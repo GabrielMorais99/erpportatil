@@ -52,8 +52,19 @@ document.addEventListener('DOMContentLoaded', function() {
             console.log('🟡 [LOGIN.JS] Redirecionando para /gerenciamento.html...');
             
             // Redirecionar
+            console.log('🟡 [LOGIN.JS] Redirecionando para gerenciamento.html...');
             try {
+                // Tentar caminho absoluto primeiro
                 window.location.href = '/gerenciamento.html';
+                console.log('✅ [LOGIN.JS] window.location.href = /gerenciamento.html executado');
+                
+                // Fallback após 500ms se não redirecionou
+                setTimeout(() => {
+                    if (window.location.pathname !== '/gerenciamento.html' && !window.location.pathname.includes('gerenciamento')) {
+                        console.log('🟡 [LOGIN.JS] Tentando caminho relativo...');
+                        window.location.href = 'gerenciamento.html';
+                    }
+                }, 500);
             } catch (error) {
                 console.error('❌ [LOGIN.JS] Erro ao redirecionar:', error);
                 window.location.href = 'gerenciamento.html';

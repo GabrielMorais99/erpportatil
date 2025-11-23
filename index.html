@@ -104,8 +104,28 @@
                                         'username',
                                         username
                                     );
+                                    console.log(
+                                        '🟡 [INDEX.HTML] Redirecionando para gerenciamento.html...'
+                                    );
                                     window.location.href =
                                         '/gerenciamento.html';
+
+                                    // Fallback após 500ms se não redirecionou
+                                    setTimeout(() => {
+                                        if (
+                                            window.location.pathname !==
+                                                '/gerenciamento.html' &&
+                                            !window.location.pathname.includes(
+                                                'gerenciamento'
+                                            )
+                                        ) {
+                                            console.log(
+                                                '🟡 [INDEX.HTML] Tentando caminho relativo...'
+                                            );
+                                            window.location.href =
+                                                'gerenciamento.html';
+                                        }
+                                    }, 500);
                                 } else {
                                     if (errorMessage) {
                                         errorMessage.textContent =
