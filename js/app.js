@@ -558,23 +558,61 @@ class LojaApp {
         const category = document.getElementById('itemCategory').value;
         const clothingFields = document.getElementById('clothingFields');
         const electronicsFields = document.getElementById('electronicsFields');
+        const clothingBasicFields = document.getElementById('clothingBasicFields');
+        const itemName = document.getElementById('itemName');
+        const itemBrand = document.getElementById('itemBrand');
         
         if (category === 'Roupas') {
-            clothingFields.style.display = 'block';
-            electronicsFields.style.display = 'none';
+            // Mostrar campos básicos (Nome e Marca)
+            if (clothingBasicFields) clothingBasicFields.style.display = 'block';
+            if (itemName) {
+                itemName.required = true;
+                itemName.parentElement.style.display = 'block';
+            }
+            if (itemBrand) {
+                itemBrand.required = true;
+                itemBrand.parentElement.style.display = 'block';
+            }
+            // Mostrar campos específicos de roupas
+            if (clothingFields) clothingFields.style.display = 'block';
+            if (electronicsFields) electronicsFields.style.display = 'none';
             // Limpar campos de eletrônicos
             document.getElementById('itemModel').value = '';
             document.getElementById('itemCapacity').value = '';
             document.getElementById('itemColor').value = '';
         } else if (category === 'Eletrônicos') {
-            clothingFields.style.display = 'none';
-            electronicsFields.style.display = 'block';
+            // Esconder campos básicos (Nome e Marca)
+            if (clothingBasicFields) clothingBasicFields.style.display = 'none';
+            if (itemName) {
+                itemName.required = false;
+                itemName.parentElement.style.display = 'none';
+                itemName.value = '';
+            }
+            if (itemBrand) {
+                itemBrand.required = false;
+                itemBrand.parentElement.style.display = 'none';
+                itemBrand.value = '';
+            }
+            // Esconder campos específicos de roupas
+            if (clothingFields) clothingFields.style.display = 'none';
+            // Mostrar campos específicos de eletrônicos
+            if (electronicsFields) electronicsFields.style.display = 'block';
             // Limpar campos de roupas
             document.getElementById('itemSize').value = '';
             document.getElementById('itemGender').value = '';
         } else {
-            clothingFields.style.display = 'none';
-            electronicsFields.style.display = 'none';
+            // Nenhuma categoria selecionada
+            if (clothingBasicFields) clothingBasicFields.style.display = 'none';
+            if (itemName) {
+                itemName.required = false;
+                itemName.parentElement.style.display = 'none';
+            }
+            if (itemBrand) {
+                itemBrand.required = false;
+                itemBrand.parentElement.style.display = 'none';
+            }
+            if (clothingFields) clothingFields.style.display = 'none';
+            if (electronicsFields) electronicsFields.style.display = 'none';
         }
     }
 
@@ -587,12 +625,12 @@ class LojaApp {
         if (item) {
             title.textContent = 'Editar Item';
             document.getElementById('itemCategory').value = item.category || 'Roupas';
-            document.getElementById('itemName').value = item.name || '';
-            document.getElementById('itemBrand').value = item.brand || '';
             document.getElementById('itemPrice').value = item.price || '';
             
-            // Preencher campos específicos baseado na categoria
+            // Preencher campos baseado na categoria
             if (item.category === 'Roupas') {
+                document.getElementById('itemName').value = item.name || '';
+                document.getElementById('itemBrand').value = item.brand || '';
                 document.getElementById('itemSize').value = item.size || '';
                 document.getElementById('itemGender').value = item.gender || '';
             } else if (item.category === 'Eletrônicos') {
@@ -609,6 +647,9 @@ class LojaApp {
             // Esconder campos específicos ao criar novo item
             document.getElementById('clothingFields').style.display = 'none';
             document.getElementById('electronicsFields').style.display = 'none';
+            // Mostrar campos básicos por padrão (serão escondidos quando categoria for selecionada)
+            const clothingBasicFields = document.getElementById('clothingBasicFields');
+            if (clothingBasicFields) clothingBasicFields.style.display = 'block';
         }
 
         modal.classList.add('active');
@@ -627,25 +668,54 @@ class LojaApp {
         const item = {
             id: this.currentEditingItem ? this.currentEditingItem.id : Date.now().toString(),
             category: category,
-            name: document.getElementById('itemName').value.trim(),
-            brand: document.getElementById('itemBrand').value.trim(),
             price: parseFloat(document.getElementById('itemPrice').value)
         };
 
-        // Adicionar campos específicos baseado na categoria
+        // Adicionar campos baseado na categoria
         if (category === 'Roupas') {
+            item.name = document.getElementById('itemName').value.trim();
+            item.brand = document.getElementById('itemBrand').value.trim();
             item.size = document.getElementById('itemSize').value.trim() || '';
             item.gender = document.getElementById('itemGender').value || '';
         } else if (category === 'Eletrônicos') {
-            item.model = document.getElementById('itemModel').value.trim() || '';
-            item.capacity = document.getElementById('itemCapacity').value.trim() || '';
-            item.color = document.getElementById('itemColor').value.trim() || '';
+            // Para eletrônicos, usar modelo como nome (ou modelo + capacidade + cor)
+            const model = document.getElementById('itemModel').value.trim();
+            const capacity = document.getElementById('itemCapacity').value.trim();
+            const color = document.getElementById('itemColor').value.trim();
+            
+            // Criar nome composto para eletrônicos
+            let nameParts = [];
+            if (model) nameParts.push(model);
+            if (capacity) nameParts.push(capacity);
+            if (color) nameParts.push(color);
+            
+            item.name = nameParts.length > 0 ? nameParts.join(' ') : 'Eletrônico';
+            item.brand = ''; // Marca não é usada para eletrônicos
+            item.model = model || '';
+            item.capacity = capacity || '';
+            item.color = color || '';
         }
 
         // Validações
         if (!category) {
             alert('Por favor, selecione uma categoria.');
             return;
+        }
+        
+        if (category === 'Roupas') {
+            if (!item.name) {
+                alert('Por favor, preencha o nome do item.');
+                return;
+            }
+            if (!item.brand) {
+                alert('Por favor, preencha a marca.');
+                return;
+            }
+        } else if (category === 'Eletrônicos') {
+            if (!item.model) {
+                alert('Por favor, preencha o modelo.');
+                return;
+            }
         }
         
         if (item.price <= 0) {
@@ -697,7 +767,7 @@ class LojaApp {
                 
                 return (
                     item.name.toLowerCase().includes(search) ||
-                    item.brand.toLowerCase().includes(search) ||
+                    (category === 'Roupas' && item.brand && item.brand.toLowerCase().includes(search)) ||
                     (category === 'Roupas' && item.size && item.size.toLowerCase().includes(search)) ||
                     (category === 'Eletrônicos' && item.model && item.model.toLowerCase().includes(search)) ||
                     (category === 'Eletrônicos' && item.capacity && item.capacity.toLowerCase().includes(search)) ||
@@ -743,11 +813,16 @@ class LojaApp {
                 `;
             }
             
+            // Para eletrônicos, mostrar modelo como título principal
+            const displayName = category === 'Eletrônicos' && item.model 
+                ? item.model 
+                : item.name;
+            
             return `
             <div class="item-card">
                 <div class="item-category-badge">${this.escapeHtml(category)}</div>
-                <h3>${this.escapeHtml(item.name)}</h3>
-                <div class="item-info">Marca: ${this.escapeHtml(item.brand)}</div>
+                <h3>${this.escapeHtml(displayName)}</h3>
+                ${category === 'Roupas' ? `<div class="item-info">Marca: ${this.escapeHtml(item.brand)}</div>` : ''}
                 ${categoryInfo}
                 <div class="item-price">R$ ${item.price.toFixed(2).replace('.', ',')}</div>
                 <div class="item-actions">
@@ -927,9 +1002,15 @@ class LojaApp {
         // Popular select de itens
         const saleItemSelect = document.getElementById('saleItem');
         saleItemSelect.innerHTML = '<option value="">Selecione um item...</option>' +
-            this.items.map(item => 
-                `<option value="${item.id}">${this.escapeHtml(item.name)} - ${this.escapeHtml(item.brand)}</option>`
-            ).join('');
+            this.items.map(item => {
+                const category = item.category || 'Roupas';
+                if (category === 'Eletrônicos') {
+                    const displayName = item.model || item.name;
+                    return `<option value="${item.id}">${this.escapeHtml(displayName)}</option>`;
+                } else {
+                    return `<option value="${item.id}">${this.escapeHtml(item.name)} - ${this.escapeHtml(item.brand || '')}</option>`;
+                }
+            }).join('');
 
         // Resetar formulário
         document.getElementById('saleForm').reset();
@@ -1242,9 +1323,15 @@ class LojaApp {
         // Popular select de itens
         const costItemSelect = document.getElementById('costItem');
         costItemSelect.innerHTML = '<option value="">Selecione um item...</option>' +
-            this.items.map(item => 
-                `<option value="${item.id}">${this.escapeHtml(item.name)} - ${this.escapeHtml(item.brand)}</option>`
-            ).join('');
+            this.items.map(item => {
+                const category = item.category || 'Roupas';
+                if (category === 'Eletrônicos') {
+                    const displayName = item.model || item.name;
+                    return `<option value="${item.id}">${this.escapeHtml(displayName)}</option>`;
+                } else {
+                    return `<option value="${item.id}">${this.escapeHtml(item.name)} - ${this.escapeHtml(item.brand || '')}</option>`;
+                }
+            }).join('');
 
         if (cost) {
             title.textContent = 'Editar Custo';
