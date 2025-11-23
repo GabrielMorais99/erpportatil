@@ -1771,7 +1771,10 @@ class LojaApp {
         
         // Se for a aba dashboard, renderizar os gráficos
         if (tab === 'dashboard') {
-            this.renderDashboard();
+            // Aguardar um pouco para garantir que o DOM está pronto e Chart.js está carregado
+            setTimeout(() => {
+                this.renderDashboard();
+            }, 100);
         }
         
         // Se for a aba goals, renderizar as metas
@@ -1968,8 +1971,39 @@ class LojaApp {
     };
 
     renderDashboard() {
-        if (typeof Chart === 'undefined') {
-            console.error('Chart.js não está carregado!');
+        // Verificar se Chart.js está carregado, se não, aguardar
+        if (typeof Chart === 'undefined' || (window.chartJsLoaded === false)) {
+            console.warn('⚠️ [DASHBOARD] Chart.js não está carregado ainda, aguardando...');
+            // Tentar novamente após 500ms
+            setTimeout(() => {
+                if (typeof Chart !== 'undefined') {
+                    console.log('✅ [DASHBOARD] Chart.js carregado, renderizando gráficos...');
+                    this.renderDashboard();
+                } else {
+                    console.error('❌ [DASHBOARD] Chart.js não está disponível após aguardar. Verifique se o CDN está acessível.');
+                    // Tentar carregar Chart.js manualmente
+                    if (!document.querySelector('script[src*="chart.js"]')) {
+                        const script = document.createElement('script');
+                        script.src = 'https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js';
+                        script.onload = () => {
+                            window.chartJsLoaded = true;
+                            console.log('✅ [DASHBOARD] Chart.js carregado manualmente, renderizando...');
+                            this.renderDashboard();
+                        };
+                        script.onerror = () => {
+                            console.error('❌ [DASHBOARD] Erro ao carregar Chart.js do CDN');
+                        };
+                        document.head.appendChild(script);
+                    } else {
+                        // Script já existe, aguardar mais um pouco
+                        setTimeout(() => {
+                            if (typeof Chart !== 'undefined') {
+                                this.renderDashboard();
+                            }
+                        }, 1000);
+                    }
+                }
+            }, 500);
             return;
         }
 
@@ -2026,8 +2060,16 @@ class LojaApp {
     }
 
     renderSalesByMonthChart() {
+        if (typeof Chart === 'undefined') {
+            console.warn('⚠️ [CHART] Chart.js não está disponível para renderSalesByMonthChart');
+            return;
+        }
+        
         const ctx = document.getElementById('salesByMonthChart');
-        if (!ctx) return;
+        if (!ctx) {
+            console.warn('⚠️ [CHART] Canvas salesByMonthChart não encontrado');
+            return;
+        }
 
         const filteredGroups = this.getFilteredData();
         const monthlyData = {};
@@ -2109,8 +2151,16 @@ class LojaApp {
     }
 
     renderProfitVsCostsChart() {
+        if (typeof Chart === 'undefined') {
+            console.warn('⚠️ [CHART] Chart.js não está disponível para renderProfitVsCostsChart');
+            return;
+        }
+        
         const ctx = document.getElementById('profitVsCostsChart');
-        if (!ctx) return;
+        if (!ctx) {
+            console.warn('⚠️ [CHART] Canvas profitVsCostsChart não encontrado');
+            return;
+        }
 
         const filteredGroups = this.getFilteredData();
         const monthlyData = {};
@@ -2189,8 +2239,16 @@ class LojaApp {
     }
 
     renderTopItemsChart() {
+        if (typeof Chart === 'undefined') {
+            console.warn('⚠️ [CHART] Chart.js não está disponível para renderTopItemsChart');
+            return;
+        }
+        
         const ctx = document.getElementById('topItemsChart');
-        if (!ctx) return;
+        if (!ctx) {
+            console.warn('⚠️ [CHART] Canvas topItemsChart não encontrado');
+            return;
+        }
 
         const itemSales = {};
         const filteredGroups = this.getFilteredData();
@@ -2244,8 +2302,16 @@ class LojaApp {
     }
 
     renderProfitEvolutionChart() {
+        if (typeof Chart === 'undefined') {
+            console.warn('⚠️ [CHART] Chart.js não está disponível para renderProfitEvolutionChart');
+            return;
+        }
+        
         const ctx = document.getElementById('profitEvolutionChart');
-        if (!ctx) return;
+        if (!ctx) {
+            console.warn('⚠️ [CHART] Canvas profitEvolutionChart não encontrado');
+            return;
+        }
 
         const filteredGroups = this.getFilteredData();
         const monthlyData = {};
