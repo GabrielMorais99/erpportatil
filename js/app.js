@@ -58,6 +58,9 @@ class LojaApp {
         setTimeout(() => {
             addDebugLog('Iniciando setup...');
             
+            // Carregar tema salvo
+            this.loadTheme();
+            
             // Event listeners (deve ser chamado primeiro)
             this.setupEventListeners();
 
@@ -95,6 +98,16 @@ class LojaApp {
         const newGroupBtn = document.getElementById('newGroupBtn');
         const newCostBtn = document.getElementById('newCostBtn');
         const logoutBtn = document.getElementById('logoutBtn');
+        const themeToggleBtn = document.getElementById('themeToggleBtn');
+        
+        // Botão de troca de tema
+        if (themeToggleBtn) {
+            const self = this;
+            themeToggleBtn.addEventListener('click', function() {
+                self.toggleTheme();
+            });
+            addDebugLog('Listener anexado ao themeToggleBtn');
+        }
         
         addDebugLog('Elementos encontrados: newItemBtn=' + !!newItemBtn + ', newGroupBtn=' + !!newGroupBtn + ', newCostBtn=' + !!newCostBtn + ', logoutBtn=' + !!logoutBtn);
         
@@ -1625,6 +1638,28 @@ class LojaApp {
                 console.error('Erro ao redirecionar:', error);
                 window.location.href = 'index.html';
             }
+        }
+    }
+
+    // ========== GERENCIAMENTO DE TEMA ==========
+
+    loadTheme() {
+        const savedTheme = localStorage.getItem('appTheme');
+        if (savedTheme === 'blue') {
+            document.body.classList.add('theme-blue');
+        } else {
+            document.body.classList.remove('theme-blue');
+        }
+    }
+
+    toggleTheme() {
+        const isBlue = document.body.classList.contains('theme-blue');
+        if (isBlue) {
+            document.body.classList.remove('theme-blue');
+            localStorage.setItem('appTheme', 'red');
+        } else {
+            document.body.classList.add('theme-blue');
+            localStorage.setItem('appTheme', 'blue');
         }
     }
 

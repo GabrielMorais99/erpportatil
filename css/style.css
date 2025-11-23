@@ -7,11 +7,23 @@
 :root {
     --primary-red: #dc3545;
     --primary-red-dark: #c82333;
+    --primary-blue: #007bff;
+    --primary-blue-dark: #0056b3;
     --white: #ffffff;
     --light-gray: #f8f9fa;
     --gray: #6c757d;
     --dark-gray: #343a40;
     --border-color: #dee2e6;
+    
+    /* Variáveis de tema padrão (vermelho) */
+    --primary-color: var(--primary-red);
+    --primary-color-dark: var(--primary-red-dark);
+}
+
+/* Tema azul */
+body.theme-blue {
+    --primary-color: var(--primary-blue);
+    --primary-color-dark: var(--primary-blue-dark);
 }
 
 body {
@@ -27,7 +39,7 @@ body {
     display: flex;
     justify-content: center;
     align-items: center;
-    background: linear-gradient(135deg, var(--primary-red) 0%, var(--primary-red-dark) 100%);
+    background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-color-dark) 100%);
 }
 
 .login-box {
@@ -45,7 +57,7 @@ body {
 }
 
 .logo h1 {
-    color: var(--primary-red);
+    color: var(--primary-color);
     font-size: 2.5rem;
     font-weight: bold;
 }
@@ -74,11 +86,11 @@ body {
 .form-group input:focus,
 .form-group select:focus {
     outline: none;
-    border-color: var(--primary-red);
+    border-color: var(--primary-color);
 }
 
 .error-message {
-    color: var(--primary-red);
+    color: var(--primary-color);
     font-size: 0.9rem;
     margin-bottom: 1rem;
     display: none;
@@ -90,7 +102,7 @@ body {
 
 .btn-primary {
     padding: 0.75rem 1.5rem;
-    background-color: var(--primary-red);
+    background-color: var(--primary-color);
     color: var(--white);
     border: none;
     border-radius: 5px;
@@ -130,7 +142,7 @@ body {
 }
 
 .btn-primary:hover {
-    background-color: var(--primary-red-dark);
+    background-color: var(--primary-color-dark);
 }
 
 .signature {
@@ -150,7 +162,7 @@ body {
 }
 
 .header {
-    background-color: var(--primary-red);
+    background-color: var(--primary-color);
     color: var(--white);
     padding: 1.5rem 2rem;
     display: flex;
@@ -166,12 +178,67 @@ body {
 .header-actions {
     display: flex;
     gap: 1rem;
+    align-items: center;
+}
+
+/* Botão de troca de tema */
+.theme-toggle-btn {
+    background: transparent;
+    border: 2px solid var(--white);
+    color: var(--white);
+    padding: 0.5rem 0.75rem;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 1.2rem;
+    transition: all 0.3s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+}
+
+.theme-toggle-btn:hover {
+    background: rgba(255, 255, 255, 0.2);
+    transform: scale(1.1);
+}
+
+.theme-toggle-btn:active {
+    transform: scale(0.95);
+}
+
+/* Botão de troca de tema na página de login */
+.theme-toggle-btn-login {
+    background: transparent;
+    border: 2px solid var(--primary-color);
+    color: var(--primary-color);
+    padding: 0.5rem 0.75rem;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 1.2rem;
+    transition: all 0.3s;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    margin-top: 1rem;
+}
+
+.theme-toggle-btn-login:hover {
+    background: var(--primary-color);
+    color: var(--white);
+    transform: scale(1.1);
+}
+
+.theme-toggle-btn-login:active {
+    transform: scale(0.95);
 }
 
 .btn-secondary {
     padding: 0.5rem 1rem;
     background-color: var(--white);
-    color: var(--primary-red);
+    color: var(--primary-color);
     border: 2px solid var(--white);
     border-radius: 5px;
     font-size: 0.9rem;
@@ -244,12 +311,12 @@ body {
 }
 
 .tab-btn:hover {
-    color: var(--primary-red);
+    color: var(--primary-color);
 }
 
 .tab-btn.active {
-    color: var(--primary-red);
-    border-bottom-color: var(--primary-red);
+    color: var(--primary-color);
+    border-bottom-color: var(--primary-color);
 }
 
 .tab-content {
@@ -281,7 +348,7 @@ body {
 }
 
 .item-card h3 {
-    color: var(--primary-red);
+    color: var(--primary-color);
     margin-bottom: 0.4rem;
     font-size: 1rem;
     font-weight: 600;
@@ -317,12 +384,12 @@ body {
 }
 
 .btn-edit {
-    background-color: var(--primary-red);
+    background-color: var(--primary-color);
     color: var(--white);
 }
 
 .btn-edit:hover {
-    background-color: var(--primary-red-dark);
+    background-color: var(--primary-color-dark);
 }
 
 .btn-delete {
@@ -354,14 +421,14 @@ body {
     background: var(--white);
     padding: 1.5rem;
     border-radius: 8px;
-    border: 2px solid var(--primary-red);
+    border: 2px solid var(--primary-color);
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
     position: sticky;
     top: 2rem;
 }
 
 .costs-summary-card h3 {
-    color: var(--primary-red);
+    color: var(--primary-color);
     margin-bottom: 1.2rem;
     font-size: 1.1rem;
     font-weight: 600;
@@ -398,7 +465,7 @@ body {
 }
 
 .cost-card h3 {
-    color: var(--primary-red);
+    color: var(--primary-color);
     margin-bottom: 0.6rem;
     font-size: 1rem;
     font-weight: 600;
@@ -419,7 +486,7 @@ body {
 .cost-total {
     font-size: 1.1rem;
     font-weight: bold;
-    color: var(--primary-red);
+    color: var(--primary-color);
     margin: 0.6rem 0;
 }
 
@@ -433,14 +500,14 @@ body {
     background: var(--white);
     padding: 1.5rem;
     border-radius: 8px;
-    border: 2px solid var(--primary-red);
+    border: 2px solid var(--primary-color);
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
     position: sticky;
     top: 2rem;
 }
 
 .overall-summary-card h3 {
-    color: var(--primary-red);
+    color: var(--primary-color);
     margin-bottom: 1.2rem;
     font-size: 1.1rem;
     font-weight: 600;
@@ -472,7 +539,7 @@ body {
 }
 
 .stat-item p {
-    color: var(--primary-red);
+    color: var(--primary-color);
     font-size: 1.5rem;
     font-weight: bold;
     margin: 0;
@@ -503,7 +570,7 @@ body {
 }
 
 .group-card h3 {
-    color: var(--primary-red);
+    color: var(--primary-color);
     margin-bottom: 0.6rem;
     font-size: 1rem;
     font-weight: 600;
@@ -568,7 +635,7 @@ body {
     align-items: center;
     padding: 1.5rem;
     border-bottom: 2px solid var(--border-color);
-    background-color: var(--primary-red);
+    background-color: var(--primary-color);
     color: var(--white);
 }
 
@@ -633,7 +700,7 @@ body {
 }
 
 .summary-card p {
-    color: var(--primary-red);
+    color: var(--primary-color);
     font-size: 1.8rem;
     font-weight: bold;
 }
@@ -643,7 +710,7 @@ body {
 }
 
 .days-container h3 {
-    color: var(--primary-red);
+    color: var(--primary-color);
     margin-bottom: 1rem;
 }
 
@@ -662,7 +729,7 @@ body {
 }
 
 .day-card h4 {
-    color: var(--primary-red);
+    color: var(--primary-color);
     margin-bottom: 0.5rem;
 }
 
@@ -682,7 +749,7 @@ body {
 }
 
 .items-summary h3 {
-    color: var(--primary-red);
+    color: var(--primary-color);
     margin-bottom: 1rem;
 }
 
@@ -709,13 +776,13 @@ body {
 }
 
 .summary-item-total {
-    color: var(--primary-red);
+    color: var(--primary-color);
     font-weight: bold;
 }
 
 /* Footer */
 .footer {
-    background-color: var(--primary-red);
+    background-color: var(--primary-color);
     color: var(--white);
     text-align: center;
     padding: 1rem;
@@ -775,7 +842,7 @@ body {
 }
 
 .chart-card h3 {
-    color: var(--primary-red);
+    color: var(--primary-color);
     margin-bottom: 1rem;
     font-size: 1.1rem;
     font-weight: 600;
@@ -812,7 +879,7 @@ body {
 }
 
 .stat-card p {
-    color: var(--primary-red);
+    color: var(--primary-color);
     font-size: 1.5rem;
     font-weight: bold;
     margin: 0;

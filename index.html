@@ -42,6 +42,9 @@
             <div class="login-box">
                 <div class="logo">
                     <h1>Ger Loja</h1>
+                    <button id="themeToggleBtn" class="theme-toggle-btn-login" title="Alternar tema">
+                        🎨
+                    </button>
                 </div>
                 <form id="loginForm" action="#" onsubmit="return false;">
                     <div class="form-group">
@@ -143,6 +146,30 @@
                 </div>
             </div>
         </div>
+        <script>
+            // Carregar tema salvo
+            (function() {
+                const savedTheme = localStorage.getItem('appTheme');
+                if (savedTheme === 'blue') {
+                    document.body.classList.add('theme-blue');
+                }
+                
+                // Botão de troca de tema
+                const themeToggleBtn = document.getElementById('themeToggleBtn');
+                if (themeToggleBtn) {
+                    themeToggleBtn.addEventListener('click', function() {
+                        const isBlue = document.body.classList.contains('theme-blue');
+                        if (isBlue) {
+                            document.body.classList.remove('theme-blue');
+                            localStorage.setItem('appTheme', 'red');
+                        } else {
+                            document.body.classList.add('theme-blue');
+                            localStorage.setItem('appTheme', 'blue');
+                        }
+                    });
+                }
+            })();
+        </script>
         <script>
             // Carregar login.js com timestamp para evitar cache
             const script = document.createElement('script');
