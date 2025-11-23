@@ -5,11 +5,17 @@ const fs = require('fs');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// Servir arquivos estáticos (prioridade para arquivos reais)
+// Servir arquivos estáticos com caminhos absolutos
 app.use(
     express.static(path.join(__dirname), {
         index: 'index.html',
-        extensions: ['html', 'css', 'js', 'json', 'png', 'jpg', 'ico'],
+        extensions: ['html', 'css', 'js', 'json', 'png', 'jpg', 'ico', 'svg'],
+        setHeaders: (res, path) => {
+            // Headers para cache de arquivos estáticos
+            if (path.endsWith('.css') || path.endsWith('.js')) {
+                res.setHeader('Cache-Control', 'public, max-age=31536000');
+            }
+        },
     })
 );
 
