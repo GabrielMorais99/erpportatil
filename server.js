@@ -34,9 +34,43 @@ app.use((err, req, res, next) => {
     res.status(500).send('Erro interno do servidor');
 });
 
-// Iniciar servidor
-const server = app.listen(PORT, (err) => {
-    if (err) {
+// Exportar app para Vercel
+module.exports = app;
+
+// Iniciar servidor apenas se não estiver na Vercel
+if (process.env.VERCEL !== '1') {
+    const server = app.listen(PORT, (err) => {
+        if (err) {
+            if (err.code === 'EADDRINUSE') {
+                console.error('========================================');
+                console.error('   ERRO: Porta já está em uso!');
+                console.error('========================================');
+                console.error(`\n❌ A porta ${PORT} já está sendo usada.`);
+                console.error('\n💡 Soluções:');
+                console.error(`   1. Pare o servidor anterior (Ctrl+C no terminal onde está rodando)`);
+                console.error(`   2. Ou use outra porta: PORT=8000 npm start`);
+                console.error(`   3. Ou mate o processo na porta ${PORT}`);
+                console.error('\n');
+                process.exit(1);
+            } else {
+                console.error('Erro ao iniciar servidor:', err);
+                process.exit(1);
+            }
+        }
+        
+        console.log('========================================');
+        console.log('   Loja - Sistema de Gestão');
+        console.log('   Projeto por Nilda');
+        console.log('========================================');
+        console.log(`\n✅ Servidor rodando em: http://localhost:${PORT}`);
+        console.log(`\n📋 Credenciais de acesso:`);
+        console.log(`   Usuário: nilda`);
+        console.log(`   Senha: 123`);
+        console.log(`\n💡 Pressione Ctrl+C para parar o servidor\n`);
+    });
+
+    // Tratamento de erros do servidor
+    server.on('error', (err) => {
         if (err.code === 'EADDRINUSE') {
             console.error('========================================');
             console.error('   ERRO: Porta já está em uso!');
@@ -47,39 +81,10 @@ const server = app.listen(PORT, (err) => {
             console.error(`   2. Ou use outra porta: PORT=8000 npm start`);
             console.error(`   3. Ou mate o processo na porta ${PORT}`);
             console.error('\n');
-            process.exit(1);
         } else {
-            console.error('Erro ao iniciar servidor:', err);
-            process.exit(1);
+            console.error('Erro no servidor:', err);
         }
-    }
-    
-    console.log('========================================');
-    console.log('   Loja - Sistema de Gestão');
-    console.log('   Projeto por Nilda');
-    console.log('========================================');
-    console.log(`\n✅ Servidor rodando em: http://localhost:${PORT}`);
-    console.log(`\n📋 Credenciais de acesso:`);
-    console.log(`   Usuário: nilda`);
-    console.log(`   Senha: 123`);
-    console.log(`\n💡 Pressione Ctrl+C para parar o servidor\n`);
-});
-
-// Tratamento de erros do servidor
-server.on('error', (err) => {
-    if (err.code === 'EADDRINUSE') {
-        console.error('========================================');
-        console.error('   ERRO: Porta já está em uso!');
-        console.error('========================================');
-        console.error(`\n❌ A porta ${PORT} já está sendo usada.`);
-        console.error('\n💡 Soluções:');
-        console.error(`   1. Pare o servidor anterior (Ctrl+C no terminal onde está rodando)`);
-        console.error(`   2. Ou use outra porta: PORT=8000 npm start`);
-        console.error(`   3. Ou mate o processo na porta ${PORT}`);
-        console.error('\n');
-    } else {
-        console.error('Erro no servidor:', err);
-    }
-    process.exit(1);
-});
+        process.exit(1);
+    });
+}
 

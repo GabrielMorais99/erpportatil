@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gerador de Ícones PWA</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #dc3545;
+        }
+        .instructions {
+            background: #fff3cd;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 20px 0;
+            border-left: 4px solid #ffc107;
+        }
+        canvas {
+            border: 2px solid #ddd;
+            margin: 10px;
+            display: block;
+        }
+        button {
+            background: #dc3545;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 10px 5px;
+        }
+        button:hover {
+            background: #c82333;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎨 Gerador de Ícones PWA</h1>
+        <div class="instructions">
+            <p><strong>Instruções:</strong></p>
+            <ol>
+                <li>Clique em "Gerar Ícones" para criar os ícones</li>
+                <li>Os ícones serão baixados automaticamente</li>
+                <li>Coloque os arquivos <code>icon-192.png</code> e <code>icon-512.png</code> na raiz do projeto</li>
+            </ol>
+        </div>
+        
+        <canvas id="canvas192" width="192" height="192"></canvas>
+        <canvas id="canvas512" width="512" height="512"></canvas>
+        
+        <div>
+            <button onclick="gerarIcones()">Gerar Ícones</button>
+        </div>
+    </div>
+
+    <script>
+        function gerarIcones() {
+            // Ícone 192x192
+            const canvas192 = document.getElementById('canvas192');
+            const ctx192 = canvas192.getContext('2d');
+            
+            // Fundo vermelho
+            ctx192.fillStyle = '#dc3545';
+            ctx192.fillRect(0, 0, 192, 192);
+            
+            // Texto branco "L"
+            ctx192.fillStyle = '#ffffff';
+            ctx192.font = 'bold 120px Arial';
+            ctx192.textAlign = 'center';
+            ctx192.textBaseline = 'middle';
+            ctx192.fillText('L', 96, 96);
+            
+            // Ícone 512x512
+            const canvas512 = document.getElementById('canvas512');
+            const ctx512 = canvas512.getContext('2d');
+            
+            // Fundo vermelho
+            ctx512.fillStyle = '#dc3545';
+            ctx512.fillRect(0, 0, 512, 512);
+            
+            // Texto branco "L"
+            ctx512.fillStyle = '#ffffff';
+            ctx512.font = 'bold 320px Arial';
+            ctx512.textAlign = 'center';
+            ctx512.textBaseline = 'middle';
+            ctx512.fillText('L', 256, 256);
+            
+            // Download dos ícones
+            canvas192.toBlob((blob) => {
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'icon-192.png';
+                a.click();
+                URL.revokeObjectURL(url);
+            });
+            
+            setTimeout(() => {
+                canvas512.toBlob((blob) => {
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = 'icon-512.png';
+                    a.click();
+                    URL.revokeObjectURL(url);
+                });
+            }, 500);
+            
+            alert('Ícones gerados e baixados! Coloque-os na raiz do projeto.');
+        }
+        
+        // Gerar automaticamente ao carregar
+        window.addEventListener('load', () => {
+            gerarIcones();
+        });
+    </script>
+</body>
+</html>
+

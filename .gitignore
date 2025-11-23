@@ -14,6 +14,10 @@ Thumbs.db
 *.txt
 !exemplo-dados.txt
 
+# Ícones PWA (manter no repositório)
+# icon-192.png
+# icon-512.png
+
 # IDE
 .vscode/
 .idea/
