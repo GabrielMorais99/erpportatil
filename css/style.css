@@ -4,7 +4,8 @@
     box-sizing: border-box;
 }
 
-html, body {
+html,
+body {
     width: 100%;
     overflow-x: hidden;
     position: relative;
@@ -20,7 +21,7 @@ html, body {
     --gray: #6c757d;
     --dark-gray: #343a40;
     --border-color: #dee2e6;
-    
+
     /* Paleta cinza adicional */
     --gray-50: #f9fafb;
     --gray-100: #f3f4f6;
@@ -32,7 +33,7 @@ html, body {
     --gray-700: #374151;
     --gray-800: #1f2937;
     --gray-900: #111827;
-    
+
     /* Variáveis de tema padrão (vermelho) */
     --primary-color: var(--primary-red);
     --primary-color-dark: var(--primary-red-dark);
@@ -71,7 +72,11 @@ body {
     display: flex;
     justify-content: center;
     align-items: center;
-    background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-color-dark) 100%);
+    background: linear-gradient(
+        135deg,
+        var(--primary-color) 0%,
+        var(--primary-color-dark) 100%
+    );
 }
 
 .login-box {
@@ -642,7 +647,11 @@ body {
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
     position: sticky;
     top: 2rem;
-    background: linear-gradient(to bottom, var(--white) 0%, var(--gray-50) 100%);
+    background: linear-gradient(
+        to bottom,
+        var(--white) 0%,
+        var(--gray-50) 100%
+    );
 }
 
 .costs-summary-card h3 {
@@ -661,6 +670,13 @@ body {
 
 .toolbar-costs {
     margin-bottom: 1.5rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.toolbar-costs #newCostBtn {
+    margin: 0 auto;
 }
 
 .costs-list {
@@ -853,7 +869,11 @@ body {
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
     position: sticky;
     top: 2rem;
-    background: linear-gradient(to bottom, var(--white) 0%, var(--gray-50) 100%);
+    background: linear-gradient(
+        to bottom,
+        var(--white) 0%,
+        var(--gray-50) 100%
+    );
 }
 
 .overall-summary-card h3 {
@@ -1286,7 +1306,7 @@ body {
     .charts-grid {
         grid-template-columns: 1fr;
     }
-    
+
     .dashboard-filters {
         flex-direction: column;
         align-items: stretch;
@@ -1301,7 +1321,7 @@ body {
         grid-template-columns: 1fr;
         gap: 1.5rem;
     }
-    
+
     .overall-summary-card,
     .costs-summary-card,
     .goals-summary-card {
@@ -1420,35 +1440,47 @@ body {
         grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
         gap: 0.8rem;
     }
-    
+
     .groups-layout,
     .costs-layout,
     .goals-layout {
         grid-template-columns: 1fr;
         gap: 1rem;
     }
-    
+
     .overall-summary-card,
     .costs-summary-card,
     .goals-summary-card {
         position: static;
         padding: 1rem;
     }
-    
+
     .groups-list,
     .costs-list,
     .goals-list {
         grid-template-columns: 1fr;
         gap: 0.8rem;
     }
-    
+
     .toolbar-goals {
         display: flex;
         justify-content: center;
         align-items: center;
     }
-    
+
     .toolbar-goals #newGoalBtn {
+        width: 100%;
+        max-width: 300px;
+        margin: 0 auto;
+    }
+
+    .toolbar-costs {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .toolbar-costs #newCostBtn {
         width: 100%;
         max-width: 300px;
         margin: 0 auto;
@@ -1646,5 +1678,3 @@ body {
         padding: 1rem;
     }
 }
-
-
