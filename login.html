@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Loja - Gestão</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div class="app-container">
+        <header class="header">
+            <h1>Loja - Gestão de Itens</h1>
+            <div class="header-actions">
+                <button id="importBtn" class="btn-secondary">Importar Dados</button>
+                <button id="exportBtn" class="btn-secondary">Exportar Dados</button>
+                <input type="file" id="importFile" accept=".txt" style="display: none;">
+                <button id="logoutBtn" class="btn-secondary">Sair</button>
+            </div>
+        </header>
+
+        <main class="main-content">
+            <div class="toolbar">
+                <button id="newItemBtn" class="btn-primary">+ Cadastrar Novo Item</button>
+                <button id="newGroupBtn" class="btn-primary">+ Criar Grupo Mensal</button>
+                <div class="search-filter">
+                    <input type="text" id="searchInput" placeholder="Pesquisar por nome ou marca...">
+                    <select id="monthFilter">
+                        <option value="">Todos os meses</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="content-tabs">
+                <button class="tab-btn active" data-tab="items">Itens</button>
+                <button class="tab-btn" data-tab="groups">Grupos Mensais</button>
+                <button class="tab-btn" data-tab="costs">Custos de Compra</button>
+            </div>
+
+            <!-- Tab: Itens -->
+            <div id="itemsTab" class="tab-content active">
+                <div id="itemsGrid" class="items-grid">
+                    <!-- Itens serão inseridos aqui via JavaScript -->
+                </div>
+            </div>
+
+            <!-- Tab: Grupos Mensais -->
+            <div id="groupsTab" class="tab-content">
+                <div class="groups-layout">
+                    <div class="overall-summary-card">
+                        <h3>Resumo Geral</h3>
+                        <div class="summary-stats">
+                            <div class="stat-item">
+                                <h4>Total de Vendas</h4>
+                                <p id="overallTotalSales">0</p>
+                            </div>
+                            <div class="stat-item">
+                                <h4>Valor Total Vendas</h4>
+                                <p id="overallTotalValue">R$ 0,00</p>
+                            </div>
+                            <div class="stat-item" style="background: #fff3cd; border: 1px solid #ffc107;">
+                                <h4>Total de Custos</h4>
+                                <p id="overallTotalCosts" style="color: #856404;">R$ 0,00</p>
+                            </div>
+                            <div class="stat-item" style="background: #d4edda; border: 1px solid #28a745;">
+                                <h4>Lucro Líquido</h4>
+                                <p id="overallNetProfit" style="color: #155724; font-size: 1.6rem;">R$ 0,00</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="groups-content">
+                        <div id="groupsList" class="groups-list">
+                            <!-- Grupos serão inseridos aqui via JavaScript -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tab: Custos de Compra -->
+            <div id="costsTab" class="tab-content">
+                <div class="costs-layout">
+                    <div class="costs-summary-card">
+                        <h3>Resumo de Custos</h3>
+                        <div class="summary-stats">
+                            <div class="stat-item">
+                                <h4>Total de Compras</h4>
+                                <p id="totalCostsCount">0</p>
+                            </div>
+                            <div class="stat-item">
+                                <h4>Valor Total Custos</h4>
+                                <p id="totalCostsValue">R$ 0,00</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="costs-content">
+                        <div class="toolbar-costs">
+                            <button id="newCostBtn" class="btn-primary">+ Cadastrar Novo Custo</button>
+                        </div>
+                        <div id="costsList" class="costs-list">
+                            <!-- Custos serão inseridos aqui via JavaScript -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <footer class="footer">
+            <p>Gerenciamento de loja vendas</p>
+        </footer>
+    </div>
+
+    <!-- Modal: Cadastro/Edição de Item -->
+    <div id="itemModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="modalTitle">Cadastrar Novo Item</h2>
+                <span class="close">&times;</span>
+            </div>
+            <form id="itemForm">
+                <div class="form-group">
+                    <label for="itemName">Nome do Item *</label>
+                    <input type="text" id="itemName" required>
+                </div>
+                <div class="form-group">
+                    <label for="itemBrand">Marca *</label>
+                    <input type="text" id="itemBrand" required>
+                </div>
+                <div class="form-group">
+                    <label for="itemSize">Tamanho *</label>
+                    <input type="text" id="itemSize" required>
+                </div>
+                <div class="form-group">
+                    <label for="itemPrice">Preço *</label>
+                    <input type="number" id="itemPrice" step="0.01" min="0.01" required>
+                </div>
+                <div class="form-group">
+                    <label for="itemGender">Gênero *</label>
+                    <select id="itemGender" required>
+                        <option value="">Selecione...</option>
+                        <option value="Masculino">Masculino</option>
+                        <option value="Feminino">Feminino</option>
+                        <option value="Unissex">Unissex</option>
+                    </select>
+                </div>
+                <div class="modal-actions">
+                    <button type="button" class="btn-secondary" id="cancelBtn">Cancelar</button>
+                    <button type="submit" class="btn-primary">Salvar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal: Criar Grupo Mensal -->
+    <div id="groupModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Criar Grupo Mensal</h2>
+                <span class="close">&times;</span>
+            </div>
+            <form id="groupForm">
+                <div class="form-group">
+                    <label for="groupMonth">Mês</label>
+                    <input type="month" id="groupMonth" required>
+                </div>
+                <div class="modal-actions">
+                    <button type="button" class="btn-secondary" id="cancelGroupBtn">Cancelar</button>
+                    <button type="submit" class="btn-primary">Criar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal: Visualizar/Editar Grupo -->
+    <div id="viewGroupModal" class="modal">
+        <div class="modal-content large">
+            <div class="modal-header">
+                <h2 id="groupTitle">Grupo Mensal</h2>
+                <span class="close">&times;</span>
+            </div>
+            <div class="group-content">
+                <div class="group-summary">
+                    <div class="summary-card">
+                        <h3>Total de Vendas (Mês)</h3>
+                        <p id="totalSales">0</p>
+                    </div>
+                    <div class="summary-card">
+                        <h3>Valor Total (Mês)</h3>
+                        <p id="totalValue">R$ 0,00</p>
+                    </div>
+                    <div class="summary-card" style="background: #fff3cd; border: 2px solid #ffc107;">
+                        <h3>Total de Vendas (Todos os Meses)</h3>
+                        <p id="totalSalesAll" style="color: #856404; font-size: 1.8rem; font-weight: bold;">0</p>
+                    </div>
+                    <div class="summary-card" style="background: #fff3cd; border: 2px solid #ffc107;">
+                        <h3>Valor Total (Todos os Meses)</h3>
+                        <p id="totalValueAll" style="color: #856404; font-size: 1.8rem; font-weight: bold;">R$ 0,00</p>
+                    </div>
+                </div>
+                <div class="days-container">
+                    <h3>Vendas por Dia</h3>
+                    <div id="daysList" class="days-list">
+                        <!-- Dias serão inseridos aqui -->
+                    </div>
+                </div>
+                <div class="items-summary">
+                    <h3>Resumo por Item</h3>
+                    <div id="itemsSummary" class="items-summary-list">
+                        <!-- Resumo será inserido aqui -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: Registrar Venda -->
+    <div id="saleModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Registrar Venda</h2>
+                <span class="close">&times;</span>
+            </div>
+            <form id="saleForm">
+                <div class="form-group">
+                    <label for="saleItem">Item *</label>
+                    <select id="saleItem" required>
+                        <option value="">Selecione um item...</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="saleDate">Data (Dia) *</label>
+                    <input type="number" id="saleDate" min="1" max="31" required>
+                </div>
+                <div class="form-group">
+                    <label for="saleQuantity">Quantidade *</label>
+                    <input type="number" id="saleQuantity" min="1" required>
+                </div>
+                <div class="form-group">
+                    <label for="salePrice">Preço Aplicado *</label>
+                    <input type="number" id="salePrice" step="0.01" min="0.01" required>
+                </div>
+                <div class="modal-actions">
+                    <button type="button" class="btn-secondary" id="cancelSaleBtn">Cancelar</button>
+                    <button type="submit" class="btn-primary">Registrar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal: Cadastrar Custo de Compra -->
+    <div id="costModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="costModalTitle">Cadastrar Novo Custo</h2>
+                <span class="close">&times;</span>
+            </div>
+            <form id="costForm">
+                <div class="form-group">
+                    <label for="costItem">Item *</label>
+                    <select id="costItem" required>
+                        <option value="">Selecione um item...</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="costDate">Data da Compra *</label>
+                    <input type="date" id="costDate" required>
+                </div>
+                <div class="form-group">
+                    <label for="costQuantity">Quantidade *</label>
+                    <input type="number" id="costQuantity" min="1" required>
+                </div>
+                <div class="form-group">
+                    <label for="costPrice">Custo Unitário *</label>
+                    <input type="number" id="costPrice" step="0.01" min="0.01" required>
+                </div>
+                <div class="form-group">
+                    <label for="costTotal">Custo Total</label>
+                    <input type="number" id="costTotal" step="0.01" readonly style="background: var(--light-gray);">
+                </div>
+                <div class="modal-actions">
+                    <button type="button" class="btn-secondary" id="cancelCostBtn">Cancelar</button>
+                    <button type="submit" class="btn-primary">Salvar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="js/app.js"></script>
+</body>
+</html>
+

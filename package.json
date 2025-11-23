@@ -1,0 +1,23 @@
+{
+  "name": "loja-sistema",
+  "version": "1.0.0",
+  "description": "Sistema de gestão de loja de roupas - Projeto por Nilda",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js",
+    "test": "node test-server.js",
+    "start:8000": "PORT=8000 node server.js"
+  },
+  "keywords": [
+    "loja",
+    "gestao",
+    "vendas"
+  ],
+  "author": "Nilda",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.18.2"
+  }
+}
+
