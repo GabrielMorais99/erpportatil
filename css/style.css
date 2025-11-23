@@ -539,6 +539,13 @@ body {
 
 .toolbar-goals {
     margin-bottom: 1.5rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.toolbar-goals #newGoalBtn {
+    margin: 0 auto;
 }
 
 .goals-list {
@@ -743,6 +750,13 @@ body {
 
 .toolbar-goals {
     margin-bottom: 1.5rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.toolbar-goals #newGoalBtn {
+    margin: 0 auto;
 }
 
 .goals-list {
@@ -1199,6 +1213,7 @@ body {
     grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
     gap: 1.5rem;
     margin-bottom: 2rem;
+    justify-items: center;
 }
 
 .chart-card {
@@ -1207,6 +1222,9 @@ body {
     border-radius: 8px;
     border: 1px solid var(--gray-200);
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
 }
 
 .chart-card h3 {
@@ -1423,6 +1441,18 @@ body {
         grid-template-columns: 1fr;
         gap: 0.8rem;
     }
+    
+    .toolbar-goals {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+    
+    .toolbar-goals #newGoalBtn {
+        width: 100%;
+        max-width: 300px;
+        margin: 0 auto;
+    }
 
     .modal-content {
         width: 95%;
@@ -1457,11 +1487,16 @@ body {
         grid-template-columns: 1fr;
         gap: 1.5rem;
         margin-bottom: 1.5rem;
+        justify-items: center;
     }
 
     .chart-card {
         padding: 1.25rem;
         margin-bottom: 0;
+        width: 100%;
+        max-width: 100%;
+        margin-left: auto;
+        margin-right: auto;
     }
 
     .chart-card h3 {
@@ -1585,10 +1620,15 @@ body {
     .charts-grid {
         gap: 1.25rem;
         margin-bottom: 1.25rem;
+        justify-items: center;
     }
 
     .chart-card {
         padding: 1rem;
+        width: 100%;
+        max-width: 100%;
+        margin-left: auto;
+        margin-right: auto;
     }
 
     .chart-card h3 {
