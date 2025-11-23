@@ -67,17 +67,17 @@ module.exports = async (req, res) => {
 
                 res.setHeader('Content-Type', finalContentType);
 
-                // Headers de cache para CSS/JS (desabilitado temporariamente para debug)
-                // if (ext === '.css' || ext === '.js') {
-                //     res.setHeader('Cache-Control', 'public, max-age=31536000');
-                // }
-                // Cache mais curto para desenvolvimento
+                // Headers para evitar cache (forçar recarregamento)
                 res.setHeader(
                     'Cache-Control',
-                    'no-cache, no-store, must-revalidate'
+                    'no-cache, no-store, must-revalidate, max-age=0'
                 );
                 res.setHeader('Pragma', 'no-cache');
                 res.setHeader('Expires', '0');
+                res.setHeader('Last-Modified', new Date().toUTCString());
+
+                // Remover ETag se existir (pode causar 304)
+                res.removeHeader('ETag');
 
                 // CORS headers (caso necessário)
                 res.setHeader('Access-Control-Allow-Origin', '*');
