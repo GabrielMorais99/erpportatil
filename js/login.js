@@ -41,7 +41,12 @@ document.addEventListener('DOMContentLoaded', function() {
         }
         
         // Verificar credenciais
-        if (username === 'nilda' && password === '123') {
+        const validUsers = {
+            'nilda': '123',
+            'admin': '123'
+        };
+        
+        if (validUsers[username] && validUsers[username] === password) {
             console.log('✅ [LOGIN.JS] Credenciais válidas!');
             
             // Salvar sessão
