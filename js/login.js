@@ -43,7 +43,12 @@ document.addEventListener('DOMContentLoaded', function() {
         // Verificar credenciais
         const validUsers = {
             'nilda': '123',
-            'admin': '123'
+            'admin': '123',
+            'usuarioteste1': '123',
+            'usuarioteste2': '123',
+            'usuarioteste3': '123',
+            'usuarioteste4': '123',
+            'usuarioteste5': '123'
         };
         
         if (validUsers[username] && validUsers[username] === password) {
