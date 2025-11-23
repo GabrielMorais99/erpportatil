@@ -39,6 +39,28 @@ app.get('/login.html', (req, res) => {
     }
 });
 
+// Rota catch-all para servir arquivos estáticos ou index.html
+app.get('*', (req, res) => {
+    // Ignorar rotas de API
+    if (req.path.startsWith('/api/')) {
+        return res.status(404).json({ error: 'API route not found' });
+    }
+
+    // Tentar servir arquivo estático se existir
+    const filePath = path.join(__dirname, req.path);
+    if (fs.existsSync(filePath) && fs.statSync(filePath).isFile()) {
+        return res.sendFile(filePath);
+    }
+
+    // Se não encontrar, servir index.html (SPA fallback)
+    const indexPath = path.join(__dirname, 'index.html');
+    if (fs.existsSync(indexPath)) {
+        return res.sendFile(indexPath);
+    }
+
+    res.status(404).send('Página não encontrada');
+});
+
 // Tratamento de erros
 app.use((err, req, res, next) => {
     console.error('Erro:', err);
