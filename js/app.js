@@ -930,6 +930,13 @@ class LojaApp {
             document.getElementById('electronicsFields').style.display = 'none';
             const servicesFields = document.getElementById('servicesFields');
             if (servicesFields) servicesFields.style.display = 'none';
+            
+            // Remover required de serviceName ao criar novo item
+            const serviceName = document.getElementById('serviceName');
+            if (serviceName) {
+                serviceName.required = false;
+            }
+            
             // Mostrar campos básicos por padrão (serão escondidos quando categoria for selecionada)
             const clothingBasicFields = document.getElementById(
                 'clothingBasicFields'
