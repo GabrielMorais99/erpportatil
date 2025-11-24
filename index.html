@@ -64,13 +64,6 @@
             <div class="login-box">
                 <div class="logo">
                     <h1>Super Gestão</h1>
-                    <button
-                        id="themeToggleBtn"
-                        class="theme-toggle-btn-login"
-                        title="Alternar tema"
-                    >
-                        🎨
-                    </button>
                 </div>
                 <form id="loginForm" action="#" onsubmit="return false;">
                     <div class="form-group">
@@ -194,7 +187,7 @@
                     });
                 </script>
                 <div class="signature">
-                    <p>© Gabriel</p>
+                    <p>Direitos a dev Gabriel 2025</p>
                 </div>
             </div>
         </div>
@@ -215,25 +208,6 @@
                     updateThemeColor('#007bff');
                 } else {
                     updateThemeColor('#dc3545');
-                }
-
-                // Botão de troca de tema
-                const themeToggleBtn =
-                    document.getElementById('themeToggleBtn');
-                if (themeToggleBtn) {
-                    themeToggleBtn.addEventListener('click', function () {
-                        const isBlue =
-                            document.body.classList.contains('theme-blue');
-                        if (isBlue) {
-                            document.body.classList.remove('theme-blue');
-                            localStorage.setItem('appTheme', 'red');
-                            updateThemeColor('#dc3545');
-                        } else {
-                            document.body.classList.add('theme-blue');
-                            localStorage.setItem('appTheme', 'blue');
-                            updateThemeColor('#007bff');
-                        }
-                    });
                 }
             })();
         </script>
