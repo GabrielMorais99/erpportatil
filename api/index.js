@@ -131,6 +131,12 @@ module.exports = async (req, res) => {
 
                 // Ler e enviar arquivo
                 try {
+                    // Para imagens, ler como buffer binário
+                    if (['.png', '.jpg', '.jpeg', '.gif', '.svg', '.ico', '.webp'].includes(ext)) {
+                        const fileBuffer = fs.readFileSync(fullPath);
+                        return res.status(200).send(fileBuffer);
+                    }
+                    
                     const fileContent = fs.readFileSync(fullPath, 'utf8');
                     
                     // Verificar se o arquivo CSS não está vazio
@@ -157,6 +163,19 @@ module.exports = async (req, res) => {
                         console.log('JS Path:', cleanPath);
                         console.log('Content-Type:', res.getHeader('Content-Type'));
                         console.log('Tamanho do JS:', fileContent.length, 'caracteres');
+                        
+                        // Verificar se não é HTML disfarçado
+                        if (fileContent.trim().startsWith('<!DOCTYPE') || fileContent.trim().startsWith('<html')) {
+                            console.error('ERRO: Arquivo JS contém HTML!');
+                            return res.status(404).send('File not found');
+                        }
+                    }
+                    
+                    // Log para debug de imagens
+                    if (['.png', '.jpg', '.jpeg', '.gif', '.svg', '.ico', '.webp'].includes(ext)) {
+                        console.log('=== IMAGEM SENDO SERVIDA ===');
+                        console.log('Image Path:', cleanPath);
+                        console.log('Content-Type:', res.getHeader('Content-Type'));
                     }
 
                     // Garantir que o CSS está sendo enviado corretamente
@@ -173,7 +192,30 @@ module.exports = async (req, res) => {
         }
 
         // Se não encontrar, tentar caminhos alternativos
-        // Primeiro para JS (prioridade para app.js)
+        // Primeiro para JS (login.js e app.js)
+        if (cleanPath.includes('js/login.js') || cleanPath.includes('login.js')) {
+            const jsAltPaths = [
+                path.join(projectRoot, 'js', 'login.js'),
+                path.join(__dirname, '..', 'js', 'login.js'),
+                path.join(process.cwd(), 'js', 'login.js')
+            ];
+            
+            for (const altPath of jsAltPaths) {
+                if (fs.existsSync(altPath)) {
+                    console.log('login.js encontrado em caminho alternativo:', altPath);
+                    const fileContent = fs.readFileSync(altPath, 'utf8');
+                    res.setHeader('Content-Type', 'application/javascript; charset=utf-8');
+                    res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate, max-age=0');
+                    res.setHeader('Pragma', 'no-cache');
+                    res.setHeader('Expires', '0');
+                    return res.status(200).send(fileContent);
+                }
+            }
+            // Se não encontrou, retornar 404 em vez de HTML
+            console.error('login.js não encontrado');
+            return res.status(404).json({ error: 'login.js not found' });
+        }
+        
         if (cleanPath.includes('js/app.js') || cleanPath.includes('app.js') || filePath.includes('js/app.js')) {
             const jsAltPaths = [
                 path.join(projectRoot, 'js', 'app.js'),
@@ -237,13 +279,33 @@ module.exports = async (req, res) => {
             }
         }
         
-        // Se não encontrar, tentar servir index.html como fallback
-        const indexPath = path.join(projectRoot, 'index.html');
-        if (fs.existsSync(indexPath)) {
-            console.log('Servindo index.html como fallback');
-            res.setHeader('Content-Type', 'text/html; charset=utf-8');
-            const indexContent = fs.readFileSync(indexPath, 'utf8');
-            return res.status(200).send(indexContent);
+        // Para manifest.json e outros arquivos JSON, retornar 404 se não encontrado
+        if (cleanPath.includes('manifest.json') || filePath.includes('manifest.json')) {
+            console.error('manifest.json não encontrado');
+            return res.status(404).json({ error: 'manifest.json not found' });
+        }
+        
+        // Para imagens, retornar 404 se não encontrado (não servir HTML)
+        if (['.png', '.jpg', '.jpeg', '.gif', '.svg', '.ico', '.webp'].some(ext => cleanPath.endsWith(ext))) {
+            console.error('Imagem não encontrada:', cleanPath);
+            return res.status(404).send('Image not found');
+        }
+        
+        // Para arquivos JS, retornar 404 se não encontrado (não servir HTML)
+        if (cleanPath.endsWith('.js')) {
+            console.error('Arquivo JS não encontrado:', cleanPath);
+            return res.status(404).json({ error: 'JavaScript file not found' });
+        }
+        
+        // Se não encontrar, tentar servir index.html como fallback APENAS para rotas HTML
+        if (cleanPath.endsWith('.html') || filePath === '/' || filePath === '') {
+            const indexPath = path.join(projectRoot, 'index.html');
+            if (fs.existsSync(indexPath)) {
+                console.log('Servindo index.html como fallback');
+                res.setHeader('Content-Type', 'text/html; charset=utf-8');
+                const indexContent = fs.readFileSync(indexPath, 'utf8');
+                return res.status(200).send(indexContent);
+            }
         }
 
         // 404
