@@ -45,25 +45,25 @@ body.theme-blue {
     --primary-color-dark: var(--primary-blue-dark);
 }
 
-/* Ajustar background do login para tema azul (mantém cinza) */
+/* Ajustar background do login para tema azul (mantém preto) */
 body.theme-blue .login-container {
     background-image: url('/images/background-financial.png'),
         linear-gradient(
             to bottom,
-            rgba(156, 163, 175, 0.1) 0%,
-            rgba(156, 163, 175, 0.2) 50%,
-            rgba(156, 163, 175, 0.3) 100%
+            rgba(0, 0, 0, 0.1) 0%,
+            rgba(0, 0, 0, 0.2) 50%,
+            rgba(0, 0, 0, 0.3) 100%
         );
 }
 
-/* Padronizar cores da tela de login para cinza claro e branco */
+/* Padronizar cores da tela de login para preto e branco */
 .login-container .logo h1 {
-    color: #4b5563;
+    color: #000000;
 }
 
 .login-container .form-group input:focus,
 .login-container .form-group select:focus {
-    border-color: #6b7280;
+    border-color: #000000;
 }
 
 .login-container .error-message {
@@ -71,12 +71,12 @@ body.theme-blue .login-container {
 }
 
 .login-container .btn-primary {
-    background-color: #6b7280;
+    background-color: #000000;
     color: #ffffff;
 }
 
 .login-container .btn-primary:hover {
-    background-color: #9ca3af;
+    background-color: #333333;
 }
 
 body {
@@ -106,18 +106,27 @@ body {
     display: flex;
     justify-content: center;
     align-items: center;
-    background-color: #9ca3af;
+    background-color: #000000;
     background-image: url('/images/background-financial.png'),
         linear-gradient(
             to bottom,
-            rgba(156, 163, 175, 0.1) 0%,
-            rgba(156, 163, 175, 0.2) 50%,
-            rgba(156, 163, 175, 0.3) 100%
+            rgba(0, 0, 0, 0.1) 0%,
+            rgba(0, 0, 0, 0.2) 50%,
+            rgba(0, 0, 0, 0.3) 100%
         );
     background-size: cover;
     background-position: center right;
     background-repeat: no-repeat;
     background-attachment: scroll;
+    image-rendering: -webkit-optimize-contrast;
+    image-rendering: auto;
+    -webkit-background-size: cover;
+    -moz-background-size: cover;
+    -o-background-size: cover;
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+    transform: translateZ(0);
+    -webkit-transform: translateZ(0);
     transition: opacity 0.4s ease-out, transform 0.4s ease-out;
 }
 
