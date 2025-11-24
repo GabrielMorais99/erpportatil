@@ -764,11 +764,13 @@ class LojaApp {
         const category = document.getElementById('itemCategory').value;
         const clothingFields = document.getElementById('clothingFields');
         const electronicsFields = document.getElementById('electronicsFields');
+        const servicesFields = document.getElementById('servicesFields');
         const clothingBasicFields = document.getElementById(
             'clothingBasicFields'
         );
         const itemName = document.getElementById('itemName');
         const itemBrand = document.getElementById('itemBrand');
+        const serviceName = document.getElementById('serviceName');
 
         if (category === 'Roupas') {
             // Mostrar campos básicos (Nome e Marca)
@@ -823,6 +825,45 @@ class LojaApp {
             }
             if (clothingFields) clothingFields.style.display = 'none';
             if (electronicsFields) electronicsFields.style.display = 'none';
+            if (servicesFields) servicesFields.style.display = 'none';
+        }
+        
+        // Adicionar lógica para Serviços
+        if (category === 'Serviços') {
+            // Esconder campos básicos (Nome e Marca)
+            if (clothingBasicFields) clothingBasicFields.style.display = 'none';
+            if (itemName) {
+                itemName.required = false;
+                itemName.parentElement.style.display = 'none';
+                itemName.value = '';
+            }
+            if (itemBrand) {
+                itemBrand.required = false;
+                itemBrand.parentElement.style.display = 'none';
+                itemBrand.value = '';
+            }
+            // Esconder campos específicos de roupas e eletrônicos
+            if (clothingFields) clothingFields.style.display = 'none';
+            if (electronicsFields) electronicsFields.style.display = 'none';
+            // Mostrar campos específicos de serviços
+            if (servicesFields) servicesFields.style.display = 'block';
+            // Configurar nome do serviço como obrigatório
+            if (serviceName) {
+                serviceName.required = true;
+            }
+            // Limpar campos de outras categorias
+            document.getElementById('itemStyle').value = '';
+            document.getElementById('itemSize').value = '';
+            document.getElementById('itemGender').value = '';
+            document.getElementById('itemModel').value = '';
+            document.getElementById('itemCapacity').value = '';
+            document.getElementById('itemColor').value = '';
+        } else if (category !== 'Roupas' && category !== 'Eletrônicos') {
+            // Se não for nenhuma categoria específica, esconder campos de serviços também
+            if (servicesFields) servicesFields.style.display = 'none';
+            if (serviceName) {
+                serviceName.required = false;
+            }
         }
     }
 
@@ -851,6 +892,12 @@ class LojaApp {
                 document.getElementById('itemCapacity').value =
                     item.capacity || '';
                 document.getElementById('itemColor').value = item.color || '';
+            } else if (item.category === 'Serviços') {
+                document.getElementById('serviceName').value = item.name || '';
+                document.getElementById('serviceDescription').value = item.description || '';
+                document.getElementById('serviceDuration').value = item.duration || '';
+                document.getElementById('serviceType').value = item.serviceType || '';
+                document.getElementById('serviceUnit').value = item.serviceUnit || 'Unidades';
             }
 
             // Atualizar campos visíveis
@@ -866,6 +913,8 @@ class LojaApp {
             // Esconder campos específicos ao criar novo item
             document.getElementById('clothingFields').style.display = 'none';
             document.getElementById('electronicsFields').style.display = 'none';
+            const servicesFields = document.getElementById('servicesFields');
+            if (servicesFields) servicesFields.style.display = 'none';
             // Mostrar campos básicos por padrão (serão escondidos quando categoria for selecionada)
             const clothingBasicFields = document.getElementById(
                 'clothingBasicFields'
@@ -931,6 +980,13 @@ class LojaApp {
             item.model = model || '';
             item.capacity = capacity || '';
             item.color = color || '';
+        } else if (category === 'Serviços') {
+            item.name = document.getElementById('serviceName').value.trim();
+            item.description = document.getElementById('serviceDescription').value.trim() || '';
+            item.duration = document.getElementById('serviceDuration').value.trim() || '';
+            item.serviceType = document.getElementById('serviceType').value || '';
+            item.serviceUnit = document.getElementById('serviceUnit').value || 'Unidades';
+            item.brand = ''; // Não usado para serviços
         }
 
         // Validações
@@ -947,6 +1003,11 @@ class LojaApp {
         } else if (category === 'Eletrônicos') {
             if (!item.model) {
                 alert('Por favor, preencha o modelo.');
+                return;
+            }
+        } else if (category === 'Serviços') {
+            if (!item.name) {
+                alert('Por favor, preencha o nome do serviço.');
                 return;
             }
         }
@@ -1258,7 +1319,16 @@ class LojaApp {
                         item.capacity.toLowerCase().includes(search)) ||
                     (category === 'Eletrônicos' &&
                         item.color &&
-                        item.color.toLowerCase().includes(search))
+                        item.color.toLowerCase().includes(search)) ||
+                    (category === 'Serviços' &&
+                        item.name &&
+                        item.name.toLowerCase().includes(search)) ||
+                    (category === 'Serviços' &&
+                        item.description &&
+                        item.description.toLowerCase().includes(search)) ||
+                    (category === 'Serviços' &&
+                        item.serviceType &&
+                        item.serviceType.toLowerCase().includes(search))
                 );
             });
         }
@@ -1337,10 +1407,44 @@ class LojaApp {
                             : ''
                     }
                 `;
+                } else if (category === 'Serviços') {
+                    categoryInfo = `
+                    ${
+                        item.description
+                            ? `<div class="item-info">${this.escapeHtml(
+                                  item.description.length > 100 
+                                      ? item.description.substring(0, 100) + '...'
+                                      : item.description
+                              )}</div>`
+                            : ''
+                    }
+                    ${
+                        item.duration
+                            ? `<div class="item-info">Duração: ${this.escapeHtml(
+                                  item.duration
+                              )}</div>`
+                            : ''
+                    }
+                    ${
+                        item.serviceType
+                            ? `<div class="item-info">Tipo: ${this.escapeHtml(
+                                  item.serviceType
+                              )}</div>`
+                            : ''
+                    }
+                    ${
+                        item.serviceUnit
+                            ? `<div class="item-info">Unidade: ${this.escapeHtml(
+                                  item.serviceUnit
+                              )}</div>`
+                            : ''
+                    }
+                `;
                 }
 
                 // Para eletrônicos, mostrar modelo como título principal
                 // Para roupas, se não tiver nome, usar marca + estilo ou apenas marca
+                // Para serviços, usar nome do serviço
                 let displayName;
                 if (category === 'Eletrônicos' && item.model) {
                     displayName = item.model;
@@ -1354,13 +1458,15 @@ class LojaApp {
                         displayName =
                             parts.filter((p) => p).join(' - ') || 'Roupa';
                     }
+                } else if (category === 'Serviços') {
+                    displayName = item.name || 'Serviço';
                 } else {
                     displayName = item.name || 'Item';
                 }
 
                 return `
             <div class="item-card">
-                <div class="item-category-badge">${this.escapeHtml(
+                <div class="item-category-badge ${category === 'Serviços' ? 'services-badge' : ''}">${this.escapeHtml(
                     category
                 )}</div>
                 <h3>${this.escapeHtml(displayName)}</h3>
@@ -1664,6 +1770,14 @@ class LojaApp {
 
         if (!itemId || !stockInfo) return;
 
+        // Verificar se é serviço (serviços não têm estoque físico)
+        const item = this.items.find(i => i.id === itemId);
+        if (item && item.category === 'Serviços') {
+            stockInfo.textContent = 'Serviço - Não possui estoque físico.';
+            stockInfo.style.color = '#6c757d';
+            return;
+        }
+
         const dayData = this.currentGroup.days.find(
             (d) => d.day === this.currentSaleDay
         );
@@ -1840,25 +1954,31 @@ class LojaApp {
         const dayData = group.days.find((d) => d.day === this.currentSaleDay);
         if (!dayData) return;
 
-        // Garantir que stock existe
-        if (!dayData.stock) {
-            dayData.stock = {};
-        }
+        // Verificar se é serviço (serviços não têm estoque físico)
+        const item = this.items.find(i => i.id === itemId);
+        const isService = item && item.category === 'Serviços';
 
-        // Verificar estoque disponível
-        const stockQuantity = dayData.stock[itemId] || 0;
-        const soldQuantity = dayData.sales
-            .filter((sale) => sale.itemId === itemId)
-            .reduce((sum, sale) => sum + sale.quantity, 0);
-        const availableStock = stockQuantity - soldQuantity;
+        // Verificar estoque disponível (apenas para produtos físicos)
+        if (!isService) {
+            // Garantir que stock existe
+            if (!dayData.stock) {
+                dayData.stock = {};
+            }
 
-        if (stockQuantity > 0 && quantity > availableStock) {
-            if (
-                !confirm(
-                    `Atenção! Estoque disponível: ${availableStock} un. Deseja registrar ${quantity} un. mesmo assim?`
-                )
-            ) {
-                return;
+            const stockQuantity = dayData.stock[itemId] || 0;
+            const soldQuantity = dayData.sales
+                .filter((sale) => sale.itemId === itemId)
+                .reduce((sum, sale) => sum + sale.quantity, 0);
+            const availableStock = stockQuantity - soldQuantity;
+
+            if (stockQuantity > 0 && quantity > availableStock) {
+                if (
+                    !confirm(
+                        `Atenção! Estoque disponível: ${availableStock} un. Deseja registrar ${quantity} un. mesmo assim?`
+                    )
+                ) {
+                    return;
+                }
             }
         }
 
@@ -2105,9 +2225,12 @@ class LojaApp {
 
         // Popular select de itens
         const costItemSelect = document.getElementById('costItem');
+        // Filtrar apenas produtos físicos (excluir serviços)
+        const physicalItems = this.items.filter(item => item.category !== 'Serviços');
+        
         costItemSelect.innerHTML =
             '<option value="">Selecione um item...</option>' +
-            this.items
+            physicalItems
                 .map((item) => {
                     const category = item.category || 'Roupas';
                     if (category === 'Eletrônicos') {
@@ -2742,7 +2865,16 @@ class LojaApp {
             return;
         }
 
-        stockItemsList.innerHTML = this.items
+        // Filtrar apenas produtos físicos (excluir serviços)
+        const physicalItems = this.items.filter(item => item.category !== 'Serviços');
+        
+        if (physicalItems.length === 0) {
+            stockItemsList.innerHTML =
+                '<p style="text-align: center; color: var(--gray); padding: 1rem;">Nenhum produto físico cadastrado.</p>';
+            return;
+        }
+
+        stockItemsList.innerHTML = physicalItems
             .map((item) => {
                 const stockQuantity = dayData.stock[item.id] || 0;
                 const soldQuantity = dayData.sales

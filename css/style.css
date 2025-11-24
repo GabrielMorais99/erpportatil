@@ -561,6 +561,18 @@ body {
     right: 0.5rem;
     background: var(--primary-color);
     color: var(--white);
+}
+
+/* Badge específico para Serviços */
+.item-card:has(.item-category-badge:contains("Serviços")) .item-category-badge,
+.item-category-badge[data-category="Serviços"] {
+    background: #28a745;
+}
+
+/* Alternativa usando JavaScript para adicionar classe */
+.item-category-badge.services-badge {
+    background: #28a745;
+}
     padding: 0.25rem 0.5rem;
     border-radius: 4px;
     font-size: 0.7rem;
