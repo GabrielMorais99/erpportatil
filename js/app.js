@@ -13,6 +13,7 @@ class LojaApp {
         this.currentSaleDay = null;
         this.currentEditingCost = null;
         this.currentEditingGoal = null;
+        this.currentQRScanner = null; // Scanner de QR code
 
         this.init();
     }
@@ -445,6 +446,66 @@ class LojaApp {
             console.error('❌ [APP.JS] itemModal .close não encontrado!');
         }
 
+        // QR Code - Modal de Item
+        const downloadQRBtn = document.getElementById('downloadQRBtn');
+        const printQRBtn = document.getElementById('printQRBtn');
+        
+        if (downloadQRBtn) {
+            downloadQRBtn.addEventListener('click', () => {
+                if (this.currentEditingItem) {
+                    this.downloadQRCode('qrcodeCanvas', `qrcode-${this.currentEditingItem.id}.png`);
+                }
+            });
+        }
+        
+        if (printQRBtn) {
+            printQRBtn.addEventListener('click', () => {
+                this.printQRCode('qrcodeCanvas');
+            });
+        }
+
+        // QR Code - Modal de Venda (Scanner)
+        const scanQRBtn = document.getElementById('scanQRBtn');
+        const stopScanBtn = document.getElementById('stopScanBtn');
+        
+        if (scanQRBtn) {
+            scanQRBtn.addEventListener('click', () => {
+                this.startQRScanner();
+            });
+        }
+        
+        if (stopScanBtn) {
+            stopScanBtn.addEventListener('click', () => {
+                this.stopQRScanner();
+            });
+        }
+
+        // QR Code - Modal Dedicado
+        const qrcodeModalClose = document.querySelector('#qrcodeModal .close');
+        const downloadQRModalBtn = document.getElementById('downloadQRModalBtn');
+        const printQRModalBtn = document.getElementById('printQRModalBtn');
+        
+        if (qrcodeModalClose) {
+            qrcodeModalClose.addEventListener('click', () => {
+                document.getElementById('qrcodeModal').classList.remove('active');
+            });
+        }
+        
+        if (downloadQRModalBtn) {
+            downloadQRModalBtn.addEventListener('click', () => {
+                const itemId = downloadQRModalBtn.dataset.itemId;
+                if (itemId) {
+                    this.downloadQRCode('qrcodeModalCanvas', `qrcode-${itemId}.png`);
+                }
+            });
+        }
+        
+        if (printQRModalBtn) {
+            printQRModalBtn.addEventListener('click', () => {
+                this.printQRCode('qrcodeModalCanvas');
+            });
+        }
+
         // Modal de grupo
         const groupForm = document.getElementById('groupForm');
         const cancelGroupBtn = document.getElementById('cancelGroupBtn');
@@ -794,6 +855,11 @@ class LojaApp {
 
             // Atualizar campos visíveis
             this.toggleCategoryFields();
+            
+            // Gerar QR code se estiver editando
+            if (item.id) {
+                this.generateQRCode(item.id);
+            }
         } else {
             title.textContent = 'Novo Produto';
             form.reset();
@@ -806,6 +872,10 @@ class LojaApp {
             );
             if (clothingBasicFields)
                 clothingBasicFields.style.display = 'block';
+            
+            // Esconder seção de QR code ao criar novo item
+            const qrcodeSection = document.getElementById('qrcodeSection');
+            if (qrcodeSection) qrcodeSection.style.display = 'none';
         }
 
         modal.classList.add('active');
@@ -814,6 +884,10 @@ class LojaApp {
     closeItemModal() {
         document.getElementById('itemModal').classList.remove('active');
         this.currentEditingItem = null;
+        
+        // Esconder seção de QR code
+        const qrcodeSection = document.getElementById('qrcodeSection');
+        if (qrcodeSection) qrcodeSection.style.display = 'none';
     }
 
     saveItem(e) {
@@ -896,6 +970,243 @@ class LojaApp {
         this.saveData();
         this.renderItems();
         this.closeItemModal();
+        
+        // Gerar QR code após salvar
+        if (item.id) {
+            this.generateQRCode(item.id);
+        }
+    }
+
+    // ========== FUNÇÕES QR CODE ==========
+    
+    generateQRCode(itemId) {
+        if (!window.QRCode) {
+            console.error('Biblioteca QRCode não carregada');
+            return;
+        }
+
+        const canvas = document.getElementById('qrcodeCanvas');
+        const section = document.getElementById('qrcodeSection');
+        
+        if (!canvas || !section) return;
+
+        const qrData = `ITEM:${itemId}`;
+        
+        QRCode.toCanvas(canvas, qrData, {
+            width: 200,
+            margin: 2,
+            color: {
+                dark: '#000000',
+                light: '#FFFFFF'
+            }
+        }, (error) => {
+            if (error) {
+                console.error('Erro ao gerar QR code:', error);
+                alert('Erro ao gerar QR code');
+            } else {
+                section.style.display = 'block';
+            }
+        });
+    }
+
+    generateQRCodeForModal(itemId, canvasId) {
+        if (!window.QRCode) {
+            console.error('Biblioteca QRCode não carregada');
+            return;
+        }
+
+        const canvas = document.getElementById(canvasId);
+        if (!canvas) return;
+
+        const qrData = `ITEM:${itemId}`;
+        
+        QRCode.toCanvas(canvas, qrData, {
+            width: 300,
+            margin: 2,
+            color: {
+                dark: '#000000',
+                light: '#FFFFFF'
+            }
+        }, (error) => {
+            if (error) {
+                console.error('Erro ao gerar QR code:', error);
+                alert('Erro ao gerar QR code');
+            }
+        });
+    }
+
+    showQRCodeModal(itemId) {
+        const item = this.items.find(i => i.id === itemId);
+        if (!item) return;
+
+        const modal = document.getElementById('qrcodeModal');
+        const canvas = document.getElementById('qrcodeModalCanvas');
+        const itemNameEl = document.getElementById('qrcodeItemName');
+        const downloadBtn = document.getElementById('downloadQRModalBtn');
+        
+        if (!modal || !canvas || !itemNameEl) return;
+
+        itemNameEl.textContent = this.getItemName(itemId);
+        if (downloadBtn) downloadBtn.dataset.itemId = itemId;
+        this.generateQRCodeForModal(itemId, 'qrcodeModalCanvas');
+        modal.classList.add('active');
+    }
+
+    downloadQRCode(canvasId, filename) {
+        const canvas = document.getElementById(canvasId);
+        if (!canvas) return;
+
+        const link = document.createElement('a');
+        link.download = filename || `qrcode-${Date.now()}.png`;
+        link.href = canvas.toDataURL('image/png');
+        link.click();
+    }
+
+    printQRCode(canvasId) {
+        const canvas = document.getElementById(canvasId);
+        if (!canvas) return;
+
+        const dataUrl = canvas.toDataURL('image/png');
+        const printWindow = window.open('', '_blank');
+        printWindow.document.write(`
+            <html>
+                <head>
+                    <title>Imprimir QR Code</title>
+                    <style>
+                        body {
+                            margin: 0;
+                            padding: 20px;
+                            display: flex;
+                            justify-content: center;
+                            align-items: center;
+                            min-height: 100vh;
+                        }
+                        img {
+                            max-width: 100%;
+                            height: auto;
+                        }
+                        @media print {
+                            body { margin: 0; padding: 0; }
+                        }
+                    </style>
+                </head>
+                <body>
+                    <img src="${dataUrl}" alt="QR Code" />
+                </body>
+            </html>
+        `);
+        printWindow.document.close();
+        printWindow.focus();
+        setTimeout(() => {
+            printWindow.print();
+        }, 250);
+    }
+
+    startQRScanner() {
+        if (!window.Html5Qrcode) {
+            alert('Biblioteca de scanner não carregada. Verifique sua conexão.');
+            return;
+        }
+
+        const container = document.getElementById('qrScannerContainer');
+        const readerDiv = document.getElementById('qrReader');
+        
+        if (!container || !readerDiv) return;
+
+        // Limpar conteúdo anterior
+        readerDiv.innerHTML = '';
+
+        container.style.display = 'block';
+
+        const html5QrCode = new Html5Qrcode("qrReader");
+        
+        html5QrCode.start(
+            { facingMode: "environment" }, // Câmera traseira
+            {
+                fps: 10,
+                qrbox: { width: 250, height: 250 }
+            },
+            (decodedText, decodedResult) => {
+                // QR code lido com sucesso
+                this.handleQRScanned(decodedText);
+                html5QrCode.stop().then(() => {
+                    container.style.display = 'none';
+                }).catch((err) => {
+                    console.error('Erro ao parar scanner:', err);
+                });
+            },
+            (errorMessage) => {
+                // Erro ignorado (continua escaneando)
+                // console.log('Erro de escaneamento:', errorMessage);
+            }
+        );
+        
+        this.currentQRScanner = html5QrCode;
+    }
+
+    stopQRScanner() {
+        const container = document.getElementById('qrScannerContainer');
+        
+        if (this.currentQRScanner) {
+            this.currentQRScanner.stop().then(() => {
+                if (container) container.style.display = 'none';
+                this.currentQRScanner = null;
+            }).catch((err) => {
+                console.error('Erro ao parar scanner:', err);
+                if (container) container.style.display = 'none';
+                this.currentQRScanner = null;
+            });
+        } else {
+            if (container) container.style.display = 'none';
+        }
+    }
+
+    handleQRScanned(qrData) {
+        // Extrair ID do produto
+        let itemId = null;
+        
+        if (qrData.startsWith('ITEM:')) {
+            itemId = qrData.replace('ITEM:', '');
+        } else {
+            // Tentar como ID direto (compatibilidade)
+            itemId = qrData;
+        }
+
+        const item = this.items.find(i => i.id === itemId);
+        
+        if (item) {
+            // Preencher campo de item
+            const saleItemSelect = document.getElementById('saleItem');
+            if (saleItemSelect) {
+                saleItemSelect.value = itemId;
+                
+                // Disparar evento change para atualizar outros campos
+                saleItemSelect.dispatchEvent(new Event('change'));
+            }
+            
+            // Preencher preço automaticamente
+            const salePriceInput = document.getElementById('salePrice');
+            if (salePriceInput && item.price) {
+                salePriceInput.value = item.price;
+            }
+            
+            // Atualizar informações de estoque
+            this.updateStockInfo();
+            
+            // Feedback visual
+            const saleDayInfo = document.getElementById('saleDayInfo');
+            if (saleDayInfo) {
+                const originalBg = saleDayInfo.style.background;
+                saleDayInfo.style.background = '#28a745';
+                saleDayInfo.innerHTML = `<strong style="color: white;">✓ Produto selecionado: ${this.getItemName(itemId)}</strong>`;
+                setTimeout(() => {
+                    saleDayInfo.style.background = originalBg;
+                    saleDayInfo.innerHTML = `<strong>Dia: <span id="saleDayDisplay">${this.currentSaleDay || '-'}</span></strong>`;
+                }, 2000);
+            }
+        } else {
+            alert('Produto não encontrado! Verifique se o QR code é válido.');
+        }
     }
 
     deleteItem(id) {
@@ -1065,6 +1376,11 @@ class LojaApp {
                     .toFixed(2)
                     .replace('.', ',')}</div>
                 <div class="item-actions">
+                    <button class="btn-small btn-secondary" onclick="app.showQRCodeModal('${
+                        item.id
+                    }')" title="Ver QR Code">
+                        <i class="fas fa-qrcode"></i> QR Code
+                    </button>
                     <button class="btn-small btn-edit" onclick="app.openItemModal(${JSON.stringify(
                         item
                     ).replace(/"/g, '&quot;')})">Editar</button>
@@ -1463,6 +1779,9 @@ class LojaApp {
     }
 
     closeSaleModal() {
+        // Parar scanner se estiver ativo
+        this.stopQRScanner();
+        
         document.getElementById('saleModal').classList.remove('active');
 
         // Se o modal do grupo estiver aberto, atualizar o resumo
