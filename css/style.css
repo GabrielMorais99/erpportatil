@@ -45,38 +45,38 @@ body.theme-blue {
     --primary-color-dark: var(--primary-blue-dark);
 }
 
-/* Ajustar background do login para tema azul (mantém branco) */
+/* Ajustar background do login para tema azul (mantém cinza) */
 body.theme-blue .login-container {
     background-image: url('/images/background-financial.png'),
         linear-gradient(
             to bottom,
-            rgba(255, 255, 255, 0.6) 0%,
-            rgba(255, 255, 255, 0.7) 50%,
-            rgba(255, 255, 255, 0.8) 100%
+            rgba(75, 85, 99, 0.1) 0%,
+            rgba(75, 85, 99, 0.2) 50%,
+            rgba(75, 85, 99, 0.3) 100%
         );
 }
 
-/* Padronizar cores da tela de login para preto e branco */
+/* Padronizar cores da tela de login para cinza escuro e branco */
 .login-container .logo h1 {
-    color: #000000;
+    color: #1f2937;
 }
 
 .login-container .form-group input:focus,
 .login-container .form-group select:focus {
-    border-color: #000000;
+    border-color: #4b5563;
 }
 
 .login-container .error-message {
-    color: #000000;
+    color: #dc2626;
 }
 
 .login-container .btn-primary {
-    background-color: #000000;
+    background-color: #374151;
     color: #ffffff;
 }
 
 .login-container .btn-primary:hover {
-    background-color: #333333;
+    background-color: #4b5563;
 }
 
 body {
@@ -106,13 +106,13 @@ body {
     display: flex;
     justify-content: center;
     align-items: center;
-    background-color: #ffffff;
+    background-color: #4b5563;
     background-image: url('/images/background-financial.png'),
         linear-gradient(
             to bottom,
-            rgba(255, 255, 255, 0.6) 0%,
-            rgba(255, 255, 255, 0.7) 50%,
-            rgba(255, 255, 255, 0.8) 100%
+            rgba(75, 85, 99, 0.1) 0%,
+            rgba(75, 85, 99, 0.2) 50%,
+            rgba(75, 85, 99, 0.3) 100%
         );
     background-size: cover;
     background-position: center right;
