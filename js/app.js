@@ -1602,8 +1602,32 @@ class LojaApp {
                 .replace('.', ',')}`;
         }
 
-        // Atualizar resumo geral completo
-        this.updateOverallSummary();
+        // Atualizar resumo geral completo (sem estoque, pois agora está nos cards)
+        const allMonthsTotal = this.calculateTotalAllMonths();
+        const totalCosts = this.calculateTotalCosts();
+        const netProfit = allMonthsTotal.totalValue - totalCosts;
+
+        const overallTotalCostsEl =
+            document.getElementById('overallTotalCosts');
+        const overallNetProfitEl = document.getElementById('overallNetProfit');
+
+        if (overallTotalCostsEl) {
+            overallTotalCostsEl.textContent = `R$ ${totalCosts
+                .toFixed(2)
+                .replace('.', ',')}`;
+        }
+
+        if (overallNetProfitEl) {
+            overallNetProfitEl.textContent = `R$ ${netProfit
+                .toFixed(2)
+                .replace('.', ',')}`;
+            // Mudar cor se for negativo
+            if (netProfit < 0) {
+                overallNetProfitEl.style.color = '#dc3545';
+            } else {
+                overallNetProfitEl.style.color = '#155724';
+            }
+        }
 
         if (this.groups.length === 0) {
             list.innerHTML =
@@ -1646,6 +1670,47 @@ class LojaApp {
                     0
                 );
 
+                // Calcular estoque do grupo
+                const itemStockStatus = {};
+                group.days.forEach((day) => {
+                    if (!day.stock) {
+                        day.stock = {};
+                    }
+                    // Somar estoque total de cada item (pegar o maior estoque registrado)
+                    Object.keys(day.stock).forEach((itemId) => {
+                        if (!itemStockStatus[itemId]) {
+                            itemStockStatus[itemId] = {
+                                stock: 0,
+                                sold: 0,
+                            };
+                        }
+                        itemStockStatus[itemId].stock = Math.max(
+                            itemStockStatus[itemId].stock,
+                            day.stock[itemId] || 0
+                        );
+                    });
+                    // Somar vendas
+                    day.sales.forEach((sale) => {
+                        if (!itemStockStatus[sale.itemId]) {
+                            itemStockStatus[sale.itemId] = {
+                                stock: 0,
+                                sold: 0,
+                            };
+                        }
+                        itemStockStatus[sale.itemId].sold += sale.quantity;
+                    });
+                });
+
+                const totalStock = Object.values(itemStockStatus).reduce(
+                    (sum, data) => sum + data.stock,
+                    0
+                );
+                const totalStockSold = Object.values(itemStockStatus).reduce(
+                    (sum, data) => sum + data.sold,
+                    0
+                );
+                const totalStockAvailable = totalStock - totalStockSold;
+
                 return `
                 <div class="group-card">
                     <h3>${monthName} ${year}</h3>
@@ -1654,6 +1719,11 @@ class LojaApp {
                         <div><strong>Valor Total:</strong> R$ ${totalValue
                             .toFixed(2)
                             .replace('.', ',')}</div>
+                        <div style="margin-top: 0.5rem; padding-top: 0.5rem; border-top: 1px solid var(--gray-200);">
+                            <div style="color: #0c5460;"><strong>Estoque Total:</strong> ${totalStock} un.</div>
+                            <div style="color: #856404;"><strong>Estoque Vendido:</strong> ${totalStockSold} un.</div>
+                            <div style="color: ${totalStockAvailable < 0 ? '#dc3545' : totalStockAvailable === 0 ? '#ffc107' : '#155724'};"><strong>Estoque Disponível:</strong> ${totalStockAvailable} un.</div>
+                        </div>
                     </div>
                     <div class="group-actions">
                         <button class="btn-small btn-edit" onclick="app.viewGroup('${
@@ -2186,6 +2256,7 @@ class LojaApp {
                 overallNetProfitEl.style.color = '#155724';
             }
         }
+
     }
 
     // ========== UTILITÁRIOS ==========

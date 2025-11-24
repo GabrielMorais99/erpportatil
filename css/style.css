@@ -1399,7 +1399,11 @@ body {
 
 /* Responsive */
 @media (max-width: 1024px) {
-    .groups-layout,
+    .groups-layout {
+        grid-template-columns: 1fr 1fr;
+        gap: 1.5rem;
+    }
+
     .costs-layout,
     .goals-layout {
         grid-template-columns: 1fr;
@@ -1525,7 +1529,11 @@ body {
         gap: 0.8rem;
     }
 
-    .groups-layout,
+    .groups-layout {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+
     .costs-layout,
     .goals-layout {
         grid-template-columns: 1fr;
