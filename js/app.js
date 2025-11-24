@@ -6,10 +6,13 @@ class LojaApp {
     constructor() {
         this.items = [];
         this.groups = [];
+        this.serviceGroups = []; // Grupos mensais de serviços
         this.costs = [];
         this.goals = [];
         this.currentEditingItem = null;
         this.currentGroup = null;
+        this.currentServiceGroup = null;
+        this.currentServiceDay = null;
         this.currentSaleDay = null;
         this.currentEditingCost = null;
         this.currentEditingGoal = null;
@@ -85,6 +88,7 @@ class LojaApp {
             // Renderizar imediatamente também
             this.renderItems();
             this.renderGroups();
+            this.renderServiceGroups();
             this.renderCosts();
             this.renderGoals();
             this.updateMonthFilter();
@@ -518,6 +522,77 @@ class LojaApp {
             console.error('❌ [APP.JS] groupForm não encontrado!');
         }
 
+        // Modal de grupo de serviços
+        const newServiceGroupBtn = document.getElementById('newServiceGroupBtn');
+        const serviceGroupForm = document.getElementById('serviceGroupForm');
+        const cancelServiceGroupBtn = document.getElementById('cancelServiceGroupBtn');
+        const serviceGroupModalClose = document.querySelector('#serviceGroupModal .close');
+
+        if (newServiceGroupBtn) {
+            newServiceGroupBtn.addEventListener('click', () => this.openServiceGroupModal());
+        }
+
+        if (serviceGroupForm) {
+            serviceGroupForm.addEventListener('submit', (e) => this.createServiceGroup(e));
+        }
+
+        if (cancelServiceGroupBtn) {
+            cancelServiceGroupBtn.addEventListener('click', () => this.closeServiceGroupModal());
+        }
+
+        if (serviceGroupModalClose) {
+            serviceGroupModalClose.addEventListener('click', () => this.closeServiceGroupModal());
+        }
+
+        // Modal de registro de serviço
+        const serviceRecordForm = document.getElementById('serviceRecordForm');
+        const cancelServiceRecordBtn = document.getElementById('cancelServiceRecordBtn');
+        const serviceRecordModalClose = document.querySelector('#serviceRecordModal .close');
+        const serviceRecordItem = document.getElementById('serviceRecordItem');
+
+        if (serviceRecordForm) {
+            serviceRecordForm.addEventListener('submit', (e) => this.saveServiceRecord(e));
+        }
+
+        if (cancelServiceRecordBtn) {
+            cancelServiceRecordBtn.addEventListener('click', () => this.closeServiceRecordModal());
+        }
+
+        if (serviceRecordModalClose) {
+            serviceRecordModalClose.addEventListener('click', () => this.closeServiceRecordModal());
+        }
+
+        // Preencher horas padrão ao selecionar serviço
+        if (serviceRecordItem) {
+            serviceRecordItem.addEventListener('change', () => {
+                const itemId = serviceRecordItem.value;
+                if (itemId) {
+                    const item = this.items.find(i => i.id === itemId);
+                    if (item && item.category === 'Serviços') {
+                        const hoursInput = document.getElementById('serviceRecordHours');
+                        const minutesInput = document.getElementById('serviceRecordMinutes');
+                        const priceInput = document.getElementById('serviceRecordPrice');
+                        
+                        if (hoursInput && item.defaultHours !== undefined) {
+                            hoursInput.value = item.defaultHours || 0;
+                        }
+                        if (minutesInput && item.defaultMinutes !== undefined) {
+                            minutesInput.value = item.defaultMinutes || 0;
+                        }
+                        if (priceInput && item.price) {
+                            priceInput.value = item.price;
+                        }
+                    }
+                }
+            });
+        }
+
+        // Modal de visualização de grupo de serviços
+        const viewServiceGroupModalClose = document.querySelector('#viewServiceGroupModal .close');
+        if (viewServiceGroupModalClose) {
+            viewServiceGroupModalClose.addEventListener('click', () => this.closeViewServiceGroupModal());
+        }
+
         if (cancelGroupBtn) {
             cancelGroupBtn.addEventListener('click', () =>
                 this.closeGroupModal()
@@ -917,6 +992,8 @@ class LojaApp {
                 document.getElementById('serviceDuration').value = item.duration || '';
                 document.getElementById('serviceType').value = item.serviceType || '';
                 document.getElementById('serviceUnit').value = item.serviceUnit || 'Unidades';
+                document.getElementById('serviceDefaultHours').value = item.defaultHours || 0;
+                document.getElementById('serviceDefaultMinutes').value = item.defaultMinutes || 0;
             }
 
             // Atualizar campos visíveis
@@ -1016,6 +1093,11 @@ class LojaApp {
             item.duration = document.getElementById('serviceDuration').value.trim() || '';
             item.serviceType = document.getElementById('serviceType').value || '';
             item.serviceUnit = document.getElementById('serviceUnit').value || 'Unidades';
+            // Horas padrão do serviço
+            const defaultHours = parseInt(document.getElementById('serviceDefaultHours').value) || 0;
+            const defaultMinutes = parseInt(document.getElementById('serviceDefaultMinutes').value) || 0;
+            item.defaultHours = defaultHours;
+            item.defaultMinutes = defaultMinutes;
             item.brand = ''; // Não usado para serviços
         }
 
@@ -2335,6 +2417,468 @@ class LojaApp {
         });
     }
 
+    // ========== SERVIÇOS MENSAIS ==========
+
+    openServiceGroupModal() {
+        document.getElementById('serviceGroupModal').classList.add('active');
+    }
+
+    closeServiceGroupModal() {
+        document.getElementById('serviceGroupModal').classList.remove('active');
+        document.getElementById('serviceGroupForm').reset();
+    }
+
+    createServiceGroup(e) {
+        e.preventDefault();
+        const month = document.getElementById('serviceGroupMonth').value;
+
+        if (this.serviceGroups.some((g) => g.month === month)) {
+            alert('Já existe um grupo de serviços para este mês.');
+            return;
+        }
+
+        const serviceGroup = {
+            id: Date.now().toString(),
+            month: month,
+            days: [],
+        };
+
+        // Criar dias do mês
+        const [year, monthNum] = month.split('-');
+        const daysInMonth = new Date(year, monthNum, 0).getDate();
+        for (let day = 1; day <= daysInMonth; day++) {
+            const dayObj = {
+                day: day,
+                services: [], // Array de serviços registrados no dia
+            };
+            serviceGroup.days.push(dayObj);
+        }
+
+        this.serviceGroups.push(serviceGroup);
+        this.serviceGroups.sort((a, b) => b.month.localeCompare(a.month));
+        this.saveData();
+        this.renderServiceGroups();
+        this.closeServiceGroupModal();
+    }
+
+    openServiceRecordModal(serviceGroupId, day) {
+        const serviceGroup = this.serviceGroups.find((g) => g.id === serviceGroupId);
+        if (!serviceGroup) return;
+
+        this.currentServiceGroup = serviceGroup;
+        this.currentServiceDay = day;
+        const dayData = serviceGroup.days.find((d) => d.day === day);
+
+        // Popular select apenas com serviços
+        const serviceItemSelect = document.getElementById('serviceRecordItem');
+        const serviceItems = this.items.filter(item => item.category === 'Serviços');
+        
+        serviceItemSelect.innerHTML =
+            '<option value="">Selecione um serviço...</option>' +
+            serviceItems
+                .map((item) => {
+                    return `<option value="${item.id}">${this.escapeHtml(item.name)}</option>`;
+                })
+                .join('');
+
+        // Resetar formulário
+        document.getElementById('serviceRecordForm').reset();
+        
+        // Atualizar exibição do dia
+        const serviceDayDisplay = document.getElementById('serviceRecordDayDisplay');
+        if (serviceDayDisplay) {
+            serviceDayDisplay.textContent = day;
+        }
+
+        // Se houver serviços registrados, mostrar lista
+        if (dayData && dayData.services.length > 0) {
+            this.showDayServices(dayData);
+        } else {
+            const servicesList = document.getElementById('dayServicesList');
+            if (servicesList) {
+                servicesList.remove();
+            }
+        }
+
+        document.getElementById('serviceRecordModal').classList.add('active');
+    }
+
+    showDayServices(dayData) {
+        const container = document.getElementById('serviceRecordModal');
+        let servicesList = document.getElementById('dayServicesList');
+        
+        if (!servicesList) {
+            servicesList = document.createElement('div');
+            servicesList.id = 'dayServicesList';
+            servicesList.style.cssText = 'margin-bottom: 1.5rem; padding: 1rem; background: var(--light-gray); border-radius: 5px;';
+            const form = document.getElementById('serviceRecordForm');
+            form.insertBefore(servicesList, form.firstChild);
+        }
+
+        servicesList.innerHTML = '<h4 style="margin-bottom: 0.75rem;">Serviços Registrados:</h4>' +
+            dayData.services.map((service, index) => {
+                const item = this.items.find((i) => i.id === service.itemId);
+                const hours = service.hours || 0;
+                const minutes = service.minutes || 0;
+                const total = service.price || 0;
+                
+                return `
+                    <div style="display: flex; justify-content: space-between; align-items: center; padding: 0.75rem; background: white; margin-bottom: 0.5rem; border-radius: 5px; border: 1px solid var(--border-color);">
+                        <div>
+                            <strong>${this.escapeHtml(this.getItemName(service.itemId))}</strong>
+                            <div style="font-size: 0.85rem; color: var(--gray); margin-top: 0.25rem;">
+                                ${hours}h ${minutes}min - R$ ${total.toFixed(2).replace('.', ',')}
+                            </div>
+                        </div>
+                        <button type="button" class="btn-small btn-delete" onclick="app.deleteServiceRecord(${this.currentServiceDay}, ${index})">
+                            Excluir
+                        </button>
+                    </div>
+                `;
+            }).join('');
+    }
+
+    saveServiceRecord(e) {
+        e.preventDefault();
+
+        if (!this.currentServiceGroup || !this.currentServiceDay) return;
+
+        const itemId = document.getElementById('serviceRecordItem').value;
+        const hours = parseInt(document.getElementById('serviceRecordHours').value) || 0;
+        const minutes = parseInt(document.getElementById('serviceRecordMinutes').value) || 0;
+        const price = this.parsePrice(document.getElementById('serviceRecordPrice').value);
+
+        if (!itemId) {
+            alert('Por favor, selecione um serviço.');
+            return;
+        }
+
+        if (price <= 0) {
+            alert('O preço deve ser maior que zero.');
+            return;
+        }
+
+        if (hours === 0 && minutes === 0) {
+            alert('Por favor, informe pelo menos 1 minuto trabalhado.');
+            return;
+        }
+
+        // Buscar o grupo atualizado
+        const serviceGroup = this.serviceGroups.find((g) => g.id === this.currentServiceGroup.id);
+        if (!serviceGroup) return;
+
+        const dayData = serviceGroup.days.find((d) => d.day === this.currentServiceDay);
+        if (!dayData) return;
+
+        // Adicionar serviço
+        dayData.services.push({
+            itemId: itemId,
+            hours: hours,
+            minutes: minutes,
+            price: price,
+        });
+
+        this.currentServiceGroup = serviceGroup;
+        this.saveData();
+
+        // Atualizar visualização
+        const viewServiceGroupModal = document.getElementById('viewServiceGroupModal');
+        if (viewServiceGroupModal && viewServiceGroupModal.classList.contains('active')) {
+            this.renderServiceGroupView(serviceGroup);
+        }
+
+        // Atualizar lista de grupos
+        const servicesTab = document.getElementById('servicesTab');
+        if (servicesTab && servicesTab.classList.contains('active')) {
+            this.renderServiceGroups();
+        }
+
+        // Atualizar resumo
+        this.updateServiceSummary();
+
+        // Reabrir modal
+        this.openServiceRecordModal(serviceGroup.id, this.currentServiceDay);
+    }
+
+    deleteServiceRecord(day, serviceIndex) {
+        if (!this.currentServiceGroup) return;
+
+        const serviceGroup = this.serviceGroups.find((g) => g.id === this.currentServiceGroup.id);
+        if (!serviceGroup) return;
+
+        const dayData = serviceGroup.days.find((d) => d.day === day);
+        if (dayData && dayData.services[serviceIndex]) {
+            if (confirm('Deseja excluir este registro de serviço?')) {
+                dayData.services.splice(serviceIndex, 1);
+                this.currentServiceGroup = serviceGroup;
+                this.saveData();
+                this.renderServiceGroupView(serviceGroup);
+                
+                const servicesTab = document.getElementById('servicesTab');
+                if (servicesTab && servicesTab.classList.contains('active')) {
+                    this.renderServiceGroups();
+                }
+                
+                this.updateServiceSummary();
+                this.openServiceRecordModal(serviceGroup.id, day);
+            }
+        }
+    }
+
+    closeServiceRecordModal() {
+        document.getElementById('serviceRecordModal').classList.remove('active');
+        this.currentServiceGroup = null;
+        this.currentServiceDay = null;
+    }
+
+    viewServiceGroup(serviceGroupId) {
+        const serviceGroup = this.serviceGroups.find((g) => g.id === serviceGroupId);
+        if (!serviceGroup) return;
+
+        this.currentServiceGroup = serviceGroup;
+        this.renderServiceGroupView(serviceGroup);
+        document.getElementById('viewServiceGroupModal').classList.add('active');
+    }
+
+    renderServiceGroupView(serviceGroup) {
+        const [year, monthNum] = serviceGroup.month.split('-');
+        const monthNames = [
+            'Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho',
+            'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'
+        ];
+        const monthName = monthNames[parseInt(monthNum) - 1];
+        
+        document.getElementById('serviceGroupTitle').textContent = `Serviços - ${monthName}/${year}`;
+
+        // Calcular totais do mês
+        let totalHours = 0;
+        let totalMinutes = 0;
+        let totalRevenue = 0;
+
+        serviceGroup.days.forEach((day) => {
+            day.services.forEach((service) => {
+                totalHours += service.hours || 0;
+                totalMinutes += service.minutes || 0;
+                totalRevenue += service.price || 0;
+            });
+        });
+
+        // Converter minutos extras em horas
+        totalHours += Math.floor(totalMinutes / 60);
+        totalMinutes = totalMinutes % 60;
+
+        document.getElementById('serviceGroupTotalHours').textContent = `${totalHours}h ${totalMinutes}min`;
+        document.getElementById('serviceGroupTotalRevenue').textContent = `R$ ${totalRevenue.toFixed(2).replace('.', ',')}`;
+
+        // Calcular totais de todos os meses
+        let allHours = 0;
+        let allMinutes = 0;
+        let allRevenue = 0;
+
+        this.serviceGroups.forEach((sg) => {
+            sg.days.forEach((day) => {
+                day.services.forEach((service) => {
+                    allHours += service.hours || 0;
+                    allMinutes += service.minutes || 0;
+                    allRevenue += service.price || 0;
+                });
+            });
+        });
+
+        allHours += Math.floor(allMinutes / 60);
+        allMinutes = allMinutes % 60;
+
+        document.getElementById('serviceGroupTotalHoursAll').textContent = `${allHours}h ${allMinutes}min`;
+        document.getElementById('serviceGroupTotalRevenueAll').textContent = `R$ ${allRevenue.toFixed(2).replace('.', ',')}`;
+
+        // Renderizar dias
+        const daysList = document.getElementById('serviceDaysList');
+        daysList.innerHTML = serviceGroup.days.map((day) => {
+            const dayServices = day.services.length;
+            const dayTotal = day.services.reduce((sum, s) => sum + (s.price || 0), 0);
+            let dayHours = 0;
+            let dayMinutes = 0;
+            day.services.forEach((s) => {
+                dayHours += s.hours || 0;
+                dayMinutes += s.minutes || 0;
+            });
+            dayHours += Math.floor(dayMinutes / 60);
+            dayMinutes = dayMinutes % 60;
+
+            return `
+                <div class="day-card">
+                    <div class="day-header">
+                        <h4>Dia ${day.day}</h4>
+                        <span class="day-badge">${dayServices} serviço(s)</span>
+                    </div>
+                    <div class="day-info">
+                        <span>${dayHours}h ${dayMinutes}min</span>
+                        <span>R$ ${dayTotal.toFixed(2).replace('.', ',')}</span>
+                    </div>
+                    <button type="button" class="btn-small btn-primary" onclick="app.openServiceRecordModal('${serviceGroup.id}', ${day.day})">
+                        ${dayServices > 0 ? 'Editar' : 'Registrar'}
+                    </button>
+                </div>
+            `;
+        }).join('');
+
+        // Resumo por serviço
+        const itemsSummary = {};
+        serviceGroup.days.forEach((day) => {
+            day.services.forEach((service) => {
+                if (!itemsSummary[service.itemId]) {
+                    itemsSummary[service.itemId] = {
+                        name: this.getItemName(service.itemId),
+                        hours: 0,
+                        minutes: 0,
+                        total: 0,
+                    };
+                }
+                itemsSummary[service.itemId].hours += service.hours || 0;
+                itemsSummary[service.itemId].minutes += service.minutes || 0;
+                itemsSummary[service.itemId].total += service.price || 0;
+            });
+        });
+
+        const itemsSummaryList = document.getElementById('serviceItemsSummary');
+        itemsSummaryList.innerHTML = Object.entries(itemsSummary)
+            .map(([itemId, data]) => {
+                const totalHours = data.hours + Math.floor(data.minutes / 60);
+                const totalMinutes = data.minutes % 60;
+                return `
+                    <div class="summary-item">
+                        <div>
+                            <strong>${this.escapeHtml(data.name)}</strong>
+                            <div style="font-size: 0.85rem; color: var(--gray); margin-top: 0.25rem;">
+                                ${totalHours}h ${totalMinutes}min - R$ ${data.total.toFixed(2).replace('.', ',')}
+                            </div>
+                        </div>
+                    </div>
+                `;
+            })
+            .join('') || '<p style="text-align: center; color: var(--gray); padding: 1rem;">Nenhum serviço registrado ainda.</p>';
+    }
+
+    closeViewServiceGroupModal() {
+        document.getElementById('viewServiceGroupModal').classList.remove('active');
+        this.currentServiceGroup = null;
+    }
+
+    deleteServiceGroup(serviceGroupId) {
+        if (confirm('Tem certeza que deseja excluir este grupo de serviços? Todos os registros serão perdidos.')) {
+            this.serviceGroups = this.serviceGroups.filter((g) => g.id !== serviceGroupId);
+            this.saveData();
+            this.renderServiceGroups();
+            this.updateServiceSummary();
+        }
+    }
+
+    renderServiceGroups() {
+        const list = document.getElementById('servicesList');
+        if (!list) return;
+
+        if (this.serviceGroups.length === 0) {
+            list.innerHTML = '<p style="grid-column: 1/-1; text-align: center; color: var(--gray); padding: 2rem;">Nenhum mês de serviços cadastrado ainda.</p>';
+            return;
+        }
+
+        list.innerHTML = this.serviceGroups.map((serviceGroup) => {
+            const [year, monthNum] = serviceGroup.month.split('-');
+            const monthNames = [
+                'Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho',
+                'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'
+            ];
+            const monthName = monthNames[parseInt(monthNum) - 1];
+
+            // Calcular totais do mês
+            let totalHours = 0;
+            let totalMinutes = 0;
+            let totalRevenue = 0;
+            let totalServices = 0;
+
+            serviceGroup.days.forEach((day) => {
+                day.services.forEach((service) => {
+                    totalHours += service.hours || 0;
+                    totalMinutes += service.minutes || 0;
+                    totalRevenue += service.price || 0;
+                    totalServices++;
+                });
+            });
+
+            totalHours += Math.floor(totalMinutes / 60);
+            totalMinutes = totalMinutes % 60;
+
+            return `
+                <div class="group-card">
+                    <div class="group-header">
+                        <h3>${monthName}/${year}</h3>
+                    </div>
+                    <div class="group-stats">
+                        <div class="stat-item">
+                            <h4>Total de Horas</h4>
+                            <p>${totalHours}h ${totalMinutes}min</p>
+                        </div>
+                        <div class="stat-item">
+                            <h4>Total Faturado</h4>
+                            <p>R$ ${totalRevenue.toFixed(2).replace('.', ',')}</p>
+                        </div>
+                        <div class="stat-item">
+                            <h4>Serviços Registrados</h4>
+                            <p>${totalServices}</p>
+                        </div>
+                    </div>
+                    <div class="group-actions">
+                        <button class="btn-small btn-edit" onclick="app.viewServiceGroup('${serviceGroup.id}')">Ver Detalhes</button>
+                        <button class="btn-small btn-delete" onclick="app.deleteServiceGroup('${serviceGroup.id}')">Excluir</button>
+                    </div>
+                </div>
+            `;
+        }).join('');
+    }
+
+    updateServiceSummary() {
+        // Calcular totais de todos os meses
+        let totalHours = 0;
+        let totalMinutes = 0;
+        let totalRevenue = 0;
+        let totalCount = 0;
+
+        this.serviceGroups.forEach((serviceGroup) => {
+            serviceGroup.days.forEach((day) => {
+                day.services.forEach((service) => {
+                    totalHours += service.hours || 0;
+                    totalMinutes += service.minutes || 0;
+                    totalRevenue += service.price || 0;
+                    totalCount++;
+                });
+            });
+        });
+
+        totalHours += Math.floor(totalMinutes / 60);
+        totalMinutes = totalMinutes % 60;
+
+        // Calcular média de horas por mês
+        const monthCount = this.serviceGroups.length;
+        let avgHours = 0;
+        let avgMinutes = 0;
+        if (monthCount > 0) {
+            const totalMinutesAll = totalHours * 60 + totalMinutes;
+            const avgMinutesAll = Math.floor(totalMinutesAll / monthCount);
+            avgHours = Math.floor(avgMinutesAll / 60);
+            avgMinutes = avgMinutesAll % 60;
+        }
+
+        const totalHoursEl = document.getElementById('servicesTotalHours');
+        const avgHoursEl = document.getElementById('servicesAvgHours');
+        const totalRevenueEl = document.getElementById('servicesTotalRevenue');
+        const totalCountEl = document.getElementById('servicesTotalCount');
+
+        if (totalHoursEl) totalHoursEl.textContent = `${totalHours}h ${totalMinutes}min`;
+        if (avgHoursEl) avgHoursEl.textContent = `${avgHours}h ${avgMinutes}min`;
+        if (totalRevenueEl) totalRevenueEl.textContent = `R$ ${totalRevenue.toFixed(2).replace('.', ',')}`;
+        if (totalCountEl) totalCountEl.textContent = totalCount;
+    }
+
     // ========== CUSTOS DE COMPRA ==========
 
     openCostModal(cost = null) {
@@ -2872,6 +3416,12 @@ class LojaApp {
         // Se for a aba goals, renderizar as metas
         if (tab === 'goals') {
             this.renderGoals();
+        }
+
+        // Se for a aba services, renderizar os serviços
+        if (tab === 'services') {
+            this.renderServiceGroups();
+            this.updateServiceSummary();
         }
     }
 
@@ -4127,6 +4677,7 @@ class LojaApp {
         const data = {
             items: this.items,
             groups: this.groups,
+            serviceGroups: this.serviceGroups || [], // Grupos mensais de serviços
             costs: this.costs,
             goals: this.goals,
             version: '1.0',
@@ -4326,6 +4877,7 @@ class LojaApp {
                     const hasData =
                         (cloudData.items && cloudData.items.length > 0) ||
                         (cloudData.groups && cloudData.groups.length > 0) ||
+                        (cloudData.serviceGroups && cloudData.serviceGroups.length > 0) ||
                         (cloudData.costs && cloudData.costs.length > 0) ||
                         (cloudData.goals && cloudData.goals.length > 0);
 
@@ -4333,6 +4885,7 @@ class LojaApp {
                         // Dados da nuvem encontrados
                         this.items = cloudData.items || [];
                         this.groups = cloudData.groups || [];
+                        this.serviceGroups = cloudData.serviceGroups || [];
                         this.costs = cloudData.costs || [];
                         this.goals = cloudData.goals || [];
 
@@ -4361,6 +4914,7 @@ class LojaApp {
                             const updatedData = {
                                 items: this.items,
                                 groups: this.groups,
+                                serviceGroups: this.serviceGroups || [],
                                 costs: this.costs,
                                 goals: this.goals,
                             };
@@ -4478,6 +5032,7 @@ class LojaApp {
                 const data = JSON.parse(saved);
                 this.items = data.items || [];
                 this.groups = data.groups || [];
+                this.serviceGroups = data.serviceGroups || [];
                 this.costs = data.costs || [];
                 this.goals = data.goals || [];
 
@@ -4509,6 +5064,7 @@ class LojaApp {
                     const updatedData = {
                         items: this.items,
                         groups: this.groups,
+                        serviceGroups: this.serviceGroups || [],
                         costs: this.costs,
                         goals: this.goals,
                     };
@@ -4599,6 +5155,7 @@ class LojaApp {
                 ) {
                     this.items = data.items || [];
                     this.groups = data.groups || [];
+                    this.serviceGroups = data.serviceGroups || [];
                     this.costs = data.costs || [];
                     this.goals = data.goals || [];
 

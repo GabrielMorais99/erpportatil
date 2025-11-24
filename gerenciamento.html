@@ -122,6 +122,9 @@
                     <button class="tab-btn" data-tab="costs" title="Custos de Compra">
                         <i class="fas fa-receipt"></i> <span class="btn-text">Custos de Compra</span>
                     </button>
+                    <button class="tab-btn" data-tab="services" title="Serviços">
+                        <i class="fas fa-briefcase"></i> <span class="btn-text">Serviços</span>
+                    </button>
                     <button class="tab-btn" data-tab="goals" title="Metas">
                         <i class="fas fa-bullseye"></i> <span class="btn-text">Metas</span>
                     </button>
@@ -304,6 +307,43 @@
                     </div>
                 </div>
 
+                <!-- Tab: Serviços -->
+                <div id="servicesTab" class="tab-content">
+                    <div class="services-layout">
+                        <div class="services-summary-card">
+                            <h3>Resumo de Serviços</h3>
+                            <div class="summary-stats">
+                                <div class="stat-item" style="background: #e7f3ff; border: 2px solid #007bff;">
+                                    <h4>Total de Horas</h4>
+                                    <p id="servicesTotalHours" style="color: #004085; font-size: 1.5rem; font-weight: bold;">0h 0min</p>
+                                </div>
+                                <div class="stat-item" style="background: #d4edda; border: 2px solid #28a745;">
+                                    <h4>Média de Horas/Mês</h4>
+                                    <p id="servicesAvgHours" style="color: #155724; font-size: 1.5rem; font-weight: bold;">0h 0min</p>
+                                </div>
+                                <div class="stat-item" style="background: #fff3cd; border: 2px solid #ffc107;">
+                                    <h4>Total Faturado</h4>
+                                    <p id="servicesTotalRevenue" style="color: #856404; font-size: 1.5rem; font-weight: bold;">R$ 0,00</p>
+                                </div>
+                                <div class="stat-item" style="background: #f8d7da; border: 2px solid #dc3545;">
+                                    <h4>Serviços Registrados</h4>
+                                    <p id="servicesTotalCount" style="color: #721c24; font-size: 1.5rem; font-weight: bold;">0</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="services-content">
+                            <div class="toolbar-services">
+                                <button type="button" id="newServiceGroupBtn" class="btn-primary">
+                                    <i class="fas fa-calendar-plus"></i> Novo Mês de Serviços
+                                </button>
+                            </div>
+                            <div id="servicesList" class="services-list">
+                                <!-- Serviços mensais serão inseridos aqui via JavaScript -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
                 <!-- Tab: Metas -->
                 <div id="goalsTab" class="tab-content">
                     <div class="goals-layout">
@@ -447,6 +487,29 @@
                                 <option value="Atendimentos">Atendimentos</option>
                                 <option value="Unidades">Unidades</option>
                             </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="serviceDefaultHours">Horas Padrão (opcional)</label>
+                            <div style="display: flex; gap: 0.5rem;">
+                                <input
+                                    type="number"
+                                    id="serviceDefaultHours"
+                                    min="0"
+                                    placeholder="Horas"
+                                    style="flex: 1;"
+                                />
+                                <input
+                                    type="number"
+                                    id="serviceDefaultMinutes"
+                                    min="0"
+                                    max="59"
+                                    placeholder="Minutos"
+                                    style="flex: 1;"
+                                />
+                            </div>
+                            <small style="color: var(--gray); display: block; margin-top: 0.25rem;">
+                                Horas padrão que serão usadas ao registrar o serviço no mês
+                            </small>
                         </div>
                     </div>
                     
@@ -795,6 +858,135 @@
                     <button type="button" class="btn-primary" id="saveStockBtn">
                         Salvar Estoque
                     </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal: Criar Mês de Serviços -->
+        <div id="serviceGroupModal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2>Novo Mês de Serviços</h2>
+                    <span class="close">&times;</span>
+                </div>
+                <form id="serviceGroupForm">
+                    <div class="form-group">
+                        <label for="serviceGroupMonth">Mês/Ano *</label>
+                        <input type="month" id="serviceGroupMonth" required />
+                    </div>
+                    <div class="modal-actions">
+                        <button type="button" class="btn-secondary" id="cancelServiceGroupBtn">
+                            Cancelar
+                        </button>
+                        <button type="submit" class="btn-primary">Criar</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Modal: Registrar Serviço no Mês -->
+        <div id="serviceRecordModal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2>Registrar Serviço</h2>
+                    <span class="close">&times;</span>
+                </div>
+                <form id="serviceRecordForm">
+                    <div class="form-group" id="serviceRecordDayInfo" style="background: var(--light-gray); padding: 10px; border-radius: 5px; margin-bottom: 15px; text-align: center;">
+                        <strong>Dia: <span id="serviceRecordDayDisplay">-</span></strong>
+                    </div>
+                    <div class="form-group">
+                        <label for="serviceRecordItem">Serviço *</label>
+                        <select id="serviceRecordItem" required>
+                            <option value="">Selecione um serviço...</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="serviceRecordHours">Horas Trabalhadas *</label>
+                        <div style="display: flex; gap: 0.5rem; align-items: center;">
+                            <input
+                                type="number"
+                                id="serviceRecordHours"
+                                min="0"
+                                placeholder="Horas"
+                                required
+                                style="flex: 1;"
+                            />
+                            <span style="font-weight: bold;">:</span>
+                            <input
+                                type="number"
+                                id="serviceRecordMinutes"
+                                min="0"
+                                max="59"
+                                placeholder="Minutos"
+                                required
+                                style="flex: 1;"
+                            />
+                        </div>
+                        <small style="color: var(--gray); display: block; margin-top: 0.25rem;">
+                            Use as horas padrão do serviço ou informe manualmente
+                        </small>
+                    </div>
+                    <div class="form-group">
+                        <label for="serviceRecordPrice">Preço Aplicado (R$) *</label>
+                        <input
+                            type="number"
+                            id="serviceRecordPrice"
+                            step="0.01"
+                            min="0.01"
+                            required
+                        />
+                    </div>
+                    <div class="modal-actions">
+                        <button type="button" class="btn-secondary" id="cancelServiceRecordBtn">
+                            Cancelar
+                        </button>
+                        <button type="submit" class="btn-primary">
+                            Registrar
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Modal: Visualizar Serviços do Mês -->
+        <div id="viewServiceGroupModal" class="modal">
+            <div class="modal-content large">
+                <div class="modal-header">
+                    <h2 id="serviceGroupTitle">Serviços do Mês</h2>
+                    <span class="close">&times;</span>
+                </div>
+                <div class="service-group-content">
+                    <div class="service-group-summary">
+                        <div class="summary-card">
+                            <h3>Total de Horas (Mês)</h3>
+                            <p id="serviceGroupTotalHours">0h 0min</p>
+                        </div>
+                        <div class="summary-card">
+                            <h3>Total Faturado (Mês)</h3>
+                            <p id="serviceGroupTotalRevenue">R$ 0,00</p>
+                        </div>
+                        <div class="summary-card" style="background: #fff3cd; border: 2px solid #ffc107;">
+                            <h3>Total de Horas (Todos os Meses)</h3>
+                            <p id="serviceGroupTotalHoursAll" style="color: #856404; font-size: 1.8rem; font-weight: bold;">0h 0min</p>
+                        </div>
+                        <div class="summary-card" style="background: #d4edda; border: 2px solid #28a745;">
+                            <h3>Total Faturado (Todos os Meses)</h3>
+                            <p id="serviceGroupTotalRevenueAll" style="color: #155724; font-size: 1.8rem; font-weight: bold;">R$ 0,00</p>
+                        </div>
+                    </div>
+                    <div class="service-days-container">
+                        <h3>Serviços por Dia</h3>
+                        <div id="serviceDaysList" class="service-days-list">
+                            <!-- Serviços por dia serão inseridos aqui -->
+                        </div>
+                    </div>
+                    <div class="service-items-summary">
+                        <h3>Resumo por Serviço</h3>
+                        <div id="serviceItemsSummary" class="service-items-summary-list">
+                            <!-- Resumo será inserido aqui -->
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>

@@ -65,6 +65,7 @@ module.exports = async (req, res) => {
             let userData = {
                 items: [],
                 groups: [],
+                serviceGroups: [],
                 costs: [],
                 goals: []
             };
@@ -79,6 +80,7 @@ module.exports = async (req, res) => {
                 userData = {
                     items: [],
                     groups: [],
+                    serviceGroups: [],
                     costs: [],
                     goals: []
                 };
