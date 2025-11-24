@@ -808,6 +808,12 @@ class LojaApp {
             if (clothingFields) clothingFields.style.display = 'none';
             // Mostrar campos específicos de eletrônicos
             if (electronicsFields) electronicsFields.style.display = 'block';
+            // Esconder campos de serviços
+            if (servicesFields) servicesFields.style.display = 'none';
+            // Remover required de serviceName quando não for Serviços
+            if (serviceName) {
+                serviceName.required = false;
+            }
             // Limpar campos de roupas
             document.getElementById('itemStyle').value = '';
             document.getElementById('itemSize').value = '';
@@ -826,6 +832,10 @@ class LojaApp {
             if (clothingFields) clothingFields.style.display = 'none';
             if (electronicsFields) electronicsFields.style.display = 'none';
             if (servicesFields) servicesFields.style.display = 'none';
+            // Remover required de serviceName quando não for Serviços
+            if (serviceName) {
+                serviceName.required = false;
+            }
         }
         
         // Adicionar lógica para Serviços
@@ -858,12 +868,17 @@ class LojaApp {
             document.getElementById('itemModel').value = '';
             document.getElementById('itemCapacity').value = '';
             document.getElementById('itemColor').value = '';
-        } else if (category !== 'Roupas' && category !== 'Eletrônicos') {
+        } else if (category !== 'Roupas' && category !== 'Eletrônicos' && category !== 'Serviços') {
             // Se não for nenhuma categoria específica, esconder campos de serviços também
             if (servicesFields) servicesFields.style.display = 'none';
             if (serviceName) {
                 serviceName.required = false;
             }
+        }
+        
+        // Garantir que serviceName não seja required quando categoria for Roupas
+        if (category === 'Roupas' && serviceName) {
+            serviceName.required = false;
         }
     }
 
