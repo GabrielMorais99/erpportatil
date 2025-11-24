@@ -35,12 +35,49 @@ module.exports = async (req, res) => {
             ? filePath.slice(1)
             : filePath;
 
-        // Caminho completo do arquivo
-        const fullPath = path.join(projectRoot, cleanPath);
+        // Tentar múltiplos caminhos possíveis
+        const possiblePaths = [
+            path.join(projectRoot, cleanPath),
+            path.join(__dirname, '..', cleanPath),
+            path.join(process.cwd(), cleanPath),
+            path.join('/var/task', cleanPath),
+            path.join('/var/task', '..', cleanPath)
+        ];
+
+        let fullPath = null;
+        for (const testPath of possiblePaths) {
+            if (fs.existsSync(testPath)) {
+                fullPath = testPath;
+                console.log('Arquivo encontrado em:', testPath);
+                break;
+            }
+        }
+
+        // Se não encontrou, usar o primeiro caminho como padrão
+        if (!fullPath) {
+            fullPath = possiblePaths[0];
+        }
 
         console.log('Clean Path:', cleanPath);
         console.log('Full Path:', fullPath);
         console.log('File Exists:', fs.existsSync(fullPath));
+        console.log('Project Root:', projectRoot);
+        console.log('__dirname:', __dirname);
+        console.log('process.cwd():', process.cwd());
+        
+        // Debug: listar arquivos na raiz do projeto
+        try {
+            if (fs.existsSync(projectRoot)) {
+                const rootFiles = fs.readdirSync(projectRoot);
+                console.log('Arquivos na raiz do projeto:', rootFiles.slice(0, 20));
+            }
+            if (fs.existsSync(path.join(projectRoot, 'images'))) {
+                const imageFiles = fs.readdirSync(path.join(projectRoot, 'images'));
+                console.log('Arquivos na pasta images:', imageFiles);
+            }
+        } catch (err) {
+            console.log('Erro ao listar arquivos:', err.message);
+        }
 
         // Verificar se o arquivo existe
         if (fs.existsSync(fullPath)) {
@@ -279,15 +316,62 @@ module.exports = async (req, res) => {
             }
         }
         
-        // Para manifest.json e outros arquivos JSON, retornar 404 se não encontrado
+        // Para manifest.json, tentar caminhos alternativos
         if (cleanPath.includes('manifest.json') || filePath.includes('manifest.json')) {
-            console.error('manifest.json não encontrado');
+            const manifestAltPaths = [
+                path.join(projectRoot, 'manifest.json'),
+                path.join(__dirname, '..', 'manifest.json'),
+                path.join(process.cwd(), 'manifest.json'),
+                path.join('/var/task', 'manifest.json'),
+                path.join('/var/task', '..', 'manifest.json')
+            ];
+            
+            for (const altPath of manifestAltPaths) {
+                if (fs.existsSync(altPath)) {
+                    console.log('manifest.json encontrado em caminho alternativo:', altPath);
+                    const fileContent = fs.readFileSync(altPath, 'utf8');
+                    res.setHeader('Content-Type', 'application/json; charset=utf-8');
+                    res.setHeader('Cache-Control', 'public, max-age=3600');
+                    return res.status(200).send(fileContent);
+                }
+            }
+            console.error('manifest.json não encontrado em nenhum caminho');
+            console.error('Caminhos tentados:', manifestAltPaths);
             return res.status(404).json({ error: 'manifest.json not found' });
         }
         
-        // Para imagens, retornar 404 se não encontrado (não servir HTML)
+        // Para imagens, tentar caminhos alternativos antes de retornar 404
         if (['.png', '.jpg', '.jpeg', '.gif', '.svg', '.ico', '.webp'].some(ext => cleanPath.endsWith(ext))) {
-            console.error('Imagem não encontrada:', cleanPath);
+            const imageAltPaths = [
+                path.join(projectRoot, cleanPath),
+                path.join(__dirname, '..', cleanPath),
+                path.join(process.cwd(), cleanPath),
+                path.join('/var/task', cleanPath),
+                path.join('/var/task', '..', cleanPath)
+            ];
+            
+            for (const altPath of imageAltPaths) {
+                if (fs.existsSync(altPath)) {
+                    console.log('Imagem encontrada em caminho alternativo:', altPath);
+                    const ext = path.extname(altPath).toLowerCase();
+                    const contentTypes = {
+                        '.png': 'image/png',
+                        '.jpg': 'image/jpeg',
+                        '.jpeg': 'image/jpeg',
+                        '.gif': 'image/gif',
+                        '.svg': 'image/svg+xml',
+                        '.ico': 'image/x-icon',
+                        '.webp': 'image/webp'
+                    };
+                    const contentType = contentTypes[ext] || 'image/png';
+                    res.setHeader('Content-Type', contentType);
+                    res.setHeader('Cache-Control', 'public, max-age=31536000, immutable');
+                    const fileBuffer = fs.readFileSync(altPath);
+                    return res.status(200).send(fileBuffer);
+                }
+            }
+            console.error('Imagem não encontrada em nenhum caminho:', cleanPath);
+            console.error('Caminhos tentados:', imageAltPaths);
             return res.status(404).send('Image not found');
         }
         
