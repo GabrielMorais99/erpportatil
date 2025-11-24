@@ -211,22 +211,6 @@
                                 <h4>Total de Itens Cadastrados</h4>
                                 <p id="totalItemsCount">0</p>
                             </div>
-                            <div class="stat-card" style="background: #e7f3ff; border: 2px solid #17a2b8;">
-                                <h4>Estoque Total (Mês Atual)</h4>
-                                <p id="currentMonthStock" style="color: #0c5460; font-size: 1.5rem; font-weight: bold;">0 un.</p>
-                            </div>
-                            <div class="stat-card" style="background: #fff3cd; border: 2px solid #ffc107;">
-                                <h4>Estoque Vendido (Mês Atual)</h4>
-                                <p id="currentMonthStockSold" style="color: #856404; font-size: 1.5rem; font-weight: bold;">0 un.</p>
-                            </div>
-                            <div class="stat-card" style="background: #d4edda; border: 2px solid #28a745;">
-                                <h4>Estoque Disponível</h4>
-                                <p id="availableStock" style="color: #155724; font-size: 1.5rem; font-weight: bold;">0 un.</p>
-                            </div>
-                            <div class="stat-card" id="lowStockAlert" style="display: none; background: #f8d7da; border: 2px solid #dc3545;">
-                                <h4>⚠️ Alerta: Estoque Baixo</h4>
-                                <p id="lowStockItems" style="color: #721c24; font-size: 1rem;">-</p>
-                            </div>
                         </div>
                     </div>
                 </div>
@@ -531,6 +515,27 @@
                             >
                                 R$ 0,00
                             </p>
+                        </div>
+                    </div>
+                    <div class="stock-summary-card" style="margin: 1.5rem 0; padding: 1.5rem; background: #f8f9fa; border-radius: 8px; border: 2px solid #17a2b8;">
+                        <h3 style="margin-bottom: 1rem; color: #0c5460;">📦 Resumo de Estoque do Mês</h3>
+                        <div class="summary-stats" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;">
+                            <div class="stat-item" style="background: #e7f3ff; border: 2px solid #17a2b8; padding: 1rem; border-radius: 8px;">
+                                <h4 style="margin: 0 0 0.5rem 0; color: #0c5460; font-size: 0.9rem;">Estoque Total</h4>
+                                <p id="groupStockTotal" style="margin: 0; color: #0c5460; font-size: 1.5rem; font-weight: bold;">0 un.</p>
+                            </div>
+                            <div class="stat-item" style="background: #fff3cd; border: 2px solid #ffc107; padding: 1rem; border-radius: 8px;">
+                                <h4 style="margin: 0 0 0.5rem 0; color: #856404; font-size: 0.9rem;">Estoque Vendido</h4>
+                                <p id="groupStockSold" style="margin: 0; color: #856404; font-size: 1.5rem; font-weight: bold;">0 un.</p>
+                            </div>
+                            <div class="stat-item" style="background: #d4edda; border: 2px solid #28a745; padding: 1rem; border-radius: 8px;">
+                                <h4 style="margin: 0 0 0.5rem 0; color: #155724; font-size: 0.9rem;">Estoque Disponível</h4>
+                                <p id="groupStockAvailable" style="margin: 0; color: #155724; font-size: 1.5rem; font-weight: bold;">0 un.</p>
+                            </div>
+                            <div class="stat-item" id="groupLowStockAlert" style="display: none; background: #f8d7da; border: 2px solid #dc3545; padding: 1rem; border-radius: 8px;">
+                                <h4 style="margin: 0 0 0.5rem 0; color: #721c24; font-size: 0.9rem;">⚠️ Alerta: Estoque Baixo</h4>
+                                <p id="groupLowStockItems" style="margin: 0; color: #721c24; font-size: 1rem;">-</p>
+                            </div>
                         </div>
                     </div>
                     <div class="days-container">

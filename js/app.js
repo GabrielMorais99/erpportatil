@@ -1246,6 +1246,9 @@ class LojaApp {
             })
             .join('');
 
+        // Atualizar estatísticas de estoque do grupo
+        this.updateGroupStockStats(group);
+
         // Renderizar resumo por item
         const itemsSummaryList = document.getElementById('itemsSummary');
         const itemsArray = Object.values(itemsSummary);
@@ -3105,116 +3108,106 @@ class LojaApp {
         if (itemsEl) {
             itemsEl.textContent = this.items.length;
         }
-
-        // Estatísticas de estoque
-        this.updateStockStats();
     }
 
-    updateStockStats() {
-        const now = new Date();
-        const currentMonth = `${now.getFullYear()}-${String(
-            now.getMonth() + 1
-        ).padStart(2, '0')}`;
-        
-        const currentGroup = this.groups.find((g) => g.month === currentMonth);
-        
+    updateGroupStockStats(group) {
+        if (!group) return;
+
         let totalStock = 0;
         let totalSold = 0;
         const itemStockStatus = {};
         const lowStockItems = [];
 
-        if (currentGroup) {
-            // Calcular estoque total e vendido do mês atual
-            currentGroup.days.forEach((day) => {
-                // Garantir que stock existe
-                if (!day.stock) {
-                    day.stock = {};
+        // Calcular estoque total e vendido do grupo
+        group.days.forEach((day) => {
+            // Garantir que stock existe
+            if (!day.stock) {
+                day.stock = {};
+            }
+
+            // Somar estoque total de cada item (pegar o maior estoque registrado no mês)
+            Object.keys(day.stock).forEach((itemId) => {
+                if (!itemStockStatus[itemId]) {
+                    itemStockStatus[itemId] = {
+                        stock: 0,
+                        sold: 0,
+                    };
                 }
-
-                // Somar estoque total de cada item
-                Object.keys(day.stock).forEach((itemId) => {
-                    if (!itemStockStatus[itemId]) {
-                        itemStockStatus[itemId] = {
-                            stock: 0,
-                            sold: 0,
-                        };
-                    }
-                    // Pegar o maior estoque registrado no mês (estoque inicial)
-                    itemStockStatus[itemId].stock = Math.max(
-                        itemStockStatus[itemId].stock,
-                        day.stock[itemId] || 0
-                    );
-                });
-
-                // Somar vendas
-                day.sales.forEach((sale) => {
-                    if (!itemStockStatus[sale.itemId]) {
-                        itemStockStatus[sale.itemId] = {
-                            stock: 0,
-                            sold: 0,
-                        };
-                    }
-                    itemStockStatus[sale.itemId].sold += sale.quantity;
-                });
+                // Pegar o maior estoque registrado no mês (estoque inicial)
+                itemStockStatus[itemId].stock = Math.max(
+                    itemStockStatus[itemId].stock,
+                    day.stock[itemId] || 0
+                );
             });
 
-            // Calcular totais e verificar estoque baixo
-            Object.entries(itemStockStatus).forEach(([itemId, data]) => {
-                totalStock += data.stock;
-                totalSold += data.sold;
-                
-                const available = data.stock - data.sold;
-                const item = this.items.find((i) => i.id === itemId);
-                
-                // Alerta de estoque baixo (menos de 5 unidades ou negativo)
-                if (available <= 5 && item) {
-                    lowStockItems.push({
-                        name: this.getItemName(itemId),
-                        available: available,
-                    });
+            // Somar vendas
+            day.sales.forEach((sale) => {
+                if (!itemStockStatus[sale.itemId]) {
+                    itemStockStatus[sale.itemId] = {
+                        stock: 0,
+                        sold: 0,
+                    };
                 }
+                itemStockStatus[sale.itemId].sold += sale.quantity;
             });
+        });
+
+        // Calcular totais e verificar estoque baixo
+        Object.entries(itemStockStatus).forEach(([itemId, data]) => {
+            totalStock += data.stock;
+            totalSold += data.sold;
+            
+            const available = data.stock - data.sold;
+            const item = this.items.find((i) => i.id === itemId);
+            
+            // Alerta de estoque baixo (menos de 5 unidades ou negativo)
+            if (available <= 5 && item) {
+                lowStockItems.push({
+                    name: this.getItemName(itemId),
+                    available: available,
+                });
+            }
+        });
+
+        // Atualizar cards de estoque do grupo
+        const groupStockTotalEl = document.getElementById('groupStockTotal');
+        if (groupStockTotalEl) {
+            groupStockTotalEl.textContent = `${totalStock} un.`;
         }
 
-        // Atualizar cards de estoque
-        const currentMonthStockEl = document.getElementById('currentMonthStock');
-        if (currentMonthStockEl) {
-            currentMonthStockEl.textContent = `${totalStock} un.`;
+        const groupStockSoldEl = document.getElementById('groupStockSold');
+        if (groupStockSoldEl) {
+            groupStockSoldEl.textContent = `${totalSold} un.`;
         }
 
-        const currentMonthStockSoldEl = document.getElementById('currentMonthStockSold');
-        if (currentMonthStockSoldEl) {
-            currentMonthStockSoldEl.textContent = `${totalSold} un.`;
-        }
-
-        const availableStockEl = document.getElementById('availableStock');
-        if (availableStockEl) {
+        const groupStockAvailableEl = document.getElementById('groupStockAvailable');
+        if (groupStockAvailableEl) {
             const available = totalStock - totalSold;
-            availableStockEl.textContent = `${available} un.`;
+            groupStockAvailableEl.textContent = `${available} un.`;
             // Mudar cor se for negativo
             if (available < 0) {
-                availableStockEl.style.color = '#dc3545';
+                groupStockAvailableEl.style.color = '#dc3545';
             } else if (available === 0) {
-                availableStockEl.style.color = '#ffc107';
+                groupStockAvailableEl.style.color = '#ffc107';
             } else {
-                availableStockEl.style.color = '#155724';
+                groupStockAvailableEl.style.color = '#155724';
             }
         }
 
         // Alerta de estoque baixo
-        const lowStockAlertEl = document.getElementById('lowStockAlert');
-        const lowStockItemsEl = document.getElementById('lowStockItems');
-        if (lowStockAlertEl && lowStockItemsEl) {
+        const groupLowStockAlertEl = document.getElementById('groupLowStockAlert');
+        const groupLowStockItemsEl = document.getElementById('groupLowStockItems');
+        if (groupLowStockAlertEl && groupLowStockItemsEl) {
             if (lowStockItems.length > 0) {
-                lowStockAlertEl.style.display = 'block';
-                lowStockItemsEl.innerHTML = lowStockItems
+                groupLowStockAlertEl.style.display = 'block';
+                groupLowStockItemsEl.innerHTML = lowStockItems
                     .map(
                         (item) =>
                             `<strong>${this.escapeHtml(item.name)}</strong>: ${item.available} un.`
                     )
                     .join('<br>');
             } else {
-                lowStockAlertEl.style.display = 'none';
+                groupLowStockAlertEl.style.display = 'none';
             }
         }
     }
