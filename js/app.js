@@ -1603,7 +1603,6 @@ class LojaApp {
         }
 
         // Atualizar resumo geral completo (sem estoque, pois agora está nos cards)
-        const allMonthsTotal = this.calculateTotalAllMonths();
         const totalCosts = this.calculateTotalCosts();
         const netProfit = allMonthsTotal.totalValue - totalCosts;
 
