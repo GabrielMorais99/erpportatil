@@ -124,76 +124,6 @@
                     </button>
                 </div>
 
-                <!-- Tab: Dashboard -->
-                <div id="dashboardTab" class="tab-content">
-                    <div class="dashboard-container">
-                        <div class="dashboard-filters">
-                            <div class="filter-group">
-                                <label for="periodFilter">Período:</label>
-                                <select id="periodFilter" class="filter-select">
-                                    <option value="all">Todos os períodos</option>
-                                    <option value="month">Último mês</option>
-                                    <option value="3months">Últimos 3 meses</option>
-                                    <option value="6months">Últimos 6 meses</option>
-                                    <option value="year">Último ano</option>
-                                </select>
-                            </div>
-                            <button type="button" class="btn-secondary" id="refreshDashboard">
-                                <i class="fas fa-sync-alt"></i> Atualizar Gráficos
-                            </button>
-                        </div>
-
-                        <div class="charts-grid">
-                            <div class="chart-card">
-                                <h3>Vendas por Mês</h3>
-                                <div class="chart-wrapper">
-                                    <canvas id="salesByMonthChart"></canvas>
-                                </div>
-                            </div>
-
-                            <div class="chart-card">
-                                <h3>Lucro vs Custos</h3>
-                                <div class="chart-wrapper">
-                                    <canvas id="profitVsCostsChart"></canvas>
-                                </div>
-                            </div>
-
-                            <div class="chart-card">
-                                <h3>Top 10 Itens Mais Vendidos</h3>
-                                <div class="chart-wrapper">
-                                    <canvas id="topItemsChart"></canvas>
-                                </div>
-                            </div>
-
-                            <div class="chart-card">
-                                <h3>Evolução do Lucro</h3>
-                                <div class="chart-wrapper">
-                                    <canvas id="profitEvolutionChart"></canvas>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="dashboard-stats">
-                            <div class="stat-card">
-                                <h4>Média Mensal de Vendas</h4>
-                                <p id="avgMonthlySales">R$ 0,00</p>
-                            </div>
-                            <div class="stat-card">
-                                <h4>Melhor Mês</h4>
-                                <p id="bestMonth">-</p>
-                            </div>
-                            <div class="stat-card">
-                                <h4>Margem de Lucro Média</h4>
-                                <p id="avgProfitMargin">0%</p>
-                            </div>
-                            <div class="stat-card">
-                                <h4>Total de Itens Cadastrados</h4>
-                                <p id="totalItemsCount">0</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
                 <!-- Tab: Itens -->
                 <div id="itemsTab" class="tab-content active">
                     <div id="itemsGrid" class="items-grid">
@@ -248,6 +178,20 @@
                                     <canvas id="profitEvolutionChart"></canvas>
                                 </div>
                             </div>
+
+                            <div class="chart-card">
+                                <h3>Consumo de Estoque por Mês</h3>
+                                <div class="chart-wrapper">
+                                    <canvas id="stockConsumptionChart"></canvas>
+                                </div>
+                            </div>
+
+                            <div class="chart-card">
+                                <h3>Top 10 Itens em Rotatividade</h3>
+                                <div class="chart-wrapper">
+                                    <canvas id="stockRotationChart"></canvas>
+                                </div>
+                            </div>
                         </div>
 
                         <div class="dashboard-stats">
@@ -266,6 +210,22 @@
                             <div class="stat-card">
                                 <h4>Total de Itens Cadastrados</h4>
                                 <p id="totalItemsCount">0</p>
+                            </div>
+                            <div class="stat-card" style="background: #e7f3ff; border: 2px solid #17a2b8;">
+                                <h4>Estoque Total (Mês Atual)</h4>
+                                <p id="currentMonthStock" style="color: #0c5460; font-size: 1.5rem; font-weight: bold;">0 un.</p>
+                            </div>
+                            <div class="stat-card" style="background: #fff3cd; border: 2px solid #ffc107;">
+                                <h4>Estoque Vendido (Mês Atual)</h4>
+                                <p id="currentMonthStockSold" style="color: #856404; font-size: 1.5rem; font-weight: bold;">0 un.</p>
+                            </div>
+                            <div class="stat-card" style="background: #d4edda; border: 2px solid #28a745;">
+                                <h4>Estoque Disponível</h4>
+                                <p id="availableStock" style="color: #155724; font-size: 1.5rem; font-weight: bold;">0 un.</p>
+                            </div>
+                            <div class="stat-card" id="lowStockAlert" style="display: none; background: #f8d7da; border: 2px solid #dc3545;">
+                                <h4>⚠️ Alerta: Estoque Baixo</h4>
+                                <p id="lowStockItems" style="color: #721c24; font-size: 1rem;">-</p>
                             </div>
                         </div>
                     </div>
