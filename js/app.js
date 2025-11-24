@@ -744,7 +744,11 @@ class LojaApp {
         // Atualizar estoque disponível ao selecionar item no modal de venda
         const saleItem = document.getElementById('saleItem');
         if (saleItem) {
-            saleItem.addEventListener('change', () => this.updateStockInfo());
+            saleItem.addEventListener('change', () => {
+                const itemId = saleItem.value;
+                this.updateSaleModalForItem(itemId);
+                this.updateStockInfo();
+            });
             console.log(
                 '✅ [APP.JS] Listener anexado ao saleItem para atualizar estoque'
             );
@@ -918,9 +922,13 @@ class LojaApp {
             // Atualizar campos visíveis
             this.toggleCategoryFields();
             
-            // Gerar QR code se estiver editando
-            if (item.id) {
+            // Gerar QR code se estiver editando (apenas para produtos físicos)
+            if (item.id && item.category !== 'Serviços') {
                 this.generateQRCode(item.id);
+            } else if (item.category === 'Serviços') {
+                // Esconder seção de QR code para serviços
+                const qrcodeSection = document.getElementById('qrcodeSection');
+                if (qrcodeSection) qrcodeSection.style.display = 'none';
             }
         } else {
             title.textContent = 'Novo Produto';
@@ -1054,9 +1062,13 @@ class LojaApp {
         this.renderItems();
         this.closeItemModal();
         
-        // Gerar QR code após salvar
-        if (item.id) {
+        // Gerar QR code após salvar (apenas para produtos físicos)
+        if (item.id && item.category !== 'Serviços') {
             this.generateQRCode(item.id);
+        } else if (item.category === 'Serviços') {
+            // Esconder seção de QR code para serviços
+            const qrcodeSection = document.getElementById('qrcodeSection');
+            if (qrcodeSection) qrcodeSection.style.display = 'none';
         }
     }
 
@@ -1514,11 +1526,12 @@ class LojaApp {
                     .toFixed(2)
                     .replace('.', ',')}</div>
                 <div class="item-actions">
-                    <button class="btn-small btn-secondary" onclick="app.showQRCodeModal('${
-                        item.id
-                    }')" title="Ver QR Code">
-                        <i class="fas fa-qrcode"></i> QR Code
-                    </button>
+                    ${category !== 'Serviços' 
+                        ? `<button class="btn-small btn-secondary" onclick="app.showQRCodeModal('${item.id}')" title="Ver QR Code">
+                            <i class="fas fa-qrcode"></i> QR Code
+                        </button>`
+                        : ''
+                    }
                     <button class="btn-small btn-edit" onclick="app.openItemModal(${JSON.stringify(
                         item
                     ).replace(/"/g, '&quot;')})">Editar</button>
@@ -1739,21 +1752,21 @@ class LojaApp {
         this.currentSaleDay = day;
         const dayData = group.days.find((d) => d.day === day);
 
-        // Popular select de itens
+        // Popular select de itens (incluindo serviços)
         const saleItemSelect = document.getElementById('saleItem');
         saleItemSelect.innerHTML =
             '<option value="">Selecione um item...</option>' +
             this.items
                 .map((item) => {
                     const category = item.category || 'Roupas';
+                    let displayName;
+                    
                     if (category === 'Eletrônicos') {
-                        const displayName = item.model || item.name;
-                        return `<option value="${item.id}">${this.escapeHtml(
-                            displayName
-                        )}</option>`;
+                        displayName = item.model || item.name;
+                    } else if (category === 'Serviços') {
+                        displayName = item.name || 'Serviço';
                     } else {
                         // Para roupas, se não tiver nome, usar marca + estilo ou apenas marca
-                        let displayName;
                         if (item.name) {
                             displayName = `${item.name} - ${item.brand || ''}`;
                         } else {
@@ -1762,10 +1775,10 @@ class LojaApp {
                             displayName =
                                 parts.filter((p) => p).join(' - ') || 'Roupa';
                         }
-                        return `<option value="${item.id}">${this.escapeHtml(
-                            displayName
-                        )}</option>`;
                     }
+                    return `<option value="${item.id}">${this.escapeHtml(
+                        displayName
+                    )}</option>`;
                 })
                 .join('');
 
@@ -1778,6 +1791,9 @@ class LojaApp {
             saleDayDisplay.textContent = day;
         }
 
+        // Resetar modal para estado padrão
+        this.updateSaleModalForItem(null);
+        
         // Atualizar informação de estoque
         this.updateStockInfo();
 
@@ -1792,6 +1808,78 @@ class LojaApp {
         }
 
         document.getElementById('saleModal').classList.add('active');
+    }
+
+    updateSaleModalForItem(itemId) {
+        const item = itemId ? this.items.find(i => i.id === itemId) : null;
+        const scanQRBtn = document.getElementById('scanQRBtn');
+        const qrScannerContainer = document.getElementById('qrScannerContainer');
+        const serviceInfo = document.getElementById('serviceInfo');
+        const saleQuantityLabel = document.getElementById('saleQuantityLabel');
+        const stockInfo = document.getElementById('stockInfo');
+        
+        if (!item) {
+            // Resetar para padrão (produto físico)
+            if (scanQRBtn) scanQRBtn.style.display = 'inline-block';
+            if (serviceInfo) serviceInfo.style.display = 'none';
+            if (saleQuantityLabel) saleQuantityLabel.textContent = 'Quantidade *';
+            if (stockInfo) stockInfo.style.display = 'block';
+            return;
+        }
+        
+        if (item.category === 'Serviços') {
+            // Configuração para SERVIÇOS
+            // Esconder QR Code
+            if (scanQRBtn) scanQRBtn.style.display = 'none';
+            if (qrScannerContainer) qrScannerContainer.style.display = 'none';
+            
+            // Mostrar info do serviço
+            if (serviceInfo) {
+                serviceInfo.style.display = 'block';
+                const descText = document.getElementById('serviceDescriptionText');
+                if (descText) {
+                    let info = `<strong>${this.getItemName(itemId)}</strong>`;
+                    if (item.description) {
+                        info += `<br><span style="color: #6c757d;">${this.escapeHtml(item.description)}</span>`;
+                    }
+                    if (item.duration) {
+                        info += `<br><small style="color: #6c757d;">⏱️ Duração: ${this.escapeHtml(item.duration)}</small>`;
+                    }
+                    if (item.serviceType) {
+                        info += `<br><small style="color: #6c757d;">📋 Tipo: ${this.escapeHtml(item.serviceType)}</small>`;
+                    }
+                    descText.innerHTML = info;
+                }
+            }
+            
+            // Atualizar label de quantidade
+            const unit = item.serviceUnit || 'Unidades';
+            if (saleQuantityLabel) {
+                saleQuantityLabel.textContent = `Quantidade (${unit}) *`;
+            }
+            
+            // Esconder info de estoque
+            if (stockInfo) {
+                stockInfo.style.display = 'none';
+            }
+        } else {
+            // Configuração para PRODUTOS FÍSICOS
+            // Mostrar QR Code
+            if (scanQRBtn) scanQRBtn.style.display = 'inline-block';
+            
+            // Esconder info do serviço
+            if (serviceInfo) serviceInfo.style.display = 'none';
+            
+            // Label padrão
+            if (saleQuantityLabel) {
+                saleQuantityLabel.textContent = 'Quantidade (unidades) *';
+            }
+            
+            // Mostrar info de estoque (se existir elemento)
+            if (stockInfo) {
+                stockInfo.style.display = 'block';
+            }
+        }
     }
 
     updateStockInfo() {
