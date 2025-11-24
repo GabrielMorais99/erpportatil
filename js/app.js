@@ -3164,7 +3164,7 @@ class LojaApp {
         // Margem de lucro média
         let totalCosts = 0;
         this.costs.forEach((cost) => {
-            totalCosts += cost.totalCost;
+            totalCosts += cost.total || 0;
         });
         const profitMargin =
             totalSales > 0 ? ((totalSales - totalCosts) / totalSales) * 100 : 0;
