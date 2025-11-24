@@ -567,21 +567,14 @@
                     <span class="close">&times;</span>
                 </div>
                 <form id="saleForm">
+                    <div class="form-group" id="saleDayInfo" style="background: var(--light-gray); padding: 10px; border-radius: 5px; margin-bottom: 15px; text-align: center;">
+                        <strong>Dia: <span id="saleDayDisplay">-</span></strong>
+                    </div>
                     <div class="form-group">
                         <label for="saleItem">Item *</label>
                         <select id="saleItem" required>
                             <option value="">Selecione um item...</option>
                         </select>
-                    </div>
-                    <div class="form-group">
-                        <label for="saleDate">Data (Dia) *</label>
-                        <input
-                            type="number"
-                            id="saleDate"
-                            min="1"
-                            max="31"
-                            required
-                        />
                     </div>
                     <div class="form-group">
                         <label for="saleQuantity">Quantidade *</label>

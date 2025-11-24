@@ -1317,7 +1317,12 @@ class LojaApp {
 
         // Resetar formulário
         document.getElementById('saleForm').reset();
-        document.getElementById('saleDate').value = day;
+        
+        // Atualizar exibição do dia
+        const saleDayDisplay = document.getElementById('saleDayDisplay');
+        if (saleDayDisplay) {
+            saleDayDisplay.textContent = day;
+        }
 
         // Atualizar informação de estoque
         this.updateStockInfo();
