@@ -386,6 +386,7 @@ body {
     width: 100%;
     box-sizing: border-box;
     overflow-x: hidden;
+    background-color: var(--gray-100);
 }
 
 .toolbar {
