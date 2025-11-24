@@ -10,7 +10,7 @@
             name="description"
             content="Sistema de gestão de loja de roupas - Controle de vendas e custos"
         />
-        <meta name="theme-color" content="#dc3545" id="theme-color-meta" />
+        <meta name="theme-color" content="#000000" id="theme-color-meta" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta
             name="apple-mobile-web-app-status-bar-style"
@@ -35,11 +35,11 @@
         <link rel="manifest" href="/manifest.json" />
         <link
             rel="icon"
-            type="image/png"
+            type="image/jpeg"
             sizes="192x192"
-            href="/icon-192.png"
+            href="/images/icone-e-transicao.jpg"
         />
-        <link rel="apple-touch-icon" href="/icon-192.png" />
+        <link rel="apple-touch-icon" href="/images/icone-e-transicao.jpg" />
         <!-- Estilo inline para evitar FOUC - esconde conteúdo até CSS carregar -->
         <style>
             body {
@@ -203,12 +203,25 @@
                     }
                 }
 
+                // Na tela de login, SEMPRE usar preto, independente do tema salvo
+                // Forçar preto e não permitir mudanças
+                updateThemeColor('#000000');
+                
+                // Garantir que o theme-color permaneça preto mesmo se houver tentativa de mudança
+                const metaThemeColor = document.getElementById('theme-color-meta');
+                if (metaThemeColor) {
+                    // Observar mudanças e forçar de volta para preto
+                    const observer = new MutationObserver(function(mutations) {
+                        if (metaThemeColor.getAttribute('content') !== '#000000') {
+                            metaThemeColor.setAttribute('content', '#000000');
+                        }
+                    });
+                    observer.observe(metaThemeColor, { attributes: true, attributeFilter: ['content'] });
+                }
+                
                 const savedTheme = localStorage.getItem('appTheme');
                 if (savedTheme === 'blue') {
                     document.body.classList.add('theme-blue');
-                    updateThemeColor('#007bff');
-                } else {
-                    updateThemeColor('#dc3545');
                 }
             })();
         </script>
