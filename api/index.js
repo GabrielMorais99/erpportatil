@@ -75,15 +75,22 @@ module.exports = async (req, res) => {
 
                 res.setHeader('Content-Type', finalContentType);
 
-                // Headers AGRESSIVOS para evitar cache (forçar sempre 200 OK)
-                // IMPORTANTE: Sempre retornar 200, nunca 304
-                // Vercel CDN também respeita esses headers
-                res.setHeader(
-                    'Cache-Control',
-                    'no-cache, no-store, must-revalidate, max-age=0, private, proxy-revalidate'
-                );
-                res.setHeader('Pragma', 'no-cache');
-                res.setHeader('Expires', '0');
+                // Headers diferentes para imagens vs outros arquivos
+                if (['.png', '.jpg', '.jpeg', '.gif', '.svg', '.ico', '.webp'].includes(ext)) {
+                    // Imagens: permitir cache mas forçar validação
+                    res.setHeader(
+                        'Cache-Control',
+                        'public, max-age=31536000, immutable'
+                    );
+                } else {
+                    // Outros arquivos: headers AGRESSIVOS para evitar cache
+                    res.setHeader(
+                        'Cache-Control',
+                        'no-cache, no-store, must-revalidate, max-age=0, private, proxy-revalidate'
+                    );
+                    res.setHeader('Pragma', 'no-cache');
+                    res.setHeader('Expires', '0');
+                }
                 res.setHeader('X-Content-Type-Options', 'nosniff');
 
                 // Sempre atualizar Last-Modified para forçar recarregamento

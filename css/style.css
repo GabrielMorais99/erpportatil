@@ -50,20 +50,20 @@ body.theme-blue .login-container {
     background-image: url('/images/background-financial.png'),
         linear-gradient(
             to bottom,
-            rgba(75, 85, 99, 0.1) 0%,
-            rgba(75, 85, 99, 0.2) 50%,
-            rgba(75, 85, 99, 0.3) 100%
+            rgba(156, 163, 175, 0.1) 0%,
+            rgba(156, 163, 175, 0.2) 50%,
+            rgba(156, 163, 175, 0.3) 100%
         );
 }
 
-/* Padronizar cores da tela de login para cinza escuro e branco */
+/* Padronizar cores da tela de login para cinza claro e branco */
 .login-container .logo h1 {
-    color: #1f2937;
+    color: #4b5563;
 }
 
 .login-container .form-group input:focus,
 .login-container .form-group select:focus {
-    border-color: #4b5563;
+    border-color: #6b7280;
 }
 
 .login-container .error-message {
@@ -71,12 +71,12 @@ body.theme-blue .login-container {
 }
 
 .login-container .btn-primary {
-    background-color: #374151;
+    background-color: #6b7280;
     color: #ffffff;
 }
 
 .login-container .btn-primary:hover {
-    background-color: #4b5563;
+    background-color: #9ca3af;
 }
 
 body {
@@ -106,13 +106,13 @@ body {
     display: flex;
     justify-content: center;
     align-items: center;
-    background-color: #4b5563;
+    background-color: #9ca3af;
     background-image: url('/images/background-financial.png'),
         linear-gradient(
             to bottom,
-            rgba(75, 85, 99, 0.1) 0%,
-            rgba(75, 85, 99, 0.2) 50%,
-            rgba(75, 85, 99, 0.3) 100%
+            rgba(156, 163, 175, 0.1) 0%,
+            rgba(156, 163, 175, 0.2) 50%,
+            rgba(156, 163, 175, 0.3) 100%
         );
     background-size: cover;
     background-position: center right;
