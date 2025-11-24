@@ -1486,9 +1486,19 @@ class LojaApp {
                     displayName = item.name || 'Item';
                 }
 
+                // Determinar classe do badge baseado na categoria
+                let badgeClass = '';
+                if (category === 'Serviços') {
+                    badgeClass = 'services-badge';
+                } else if (category === 'Eletrônicos') {
+                    badgeClass = 'electronics-badge';
+                } else if (category === 'Roupas') {
+                    badgeClass = 'clothing-badge';
+                }
+                
                 return `
             <div class="item-card">
-                <div class="item-category-badge ${category === 'Serviços' ? 'services-badge' : ''}">${this.escapeHtml(
+                <div class="item-category-badge ${badgeClass}">${this.escapeHtml(
                     category
                 )}</div>
                 <h3>${this.escapeHtml(displayName)}</h3>

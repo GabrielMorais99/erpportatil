@@ -557,27 +557,42 @@ body {
 
 .item-category-badge {
     position: absolute;
-    top: 0.5rem;
-    right: 0.5rem;
+    top: 0.75rem;
+    right: 0.75rem;
     background: var(--primary-color);
     color: var(--white);
+    padding: 0.4rem 0.75rem;
+    border-radius: 20px;
+    font-size: 0.65rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    z-index: 1;
+    transition: all 0.2s ease;
+}
+
+.item-category-badge:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.15);
 }
 
 /* Badge específico para Serviços */
-.item-card:has(.item-category-badge:contains("Serviços")) .item-category-badge,
-.item-category-badge[data-category="Serviços"] {
-    background: #28a745;
+.item-category-badge.services-badge {
+    background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+    color: var(--white);
 }
 
-/* Alternativa usando JavaScript para adicionar classe */
-.item-category-badge.services-badge {
-    background: #28a745;
+/* Badge para Roupas */
+.item-category-badge.clothing-badge {
+    background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-color-dark) 100%);
+    color: var(--white);
 }
-    padding: 0.25rem 0.5rem;
-    border-radius: 4px;
-    font-size: 0.7rem;
-    font-weight: 600;
-    text-transform: uppercase;
+
+/* Badge para Eletrônicos */
+.item-category-badge.electronics-badge {
+    background: linear-gradient(135deg, #6f42c1 0%, #5a32a3 100%);
+    color: var(--white);
 }
 
 .item-card h3 {
