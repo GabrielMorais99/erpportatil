@@ -25,7 +25,8 @@
 
 /* Animação suave contínua para o ícone */
 @keyframes iconPulse {
-    0%, 100% {
+    0%,
+    100% {
         transform: scale(1);
         opacity: 1;
     }
