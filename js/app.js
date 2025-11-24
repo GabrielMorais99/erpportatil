@@ -3413,6 +3413,13 @@ class LojaApp {
             }, 100);
         }
 
+        // Se for a aba servicesDashboard, renderizar os gráficos de serviços
+        if (tab === 'servicesDashboard') {
+            setTimeout(() => {
+                this.renderServicesDashboard();
+            }, 100);
+        }
+
         // Se for a aba goals, renderizar as metas
         if (tab === 'goals') {
             this.renderGoals();
@@ -3642,6 +3649,15 @@ class LojaApp {
         profitEvolution: null,
         stockConsumption: null,
         stockRotation: null,
+    };
+
+    servicesCharts = {
+        hoursByMonth: null,
+        revenueByMonth: null,
+        topServices: null,
+        hoursEvolution: null,
+        avgHoursPerDay: null,
+        avgValuePerHour: null,
     };
 
     renderDashboard() {
@@ -4659,6 +4675,513 @@ class LojaApp {
         const metaThemeColor = document.getElementById('theme-color-meta');
         if (metaThemeColor) {
             metaThemeColor.setAttribute('content', color);
+        }
+    }
+
+    // ========== DASHBOARD DE SERVIÇOS ==========
+
+    getFilteredServiceData() {
+        const periodFilter = document.getElementById('servicesPeriodFilter');
+        const period = periodFilter ? periodFilter.value : 'all';
+        const now = new Date();
+        let cutoffDate = null;
+
+        if (period === 'month') {
+            cutoffDate = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+        } else if (period === '3months') {
+            cutoffDate = new Date(now.getFullYear(), now.getMonth() - 3, 1);
+        } else if (period === '6months') {
+            cutoffDate = new Date(now.getFullYear(), now.getMonth() - 6, 1);
+        } else if (period === 'year') {
+            cutoffDate = new Date(now.getFullYear() - 1, now.getMonth(), 1);
+        }
+
+        if (!cutoffDate) {
+            return this.serviceGroups || [];
+        }
+
+        return (this.serviceGroups || []).filter((group) => {
+            const groupDate = new Date(group.month + '-01');
+            return groupDate >= cutoffDate;
+        });
+    }
+
+    renderServicesDashboard() {
+        console.log('📊 [SERVICES DASHBOARD] Iniciando renderização...');
+
+        if (typeof Chart === 'undefined' || window.chartJsLoaded === false) {
+            console.warn('⚠️ [SERVICES DASHBOARD] Chart.js não está carregado, aguardando...');
+            setTimeout(() => this.renderServicesDashboard(), 500);
+            return;
+        }
+
+        const filteredGroups = this.getFilteredServiceData();
+        this.renderHoursByMonthChart(filteredGroups);
+        this.renderRevenueByMonthChart(filteredGroups);
+        this.renderTopServicesChart(filteredGroups);
+        this.renderHoursEvolutionChart(filteredGroups);
+        this.renderAvgHoursPerDayChart(filteredGroups);
+        this.renderAvgValuePerHourChart(filteredGroups);
+        this.updateServicesDashboardStats(filteredGroups);
+    }
+
+    renderHoursByMonthChart(groups) {
+        const ctx = document.getElementById('hoursByMonthChart');
+        if (!ctx) return;
+
+        const months = [];
+        const hours = [];
+
+        groups.forEach((group) => {
+            const [year, monthNum] = group.month.split('-');
+            const monthNames = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
+            months.push(`${monthNames[parseInt(monthNum) - 1]}/${year}`);
+
+            let totalHours = 0;
+            let totalMinutes = 0;
+            group.days.forEach((day) => {
+                day.services.forEach((service) => {
+                    totalHours += service.hours || 0;
+                    totalMinutes += service.minutes || 0;
+                });
+            });
+            totalHours += Math.floor(totalMinutes / 60);
+            hours.push(totalHours + (totalMinutes % 60) / 60);
+        });
+
+        if (this.servicesCharts.hoursByMonth) {
+            this.servicesCharts.hoursByMonth.destroy();
+        }
+
+        this.servicesCharts.hoursByMonth = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: months,
+                datasets: [{
+                    label: 'Horas Trabalhadas',
+                    data: hours,
+                    backgroundColor: 'rgba(40, 167, 69, 0.6)',
+                    borderColor: 'rgba(40, 167, 69, 1)',
+                    borderWidth: 2
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            callback: function(value) {
+                                return value.toFixed(1) + 'h';
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+    renderRevenueByMonthChart(groups) {
+        const ctx = document.getElementById('revenueByMonthChart');
+        if (!ctx) return;
+
+        const months = [];
+        const revenues = [];
+
+        groups.forEach((group) => {
+            const [year, monthNum] = group.month.split('-');
+            const monthNames = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
+            months.push(`${monthNames[parseInt(monthNum) - 1]}/${year}`);
+
+            let totalRevenue = 0;
+            group.days.forEach((day) => {
+                day.services.forEach((service) => {
+                    totalRevenue += service.price || 0;
+                });
+            });
+            revenues.push(totalRevenue);
+        });
+
+        if (this.servicesCharts.revenueByMonth) {
+            this.servicesCharts.revenueByMonth.destroy();
+        }
+
+        this.servicesCharts.revenueByMonth = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: months,
+                datasets: [{
+                    label: 'Faturamento (R$)',
+                    data: revenues,
+                    borderColor: 'rgba(0, 123, 255, 1)',
+                    backgroundColor: 'rgba(0, 123, 255, 0.1)',
+                    borderWidth: 2,
+                    fill: true,
+                    tension: 0.4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            callback: function(value) {
+                                return 'R$ ' + value.toFixed(2).replace('.', ',');
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+    renderTopServicesChart(groups) {
+        const ctx = document.getElementById('topServicesChart');
+        if (!ctx) return;
+
+        const serviceCounts = {};
+        groups.forEach((group) => {
+            group.days.forEach((day) => {
+                day.services.forEach((service) => {
+                    if (!serviceCounts[service.itemId]) {
+                        serviceCounts[service.itemId] = {
+                            count: 0,
+                            name: this.getItemName(service.itemId)
+                        };
+                    }
+                    serviceCounts[service.itemId].count++;
+                });
+            });
+        });
+
+        const sortedServices = Object.entries(serviceCounts)
+            .sort((a, b) => b[1].count - a[1].count)
+            .slice(0, 10);
+
+        if (sortedServices.length === 0) {
+            if (this.servicesCharts.topServices) {
+                this.servicesCharts.topServices.destroy();
+            }
+            return;
+        }
+
+        const labels = sortedServices.map(([id, data]) =>
+            data.name.length > 15 ? data.name.substring(0, 15) + '...' : data.name
+        );
+        const counts = sortedServices.map(([id, data]) => data.count);
+
+        if (this.servicesCharts.topServices) {
+            this.servicesCharts.topServices.destroy();
+        }
+
+        this.servicesCharts.topServices = new Chart(ctx, {
+            type: 'doughnut',
+            data: {
+                labels: labels,
+                datasets: [{
+                    data: counts,
+                    backgroundColor: [
+                        'rgba(40, 167, 69, 0.8)',
+                        'rgba(0, 123, 255, 0.8)',
+                        'rgba(255, 193, 7, 0.8)',
+                        'rgba(220, 53, 69, 0.8)',
+                        'rgba(108, 117, 125, 0.8)',
+                        'rgba(23, 162, 184, 0.8)',
+                        'rgba(111, 66, 193, 0.8)',
+                        'rgba(253, 126, 20, 0.8)',
+                        'rgba(32, 201, 151, 0.8)',
+                        'rgba(233, 30, 99, 0.8)'
+                    ]
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false
+            }
+        });
+    }
+
+    renderHoursEvolutionChart(groups) {
+        const ctx = document.getElementById('hoursEvolutionChart');
+        if (!ctx) return;
+
+        const months = [];
+        const hours = [];
+
+        groups.forEach((group) => {
+            const [year, monthNum] = group.month.split('-');
+            const monthNames = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
+            months.push(`${monthNames[parseInt(monthNum) - 1]}/${year}`);
+
+            let totalHours = 0;
+            let totalMinutes = 0;
+            group.days.forEach((day) => {
+                day.services.forEach((service) => {
+                    totalHours += service.hours || 0;
+                    totalMinutes += service.minutes || 0;
+                });
+            });
+            totalHours += Math.floor(totalMinutes / 60);
+            hours.push(totalHours + (totalMinutes % 60) / 60);
+        });
+
+        if (this.servicesCharts.hoursEvolution) {
+            this.servicesCharts.hoursEvolution.destroy();
+        }
+
+        this.servicesCharts.hoursEvolution = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: months,
+                datasets: [{
+                    label: 'Horas Trabalhadas',
+                    data: hours,
+                    borderColor: 'rgba(40, 167, 69, 1)',
+                    backgroundColor: 'rgba(40, 167, 69, 0.1)',
+                    borderWidth: 2,
+                    fill: true,
+                    tension: 0.4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            callback: function(value) {
+                                return value.toFixed(1) + 'h';
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+    renderAvgHoursPerDayChart(groups) {
+        const ctx = document.getElementById('avgHoursPerDayChart');
+        if (!ctx) return;
+
+        const months = [];
+        const avgHours = [];
+
+        groups.forEach((group) => {
+            const [year, monthNum] = group.month.split('-');
+            const monthNames = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
+            months.push(`${monthNames[parseInt(monthNum) - 1]}/${year}`);
+
+            let totalHours = 0;
+            let totalMinutes = 0;
+            let daysWithServices = 0;
+
+            group.days.forEach((day) => {
+                if (day.services.length > 0) {
+                    daysWithServices++;
+                    day.services.forEach((service) => {
+                        totalHours += service.hours || 0;
+                        totalMinutes += service.minutes || 0;
+                    });
+                }
+            });
+
+            if (daysWithServices > 0) {
+                const totalHoursDecimal = totalHours + (totalMinutes / 60);
+                avgHours.push(totalHoursDecimal / daysWithServices);
+            } else {
+                avgHours.push(0);
+            }
+        });
+
+        if (this.servicesCharts.avgHoursPerDay) {
+            this.servicesCharts.avgHoursPerDay.destroy();
+        }
+
+        this.servicesCharts.avgHoursPerDay = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: months,
+                datasets: [{
+                    label: 'Média de Horas por Dia',
+                    data: avgHours,
+                    backgroundColor: 'rgba(255, 193, 7, 0.6)',
+                    borderColor: 'rgba(255, 193, 7, 1)',
+                    borderWidth: 2
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            callback: function(value) {
+                                return value.toFixed(1) + 'h';
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+    renderAvgValuePerHourChart(groups) {
+        const ctx = document.getElementById('avgValuePerHourChart');
+        if (!ctx) return;
+
+        const months = [];
+        const avgValues = [];
+
+        groups.forEach((group) => {
+            const [year, monthNum] = group.month.split('-');
+            const monthNames = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
+            months.push(`${monthNames[parseInt(monthNum) - 1]}/${year}`);
+
+            let totalHours = 0;
+            let totalMinutes = 0;
+            let totalRevenue = 0;
+
+            group.days.forEach((day) => {
+                day.services.forEach((service) => {
+                    totalHours += service.hours || 0;
+                    totalMinutes += service.minutes || 0;
+                    totalRevenue += service.price || 0;
+                });
+            });
+
+            const totalHoursDecimal = totalHours + (totalMinutes / 60);
+            if (totalHoursDecimal > 0) {
+                avgValues.push(totalRevenue / totalHoursDecimal);
+            } else {
+                avgValues.push(0);
+            }
+        });
+
+        if (this.servicesCharts.avgValuePerHour) {
+            this.servicesCharts.avgValuePerHour.destroy();
+        }
+
+        this.servicesCharts.avgValuePerHour = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: months,
+                datasets: [{
+                    label: 'Valor Médio por Hora (R$)',
+                    data: avgValues,
+                    borderColor: 'rgba(111, 66, 193, 1)',
+                    backgroundColor: 'rgba(111, 66, 193, 0.1)',
+                    borderWidth: 2,
+                    fill: true,
+                    tension: 0.4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            callback: function(value) {
+                                return 'R$ ' + value.toFixed(2).replace('.', ',');
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+    updateServicesDashboardStats(groups) {
+        let totalHours = 0;
+        let totalMinutes = 0;
+        let totalRevenue = 0;
+        let totalServices = 0;
+        const monthStats = [];
+
+        groups.forEach((group) => {
+            let monthHours = 0;
+            let monthMinutes = 0;
+            let monthRevenue = 0;
+            let monthServices = 0;
+
+            group.days.forEach((day) => {
+                day.services.forEach((service) => {
+                    monthHours += service.hours || 0;
+                    monthMinutes += service.minutes || 0;
+                    monthRevenue += service.price || 0;
+                    monthServices++;
+                });
+            });
+
+            monthHours += Math.floor(monthMinutes / 60);
+            monthMinutes = monthMinutes % 60;
+
+            totalHours += monthHours;
+            totalMinutes += monthMinutes;
+            totalRevenue += monthRevenue;
+            totalServices += monthServices;
+
+            const [year, monthNum] = group.month.split('-');
+            const monthNames = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'];
+            monthStats.push({
+                month: `${monthNames[parseInt(monthNum) - 1]}/${year}`,
+                hours: monthHours + (monthMinutes / 60),
+                revenue: monthRevenue
+            });
+        });
+
+        totalHours += Math.floor(totalMinutes / 60);
+        totalMinutes = totalMinutes % 60;
+
+        const monthCount = groups.length;
+        const avgHours = monthCount > 0 ? (totalHours + (totalMinutes / 60)) / monthCount : 0;
+        const avgHoursInt = Math.floor(avgHours);
+        const avgMinutesInt = Math.floor((avgHours - avgHoursInt) * 60);
+
+        const avgRevenue = monthCount > 0 ? totalRevenue / monthCount : 0;
+
+        const bestMonthHours = monthStats.length > 0 
+            ? monthStats.reduce((best, current) => current.hours > best.hours ? current : best, monthStats[0])
+            : null;
+
+        const bestMonthRevenue = monthStats.length > 0
+            ? monthStats.reduce((best, current) => current.revenue > best.revenue ? current : best, monthStats[0])
+            : null;
+
+        const totalHoursDecimal = totalHours + (totalMinutes / 60);
+        const avgValuePerHour = totalHoursDecimal > 0 ? totalRevenue / totalHoursDecimal : 0;
+
+        // Atualizar elementos
+        const avgMonthlyHoursEl = document.getElementById('servicesAvgMonthlyHours');
+        const bestMonthHoursEl = document.getElementById('servicesBestMonthHours');
+        const avgMonthlyRevenueEl = document.getElementById('servicesAvgMonthlyRevenue');
+        const bestMonthRevenueEl = document.getElementById('servicesBestMonthRevenue');
+        const avgValuePerHourEl = document.getElementById('servicesAvgValuePerHour');
+        const totalServicesEl = document.getElementById('servicesTotalServices');
+
+        if (avgMonthlyHoursEl) {
+            avgMonthlyHoursEl.textContent = `${avgHoursInt}h ${avgMinutesInt}min`;
+        }
+        if (bestMonthHoursEl) {
+            bestMonthHoursEl.textContent = bestMonthHours ? bestMonthHours.month : '-';
+        }
+        if (avgMonthlyRevenueEl) {
+            avgMonthlyRevenueEl.textContent = `R$ ${avgRevenue.toFixed(2).replace('.', ',')}`;
+        }
+        if (bestMonthRevenueEl) {
+            bestMonthRevenueEl.textContent = bestMonthRevenue ? bestMonthRevenue.month : '-';
+        }
+        if (avgValuePerHourEl) {
+            avgValuePerHourEl.textContent = `R$ ${avgValuePerHour.toFixed(2).replace('.', ',')}`;
+        }
+        if (totalServicesEl) {
+            totalServicesEl.textContent = totalServices;
         }
     }
 

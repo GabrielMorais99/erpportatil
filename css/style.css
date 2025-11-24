@@ -1146,6 +1146,11 @@ body {
     align-items: center;
 }
 
+/* Modal de registro de serviço deve aparecer acima do modal de visualização */
+#serviceRecordModal {
+    z-index: 1001;
+}
+
 .modal-content {
     background-color: var(--white);
     margin: auto;
