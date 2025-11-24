@@ -394,6 +394,22 @@ class LojaApp {
             });
         }
 
+        // Dashboard de Serviços
+        const refreshServicesDashboard = document.getElementById('refreshServicesDashboard');
+        const servicesPeriodFilter = document.getElementById('servicesPeriodFilter');
+
+        if (refreshServicesDashboard) {
+            refreshServicesDashboard.addEventListener('click', () => {
+                this.renderServicesDashboard();
+            });
+        }
+
+        if (servicesPeriodFilter) {
+            servicesPeriodFilter.addEventListener('change', () => {
+                this.renderServicesDashboard();
+            });
+        }
+
         // Pesquisa e filtro
         const searchInput = document.getElementById('searchInput');
         const monthFilter = document.getElementById('monthFilter');
