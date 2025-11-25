@@ -1112,12 +1112,21 @@ class LojaApp {
     }
 
     closeItemModal() {
-        document.getElementById('itemModal').classList.remove('active');
+        const modal = document.getElementById('itemModal');
+        if (modal) {
+            modal.classList.remove('active');
+        }
         this.currentEditingItem = null;
         
         // Esconder seção de QR code
         const qrcodeSection = document.getElementById('qrcodeSection');
         if (qrcodeSection) qrcodeSection.style.display = 'none';
+        
+        // Limpar formulário
+        const form = document.getElementById('itemForm');
+        if (form) {
+            form.reset();
+        }
     }
 
     saveItem(e) {
@@ -1364,12 +1373,20 @@ class LojaApp {
         
         if (!container || !readerDiv) return;
 
+        // Parar scanner anterior se existir
+        if (this.currentQRScanner) {
+            this.stopQRScanner();
+        }
+
         // Limpar conteúdo anterior
         readerDiv.innerHTML = '';
 
         container.style.display = 'block';
 
         const html5QrCode = new Html5Qrcode("qrReader");
+        
+        // Armazenar referência ANTES de iniciar
+        this.currentQRScanner = html5QrCode;
         
         html5QrCode.start(
             { facingMode: "environment" }, // Câmera traseira
@@ -1382,33 +1399,46 @@ class LojaApp {
                 this.handleQRScanned(decodedText);
                 html5QrCode.stop().then(() => {
                     container.style.display = 'none';
+                    this.currentQRScanner = null;
                 }).catch((err) => {
                     console.error('Erro ao parar scanner:', err);
+                    container.style.display = 'none';
+                    this.currentQRScanner = null;
                 });
             },
             (errorMessage) => {
                 // Erro ignorado (continua escaneando)
                 // console.log('Erro de escaneamento:', errorMessage);
             }
-        );
-        
-        this.currentQRScanner = html5QrCode;
+        ).catch((err) => {
+            // Erro ao iniciar scanner (ex: permissão negada)
+            console.error('Erro ao iniciar scanner:', err);
+            alert('Erro ao acessar a câmera. Verifique as permissões ou tente novamente.');
+            container.style.display = 'none';
+            this.currentQRScanner = null;
+        });
     }
 
     stopQRScanner() {
         const container = document.getElementById('qrScannerContainer');
+        const readerDiv = document.getElementById('qrReader');
         
         if (this.currentQRScanner) {
             this.currentQRScanner.stop().then(() => {
                 if (container) container.style.display = 'none';
+                if (readerDiv) readerDiv.innerHTML = '';
                 this.currentQRScanner = null;
             }).catch((err) => {
                 console.error('Erro ao parar scanner:', err);
+                // Mesmo com erro, esconder o container
                 if (container) container.style.display = 'none';
+                if (readerDiv) readerDiv.innerHTML = '';
                 this.currentQRScanner = null;
             });
         } else {
+            // Se não houver scanner ativo, apenas esconder o container
             if (container) container.style.display = 'none';
+            if (readerDiv) readerDiv.innerHTML = '';
         }
     }
 
