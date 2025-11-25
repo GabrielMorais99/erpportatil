@@ -2969,6 +2969,9 @@ class LojaApp {
         if (totalCountEl) totalCountEl.textContent = totalCount;
         if (avgValuePerHourEl) avgValuePerHourEl.textContent = `R$ ${avgValuePerHour.toFixed(2).replace('.', ',')}`;
         if (avgHoursPerServiceEl) avgHoursPerServiceEl.textContent = `${avgHoursPerService}h ${avgMinutesPerService}min`;
+        
+        // Atualizar gráfico de serviços
+        this.updateServicesChart();
     }
 
     // ========== CUSTOS DE COMPRA ==========
