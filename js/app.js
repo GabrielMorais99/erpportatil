@@ -516,12 +516,24 @@ class LojaApp {
         }
 
         if (itemModalClose) {
-            itemModalClose.addEventListener('click', () =>
-                this.closeItemModal()
-            );
+            itemModalClose.addEventListener('click', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                this.closeItemModal();
+            });
             console.log('✅ [APP.JS] Listener anexado ao itemModal .close');
         } else {
             console.error('❌ [APP.JS] itemModal .close não encontrado!');
+        }
+        
+        // Fechar modal ao clicar fora dele
+        const itemModal = document.getElementById('itemModal');
+        if (itemModal) {
+            itemModal.addEventListener('click', (e) => {
+                if (e.target === itemModal) {
+                    this.closeItemModal();
+                }
+            });
         }
 
         // QR Code - Modal de Item
