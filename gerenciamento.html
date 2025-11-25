@@ -64,6 +64,9 @@
             <header class="header">
                 <h1>Gestão Financeira</h1>
                 <div class="header-actions">
+                    <button id="helpBtn" class="btn-secondary" title="Como usar">
+                        <i class="fas fa-question-circle"></i> <span class="btn-text">Como usar</span>
+                    </button>
                     <button id="themeToggleBtn" class="theme-toggle-btn" title="Alternar tema">
                         <i class="fas fa-palette"></i>
                     </button>
@@ -482,6 +485,14 @@
                                 <div class="stat-item" id="goalStatusItem">
                                     <h4>Status</h4>
                                     <p id="goalStatus">-</p>
+                                </div>
+                            </div>
+                            
+                            <!-- Gráfico de Metas -->
+                            <div style="margin-top: 1.5rem; padding-top: 1.5rem; border-top: 1px solid var(--border-color);">
+                                <h4 style="margin-bottom: 1rem; font-size: 1rem; color: var(--gray-600);">Evolução de Metas vs Vendas</h4>
+                                <div class="chart-wrapper" style="height: 200px;">
+                                    <canvas id="goalsChart"></canvas>
                                 </div>
                             </div>
                         </div>
@@ -1366,6 +1377,42 @@
                     });
             }
         </script>
+
+        <!-- Modal: Tutorial / Como usar -->
+        <div id="tutorialModal" class="modal">
+            <div class="modal-content large">
+                <div class="modal-header">
+                    <h2>Como usar o sistema</h2>
+                    <span class="close">&times;</span>
+                </div>
+                <div class="modal-body" style="max-height: 70vh; overflow-y: auto;">
+                    <div id="tutorialContent">
+                        <!-- Conteúdo será inserido via JavaScript -->
+                    </div>
+                </div>
+                <div class="modal-actions">
+                    <button type="button" class="btn-secondary" id="closeTutorialBtn">Fechar</button>
+                    <button type="button" class="btn-primary" id="startTutorialBtn">Iniciar Tutorial Interativo</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Balões de Tutorial (Tooltips interativos) -->
+        <div id="tutorialOverlay" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.7); z-index: 9998; pointer-events: auto;"></div>
+        <div id="tutorialTooltip" style="display: none; position: fixed; z-index: 9999; background: white; padding: 1.5rem; border-radius: 8px; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3); max-width: 350px; pointer-events: auto;">
+            <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 1rem;">
+                <h3 style="margin: 0; color: var(--primary-color); font-size: 1.1rem;">Tutorial</h3>
+                <button id="closeTutorialTooltip" style="background: none; border: none; font-size: 1.5rem; cursor: pointer; color: var(--gray-600);">&times;</button>
+            </div>
+            <div id="tutorialTooltipContent" style="margin-bottom: 1rem; color: var(--gray-700); line-height: 1.6;"></div>
+            <div style="display: flex; justify-content: space-between; gap: 0.5rem;">
+                <button id="tutorialPrevBtn" class="btn-secondary" style="flex: 1;">Anterior</button>
+                <button id="tutorialNextBtn" class="btn-primary" style="flex: 1;">Próximo</button>
+            </div>
+            <div style="margin-top: 0.5rem; text-align: center;">
+                <button id="tutorialSkipBtn" class="btn-secondary" style="font-size: 0.85rem; padding: 0.4rem 0.8rem;">Pular Tutorial</button>
+            </div>
+        </div>
     </body>
 </html>
 

@@ -19,6 +19,9 @@ class LojaApp {
         this.currentQRScanner = null; // Scanner de QR code
         this.currentDashboardType = 'sales'; // 'sales' ou 'services'
         this.avgStockChart = null; // Gráfico de média de estoque
+        this.goalsChart = null; // Gráfico de metas
+        this.tutorialStep = 0; // Passo atual do tutorial
+        this.tutorialActive = false; // Se o tutorial está ativo
 
         this.init();
     }
@@ -332,6 +335,7 @@ class LojaApp {
         }
 
         // Importar/Exportar
+        const helpBtn = document.getElementById('helpBtn');
         const importBtn = document.getElementById('importBtn');
         const importFile = document.getElementById('importFile');
         const exportBtn = document.getElementById('exportBtn');
@@ -358,6 +362,48 @@ class LojaApp {
         } else {
             console.error('❌ [APP.JS] exportBtn não encontrado!');
         }
+
+        // Botão de ajuda / Como usar
+        if (helpBtn) {
+            helpBtn.addEventListener('click', () => this.openTutorialModal());
+            console.log('✅ [APP.JS] Listener anexado ao helpBtn');
+        } else {
+            console.error('❌ [APP.JS] helpBtn não encontrado!');
+        }
+
+        // Tutorial
+        const closeTutorialBtn = document.getElementById('closeTutorialBtn');
+        const startTutorialBtn = document.getElementById('startTutorialBtn');
+        const tutorialModalClose = document.querySelector('#tutorialModal .close');
+        const closeTutorialTooltip = document.getElementById('closeTutorialTooltip');
+        const tutorialNextBtn = document.getElementById('tutorialNextBtn');
+        const tutorialPrevBtn = document.getElementById('tutorialPrevBtn');
+        const tutorialSkipBtn = document.getElementById('tutorialSkipBtn');
+
+        if (closeTutorialBtn) {
+            closeTutorialBtn.addEventListener('click', () => this.closeTutorialModal());
+        }
+        if (startTutorialBtn) {
+            startTutorialBtn.addEventListener('click', () => this.startInteractiveTutorial());
+        }
+        if (tutorialModalClose) {
+            tutorialModalClose.addEventListener('click', () => this.closeTutorialModal());
+        }
+        if (closeTutorialTooltip) {
+            closeTutorialTooltip.addEventListener('click', () => this.closeTutorialTooltip());
+        }
+        if (tutorialNextBtn) {
+            tutorialNextBtn.addEventListener('click', () => this.nextTutorialStep());
+        }
+        if (tutorialPrevBtn) {
+            tutorialPrevBtn.addEventListener('click', () => this.prevTutorialStep());
+        }
+        if (tutorialSkipBtn) {
+            tutorialSkipBtn.addEventListener('click', () => this.skipTutorial());
+        }
+
+        // Verificar se é primeira vez e mostrar tutorial
+        this.checkFirstTimeUser();
 
         // Tabs
         const tabBtns = document.querySelectorAll('.tab-btn');
@@ -3378,6 +3424,118 @@ class LojaApp {
             `;
             })
             .join('');
+        
+        // Atualizar gráfico de metas
+        this.updateGoalsChart();
+    }
+
+    // Atualizar gráfico de metas
+    updateGoalsChart() {
+        const canvas = document.getElementById('goalsChart');
+        if (!canvas) return;
+
+        // Verificar se Chart.js está disponível
+        if (typeof Chart === 'undefined') {
+            console.warn('Chart.js não está disponível ainda');
+            return;
+        }
+
+        // Obter últimos 6 meses de metas
+        const now = new Date();
+        const months = [];
+        const goalsData = [];
+        const salesData = [];
+        
+        for (let i = 5; i >= 0; i--) {
+            const date = new Date(now.getFullYear(), now.getMonth() - i, 1);
+            const monthKey = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
+            const monthNames = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
+            
+            months.push(`${monthNames[date.getMonth()]}/${String(date.getFullYear()).slice(-2)}`);
+            
+            const goal = this.goals.find(g => g.month === monthKey);
+            const sales = this.getMonthSales(monthKey);
+            
+            goalsData.push(goal ? goal.amount : 0);
+            salesData.push(sales);
+        }
+
+        // Destruir gráfico anterior se existir
+        if (this.goalsChart) {
+            this.goalsChart.destroy();
+        }
+
+        // Obter cor primária do tema
+        const primaryColor = getComputedStyle(document.documentElement).getPropertyValue('--primary-color') || '#dc3545';
+
+        // Criar novo gráfico
+        this.goalsChart = new Chart(canvas, {
+            type: 'bar',
+            data: {
+                labels: months,
+                datasets: [
+                    {
+                        label: 'Meta',
+                        data: goalsData,
+                        backgroundColor: primaryColor.replace('rgb', 'rgba').replace(')', ', 0.6)'),
+                        borderColor: primaryColor,
+                        borderWidth: 2
+                    },
+                    {
+                        label: 'Vendas',
+                        data: salesData,
+                        backgroundColor: '#28a745',
+                        borderColor: '#28a745',
+                        borderWidth: 2
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: true,
+                        position: 'top'
+                    },
+                    tooltip: {
+                        backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                        padding: 10,
+                        callbacks: {
+                            label: function(context) {
+                                return context.dataset.label + ': R$ ' + context.parsed.y.toFixed(2).replace('.', ',');
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            callback: function(value) {
+                                return 'R$ ' + value.toFixed(0);
+                            },
+                            font: {
+                                size: 10
+                            }
+                        },
+                        grid: {
+                            color: 'rgba(0, 0, 0, 0.05)'
+                        }
+                    },
+                    x: {
+                        ticks: {
+                            font: {
+                                size: 10
+                            }
+                        },
+                        grid: {
+                            display: false
+                        }
+                    }
+                }
+            }
+        });
     }
 
     calculateTotalCosts() {
@@ -3847,6 +4005,287 @@ class LojaApp {
         }
 
         return item.name || 'Item';
+    }
+
+    // ========== TUTORIAL ==========
+
+    checkFirstTimeUser() {
+        const hasSeenTutorial = localStorage.getItem('hasSeenTutorial');
+        if (!hasSeenTutorial) {
+            // Aguardar um pouco para a página carregar completamente
+            setTimeout(() => {
+                this.openTutorialModal();
+            }, 2000);
+        }
+    }
+
+    openTutorialModal() {
+        const modal = document.getElementById('tutorialModal');
+        if (!modal) return;
+
+        const content = document.getElementById('tutorialContent');
+        if (content) {
+            content.innerHTML = `
+                <div style="line-height: 1.8; color: var(--gray-700);">
+                    <h3 style="color: var(--primary-color); margin-bottom: 1rem;">Bem-vindo ao Sistema de Gestão Financeira!</h3>
+                    
+                    <div style="margin-bottom: 2rem;">
+                        <h4 style="color: var(--primary-color); margin-bottom: 0.5rem;">📦 Cadastro de Produtos</h4>
+                        <p>Cadastre seus produtos (Roupas, Eletrônicos ou Serviços) através do botão "Novo Produto". Para produtos físicos, você pode gerar um QR Code único para cada item.</p>
+                    </div>
+
+                    <div style="margin-bottom: 2rem;">
+                        <h4 style="color: var(--primary-color); margin-bottom: 0.5rem;">📱 QR Code - Como usar</h4>
+                        <p><strong>1. Cadastrar QR Code de um produto:</strong></p>
+                        <ul style="margin-left: 1.5rem; margin-bottom: 1rem;">
+                            <li>Cadastre um produto (Roupas ou Eletrônicos)</li>
+                            <li>Após salvar, o QR Code será gerado automaticamente</li>
+                            <li>Clique em "QR Code" no card do produto para visualizar, baixar ou imprimir</li>
+                        </ul>
+                        <p><strong>2. Realizar leitura do QR Code:</strong></p>
+                        <ul style="margin-left: 1.5rem; margin-bottom: 1rem;">
+                            <li>Vá em "Grupos Mensais" e abra um mês</li>
+                            <li>Clique em "Adicionar Venda" em um dia</li>
+                            <li>Clique no botão de QR Code ao lado do campo "Item"</li>
+                            <li>Permita o acesso à câmera quando solicitado</li>
+                            <li>Aponte a câmera para o QR Code do produto</li>
+                            <li>O produto será selecionado automaticamente</li>
+                        </ul>
+                        <p><strong>3. Como a leitura impacta o sistema:</strong></p>
+                        <ul style="margin-left: 1.5rem;">
+                            <li>O produto é identificado automaticamente</li>
+                            <li>O estoque é atualizado automaticamente quando você registra a venda</li>
+                            <li>As estatísticas de vendas são atualizadas em tempo real</li>
+                            <li>Facilita o controle de estoque e vendas</li>
+                        </ul>
+                    </div>
+
+                    <div style="margin-bottom: 2rem;">
+                        <h4 style="color: var(--primary-color); margin-bottom: 0.5rem;">📊 Grupos Mensais</h4>
+                        <p>Crie grupos mensais para organizar suas vendas por mês. Cada grupo permite registrar vendas por dia, gerenciar estoque e visualizar estatísticas do período.</p>
+                    </div>
+
+                    <div style="margin-bottom: 2rem;">
+                        <h4 style="color: var(--primary-color); margin-bottom: 0.5rem;">💼 Serviços</h4>
+                        <p>Cadastre serviços (aulas, consultorias, etc.) e registre as horas trabalhadas por mês. O sistema calcula automaticamente o faturamento e estatísticas de serviços.</p>
+                    </div>
+
+                    <div style="margin-bottom: 2rem;">
+                        <h4 style="color: var(--primary-color); margin-bottom: 0.5rem;">📈 Dashboards</h4>
+                        <p>Visualize gráficos e estatísticas de vendas e serviços. Use os filtros para analisar diferentes períodos.</p>
+                    </div>
+
+                    <div style="margin-bottom: 2rem;">
+                        <h4 style="color: var(--primary-color); margin-bottom: 0.5rem;">🎯 Metas</h4>
+                        <p>Defina metas mensais de vendas e acompanhe seu progresso em tempo real.</p>
+                    </div>
+
+                    <div style="background: #e7f3ff; padding: 1rem; border-radius: 5px; border-left: 3px solid #007bff;">
+                        <p style="margin: 0;"><strong>💡 Dica:</strong> Use o botão "Iniciar Tutorial Interativo" abaixo para ver um guia passo a passo com balões explicativos em cada funcionalidade!</p>
+                    </div>
+                </div>
+            `;
+        }
+
+        modal.classList.add('active');
+    }
+
+    closeTutorialModal() {
+        const modal = document.getElementById('tutorialModal');
+        if (modal) {
+            modal.classList.remove('active');
+        }
+    }
+
+    startInteractiveTutorial() {
+        this.closeTutorialModal();
+        this.tutorialActive = true;
+        this.tutorialStep = 0;
+        localStorage.setItem('hasSeenTutorial', 'true');
+        this.showTutorialStep(0);
+    }
+
+    skipTutorial() {
+        this.closeTutorialTooltip();
+        localStorage.setItem('hasSeenTutorial', 'true');
+        this.tutorialActive = false;
+    }
+
+    closeTutorialTooltip() {
+        const overlay = document.getElementById('tutorialOverlay');
+        const tooltip = document.getElementById('tutorialTooltip');
+        if (overlay) overlay.style.display = 'none';
+        if (tooltip) tooltip.style.display = 'none';
+        this.tutorialActive = false;
+    }
+
+    nextTutorialStep() {
+        if (this.tutorialStep < this.getTutorialSteps().length - 1) {
+            this.tutorialStep++;
+            this.showTutorialStep(this.tutorialStep);
+        } else {
+            this.closeTutorialTooltip();
+            alert('🎉 Tutorial concluído! Você já conhece as principais funcionalidades do sistema.');
+        }
+    }
+
+    prevTutorialStep() {
+        if (this.tutorialStep > 0) {
+            this.tutorialStep--;
+            this.showTutorialStep(this.tutorialStep);
+        }
+    }
+
+    getTutorialSteps() {
+        return [
+            {
+                title: 'Bem-vindo!',
+                content: 'Este é um tutorial interativo que vai te mostrar as principais funcionalidades do sistema. Clique em "Próximo" para continuar.',
+                target: null,
+                position: 'center'
+            },
+            {
+                title: 'Cadastro de Produtos',
+                content: 'Clique em "Novo Produto" para cadastrar seus itens. Você pode cadastrar Roupas, Eletrônicos ou Serviços. Para produtos físicos, um QR Code será gerado automaticamente.',
+                target: 'newItemBtn',
+                position: 'bottom'
+            },
+            {
+                title: 'QR Code - Cadastro',
+                content: 'Após cadastrar um produto físico, você verá um botão "QR Code" no card. Clique nele para visualizar, baixar ou imprimir o QR Code do produto.',
+                target: null,
+                position: 'center'
+            },
+            {
+                title: 'Grupos Mensais',
+                content: 'Use "Grupo Mensal" para criar um mês de vendas. Depois, abra o mês para registrar vendas por dia.',
+                target: 'newGroupBtn',
+                position: 'bottom'
+            },
+            {
+                title: 'QR Code - Leitura',
+                content: 'Ao adicionar uma venda, clique no botão de QR Code ao lado do campo "Item" para escanear o código do produto. Isso seleciona automaticamente o produto e atualiza o estoque.',
+                target: null,
+                position: 'center'
+            },
+            {
+                title: 'Dashboard',
+                content: 'Visualize gráficos e estatísticas de vendas no Dashboard. Use o botão para alternar entre Dashboard de Vendas e Dashboard de Serviços.',
+                target: 'dashboardToggleBtn',
+                position: 'bottom'
+            },
+            {
+                title: 'Serviços',
+                content: 'Na aba "Serviços", você pode cadastrar meses de serviços e registrar horas trabalhadas. Ideal para profissionais que vendem serviços.',
+                target: null,
+                position: 'center'
+            },
+            {
+                title: 'Metas',
+                content: 'Defina metas mensais de vendas na aba "Metas" e acompanhe seu progresso em tempo real.',
+                target: null,
+                position: 'center'
+            }
+        ];
+    }
+
+    showTutorialStep(stepIndex) {
+        const steps = this.getTutorialSteps();
+        const step = steps[stepIndex];
+        if (!step) return;
+
+        const overlay = document.getElementById('tutorialOverlay');
+        const tooltip = document.getElementById('tutorialTooltip');
+        const content = document.getElementById('tutorialTooltipContent');
+        const prevBtn = document.getElementById('tutorialPrevBtn');
+        const nextBtn = document.getElementById('tutorialNextBtn');
+
+        if (!overlay || !tooltip || !content) return;
+
+        // Mostrar overlay
+        overlay.style.display = 'block';
+
+        // Atualizar título e conteúdo
+        const tooltipTitle = tooltip.querySelector('h3');
+        if (tooltipTitle) {
+            tooltipTitle.textContent = step.title;
+        }
+        content.innerHTML = step.content;
+
+        // Posicionar tooltip
+        if (step.target) {
+            const targetElement = document.getElementById(step.target);
+            if (targetElement) {
+                const rect = targetElement.getBoundingClientRect();
+                let top, left;
+
+                switch (step.position) {
+                    case 'bottom':
+                        top = rect.bottom + 20;
+                        left = rect.left + (rect.width / 2) - 175; // 175 = metade da largura do tooltip
+                        break;
+                    case 'top':
+                        top = rect.top - 200;
+                        left = rect.left + (rect.width / 2) - 175;
+                        break;
+                    case 'right':
+                        top = rect.top;
+                        left = rect.right + 20;
+                        break;
+                    case 'left':
+                        top = rect.top;
+                        left = rect.left - 370;
+                        break;
+                    default:
+                        top = window.innerHeight / 2 - 100;
+                        left = window.innerWidth / 2 - 175;
+                }
+
+                // Garantir que o tooltip não saia da tela
+                top = Math.max(20, Math.min(top, window.innerHeight - 300));
+                left = Math.max(20, Math.min(left, window.innerWidth - 370));
+
+                tooltip.style.top = top + 'px';
+                tooltip.style.left = left + 'px';
+            } else {
+                // Se não encontrar o elemento, centralizar
+                tooltip.style.top = (window.innerHeight / 2 - 100) + 'px';
+                tooltip.style.left = (window.innerWidth / 2 - 175) + 'px';
+            }
+        } else {
+            // Centralizar se não houver target
+            tooltip.style.top = (window.innerHeight / 2 - 100) + 'px';
+            tooltip.style.left = (window.innerWidth / 2 - 175) + 'px';
+        }
+
+        // Atualizar botões
+        if (prevBtn) {
+            prevBtn.disabled = stepIndex === 0;
+            prevBtn.style.opacity = stepIndex === 0 ? '0.5' : '1';
+        }
+        if (nextBtn) {
+            const isLast = stepIndex === steps.length - 1;
+            nextBtn.textContent = isLast ? 'Concluir' : 'Próximo';
+        }
+
+        // Mostrar tooltip
+        tooltip.style.display = 'block';
+
+        // Destacar elemento alvo se existir
+        if (step.target) {
+            const targetElement = document.getElementById(step.target);
+            if (targetElement) {
+                targetElement.style.transition = 'all 0.3s';
+                targetElement.style.transform = 'scale(1.05)';
+                targetElement.style.zIndex = '10000';
+                targetElement.style.position = 'relative';
+                setTimeout(() => {
+                    if (targetElement) {
+                        targetElement.style.transform = '';
+                    }
+                }, 500);
+            }
+        }
     }
 
     escapeHtml(text) {
