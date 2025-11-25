@@ -20,6 +20,8 @@ class LojaApp {
         this.currentDashboardType = 'sales'; // 'sales' ou 'services'
         this.avgStockChart = null; // Gráfico de média de estoque
         this.goalsChart = null; // Gráfico de metas
+        this.costsChart = null; // Gráfico de custos
+        this.servicesChart = null; // Gráfico de serviços
         this.tutorialStep = 0; // Passo atual do tutorial
         this.tutorialActive = false; // Se o tutorial está ativo
 
@@ -3123,6 +3125,9 @@ class LojaApp {
                 .replace('.', ',')}`;
         }
 
+        // Atualizar gráfico de custos
+        this.updateCostsChart();
+
         if (this.costs.length === 0) {
             list.innerHTML =
                 '<p style="grid-column: 1/-1; text-align: center; color: var(--gray); padding: 2rem;">Nenhum custo cadastrado ainda.</p>';
@@ -3521,6 +3526,301 @@ class LojaApp {
                         },
                         grid: {
                             color: 'rgba(0, 0, 0, 0.05)'
+                        }
+                    },
+                    x: {
+                        ticks: {
+                            font: {
+                                size: 10
+                            }
+                        },
+                        grid: {
+                            display: false
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+    // Atualizar gráfico de custos
+    updateCostsChart() {
+        const canvas = document.getElementById('costsChart');
+        if (!canvas) return;
+
+        // Verificar se Chart.js está disponível
+        if (typeof Chart === 'undefined') {
+            console.warn('Chart.js não está disponível ainda');
+            return;
+        }
+
+        // Agrupar custos por mês
+        const costsByMonth = {};
+        this.costs.forEach((cost) => {
+            const date = new Date(cost.date);
+            const monthKey = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
+            
+            if (!costsByMonth[monthKey]) {
+                costsByMonth[monthKey] = {
+                    total: 0,
+                    count: 0
+                };
+            }
+            costsByMonth[monthKey].total += cost.total || 0;
+            costsByMonth[monthKey].count += 1;
+        });
+
+        // Obter últimos 6 meses
+        const now = new Date();
+        const months = [];
+        const costsData = [];
+        const countsData = [];
+        
+        for (let i = 5; i >= 0; i--) {
+            const date = new Date(now.getFullYear(), now.getMonth() - i, 1);
+            const monthKey = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
+            const monthNames = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
+            
+            months.push(`${monthNames[date.getMonth()]}/${String(date.getFullYear()).slice(-2)}`);
+            
+            const monthData = costsByMonth[monthKey] || { total: 0, count: 0 };
+            costsData.push(monthData.total);
+            countsData.push(monthData.count);
+        }
+
+        // Destruir gráfico anterior se existir
+        if (this.costsChart) {
+            this.costsChart.destroy();
+        }
+
+        // Obter cor primária do tema
+        const primaryColor = getComputedStyle(document.documentElement).getPropertyValue('--primary-color') || '#dc3545';
+
+        // Criar novo gráfico
+        this.costsChart = new Chart(canvas, {
+            type: 'bar',
+            data: {
+                labels: months,
+                datasets: [
+                    {
+                        label: 'Valor Total',
+                        data: costsData,
+                        backgroundColor: primaryColor.replace('rgb', 'rgba').replace(')', ', 0.6)'),
+                        borderColor: primaryColor,
+                        borderWidth: 2,
+                        yAxisID: 'y'
+                    },
+                    {
+                        label: 'Quantidade de Compras',
+                        data: countsData,
+                        backgroundColor: '#ffc107',
+                        borderColor: '#ffc107',
+                        borderWidth: 2,
+                        yAxisID: 'y1'
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: true,
+                        position: 'top'
+                    },
+                    tooltip: {
+                        backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                        padding: 10,
+                        callbacks: {
+                            label: function(context) {
+                                if (context.datasetIndex === 0) {
+                                    return context.dataset.label + ': R$ ' + context.parsed.y.toFixed(2).replace('.', ',');
+                                } else {
+                                    return context.dataset.label + ': ' + context.parsed.y + ' compras';
+                                }
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        position: 'left',
+                        ticks: {
+                            callback: function(value) {
+                                return 'R$ ' + value.toFixed(0);
+                            },
+                            font: {
+                                size: 10
+                            }
+                        },
+                        grid: {
+                            color: 'rgba(0, 0, 0, 0.05)'
+                        }
+                    },
+                    y1: {
+                        beginAtZero: true,
+                        position: 'right',
+                        ticks: {
+                            font: {
+                                size: 10
+                            }
+                        },
+                        grid: {
+                            drawOnChartArea: false
+                        }
+                    },
+                    x: {
+                        ticks: {
+                            font: {
+                                size: 10
+                            }
+                        },
+                        grid: {
+                            display: false
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+    // Atualizar gráfico de serviços
+    updateServicesChart() {
+        const canvas = document.getElementById('servicesChart');
+        if (!canvas) return;
+
+        // Verificar se Chart.js está disponível
+        if (typeof Chart === 'undefined') {
+            console.warn('Chart.js não está disponível ainda');
+            return;
+        }
+
+        // Agrupar serviços por mês
+        const servicesByMonth = {};
+        this.serviceGroups.forEach((serviceGroup) => {
+            const monthKey = serviceGroup.month;
+            if (!servicesByMonth[monthKey]) {
+                servicesByMonth[monthKey] = {
+                    revenue: 0,
+                    hours: 0,
+                    minutes: 0,
+                    count: 0
+                };
+            }
+
+            serviceGroup.days.forEach((day) => {
+                day.services.forEach((service) => {
+                    servicesByMonth[monthKey].revenue += service.price || 0;
+                    servicesByMonth[monthKey].hours += service.hours || 0;
+                    servicesByMonth[monthKey].minutes += service.minutes || 0;
+                    servicesByMonth[monthKey].count += 1;
+                });
+            });
+        });
+
+        // Obter últimos 6 meses
+        const now = new Date();
+        const months = [];
+        const revenueData = [];
+        const hoursData = [];
+        
+        for (let i = 5; i >= 0; i--) {
+            const date = new Date(now.getFullYear(), now.getMonth() - i, 1);
+            const monthKey = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
+            const monthNames = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
+            
+            months.push(`${monthNames[date.getMonth()]}/${String(date.getFullYear()).slice(-2)}`);
+            
+            const monthData = servicesByMonth[monthKey] || { revenue: 0, hours: 0, minutes: 0, count: 0 };
+            revenueData.push(monthData.revenue);
+            const totalHours = monthData.hours + (monthData.minutes / 60);
+            hoursData.push(totalHours);
+        }
+
+        // Destruir gráfico anterior se existir
+        if (this.servicesChart) {
+            this.servicesChart.destroy();
+        }
+
+        // Obter cor primária do tema
+        const primaryColor = getComputedStyle(document.documentElement).getPropertyValue('--primary-color') || '#dc3545';
+
+        // Criar novo gráfico
+        this.servicesChart = new Chart(canvas, {
+            type: 'bar',
+            data: {
+                labels: months,
+                datasets: [
+                    {
+                        label: 'Faturamento',
+                        data: revenueData,
+                        backgroundColor: '#28a745',
+                        borderColor: '#28a745',
+                        borderWidth: 2,
+                        yAxisID: 'y'
+                    },
+                    {
+                        label: 'Horas Trabalhadas',
+                        data: hoursData,
+                        backgroundColor: primaryColor.replace('rgb', 'rgba').replace(')', ', 0.6)'),
+                        borderColor: primaryColor,
+                        borderWidth: 2,
+                        yAxisID: 'y1'
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: true,
+                        position: 'top'
+                    },
+                    tooltip: {
+                        backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                        padding: 10,
+                        callbacks: {
+                            label: function(context) {
+                                if (context.datasetIndex === 0) {
+                                    return context.dataset.label + ': R$ ' + context.parsed.y.toFixed(2).replace('.', ',');
+                                } else {
+                                    return context.dataset.label + ': ' + context.parsed.y.toFixed(1) + 'h';
+                                }
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        position: 'left',
+                        ticks: {
+                            callback: function(value) {
+                                return 'R$ ' + value.toFixed(0);
+                            },
+                            font: {
+                                size: 10
+                            }
+                        },
+                        grid: {
+                            color: 'rgba(0, 0, 0, 0.05)'
+                        }
+                    },
+                    y1: {
+                        beginAtZero: true,
+                        position: 'right',
+                        ticks: {
+                            callback: function(value) {
+                                return value.toFixed(1) + 'h';
+                            },
+                            font: {
+                                size: 10
+                            }
+                        },
+                        grid: {
+                            drawOnChartArea: false
                         }
                     },
                     x: {
