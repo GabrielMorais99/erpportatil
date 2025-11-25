@@ -310,6 +310,98 @@
                     </div>
                 </div>
 
+                <!-- Tab: Dashboard Serviços -->
+                <div id="servicesDashboardTab" class="tab-content">
+                    <div class="dashboard-container">
+                        <div class="dashboard-filters">
+                            <div class="filter-group">
+                                <label for="servicesPeriodFilter">Período:</label>
+                                <select id="servicesPeriodFilter" class="filter-select">
+                                    <option value="all">Todos os períodos</option>
+                                    <option value="month">Último mês</option>
+                                    <option value="3months">Últimos 3 meses</option>
+                                    <option value="6months">Últimos 6 meses</option>
+                                    <option value="year">Último ano</option>
+                                </select>
+                            </div>
+                            <button type="button" class="btn-secondary" id="refreshServicesDashboard">
+                                <i class="fas fa-sync-alt"></i> Atualizar Gráficos
+                            </button>
+                        </div>
+
+                        <div class="charts-grid">
+                            <div class="chart-card">
+                                <h3>Horas Trabalhadas por Mês</h3>
+                                <div class="chart-wrapper">
+                                    <canvas id="hoursByMonthChart"></canvas>
+                                </div>
+                            </div>
+
+                            <div class="chart-card">
+                                <h3>Faturamento por Mês</h3>
+                                <div class="chart-wrapper">
+                                    <canvas id="revenueByMonthChart"></canvas>
+                                </div>
+                            </div>
+
+                            <div class="chart-card">
+                                <h3>Top 10 Serviços Mais Prestados</h3>
+                                <div class="chart-wrapper">
+                                    <canvas id="topServicesChart"></canvas>
+                                </div>
+                            </div>
+
+                            <div class="chart-card">
+                                <h3>Evolução de Horas Trabalhadas</h3>
+                                <div class="chart-wrapper">
+                                    <canvas id="hoursEvolutionChart"></canvas>
+                                </div>
+                            </div>
+
+                            <div class="chart-card">
+                                <h3>Média de Horas por Dia</h3>
+                                <div class="chart-wrapper">
+                                    <canvas id="avgHoursPerDayChart"></canvas>
+                                </div>
+                            </div>
+
+                            <div class="chart-card">
+                                <h3>Valor Médio por Hora</h3>
+                                <div class="chart-wrapper">
+                                    <canvas id="avgValuePerHourChart"></canvas>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="dashboard-stats">
+                            <div class="stat-card">
+                                <h4>Média Mensal de Horas</h4>
+                                <p id="servicesAvgMonthlyHours">0h 0min</p>
+                            </div>
+                            <div class="stat-card">
+                                <h4>Melhor Mês (Horas)</h4>
+                                <p id="servicesBestMonthHours">-</p>
+                            </div>
+                            <div class="stat-card">
+                                <h4>Média Mensal de Faturamento</h4>
+                                <p id="servicesAvgMonthlyRevenue">R$ 0,00</p>
+                            </div>
+                            <div class="stat-card">
+                                <h4>Melhor Mês (Faturamento)</h4>
+                                <p id="servicesBestMonthRevenue">-</p>
+                            </div>
+                            <div class="stat-card">
+                                <h4>Valor Médio por Hora</h4>
+                                <p id="servicesAvgValuePerHour">R$ 0,00</p>
+                            </div>
+                            <div class="stat-card">
+                                <h4>Total de Serviços Prestados</h4>
+                                <p id="servicesTotalServices">0</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
                 <!-- Tab: Serviços -->
                 <div id="servicesTab" class="tab-content">
                     <div class="services-layout">
