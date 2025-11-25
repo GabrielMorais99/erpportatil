@@ -1136,7 +1136,13 @@ class LojaApp {
     closeItemModal() {
         const modal = document.getElementById('itemModal');
         if (modal) {
-            modal.classList.remove('active');
+            // Animação ao fechar modal
+            modal.style.opacity = '0';
+            setTimeout(() => {
+                modal.classList.remove('active');
+                modal.style.display = 'none';
+                modal.style.opacity = '';
+            }, 300);
         }
         this.currentEditingItem = null;
         
@@ -1305,6 +1311,75 @@ class LojaApp {
             const qrcodeSection = document.getElementById('qrcodeSection');
             if (qrcodeSection) qrcodeSection.style.display = 'none';
         }
+    }
+
+    // Função auxiliar para animar valores numéricos
+    animateValue(element, startValue, endValue, duration = 800, format = null) {
+        if (!element) return;
+        
+        const startTime = performance.now();
+        const isNumeric = typeof endValue === 'number';
+        
+        const animate = (currentTime) => {
+            const elapsed = currentTime - startTime;
+            const progress = Math.min(elapsed / duration, 1);
+            
+            // Easing function (ease-out)
+            const easeOut = 1 - Math.pow(1 - progress, 3);
+            
+            if (isNumeric) {
+                const currentValue = startValue + (endValue - startValue) * easeOut;
+                if (format) {
+                    element.textContent = format(currentValue);
+                } else {
+                    element.textContent = Math.round(currentValue);
+                }
+            } else {
+                // Para valores não numéricos, apenas aplicar fade in
+                element.style.opacity = easeOut;
+            }
+            
+            if (progress < 1) {
+                requestAnimationFrame(animate);
+            } else {
+                // Garantir valor final
+                if (isNumeric) {
+                    if (format) {
+                        element.textContent = format(endValue);
+                    } else {
+                        element.textContent = endValue;
+                    }
+                }
+                element.style.opacity = '1';
+                element.classList.add('animated-value');
+                setTimeout(() => {
+                    element.classList.remove('animated-value');
+                }, 500);
+            }
+        };
+        
+        requestAnimationFrame(animate);
+    }
+
+    // Função auxiliar para atualizar valor com animação
+    updateValueWithAnimation(elementId, value, format = null) {
+        const element = document.getElementById(elementId);
+        if (!element) return;
+        
+        const currentValue = element.textContent.trim();
+        let startValue = 0;
+        
+        // Tentar extrair número do valor atual
+        if (format) {
+            const match = currentValue.match(/[\d,]+\.?\d*/);
+            if (match) {
+                startValue = parseFloat(match[0].replace(',', '.')) || 0;
+            }
+        } else {
+            startValue = parseInt(currentValue) || 0;
+        }
+        
+        this.animateValue(element, startValue, value, 600, format);
     }
 
     // Funções auxiliares para feedback visual
@@ -2042,19 +2117,16 @@ class LojaApp {
             });
         });
 
-        // Atualizar totais do mês
-        document.getElementById('totalSales').textContent = totalSales;
-        document.getElementById('totalValue').textContent = `R$ ${totalValue
-            .toFixed(2)
-            .replace('.', ',')}`;
+        // Atualizar totais do mês com animação
+        this.updateValueWithAnimation('totalSales', totalSales);
+        this.updateValueWithAnimation('totalValue', totalValue, (val) => 
+            `R$ ${val.toFixed(2).replace('.', ',')}`
+        );
 
-        // Calcular e atualizar totais de todos os meses
+        // Calcular e atualizar totais de todos os meses com animação
         const allMonthsTotal = this.calculateTotalAllMonths();
-        document.getElementById('totalSalesAll').textContent =
-            allMonthsTotal.totalSales;
-        document.getElementById(
-            'totalValueAll'
-        ).textContent = `R$ ${allMonthsTotal.totalValue
+        this.updateValueWithAnimation('totalSalesAll', allMonthsTotal.totalSales);
+        this.updateValueWithAnimation('totalValueAll', allMonthsTotal.totalValue, (val) => `R$ ${allMonthsTotal.totalValue
             .toFixed(2)
             .replace('.', ',')}`;
 
@@ -2534,12 +2606,12 @@ class LojaApp {
             document.getElementById('overallTotalValue');
 
         if (overallTotalSalesEl) {
-            overallTotalSalesEl.textContent = allMonthsTotal.totalSales;
+            this.updateValueWithAnimation('overallTotalSales', allMonthsTotal.totalSales);
         }
         if (overallTotalValueEl) {
-            overallTotalValueEl.textContent = `R$ ${allMonthsTotal.totalValue
-                .toFixed(2)
-                .replace('.', ',')}`;
+            this.updateValueWithAnimation('overallTotalValue', allMonthsTotal.totalValue, (val) =>
+                `R$ ${val.toFixed(2).replace('.', ',')}`
+            );
         }
 
         // Atualizar resumo geral completo (sem estoque, pois agora está nos cards)
@@ -4461,7 +4533,19 @@ class LojaApp {
         }
         
         if (tabContent) {
+            // Animação ao trocar de tab
+            tabContent.style.opacity = '0';
+            tabContent.style.transform = 'translateX(20px)';
             tabContent.classList.add('active');
+            
+            // Forçar reflow para garantir que a animação funcione
+            void tabContent.offsetWidth;
+            
+            // Aplicar animação
+            setTimeout(() => {
+                tabContent.style.opacity = '1';
+                tabContent.style.transform = 'translateX(0)';
+            }, 10);
         } else {
             console.warn(
                 `⚠️ [SWITCH TAB] Conteúdo da aba "${tab}Tab" não encontrado`
