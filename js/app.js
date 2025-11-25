@@ -4732,8 +4732,8 @@ class LojaApp {
                 position: 'bottom'
             },
             {
-                title: 'QR Code - Cadastro',
-                content: 'Após cadastrar um produto físico, você verá um botão "QR Code" no card. Clique nele para visualizar, baixar ou imprimir o QR Code do produto.',
+                title: 'QR Code Exclusivo - Cadastro',
+                content: 'Após cadastrar um produto físico, o sistema gera automaticamente um código numérico exclusivo de 9 dígitos (1-9) e converte em QR Code. Você verá um botão "QR Code" no card. Clique nele para visualizar, baixar ou imprimir o QR Code do produto.',
                 target: null,
                 position: 'center'
             },
@@ -4745,25 +4745,37 @@ class LojaApp {
             },
             {
                 title: 'QR Code - Leitura',
-                content: 'Ao adicionar uma venda, clique no botão de QR Code ao lado do campo "Item" para escanear o código do produto. Isso seleciona automaticamente o produto e atualiza o estoque.',
+                content: 'Ao adicionar uma venda, clique no botão de QR Code ao lado do campo "Item" para escanear o código numérico do produto. O sistema identifica o produto pelo código de 9 dígitos, seleciona automaticamente e atualiza o estoque quando você registra a venda.',
                 target: null,
                 position: 'center'
             },
             {
-                title: 'Dashboard',
-                content: 'Visualize gráficos e estatísticas de vendas no Dashboard. Use o botão para alternar entre Dashboard de Vendas e Dashboard de Serviços.',
+                title: 'Dashboards',
+                content: 'Visualize gráficos e estatísticas detalhadas. Use o botão "Dashboard" para alternar entre Dashboard de Vendas (gráficos de vendas, lucro, estoque) e Dashboard de Serviços (horas trabalhadas, faturamento, top serviços). Cada resumo também tem gráficos específicos.',
                 target: 'dashboardToggleBtn',
                 position: 'bottom'
             },
             {
                 title: 'Serviços',
-                content: 'Na aba "Serviços", você pode cadastrar meses de serviços e registrar horas trabalhadas. Ideal para profissionais que vendem serviços.',
+                content: 'Na aba "Serviços", você pode cadastrar meses de serviços e registrar horas trabalhadas. O sistema calcula automaticamente faturamento, valor médio por hora e média de horas por serviço. Visualize gráficos de evolução no resumo.',
                 target: null,
                 position: 'center'
             },
             {
                 title: 'Metas',
-                content: 'Defina metas mensais de vendas na aba "Metas" e acompanhe seu progresso em tempo real.',
+                content: 'Defina metas mensais de vendas na aba "Metas" e acompanhe seu progresso em tempo real. O sistema mostra um gráfico comparativo de metas vs vendas reais nos últimos 6 meses.',
+                target: null,
+                position: 'center'
+            },
+            {
+                title: 'Custos',
+                content: 'Registre os custos de compra dos produtos na aba "Custos". Visualize gráficos de evolução de custos por mês no resumo, mostrando valor total e quantidade de compras.',
+                target: null,
+                position: 'center'
+            },
+            {
+                title: 'Feedback e Validações',
+                content: 'O sistema mostra mensagens de sucesso/erro, estados de loading nos botões durante operações, e valida automaticamente os campos com feedback visual. Isso facilita o uso e reduz erros.',
                 target: null,
                 position: 'center'
             }
