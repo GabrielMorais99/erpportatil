@@ -360,9 +360,17 @@ class LojaApp {
 
         // Tabs
         const tabBtns = document.querySelectorAll('.tab-btn');
+        const dashboardToggleBtn = document.getElementById('dashboardToggleBtn');
         if (tabBtns.length > 0) {
             tabBtns.forEach((btn) => {
                 btn.addEventListener('click', (e) => {
+                    // Se for o botão de toggle do dashboard, chamar toggleDashboard()
+                    if (btn.id === 'dashboardToggleBtn' || btn === dashboardToggleBtn) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        this.toggleDashboard();
+                        return;
+                    }
                     // Usar currentTarget para garantir que pegamos o botão, não o elemento filho (ícone/texto)
                     const tab = e.currentTarget.dataset.tab || btn.dataset.tab;
                     if (tab) {
@@ -3378,12 +3386,25 @@ class LojaApp {
     // ========== UTILITÁRIOS ==========
 
     toggleDashboard() {
+        // Verificar qual dashboard está atualmente visível
+        const salesDashboard = document.getElementById('dashboardTab');
+        const servicesDashboard = document.getElementById('servicesDashboardTab');
+        const isSalesActive = salesDashboard && salesDashboard.classList.contains('active');
+        const isServicesActive = servicesDashboard && servicesDashboard.classList.contains('active');
+        
         // Alternar entre dashboard de vendas e serviços
-        if (this.currentDashboardType === 'sales') {
+        if (isServicesActive) {
+            // Se serviços está ativo, mostrar vendas
+            this.currentDashboardType = 'sales';
+            this.switchTab('dashboard');
+            this.updateDashboardButtonText('sales');
+        } else if (isSalesActive) {
+            // Se vendas está ativo, mostrar serviços
             this.currentDashboardType = 'services';
             this.switchTab('servicesDashboard');
             this.updateDashboardButtonText('services');
         } else {
+            // Se nenhum está ativo, mostrar vendas primeiro (padrão)
             this.currentDashboardType = 'sales';
             this.switchTab('dashboard');
             this.updateDashboardButtonText('sales');
