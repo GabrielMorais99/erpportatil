@@ -356,7 +356,7 @@ body {
 }
 
 .btn-primary.loading::after {
-    content: "";
+    content: '';
     position: absolute;
     width: 16px;
     height: 16px;
@@ -371,7 +371,9 @@ body {
 }
 
 @keyframes spin {
-    to { transform: rotate(360deg); }
+    to {
+        transform: rotate(360deg);
+    }
 }
 
 /* Centralizar botão de login */

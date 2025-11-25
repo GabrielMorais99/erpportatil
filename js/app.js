@@ -4550,53 +4550,115 @@ class LojaApp {
                     
                     <div style="margin-bottom: 2rem;">
                         <h4 style="color: var(--primary-color); margin-bottom: 0.5rem;">📦 Cadastro de Produtos</h4>
-                        <p>Cadastre seus produtos (Roupas, Eletrônicos ou Serviços) através do botão "Novo Produto". Para produtos físicos, você pode gerar um QR Code único para cada item.</p>
+                        <p>Cadastre seus produtos (Roupas, Eletrônicos ou Serviços) através do botão "Novo Produto". Para produtos físicos, um <strong>QR Code exclusivo com código numérico de 9 dígitos</strong> será gerado automaticamente para cada item.</p>
+                        <p style="margin-top: 0.5rem;"><strong>💡 Dica:</strong> O sistema valida automaticamente os campos e mostra mensagens de erro ou sucesso para facilitar o cadastro.</p>
                     </div>
 
                     <div style="margin-bottom: 2rem;">
-                        <h4 style="color: var(--primary-color); margin-bottom: 0.5rem;">📱 QR Code - Como usar</h4>
-                        <p><strong>1. Cadastrar QR Code de um produto:</strong></p>
+                        <h4 style="color: var(--primary-color); margin-bottom: 0.5rem;">📱 QR Code - Sistema Exclusivo</h4>
+                        <p><strong>1. Geração automática de QR Code:</strong></p>
                         <ul style="margin-left: 1.5rem; margin-bottom: 1rem;">
-                            <li>Cadastre um produto (Roupas ou Eletrônicos)</li>
-                            <li>Após salvar, o QR Code será gerado automaticamente</li>
+                            <li>Cadastre um produto físico (Roupas ou Eletrônicos)</li>
+                            <li>O sistema gera automaticamente um <strong>código numérico exclusivo de 9 dígitos</strong> (usando apenas números de 1 a 9)</li>
+                            <li>Esse código é convertido em QR Code e armazenado no produto</li>
+                            <li>Após salvar, o QR Code aparece no modal de edição</li>
                             <li>Clique em "QR Code" no card do produto para visualizar, baixar ou imprimir</li>
                         </ul>
                         <p><strong>2. Realizar leitura do QR Code:</strong></p>
                         <ul style="margin-left: 1.5rem; margin-bottom: 1rem;">
                             <li>Vá em "Grupos Mensais" e abra um mês</li>
-                            <li>Clique em "Adicionar Venda" em um dia</li>
-                            <li>Clique no botão de QR Code ao lado do campo "Item"</li>
+                            <li>Clique em "Adicionar Venda" em um dia específico</li>
+                            <li>Clique no botão <i class="fas fa-qrcode"></i> ao lado do campo "Item"</li>
                             <li>Permita o acesso à câmera quando solicitado</li>
                             <li>Aponte a câmera para o QR Code do produto</li>
-                            <li>O produto será selecionado automaticamente</li>
+                            <li>O sistema identifica o produto pelo código numérico e seleciona automaticamente</li>
+                            <li>Se a permissão for negada, você pode fechar o scanner e tentar novamente</li>
                         </ul>
                         <p><strong>3. Como a leitura impacta o sistema:</strong></p>
                         <ul style="margin-left: 1.5rem;">
-                            <li>O produto é identificado automaticamente</li>
+                            <li>O produto é identificado pelo código numérico exclusivo</li>
                             <li>O estoque é atualizado automaticamente quando você registra a venda</li>
                             <li>As estatísticas de vendas são atualizadas em tempo real</li>
-                            <li>Facilita o controle de estoque e vendas</li>
+                            <li>Facilita o controle de estoque e vendas no caixa</li>
+                            <li>Reduz erros de digitação e acelera o processo de venda</li>
                         </ul>
                     </div>
 
                     <div style="margin-bottom: 2rem;">
                         <h4 style="color: var(--primary-color); margin-bottom: 0.5rem;">📊 Grupos Mensais</h4>
-                        <p>Crie grupos mensais para organizar suas vendas por mês. Cada grupo permite registrar vendas por dia, gerenciar estoque e visualizar estatísticas do período.</p>
+                        <p>Crie grupos mensais para organizar suas vendas por mês. Cada grupo permite:</p>
+                        <ul style="margin-left: 1.5rem;">
+                            <li>Registrar vendas por dia (o dia é automaticamente definido quando você abre o modal)</li>
+                            <li>Gerenciar estoque inicial e acompanhar vendas</li>
+                            <li>Visualizar estatísticas do período</li>
+                            <li>Ver sugestões de reposição de estoque baseadas nas vendas</li>
+                            <li>Consultar gráfico de média de estoque por SKU</li>
+                        </ul>
                     </div>
 
                     <div style="margin-bottom: 2rem;">
                         <h4 style="color: var(--primary-color); margin-bottom: 0.5rem;">💼 Serviços</h4>
-                        <p>Cadastre serviços (aulas, consultorias, etc.) e registre as horas trabalhadas por mês. O sistema calcula automaticamente o faturamento e estatísticas de serviços.</p>
+                        <p>Cadastre serviços (aulas, consultorias, etc.) e registre as horas trabalhadas por mês. O sistema oferece:</p>
+                        <ul style="margin-left: 1.5rem;">
+                            <li>Cadastro de serviços com horas e minutos padrão</li>
+                            <li>Registro mensal de serviços prestados</li>
+                            <li>Cálculo automático de faturamento e estatísticas</li>
+                            <li>Indicadores: valor médio por hora, média de horas por serviço</li>
+                            <li>Gráficos de evolução de horas e faturamento</li>
+                            <li>Dashboard dedicado para serviços (alterna com Dashboard de Vendas)</li>
+                        </ul>
                     </div>
 
                     <div style="margin-bottom: 2rem;">
                         <h4 style="color: var(--primary-color); margin-bottom: 0.5rem;">📈 Dashboards</h4>
-                        <p>Visualize gráficos e estatísticas de vendas e serviços. Use os filtros para analisar diferentes períodos.</p>
+                        <p>Visualize gráficos e estatísticas detalhadas:</p>
+                        <ul style="margin-left: 1.5rem; margin-bottom: 0.5rem;">
+                            <li><strong>Dashboard de Vendas:</strong> Gráficos de vendas, lucro, estoque, e evolução mensal</li>
+                            <li><strong>Dashboard de Serviços:</strong> Gráficos de horas trabalhadas, faturamento e top serviços</li>
+                            <li>Use o botão "Dashboard" para alternar entre Vendas e Serviços</li>
+                            <li>Filtros por período (último mês, 3 meses, 6 meses, ano)</li>
+                        </ul>
+                        <p style="margin-top: 0.5rem;"><strong>📊 Gráficos nos Resumos:</strong></p>
+                        <ul style="margin-left: 1.5rem;">
+                            <li><strong>Resumo Geral:</strong> Gráfico de média de estoque por SKU e sugestões de reposição</li>
+                            <li><strong>Resumo de Custos:</strong> Gráfico de evolução de custos por mês (valor total e quantidade de compras)</li>
+                            <li><strong>Resumo de Serviços:</strong> Gráfico de evolução de serviços por mês (faturamento e horas trabalhadas)</li>
+                            <li><strong>Resumo de Metas:</strong> Gráfico comparativo de metas vs vendas</li>
+                        </ul>
                     </div>
 
                     <div style="margin-bottom: 2rem;">
                         <h4 style="color: var(--primary-color); margin-bottom: 0.5rem;">🎯 Metas</h4>
-                        <p>Defina metas mensais de vendas e acompanhe seu progresso em tempo real.</p>
+                        <p>Defina metas mensais de vendas e acompanhe seu progresso:</p>
+                        <ul style="margin-left: 1.5rem;">
+                            <li>Crie metas por mês/ano</li>
+                            <li>Visualize o progresso em tempo real</li>
+                            <li>Gráfico comparativo de metas vs vendas reais</li>
+                            <li>Estatísticas de cumprimento de metas</li>
+                        </ul>
+                    </div>
+
+                    <div style="margin-bottom: 2rem;">
+                        <h4 style="color: var(--primary-color); margin-bottom: 0.5rem;">💰 Custos de Compra</h4>
+                        <p>Registre os custos de compra dos produtos:</p>
+                        <ul style="margin-left: 1.5rem;">
+                            <li>Cadastre custos por produto e data</li>
+                            <li>Acompanhe o valor total de custos</li>
+                            <li>Visualize gráfico de evolução de custos por mês</li>
+                            <li>Compare custos com vendas para calcular lucro</li>
+                        </ul>
+                    </div>
+
+                    <div style="margin-bottom: 2rem;">
+                        <h4 style="color: var(--primary-color); margin-bottom: 0.5rem;">✨ Melhorias e Recursos</h4>
+                        <ul style="margin-left: 1.5rem;">
+                            <li><strong>Feedback Visual:</strong> Mensagens de sucesso/erro, estados de loading nos botões</li>
+                            <li><strong>Validações:</strong> Validação automática de campos com feedback visual</li>
+                            <li><strong>Acessibilidade:</strong> Navegação por teclado, leitores de tela, contraste adequado</li>
+                            <li><strong>Responsividade:</strong> Interface adaptada para desktop, tablet e mobile</li>
+                            <li><strong>Sugestões de Reposição:</strong> Sistema identifica produtos com estoque baixo baseado nas vendas</li>
+                            <li><strong>SKU Inteligente:</strong> Para roupas, combina produto + tamanho para controle preciso</li>
+                        </ul>
                     </div>
 
                     <div style="background: #e7f3ff; padding: 1rem; border-radius: 5px; border-left: 3px solid #007bff;">
@@ -4665,7 +4727,7 @@ class LojaApp {
             },
             {
                 title: 'Cadastro de Produtos',
-                content: 'Clique em "Novo Produto" para cadastrar seus itens. Você pode cadastrar Roupas, Eletrônicos ou Serviços. Para produtos físicos, um QR Code será gerado automaticamente.',
+                content: 'Clique em "Novo Produto" para cadastrar seus itens. Você pode cadastrar Roupas, Eletrônicos ou Serviços. Para produtos físicos, um QR Code exclusivo com código numérico de 9 dígitos será gerado automaticamente.',
                 target: 'newItemBtn',
                 position: 'bottom'
             },
