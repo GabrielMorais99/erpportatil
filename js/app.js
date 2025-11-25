@@ -2464,7 +2464,16 @@ class LojaApp {
         // Parar scanner se estiver ativo
         this.stopQRScanner();
         
-        document.getElementById('saleModal').classList.remove('active');
+        const modal = document.getElementById('saleModal');
+        if (modal) {
+            // Animação ao fechar modal
+            modal.style.opacity = '0';
+            setTimeout(() => {
+                modal.classList.remove('active');
+                modal.style.display = 'none';
+                modal.style.opacity = '';
+            }, 300);
+        }
 
         // Se o modal do grupo estiver aberto, atualizar o resumo
         const viewGroupModal = document.getElementById('viewGroupModal');
