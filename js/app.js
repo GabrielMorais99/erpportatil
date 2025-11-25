@@ -2827,22 +2827,11 @@ class LojaApp {
 
             return `
                 <div class="group-card">
-                    <div class="group-header">
-                        <h3>${monthName}/${year}</h3>
-                    </div>
-                    <div class="group-stats">
-                        <div class="stat-item">
-                            <h4>Total de Horas</h4>
-                            <p>${totalHours}h ${totalMinutes}min</p>
-                        </div>
-                        <div class="stat-item">
-                            <h4>Total Faturado</h4>
-                            <p>R$ ${totalRevenue.toFixed(2).replace('.', ',')}</p>
-                        </div>
-                        <div class="stat-item">
-                            <h4>Serviços Registrados</h4>
-                            <p>${totalServices}</p>
-                        </div>
+                    <h3>${monthName}/${year}</h3>
+                    <div class="group-info">
+                        <div><strong>Total de Horas:</strong> ${totalHours}h ${totalMinutes}min</div>
+                        <div><strong>Total Faturado:</strong> R$ ${totalRevenue.toFixed(2).replace('.', ',')}</div>
+                        <div><strong>Serviços Registrados:</strong> ${totalServices}</div>
                     </div>
                     <div class="group-actions">
                         <button class="btn-small btn-edit" onclick="app.viewServiceGroup('${serviceGroup.id}')">Ver Detalhes</button>

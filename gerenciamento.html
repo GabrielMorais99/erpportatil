@@ -403,34 +403,34 @@
                 <!-- Tab: Serviços -->
                 <div id="servicesTab" class="tab-content">
                     <div class="services-layout">
-                        <div class="services-summary-card">
+                        <div class="overall-summary-card">
                             <h3>Resumo de Serviços</h3>
                             <div class="summary-stats">
-                                <div class="stat-item" style="background: #e7f3ff; border: 2px solid #007bff;">
+                                <div class="stat-item">
                                     <h4>Total de Horas</h4>
-                                    <p id="servicesTotalHours" style="color: #004085; font-size: 1.5rem; font-weight: bold;">0h 0min</p>
+                                    <p id="servicesTotalHours">0h 0min</p>
                                 </div>
-                                <div class="stat-item" style="background: #d4edda; border: 2px solid #28a745;">
+                                <div class="stat-item">
                                     <h4>Média de Horas/Mês</h4>
-                                    <p id="servicesAvgHours" style="color: #155724; font-size: 1.5rem; font-weight: bold;">0h 0min</p>
+                                    <p id="servicesAvgHours">0h 0min</p>
                                 </div>
-                                <div class="stat-item" style="background: #fff3cd; border: 2px solid #ffc107;">
+                                <div class="stat-item" style="background: #fff3cd; border: 1px solid #ffc107;">
                                     <h4>Total Faturado</h4>
-                                    <p id="servicesTotalRevenue" style="color: #856404; font-size: 1.5rem; font-weight: bold;">R$ 0,00</p>
+                                    <p id="servicesTotalRevenue" style="color: #856404">R$ 0,00</p>
                                 </div>
-                                <div class="stat-item" style="background: #f8d7da; border: 2px solid #dc3545;">
+                                <div class="stat-item" style="background: #d4edda; border: 1px solid #28a745;">
                                     <h4>Serviços Registrados</h4>
-                                    <p id="servicesTotalCount" style="color: #721c24; font-size: 1.5rem; font-weight: bold;">0</p>
+                                    <p id="servicesTotalCount" style="color: #155724; font-size: 1.6rem;">0</p>
                                 </div>
                             </div>
                         </div>
-                        <div class="services-content">
-                            <div class="toolbar-services">
+                        <div class="groups-content">
+                            <div class="toolbar">
                                 <button type="button" id="newServiceGroupBtn" class="btn-primary">
                                     <i class="fas fa-calendar-plus"></i> Novo Mês de Serviços
                                 </button>
                             </div>
-                            <div id="servicesList" class="services-list">
+                            <div id="servicesList" class="groups-list">
                                 <!-- Serviços mensais serão inseridos aqui via JavaScript -->
                             </div>
                         </div>
@@ -1344,4 +1344,5 @@
         </script>
     </body>
 </html>
+
 
