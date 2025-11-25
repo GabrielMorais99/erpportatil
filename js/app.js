@@ -18,6 +18,7 @@ class LojaApp {
         this.currentEditingGoal = null;
         this.currentQRScanner = null; // Scanner de QR code
         this.currentDashboardType = 'sales'; // 'sales' ou 'services'
+        this.avgStockChart = null; // Gráfico de média de estoque
 
         this.init();
     }
@@ -1599,6 +1600,10 @@ class LojaApp {
                         displayName =
                             parts.filter((p) => p).join(' - ') || 'Roupa';
                     }
+                    // Adicionar tamanho ao nome se existir
+                    if (item.size) {
+                        displayName += ` – tamanho ${item.size}`;
+                    }
                 } else if (category === 'Serviços') {
                     displayName = item.name || 'Serviço';
                 } else {
@@ -2856,14 +2861,19 @@ class LojaApp {
         let totalMinutes = 0;
         let totalRevenue = 0;
         let totalCount = 0;
+        let totalHoursDecimal = 0; // Para cálculos precisos
 
         this.serviceGroups.forEach((serviceGroup) => {
             serviceGroup.days.forEach((day) => {
                 day.services.forEach((service) => {
-                    totalHours += service.hours || 0;
-                    totalMinutes += service.minutes || 0;
+                    const hours = service.hours || 0;
+                    const minutes = service.minutes || 0;
+                    totalHours += hours;
+                    totalMinutes += minutes;
                     totalRevenue += service.price || 0;
                     totalCount++;
+                    // Calcular horas totais em decimal para cálculos precisos
+                    totalHoursDecimal += hours + (minutes / 60);
                 });
             });
         });
@@ -2882,15 +2892,35 @@ class LojaApp {
             avgMinutes = avgMinutesAll % 60;
         }
 
+        // Calcular valor médio por hora
+        let avgValuePerHour = 0;
+        if (totalHoursDecimal > 0) {
+            avgValuePerHour = totalRevenue / totalHoursDecimal;
+        }
+
+        // Calcular média de horas por serviço
+        let avgHoursPerService = 0;
+        let avgMinutesPerService = 0;
+        if (totalCount > 0) {
+            const totalMinutesAll = totalHours * 60 + totalMinutes;
+            const avgMinutesPerServiceDecimal = totalMinutesAll / totalCount;
+            avgHoursPerService = Math.floor(avgMinutesPerServiceDecimal / 60);
+            avgMinutesPerService = Math.round(avgMinutesPerServiceDecimal % 60);
+        }
+
         const totalHoursEl = document.getElementById('servicesTotalHours');
         const avgHoursEl = document.getElementById('servicesAvgHours');
         const totalRevenueEl = document.getElementById('servicesTotalRevenue');
         const totalCountEl = document.getElementById('servicesTotalCount');
+        const avgValuePerHourEl = document.getElementById('servicesAvgValuePerHour');
+        const avgHoursPerServiceEl = document.getElementById('servicesAvgHoursPerService');
 
         if (totalHoursEl) totalHoursEl.textContent = `${totalHours}h ${totalMinutes}min`;
         if (avgHoursEl) avgHoursEl.textContent = `${avgHours}h ${avgMinutes}min`;
         if (totalRevenueEl) totalRevenueEl.textContent = `R$ ${totalRevenue.toFixed(2).replace('.', ',')}`;
         if (totalCountEl) totalCountEl.textContent = totalCount;
+        if (avgValuePerHourEl) avgValuePerHourEl.textContent = `R$ ${avgValuePerHour.toFixed(2).replace('.', ',')}`;
+        if (avgHoursPerServiceEl) avgHoursPerServiceEl.textContent = `${avgHoursPerService}h ${avgMinutesPerService}min`;
     }
 
     // ========== CUSTOS DE COMPRA ==========
@@ -3381,6 +3411,290 @@ class LojaApp {
             }
         }
 
+        // Atualizar gráfico de média de estoque e sugestões de reposição
+        this.updateAvgStockChart();
+        this.updateRestockSuggestions();
+    }
+
+    // Função auxiliar para gerar SKU único (itemId + size)
+    getSKU(itemId, size = '') {
+        return size ? `${itemId}_${size}` : itemId;
+    }
+
+    // Calcular média de estoque por mês
+    calculateAvgStockByMonth() {
+        const stockByMonth = {};
+        
+        this.groups.forEach((group) => {
+            const monthKey = group.month;
+            if (!stockByMonth[monthKey]) {
+                stockByMonth[monthKey] = {};
+            }
+
+            // Calcular estoque médio por SKU no mês
+            const skuStock = {};
+            group.days.forEach((day) => {
+                if (!day.stock) day.stock = {};
+                if (!day.sales) day.sales = [];
+
+                // Processar estoque por SKU (itemId + size)
+                Object.keys(day.stock).forEach((itemId) => {
+                    const item = this.items.find(i => i.id === itemId);
+                    if (item && item.category === 'Roupas' && item.size) {
+                        const sku = this.getSKU(itemId, item.size);
+                        if (!skuStock[sku]) {
+                            skuStock[sku] = {
+                                itemId: itemId,
+                                size: item.size,
+                                stockValues: [],
+                                sold: 0
+                            };
+                        }
+                        skuStock[sku].stockValues.push(day.stock[itemId] || 0);
+                    } else {
+                        // Para itens sem tamanho ou não-roupas, usar apenas itemId
+                        const sku = this.getSKU(itemId);
+                        if (!skuStock[sku]) {
+                            skuStock[sku] = {
+                                itemId: itemId,
+                                size: '',
+                                stockValues: [],
+                                sold: 0
+                            };
+                        }
+                        skuStock[sku].stockValues.push(day.stock[itemId] || 0);
+                    }
+                });
+
+                // Processar vendas por SKU
+                day.sales.forEach((sale) => {
+                    const item = this.items.find(i => i.id === sale.itemId);
+                    if (item && item.category === 'Roupas' && item.size) {
+                        const sku = this.getSKU(sale.itemId, item.size);
+                        if (skuStock[sku]) {
+                            skuStock[sku].sold += sale.quantity;
+                        }
+                    } else {
+                        const sku = this.getSKU(sale.itemId);
+                        if (skuStock[sku]) {
+                            skuStock[sku].sold += sale.quantity;
+                        }
+                    }
+                });
+            });
+
+            // Calcular média de estoque por SKU
+            Object.keys(skuStock).forEach((sku) => {
+                const data = skuStock[sku];
+                const avgStock = data.stockValues.length > 0
+                    ? data.stockValues.reduce((sum, val) => sum + val, 0) / data.stockValues.length
+                    : 0;
+                
+                if (!stockByMonth[monthKey][sku]) {
+                    stockByMonth[monthKey][sku] = {
+                        itemId: data.itemId,
+                        size: data.size,
+                        avgStock: 0,
+                        totalSold: 0
+                    };
+                }
+                stockByMonth[monthKey][sku].avgStock = Math.round(avgStock);
+                stockByMonth[monthKey][sku].totalSold += data.sold;
+            });
+        });
+
+        return stockByMonth;
+    }
+
+    // Atualizar gráfico de média de estoque
+    updateAvgStockChart() {
+        const canvas = document.getElementById('avgStockChart');
+        if (!canvas) return;
+
+        // Verificar se Chart.js está disponível
+        if (typeof Chart === 'undefined') {
+            console.warn('Chart.js não está disponível ainda');
+            return;
+        }
+
+        const stockByMonth = this.calculateAvgStockByMonth();
+        const months = Object.keys(stockByMonth).sort();
+        
+        if (months.length === 0) {
+            // Limpar gráfico se não houver dados
+            const ctx = canvas.getContext('2d');
+            if (ctx) ctx.clearRect(0, 0, canvas.width, canvas.height);
+            // Destruir gráfico anterior se existir
+            if (this.avgStockChart) {
+                this.avgStockChart.destroy();
+                this.avgStockChart = null;
+            }
+            return;
+        }
+
+        // Calcular média total de estoque por mês (soma de todos os SKUs)
+        const avgStockData = months.map(month => {
+            const skus = Object.values(stockByMonth[month]);
+            const totalAvg = skus.reduce((sum, sku) => sum + sku.avgStock, 0);
+            return totalAvg;
+        });
+
+        // Formatar labels dos meses
+        const monthLabels = months.map(month => {
+            const [year, monthNum] = month.split('-');
+            const monthNames = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
+            return `${monthNames[parseInt(monthNum) - 1]}/${year.slice(-2)}`;
+        });
+
+        // Destruir gráfico anterior se existir
+        if (this.avgStockChart) {
+            this.avgStockChart.destroy();
+        }
+
+        // Obter cor primária do tema
+        const primaryColor = getComputedStyle(document.documentElement).getPropertyValue('--primary-color') || '#dc3545';
+
+        // Criar novo gráfico
+        this.avgStockChart = new Chart(canvas, {
+            type: 'line',
+            data: {
+                labels: monthLabels,
+                datasets: [{
+                    label: 'Média de Estoque',
+                    data: avgStockData,
+                    borderColor: primaryColor,
+                    backgroundColor: primaryColor.replace('rgb', 'rgba').replace(')', ', 0.1)'),
+                    tension: 0.4,
+                    fill: true,
+                    pointRadius: 4,
+                    pointHoverRadius: 6
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: false
+                    },
+                    tooltip: {
+                        backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                        padding: 10,
+                        titleFont: {
+                            size: 12
+                        },
+                        bodyFont: {
+                            size: 11
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            precision: 0,
+                            font: {
+                                size: 10
+                            }
+                        },
+                        grid: {
+                            color: 'rgba(0, 0, 0, 0.05)'
+                        }
+                    },
+                    x: {
+                        ticks: {
+                            font: {
+                                size: 10
+                            }
+                        },
+                        grid: {
+                            display: false
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+    // Atualizar sugestões de reposição
+    updateRestockSuggestions() {
+        const container = document.getElementById('restockSuggestions');
+        if (!container) return;
+
+        const stockByMonth = this.calculateAvgStockByMonth();
+        const suggestions = [];
+
+        // Analisar cada mês para encontrar SKUs que precisam de reposição
+        Object.keys(stockByMonth).forEach((month) => {
+            const skus = stockByMonth[month];
+            Object.keys(skus).forEach((sku) => {
+                const data = skus[sku];
+                const item = this.items.find(i => i.id === data.itemId);
+                if (!item || item.category === 'Serviços') return;
+
+                // Calcular taxa de venda mensal
+                const monthlySales = data.totalSold;
+                const avgStock = data.avgStock;
+                
+                // Sugerir reposição se:
+                // 1. Estoque médio é baixo (< 5 unidades) OU
+                // 2. Taxa de venda é alta (> 3 unidades/mês) e estoque está abaixo da média de vendas
+                if (avgStock < 5 || (monthlySales > 3 && avgStock < monthlySales * 1.5)) {
+                    const itemName = this.getItemName(data.itemId);
+                    const priority = avgStock < 3 ? 'high' : (avgStock < 5 ? 'medium' : 'low');
+                    const suggestedQty = Math.max(monthlySales * 2, 10); // Sugerir pelo menos 2x a venda mensal ou 10 unidades
+
+                    suggestions.push({
+                        itemName: itemName,
+                        sku: sku,
+                        currentStock: avgStock,
+                        monthlySales: monthlySales,
+                        suggestedQty: suggestedQty,
+                        priority: priority,
+                        month: month
+                    });
+                }
+            });
+        });
+
+        // Ordenar por prioridade e estoque atual
+        suggestions.sort((a, b) => {
+            if (a.priority !== b.priority) {
+                const priorityOrder = { 'high': 0, 'medium': 1, 'low': 2 };
+                return priorityOrder[a.priority] - priorityOrder[b.priority];
+            }
+            return a.currentStock - b.currentStock;
+        });
+
+        // Limitar a 10 sugestões
+        const topSuggestions = suggestions.slice(0, 10);
+
+        if (topSuggestions.length === 0) {
+            container.innerHTML = '<p style="color: var(--gray-500); font-size: 0.9rem; text-align: center; padding: 1rem;">Nenhuma sugestão de reposição no momento.</p>';
+            return;
+        }
+
+        container.innerHTML = topSuggestions.map(suggestion => {
+            const priorityColor = suggestion.priority === 'high' ? '#dc3545' : 
+                                 suggestion.priority === 'medium' ? '#ffc107' : '#28a745';
+            const priorityText = suggestion.priority === 'high' ? 'Urgente' : 
+                                suggestion.priority === 'medium' ? 'Atenção' : 'Sugestão';
+            
+            return `
+                <div style="display: flex; justify-content: space-between; align-items: center; padding: 0.75rem; background: white; margin-bottom: 0.5rem; border-radius: 5px; border-left: 3px solid ${priorityColor};">
+                    <div style="flex: 1;">
+                        <strong style="font-size: 0.9rem;">${this.escapeHtml(suggestion.itemName)}</strong>
+                        <div style="font-size: 0.75rem; color: var(--gray-600); margin-top: 0.25rem;">
+                            Estoque atual: ${suggestion.currentStock} un. | Vendas/mês: ${suggestion.monthlySales} un.
+                        </div>
+                    </div>
+                    <div style="text-align: right;">
+                        <div style="font-size: 0.75rem; color: ${priorityColor}; font-weight: 600; margin-bottom: 0.25rem;">${priorityText}</div>
+                        <div style="font-size: 0.85rem; color: var(--gray-700);">Sugerido: ${suggestion.suggestedQty} un.</div>
+                    </div>
+                </div>
+            `;
+        }).join('');
     }
 
     // ========== UTILITÁRIOS ==========
@@ -3514,14 +3828,22 @@ class LojaApp {
         if (category === 'Eletrônicos') {
             return item.model || item.name || 'Eletrônico';
         } else if (category === 'Roupas') {
+            let name;
             if (item.name) {
-                return item.name;
+                name = item.name;
             } else {
                 // Se não tiver nome, usar marca + estilo ou apenas marca
                 const parts = [item.brand || ''];
                 if (item.style) parts.push(item.style);
-                return parts.filter((p) => p).join(' - ') || 'Roupa';
+                name = parts.filter((p) => p).join(' - ') || 'Roupa';
             }
+            // Adicionar tamanho ao nome se existir
+            if (item.size) {
+                name += ` – tamanho ${item.size}`;
+            }
+            return name;
+        } else if (category === 'Serviços') {
+            return item.name || 'Serviço';
         }
 
         return item.name || 'Item';

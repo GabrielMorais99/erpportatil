@@ -270,6 +270,22 @@
                                     </p>
                                 </div>
                             </div>
+                            
+                            <!-- Mini Gráfico de Média de Estoque -->
+                            <div style="margin-top: 1.5rem; padding-top: 1.5rem; border-top: 1px solid var(--border-color);">
+                                <h4 style="margin-bottom: 1rem; font-size: 1rem; color: var(--gray-600);">Média de Estoque por Mês</h4>
+                                <div class="chart-wrapper" style="height: 150px;">
+                                    <canvas id="avgStockChart"></canvas>
+                                </div>
+                            </div>
+                            
+                            <!-- Sugestões de Reposição -->
+                            <div style="margin-top: 1.5rem; padding-top: 1.5rem; border-top: 1px solid var(--border-color);">
+                                <h4 style="margin-bottom: 1rem; font-size: 1rem; color: var(--gray-600);">Sugestões de Reposição</h4>
+                                <div id="restockSuggestions" style="max-height: 200px; overflow-y: auto;">
+                                    <!-- Sugestões serão inseridas aqui via JavaScript -->
+                                </div>
+                            </div>
                         </div>
                         <div class="groups-content">
                             <div id="groupsList" class="groups-list">
@@ -421,6 +437,14 @@
                                 <div class="stat-item" style="background: #d4edda; border: 1px solid #28a745;">
                                     <h4>Serviços Registrados</h4>
                                     <p id="servicesTotalCount" style="color: #155724; font-size: 1.6rem;">0</p>
+                                </div>
+                                <div class="stat-item" style="background: #e7f3ff; border: 1px solid #007bff;">
+                                    <h4>Valor Médio por Hora</h4>
+                                    <p id="servicesAvgValuePerHour" style="color: #004085;">R$ 0,00</p>
+                                </div>
+                                <div class="stat-item" style="background: #f8d7da; border: 1px solid #dc3545;">
+                                    <h4>Média de Horas por Serviço</h4>
+                                    <p id="servicesAvgHoursPerService" style="color: #721c24;">0h 0min</p>
                                 </div>
                             </div>
                         </div>
