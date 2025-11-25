@@ -1087,6 +1087,16 @@ class LojaApp {
             
             // Gerar QR code se estiver editando (apenas para produtos físicos)
             if (item.id && item.category !== 'Serviços') {
+                // Se não tiver código QR, gerar um
+                if (!item.qrCodeNumber) {
+                    item.qrCodeNumber = this.generateQRCodeNumber();
+                    // Atualizar no array
+                    const index = this.items.findIndex(i => i.id === item.id);
+                    if (index !== -1) {
+                        this.items[index] = item;
+                        this.saveData();
+                    }
+                }
                 this.generateQRCode(item.id);
             } else if (item.category === 'Serviços') {
                 // Esconder seção de QR code para serviços
@@ -1224,6 +1234,17 @@ class LojaApp {
             return;
         }
 
+        // Gerar código QR numérico exclusivo para produtos físicos
+        if (item.category !== 'Serviços') {
+            if (this.currentEditingItem && this.currentEditingItem.qrCodeNumber) {
+                // Manter código existente ao editar
+                item.qrCodeNumber = this.currentEditingItem.qrCodeNumber;
+            } else {
+                // Gerar novo código ao criar
+                item.qrCodeNumber = this.generateQRCodeNumber();
+            }
+        }
+
         if (this.currentEditingItem) {
             const index = this.items.findIndex(
                 (i) => i.id === this.currentEditingItem.id
@@ -1251,6 +1272,26 @@ class LojaApp {
 
     // ========== FUNÇÕES QR CODE ==========
     
+    // Gerar código numérico único (9 dígitos usando apenas 1-9)
+    generateQRCodeNumber() {
+        let code = '';
+        const digits = '123456789';
+        
+        // Gerar código de 9 dígitos
+        for (let i = 0; i < 9; i++) {
+            code += digits.charAt(Math.floor(Math.random() * digits.length));
+        }
+        
+        // Verificar se o código já existe (muito improvável, mas por segurança)
+        const existingItem = this.items.find(item => item.qrCodeNumber === code);
+        if (existingItem) {
+            // Se existir, gerar novamente (recursão com limite)
+            return this.generateQRCodeNumber();
+        }
+        
+        return code;
+    }
+    
     generateQRCode(itemId) {
         if (!window.QRCode) {
             console.error('Biblioteca QRCode não carregada');
@@ -1262,7 +1303,15 @@ class LojaApp {
         
         if (!canvas || !section) return;
 
-        const qrData = `ITEM:${itemId}`;
+        // Buscar o item para obter o código numérico
+        const item = this.items.find(i => i.id === itemId);
+        if (!item || !item.qrCodeNumber) {
+            console.error('Item não encontrado ou sem código QR');
+            return;
+        }
+
+        // Usar o código numérico no QR Code
+        const qrData = item.qrCodeNumber;
         
         QRCode.toCanvas(canvas, qrData, {
             width: 200,
@@ -1290,7 +1339,15 @@ class LojaApp {
         const canvas = document.getElementById(canvasId);
         if (!canvas) return;
 
-        const qrData = `ITEM:${itemId}`;
+        // Buscar o item para obter o código numérico
+        const item = this.items.find(i => i.id === itemId);
+        if (!item || !item.qrCodeNumber) {
+            console.error('Item não encontrado ou sem código QR');
+            return;
+        }
+
+        // Usar o código numérico no QR Code
+        const qrData = item.qrCodeNumber;
         
         QRCode.toCanvas(canvas, qrData, {
             width: 300,
@@ -1455,19 +1512,28 @@ class LojaApp {
     }
 
     handleQRScanned(qrData) {
-        // Extrair ID do produto
-        let itemId = null;
+        // Limpar espaços e caracteres especiais
+        const cleanData = qrData.trim();
         
-        if (qrData.startsWith('ITEM:')) {
-            itemId = qrData.replace('ITEM:', '');
-        } else {
-            // Tentar como ID direto (compatibilidade)
-            itemId = qrData;
+        // Buscar item pelo código numérico QR (prioridade)
+        let item = this.items.find(i => i.qrCodeNumber === cleanData);
+        
+        // Se não encontrar pelo código numérico, tentar compatibilidade com formato antigo
+        if (!item) {
+            let itemId = null;
+            
+            if (cleanData.startsWith('ITEM:')) {
+                itemId = cleanData.replace('ITEM:', '');
+            } else {
+                // Tentar como ID direto (compatibilidade com QR codes antigos)
+                itemId = cleanData;
+            }
+            
+            item = this.items.find(i => i.id === itemId);
         }
-
-        const item = this.items.find(i => i.id === itemId);
         
         if (item) {
+            const itemId = item.id;
             // Preencher campo de item
             const saleItemSelect = document.getElementById('saleItem');
             if (saleItemSelect) {
