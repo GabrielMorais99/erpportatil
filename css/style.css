@@ -306,17 +306,7 @@ body {
     }
 }
 
-/* Estados de validação para inputs */
-.form-group input:invalid:not(:focus):not(:placeholder-shown),
-.form-group select:invalid:not(:focus):not(:placeholder-shown) {
-    border-color: var(--primary-color);
-    background-color: #fee;
-}
-
-.form-group input:valid:not(:focus):not(:placeholder-shown),
-.form-group select:valid:not(:focus):not(:placeholder-shown) {
-    border-color: #28a745;
-}
+/* Estados de validação para inputs - removido para manter apenas mensagens de erro/sucesso */
 
 .btn-primary {
     padding: 0.75rem 1.5rem;
