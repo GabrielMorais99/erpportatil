@@ -3452,13 +3452,20 @@ class LojaApp {
         }
 
         // Adicionar active ao conteúdo da aba selecionada
-        const tabContent = document.getElementById(`${tab}Tab`);
+        let tabContent = document.getElementById(`${tab}Tab`);
+        
+        // Se não encontrar, pode ser que o tab seja 'servicesDashboard' mas o ID seja diferente
+        if (!tabContent && tab === 'servicesDashboard') {
+            tabContent = document.getElementById('servicesDashboardTab');
+        }
+        
         if (tabContent) {
             tabContent.classList.add('active');
         } else {
             console.warn(
                 `⚠️ [SWITCH TAB] Conteúdo da aba "${tab}Tab" não encontrado`
             );
+            console.warn(`⚠️ [SWITCH TAB] Tentando encontrar elemento com ID: ${tab}Tab`);
         }
 
         // Se for a aba dashboard, renderizar os gráficos
