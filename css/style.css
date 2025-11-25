@@ -1430,41 +1430,19 @@ body {
 
 /* Footer */
 .footer {
-    background-color: var(--primary-color);
-    background-image: url('/images/icone-e-transicao.jpg');
-    background-size: contain;
-    background-position: center;
-    background-repeat: no-repeat;
-    background-blend-mode: overlay;
-    color: var(--white);
+    background-color: #000000 !important; /* Preto fixo, não altera com tema */
+    color: #ffffff !important; /* Branco fixo */
     text-align: center;
     padding: 1rem;
     margin-top: auto;
     font-size: 0.9rem;
-    position: relative;
-}
-
-.footer::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background-color: var(--primary-color);
-    opacity: 0.85;
-    z-index: 0;
-}
-
-.footer p {
-    position: relative;
-    z-index: 1;
 }
 
 .footer-text-cursive {
     font-family: 'Dancing Script', cursive;
     font-size: 1.5rem;
     font-weight: 600;
+    color: #ffffff !important; /* Branco fixo */
 }
 
 /* Dashboard Styles */
