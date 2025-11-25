@@ -110,23 +110,21 @@
                 </div>
 
                 <div class="content-tabs">
-                    <button class="tab-btn" data-tab="dashboard" title="Dashboard">
-                        <i class="fas fa-chart-line"></i> <span class="btn-text">Dashboard</span>
+                    <!-- Dashboards agrupados -->
+                    <button class="tab-btn" id="dashboardToggleBtn" data-tab="dashboard" title="Dashboard Vendas">
+                        <i class="fas fa-chart-line"></i> <span class="btn-text">Dashboard Vendas</span>
                     </button>
-                    <button class="tab-btn active" data-tab="items" title="Itens">
+                    <button class="tab-btn" data-tab="items" title="Itens">
                         <i class="fas fa-box"></i> <span class="btn-text">Itens</span>
                     </button>
                     <button class="tab-btn" data-tab="groups" title="Grupos Mensais">
                         <i class="fas fa-calendar-check"></i> <span class="btn-text">Grupos Mensais</span>
                     </button>
-                    <button class="tab-btn" data-tab="costs" title="Custos de Compra">
-                        <i class="fas fa-receipt"></i> <span class="btn-text">Custos de Compra</span>
-                    </button>
-                    <button class="tab-btn" data-tab="servicesDashboard" title="Dashboard Serviços">
-                        <i class="fas fa-chart-pie"></i> <span class="btn-text">Dashboard Serviços</span>
-                    </button>
                     <button class="tab-btn" data-tab="services" title="Serviços">
                         <i class="fas fa-briefcase"></i> <span class="btn-text">Serviços</span>
+                    </button>
+                    <button class="tab-btn" data-tab="costs" title="Custos de Compra">
+                        <i class="fas fa-receipt"></i> <span class="btn-text">Custos de Compra</span>
                     </button>
                     <button class="tab-btn" data-tab="goals" title="Metas">
                         <i class="fas fa-bullseye"></i> <span class="btn-text">Metas</span>
@@ -140,7 +138,7 @@
                     </div>
                     </div>
 
-                <!-- Tab: Dashboard (Vendas) -->
+                <!-- Tab: Dashboard Vendas -->
                 <div id="dashboardTab" class="tab-content">
                     <div class="dashboard-container">
                         <div class="dashboard-filters">

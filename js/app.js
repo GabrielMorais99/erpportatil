@@ -17,6 +17,7 @@ class LojaApp {
         this.currentEditingCost = null;
         this.currentEditingGoal = null;
         this.currentQRScanner = null; // Scanner de QR code
+        this.currentDashboardType = 'sales'; // 'sales' ou 'services'
 
         this.init();
     }
