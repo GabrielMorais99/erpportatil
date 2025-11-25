@@ -3388,6 +3388,37 @@ class LojaApp {
 
     // ========== UTILITÁRIOS ==========
 
+    toggleDashboard() {
+        // Alternar entre dashboard de vendas e serviços
+        if (this.currentDashboardType === 'sales') {
+            this.currentDashboardType = 'services';
+            this.switchTab('servicesDashboard');
+            this.updateDashboardButtonText('services');
+        } else {
+            this.currentDashboardType = 'sales';
+            this.switchTab('dashboard');
+            this.updateDashboardButtonText('sales');
+        }
+    }
+
+    updateDashboardButtonText(type) {
+        const btn = document.getElementById('dashboardToggleBtn');
+        if (!btn) return;
+
+        const icon = btn.querySelector('i');
+        const text = btn.querySelector('.btn-text');
+        
+        if (type === 'services') {
+            if (icon) icon.className = 'fas fa-chart-pie';
+            if (text) text.textContent = 'Dashboard Serviços';
+            btn.title = 'Dashboard Serviços';
+        } else {
+            if (icon) icon.className = 'fas fa-chart-line';
+            if (text) text.textContent = 'Dashboard Vendas';
+            btn.title = 'Dashboard Vendas';
+        }
+    }
+
     switchTab(tab) {
         if (!tab) {
             console.warn('⚠️ [SWITCH TAB] Tab não especificado');
@@ -3407,9 +3438,17 @@ class LojaApp {
         if (tabBtn) {
             tabBtn.classList.add('active');
         } else {
-            console.warn(
-                `⚠️ [SWITCH TAB] Botão da aba "${tab}" não encontrado`
-            );
+            // Se não encontrar pelo data-tab, tentar pelo ID (para dashboard toggle)
+            if (tab === 'dashboard' || tab === 'servicesDashboard') {
+                const dashboardBtn = document.getElementById('dashboardToggleBtn');
+                if (dashboardBtn) {
+                    dashboardBtn.classList.add('active');
+                }
+            } else {
+                console.warn(
+                    `⚠️ [SWITCH TAB] Botão da aba "${tab}" não encontrado`
+                );
+            }
         }
 
         // Adicionar active ao conteúdo da aba selecionada
