@@ -376,32 +376,50 @@ class LojaApp {
         // Tutorial
         const closeTutorialBtn = document.getElementById('closeTutorialBtn');
         const startTutorialBtn = document.getElementById('startTutorialBtn');
-        const tutorialModalClose = document.querySelector('#tutorialModal .close');
-        const closeTutorialTooltip = document.getElementById('closeTutorialTooltip');
+        const tutorialModalClose = document.querySelector(
+            '#tutorialModal .close'
+        );
+        const closeTutorialTooltip = document.getElementById(
+            'closeTutorialTooltip'
+        );
         const tutorialNextBtn = document.getElementById('tutorialNextBtn');
         const tutorialPrevBtn = document.getElementById('tutorialPrevBtn');
         const tutorialSkipBtn = document.getElementById('tutorialSkipBtn');
 
         if (closeTutorialBtn) {
-            closeTutorialBtn.addEventListener('click', () => this.closeTutorialModal());
+            closeTutorialBtn.addEventListener('click', () =>
+                this.closeTutorialModal()
+            );
         }
         if (startTutorialBtn) {
-            startTutorialBtn.addEventListener('click', () => this.startInteractiveTutorial());
+            startTutorialBtn.addEventListener('click', () =>
+                this.startInteractiveTutorial()
+            );
         }
         if (tutorialModalClose) {
-            tutorialModalClose.addEventListener('click', () => this.closeTutorialModal());
+            tutorialModalClose.addEventListener('click', () =>
+                this.closeTutorialModal()
+            );
         }
         if (closeTutorialTooltip) {
-            closeTutorialTooltip.addEventListener('click', () => this.closeTutorialTooltip());
+            closeTutorialTooltip.addEventListener('click', () =>
+                this.closeTutorialTooltip()
+            );
         }
         if (tutorialNextBtn) {
-            tutorialNextBtn.addEventListener('click', () => this.nextTutorialStep());
+            tutorialNextBtn.addEventListener('click', () =>
+                this.nextTutorialStep()
+            );
         }
         if (tutorialPrevBtn) {
-            tutorialPrevBtn.addEventListener('click', () => this.prevTutorialStep());
+            tutorialPrevBtn.addEventListener('click', () =>
+                this.prevTutorialStep()
+            );
         }
         if (tutorialSkipBtn) {
-            tutorialSkipBtn.addEventListener('click', () => this.skipTutorial());
+            tutorialSkipBtn.addEventListener('click', () =>
+                this.skipTutorial()
+            );
         }
 
         // Verificar se é primeira vez e mostrar tutorial
@@ -409,12 +427,16 @@ class LojaApp {
 
         // Tabs
         const tabBtns = document.querySelectorAll('.tab-btn');
-        const dashboardToggleBtn = document.getElementById('dashboardToggleBtn');
+        const dashboardToggleBtn =
+            document.getElementById('dashboardToggleBtn');
         if (tabBtns.length > 0) {
             tabBtns.forEach((btn) => {
                 btn.addEventListener('click', (e) => {
                     // Se for o botão de toggle do dashboard, chamar toggleDashboard()
-                    if (btn.id === 'dashboardToggleBtn' || btn === dashboardToggleBtn) {
+                    if (
+                        btn.id === 'dashboardToggleBtn' ||
+                        btn === dashboardToggleBtn
+                    ) {
                         e.preventDefault();
                         e.stopPropagation();
                         this.toggleDashboard();
@@ -453,8 +475,12 @@ class LojaApp {
         }
 
         // Dashboard de Serviços
-        const refreshServicesDashboard = document.getElementById('refreshServicesDashboard');
-        const servicesPeriodFilter = document.getElementById('servicesPeriodFilter');
+        const refreshServicesDashboard = document.getElementById(
+            'refreshServicesDashboard'
+        );
+        const servicesPeriodFilter = document.getElementById(
+            'servicesPeriodFilter'
+        );
 
         if (refreshServicesDashboard) {
             refreshServicesDashboard.addEventListener('click', () => {
@@ -525,7 +551,7 @@ class LojaApp {
         } else {
             console.error('❌ [APP.JS] itemModal .close não encontrado!');
         }
-        
+
         // Fechar modal ao clicar fora dele
         const itemModal = document.getElementById('itemModal');
         if (itemModal) {
@@ -539,15 +565,18 @@ class LojaApp {
         // QR Code - Modal de Item
         const downloadQRBtn = document.getElementById('downloadQRBtn');
         const printQRBtn = document.getElementById('printQRBtn');
-        
+
         if (downloadQRBtn) {
             downloadQRBtn.addEventListener('click', () => {
                 if (this.currentEditingItem) {
-                    this.downloadQRCode('qrcodeCanvas', `qrcode-${this.currentEditingItem.id}.png`);
+                    this.downloadQRCode(
+                        'qrcodeCanvas',
+                        `qrcode-${this.currentEditingItem.id}.png`
+                    );
                 }
             });
         }
-        
+
         if (printQRBtn) {
             printQRBtn.addEventListener('click', () => {
                 this.printQRCode('qrcodeCanvas');
@@ -557,13 +586,13 @@ class LojaApp {
         // QR Code - Modal de Venda (Scanner)
         const scanQRBtn = document.getElementById('scanQRBtn');
         const stopScanBtn = document.getElementById('stopScanBtn');
-        
+
         if (scanQRBtn) {
             scanQRBtn.addEventListener('click', () => {
                 this.startQRScanner();
             });
         }
-        
+
         if (stopScanBtn) {
             stopScanBtn.addEventListener('click', () => {
                 this.stopQRScanner();
@@ -572,24 +601,30 @@ class LojaApp {
 
         // QR Code - Modal Dedicado
         const qrcodeModalClose = document.querySelector('#qrcodeModal .close');
-        const downloadQRModalBtn = document.getElementById('downloadQRModalBtn');
+        const downloadQRModalBtn =
+            document.getElementById('downloadQRModalBtn');
         const printQRModalBtn = document.getElementById('printQRModalBtn');
-        
+
         if (qrcodeModalClose) {
             qrcodeModalClose.addEventListener('click', () => {
-                document.getElementById('qrcodeModal').classList.remove('active');
+                document
+                    .getElementById('qrcodeModal')
+                    .classList.remove('active');
             });
         }
-        
+
         if (downloadQRModalBtn) {
             downloadQRModalBtn.addEventListener('click', () => {
                 const itemId = downloadQRModalBtn.dataset.itemId;
                 if (itemId) {
-                    this.downloadQRCode('qrcodeModalCanvas', `qrcode-${itemId}.png`);
+                    this.downloadQRCode(
+                        'qrcodeModalCanvas',
+                        `qrcode-${itemId}.png`
+                    );
                 }
             });
         }
-        
+
         if (printQRModalBtn) {
             printQRModalBtn.addEventListener('click', () => {
                 this.printQRCode('qrcodeModalCanvas');
@@ -609,43 +644,66 @@ class LojaApp {
         }
 
         // Modal de grupo de serviços
-        const newServiceGroupBtn = document.getElementById('newServiceGroupBtn');
+        const newServiceGroupBtn =
+            document.getElementById('newServiceGroupBtn');
         const serviceGroupForm = document.getElementById('serviceGroupForm');
-        const cancelServiceGroupBtn = document.getElementById('cancelServiceGroupBtn');
-        const serviceGroupModalClose = document.querySelector('#serviceGroupModal .close');
+        const cancelServiceGroupBtn = document.getElementById(
+            'cancelServiceGroupBtn'
+        );
+        const serviceGroupModalClose = document.querySelector(
+            '#serviceGroupModal .close'
+        );
 
         if (newServiceGroupBtn) {
-            newServiceGroupBtn.addEventListener('click', () => this.openServiceGroupModal());
+            newServiceGroupBtn.addEventListener('click', () =>
+                this.openServiceGroupModal()
+            );
         }
 
         if (serviceGroupForm) {
-            serviceGroupForm.addEventListener('submit', (e) => this.createServiceGroup(e));
+            serviceGroupForm.addEventListener('submit', (e) =>
+                this.createServiceGroup(e)
+            );
         }
 
         if (cancelServiceGroupBtn) {
-            cancelServiceGroupBtn.addEventListener('click', () => this.closeServiceGroupModal());
+            cancelServiceGroupBtn.addEventListener('click', () =>
+                this.closeServiceGroupModal()
+            );
         }
 
         if (serviceGroupModalClose) {
-            serviceGroupModalClose.addEventListener('click', () => this.closeServiceGroupModal());
+            serviceGroupModalClose.addEventListener('click', () =>
+                this.closeServiceGroupModal()
+            );
         }
 
         // Modal de registro de serviço
         const serviceRecordForm = document.getElementById('serviceRecordForm');
-        const cancelServiceRecordBtn = document.getElementById('cancelServiceRecordBtn');
-        const serviceRecordModalClose = document.querySelector('#serviceRecordModal .close');
+        const cancelServiceRecordBtn = document.getElementById(
+            'cancelServiceRecordBtn'
+        );
+        const serviceRecordModalClose = document.querySelector(
+            '#serviceRecordModal .close'
+        );
         const serviceRecordItem = document.getElementById('serviceRecordItem');
 
         if (serviceRecordForm) {
-            serviceRecordForm.addEventListener('submit', (e) => this.saveServiceRecord(e));
+            serviceRecordForm.addEventListener('submit', (e) =>
+                this.saveServiceRecord(e)
+            );
         }
 
         if (cancelServiceRecordBtn) {
-            cancelServiceRecordBtn.addEventListener('click', () => this.closeServiceRecordModal());
+            cancelServiceRecordBtn.addEventListener('click', () =>
+                this.closeServiceRecordModal()
+            );
         }
 
         if (serviceRecordModalClose) {
-            serviceRecordModalClose.addEventListener('click', () => this.closeServiceRecordModal());
+            serviceRecordModalClose.addEventListener('click', () =>
+                this.closeServiceRecordModal()
+            );
         }
 
         // Preencher horas padrão ao selecionar serviço
@@ -653,12 +711,16 @@ class LojaApp {
             serviceRecordItem.addEventListener('change', () => {
                 const itemId = serviceRecordItem.value;
                 if (itemId) {
-                    const item = this.items.find(i => i.id === itemId);
+                    const item = this.items.find((i) => i.id === itemId);
                     if (item && item.category === 'Serviços') {
-                        const hoursInput = document.getElementById('serviceRecordHours');
-                        const minutesInput = document.getElementById('serviceRecordMinutes');
-                        const priceInput = document.getElementById('serviceRecordPrice');
-                        
+                        const hoursInput =
+                            document.getElementById('serviceRecordHours');
+                        const minutesInput = document.getElementById(
+                            'serviceRecordMinutes'
+                        );
+                        const priceInput =
+                            document.getElementById('serviceRecordPrice');
+
                         if (hoursInput && item.defaultHours !== undefined) {
                             hoursInput.value = item.defaultHours || 0;
                         }
@@ -674,9 +736,13 @@ class LojaApp {
         }
 
         // Modal de visualização de grupo de serviços
-        const viewServiceGroupModalClose = document.querySelector('#viewServiceGroupModal .close');
+        const viewServiceGroupModalClose = document.querySelector(
+            '#viewServiceGroupModal .close'
+        );
         if (viewServiceGroupModalClose) {
-            viewServiceGroupModalClose.addEventListener('click', () => this.closeViewServiceGroupModal());
+            viewServiceGroupModalClose.addEventListener('click', () =>
+                this.closeViewServiceGroupModal()
+            );
         }
 
         if (cancelGroupBtn) {
@@ -1002,7 +1068,7 @@ class LojaApp {
                 serviceName.required = false;
             }
         }
-        
+
         // Adicionar lógica para Serviços
         if (category === 'Serviços') {
             // Esconder campos básicos (Nome e Marca)
@@ -1033,14 +1099,18 @@ class LojaApp {
             document.getElementById('itemModel').value = '';
             document.getElementById('itemCapacity').value = '';
             document.getElementById('itemColor').value = '';
-        } else if (category !== 'Roupas' && category !== 'Eletrônicos' && category !== 'Serviços') {
+        } else if (
+            category !== 'Roupas' &&
+            category !== 'Eletrônicos' &&
+            category !== 'Serviços'
+        ) {
             // Se não for nenhuma categoria específica, esconder campos de serviços também
             if (servicesFields) servicesFields.style.display = 'none';
             if (serviceName) {
                 serviceName.required = false;
             }
         }
-        
+
         // Garantir que serviceName não seja required quando categoria for Roupas
         if (category === 'Roupas' && serviceName) {
             serviceName.required = false;
@@ -1074,24 +1144,30 @@ class LojaApp {
                 document.getElementById('itemColor').value = item.color || '';
             } else if (item.category === 'Serviços') {
                 document.getElementById('serviceName').value = item.name || '';
-                document.getElementById('serviceDescription').value = item.description || '';
-                document.getElementById('serviceDuration').value = item.duration || '';
-                document.getElementById('serviceType').value = item.serviceType || '';
-                document.getElementById('serviceUnit').value = item.serviceUnit || 'Unidades';
-                document.getElementById('serviceDefaultHours').value = item.defaultHours || 0;
-                document.getElementById('serviceDefaultMinutes').value = item.defaultMinutes || 0;
+                document.getElementById('serviceDescription').value =
+                    item.description || '';
+                document.getElementById('serviceDuration').value =
+                    item.duration || '';
+                document.getElementById('serviceType').value =
+                    item.serviceType || '';
+                document.getElementById('serviceUnit').value =
+                    item.serviceUnit || 'Unidades';
+                document.getElementById('serviceDefaultHours').value =
+                    item.defaultHours || 0;
+                document.getElementById('serviceDefaultMinutes').value =
+                    item.defaultMinutes || 0;
             }
 
             // Atualizar campos visíveis
             this.toggleCategoryFields();
-            
+
             // Gerar QR code se estiver editando (apenas para produtos físicos)
             if (item.id && item.category !== 'Serviços') {
                 // Se não tiver código QR, gerar um
                 if (!item.qrCodeNumber) {
                     item.qrCodeNumber = this.generateQRCodeNumber();
                     // Atualizar no array
-                    const index = this.items.findIndex(i => i.id === item.id);
+                    const index = this.items.findIndex((i) => i.id === item.id);
                     if (index !== -1) {
                         this.items[index] = item;
                         this.saveData();
@@ -1111,20 +1187,20 @@ class LojaApp {
             document.getElementById('electronicsFields').style.display = 'none';
             const servicesFields = document.getElementById('servicesFields');
             if (servicesFields) servicesFields.style.display = 'none';
-            
+
             // Remover required de serviceName ao criar novo item
             const serviceName = document.getElementById('serviceName');
             if (serviceName) {
                 serviceName.required = false;
             }
-            
+
             // Mostrar campos básicos por padrão (serão escondidos quando categoria for selecionada)
             const clothingBasicFields = document.getElementById(
                 'clothingBasicFields'
             );
             if (clothingBasicFields)
                 clothingBasicFields.style.display = 'block';
-            
+
             // Esconder seção de QR code ao criar novo item
             const qrcodeSection = document.getElementById('qrcodeSection');
             if (qrcodeSection) qrcodeSection.style.display = 'none';
@@ -1145,11 +1221,11 @@ class LojaApp {
             }, 300);
         }
         this.currentEditingItem = null;
-        
+
         // Esconder seção de QR code
         const qrcodeSection = document.getElementById('qrcodeSection');
         if (qrcodeSection) qrcodeSection.style.display = 'none';
-        
+
         // Limpar formulário
         const form = document.getElementById('itemForm');
         if (form) {
@@ -1208,13 +1284,24 @@ class LojaApp {
             item.color = color || '';
         } else if (category === 'Serviços') {
             item.name = document.getElementById('serviceName').value.trim();
-            item.description = document.getElementById('serviceDescription').value.trim() || '';
-            item.duration = document.getElementById('serviceDuration').value.trim() || '';
-            item.serviceType = document.getElementById('serviceType').value || '';
-            item.serviceUnit = document.getElementById('serviceUnit').value || 'Unidades';
+            item.description =
+                document.getElementById('serviceDescription').value.trim() ||
+                '';
+            item.duration =
+                document.getElementById('serviceDuration').value.trim() || '';
+            item.serviceType =
+                document.getElementById('serviceType').value || '';
+            item.serviceUnit =
+                document.getElementById('serviceUnit').value || 'Unidades';
             // Horas padrão do serviço
-            const defaultHours = parseInt(document.getElementById('serviceDefaultHours').value) || 0;
-            const defaultMinutes = parseInt(document.getElementById('serviceDefaultMinutes').value) || 0;
+            const defaultHours =
+                parseInt(
+                    document.getElementById('serviceDefaultHours').value
+                ) || 0;
+            const defaultMinutes =
+                parseInt(
+                    document.getElementById('serviceDefaultMinutes').value
+                ) || 0;
             item.defaultHours = defaultHours;
             item.defaultMinutes = defaultMinutes;
             item.brand = ''; // Não usado para serviços
@@ -1260,7 +1347,9 @@ class LojaApp {
         }
 
         if (item.price <= 0 || isNaN(item.price)) {
-            this.showError('O preço deve ser um valor numérico maior que zero.');
+            this.showError(
+                'O preço deve ser um valor numérico maior que zero.'
+            );
             if (submitBtn) {
                 submitBtn.disabled = false;
                 submitBtn.classList.remove('loading');
@@ -1270,7 +1359,10 @@ class LojaApp {
 
         // Gerar código QR numérico exclusivo para produtos físicos
         if (item.category !== 'Serviços') {
-            if (this.currentEditingItem && this.currentEditingItem.qrCodeNumber) {
+            if (
+                this.currentEditingItem &&
+                this.currentEditingItem.qrCodeNumber
+            ) {
                 // Manter código existente ao editar
                 item.qrCodeNumber = this.currentEditingItem.qrCodeNumber;
             } else {
@@ -1299,10 +1391,14 @@ class LojaApp {
         this.saveData();
         this.renderItems();
         this.closeItemModal();
-        
+
         // Mostrar mensagem de sucesso
-        this.showSuccess(this.currentEditingItem ? 'Item atualizado com sucesso!' : 'Item cadastrado com sucesso!');
-        
+        this.showSuccess(
+            this.currentEditingItem
+                ? 'Item atualizado com sucesso!'
+                : 'Item cadastrado com sucesso!'
+        );
+
         // Gerar QR code após salvar (apenas para produtos físicos)
         if (item.id && item.category !== 'Serviços') {
             this.generateQRCode(item.id);
@@ -1314,21 +1410,22 @@ class LojaApp {
     }
 
     // Função auxiliar para animar valores numéricos
-    animateValue(element, startValue, endValue, duration = 800, format = null) {
+    animateValue(element, startValue, endValue, duration = 400, format = null) {
         if (!element) return;
-        
+
         const startTime = performance.now();
         const isNumeric = typeof endValue === 'number';
-        
+
         const animate = (currentTime) => {
             const elapsed = currentTime - startTime;
             const progress = Math.min(elapsed / duration, 1);
-            
+
             // Easing function (ease-out)
             const easeOut = 1 - Math.pow(1 - progress, 3);
-            
+
             if (isNumeric) {
-                const currentValue = startValue + (endValue - startValue) * easeOut;
+                const currentValue =
+                    startValue + (endValue - startValue) * easeOut;
                 if (format) {
                     element.textContent = format(currentValue);
                 } else {
@@ -1338,7 +1435,7 @@ class LojaApp {
                 // Para valores não numéricos, apenas aplicar fade in
                 element.style.opacity = easeOut;
             }
-            
+
             if (progress < 1) {
                 requestAnimationFrame(animate);
             } else {
@@ -1357,7 +1454,7 @@ class LojaApp {
                 }, 500);
             }
         };
-        
+
         requestAnimationFrame(animate);
     }
 
@@ -1365,10 +1462,10 @@ class LojaApp {
     updateValueWithAnimation(elementId, value, format = null) {
         const element = document.getElementById(elementId);
         if (!element) return;
-        
+
         const currentValue = element.textContent.trim();
         let startValue = 0;
-        
+
         // Tentar extrair número do valor atual
         if (format) {
             const match = currentValue.match(/[\d,]+\.?\d*/);
@@ -1378,8 +1475,8 @@ class LojaApp {
         } else {
             startValue = parseInt(currentValue) || 0;
         }
-        
-        this.animateValue(element, startValue, value, 600, format);
+
+        this.animateValue(element, startValue, value, 300, format);
     }
 
     // Funções auxiliares para feedback visual
@@ -1436,7 +1533,12 @@ class LojaApp {
             if (form) {
                 form.insertBefore(successDiv, form.firstChild);
             } else {
-                activeModal.querySelector('.modal-content').insertBefore(successDiv, activeModal.querySelector('.modal-content').firstChild);
+                activeModal
+                    .querySelector('.modal-content')
+                    .insertBefore(
+                        successDiv,
+                        activeModal.querySelector('.modal-content').firstChild
+                    );
             }
         } else {
             // Se não houver modal, inserir no topo do main-content
@@ -1454,27 +1556,29 @@ class LojaApp {
     }
 
     // ========== FUNÇÕES QR CODE ==========
-    
+
     // Gerar código numérico único (9 dígitos usando apenas 1-9)
     generateQRCodeNumber() {
         let code = '';
         const digits = '123456789';
-        
+
         // Gerar código de 9 dígitos
         for (let i = 0; i < 9; i++) {
             code += digits.charAt(Math.floor(Math.random() * digits.length));
         }
-        
+
         // Verificar se o código já existe (muito improvável, mas por segurança)
-        const existingItem = this.items.find(item => item.qrCodeNumber === code);
+        const existingItem = this.items.find(
+            (item) => item.qrCodeNumber === code
+        );
         if (existingItem) {
             // Se existir, gerar novamente (recursão com limite)
             return this.generateQRCodeNumber();
         }
-        
+
         return code;
     }
-    
+
     generateQRCode(itemId) {
         if (!window.QRCode) {
             console.error('Biblioteca QRCode não carregada');
@@ -1483,11 +1587,11 @@ class LojaApp {
 
         const canvas = document.getElementById('qrcodeCanvas');
         const section = document.getElementById('qrcodeSection');
-        
+
         if (!canvas || !section) return;
 
         // Buscar o item para obter o código numérico
-        const item = this.items.find(i => i.id === itemId);
+        const item = this.items.find((i) => i.id === itemId);
         if (!item || !item.qrCodeNumber) {
             console.error('Item não encontrado ou sem código QR');
             return;
@@ -1495,22 +1599,27 @@ class LojaApp {
 
         // Usar o código numérico no QR Code
         const qrData = item.qrCodeNumber;
-        
-        QRCode.toCanvas(canvas, qrData, {
-            width: 200,
-            margin: 2,
-            color: {
-                dark: '#000000',
-                light: '#FFFFFF'
+
+        QRCode.toCanvas(
+            canvas,
+            qrData,
+            {
+                width: 200,
+                margin: 2,
+                color: {
+                    dark: '#000000',
+                    light: '#FFFFFF',
+                },
+            },
+            (error) => {
+                if (error) {
+                    console.error('Erro ao gerar QR code:', error);
+                    alert('Erro ao gerar QR code');
+                } else {
+                    section.style.display = 'block';
+                }
             }
-        }, (error) => {
-            if (error) {
-                console.error('Erro ao gerar QR code:', error);
-                alert('Erro ao gerar QR code');
-            } else {
-                section.style.display = 'block';
-            }
-        });
+        );
     }
 
     generateQRCodeForModal(itemId, canvasId) {
@@ -1523,7 +1632,7 @@ class LojaApp {
         if (!canvas) return;
 
         // Buscar o item para obter o código numérico
-        const item = this.items.find(i => i.id === itemId);
+        const item = this.items.find((i) => i.id === itemId);
         if (!item || !item.qrCodeNumber) {
             console.error('Item não encontrado ou sem código QR');
             return;
@@ -1531,31 +1640,36 @@ class LojaApp {
 
         // Usar o código numérico no QR Code
         const qrData = item.qrCodeNumber;
-        
-        QRCode.toCanvas(canvas, qrData, {
-            width: 300,
-            margin: 2,
-            color: {
-                dark: '#000000',
-                light: '#FFFFFF'
+
+        QRCode.toCanvas(
+            canvas,
+            qrData,
+            {
+                width: 300,
+                margin: 2,
+                color: {
+                    dark: '#000000',
+                    light: '#FFFFFF',
+                },
+            },
+            (error) => {
+                if (error) {
+                    console.error('Erro ao gerar QR code:', error);
+                    alert('Erro ao gerar QR code');
+                }
             }
-        }, (error) => {
-            if (error) {
-                console.error('Erro ao gerar QR code:', error);
-                alert('Erro ao gerar QR code');
-            }
-        });
+        );
     }
 
     showQRCodeModal(itemId) {
-        const item = this.items.find(i => i.id === itemId);
+        const item = this.items.find((i) => i.id === itemId);
         if (!item) return;
 
         const modal = document.getElementById('qrcodeModal');
         const canvas = document.getElementById('qrcodeModalCanvas');
         const itemNameEl = document.getElementById('qrcodeItemName');
         const downloadBtn = document.getElementById('downloadQRModalBtn');
-        
+
         if (!modal || !canvas || !itemNameEl) return;
 
         itemNameEl.textContent = this.getItemName(itemId);
@@ -1616,13 +1730,15 @@ class LojaApp {
 
     startQRScanner() {
         if (!window.Html5Qrcode) {
-            alert('Biblioteca de scanner não carregada. Verifique sua conexão.');
+            alert(
+                'Biblioteca de scanner não carregada. Verifique sua conexão.'
+            );
             return;
         }
 
         const container = document.getElementById('qrScannerContainer');
         const readerDiv = document.getElementById('qrReader');
-        
+
         if (!container || !readerDiv) return;
 
         // Parar scanner anterior se existir
@@ -1635,58 +1751,68 @@ class LojaApp {
 
         container.style.display = 'block';
 
-        const html5QrCode = new Html5Qrcode("qrReader");
-        
+        const html5QrCode = new Html5Qrcode('qrReader');
+
         // Armazenar referência ANTES de iniciar
         this.currentQRScanner = html5QrCode;
-        
-        html5QrCode.start(
-            { facingMode: "environment" }, // Câmera traseira
-            {
-                fps: 10,
-                qrbox: { width: 250, height: 250 }
-            },
-            (decodedText, decodedResult) => {
-                // QR code lido com sucesso
-                this.handleQRScanned(decodedText);
-                html5QrCode.stop().then(() => {
-                    container.style.display = 'none';
-                    this.currentQRScanner = null;
-                }).catch((err) => {
-                    console.error('Erro ao parar scanner:', err);
-                    container.style.display = 'none';
-                    this.currentQRScanner = null;
-                });
-            },
-            (errorMessage) => {
-                // Erro ignorado (continua escaneando)
-                // console.log('Erro de escaneamento:', errorMessage);
-            }
-        ).catch((err) => {
-            // Erro ao iniciar scanner (ex: permissão negada)
-            console.error('Erro ao iniciar scanner:', err);
-            alert('Erro ao acessar a câmera. Verifique as permissões ou tente novamente.');
-            container.style.display = 'none';
-            this.currentQRScanner = null;
-        });
+
+        html5QrCode
+            .start(
+                { facingMode: 'environment' }, // Câmera traseira
+                {
+                    fps: 10,
+                    qrbox: { width: 250, height: 250 },
+                },
+                (decodedText, decodedResult) => {
+                    // QR code lido com sucesso
+                    this.handleQRScanned(decodedText);
+                    html5QrCode
+                        .stop()
+                        .then(() => {
+                            container.style.display = 'none';
+                            this.currentQRScanner = null;
+                        })
+                        .catch((err) => {
+                            console.error('Erro ao parar scanner:', err);
+                            container.style.display = 'none';
+                            this.currentQRScanner = null;
+                        });
+                },
+                (errorMessage) => {
+                    // Erro ignorado (continua escaneando)
+                    // console.log('Erro de escaneamento:', errorMessage);
+                }
+            )
+            .catch((err) => {
+                // Erro ao iniciar scanner (ex: permissão negada)
+                console.error('Erro ao iniciar scanner:', err);
+                alert(
+                    'Erro ao acessar a câmera. Verifique as permissões ou tente novamente.'
+                );
+                container.style.display = 'none';
+                this.currentQRScanner = null;
+            });
     }
 
     stopQRScanner() {
         const container = document.getElementById('qrScannerContainer');
         const readerDiv = document.getElementById('qrReader');
-        
+
         if (this.currentQRScanner) {
-            this.currentQRScanner.stop().then(() => {
-                if (container) container.style.display = 'none';
-                if (readerDiv) readerDiv.innerHTML = '';
-                this.currentQRScanner = null;
-            }).catch((err) => {
-                console.error('Erro ao parar scanner:', err);
-                // Mesmo com erro, esconder o container
-                if (container) container.style.display = 'none';
-                if (readerDiv) readerDiv.innerHTML = '';
-                this.currentQRScanner = null;
-            });
+            this.currentQRScanner
+                .stop()
+                .then(() => {
+                    if (container) container.style.display = 'none';
+                    if (readerDiv) readerDiv.innerHTML = '';
+                    this.currentQRScanner = null;
+                })
+                .catch((err) => {
+                    console.error('Erro ao parar scanner:', err);
+                    // Mesmo com erro, esconder o container
+                    if (container) container.style.display = 'none';
+                    if (readerDiv) readerDiv.innerHTML = '';
+                    this.currentQRScanner = null;
+                });
         } else {
             // Se não houver scanner ativo, apenas esconder o container
             if (container) container.style.display = 'none';
@@ -1697,53 +1823,57 @@ class LojaApp {
     handleQRScanned(qrData) {
         // Limpar espaços e caracteres especiais
         const cleanData = qrData.trim();
-        
+
         // Buscar item pelo código numérico QR (prioridade)
-        let item = this.items.find(i => i.qrCodeNumber === cleanData);
-        
+        let item = this.items.find((i) => i.qrCodeNumber === cleanData);
+
         // Se não encontrar pelo código numérico, tentar compatibilidade com formato antigo
         if (!item) {
             let itemId = null;
-            
+
             if (cleanData.startsWith('ITEM:')) {
                 itemId = cleanData.replace('ITEM:', '');
             } else {
                 // Tentar como ID direto (compatibilidade com QR codes antigos)
                 itemId = cleanData;
             }
-            
-            item = this.items.find(i => i.id === itemId);
+
+            item = this.items.find((i) => i.id === itemId);
         }
-        
+
         if (item) {
             const itemId = item.id;
             // Preencher campo de item
             const saleItemSelect = document.getElementById('saleItem');
             if (saleItemSelect) {
                 saleItemSelect.value = itemId;
-                
+
                 // Disparar evento change para atualizar outros campos
                 saleItemSelect.dispatchEvent(new Event('change'));
             }
-            
+
             // Preencher preço automaticamente
             const salePriceInput = document.getElementById('salePrice');
             if (salePriceInput && item.price) {
                 salePriceInput.value = item.price;
             }
-            
+
             // Atualizar informações de estoque
             this.updateStockInfo();
-            
+
             // Feedback visual
             const saleDayInfo = document.getElementById('saleDayInfo');
             if (saleDayInfo) {
                 const originalBg = saleDayInfo.style.background;
                 saleDayInfo.style.background = '#28a745';
-                saleDayInfo.innerHTML = `<strong style="color: white;">✓ Produto selecionado: ${this.getItemName(itemId)}</strong>`;
+                saleDayInfo.innerHTML = `<strong style="color: white;">✓ Produto selecionado: ${this.getItemName(
+                    itemId
+                )}</strong>`;
                 setTimeout(() => {
                     saleDayInfo.style.background = originalBg;
-                    saleDayInfo.innerHTML = `<strong>Dia: <span id="saleDayDisplay">${this.currentSaleDay || '-'}</span></strong>`;
+                    saleDayInfo.innerHTML = `<strong>Dia: <span id="saleDayDisplay">${
+                        this.currentSaleDay || '-'
+                    }</span></strong>`;
                 }, 2000);
             }
         } else {
@@ -1893,8 +2023,9 @@ class LojaApp {
                     ${
                         item.description
                             ? `<div class="item-info">${this.escapeHtml(
-                                  item.description.length > 100 
-                                      ? item.description.substring(0, 100) + '...'
+                                  item.description.length > 100
+                                      ? item.description.substring(0, 100) +
+                                            '...'
                                       : item.description
                               )}</div>`
                             : ''
@@ -1958,7 +2089,7 @@ class LojaApp {
                 } else if (category === 'Roupas') {
                     badgeClass = 'clothing-badge';
                 }
-                
+
                 return `
             <div class="item-card">
                 <div class="item-category-badge ${badgeClass}">${this.escapeHtml(
@@ -1977,11 +2108,12 @@ class LojaApp {
                     .toFixed(2)
                     .replace('.', ',')}</div>
                 <div class="item-actions">
-                    ${category !== 'Serviços' 
-                        ? `<button class="btn-small btn-secondary" onclick="app.showQRCodeModal('${item.id}')" title="Ver QR Code">
+                    ${
+                        category !== 'Serviços'
+                            ? `<button class="btn-small btn-secondary" onclick="app.showQRCodeModal('${item.id}')" title="Ver QR Code">
                             <i class="fas fa-qrcode"></i> QR Code
                         </button>`
-                        : ''
+                            : ''
                     }
                     <button class="btn-small btn-edit" onclick="app.openItemModal(${JSON.stringify(
                         item
@@ -2119,15 +2251,22 @@ class LojaApp {
 
         // Atualizar totais do mês com animação
         this.updateValueWithAnimation('totalSales', totalSales);
-        this.updateValueWithAnimation('totalValue', totalValue, (val) => 
-            `R$ ${val.toFixed(2).replace('.', ',')}`
+        this.updateValueWithAnimation(
+            'totalValue',
+            totalValue,
+            (val) => `R$ ${val.toFixed(2).replace('.', ',')}`
         );
 
         // Calcular e atualizar totais de todos os meses com animação
         const allMonthsTotal = this.calculateTotalAllMonths();
-        this.updateValueWithAnimation('totalSalesAll', allMonthsTotal.totalSales);
-        this.updateValueWithAnimation('totalValueAll', allMonthsTotal.totalValue, (val) =>
-            `R$ ${val.toFixed(2).replace('.', ',')}`
+        this.updateValueWithAnimation(
+            'totalSalesAll',
+            allMonthsTotal.totalSales
+        );
+        this.updateValueWithAnimation(
+            'totalValueAll',
+            allMonthsTotal.totalValue,
+            (val) => `R$ ${val.toFixed(2).replace('.', ',')}`
         );
 
         // Renderizar dias
@@ -2208,7 +2347,7 @@ class LojaApp {
                 .map((item) => {
                     const category = item.category || 'Roupas';
                     let displayName;
-                    
+
                     if (category === 'Eletrônicos') {
                         displayName = item.model || item.name;
                     } else if (category === 'Serviços') {
@@ -2232,7 +2371,7 @@ class LojaApp {
 
         // Resetar formulário
         document.getElementById('saleForm').reset();
-        
+
         // Atualizar exibição do dia
         const saleDayDisplay = document.getElementById('saleDayDisplay');
         if (saleDayDisplay) {
@@ -2241,7 +2380,7 @@ class LojaApp {
 
         // Resetar modal para estado padrão
         this.updateSaleModalForItem(null);
-        
+
         // Atualizar informação de estoque
         this.updateStockInfo();
 
@@ -2259,53 +2398,63 @@ class LojaApp {
     }
 
     updateSaleModalForItem(itemId) {
-        const item = itemId ? this.items.find(i => i.id === itemId) : null;
+        const item = itemId ? this.items.find((i) => i.id === itemId) : null;
         const scanQRBtn = document.getElementById('scanQRBtn');
-        const qrScannerContainer = document.getElementById('qrScannerContainer');
+        const qrScannerContainer =
+            document.getElementById('qrScannerContainer');
         const serviceInfo = document.getElementById('serviceInfo');
         const saleQuantityLabel = document.getElementById('saleQuantityLabel');
         const stockInfo = document.getElementById('stockInfo');
-        
+
         if (!item) {
             // Resetar para padrão (produto físico)
             if (scanQRBtn) scanQRBtn.style.display = 'inline-block';
             if (serviceInfo) serviceInfo.style.display = 'none';
-            if (saleQuantityLabel) saleQuantityLabel.textContent = 'Quantidade *';
+            if (saleQuantityLabel)
+                saleQuantityLabel.textContent = 'Quantidade *';
             if (stockInfo) stockInfo.style.display = 'block';
             return;
         }
-        
+
         if (item.category === 'Serviços') {
             // Configuração para SERVIÇOS
             // Esconder QR Code
             if (scanQRBtn) scanQRBtn.style.display = 'none';
             if (qrScannerContainer) qrScannerContainer.style.display = 'none';
-            
+
             // Mostrar info do serviço
             if (serviceInfo) {
                 serviceInfo.style.display = 'block';
-                const descText = document.getElementById('serviceDescriptionText');
+                const descText = document.getElementById(
+                    'serviceDescriptionText'
+                );
                 if (descText) {
                     let info = `<strong>${this.getItemName(itemId)}</strong>`;
                     if (item.description) {
-                        info += `<br><span style="color: #6c757d;">${this.escapeHtml(item.description)}</span>`;
+                        info += `<br><span style="color: #6c757d;">${this.escapeHtml(
+                            item.description
+                        )}</span>`;
                     }
                     if (item.duration) {
-                        info += `<br><small style="color: #6c757d;">⏱️ Duração: ${this.escapeHtml(item.duration)}</small>`;
+                        info += `<br><small style="color: #6c757d;">⏱️ Duração: ${this.escapeHtml(
+                            item.duration
+                        )}</small>`;
                     }
                     if (item.serviceType) {
-                        info += `<br><small style="color: #6c757d;">📋 Tipo: ${this.escapeHtml(item.serviceType)}</small>`;
+                        info += `<br><small style="color: #6c757d;">📋 Tipo: ${this.escapeHtml(
+                            item.serviceType
+                        )}</small>`;
                     }
                     descText.innerHTML = info;
                 }
             }
-            
+
             // Atualizar label de quantidade
             const unit = item.serviceUnit || 'Unidades';
             if (saleQuantityLabel) {
                 saleQuantityLabel.textContent = `Quantidade (${unit}) *`;
             }
-            
+
             // Esconder info de estoque
             if (stockInfo) {
                 stockInfo.style.display = 'none';
@@ -2314,15 +2463,15 @@ class LojaApp {
             // Configuração para PRODUTOS FÍSICOS
             // Mostrar QR Code
             if (scanQRBtn) scanQRBtn.style.display = 'inline-block';
-            
+
             // Esconder info do serviço
             if (serviceInfo) serviceInfo.style.display = 'none';
-            
+
             // Label padrão
             if (saleQuantityLabel) {
                 saleQuantityLabel.textContent = 'Quantidade (unidades) *';
             }
-            
+
             // Mostrar info de estoque (se existir elemento)
             if (stockInfo) {
                 stockInfo.style.display = 'block';
@@ -2339,7 +2488,7 @@ class LojaApp {
         if (!itemId || !stockInfo) return;
 
         // Verificar se é serviço (serviços não têm estoque físico)
-        const item = this.items.find(i => i.id === itemId);
+        const item = this.items.find((i) => i.id === itemId);
         if (item && item.category === 'Serviços') {
             stockInfo.textContent = 'Serviço - Não possui estoque físico.';
             stockInfo.style.color = '#6c757d';
@@ -2463,7 +2612,7 @@ class LojaApp {
     closeSaleModal() {
         // Parar scanner se estiver ativo
         this.stopQRScanner();
-        
+
         const modal = document.getElementById('saleModal');
         if (modal) {
             // Animação ao fechar modal
@@ -2532,7 +2681,7 @@ class LojaApp {
         if (!dayData) return;
 
         // Verificar se é serviço (serviços não têm estoque físico)
-        const item = this.items.find(i => i.id === itemId);
+        const item = this.items.find((i) => i.id === itemId);
         const isService = item && item.category === 'Serviços';
 
         // Verificar estoque disponível (apenas para produtos físicos)
@@ -2615,11 +2764,16 @@ class LojaApp {
             document.getElementById('overallTotalValue');
 
         if (overallTotalSalesEl) {
-            this.updateValueWithAnimation('overallTotalSales', allMonthsTotal.totalSales);
+            this.updateValueWithAnimation(
+                'overallTotalSales',
+                allMonthsTotal.totalSales
+            );
         }
         if (overallTotalValueEl) {
-            this.updateValueWithAnimation('overallTotalValue', allMonthsTotal.totalValue, (val) =>
-                `R$ ${val.toFixed(2).replace('.', ',')}`
+            this.updateValueWithAnimation(
+                'overallTotalValue',
+                allMonthsTotal.totalValue,
+                (val) => `R$ ${val.toFixed(2).replace('.', ',')}`
             );
         }
 
@@ -2742,7 +2896,13 @@ class LojaApp {
                         <div style="margin-top: 0.5rem; padding-top: 0.5rem; border-top: 1px solid var(--gray-200);">
                             <div style="color: #0c5460;"><strong>Estoque Total:</strong> ${totalStock} un.</div>
                             <div style="color: #856404;"><strong>Estoque Vendido:</strong> ${totalStockSold} un.</div>
-                            <div style="color: ${totalStockAvailable < 0 ? '#dc3545' : totalStockAvailable === 0 ? '#ffc107' : '#155724'};"><strong>Estoque Disponível:</strong> ${totalStockAvailable} un.</div>
+                            <div style="color: ${
+                                totalStockAvailable < 0
+                                    ? '#dc3545'
+                                    : totalStockAvailable === 0
+                                    ? '#ffc107'
+                                    : '#155724'
+                            };"><strong>Estoque Disponível:</strong> ${totalStockAvailable} un.</div>
                         </div>
                     </div>
                     <div class="group-actions">
@@ -2837,7 +2997,9 @@ class LojaApp {
     }
 
     openServiceRecordModal(serviceGroupId, day) {
-        const serviceGroup = this.serviceGroups.find((g) => g.id === serviceGroupId);
+        const serviceGroup = this.serviceGroups.find(
+            (g) => g.id === serviceGroupId
+        );
         if (!serviceGroup) return;
 
         this.currentServiceGroup = serviceGroup;
@@ -2846,21 +3008,27 @@ class LojaApp {
 
         // Popular select apenas com serviços
         const serviceItemSelect = document.getElementById('serviceRecordItem');
-        const serviceItems = this.items.filter(item => item.category === 'Serviços');
-        
+        const serviceItems = this.items.filter(
+            (item) => item.category === 'Serviços'
+        );
+
         serviceItemSelect.innerHTML =
             '<option value="">Selecione um serviço...</option>' +
             serviceItems
                 .map((item) => {
-                    return `<option value="${item.id}">${this.escapeHtml(item.name)}</option>`;
+                    return `<option value="${item.id}">${this.escapeHtml(
+                        item.name
+                    )}</option>`;
                 })
                 .join('');
 
         // Resetar formulário
         document.getElementById('serviceRecordForm').reset();
-        
+
         // Atualizar exibição do dia
-        const serviceDayDisplay = document.getElementById('serviceRecordDayDisplay');
+        const serviceDayDisplay = document.getElementById(
+            'serviceRecordDayDisplay'
+        );
         if (serviceDayDisplay) {
             serviceDayDisplay.textContent = day;
         }
@@ -2881,36 +3049,48 @@ class LojaApp {
     showDayServices(dayData) {
         const container = document.getElementById('serviceRecordModal');
         let servicesList = document.getElementById('dayServicesList');
-        
+
         if (!servicesList) {
             servicesList = document.createElement('div');
             servicesList.id = 'dayServicesList';
-            servicesList.style.cssText = 'margin-bottom: 1.5rem; padding: 1rem; background: var(--light-gray); border-radius: 5px;';
+            servicesList.style.cssText =
+                'margin-bottom: 1.5rem; padding: 1rem; background: var(--light-gray); border-radius: 5px;';
             const form = document.getElementById('serviceRecordForm');
             form.insertBefore(servicesList, form.firstChild);
         }
 
-        servicesList.innerHTML = '<h4 style="margin-bottom: 0.75rem;">Serviços Registrados:</h4>' +
-            dayData.services.map((service, index) => {
-                const item = this.items.find((i) => i.id === service.itemId);
-                const hours = service.hours || 0;
-                const minutes = service.minutes || 0;
-                const total = service.price || 0;
-                
-                return `
+        servicesList.innerHTML =
+            '<h4 style="margin-bottom: 0.75rem;">Serviços Registrados:</h4>' +
+            dayData.services
+                .map((service, index) => {
+                    const item = this.items.find(
+                        (i) => i.id === service.itemId
+                    );
+                    const hours = service.hours || 0;
+                    const minutes = service.minutes || 0;
+                    const total = service.price || 0;
+
+                    return `
                     <div style="display: flex; justify-content: space-between; align-items: center; padding: 0.75rem; background: white; margin-bottom: 0.5rem; border-radius: 5px; border: 1px solid var(--border-color);">
                         <div>
-                            <strong>${this.escapeHtml(this.getItemName(service.itemId))}</strong>
+                            <strong>${this.escapeHtml(
+                                this.getItemName(service.itemId)
+                            )}</strong>
                             <div style="font-size: 0.85rem; color: var(--gray); margin-top: 0.25rem;">
-                                ${hours}h ${minutes}min - R$ ${total.toFixed(2).replace('.', ',')}
+                                ${hours}h ${minutes}min - R$ ${total
+                        .toFixed(2)
+                        .replace('.', ',')}
                             </div>
                         </div>
-                        <button type="button" class="btn-small btn-delete" onclick="app.deleteServiceRecord(${this.currentServiceDay}, ${index})">
+                        <button type="button" class="btn-small btn-delete" onclick="app.deleteServiceRecord(${
+                            this.currentServiceDay
+                        }, ${index})">
                             Excluir
                         </button>
                     </div>
                 `;
-            }).join('');
+                })
+                .join('');
     }
 
     saveServiceRecord(e) {
@@ -2919,9 +3099,14 @@ class LojaApp {
         if (!this.currentServiceGroup || !this.currentServiceDay) return;
 
         const itemId = document.getElementById('serviceRecordItem').value;
-        const hours = parseInt(document.getElementById('serviceRecordHours').value) || 0;
-        const minutes = parseInt(document.getElementById('serviceRecordMinutes').value) || 0;
-        const price = this.parsePrice(document.getElementById('serviceRecordPrice').value);
+        const hours =
+            parseInt(document.getElementById('serviceRecordHours').value) || 0;
+        const minutes =
+            parseInt(document.getElementById('serviceRecordMinutes').value) ||
+            0;
+        const price = this.parsePrice(
+            document.getElementById('serviceRecordPrice').value
+        );
 
         if (!itemId) {
             alert('Por favor, selecione um serviço.');
@@ -2939,10 +3124,14 @@ class LojaApp {
         }
 
         // Buscar o grupo atualizado
-        const serviceGroup = this.serviceGroups.find((g) => g.id === this.currentServiceGroup.id);
+        const serviceGroup = this.serviceGroups.find(
+            (g) => g.id === this.currentServiceGroup.id
+        );
         if (!serviceGroup) return;
 
-        const dayData = serviceGroup.days.find((d) => d.day === this.currentServiceDay);
+        const dayData = serviceGroup.days.find(
+            (d) => d.day === this.currentServiceDay
+        );
         if (!dayData) return;
 
         // Adicionar serviço
@@ -2957,8 +3146,13 @@ class LojaApp {
         this.saveData();
 
         // Atualizar visualização
-        const viewServiceGroupModal = document.getElementById('viewServiceGroupModal');
-        if (viewServiceGroupModal && viewServiceGroupModal.classList.contains('active')) {
+        const viewServiceGroupModal = document.getElementById(
+            'viewServiceGroupModal'
+        );
+        if (
+            viewServiceGroupModal &&
+            viewServiceGroupModal.classList.contains('active')
+        ) {
             this.renderServiceGroupView(serviceGroup);
         }
 
@@ -2978,7 +3172,9 @@ class LojaApp {
     deleteServiceRecord(day, serviceIndex) {
         if (!this.currentServiceGroup) return;
 
-        const serviceGroup = this.serviceGroups.find((g) => g.id === this.currentServiceGroup.id);
+        const serviceGroup = this.serviceGroups.find(
+            (g) => g.id === this.currentServiceGroup.id
+        );
         if (!serviceGroup) return;
 
         const dayData = serviceGroup.days.find((d) => d.day === day);
@@ -2988,12 +3184,12 @@ class LojaApp {
                 this.currentServiceGroup = serviceGroup;
                 this.saveData();
                 this.renderServiceGroupView(serviceGroup);
-                
+
                 const servicesTab = document.getElementById('servicesTab');
                 if (servicesTab && servicesTab.classList.contains('active')) {
                     this.renderServiceGroups();
                 }
-                
+
                 this.updateServiceSummary();
                 this.openServiceRecordModal(serviceGroup.id, day);
             }
@@ -3001,29 +3197,47 @@ class LojaApp {
     }
 
     closeServiceRecordModal() {
-        document.getElementById('serviceRecordModal').classList.remove('active');
+        document
+            .getElementById('serviceRecordModal')
+            .classList.remove('active');
         this.currentServiceGroup = null;
         this.currentServiceDay = null;
     }
 
     viewServiceGroup(serviceGroupId) {
-        const serviceGroup = this.serviceGroups.find((g) => g.id === serviceGroupId);
+        const serviceGroup = this.serviceGroups.find(
+            (g) => g.id === serviceGroupId
+        );
         if (!serviceGroup) return;
 
         this.currentServiceGroup = serviceGroup;
         this.renderServiceGroupView(serviceGroup);
-        document.getElementById('viewServiceGroupModal').classList.add('active');
+        document
+            .getElementById('viewServiceGroupModal')
+            .classList.add('active');
     }
 
     renderServiceGroupView(serviceGroup) {
         const [year, monthNum] = serviceGroup.month.split('-');
         const monthNames = [
-            'Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho',
-            'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'
+            'Janeiro',
+            'Fevereiro',
+            'Março',
+            'Abril',
+            'Maio',
+            'Junho',
+            'Julho',
+            'Agosto',
+            'Setembro',
+            'Outubro',
+            'Novembro',
+            'Dezembro',
         ];
         const monthName = monthNames[parseInt(monthNum) - 1];
-        
-        document.getElementById('serviceGroupTitle').textContent = `Serviços - ${monthName}/${year}`;
+
+        document.getElementById(
+            'serviceGroupTitle'
+        ).textContent = `Serviços - ${monthName}/${year}`;
 
         // Calcular totais do mês
         let totalHours = 0;
@@ -3042,8 +3256,12 @@ class LojaApp {
         totalHours += Math.floor(totalMinutes / 60);
         totalMinutes = totalMinutes % 60;
 
-        document.getElementById('serviceGroupTotalHours').textContent = `${totalHours}h ${totalMinutes}min`;
-        document.getElementById('serviceGroupTotalRevenue').textContent = `R$ ${totalRevenue.toFixed(2).replace('.', ',')}`;
+        document.getElementById(
+            'serviceGroupTotalHours'
+        ).textContent = `${totalHours}h ${totalMinutes}min`;
+        document.getElementById(
+            'serviceGroupTotalRevenue'
+        ).textContent = `R$ ${totalRevenue.toFixed(2).replace('.', ',')}`;
 
         // Calcular totais de todos os meses
         let allHours = 0;
@@ -3063,24 +3281,32 @@ class LojaApp {
         allHours += Math.floor(allMinutes / 60);
         allMinutes = allMinutes % 60;
 
-        document.getElementById('serviceGroupTotalHoursAll').textContent = `${allHours}h ${allMinutes}min`;
-        document.getElementById('serviceGroupTotalRevenueAll').textContent = `R$ ${allRevenue.toFixed(2).replace('.', ',')}`;
+        document.getElementById(
+            'serviceGroupTotalHoursAll'
+        ).textContent = `${allHours}h ${allMinutes}min`;
+        document.getElementById(
+            'serviceGroupTotalRevenueAll'
+        ).textContent = `R$ ${allRevenue.toFixed(2).replace('.', ',')}`;
 
         // Renderizar dias
         const daysList = document.getElementById('serviceDaysList');
-        daysList.innerHTML = serviceGroup.days.map((day) => {
-            const dayServices = day.services.length;
-            const dayTotal = day.services.reduce((sum, s) => sum + (s.price || 0), 0);
-            let dayHours = 0;
-            let dayMinutes = 0;
-            day.services.forEach((s) => {
-                dayHours += s.hours || 0;
-                dayMinutes += s.minutes || 0;
-            });
-            dayHours += Math.floor(dayMinutes / 60);
-            dayMinutes = dayMinutes % 60;
+        daysList.innerHTML = serviceGroup.days
+            .map((day) => {
+                const dayServices = day.services.length;
+                const dayTotal = day.services.reduce(
+                    (sum, s) => sum + (s.price || 0),
+                    0
+                );
+                let dayHours = 0;
+                let dayMinutes = 0;
+                day.services.forEach((s) => {
+                    dayHours += s.hours || 0;
+                    dayMinutes += s.minutes || 0;
+                });
+                dayHours += Math.floor(dayMinutes / 60);
+                dayMinutes = dayMinutes % 60;
 
-            return `
+                return `
                 <div class="day-card">
                     <div class="day-header">
                         <h4>Dia ${day.day}</h4>
@@ -3090,12 +3316,15 @@ class LojaApp {
                         <span>${dayHours}h ${dayMinutes}min</span>
                         <span>R$ ${dayTotal.toFixed(2).replace('.', ',')}</span>
                     </div>
-                    <button type="button" class="btn-small btn-primary" onclick="app.openServiceRecordModal('${serviceGroup.id}', ${day.day})">
+                    <button type="button" class="btn-small btn-primary" onclick="app.openServiceRecordModal('${
+                        serviceGroup.id
+                    }', ${day.day})">
                         ${dayServices > 0 ? 'Editar' : 'Registrar'}
                     </button>
                 </div>
             `;
-        }).join('');
+            })
+            .join('');
 
         // Resumo por serviço
         const itemsSummary = {};
@@ -3116,32 +3345,45 @@ class LojaApp {
         });
 
         const itemsSummaryList = document.getElementById('serviceItemsSummary');
-        itemsSummaryList.innerHTML = Object.entries(itemsSummary)
-            .map(([itemId, data]) => {
-                const totalHours = data.hours + Math.floor(data.minutes / 60);
-                const totalMinutes = data.minutes % 60;
-                return `
+        itemsSummaryList.innerHTML =
+            Object.entries(itemsSummary)
+                .map(([itemId, data]) => {
+                    const totalHours =
+                        data.hours + Math.floor(data.minutes / 60);
+                    const totalMinutes = data.minutes % 60;
+                    return `
                     <div class="summary-item">
                         <div>
                             <strong>${this.escapeHtml(data.name)}</strong>
                             <div style="font-size: 0.85rem; color: var(--gray); margin-top: 0.25rem;">
-                                ${totalHours}h ${totalMinutes}min - R$ ${data.total.toFixed(2).replace('.', ',')}
+                                ${totalHours}h ${totalMinutes}min - R$ ${data.total
+                        .toFixed(2)
+                        .replace('.', ',')}
                             </div>
                         </div>
                     </div>
                 `;
-            })
-            .join('') || '<p style="text-align: center; color: var(--gray); padding: 1rem;">Nenhum serviço registrado ainda.</p>';
+                })
+                .join('') ||
+            '<p style="text-align: center; color: var(--gray); padding: 1rem;">Nenhum serviço registrado ainda.</p>';
     }
 
     closeViewServiceGroupModal() {
-        document.getElementById('viewServiceGroupModal').classList.remove('active');
+        document
+            .getElementById('viewServiceGroupModal')
+            .classList.remove('active');
         this.currentServiceGroup = null;
     }
 
     deleteServiceGroup(serviceGroupId) {
-        if (confirm('Tem certeza que deseja excluir este grupo de serviços? Todos os registros serão perdidos.')) {
-            this.serviceGroups = this.serviceGroups.filter((g) => g.id !== serviceGroupId);
+        if (
+            confirm(
+                'Tem certeza que deseja excluir este grupo de serviços? Todos os registros serão perdidos.'
+            )
+        ) {
+            this.serviceGroups = this.serviceGroups.filter(
+                (g) => g.id !== serviceGroupId
+            );
             this.saveData();
             this.renderServiceGroups();
             this.updateServiceSummary();
@@ -3153,51 +3395,70 @@ class LojaApp {
         if (!list) return;
 
         if (this.serviceGroups.length === 0) {
-            list.innerHTML = '<p style="grid-column: 1/-1; text-align: center; color: var(--gray); padding: 2rem;">Nenhum mês de serviços cadastrado ainda.</p>';
+            list.innerHTML =
+                '<p style="grid-column: 1/-1; text-align: center; color: var(--gray); padding: 2rem;">Nenhum mês de serviços cadastrado ainda.</p>';
             return;
         }
 
-        list.innerHTML = this.serviceGroups.map((serviceGroup) => {
-            const [year, monthNum] = serviceGroup.month.split('-');
-            const monthNames = [
-                'Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho',
-                'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'
-            ];
-            const monthName = monthNames[parseInt(monthNum) - 1];
+        list.innerHTML = this.serviceGroups
+            .map((serviceGroup) => {
+                const [year, monthNum] = serviceGroup.month.split('-');
+                const monthNames = [
+                    'Janeiro',
+                    'Fevereiro',
+                    'Março',
+                    'Abril',
+                    'Maio',
+                    'Junho',
+                    'Julho',
+                    'Agosto',
+                    'Setembro',
+                    'Outubro',
+                    'Novembro',
+                    'Dezembro',
+                ];
+                const monthName = monthNames[parseInt(monthNum) - 1];
 
-            // Calcular totais do mês
-            let totalHours = 0;
-            let totalMinutes = 0;
-            let totalRevenue = 0;
-            let totalServices = 0;
+                // Calcular totais do mês
+                let totalHours = 0;
+                let totalMinutes = 0;
+                let totalRevenue = 0;
+                let totalServices = 0;
 
-            serviceGroup.days.forEach((day) => {
-                day.services.forEach((service) => {
-                    totalHours += service.hours || 0;
-                    totalMinutes += service.minutes || 0;
-                    totalRevenue += service.price || 0;
-                    totalServices++;
+                serviceGroup.days.forEach((day) => {
+                    day.services.forEach((service) => {
+                        totalHours += service.hours || 0;
+                        totalMinutes += service.minutes || 0;
+                        totalRevenue += service.price || 0;
+                        totalServices++;
+                    });
                 });
-            });
 
-            totalHours += Math.floor(totalMinutes / 60);
-            totalMinutes = totalMinutes % 60;
+                totalHours += Math.floor(totalMinutes / 60);
+                totalMinutes = totalMinutes % 60;
 
-            return `
+                return `
                 <div class="group-card">
                     <h3>${monthName}/${year}</h3>
                     <div class="group-info">
                         <div><strong>Total de Horas:</strong> ${totalHours}h ${totalMinutes}min</div>
-                        <div><strong>Total Faturado:</strong> R$ ${totalRevenue.toFixed(2).replace('.', ',')}</div>
+                        <div><strong>Total Faturado:</strong> R$ ${totalRevenue
+                            .toFixed(2)
+                            .replace('.', ',')}</div>
                         <div><strong>Serviços Registrados:</strong> ${totalServices}</div>
                     </div>
                     <div class="group-actions">
-                        <button class="btn-small btn-edit" onclick="app.viewServiceGroup('${serviceGroup.id}')">Ver Detalhes</button>
-                        <button class="btn-small btn-delete" onclick="app.deleteServiceGroup('${serviceGroup.id}')">Excluir</button>
+                        <button class="btn-small btn-edit" onclick="app.viewServiceGroup('${
+                            serviceGroup.id
+                        }')">Ver Detalhes</button>
+                        <button class="btn-small btn-delete" onclick="app.deleteServiceGroup('${
+                            serviceGroup.id
+                        }')">Excluir</button>
                     </div>
                 </div>
             `;
-        }).join('');
+            })
+            .join('');
     }
 
     updateServiceSummary() {
@@ -3218,7 +3479,7 @@ class LojaApp {
                     totalRevenue += service.price || 0;
                     totalCount++;
                     // Calcular horas totais em decimal para cálculos precisos
-                    totalHoursDecimal += hours + (minutes / 60);
+                    totalHoursDecimal += hours + minutes / 60;
                 });
             });
         });
@@ -3257,16 +3518,29 @@ class LojaApp {
         const avgHoursEl = document.getElementById('servicesAvgHours');
         const totalRevenueEl = document.getElementById('servicesTotalRevenue');
         const totalCountEl = document.getElementById('servicesTotalCount');
-        const avgValuePerHourEl = document.getElementById('servicesAvgValuePerHour');
-        const avgHoursPerServiceEl = document.getElementById('servicesAvgHoursPerService');
+        const avgValuePerHourEl = document.getElementById(
+            'servicesAvgValuePerHour'
+        );
+        const avgHoursPerServiceEl = document.getElementById(
+            'servicesAvgHoursPerService'
+        );
 
-        if (totalHoursEl) totalHoursEl.textContent = `${totalHours}h ${totalMinutes}min`;
-        if (avgHoursEl) avgHoursEl.textContent = `${avgHours}h ${avgMinutes}min`;
-        if (totalRevenueEl) totalRevenueEl.textContent = `R$ ${totalRevenue.toFixed(2).replace('.', ',')}`;
+        if (totalHoursEl)
+            totalHoursEl.textContent = `${totalHours}h ${totalMinutes}min`;
+        if (avgHoursEl)
+            avgHoursEl.textContent = `${avgHours}h ${avgMinutes}min`;
+        if (totalRevenueEl)
+            totalRevenueEl.textContent = `R$ ${totalRevenue
+                .toFixed(2)
+                .replace('.', ',')}`;
         if (totalCountEl) totalCountEl.textContent = totalCount;
-        if (avgValuePerHourEl) avgValuePerHourEl.textContent = `R$ ${avgValuePerHour.toFixed(2).replace('.', ',')}`;
-        if (avgHoursPerServiceEl) avgHoursPerServiceEl.textContent = `${avgHoursPerService}h ${avgMinutesPerService}min`;
-        
+        if (avgValuePerHourEl)
+            avgValuePerHourEl.textContent = `R$ ${avgValuePerHour
+                .toFixed(2)
+                .replace('.', ',')}`;
+        if (avgHoursPerServiceEl)
+            avgHoursPerServiceEl.textContent = `${avgHoursPerService}h ${avgMinutesPerService}min`;
+
         // Atualizar gráfico de serviços
         this.updateServicesChart();
     }
@@ -3282,8 +3556,10 @@ class LojaApp {
         // Popular select de itens
         const costItemSelect = document.getElementById('costItem');
         // Filtrar apenas produtos físicos (excluir serviços)
-        const physicalItems = this.items.filter(item => item.category !== 'Serviços');
-        
+        const physicalItems = this.items.filter(
+            (item) => item.category !== 'Serviços'
+        );
+
         costItemSelect.innerHTML =
             '<option value="">Selecione um item...</option>' +
             physicalItems
@@ -3729,7 +4005,7 @@ class LojaApp {
             `;
             })
             .join('');
-        
+
         // Atualizar gráfico de metas
         this.updateGoalsChart();
     }
@@ -3750,17 +4026,36 @@ class LojaApp {
         const months = [];
         const goalsData = [];
         const salesData = [];
-        
+
         for (let i = 5; i >= 0; i--) {
             const date = new Date(now.getFullYear(), now.getMonth() - i, 1);
-            const monthKey = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
-            const monthNames = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
-            
-            months.push(`${monthNames[date.getMonth()]}/${String(date.getFullYear()).slice(-2)}`);
-            
-            const goal = this.goals.find(g => g.month === monthKey);
+            const monthKey = `${date.getFullYear()}-${String(
+                date.getMonth() + 1
+            ).padStart(2, '0')}`;
+            const monthNames = [
+                'Jan',
+                'Fev',
+                'Mar',
+                'Abr',
+                'Mai',
+                'Jun',
+                'Jul',
+                'Ago',
+                'Set',
+                'Out',
+                'Nov',
+                'Dez',
+            ];
+
+            months.push(
+                `${monthNames[date.getMonth()]}/${String(
+                    date.getFullYear()
+                ).slice(-2)}`
+            );
+
+            const goal = this.goals.find((g) => g.month === monthKey);
             const sales = this.getMonthSales(monthKey);
-            
+
             goalsData.push(goal ? goal.amount : 0);
             salesData.push(sales);
         }
@@ -3771,7 +4066,10 @@ class LojaApp {
         }
 
         // Obter cor primária do tema
-        const primaryColor = getComputedStyle(document.documentElement).getPropertyValue('--primary-color') || '#dc3545';
+        const primaryColor =
+            getComputedStyle(document.documentElement).getPropertyValue(
+                '--primary-color'
+            ) || '#dc3545';
 
         // Criar novo gráfico
         this.goalsChart = new Chart(canvas, {
@@ -3782,18 +4080,20 @@ class LojaApp {
                     {
                         label: 'Meta',
                         data: goalsData,
-                        backgroundColor: primaryColor.replace('rgb', 'rgba').replace(')', ', 0.6)'),
+                        backgroundColor: primaryColor
+                            .replace('rgb', 'rgba')
+                            .replace(')', ', 0.6)'),
                         borderColor: primaryColor,
-                        borderWidth: 2
+                        borderWidth: 2,
                     },
                     {
                         label: 'Vendas',
                         data: salesData,
                         backgroundColor: '#28a745',
                         borderColor: '#28a745',
-                        borderWidth: 2
-                    }
-                ]
+                        borderWidth: 2,
+                    },
+                ],
             },
             options: {
                 responsive: true,
@@ -3801,45 +4101,51 @@ class LojaApp {
                 plugins: {
                     legend: {
                         display: true,
-                        position: 'top'
+                        position: 'top',
                     },
                     tooltip: {
                         backgroundColor: 'rgba(0, 0, 0, 0.8)',
                         padding: 10,
                         callbacks: {
-                            label: function(context) {
-                                return context.dataset.label + ': R$ ' + context.parsed.y.toFixed(2).replace('.', ',');
-                            }
-                        }
-                    }
+                            label: function (context) {
+                                return (
+                                    context.dataset.label +
+                                    ': R$ ' +
+                                    context.parsed.y
+                                        .toFixed(2)
+                                        .replace('.', ',')
+                                );
+                            },
+                        },
+                    },
                 },
                 scales: {
                     y: {
                         beginAtZero: true,
                         ticks: {
-                            callback: function(value) {
+                            callback: function (value) {
                                 return 'R$ ' + value.toFixed(0);
                             },
                             font: {
-                                size: 10
-                            }
+                                size: 10,
+                            },
                         },
                         grid: {
-                            color: 'rgba(0, 0, 0, 0.05)'
-                        }
+                            color: 'rgba(0, 0, 0, 0.05)',
+                        },
                     },
                     x: {
                         ticks: {
                             font: {
-                                size: 10
-                            }
+                                size: 10,
+                            },
                         },
                         grid: {
-                            display: false
-                        }
-                    }
-                }
-            }
+                            display: false,
+                        },
+                    },
+                },
+            },
         });
     }
 
@@ -3858,12 +4164,14 @@ class LojaApp {
         const costsByMonth = {};
         this.costs.forEach((cost) => {
             const date = new Date(cost.date);
-            const monthKey = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
-            
+            const monthKey = `${date.getFullYear()}-${String(
+                date.getMonth() + 1
+            ).padStart(2, '0')}`;
+
             if (!costsByMonth[monthKey]) {
                 costsByMonth[monthKey] = {
                     total: 0,
-                    count: 0
+                    count: 0,
                 };
             }
             costsByMonth[monthKey].total += cost.total || 0;
@@ -3875,14 +4183,33 @@ class LojaApp {
         const months = [];
         const costsData = [];
         const countsData = [];
-        
+
         for (let i = 5; i >= 0; i--) {
             const date = new Date(now.getFullYear(), now.getMonth() - i, 1);
-            const monthKey = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
-            const monthNames = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
-            
-            months.push(`${monthNames[date.getMonth()]}/${String(date.getFullYear()).slice(-2)}`);
-            
+            const monthKey = `${date.getFullYear()}-${String(
+                date.getMonth() + 1
+            ).padStart(2, '0')}`;
+            const monthNames = [
+                'Jan',
+                'Fev',
+                'Mar',
+                'Abr',
+                'Mai',
+                'Jun',
+                'Jul',
+                'Ago',
+                'Set',
+                'Out',
+                'Nov',
+                'Dez',
+            ];
+
+            months.push(
+                `${monthNames[date.getMonth()]}/${String(
+                    date.getFullYear()
+                ).slice(-2)}`
+            );
+
             const monthData = costsByMonth[monthKey] || { total: 0, count: 0 };
             costsData.push(monthData.total);
             countsData.push(monthData.count);
@@ -3894,7 +4221,10 @@ class LojaApp {
         }
 
         // Obter cor primária do tema
-        const primaryColor = getComputedStyle(document.documentElement).getPropertyValue('--primary-color') || '#dc3545';
+        const primaryColor =
+            getComputedStyle(document.documentElement).getPropertyValue(
+                '--primary-color'
+            ) || '#dc3545';
 
         // Criar novo gráfico
         this.costsChart = new Chart(canvas, {
@@ -3905,10 +4235,12 @@ class LojaApp {
                     {
                         label: 'Valor Total',
                         data: costsData,
-                        backgroundColor: primaryColor.replace('rgb', 'rgba').replace(')', ', 0.6)'),
+                        backgroundColor: primaryColor
+                            .replace('rgb', 'rgba')
+                            .replace(')', ', 0.6)'),
                         borderColor: primaryColor,
                         borderWidth: 2,
-                        yAxisID: 'y'
+                        yAxisID: 'y',
                     },
                     {
                         label: 'Quantidade de Compras',
@@ -3916,9 +4248,9 @@ class LojaApp {
                         backgroundColor: '#ffc107',
                         borderColor: '#ffc107',
                         borderWidth: 2,
-                        yAxisID: 'y1'
-                    }
-                ]
+                        yAxisID: 'y1',
+                    },
+                ],
             },
             options: {
                 responsive: true,
@@ -3926,62 +4258,73 @@ class LojaApp {
                 plugins: {
                     legend: {
                         display: true,
-                        position: 'top'
+                        position: 'top',
                     },
                     tooltip: {
                         backgroundColor: 'rgba(0, 0, 0, 0.8)',
                         padding: 10,
                         callbacks: {
-                            label: function(context) {
+                            label: function (context) {
                                 if (context.datasetIndex === 0) {
-                                    return context.dataset.label + ': R$ ' + context.parsed.y.toFixed(2).replace('.', ',');
+                                    return (
+                                        context.dataset.label +
+                                        ': R$ ' +
+                                        context.parsed.y
+                                            .toFixed(2)
+                                            .replace('.', ',')
+                                    );
                                 } else {
-                                    return context.dataset.label + ': ' + context.parsed.y + ' compras';
+                                    return (
+                                        context.dataset.label +
+                                        ': ' +
+                                        context.parsed.y +
+                                        ' compras'
+                                    );
                                 }
-                            }
-                        }
-                    }
+                            },
+                        },
+                    },
                 },
                 scales: {
                     y: {
                         beginAtZero: true,
                         position: 'left',
                         ticks: {
-                            callback: function(value) {
+                            callback: function (value) {
                                 return 'R$ ' + value.toFixed(0);
                             },
                             font: {
-                                size: 10
-                            }
+                                size: 10,
+                            },
                         },
                         grid: {
-                            color: 'rgba(0, 0, 0, 0.05)'
-                        }
+                            color: 'rgba(0, 0, 0, 0.05)',
+                        },
                     },
                     y1: {
                         beginAtZero: true,
                         position: 'right',
                         ticks: {
                             font: {
-                                size: 10
-                            }
+                                size: 10,
+                            },
                         },
                         grid: {
-                            drawOnChartArea: false
-                        }
+                            drawOnChartArea: false,
+                        },
                     },
                     x: {
                         ticks: {
                             font: {
-                                size: 10
-                            }
+                                size: 10,
+                            },
                         },
                         grid: {
-                            display: false
-                        }
-                    }
-                }
-            }
+                            display: false,
+                        },
+                    },
+                },
+            },
         });
     }
 
@@ -4005,7 +4348,7 @@ class LojaApp {
                     revenue: 0,
                     hours: 0,
                     minutes: 0,
-                    count: 0
+                    count: 0,
                 };
             }
 
@@ -4024,17 +4367,41 @@ class LojaApp {
         const months = [];
         const revenueData = [];
         const hoursData = [];
-        
+
         for (let i = 5; i >= 0; i--) {
             const date = new Date(now.getFullYear(), now.getMonth() - i, 1);
-            const monthKey = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
-            const monthNames = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
-            
-            months.push(`${monthNames[date.getMonth()]}/${String(date.getFullYear()).slice(-2)}`);
-            
-            const monthData = servicesByMonth[monthKey] || { revenue: 0, hours: 0, minutes: 0, count: 0 };
+            const monthKey = `${date.getFullYear()}-${String(
+                date.getMonth() + 1
+            ).padStart(2, '0')}`;
+            const monthNames = [
+                'Jan',
+                'Fev',
+                'Mar',
+                'Abr',
+                'Mai',
+                'Jun',
+                'Jul',
+                'Ago',
+                'Set',
+                'Out',
+                'Nov',
+                'Dez',
+            ];
+
+            months.push(
+                `${monthNames[date.getMonth()]}/${String(
+                    date.getFullYear()
+                ).slice(-2)}`
+            );
+
+            const monthData = servicesByMonth[monthKey] || {
+                revenue: 0,
+                hours: 0,
+                minutes: 0,
+                count: 0,
+            };
             revenueData.push(monthData.revenue);
-            const totalHours = monthData.hours + (monthData.minutes / 60);
+            const totalHours = monthData.hours + monthData.minutes / 60;
             hoursData.push(totalHours);
         }
 
@@ -4044,7 +4411,10 @@ class LojaApp {
         }
 
         // Obter cor primária do tema
-        const primaryColor = getComputedStyle(document.documentElement).getPropertyValue('--primary-color') || '#dc3545';
+        const primaryColor =
+            getComputedStyle(document.documentElement).getPropertyValue(
+                '--primary-color'
+            ) || '#dc3545';
 
         // Criar novo gráfico
         this.servicesChart = new Chart(canvas, {
@@ -4058,17 +4428,19 @@ class LojaApp {
                         backgroundColor: '#28a745',
                         borderColor: '#28a745',
                         borderWidth: 2,
-                        yAxisID: 'y'
+                        yAxisID: 'y',
                     },
                     {
                         label: 'Horas Trabalhadas',
                         data: hoursData,
-                        backgroundColor: primaryColor.replace('rgb', 'rgba').replace(')', ', 0.6)'),
+                        backgroundColor: primaryColor
+                            .replace('rgb', 'rgba')
+                            .replace(')', ', 0.6)'),
                         borderColor: primaryColor,
                         borderWidth: 2,
-                        yAxisID: 'y1'
-                    }
-                ]
+                        yAxisID: 'y1',
+                    },
+                ],
             },
             options: {
                 responsive: true,
@@ -4076,65 +4448,76 @@ class LojaApp {
                 plugins: {
                     legend: {
                         display: true,
-                        position: 'top'
+                        position: 'top',
                     },
                     tooltip: {
                         backgroundColor: 'rgba(0, 0, 0, 0.8)',
                         padding: 10,
                         callbacks: {
-                            label: function(context) {
+                            label: function (context) {
                                 if (context.datasetIndex === 0) {
-                                    return context.dataset.label + ': R$ ' + context.parsed.y.toFixed(2).replace('.', ',');
+                                    return (
+                                        context.dataset.label +
+                                        ': R$ ' +
+                                        context.parsed.y
+                                            .toFixed(2)
+                                            .replace('.', ',')
+                                    );
                                 } else {
-                                    return context.dataset.label + ': ' + context.parsed.y.toFixed(1) + 'h';
+                                    return (
+                                        context.dataset.label +
+                                        ': ' +
+                                        context.parsed.y.toFixed(1) +
+                                        'h'
+                                    );
                                 }
-                            }
-                        }
-                    }
+                            },
+                        },
+                    },
                 },
                 scales: {
                     y: {
                         beginAtZero: true,
                         position: 'left',
                         ticks: {
-                            callback: function(value) {
+                            callback: function (value) {
                                 return 'R$ ' + value.toFixed(0);
                             },
                             font: {
-                                size: 10
-                            }
+                                size: 10,
+                            },
                         },
                         grid: {
-                            color: 'rgba(0, 0, 0, 0.05)'
-                        }
+                            color: 'rgba(0, 0, 0, 0.05)',
+                        },
                     },
                     y1: {
                         beginAtZero: true,
                         position: 'right',
                         ticks: {
-                            callback: function(value) {
+                            callback: function (value) {
                                 return value.toFixed(1) + 'h';
                             },
                             font: {
-                                size: 10
-                            }
+                                size: 10,
+                            },
                         },
                         grid: {
-                            drawOnChartArea: false
-                        }
+                            drawOnChartArea: false,
+                        },
                     },
                     x: {
                         ticks: {
                             font: {
-                                size: 10
-                            }
+                                size: 10,
+                            },
                         },
                         grid: {
-                            display: false
-                        }
-                    }
-                }
-            }
+                            display: false,
+                        },
+                    },
+                },
+            },
         });
     }
 
@@ -4182,7 +4565,7 @@ class LojaApp {
     // Calcular média de estoque por mês
     calculateAvgStockByMonth() {
         const stockByMonth = {};
-        
+
         this.groups.forEach((group) => {
             const monthKey = group.month;
             if (!stockByMonth[monthKey]) {
@@ -4197,7 +4580,7 @@ class LojaApp {
 
                 // Processar estoque por SKU (itemId + size)
                 Object.keys(day.stock).forEach((itemId) => {
-                    const item = this.items.find(i => i.id === itemId);
+                    const item = this.items.find((i) => i.id === itemId);
                     if (item && item.category === 'Roupas' && item.size) {
                         const sku = this.getSKU(itemId, item.size);
                         if (!skuStock[sku]) {
@@ -4205,7 +4588,7 @@ class LojaApp {
                                 itemId: itemId,
                                 size: item.size,
                                 stockValues: [],
-                                sold: 0
+                                sold: 0,
                             };
                         }
                         skuStock[sku].stockValues.push(day.stock[itemId] || 0);
@@ -4217,7 +4600,7 @@ class LojaApp {
                                 itemId: itemId,
                                 size: '',
                                 stockValues: [],
-                                sold: 0
+                                sold: 0,
                             };
                         }
                         skuStock[sku].stockValues.push(day.stock[itemId] || 0);
@@ -4226,7 +4609,7 @@ class LojaApp {
 
                 // Processar vendas por SKU
                 day.sales.forEach((sale) => {
-                    const item = this.items.find(i => i.id === sale.itemId);
+                    const item = this.items.find((i) => i.id === sale.itemId);
                     if (item && item.category === 'Roupas' && item.size) {
                         const sku = this.getSKU(sale.itemId, item.size);
                         if (skuStock[sku]) {
@@ -4244,16 +4627,18 @@ class LojaApp {
             // Calcular média de estoque por SKU
             Object.keys(skuStock).forEach((sku) => {
                 const data = skuStock[sku];
-                const avgStock = data.stockValues.length > 0
-                    ? data.stockValues.reduce((sum, val) => sum + val, 0) / data.stockValues.length
-                    : 0;
-                
+                const avgStock =
+                    data.stockValues.length > 0
+                        ? data.stockValues.reduce((sum, val) => sum + val, 0) /
+                          data.stockValues.length
+                        : 0;
+
                 if (!stockByMonth[monthKey][sku]) {
                     stockByMonth[monthKey][sku] = {
                         itemId: data.itemId,
                         size: data.size,
                         avgStock: 0,
-                        totalSold: 0
+                        totalSold: 0,
                     };
                 }
                 stockByMonth[monthKey][sku].avgStock = Math.round(avgStock);
@@ -4277,7 +4662,7 @@ class LojaApp {
 
         const stockByMonth = this.calculateAvgStockByMonth();
         const months = Object.keys(stockByMonth).sort();
-        
+
         if (months.length === 0) {
             // Limpar gráfico se não houver dados
             const ctx = canvas.getContext('2d');
@@ -4291,16 +4676,29 @@ class LojaApp {
         }
 
         // Calcular média total de estoque por mês (soma de todos os SKUs)
-        const avgStockData = months.map(month => {
+        const avgStockData = months.map((month) => {
             const skus = Object.values(stockByMonth[month]);
             const totalAvg = skus.reduce((sum, sku) => sum + sku.avgStock, 0);
             return totalAvg;
         });
 
         // Formatar labels dos meses
-        const monthLabels = months.map(month => {
+        const monthLabels = months.map((month) => {
             const [year, monthNum] = month.split('-');
-            const monthNames = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
+            const monthNames = [
+                'Jan',
+                'Fev',
+                'Mar',
+                'Abr',
+                'Mai',
+                'Jun',
+                'Jul',
+                'Ago',
+                'Set',
+                'Out',
+                'Nov',
+                'Dez',
+            ];
             return `${monthNames[parseInt(monthNum) - 1]}/${year.slice(-2)}`;
         });
 
@@ -4310,41 +4708,48 @@ class LojaApp {
         }
 
         // Obter cor primária do tema
-        const primaryColor = getComputedStyle(document.documentElement).getPropertyValue('--primary-color') || '#dc3545';
+        const primaryColor =
+            getComputedStyle(document.documentElement).getPropertyValue(
+                '--primary-color'
+            ) || '#dc3545';
 
         // Criar novo gráfico
         this.avgStockChart = new Chart(canvas, {
             type: 'line',
             data: {
                 labels: monthLabels,
-                datasets: [{
-                    label: 'Média de Estoque',
-                    data: avgStockData,
-                    borderColor: primaryColor,
-                    backgroundColor: primaryColor.replace('rgb', 'rgba').replace(')', ', 0.1)'),
-                    tension: 0.4,
-                    fill: true,
-                    pointRadius: 4,
-                    pointHoverRadius: 6
-                }]
+                datasets: [
+                    {
+                        label: 'Média de Estoque',
+                        data: avgStockData,
+                        borderColor: primaryColor,
+                        backgroundColor: primaryColor
+                            .replace('rgb', 'rgba')
+                            .replace(')', ', 0.1)'),
+                        tension: 0.4,
+                        fill: true,
+                        pointRadius: 4,
+                        pointHoverRadius: 6,
+                    },
+                ],
             },
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
                 plugins: {
                     legend: {
-                        display: false
+                        display: false,
                     },
                     tooltip: {
                         backgroundColor: 'rgba(0, 0, 0, 0.8)',
                         padding: 10,
                         titleFont: {
-                            size: 12
+                            size: 12,
                         },
                         bodyFont: {
-                            size: 11
-                        }
-                    }
+                            size: 11,
+                        },
+                    },
                 },
                 scales: {
                     y: {
@@ -4352,25 +4757,25 @@ class LojaApp {
                         ticks: {
                             precision: 0,
                             font: {
-                                size: 10
-                            }
+                                size: 10,
+                            },
                         },
                         grid: {
-                            color: 'rgba(0, 0, 0, 0.05)'
-                        }
+                            color: 'rgba(0, 0, 0, 0.05)',
+                        },
                     },
                     x: {
                         ticks: {
                             font: {
-                                size: 10
-                            }
+                                size: 10,
+                            },
                         },
                         grid: {
-                            display: false
-                        }
-                    }
-                }
-            }
+                            display: false,
+                        },
+                    },
+                },
+            },
         });
     }
 
@@ -4387,19 +4792,23 @@ class LojaApp {
             const skus = stockByMonth[month];
             Object.keys(skus).forEach((sku) => {
                 const data = skus[sku];
-                const item = this.items.find(i => i.id === data.itemId);
+                const item = this.items.find((i) => i.id === data.itemId);
                 if (!item || item.category === 'Serviços') return;
 
                 // Calcular taxa de venda mensal
                 const monthlySales = data.totalSold;
                 const avgStock = data.avgStock;
-                
+
                 // Sugerir reposição se:
                 // 1. Estoque médio é baixo (< 5 unidades) OU
                 // 2. Taxa de venda é alta (> 3 unidades/mês) e estoque está abaixo da média de vendas
-                if (avgStock < 5 || (monthlySales > 3 && avgStock < monthlySales * 1.5)) {
+                if (
+                    avgStock < 5 ||
+                    (monthlySales > 3 && avgStock < monthlySales * 1.5)
+                ) {
                     const itemName = this.getItemName(data.itemId);
-                    const priority = avgStock < 3 ? 'high' : (avgStock < 5 ? 'medium' : 'low');
+                    const priority =
+                        avgStock < 3 ? 'high' : avgStock < 5 ? 'medium' : 'low';
                     const suggestedQty = Math.max(monthlySales * 2, 10); // Sugerir pelo menos 2x a venda mensal ou 10 unidades
 
                     suggestions.push({
@@ -4409,7 +4818,7 @@ class LojaApp {
                         monthlySales: monthlySales,
                         suggestedQty: suggestedQty,
                         priority: priority,
-                        month: month
+                        month: month,
                     });
                 }
             });
@@ -4418,7 +4827,7 @@ class LojaApp {
         // Ordenar por prioridade e estoque atual
         suggestions.sort((a, b) => {
             if (a.priority !== b.priority) {
-                const priorityOrder = { 'high': 0, 'medium': 1, 'low': 2 };
+                const priorityOrder = { high: 0, medium: 1, low: 2 };
                 return priorityOrder[a.priority] - priorityOrder[b.priority];
             }
             return a.currentStock - b.currentStock;
@@ -4428,31 +4837,48 @@ class LojaApp {
         const topSuggestions = suggestions.slice(0, 10);
 
         if (topSuggestions.length === 0) {
-            container.innerHTML = '<p style="color: var(--gray-500); font-size: 0.9rem; text-align: center; padding: 1rem;">Nenhuma sugestão de reposição no momento.</p>';
+            container.innerHTML =
+                '<p style="color: var(--gray-500); font-size: 0.9rem; text-align: center; padding: 1rem;">Nenhuma sugestão de reposição no momento.</p>';
             return;
         }
 
-        container.innerHTML = topSuggestions.map(suggestion => {
-            const priorityColor = suggestion.priority === 'high' ? '#dc3545' : 
-                                 suggestion.priority === 'medium' ? '#ffc107' : '#28a745';
-            const priorityText = suggestion.priority === 'high' ? 'Urgente' : 
-                                suggestion.priority === 'medium' ? 'Atenção' : 'Sugestão';
-            
-            return `
+        container.innerHTML = topSuggestions
+            .map((suggestion) => {
+                const priorityColor =
+                    suggestion.priority === 'high'
+                        ? '#dc3545'
+                        : suggestion.priority === 'medium'
+                        ? '#ffc107'
+                        : '#28a745';
+                const priorityText =
+                    suggestion.priority === 'high'
+                        ? 'Urgente'
+                        : suggestion.priority === 'medium'
+                        ? 'Atenção'
+                        : 'Sugestão';
+
+                return `
                 <div style="display: flex; justify-content: space-between; align-items: center; padding: 0.75rem; background: white; margin-bottom: 0.5rem; border-radius: 5px; border-left: 3px solid ${priorityColor};">
                     <div style="flex: 1;">
-                        <strong style="font-size: 0.9rem;">${this.escapeHtml(suggestion.itemName)}</strong>
+                        <strong style="font-size: 0.9rem;">${this.escapeHtml(
+                            suggestion.itemName
+                        )}</strong>
                         <div style="font-size: 0.75rem; color: var(--gray-600); margin-top: 0.25rem;">
-                            Estoque atual: ${suggestion.currentStock} un. | Vendas/mês: ${suggestion.monthlySales} un.
+                            Estoque atual: ${
+                                suggestion.currentStock
+                            } un. | Vendas/mês: ${suggestion.monthlySales} un.
                         </div>
                     </div>
                     <div style="text-align: right;">
                         <div style="font-size: 0.75rem; color: ${priorityColor}; font-weight: 600; margin-bottom: 0.25rem;">${priorityText}</div>
-                        <div style="font-size: 0.85rem; color: var(--gray-700);">Sugerido: ${suggestion.suggestedQty} un.</div>
+                        <div style="font-size: 0.85rem; color: var(--gray-700);">Sugerido: ${
+                            suggestion.suggestedQty
+                        } un.</div>
                     </div>
                 </div>
             `;
-        }).join('');
+            })
+            .join('');
     }
 
     // ========== UTILITÁRIOS ==========
@@ -4460,10 +4886,14 @@ class LojaApp {
     toggleDashboard() {
         // Verificar qual dashboard está atualmente visível
         const salesDashboard = document.getElementById('dashboardTab');
-        const servicesDashboard = document.getElementById('servicesDashboardTab');
-        const isSalesActive = salesDashboard && salesDashboard.classList.contains('active');
-        const isServicesActive = servicesDashboard && servicesDashboard.classList.contains('active');
-        
+        const servicesDashboard = document.getElementById(
+            'servicesDashboardTab'
+        );
+        const isSalesActive =
+            salesDashboard && salesDashboard.classList.contains('active');
+        const isServicesActive =
+            servicesDashboard && servicesDashboard.classList.contains('active');
+
         // Alternar entre dashboard de vendas e serviços
         if (isServicesActive) {
             // Se serviços está ativo, mostrar vendas
@@ -4489,7 +4919,7 @@ class LojaApp {
 
         const icon = btn.querySelector('i');
         const text = btn.querySelector('.btn-text');
-        
+
         if (type === 'services') {
             if (icon) icon.className = 'fas fa-chart-pie';
             if (text) text.textContent = 'Dashboard Serviços';
@@ -4522,7 +4952,8 @@ class LojaApp {
         } else {
             // Se não encontrar pelo data-tab, tentar pelo ID (para dashboard toggle)
             if (tab === 'dashboard' || tab === 'servicesDashboard') {
-                const dashboardBtn = document.getElementById('dashboardToggleBtn');
+                const dashboardBtn =
+                    document.getElementById('dashboardToggleBtn');
                 if (dashboardBtn) {
                     dashboardBtn.classList.add('active');
                 }
@@ -4535,31 +4966,33 @@ class LojaApp {
 
         // Adicionar active ao conteúdo da aba selecionada
         let tabContent = document.getElementById(`${tab}Tab`);
-        
+
         // Se não encontrar, pode ser que o tab seja 'servicesDashboard' mas o ID seja diferente
         if (!tabContent && tab === 'servicesDashboard') {
             tabContent = document.getElementById('servicesDashboardTab');
         }
-        
+
         if (tabContent) {
-            // Animação ao trocar de tab
+            // Animação rápida ao trocar de tab
             tabContent.style.opacity = '0';
-            tabContent.style.transform = 'translateX(20px)';
+            tabContent.style.transform = 'translateX(10px)';
             tabContent.classList.add('active');
             
             // Forçar reflow para garantir que a animação funcione
             void tabContent.offsetWidth;
             
-            // Aplicar animação
+            // Aplicar animação rápida
             setTimeout(() => {
                 tabContent.style.opacity = '1';
                 tabContent.style.transform = 'translateX(0)';
-            }, 10);
+            }, 5);
         } else {
             console.warn(
                 `⚠️ [SWITCH TAB] Conteúdo da aba "${tab}Tab" não encontrado`
             );
-            console.warn(`⚠️ [SWITCH TAB] Tentando encontrar elemento com ID: ${tab}Tab`);
+            console.warn(
+                `⚠️ [SWITCH TAB] Tentando encontrar elemento com ID: ${tab}Tab`
+            );
         }
 
         // Se for a aba dashboard, renderizar os gráficos
@@ -4799,7 +5232,9 @@ class LojaApp {
             this.showTutorialStep(this.tutorialStep);
         } else {
             this.closeTutorialTooltip();
-            alert('🎉 Tutorial concluído! Você já conhece as principais funcionalidades do sistema.');
+            alert(
+                '🎉 Tutorial concluído! Você já conhece as principais funcionalidades do sistema.'
+            );
         }
     }
 
@@ -4814,64 +5249,74 @@ class LojaApp {
         return [
             {
                 title: 'Bem-vindo!',
-                content: 'Este é um tutorial interativo que vai te mostrar as principais funcionalidades do sistema. Clique em "Próximo" para continuar.',
+                content:
+                    'Este é um tutorial interativo que vai te mostrar as principais funcionalidades do sistema. Clique em "Próximo" para continuar.',
                 target: null,
-                position: 'center'
+                position: 'center',
             },
             {
                 title: 'Cadastro de Produtos',
-                content: 'Clique em "Novo Produto" para cadastrar seus itens. Você pode cadastrar Roupas, Eletrônicos ou Serviços. Para produtos físicos, um QR Code exclusivo com código numérico de 9 dígitos será gerado automaticamente.',
+                content:
+                    'Clique em "Novo Produto" para cadastrar seus itens. Você pode cadastrar Roupas, Eletrônicos ou Serviços. Para produtos físicos, um QR Code exclusivo com código numérico de 9 dígitos será gerado automaticamente.',
                 target: 'newItemBtn',
-                position: 'bottom'
+                position: 'bottom',
             },
             {
                 title: 'QR Code Exclusivo - Cadastro',
-                content: 'Após cadastrar um produto físico, o sistema gera automaticamente um código numérico exclusivo de 9 dígitos (1-9) e converte em QR Code. Você verá um botão "QR Code" no card. Clique nele para visualizar, baixar ou imprimir o QR Code do produto.',
+                content:
+                    'Após cadastrar um produto físico, o sistema gera automaticamente um código numérico exclusivo de 9 dígitos (1-9) e converte em QR Code. Você verá um botão "QR Code" no card. Clique nele para visualizar, baixar ou imprimir o QR Code do produto.',
                 target: null,
-                position: 'center'
+                position: 'center',
             },
             {
                 title: 'Grupos Mensais',
-                content: 'Use "Grupo Mensal" para criar um mês de vendas. Depois, abra o mês para registrar vendas por dia.',
+                content:
+                    'Use "Grupo Mensal" para criar um mês de vendas. Depois, abra o mês para registrar vendas por dia.',
                 target: 'newGroupBtn',
-                position: 'bottom'
+                position: 'bottom',
             },
             {
                 title: 'QR Code - Leitura',
-                content: 'Ao adicionar uma venda, clique no botão de QR Code ao lado do campo "Item" para escanear o código numérico do produto. O sistema identifica o produto pelo código de 9 dígitos, seleciona automaticamente e atualiza o estoque quando você registra a venda.',
+                content:
+                    'Ao adicionar uma venda, clique no botão de QR Code ao lado do campo "Item" para escanear o código numérico do produto. O sistema identifica o produto pelo código de 9 dígitos, seleciona automaticamente e atualiza o estoque quando você registra a venda.',
                 target: null,
-                position: 'center'
+                position: 'center',
             },
             {
                 title: 'Dashboards',
-                content: 'Visualize gráficos e estatísticas detalhadas. Use o botão "Dashboard" para alternar entre Dashboard de Vendas (gráficos de vendas, lucro, estoque) e Dashboard de Serviços (horas trabalhadas, faturamento, top serviços). Cada resumo também tem gráficos específicos.',
+                content:
+                    'Visualize gráficos e estatísticas detalhadas. Use o botão "Dashboard" para alternar entre Dashboard de Vendas (gráficos de vendas, lucro, estoque) e Dashboard de Serviços (horas trabalhadas, faturamento, top serviços). Cada resumo também tem gráficos específicos.',
                 target: 'dashboardToggleBtn',
-                position: 'bottom'
+                position: 'bottom',
             },
             {
                 title: 'Serviços',
-                content: 'Na aba "Serviços", você pode cadastrar meses de serviços e registrar horas trabalhadas. O sistema calcula automaticamente faturamento, valor médio por hora e média de horas por serviço. Visualize gráficos de evolução no resumo.',
+                content:
+                    'Na aba "Serviços", você pode cadastrar meses de serviços e registrar horas trabalhadas. O sistema calcula automaticamente faturamento, valor médio por hora e média de horas por serviço. Visualize gráficos de evolução no resumo.',
                 target: null,
-                position: 'center'
+                position: 'center',
             },
             {
                 title: 'Metas',
-                content: 'Defina metas mensais de vendas na aba "Metas" e acompanhe seu progresso em tempo real. O sistema mostra um gráfico comparativo de metas vs vendas reais nos últimos 6 meses.',
+                content:
+                    'Defina metas mensais de vendas na aba "Metas" e acompanhe seu progresso em tempo real. O sistema mostra um gráfico comparativo de metas vs vendas reais nos últimos 6 meses.',
                 target: null,
-                position: 'center'
+                position: 'center',
             },
             {
                 title: 'Custos',
-                content: 'Registre os custos de compra dos produtos na aba "Custos". Visualize gráficos de evolução de custos por mês no resumo, mostrando valor total e quantidade de compras.',
+                content:
+                    'Registre os custos de compra dos produtos na aba "Custos". Visualize gráficos de evolução de custos por mês no resumo, mostrando valor total e quantidade de compras.',
                 target: null,
-                position: 'center'
+                position: 'center',
             },
             {
                 title: 'Feedback e Validações',
-                content: 'O sistema mostra mensagens de sucesso/erro, estados de loading nos botões durante operações, e valida automaticamente os campos com feedback visual. Isso facilita o uso e reduz erros.',
+                content:
+                    'O sistema mostra mensagens de sucesso/erro, estados de loading nos botões durante operações, e valida automaticamente os campos com feedback visual. Isso facilita o uso e reduz erros.',
                 target: null,
-                position: 'center'
-            }
+                position: 'center',
+            },
         ];
     }
 
@@ -4908,11 +5353,11 @@ class LojaApp {
                 switch (step.position) {
                     case 'bottom':
                         top = rect.bottom + 20;
-                        left = rect.left + (rect.width / 2) - 175; // 175 = metade da largura do tooltip
+                        left = rect.left + rect.width / 2 - 175; // 175 = metade da largura do tooltip
                         break;
                     case 'top':
                         top = rect.top - 200;
-                        left = rect.left + (rect.width / 2) - 175;
+                        left = rect.left + rect.width / 2 - 175;
                         break;
                     case 'right':
                         top = rect.top;
@@ -4935,13 +5380,13 @@ class LojaApp {
                 tooltip.style.left = left + 'px';
             } else {
                 // Se não encontrar o elemento, centralizar
-                tooltip.style.top = (window.innerHeight / 2 - 100) + 'px';
-                tooltip.style.left = (window.innerWidth / 2 - 175) + 'px';
+                tooltip.style.top = window.innerHeight / 2 - 100 + 'px';
+                tooltip.style.left = window.innerWidth / 2 - 175 + 'px';
             }
         } else {
             // Centralizar se não houver target
-            tooltip.style.top = (window.innerHeight / 2 - 100) + 'px';
-            tooltip.style.left = (window.innerWidth / 2 - 175) + 'px';
+            tooltip.style.top = window.innerHeight / 2 - 100 + 'px';
+            tooltip.style.left = window.innerWidth / 2 - 175 + 'px';
         }
 
         // Atualizar botões
@@ -5063,8 +5508,10 @@ class LojaApp {
         }
 
         // Filtrar apenas produtos físicos (excluir serviços)
-        const physicalItems = this.items.filter(item => item.category !== 'Serviços');
-        
+        const physicalItems = this.items.filter(
+            (item) => item.category !== 'Serviços'
+        );
+
         if (physicalItems.length === 0) {
             stockItemsList.innerHTML =
                 '<p style="text-align: center; color: var(--gray); padding: 1rem;">Nenhum produto físico cadastrado.</p>';
@@ -5888,10 +6335,10 @@ class LojaApp {
         Object.entries(itemStockStatus).forEach(([itemId, data]) => {
             totalStock += data.stock;
             totalSold += data.sold;
-            
+
             const available = data.stock - data.sold;
             const item = this.items.find((i) => i.id === itemId);
-            
+
             // Alerta de estoque baixo (menos de 5 unidades ou negativo)
             if (available <= 5 && item) {
                 lowStockItems.push({
@@ -5912,7 +6359,9 @@ class LojaApp {
             groupStockSoldEl.textContent = `${totalSold} un.`;
         }
 
-        const groupStockAvailableEl = document.getElementById('groupStockAvailable');
+        const groupStockAvailableEl = document.getElementById(
+            'groupStockAvailable'
+        );
         if (groupStockAvailableEl) {
             const available = totalStock - totalSold;
             groupStockAvailableEl.textContent = `${available} un.`;
@@ -5927,15 +6376,19 @@ class LojaApp {
         }
 
         // Alerta de estoque baixo
-        const groupLowStockAlertEl = document.getElementById('groupLowStockAlert');
-        const groupLowStockItemsEl = document.getElementById('groupLowStockItems');
+        const groupLowStockAlertEl =
+            document.getElementById('groupLowStockAlert');
+        const groupLowStockItemsEl =
+            document.getElementById('groupLowStockItems');
         if (groupLowStockAlertEl && groupLowStockItemsEl) {
             if (lowStockItems.length > 0) {
                 groupLowStockAlertEl.style.display = 'block';
                 groupLowStockItemsEl.innerHTML = lowStockItems
                     .map(
                         (item) =>
-                            `<strong>${this.escapeHtml(item.name)}</strong>: ${item.available} un.`
+                            `<strong>${this.escapeHtml(item.name)}</strong>: ${
+                                item.available
+                            } un.`
                     )
                     .join('<br>');
             } else {
@@ -5954,7 +6407,9 @@ class LojaApp {
 
         const ctx = document.getElementById('stockConsumptionChart');
         if (!ctx) {
-            console.warn('⚠️ [CHART] Canvas stockConsumptionChart não encontrado');
+            console.warn(
+                '⚠️ [CHART] Canvas stockConsumptionChart não encontrado'
+            );
             return;
         }
 
@@ -6230,7 +6685,9 @@ class LojaApp {
         console.log('📊 [SERVICES DASHBOARD] Iniciando renderização...');
 
         if (typeof Chart === 'undefined' || window.chartJsLoaded === false) {
-            console.warn('⚠️ [SERVICES DASHBOARD] Chart.js não está carregado, aguardando...');
+            console.warn(
+                '⚠️ [SERVICES DASHBOARD] Chart.js não está carregado, aguardando...'
+            );
             setTimeout(() => this.renderServicesDashboard(), 500);
             return;
         }
@@ -6254,7 +6711,20 @@ class LojaApp {
 
         groups.forEach((group) => {
             const [year, monthNum] = group.month.split('-');
-            const monthNames = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
+            const monthNames = [
+                'Jan',
+                'Fev',
+                'Mar',
+                'Abr',
+                'Mai',
+                'Jun',
+                'Jul',
+                'Ago',
+                'Set',
+                'Out',
+                'Nov',
+                'Dez',
+            ];
             months.push(`${monthNames[parseInt(monthNum) - 1]}/${year}`);
 
             let totalHours = 0;
@@ -6277,13 +6747,15 @@ class LojaApp {
             type: 'bar',
             data: {
                 labels: months,
-                datasets: [{
-                    label: 'Horas Trabalhadas',
-                    data: hours,
-                    backgroundColor: 'rgba(40, 167, 69, 0.6)',
-                    borderColor: 'rgba(40, 167, 69, 1)',
-                    borderWidth: 2
-                }]
+                datasets: [
+                    {
+                        label: 'Horas Trabalhadas',
+                        data: hours,
+                        backgroundColor: 'rgba(40, 167, 69, 0.6)',
+                        borderColor: 'rgba(40, 167, 69, 1)',
+                        borderWidth: 2,
+                    },
+                ],
             },
             options: {
                 responsive: true,
@@ -6292,13 +6764,13 @@ class LojaApp {
                     y: {
                         beginAtZero: true,
                         ticks: {
-                            callback: function(value) {
+                            callback: function (value) {
                                 return value.toFixed(1) + 'h';
-                            }
-                        }
-                    }
-                }
-            }
+                            },
+                        },
+                    },
+                },
+            },
         });
     }
 
@@ -6311,7 +6783,20 @@ class LojaApp {
 
         groups.forEach((group) => {
             const [year, monthNum] = group.month.split('-');
-            const monthNames = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
+            const monthNames = [
+                'Jan',
+                'Fev',
+                'Mar',
+                'Abr',
+                'Mai',
+                'Jun',
+                'Jul',
+                'Ago',
+                'Set',
+                'Out',
+                'Nov',
+                'Dez',
+            ];
             months.push(`${monthNames[parseInt(monthNum) - 1]}/${year}`);
 
             let totalRevenue = 0;
@@ -6331,15 +6816,17 @@ class LojaApp {
             type: 'line',
             data: {
                 labels: months,
-                datasets: [{
-                    label: 'Faturamento (R$)',
-                    data: revenues,
-                    borderColor: 'rgba(0, 123, 255, 1)',
-                    backgroundColor: 'rgba(0, 123, 255, 0.1)',
-                    borderWidth: 2,
-                    fill: true,
-                    tension: 0.4
-                }]
+                datasets: [
+                    {
+                        label: 'Faturamento (R$)',
+                        data: revenues,
+                        borderColor: 'rgba(0, 123, 255, 1)',
+                        backgroundColor: 'rgba(0, 123, 255, 0.1)',
+                        borderWidth: 2,
+                        fill: true,
+                        tension: 0.4,
+                    },
+                ],
             },
             options: {
                 responsive: true,
@@ -6348,13 +6835,15 @@ class LojaApp {
                     y: {
                         beginAtZero: true,
                         ticks: {
-                            callback: function(value) {
-                                return 'R$ ' + value.toFixed(2).replace('.', ',');
-                            }
-                        }
-                    }
-                }
-            }
+                            callback: function (value) {
+                                return (
+                                    'R$ ' + value.toFixed(2).replace('.', ',')
+                                );
+                            },
+                        },
+                    },
+                },
+            },
         });
     }
 
@@ -6369,7 +6858,7 @@ class LojaApp {
                     if (!serviceCounts[service.itemId]) {
                         serviceCounts[service.itemId] = {
                             count: 0,
-                            name: this.getItemName(service.itemId)
+                            name: this.getItemName(service.itemId),
                         };
                     }
                     serviceCounts[service.itemId].count++;
@@ -6389,7 +6878,9 @@ class LojaApp {
         }
 
         const labels = sortedServices.map(([id, data]) =>
-            data.name.length > 15 ? data.name.substring(0, 15) + '...' : data.name
+            data.name.length > 15
+                ? data.name.substring(0, 15) + '...'
+                : data.name
         );
         const counts = sortedServices.map(([id, data]) => data.count);
 
@@ -6401,26 +6892,28 @@ class LojaApp {
             type: 'doughnut',
             data: {
                 labels: labels,
-                datasets: [{
-                    data: counts,
-                    backgroundColor: [
-                        'rgba(40, 167, 69, 0.8)',
-                        'rgba(0, 123, 255, 0.8)',
-                        'rgba(255, 193, 7, 0.8)',
-                        'rgba(220, 53, 69, 0.8)',
-                        'rgba(108, 117, 125, 0.8)',
-                        'rgba(23, 162, 184, 0.8)',
-                        'rgba(111, 66, 193, 0.8)',
-                        'rgba(253, 126, 20, 0.8)',
-                        'rgba(32, 201, 151, 0.8)',
-                        'rgba(233, 30, 99, 0.8)'
-                    ]
-                }]
+                datasets: [
+                    {
+                        data: counts,
+                        backgroundColor: [
+                            'rgba(40, 167, 69, 0.8)',
+                            'rgba(0, 123, 255, 0.8)',
+                            'rgba(255, 193, 7, 0.8)',
+                            'rgba(220, 53, 69, 0.8)',
+                            'rgba(108, 117, 125, 0.8)',
+                            'rgba(23, 162, 184, 0.8)',
+                            'rgba(111, 66, 193, 0.8)',
+                            'rgba(253, 126, 20, 0.8)',
+                            'rgba(32, 201, 151, 0.8)',
+                            'rgba(233, 30, 99, 0.8)',
+                        ],
+                    },
+                ],
             },
             options: {
                 responsive: true,
-                maintainAspectRatio: false
-            }
+                maintainAspectRatio: false,
+            },
         });
     }
 
@@ -6433,7 +6926,20 @@ class LojaApp {
 
         groups.forEach((group) => {
             const [year, monthNum] = group.month.split('-');
-            const monthNames = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
+            const monthNames = [
+                'Jan',
+                'Fev',
+                'Mar',
+                'Abr',
+                'Mai',
+                'Jun',
+                'Jul',
+                'Ago',
+                'Set',
+                'Out',
+                'Nov',
+                'Dez',
+            ];
             months.push(`${monthNames[parseInt(monthNum) - 1]}/${year}`);
 
             let totalHours = 0;
@@ -6456,15 +6962,17 @@ class LojaApp {
             type: 'line',
             data: {
                 labels: months,
-                datasets: [{
-                    label: 'Horas Trabalhadas',
-                    data: hours,
-                    borderColor: 'rgba(40, 167, 69, 1)',
-                    backgroundColor: 'rgba(40, 167, 69, 0.1)',
-                    borderWidth: 2,
-                    fill: true,
-                    tension: 0.4
-                }]
+                datasets: [
+                    {
+                        label: 'Horas Trabalhadas',
+                        data: hours,
+                        borderColor: 'rgba(40, 167, 69, 1)',
+                        backgroundColor: 'rgba(40, 167, 69, 0.1)',
+                        borderWidth: 2,
+                        fill: true,
+                        tension: 0.4,
+                    },
+                ],
             },
             options: {
                 responsive: true,
@@ -6473,13 +6981,13 @@ class LojaApp {
                     y: {
                         beginAtZero: true,
                         ticks: {
-                            callback: function(value) {
+                            callback: function (value) {
                                 return value.toFixed(1) + 'h';
-                            }
-                        }
-                    }
-                }
-            }
+                            },
+                        },
+                    },
+                },
+            },
         });
     }
 
@@ -6492,7 +7000,20 @@ class LojaApp {
 
         groups.forEach((group) => {
             const [year, monthNum] = group.month.split('-');
-            const monthNames = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
+            const monthNames = [
+                'Jan',
+                'Fev',
+                'Mar',
+                'Abr',
+                'Mai',
+                'Jun',
+                'Jul',
+                'Ago',
+                'Set',
+                'Out',
+                'Nov',
+                'Dez',
+            ];
             months.push(`${monthNames[parseInt(monthNum) - 1]}/${year}`);
 
             let totalHours = 0;
@@ -6510,7 +7031,7 @@ class LojaApp {
             });
 
             if (daysWithServices > 0) {
-                const totalHoursDecimal = totalHours + (totalMinutes / 60);
+                const totalHoursDecimal = totalHours + totalMinutes / 60;
                 avgHours.push(totalHoursDecimal / daysWithServices);
             } else {
                 avgHours.push(0);
@@ -6525,13 +7046,15 @@ class LojaApp {
             type: 'bar',
             data: {
                 labels: months,
-                datasets: [{
-                    label: 'Média de Horas por Dia',
-                    data: avgHours,
-                    backgroundColor: 'rgba(255, 193, 7, 0.6)',
-                    borderColor: 'rgba(255, 193, 7, 1)',
-                    borderWidth: 2
-                }]
+                datasets: [
+                    {
+                        label: 'Média de Horas por Dia',
+                        data: avgHours,
+                        backgroundColor: 'rgba(255, 193, 7, 0.6)',
+                        borderColor: 'rgba(255, 193, 7, 1)',
+                        borderWidth: 2,
+                    },
+                ],
             },
             options: {
                 responsive: true,
@@ -6540,13 +7063,13 @@ class LojaApp {
                     y: {
                         beginAtZero: true,
                         ticks: {
-                            callback: function(value) {
+                            callback: function (value) {
                                 return value.toFixed(1) + 'h';
-                            }
-                        }
-                    }
-                }
-            }
+                            },
+                        },
+                    },
+                },
+            },
         });
     }
 
@@ -6559,7 +7082,20 @@ class LojaApp {
 
         groups.forEach((group) => {
             const [year, monthNum] = group.month.split('-');
-            const monthNames = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
+            const monthNames = [
+                'Jan',
+                'Fev',
+                'Mar',
+                'Abr',
+                'Mai',
+                'Jun',
+                'Jul',
+                'Ago',
+                'Set',
+                'Out',
+                'Nov',
+                'Dez',
+            ];
             months.push(`${monthNames[parseInt(monthNum) - 1]}/${year}`);
 
             let totalHours = 0;
@@ -6574,7 +7110,7 @@ class LojaApp {
                 });
             });
 
-            const totalHoursDecimal = totalHours + (totalMinutes / 60);
+            const totalHoursDecimal = totalHours + totalMinutes / 60;
             if (totalHoursDecimal > 0) {
                 avgValues.push(totalRevenue / totalHoursDecimal);
             } else {
@@ -6590,15 +7126,17 @@ class LojaApp {
             type: 'line',
             data: {
                 labels: months,
-                datasets: [{
-                    label: 'Valor Médio por Hora (R$)',
-                    data: avgValues,
-                    borderColor: 'rgba(111, 66, 193, 1)',
-                    backgroundColor: 'rgba(111, 66, 193, 0.1)',
-                    borderWidth: 2,
-                    fill: true,
-                    tension: 0.4
-                }]
+                datasets: [
+                    {
+                        label: 'Valor Médio por Hora (R$)',
+                        data: avgValues,
+                        borderColor: 'rgba(111, 66, 193, 1)',
+                        backgroundColor: 'rgba(111, 66, 193, 0.1)',
+                        borderWidth: 2,
+                        fill: true,
+                        tension: 0.4,
+                    },
+                ],
             },
             options: {
                 responsive: true,
@@ -6607,13 +7145,15 @@ class LojaApp {
                     y: {
                         beginAtZero: true,
                         ticks: {
-                            callback: function(value) {
-                                return 'R$ ' + value.toFixed(2).replace('.', ',');
-                            }
-                        }
-                    }
-                }
-            }
+                            callback: function (value) {
+                                return (
+                                    'R$ ' + value.toFixed(2).replace('.', ',')
+                                );
+                            },
+                        },
+                    },
+                },
+            },
         });
     }
 
@@ -6648,11 +7188,24 @@ class LojaApp {
             totalServices += monthServices;
 
             const [year, monthNum] = group.month.split('-');
-            const monthNames = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'];
+            const monthNames = [
+                'Janeiro',
+                'Fevereiro',
+                'Março',
+                'Abril',
+                'Maio',
+                'Junho',
+                'Julho',
+                'Agosto',
+                'Setembro',
+                'Outubro',
+                'Novembro',
+                'Dezembro',
+            ];
             monthStats.push({
                 month: `${monthNames[parseInt(monthNum) - 1]}/${year}`,
-                hours: monthHours + (monthMinutes / 60),
-                revenue: monthRevenue
+                hours: monthHours + monthMinutes / 60,
+                revenue: monthRevenue,
             });
         });
 
@@ -6660,45 +7213,77 @@ class LojaApp {
         totalMinutes = totalMinutes % 60;
 
         const monthCount = groups.length;
-        const avgHours = monthCount > 0 ? (totalHours + (totalMinutes / 60)) / monthCount : 0;
+        const avgHours =
+            monthCount > 0 ? (totalHours + totalMinutes / 60) / monthCount : 0;
         const avgHoursInt = Math.floor(avgHours);
         const avgMinutesInt = Math.floor((avgHours - avgHoursInt) * 60);
 
         const avgRevenue = monthCount > 0 ? totalRevenue / monthCount : 0;
 
-        const bestMonthHours = monthStats.length > 0 
-            ? monthStats.reduce((best, current) => current.hours > best.hours ? current : best, monthStats[0])
-            : null;
+        const bestMonthHours =
+            monthStats.length > 0
+                ? monthStats.reduce(
+                      (best, current) =>
+                          current.hours > best.hours ? current : best,
+                      monthStats[0]
+                  )
+                : null;
 
-        const bestMonthRevenue = monthStats.length > 0
-            ? monthStats.reduce((best, current) => current.revenue > best.revenue ? current : best, monthStats[0])
-            : null;
+        const bestMonthRevenue =
+            monthStats.length > 0
+                ? monthStats.reduce(
+                      (best, current) =>
+                          current.revenue > best.revenue ? current : best,
+                      monthStats[0]
+                  )
+                : null;
 
-        const totalHoursDecimal = totalHours + (totalMinutes / 60);
-        const avgValuePerHour = totalHoursDecimal > 0 ? totalRevenue / totalHoursDecimal : 0;
+        const totalHoursDecimal = totalHours + totalMinutes / 60;
+        const avgValuePerHour =
+            totalHoursDecimal > 0 ? totalRevenue / totalHoursDecimal : 0;
 
         // Atualizar elementos
-        const avgMonthlyHoursEl = document.getElementById('servicesAvgMonthlyHours');
-        const bestMonthHoursEl = document.getElementById('servicesBestMonthHours');
-        const avgMonthlyRevenueEl = document.getElementById('servicesAvgMonthlyRevenue');
-        const bestMonthRevenueEl = document.getElementById('servicesBestMonthRevenue');
-        const avgValuePerHourEl = document.getElementById('servicesAvgValuePerHour');
-        const totalServicesEl = document.getElementById('servicesTotalServices');
+        const avgMonthlyHoursEl = document.getElementById(
+            'servicesAvgMonthlyHours'
+        );
+        const bestMonthHoursEl = document.getElementById(
+            'servicesBestMonthHours'
+        );
+        const avgMonthlyRevenueEl = document.getElementById(
+            'servicesAvgMonthlyRevenue'
+        );
+        const bestMonthRevenueEl = document.getElementById(
+            'servicesBestMonthRevenue'
+        );
+        const avgValuePerHourEl = document.getElementById(
+            'servicesAvgValuePerHour'
+        );
+        const totalServicesEl = document.getElementById(
+            'servicesTotalServices'
+        );
 
         if (avgMonthlyHoursEl) {
             avgMonthlyHoursEl.textContent = `${avgHoursInt}h ${avgMinutesInt}min`;
         }
         if (bestMonthHoursEl) {
-            bestMonthHoursEl.textContent = bestMonthHours ? bestMonthHours.month : '-';
+            bestMonthHoursEl.textContent = bestMonthHours
+                ? bestMonthHours.month
+                : '-';
         }
         if (avgMonthlyRevenueEl) {
-            avgMonthlyRevenueEl.textContent = `R$ ${avgRevenue.toFixed(2).replace('.', ',')}`;
+            avgMonthlyRevenueEl.textContent = `R$ ${avgRevenue
+                .toFixed(2)
+                .replace('.', ',')}`;
         }
         if (bestMonthRevenueEl) {
-            bestMonthRevenueEl.textContent = bestMonthRevenue ? bestMonthRevenue.month : '-';
+            bestMonthRevenueEl.textContent = bestMonthRevenue
+                ? bestMonthRevenue.month
+                : '-';
         }
         if (avgValuePerHourEl) {
-            avgValuePerHourEl.textContent = `R$ ${avgValuePerHour.toFixed(2).replace('.', ',')}`;
+            avgValuePerHourEl.textContent = `R$ ${avgValuePerHour
+                .toFixed(2)
+                .replace('.', ',')}`;
         }
         if (totalServicesEl) {
             totalServicesEl.textContent = totalServices;
@@ -6920,7 +7505,8 @@ class LojaApp {
                     const hasData =
                         (cloudData.items && cloudData.items.length > 0) ||
                         (cloudData.groups && cloudData.groups.length > 0) ||
-                        (cloudData.serviceGroups && cloudData.serviceGroups.length > 0) ||
+                        (cloudData.serviceGroups &&
+                            cloudData.serviceGroups.length > 0) ||
                         (cloudData.costs && cloudData.costs.length > 0) ||
                         (cloudData.goals && cloudData.goals.length > 0);
 
