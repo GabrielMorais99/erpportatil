@@ -1127,6 +1127,40 @@ body {
     margin-top: 0.6rem;
 }
 
+.group-stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 0.75rem;
+    margin-bottom: 0.6rem;
+}
+
+.group-stats .stat-item {
+    padding: 0.75rem;
+    background: var(--gray-50);
+    border-radius: 6px;
+    border: 1px solid var(--gray-200);
+    text-align: center;
+}
+
+.group-stats .stat-item h4 {
+    color: var(--gray-600);
+    font-size: 0.75rem;
+    margin-bottom: 0.4rem;
+    font-weight: 500;
+    text-transform: uppercase;
+}
+
+.group-stats .stat-item p {
+    color: var(--primary-color);
+    font-size: 1rem;
+    font-weight: bold;
+    margin: 0;
+}
+
+.group-header {
+    margin-bottom: 0.6rem;
+}
+
 /* Modal */
 .modal {
     display: none;
@@ -1496,7 +1530,7 @@ body {
     .costs-layout,
     .goals-layout,
     .services-layout {
-        grid-template-columns: 1fr;
+        grid-template-columns: 1fr 1fr;
         gap: 1.5rem;
     }
 
