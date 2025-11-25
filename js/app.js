@@ -2126,9 +2126,9 @@ class LojaApp {
         // Calcular e atualizar totais de todos os meses com animação
         const allMonthsTotal = this.calculateTotalAllMonths();
         this.updateValueWithAnimation('totalSalesAll', allMonthsTotal.totalSales);
-        this.updateValueWithAnimation('totalValueAll', allMonthsTotal.totalValue, (val) => `R$ ${allMonthsTotal.totalValue
-            .toFixed(2)
-            .replace('.', ',')}`;
+        this.updateValueWithAnimation('totalValueAll', allMonthsTotal.totalValue, (val) =>
+            `R$ ${val.toFixed(2).replace('.', ',')}`
+        );
 
         // Renderizar dias
         const daysList = document.getElementById('daysList');
