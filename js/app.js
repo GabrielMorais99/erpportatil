@@ -1154,6 +1154,14 @@ class LojaApp {
     saveItem(e) {
         e.preventDefault();
 
+        // Desabilitar botão e mostrar loading
+        const submitBtn = e.target.querySelector('button[type="submit"]');
+        const originalText = submitBtn ? submitBtn.innerHTML : '';
+        if (submitBtn) {
+            submitBtn.disabled = true;
+            submitBtn.classList.add('loading');
+        }
+
         const category = document.getElementById('itemCategory').value;
 
         const item = {
@@ -1206,31 +1214,51 @@ class LojaApp {
             item.brand = ''; // Não usado para serviços
         }
 
-        // Validações
+        // Validações com feedback visual
         if (!category) {
-            alert('Por favor, selecione uma categoria.');
+            this.showError('Por favor, selecione uma categoria.');
+            if (submitBtn) {
+                submitBtn.disabled = false;
+                submitBtn.classList.remove('loading');
+            }
             return;
         }
 
         if (category === 'Roupas') {
             if (!item.brand) {
-                alert('Por favor, preencha a marca.');
+                this.showError('Por favor, preencha a marca.');
+                if (submitBtn) {
+                    submitBtn.disabled = false;
+                    submitBtn.classList.remove('loading');
+                }
                 return;
             }
         } else if (category === 'Eletrônicos') {
             if (!item.model) {
-                alert('Por favor, preencha o modelo.');
+                this.showError('Por favor, preencha o modelo.');
+                if (submitBtn) {
+                    submitBtn.disabled = false;
+                    submitBtn.classList.remove('loading');
+                }
                 return;
             }
         } else if (category === 'Serviços') {
             if (!item.name) {
-                alert('Por favor, preencha o nome do serviço.');
+                this.showError('Por favor, preencha o nome do serviço.');
+                if (submitBtn) {
+                    submitBtn.disabled = false;
+                    submitBtn.classList.remove('loading');
+                }
                 return;
             }
         }
 
-        if (item.price <= 0) {
-            alert('O preço deve ser maior que zero.');
+        if (item.price <= 0 || isNaN(item.price)) {
+            this.showError('O preço deve ser um valor numérico maior que zero.');
+            if (submitBtn) {
+                submitBtn.disabled = false;
+                submitBtn.classList.remove('loading');
+            }
             return;
         }
 
@@ -1256,9 +1284,18 @@ class LojaApp {
             this.items.push(item);
         }
 
+        // Reabilitar botão
+        if (submitBtn) {
+            submitBtn.disabled = false;
+            submitBtn.classList.remove('loading');
+        }
+
         this.saveData();
         this.renderItems();
         this.closeItemModal();
+        
+        // Mostrar mensagem de sucesso
+        this.showSuccess(this.currentEditingItem ? 'Item atualizado com sucesso!' : 'Item cadastrado com sucesso!');
         
         // Gerar QR code após salvar (apenas para produtos físicos)
         if (item.id && item.category !== 'Serviços') {
@@ -1268,6 +1305,77 @@ class LojaApp {
             const qrcodeSection = document.getElementById('qrcodeSection');
             if (qrcodeSection) qrcodeSection.style.display = 'none';
         }
+    }
+
+    // Funções auxiliares para feedback visual
+    showError(message) {
+        // Remover mensagens anteriores
+        const existingError = document.querySelector('.error-message');
+        const existingSuccess = document.querySelector('.success-message');
+        if (existingError) existingError.remove();
+        if (existingSuccess) existingSuccess.remove();
+
+        // Criar nova mensagem de erro
+        const errorDiv = document.createElement('div');
+        errorDiv.className = 'error-message show';
+        errorDiv.textContent = message;
+        errorDiv.setAttribute('role', 'alert');
+        errorDiv.setAttribute('aria-live', 'polite');
+
+        // Inserir no início do formulário ativo
+        const activeModal = document.querySelector('.modal.active');
+        if (activeModal) {
+            const form = activeModal.querySelector('form');
+            if (form) {
+                form.insertBefore(errorDiv, form.firstChild);
+                // Remover após 5 segundos
+                setTimeout(() => {
+                    errorDiv.classList.remove('show');
+                    setTimeout(() => errorDiv.remove(), 300);
+                }, 5000);
+            }
+        } else {
+            // Se não houver modal, usar alert como fallback
+            alert(message);
+        }
+    }
+
+    showSuccess(message) {
+        // Remover mensagens anteriores
+        const existingError = document.querySelector('.error-message');
+        const existingSuccess = document.querySelector('.success-message');
+        if (existingError) existingError.remove();
+        if (existingSuccess) existingSuccess.remove();
+
+        // Criar nova mensagem de sucesso
+        const successDiv = document.createElement('div');
+        successDiv.className = 'success-message show';
+        successDiv.textContent = message;
+        successDiv.setAttribute('role', 'status');
+        successDiv.setAttribute('aria-live', 'polite');
+
+        // Inserir no início do formulário ativo ou no topo da página
+        const activeModal = document.querySelector('.modal.active');
+        if (activeModal) {
+            const form = activeModal.querySelector('form');
+            if (form) {
+                form.insertBefore(successDiv, form.firstChild);
+            } else {
+                activeModal.querySelector('.modal-content').insertBefore(successDiv, activeModal.querySelector('.modal-content').firstChild);
+            }
+        } else {
+            // Se não houver modal, inserir no topo do main-content
+            const mainContent = document.querySelector('.main-content');
+            if (mainContent) {
+                mainContent.insertBefore(successDiv, mainContent.firstChild);
+            }
+        }
+
+        // Remover após 3 segundos
+        setTimeout(() => {
+            successDiv.classList.remove('show');
+            setTimeout(() => successDiv.remove(), 300);
+        }, 3000);
     }
 
     // ========== FUNÇÕES QR CODE ==========

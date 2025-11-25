@@ -268,10 +268,54 @@ body {
     font-size: 0.9rem;
     margin-bottom: 1rem;
     display: none;
+    padding: 0.75rem;
+    background-color: #fee;
+    border-left: 3px solid var(--primary-color);
+    border-radius: 4px;
 }
 
 .error-message.show {
     display: block;
+    animation: slideDown 0.3s ease-out;
+}
+
+.success-message {
+    color: #28a745;
+    font-size: 0.9rem;
+    margin-bottom: 1rem;
+    display: none;
+    padding: 0.75rem;
+    background-color: #d4edda;
+    border-left: 3px solid #28a745;
+    border-radius: 4px;
+}
+
+.success-message.show {
+    display: block;
+    animation: slideDown 0.3s ease-out;
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Estados de validação para inputs */
+.form-group input:invalid:not(:focus):not(:placeholder-shown),
+.form-group select:invalid:not(:focus):not(:placeholder-shown) {
+    border-color: var(--primary-color);
+    background-color: #fee;
+}
+
+.form-group input:valid:not(:focus):not(:placeholder-shown),
+.form-group select:valid:not(:focus):not(:placeholder-shown) {
+    border-color: #28a745;
 }
 
 .btn-primary {
@@ -283,10 +327,51 @@ body {
     font-size: 1rem;
     font-weight: normal;
     cursor: pointer;
-    transition: background-color 0.3s;
+    transition: background-color 0.3s, opacity 0.3s, transform 0.2s;
     white-space: nowrap;
     min-width: 180px;
     max-width: 250px;
+    position: relative;
+}
+
+.btn-primary:hover:not(:disabled) {
+    background-color: var(--primary-color-dark);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+.btn-primary:active:not(:disabled) {
+    transform: translateY(0);
+}
+
+.btn-primary:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+}
+
+.btn-primary.loading {
+    color: transparent;
+    pointer-events: none;
+}
+
+.btn-primary.loading::after {
+    content: "";
+    position: absolute;
+    width: 16px;
+    height: 16px;
+    top: 50%;
+    left: 50%;
+    margin-left: -8px;
+    margin-top: -8px;
+    border: 2px solid var(--white);
+    border-radius: 50%;
+    border-top-color: transparent;
+    animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
 }
 
 /* Centralizar botão de login */
@@ -473,7 +558,27 @@ body {
     font-size: 0.9rem;
     font-weight: 600;
     cursor: pointer;
-    transition: all 0.3s;
+    transition: all 0.3s, transform 0.2s;
+    position: relative;
+}
+
+.btn-secondary:hover:not(:disabled) {
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.btn-secondary:active:not(:disabled) {
+    transform: translateY(0);
+}
+
+.btn-secondary:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.btn-secondary:focus {
+    outline: 2px solid var(--primary-color);
+    outline-offset: 2px;
 }
 
 /* Hover do botão secundário no header (fundo colorido) */

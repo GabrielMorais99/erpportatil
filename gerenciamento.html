@@ -90,10 +90,10 @@
 
             <main class="main-content">
                 <div class="toolbar">
-                    <button type="button" id="newItemBtn" class="btn-primary">
+                    <button type="button" id="newItemBtn" class="btn-primary" aria-label="Cadastrar novo produto">
                         <i class="fas fa-plus-circle"></i> Novo Produto
                     </button>
-                    <button type="button" id="newGroupBtn" class="btn-primary">
+                    <button type="button" id="newGroupBtn" class="btn-primary" aria-label="Criar novo grupo mensal">
                         <i class="fas fa-calendar-alt"></i> Grupo Mensal
                     </button>
                     <div class="search-filter">
@@ -536,7 +536,7 @@
             <div class="modal-content">
                 <div class="modal-header">
                     <h2 id="modalTitle">Novo Produto</h2>
-                    <span class="close">&times;</span>
+                    <span class="close" aria-label="Fechar modal" role="button" tabindex="0">&times;</span>
                 </div>
                 <form id="itemForm">
                     <div class="form-group">
@@ -703,7 +703,7 @@
             <div class="modal-content">
                 <div class="modal-header">
                     <h2>Grupo Mensal</h2>
-                    <span class="close">&times;</span>
+                    <span class="close" aria-label="Fechar modal" role="button" tabindex="0">&times;</span>
                 </div>
                 <form id="groupForm">
                     <div class="form-group">
@@ -729,7 +729,7 @@
             <div class="modal-content large">
                 <div class="modal-header">
                     <h2 id="groupTitle">Grupo Mensal</h2>
-                    <span class="close">&times;</span>
+                    <span class="close" aria-label="Fechar modal" role="button" tabindex="0">&times;</span>
                 </div>
                 <div class="group-content">
                     <div class="group-summary">
@@ -827,7 +827,7 @@
             <div class="modal-content">
                 <div class="modal-header">
                     <h2>Registrar Venda</h2>
-                    <span class="close">&times;</span>
+                    <span class="close" aria-label="Fechar modal" role="button" tabindex="0">&times;</span>
                 </div>
                 <form id="saleForm">
                     <div class="form-group" id="saleDayInfo" style="background: var(--light-gray); padding: 10px; border-radius: 5px; margin-bottom: 15px; text-align: center;">
@@ -839,7 +839,7 @@
                             <select id="saleItem" required style="flex: 1;">
                                 <option value="">Selecione um item...</option>
                             </select>
-                            <button type="button" class="btn-secondary" id="scanQRBtn" title="Escanear QR Code" style="white-space: nowrap;">
+                            <button type="button" class="btn-secondary" id="scanQRBtn" title="Escanear QR Code" aria-label="Escanear QR Code do produto" style="white-space: nowrap;">
                                 <i class="fas fa-qrcode"></i>
                             </button>
                         </div>
@@ -894,7 +894,7 @@
             <div class="modal-content">
                 <div class="modal-header">
                     <h2 id="costModalTitle">Cadastrar Novo Custo</h2>
-                    <span class="close">&times;</span>
+                    <span class="close" aria-label="Fechar modal" role="button" tabindex="0">&times;</span>
                 </div>
                 <form id="costForm">
                     <div class="form-group">
@@ -957,7 +957,7 @@
             <div class="modal-content large">
                 <div class="modal-header">
                     <h2 id="stockModalTitle">Gerenciar Estoque do Dia</h2>
-                    <span class="close">&times;</span>
+                    <span class="close" aria-label="Fechar modal" role="button" tabindex="0">&times;</span>
                 </div>
                 <div class="stock-content">
                     <div class="form-group">
@@ -984,7 +984,7 @@
             <div class="modal-content large">
                 <div class="modal-header">
                     <h2 id="stockModalTitle">Gerenciar Estoque do Dia</h2>
-                    <span class="close">&times;</span>
+                    <span class="close" aria-label="Fechar modal" role="button" tabindex="0">&times;</span>
                 </div>
                 <div class="stock-content">
                     <div class="form-group">
@@ -1011,7 +1011,7 @@
             <div class="modal-content">
                 <div class="modal-header">
                     <h2>Novo Mês de Serviços</h2>
-                    <span class="close">&times;</span>
+                    <span class="close" aria-label="Fechar modal" role="button" tabindex="0">&times;</span>
                 </div>
                 <form id="serviceGroupForm">
                     <div class="form-group">
@@ -1033,7 +1033,7 @@
             <div class="modal-content">
                 <div class="modal-header">
                     <h2>Registrar Serviço</h2>
-                    <span class="close">&times;</span>
+                    <span class="close" aria-label="Fechar modal" role="button" tabindex="0">&times;</span>
                 </div>
                 <form id="serviceRecordForm">
                     <div class="form-group" id="serviceRecordDayInfo" style="background: var(--light-gray); padding: 10px; border-radius: 5px; margin-bottom: 15px; text-align: center;">
@@ -1098,7 +1098,7 @@
             <div class="modal-content large">
                 <div class="modal-header">
                     <h2 id="serviceGroupTitle">Serviços do Mês</h2>
-                    <span class="close">&times;</span>
+                    <span class="close" aria-label="Fechar modal" role="button" tabindex="0">&times;</span>
                 </div>
                 <div class="service-group-content">
                     <div class="service-group-summary">
@@ -1140,7 +1140,7 @@
             <div class="modal-content">
                 <div class="modal-header">
                     <h2 id="goalModalTitle">Criar Nova Meta</h2>
-                    <span class="close">&times;</span>
+                    <span class="close" aria-label="Fechar modal" role="button" tabindex="0">&times;</span>
                 </div>
                 <form id="goalForm">
                     <div class="form-group">
@@ -1182,7 +1182,7 @@
             <div class="modal-content">
                 <div class="modal-header">
                     <h2>QR Code do Produto</h2>
-                    <span class="close">&times;</span>
+                    <span class="close" aria-label="Fechar modal" role="button" tabindex="0">&times;</span>
                 </div>
                 <div style="text-align: center; padding: 2rem;">
                     <canvas id="qrcodeModalCanvas" style="max-width: 100%; height: auto; border: 2px solid var(--border-color); padding: 1rem; background: white;"></canvas>
@@ -1399,7 +1399,7 @@
             <div class="modal-content large">
                 <div class="modal-header">
                     <h2>Como usar o sistema</h2>
-                    <span class="close">&times;</span>
+                    <span class="close" aria-label="Fechar modal" role="button" tabindex="0">&times;</span>
                 </div>
                 <div class="modal-body" style="max-height: 70vh; overflow-y: auto;">
                     <div id="tutorialContent">
