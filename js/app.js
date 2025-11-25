@@ -4977,10 +4977,10 @@ class LojaApp {
             tabContent.style.opacity = '0';
             tabContent.style.transform = 'translateX(10px)';
             tabContent.classList.add('active');
-            
+
             // Forçar reflow para garantir que a animação funcione
             void tabContent.offsetWidth;
-            
+
             // Aplicar animação rápida
             setTimeout(() => {
                 tabContent.style.opacity = '1';
