@@ -7734,6 +7734,12 @@ class LojaApp {
         const bestMonthEl = document.getElementById('bestMonth');
         if (bestMonthEl) {
             bestMonthEl.textContent = bestMonth !== '-' ? bestMonth : '-';
+            // Adicionar tooltip com o valor completo
+            if (bestMonth !== '-') {
+                bestMonthEl.setAttribute('title', bestMonth);
+            } else {
+                bestMonthEl.removeAttribute('title');
+            }
         }
 
         // Margem de lucro média
@@ -8742,9 +8748,15 @@ class LojaApp {
             avgMonthlyHoursEl.textContent = `${avgHoursInt}h ${avgMinutesInt}min`;
         }
         if (bestMonthHoursEl) {
-            bestMonthHoursEl.textContent = bestMonthHours
-                ? bestMonthHours.month
-                : '-';
+            const monthText = bestMonthHours ? bestMonthHours.month : '-';
+            bestMonthHoursEl.textContent = monthText;
+            // Adicionar tooltip com o valor completo
+            if (bestMonthHours) {
+                const tooltipText = `${bestMonthHours.month} - ${bestMonthHours.hours.toFixed(1)}h`;
+                bestMonthHoursEl.setAttribute('title', tooltipText);
+            } else {
+                bestMonthHoursEl.removeAttribute('title');
+            }
         }
         if (avgMonthlyRevenueEl) {
             avgMonthlyRevenueEl.textContent = `R$ ${avgRevenue
@@ -8752,9 +8764,15 @@ class LojaApp {
                 .replace('.', ',')}`;
         }
         if (bestMonthRevenueEl) {
-            bestMonthRevenueEl.textContent = bestMonthRevenue
-                ? bestMonthRevenue.month
-                : '-';
+            const monthText = bestMonthRevenue ? bestMonthRevenue.month : '-';
+            bestMonthRevenueEl.textContent = monthText;
+            // Adicionar tooltip com o valor completo
+            if (bestMonthRevenue) {
+                const tooltipText = `${bestMonthRevenue.month} - R$ ${bestMonthRevenue.revenue.toFixed(2).replace('.', ',')}`;
+                bestMonthRevenueEl.setAttribute('title', tooltipText);
+            } else {
+                bestMonthRevenueEl.removeAttribute('title');
+            }
         }
         if (avgValuePerHourEl) {
             avgValuePerHourEl.textContent = `R$ ${avgValuePerHour
