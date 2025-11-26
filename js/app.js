@@ -1740,7 +1740,10 @@ class LojaApp {
             .value.toLowerCase();
         const monthFilter = document.getElementById('monthFilter').value;
 
-        let filteredItems = this.items;
+        // Filtrar apenas produtos físicos (excluir serviços) para o Painel de Vendas
+        let filteredItems = this.items.filter(
+            (item) => item.category !== 'Serviços'
+        );
 
         // Filtro de pesquisa
         if (searchTerm) {
