@@ -2152,6 +2152,7 @@ class LojaApp {
         this.saveData();
         this.renderGroups();
         this.updateMonthFilter();
+        this.updateYearFilter();
         this.closeGroupModal();
         alert('Grupo mensal criado com sucesso!');
     }
@@ -4141,6 +4142,7 @@ class LojaApp {
             this.saveData();
             this.renderGroups();
             this.updateMonthFilter();
+            this.updateYearFilter();
             this.updateOverallSummary();
         }
     }
