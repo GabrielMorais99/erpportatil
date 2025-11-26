@@ -7753,13 +7753,17 @@ class LojaApp {
             totalSales > 0 ? ((totalSales - totalCosts) / totalSales) * 100 : 0;
         const marginEl = document.getElementById('avgProfitMargin');
         if (marginEl) {
-            marginEl.textContent = `${profitMargin.toFixed(1)}%`;
+            const marginText = `${profitMargin.toFixed(1)}%`;
+            marginEl.textContent = marginText;
+            marginEl.setAttribute('title', marginText);
         }
 
         // Total de itens
         const itemsEl = document.getElementById('totalItemsCount');
         if (itemsEl) {
-            itemsEl.textContent = this.items.length;
+            const itemsText = this.items.length.toString();
+            itemsEl.textContent = itemsText;
+            itemsEl.setAttribute('title', `Total: ${itemsText} itens cadastrados`);
         }
     }
 
