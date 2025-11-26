@@ -1085,10 +1085,6 @@ class LojaApp {
                     }
                 }
                 this.generateQRCode(item.id);
-            } else if (item.category === 'Serviços') {
-                // Esconder seção de QR code para serviços
-                const qrcodeSection = document.getElementById('qrcodeSection');
-                if (qrcodeSection) qrcodeSection.style.display = 'none';
             }
         } else {
             title.textContent = 'Novo Produto';
