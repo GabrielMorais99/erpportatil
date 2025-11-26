@@ -500,6 +500,14 @@
                                     <i class="fas fa-bullseye"></i> Criar Nova Meta
                                 </button>
                             </div>
+                            <div class="panel-filters" style="margin-bottom: 1.5rem; display: flex; gap: 1rem; align-items: center; flex-wrap: wrap;">
+                                <div class="filter-group" style="display: flex; align-items: center; gap: 0.5rem;">
+                                    <label for="goalsYearFilter" style="font-weight: 600; color: var(--gray-700); font-size: 0.9rem;">Filtrar por Ano:</label>
+                                    <select id="goalsYearFilter" class="filter-select" style="padding: 0.5rem 1rem; border-radius: var(--radius-md); border: 1px solid var(--gray-300); background: var(--white); color: var(--dark-gray); font-size: 0.9rem; cursor: pointer; transition: all var(--transition-base);">
+                                        <option value="">Todos os anos</option>
+                                    </select>
+                                </div>
+                            </div>
                             <div id="goalsList" class="goals-list">
                                 <!-- Metas serão inseridas aqui via JavaScript -->
                             </div>

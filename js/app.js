@@ -95,6 +95,7 @@ class LojaApp {
                 this.renderGoals();
                 this.updateMonthFilter();
                 this.updateYearFilter();
+                this.updateGoalsYearFilter();
             });
 
             // Renderizar imediatamente também
@@ -107,6 +108,7 @@ class LojaApp {
             this.renderGoals();
             this.updateMonthFilter();
             this.updateYearFilter();
+            this.updateGoalsYearFilter();
             this.updateOverallSummary();
         }, 100);
     }
@@ -367,6 +369,15 @@ class LojaApp {
             console.log('✅ [APP.JS] Listener anexado ao yearFilter');
         } else {
             console.error('❌ [APP.JS] yearFilter não encontrado!');
+        }
+
+        // Filtro de ano para metas
+        const goalsYearFilter = document.getElementById('goalsYearFilter');
+        if (goalsYearFilter) {
+            goalsYearFilter.addEventListener('change', () => this.renderGoals());
+            console.log('✅ [APP.JS] Listener anexado ao goalsYearFilter');
+        } else {
+            console.error('❌ [APP.JS] goalsYearFilter não encontrado!');
         }
 
         // Modal de item
@@ -3371,19 +3382,22 @@ class LojaApp {
             )
         ) {
             // Usar data de vencimento ou data atual
-            const finalizationDate = order.dueDate 
-                ? new Date(order.dueDate) 
+            const finalizationDate = order.dueDate
+                ? new Date(order.dueDate)
                 : new Date();
-            
+
             // Obter ano e mês da data de finalização
             const year = finalizationDate.getFullYear();
-            const month = String(finalizationDate.getMonth() + 1).padStart(2, '0');
+            const month = String(finalizationDate.getMonth() + 1).padStart(
+                2,
+                '0'
+            );
             const day = finalizationDate.getDate();
             const groupMonth = `${year}-${month}`;
 
             // Encontrar ou criar grupo mensal
             let group = this.groups.find((g) => g.month === groupMonth);
-            
+
             if (!group) {
                 // Criar novo grupo mensal se não existir
                 group = {
@@ -3393,7 +3407,11 @@ class LojaApp {
                 };
 
                 // Criar dias do mês
-                const daysInMonth = new Date(year, parseInt(month), 0).getDate();
+                const daysInMonth = new Date(
+                    year,
+                    parseInt(month),
+                    0
+                ).getDate();
                 for (let d = 1; d <= daysInMonth; d++) {
                     group.days.push({
                         day: d,
@@ -3454,10 +3472,14 @@ class LojaApp {
                 customerName: order.customerName,
                 customerCPF: order.customerCPF || null,
                 items: order.items.map((item) => {
-                    const itemObj = this.items.find((i) => i.id === item.itemId);
+                    const itemObj = this.items.find(
+                        (i) => i.id === item.itemId
+                    );
                     return {
                         itemId: item.itemId,
-                        name: itemObj ? this.getItemName(item.itemId) : 'Item não encontrado',
+                        name: itemObj
+                            ? this.getItemName(item.itemId)
+                            : 'Item não encontrado',
                         quantity: item.quantity,
                         price: item.price,
                     };
@@ -3483,7 +3505,7 @@ class LojaApp {
             this.renderPendingOrders();
             this.renderGroups();
             this.updateYearFilter();
-            
+
             // Atualizar resumo geral
             this.updateOverallSummary();
 
@@ -4152,7 +4174,7 @@ class LojaApp {
 
         // Obter filtro de ano
         const yearFilter = document.getElementById('yearFilter')?.value || '';
-        
+
         // Filtrar grupos por ano se houver filtro
         let filteredGroups = this.groups;
         if (yearFilter) {
@@ -4212,7 +4234,9 @@ class LojaApp {
         if (filteredGroups.length === 0) {
             list.innerHTML =
                 '<p style="grid-column: 1/-1; text-align: center; color: var(--gray); padding: 2rem;">' +
-                (yearFilter ? `Nenhum grupo encontrado para o ano ${yearFilter}.` : 'Nenhum grupo mensal criado ainda.') +
+                (yearFilter
+                    ? `Nenhum grupo encontrado para o ano ${yearFilter}.`
+                    : 'Nenhum grupo mensal criado ainda.') +
                 '</p>';
             return;
         }
@@ -4330,7 +4354,7 @@ class LojaApp {
     updateMonthFilter() {
         const select = document.getElementById('monthFilter');
         if (!select) return;
-        
+
         const currentOptions = Array.from(select.options)
             .slice(1)
             .map((opt) => opt.value);
@@ -4374,7 +4398,9 @@ class LojaApp {
         });
 
         // Ordenar anos (mais recente primeiro)
-        const sortedYears = Array.from(years).sort((a, b) => parseInt(b) - parseInt(a));
+        const sortedYears = Array.from(years).sort(
+            (a, b) => parseInt(b) - parseInt(a)
+        );
 
         // Limpar opções existentes (exceto "Todos os anos")
         while (select.options.length > 1) {
@@ -5309,6 +5335,18 @@ class LojaApp {
         const goalStatusEl = document.getElementById('goalStatus');
         const goalProgressItem = document.getElementById('goalProgressItem');
         const goalStatusItem = document.getElementById('goalStatusItem');
+
+        // Obter filtro de ano
+        const goalsYearFilter = document.getElementById('goalsYearFilter')?.value || '';
+        
+        // Filtrar metas por ano se houver filtro
+        let filteredGoals = this.goals;
+        if (goalsYearFilter) {
+            filteredGoals = this.goals.filter((goal) => {
+                const [year] = goal.month.split('-');
+                return year === goalsYearFilter;
+            });
+        }
 
         // Calcular meta e vendas do mês atual
         const now = new Date();
