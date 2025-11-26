@@ -6475,7 +6475,7 @@ class LojaApp {
         const username = sessionStorage.getItem('username');
         const themeKey = username ? `appTheme_${username}` : 'appTheme';
         const savedTheme = localStorage.getItem(themeKey);
-        
+
         if (savedTheme === 'blue') {
             document.body.classList.add('theme-blue');
             this.updateThemeColor('#007bff');
@@ -6489,7 +6489,7 @@ class LojaApp {
         const isBlue = document.body.classList.contains('theme-blue');
         const username = sessionStorage.getItem('username');
         const themeKey = username ? `appTheme_${username}` : 'appTheme';
-        
+
         if (isBlue) {
             document.body.classList.remove('theme-blue');
             localStorage.setItem(themeKey, 'red');
@@ -6499,7 +6499,7 @@ class LojaApp {
             localStorage.setItem(themeKey, 'blue');
             this.updateThemeColor('#007bff');
         }
-        
+
         // Salvar tema no JSONBin junto com os dados do usuário
         this.saveData();
     }
@@ -7163,7 +7163,7 @@ class LojaApp {
         // Obter tema atual do usuário
         const themeKey = username ? `appTheme_${username}` : 'appTheme';
         const currentTheme = localStorage.getItem(themeKey) || 'red';
-        
+
         const data = {
             items: this.items,
             groups: this.groups,
@@ -7380,10 +7380,12 @@ class LojaApp {
                         this.serviceGroups = cloudData.serviceGroups || [];
                         this.costs = cloudData.costs || [];
                         this.goals = cloudData.goals || [];
-                        
+
                         // Carregar tema do JSONBin se existir
                         if (cloudData.theme) {
-                            const themeKey = username ? `appTheme_${username}` : 'appTheme';
+                            const themeKey = username
+                                ? `appTheme_${username}`
+                                : 'appTheme';
                             localStorage.setItem(themeKey, cloudData.theme);
                             // Aplicar tema imediatamente
                             if (cloudData.theme === 'blue') {
@@ -7541,6 +7543,21 @@ class LojaApp {
                 this.serviceGroups = data.serviceGroups || [];
                 this.costs = data.costs || [];
                 this.goals = data.goals || [];
+                
+                // Carregar tema do localStorage se existir
+                if (data.theme) {
+                    const themeKey = username ? `appTheme_${username}` : 'appTheme';
+                    localStorage.setItem(themeKey, data.theme);
+                    // Aplicar tema imediatamente
+                    if (data.theme === 'blue') {
+                        document.body.classList.add('theme-blue');
+                        this.updateThemeColor('#007bff');
+                    } else {
+                        document.body.classList.remove('theme-blue');
+                        this.updateThemeColor('#dc3545');
+                    }
+                    console.log(`✅ [LOAD DATA] Tema carregado do localStorage: ${data.theme}`);
+                }
 
                 // Migração: adicionar categoria "Roupas" para itens antigos sem categoria
                 let needsSave = false;
