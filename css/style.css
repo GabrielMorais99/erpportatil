@@ -1952,7 +1952,7 @@ body.theme-blue .login-container #entrarBtn:focus {
     background: linear-gradient(
         90deg,
         transparent 0%,
-        var(--primary-color) 50%,
+        #000000 50%,
         transparent 100%
     );
     opacity: 0.8;
