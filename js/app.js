@@ -4418,6 +4418,38 @@ class LojaApp {
         });
     }
 
+    updateGoalsYearFilter() {
+        const select = document.getElementById('goalsYearFilter');
+        if (!select) return;
+
+        // Obter todos os anos únicos das metas
+        const years = new Set();
+        this.goals.forEach((goal) => {
+            if (goal.month) {
+                const [year] = goal.month.split('-');
+                years.add(year);
+            }
+        });
+
+        // Ordenar anos (mais recente primeiro)
+        const sortedYears = Array.from(years).sort(
+            (a, b) => parseInt(b) - parseInt(a)
+        );
+
+        // Limpar opções existentes (exceto "Todos os anos")
+        while (select.options.length > 1) {
+            select.remove(1);
+        }
+
+        // Adicionar anos
+        sortedYears.forEach((year) => {
+            const option = document.createElement('option');
+            option.value = year;
+            option.textContent = year;
+            select.appendChild(option);
+        });
+    }
+
     // ========== SERVIÇOS MENSAIS ==========
 
     openServiceGroupModal() {
@@ -5341,13 +5373,14 @@ class LojaApp {
         const goalStatusItem = document.getElementById('goalStatusItem');
 
         // Obter filtro de ano
-        const goalsYearFilter =
-            document.getElementById('goalsYearFilter')?.value || '';
+        const goalsYearFilterEl = document.getElementById('goalsYearFilter');
+        const goalsYearFilter = goalsYearFilterEl ? goalsYearFilterEl.value : '';
 
         // Filtrar metas por ano se houver filtro
         let filteredGoals = this.goals;
-        if (goalsYearFilter) {
+        if (goalsYearFilter && goalsYearFilter !== '') {
             filteredGoals = this.goals.filter((goal) => {
+                if (!goal.month) return false;
                 const [year] = goal.month.split('-');
                 return year === goalsYearFilter;
             });
