@@ -2286,6 +2286,13 @@ class LojaApp {
         this.currentSaleDay = day;
         const dayData = group.days.find((d) => d.day === day);
 
+        // Verificar se o viewGroupModal está aberto e aumentar z-index do saleModal
+        const viewGroupModal = document.getElementById('viewGroupModal');
+        const saleModal = document.getElementById('saleModal');
+        if (viewGroupModal && viewGroupModal.classList.contains('active') && saleModal) {
+            saleModal.classList.add('modal-overlay');
+        }
+
         // Popular select de itens (incluindo serviços)
         const saleItemSelect = document.getElementById('saleItem');
         saleItemSelect.innerHTML =
@@ -2562,6 +2569,9 @@ class LojaApp {
 
         const modal = document.getElementById('saleModal');
         if (modal) {
+            // Remover classe de overlay se existir
+            modal.classList.remove('modal-overlay');
+            
             // Animação ao fechar modal
             modal.style.opacity = '0';
             setTimeout(() => {

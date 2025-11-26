@@ -977,6 +977,68 @@ body.theme-blue .login-container #entrarBtn:focus {
 }
 
 /* ========================================
+   GROUP SUMMARY - ESTILIZAÇÃO PADRONIZADA
+   ======================================== */
+
+.group-summary {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.summary-card {
+    background: var(--white);
+    padding: 1.5rem;
+    border-radius: var(--radius-md);
+    border: 1px solid var(--gray-200);
+    box-shadow: var(--shadow-sm);
+    text-align: center;
+    transition: all var(--transition-base);
+}
+
+.summary-card:hover {
+    box-shadow: var(--shadow-md);
+    transform: translateY(-2px);
+}
+
+.summary-card h3 {
+    color: var(--gray-600);
+    font-size: 0.875rem;
+    font-weight: 500;
+    margin-bottom: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.summary-card p {
+    color: var(--primary-color);
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin: 0;
+}
+
+.summary-card-highlight {
+    background: linear-gradient(135deg, #fff3cd 0%, #ffeaa7 100%);
+    border: 2px solid #ffc107;
+}
+
+.summary-card-highlight h3 {
+    color: #856404;
+}
+
+.summary-card-highlight p {
+    color: #856404;
+    font-size: 1.8rem;
+    font-weight: 700;
+}
+
+/* Modal com z-index maior quando aberto sobre outro modal */
+.modal.modal-overlay {
+    z-index: 1001;
+}
+
+/* ========================================
    MODAL REFINADO - BACKDROP BLUR
    ======================================== */
 
