@@ -5407,14 +5407,16 @@ class LojaApp {
             }
         }
 
-        if (this.goals.length === 0) {
+        if (filteredGoals.length === 0) {
             list.innerHTML =
-                '<p style="grid-column: 1/-1; text-align: center; color: var(--gray); padding: 2rem;">Nenhuma meta cadastrada ainda.</p>';
+                '<p style="grid-column: 1/-1; text-align: center; color: var(--gray); padding: 2rem;">' +
+                (goalsYearFilter ? `Nenhuma meta encontrada para o ano ${goalsYearFilter}.` : 'Nenhuma meta cadastrada ainda.') +
+                '</p>';
             return;
         }
 
         // Ordenar por mês (mais recente primeiro)
-        const sortedGoals = [...this.goals].sort((a, b) =>
+        const sortedGoals = [...filteredGoals].sort((a, b) =>
             b.month.localeCompare(a.month)
         );
 
