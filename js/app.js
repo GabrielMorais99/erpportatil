@@ -374,7 +374,9 @@ class LojaApp {
         // Filtro de ano para metas
         const goalsYearFilter = document.getElementById('goalsYearFilter');
         if (goalsYearFilter) {
-            goalsYearFilter.addEventListener('change', () => this.renderGoals());
+            goalsYearFilter.addEventListener('change', () =>
+                this.renderGoals()
+            );
             console.log('✅ [APP.JS] Listener anexado ao goalsYearFilter');
         } else {
             console.error('❌ [APP.JS] goalsYearFilter não encontrado!');
@@ -5302,6 +5304,7 @@ class LojaApp {
 
         this.saveData();
         this.renderGoals();
+        this.updateGoalsYearFilter();
         this.closeGoalModal();
     }
 
@@ -5310,6 +5313,7 @@ class LojaApp {
             this.goals = this.goals.filter((g) => g.id !== goalId);
             this.saveData();
             this.renderGoals();
+            this.updateGoalsYearFilter();
         }
     }
 
@@ -5337,8 +5341,9 @@ class LojaApp {
         const goalStatusItem = document.getElementById('goalStatusItem');
 
         // Obter filtro de ano
-        const goalsYearFilter = document.getElementById('goalsYearFilter')?.value || '';
-        
+        const goalsYearFilter =
+            document.getElementById('goalsYearFilter')?.value || '';
+
         // Filtrar metas por ano se houver filtro
         let filteredGoals = this.goals;
         if (goalsYearFilter) {
@@ -5410,7 +5415,9 @@ class LojaApp {
         if (filteredGoals.length === 0) {
             list.innerHTML =
                 '<p style="grid-column: 1/-1; text-align: center; color: var(--gray); padding: 2rem;">' +
-                (goalsYearFilter ? `Nenhuma meta encontrada para o ano ${goalsYearFilter}.` : 'Nenhuma meta cadastrada ainda.') +
+                (goalsYearFilter
+                    ? `Nenhuma meta encontrada para o ano ${goalsYearFilter}.`
+                    : 'Nenhuma meta cadastrada ainda.') +
                 '</p>';
             return;
         }
