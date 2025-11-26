@@ -609,6 +609,49 @@ body {
     font-size: 1.1rem;
     font-weight: 700;
     letter-spacing: -0.02em;
+    padding-top: 2.5rem;
+    padding-right: 0;
+    margin-top: 0;
+}
+
+/* Estilos para informações do item */
+.item-info {
+    margin-bottom: 0.5rem;
+    color: var(--gray-600);
+    font-size: 0.85rem;
+    line-height: 1.5;
+}
+
+.item-price {
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: var(--dark-gray);
+    margin: 0.75rem 0 1rem 0;
+}
+
+.item-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    margin-top: 1rem;
+}
+
+.item-actions .btn-small:first-child {
+    width: 100%;
+    justify-content: center;
+}
+
+.item-actions .btn-edit,
+.item-actions .btn-delete {
+    flex: 1;
+    width: 100%;
+    justify-content: center;
+}
+
+.item-actions-row {
+    display: flex;
+    gap: 0.75rem;
+    width: 100%;
 }
 
 /* ========================================
@@ -1131,8 +1174,8 @@ body {
 
 .item-category-badge {
     position: absolute;
-    top: 1rem;
-    right: 1rem;
+    top: 0.75rem;
+    right: 0.75rem;
     background: linear-gradient(
         135deg,
         var(--primary-color) 0%,
@@ -1146,7 +1189,7 @@ body {
     text-transform: uppercase;
     letter-spacing: 0.5px;
     box-shadow: var(--shadow-md);
-    z-index: 1;
+    z-index: 2;
     transition: all var(--transition-base);
 }
 

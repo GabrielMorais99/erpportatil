@@ -2115,12 +2115,14 @@ class LojaApp {
                         </button>`
                             : ''
                     }
-                    <button class="btn-small btn-edit" onclick="app.openItemModal(${JSON.stringify(
-                        item
-                    ).replace(/"/g, '&quot;')})">Editar</button>
-                    <button class="btn-small btn-delete" onclick="app.deleteItem('${
-                        item.id
-                    }')">Excluir</button>
+                    <div class="item-actions-row">
+                        <button class="btn-small btn-edit" onclick="app.openItemModal(${JSON.stringify(
+                            item
+                        ).replace(/"/g, '&quot;')})">Editar</button>
+                        <button class="btn-small btn-delete" onclick="app.deleteItem('${
+                            item.id
+                        }')">Excluir</button>
+                    </div>
                 </div>
             </div>
         `;
