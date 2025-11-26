@@ -7161,7 +7161,6 @@ class LojaApp {
         }
 
         // Obter tema atual do usuário
-        const username = sessionStorage.getItem('username');
         const themeKey = username ? `appTheme_${username}` : 'appTheme';
         const currentTheme = localStorage.getItem(themeKey) || 'red';
         
