@@ -1,0 +1,29 @@
+# Cursor AI Rules para Projeto de Gestão Financeira
+
+## Design System
+- Use variáveis CSS: --primary-color, --radius-md, --transition-base
+- Seguir padrões do emergente.sh para inputs e componentes
+- Manter consistência visual em todos os componentes
+
+## Estilos
+- Inputs: padding 0.875rem 1.125rem, border-radius var(--radius-md)
+- Transições: usar var(--transition-base) para consistência
+- Focus states: box-shadow com rgba(220, 53, 69, 0.12) para inputs gerais
+- Login inputs: background var(--gray-50), focus para var(--white)
+
+## Código
+- Sempre usar const/let, evitar var
+- Funções arrow quando possível
+- Comentários em português para lógica complexa
+- Manter código limpo e legível
+
+## Performance
+- Animações leves (0.2s - 0.3s máximo)
+- Evitar animações pesadas ou sequenciais
+- Otimizar queries e renderizações
+
+## Acessibilidade
+- Sempre incluir aria-labels em elementos interativos
+- Manter contraste adequado (WCAG AA)
+- Suporte a navegação por teclado
+
