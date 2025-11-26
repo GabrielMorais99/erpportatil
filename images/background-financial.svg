@@ -1,19 +1,21 @@
 <svg width="1920" height="1080" xmlns="http://www.w3.org/2000/svg">
   <defs>
     <linearGradient id="bgGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" style="stop-color:#1a1a2e;stop-opacity:1" />
-      <stop offset="50%" style="stop-color:#16213e;stop-opacity:1" />
-      <stop offset="100%" style="stop-color:#0f3460;stop-opacity:1" />
+      <stop offset="0%" style="stop-color:#0d1117;stop-opacity:1" />
+      <stop offset="50%" style="stop-color:#161b22;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#1c2128;stop-opacity:1" />
     </linearGradient>
     <pattern id="gridPattern" width="40" height="40" patternUnits="userSpaceOnUse">
-      <path d="M 40 0 L 0 0 0 40" fill="none" stroke="rgba(255,255,255,0.03)" stroke-width="1"/>
+      <path d="M 40 0 L 0 0 0 40" fill="none" stroke="rgba(255,255,255,0.08)" stroke-width="1"/>
     </pattern>
     <radialGradient id="circleGradient1" cx="50%" cy="50%">
-      <stop offset="0%" style="stop-color:rgba(220,53,69,0.1);stop-opacity:1" />
+      <stop offset="0%" style="stop-color:rgba(220,53,69,0.25);stop-opacity:1" />
+      <stop offset="70%" style="stop-color:rgba(220,53,69,0.1);stop-opacity:1" />
       <stop offset="100%" style="stop-color:rgba(220,53,69,0);stop-opacity:1" />
     </radialGradient>
     <radialGradient id="circleGradient2" cx="50%" cy="50%">
-      <stop offset="0%" style="stop-color:rgba(0,123,255,0.08);stop-opacity:1" />
+      <stop offset="0%" style="stop-color:rgba(0,123,255,0.2);stop-opacity:1" />
+      <stop offset="70%" style="stop-color:rgba(0,123,255,0.08);stop-opacity:1" />
       <stop offset="100%" style="stop-color:rgba(0,123,255,0);stop-opacity:1" />
     </radialGradient>
   </defs>
@@ -24,22 +26,30 @@
   <!-- Grid pattern -->
   <rect width="100%" height="100%" fill="url(#gridPattern)"/>
   
-  <!-- Decorative circles -->
+  <!-- Decorative circles - mais visíveis -->
   <circle cx="10%" cy="20%" r="300" fill="url(#circleGradient1)"/>
   <circle cx="90%" cy="80%" r="400" fill="url(#circleGradient2)"/>
   <circle cx="50%" cy="50%" r="250" fill="url(#circleGradient1)"/>
+  <circle cx="75%" cy="30%" r="200" fill="url(#circleGradient2)"/>
+  <circle cx="25%" cy="70%" r="180" fill="url(#circleGradient1)"/>
   
-  <!-- Financial chart lines -->
-  <g stroke="rgba(255,255,255,0.05)" stroke-width="2" fill="none">
+  <!-- Financial chart lines - mais visíveis -->
+  <g stroke="rgba(255,255,255,0.12)" stroke-width="3" fill="none" stroke-linecap="round">
     <path d="M 0,800 Q 200,600 400,700 T 800,650 T 1200,600 T 1600,550 T 1920,500"/>
     <path d="M 0,900 Q 300,700 600,750 T 1200,700 T 1920,650"/>
+    <path d="M 0,700 Q 150,550 300,600 T 600,550 T 900,500 T 1200,450 T 1920,400"/>
   </g>
   
-  <!-- Geometric shapes -->
-  <polygon points="100,100 200,50 250,150 150,200" fill="rgba(220,53,69,0.05)" opacity="0.6"/>
-  <polygon points="1700,200 1800,150 1850,250 1750,300" fill="rgba(0,123,255,0.05)" opacity="0.6"/>
+  <!-- Geometric shapes - mais visíveis -->
+  <polygon points="100,100 200,50 250,150 150,200" fill="rgba(220,53,69,0.15)" opacity="0.8"/>
+  <polygon points="1700,200 1800,150 1850,250 1750,300" fill="rgba(0,123,255,0.15)" opacity="0.8"/>
+  <polygon points="1600,800 1700,750 1750,850 1650,900" fill="rgba(220,53,69,0.12)" opacity="0.7"/>
   
-  <!-- Subtle overlay -->
-  <rect width="100%" height="100%" fill="rgba(0,0,0,0.2)"/>
+  <!-- Linhas decorativas adicionais -->
+  <line x1="0" y1="200" x2="1920" y2="300" stroke="rgba(255,255,255,0.06)" stroke-width="2"/>
+  <line x1="0" y1="400" x2="1920" y2="500" stroke="rgba(255,255,255,0.06)" stroke-width="2"/>
+  
+  <!-- Overlay mais sutil para não escurecer demais -->
+  <rect width="100%" height="100%" fill="rgba(0,0,0,0.1)"/>
 </svg>
 
