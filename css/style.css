@@ -42,6 +42,10 @@ body {
     /* Variáveis de tema padrão (vermelho) */
     --primary-color: var(--primary-red);
     --primary-color-dark: var(--primary-red-dark);
+    
+    /* Variáveis de design system (emergente.sh) */
+    --radius-md: 8px;
+    --transition-base: 0.2s ease;
 }
 
 /* Tema azul */
@@ -242,13 +246,16 @@ body {
 }
 
 .form-group input,
-.form-group select {
+.form-group select,
+.form-group textarea {
     width: 100%;
-    padding: 0.75rem;
-    border: 2px solid var(--border-color);
-    border-radius: 5px;
+    padding: 0.875rem 1.125rem;
+    border: 2px solid var(--gray-200);
+    border-radius: var(--radius-md);
     font-size: 1rem;
-    transition: border-color 0.3s;
+    transition: all var(--transition-base);
+    background: var(--white);
+    font-weight: 500;
 }
 
 .category-specific-fields {
@@ -258,9 +265,12 @@ body {
 }
 
 .form-group input:focus,
-.form-group select:focus {
+.form-group select:focus,
+.form-group textarea:focus {
     outline: none;
     border-color: var(--primary-color);
+    box-shadow: 0 0 0 4px rgba(220, 53, 69, 0.12);
+    transform: translateY(-1px);
 }
 
 .error-message {
