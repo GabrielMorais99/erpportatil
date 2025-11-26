@@ -63,9 +63,13 @@ module.exports = async (req, res) => {
                     allUsersData.users = {
                         [username]: {
                             items: existingData.items || [],
+                            serviceGroups: existingData.serviceGroups || [],
                             groups: existingData.groups || [],
                             costs: existingData.costs || [],
                             goals: existingData.goals || [],
+                            completedSales: existingData.completedSales || [],
+                            pendingOrders: existingData.pendingOrders || [],
+                            serviceAppointments: existingData.serviceAppointments || [],
                         }
                     };
                 } else if (existingData.users) {
@@ -88,6 +92,9 @@ module.exports = async (req, res) => {
             groups: userData.groups || [],
             costs: userData.costs || [],
             goals: userData.goals || [],
+            completedSales: userData.completedSales || [],
+            pendingOrders: userData.pendingOrders || [],
+            serviceAppointments: userData.serviceAppointments || [],
             lastUpdate: new Date().toISOString(),
         };
 

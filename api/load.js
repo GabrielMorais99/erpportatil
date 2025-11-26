@@ -24,8 +24,12 @@ module.exports = async (req, res) => {
                 data: {
                     items: [],
                     groups: [],
+                    serviceGroups: [],
                     costs: [],
-                    goals: []
+                    goals: [],
+                    completedSales: [],
+                    pendingOrders: [],
+                    serviceAppointments: []
                 },
                 timestamp: new Date().toISOString()
             });
@@ -43,8 +47,12 @@ module.exports = async (req, res) => {
                 data: {
                     items: [],
                     groups: [],
+                    serviceGroups: [],
                     costs: [],
-                    goals: []
+                    goals: [],
+                    completedSales: [],
+                    pendingOrders: [],
+                    serviceAppointments: []
                 },
                 timestamp: new Date().toISOString()
             });
@@ -67,7 +75,10 @@ module.exports = async (req, res) => {
                 groups: [],
                 serviceGroups: [],
                 costs: [],
-                goals: []
+                goals: [],
+                completedSales: [],
+                pendingOrders: [],
+                serviceAppointments: []
             };
 
             if (allData.users && allData.users[username]) {
@@ -82,7 +93,10 @@ module.exports = async (req, res) => {
                     groups: [],
                     serviceGroups: [],
                     costs: [],
-                    goals: []
+                    goals: [],
+                    completedSales: [],
+                    pendingOrders: [],
+                    serviceAppointments: []
                 };
             }
 
@@ -101,8 +115,12 @@ module.exports = async (req, res) => {
                 data: {
                     items: [],
                     groups: [],
+                    serviceGroups: [],
                     costs: [],
-                    goals: []
+                    goals: [],
+                    completedSales: [],
+                    pendingOrders: [],
+                    serviceAppointments: []
                 },
                 timestamp: new Date().toISOString()
             });
