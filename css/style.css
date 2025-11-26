@@ -111,6 +111,46 @@ body.theme-blue .login-container {
     background-color: #333333;
 }
 
+/* ========================================
+   LOGIN - BOTÃO CENTRALIZADO E ESTILIZADO
+   ======================================== */
+#loginForm {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    text-align: center;
+}
+
+#loginForm .form-group {
+    width: 100%;
+    text-align: left;
+}
+
+#loginForm .error-message {
+    width: 100%;
+    text-align: center;
+}
+
+#loginForm .btn-primary {
+    width: 100%;
+    max-width: none;
+    margin: 1rem 0 0 0;
+    align-self: stretch;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 0.875rem 1.5rem;
+    font-size: 1rem;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    box-shadow: var(--shadow-lg);
+}
+
+#loginForm .btn-primary:hover {
+    box-shadow: var(--shadow-xl);
+    transform: translateY(-3px);
+}
+
 body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     background-color: var(--gray-50);
