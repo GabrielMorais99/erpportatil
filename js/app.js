@@ -981,13 +981,11 @@ class LojaApp {
         const category = document.getElementById('itemCategory').value;
         const clothingFields = document.getElementById('clothingFields');
         const electronicsFields = document.getElementById('electronicsFields');
-        const servicesFields = document.getElementById('servicesFields');
         const clothingBasicFields = document.getElementById(
             'clothingBasicFields'
         );
         const itemName = document.getElementById('itemName');
         const itemBrand = document.getElementById('itemBrand');
-        const serviceName = document.getElementById('serviceName');
 
         if (category === 'Roupas') {
             // Mostrar campos básicos (Nome e Marca)
@@ -1025,12 +1023,6 @@ class LojaApp {
             if (clothingFields) clothingFields.style.display = 'none';
             // Mostrar campos específicos de eletrônicos
             if (electronicsFields) electronicsFields.style.display = 'block';
-            // Esconder campos de serviços
-            if (servicesFields) servicesFields.style.display = 'none';
-            // Remover required de serviceName quando não for Serviços
-            if (serviceName) {
-                serviceName.required = false;
-            }
             // Limpar campos de roupas
             document.getElementById('itemStyle').value = '';
             document.getElementById('itemSize').value = '';
@@ -1048,58 +1040,6 @@ class LojaApp {
             }
             if (clothingFields) clothingFields.style.display = 'none';
             if (electronicsFields) electronicsFields.style.display = 'none';
-            if (servicesFields) servicesFields.style.display = 'none';
-            // Remover required de serviceName quando não for Serviços
-            if (serviceName) {
-                serviceName.required = false;
-            }
-        }
-
-        // Adicionar lógica para Serviços
-        if (category === 'Serviços') {
-            // Esconder campos básicos (Nome e Marca)
-            if (clothingBasicFields) clothingBasicFields.style.display = 'none';
-            if (itemName) {
-                itemName.required = false;
-                itemName.parentElement.style.display = 'none';
-                itemName.value = '';
-            }
-            if (itemBrand) {
-                itemBrand.required = false;
-                itemBrand.parentElement.style.display = 'none';
-                itemBrand.value = '';
-            }
-            // Esconder campos específicos de roupas e eletrônicos
-            if (clothingFields) clothingFields.style.display = 'none';
-            if (electronicsFields) electronicsFields.style.display = 'none';
-            // Mostrar campos específicos de serviços
-            if (servicesFields) servicesFields.style.display = 'block';
-            // Configurar nome do serviço como obrigatório
-            if (serviceName) {
-                serviceName.required = true;
-            }
-            // Limpar campos de outras categorias
-            document.getElementById('itemStyle').value = '';
-            document.getElementById('itemSize').value = '';
-            document.getElementById('itemGender').value = '';
-            document.getElementById('itemModel').value = '';
-            document.getElementById('itemCapacity').value = '';
-            document.getElementById('itemColor').value = '';
-        } else if (
-            category !== 'Roupas' &&
-            category !== 'Eletrônicos' &&
-            category !== 'Serviços'
-        ) {
-            // Se não for nenhuma categoria específica, esconder campos de serviços também
-            if (servicesFields) servicesFields.style.display = 'none';
-            if (serviceName) {
-                serviceName.required = false;
-            }
-        }
-
-        // Garantir que serviceName não seja required quando categoria for Roupas
-        if (category === 'Roupas' && serviceName) {
-            serviceName.required = false;
         }
     }
 
@@ -1128,21 +1068,6 @@ class LojaApp {
                 document.getElementById('itemCapacity').value =
                     item.capacity || '';
                 document.getElementById('itemColor').value = item.color || '';
-            } else if (item.category === 'Serviços') {
-                document.getElementById('serviceName').value = item.name || '';
-                document.getElementById('serviceDescription').value =
-                    item.description || '';
-                document.getElementById('serviceDuration').value =
-                    item.duration || '';
-                document.getElementById('serviceType').value =
-                    item.serviceType || '';
-                document.getElementById('serviceUnit').value =
-                    item.serviceUnit || 'Unidades';
-                document.getElementById('serviceDefaultHours').value =
-                    item.defaultHours || 0;
-                document.getElementById('serviceDefaultMinutes').value =
-                    item.defaultMinutes || 0;
-            }
 
             // Atualizar campos visíveis
             this.toggleCategoryFields();
@@ -1171,14 +1096,6 @@ class LojaApp {
             // Esconder campos específicos ao criar novo item
             document.getElementById('clothingFields').style.display = 'none';
             document.getElementById('electronicsFields').style.display = 'none';
-            const servicesFields = document.getElementById('servicesFields');
-            if (servicesFields) servicesFields.style.display = 'none';
-
-            // Remover required de serviceName ao criar novo item
-            const serviceName = document.getElementById('serviceName');
-            if (serviceName) {
-                serviceName.required = false;
-            }
 
             // Mostrar campos básicos por padrão (serão escondidos quando categoria for selecionada)
             const clothingBasicFields = document.getElementById(
@@ -1268,29 +1185,6 @@ class LojaApp {
             item.model = model || '';
             item.capacity = capacity || '';
             item.color = color || '';
-        } else if (category === 'Serviços') {
-            item.name = document.getElementById('serviceName').value.trim();
-            item.description =
-                document.getElementById('serviceDescription').value.trim() ||
-                '';
-            item.duration =
-                document.getElementById('serviceDuration').value.trim() || '';
-            item.serviceType =
-                document.getElementById('serviceType').value || '';
-            item.serviceUnit =
-                document.getElementById('serviceUnit').value || 'Unidades';
-            // Horas padrão do serviço
-            const defaultHours =
-                parseInt(
-                    document.getElementById('serviceDefaultHours').value
-                ) || 0;
-            const defaultMinutes =
-                parseInt(
-                    document.getElementById('serviceDefaultMinutes').value
-                ) || 0;
-            item.defaultHours = defaultHours;
-            item.defaultMinutes = defaultMinutes;
-            item.brand = ''; // Não usado para serviços
         }
 
         // Validações com feedback visual
@@ -1321,15 +1215,6 @@ class LojaApp {
                 }
                 return;
             }
-        } else if (category === 'Serviços') {
-            if (!item.name) {
-                this.showError('Por favor, preencha o nome do serviço.');
-                if (submitBtn) {
-                    submitBtn.disabled = false;
-                    submitBtn.classList.remove('loading');
-                }
-                return;
-            }
         }
 
         if (item.price <= 0 || isNaN(item.price)) {
@@ -1344,7 +1229,6 @@ class LojaApp {
         }
 
         // Gerar código QR numérico exclusivo para produtos físicos
-        if (item.category !== 'Serviços') {
             if (
                 this.currentEditingItem &&
                 this.currentEditingItem.qrCodeNumber
@@ -1385,13 +1269,9 @@ class LojaApp {
                 : 'Item cadastrado com sucesso!'
         );
 
-        // Gerar QR code após salvar (apenas para produtos físicos)
-        if (item.id && item.category !== 'Serviços') {
+        // Gerar QR code após salvar
+        if (item.id) {
             this.generateQRCode(item.id);
-        } else if (item.category === 'Serviços') {
-            // Esconder seção de QR code para serviços
-            const qrcodeSection = document.getElementById('qrcodeSection');
-            if (qrcodeSection) qrcodeSection.style.display = 'none';
         }
     }
 
@@ -1919,16 +1799,7 @@ class LojaApp {
                         item.capacity.toLowerCase().includes(search)) ||
                     (category === 'Eletrônicos' &&
                         item.color &&
-                        item.color.toLowerCase().includes(search)) ||
-                    (category === 'Serviços' &&
-                        item.name &&
-                        item.name.toLowerCase().includes(search)) ||
-                    (category === 'Serviços' &&
-                        item.description &&
-                        item.description.toLowerCase().includes(search)) ||
-                    (category === 'Serviços' &&
-                        item.serviceType &&
-                        item.serviceType.toLowerCase().includes(search))
+                        item.color.toLowerCase().includes(search))
                 );
             });
         }
@@ -2007,40 +1878,6 @@ class LojaApp {
                             : ''
                     }
                 `;
-                } else if (category === 'Serviços') {
-                    categoryInfo = `
-                    ${
-                        item.description
-                            ? `<div class="item-info">${this.escapeHtml(
-                                  item.description.length > 100
-                                      ? item.description.substring(0, 100) +
-                                            '...'
-                                      : item.description
-                              )}</div>`
-                            : ''
-                    }
-                    ${
-                        item.duration
-                            ? `<div class="item-info">Duração: ${this.escapeHtml(
-                                  item.duration
-                              )}</div>`
-                            : ''
-                    }
-                    ${
-                        item.serviceType
-                            ? `<div class="item-info">Tipo: ${this.escapeHtml(
-                                  item.serviceType
-                              )}</div>`
-                            : ''
-                    }
-                    ${
-                        item.serviceUnit
-                            ? `<div class="item-info">Unidade: ${this.escapeHtml(
-                                  item.serviceUnit
-                              )}</div>`
-                            : ''
-                    }
-                `;
                 }
 
                 // Para eletrônicos, mostrar modelo como título principal
@@ -2063,17 +1900,13 @@ class LojaApp {
                     if (item.size) {
                         displayName += ` – tamanho ${item.size}`;
                     }
-                } else if (category === 'Serviços') {
-                    displayName = item.name || 'Serviço';
                 } else {
                     displayName = item.name || 'Item';
                 }
 
                 // Determinar classe do badge baseado na categoria
                 let badgeClass = '';
-                if (category === 'Serviços') {
-                    badgeClass = 'services-badge';
-                } else if (category === 'Eletrônicos') {
+                if (category === 'Eletrônicos') {
                     badgeClass = 'electronics-badge';
                 } else if (category === 'Roupas') {
                     badgeClass = 'clothing-badge';
@@ -2354,8 +2187,6 @@ class LojaApp {
 
                     if (category === 'Eletrônicos') {
                         displayName = item.model || item.name;
-                    } else if (category === 'Serviços') {
-                        displayName = item.name || 'Serviço';
                     } else {
                         // Para roupas, se não tiver nome, usar marca + estilo ou apenas marca
                         if (item.name) {
@@ -2420,66 +2251,21 @@ class LojaApp {
             return;
         }
 
-        if (item.category === 'Serviços') {
-            // Configuração para SERVIÇOS
-            // Esconder QR Code
-            if (scanQRBtn) scanQRBtn.style.display = 'none';
-            if (qrScannerContainer) qrScannerContainer.style.display = 'none';
+        // Configuração para PRODUTOS FÍSICOS
+        // Mostrar QR Code
+        if (scanQRBtn) scanQRBtn.style.display = 'inline-block';
 
-            // Mostrar info do serviço
-            if (serviceInfo) {
-                serviceInfo.style.display = 'block';
-                const descText = document.getElementById(
-                    'serviceDescriptionText'
-                );
-                if (descText) {
-                    let info = `<strong>${this.getItemName(itemId)}</strong>`;
-                    if (item.description) {
-                        info += `<br><span style="color: #6c757d;">${this.escapeHtml(
-                            item.description
-                        )}</span>`;
-                    }
-                    if (item.duration) {
-                        info += `<br><small style="color: #6c757d;">⏱️ Duração: ${this.escapeHtml(
-                            item.duration
-                        )}</small>`;
-                    }
-                    if (item.serviceType) {
-                        info += `<br><small style="color: #6c757d;">📋 Tipo: ${this.escapeHtml(
-                            item.serviceType
-                        )}</small>`;
-                    }
-                    descText.innerHTML = info;
-                }
-            }
+        // Esconder info do serviço
+        if (serviceInfo) serviceInfo.style.display = 'none';
 
-            // Atualizar label de quantidade
-            const unit = item.serviceUnit || 'Unidades';
-            if (saleQuantityLabel) {
-                saleQuantityLabel.textContent = `Quantidade (${unit}) *`;
-            }
+        // Label padrão
+        if (saleQuantityLabel) {
+            saleQuantityLabel.textContent = 'Quantidade (unidades) *';
+        }
 
-            // Esconder info de estoque
-            if (stockInfo) {
-                stockInfo.style.display = 'none';
-            }
-        } else {
-            // Configuração para PRODUTOS FÍSICOS
-            // Mostrar QR Code
-            if (scanQRBtn) scanQRBtn.style.display = 'inline-block';
-
-            // Esconder info do serviço
-            if (serviceInfo) serviceInfo.style.display = 'none';
-
-            // Label padrão
-            if (saleQuantityLabel) {
-                saleQuantityLabel.textContent = 'Quantidade (unidades) *';
-            }
-
-            // Mostrar info de estoque (se existir elemento)
-            if (stockInfo) {
-                stockInfo.style.display = 'block';
-            }
+        // Mostrar info de estoque (se existir elemento)
+        if (stockInfo) {
+            stockInfo.style.display = 'block';
         }
     }
 
@@ -5374,7 +5160,9 @@ class LojaApp {
 
         // Obter filtro de ano
         const goalsYearFilterEl = document.getElementById('goalsYearFilter');
-        const goalsYearFilter = goalsYearFilterEl ? goalsYearFilterEl.value : '';
+        const goalsYearFilter = goalsYearFilterEl
+            ? goalsYearFilterEl.value
+            : '';
 
         // Filtrar metas por ano se houver filtro
         let filteredGoals = this.goals;

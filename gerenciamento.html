@@ -535,7 +535,6 @@
                             <option value="">Selecione...</option>
                             <option value="Roupas">Roupas</option>
                             <option value="Eletrônicos">Eletrônicos</option>
-                            <option value="Serviços">Serviços</option>
                         </select>
                     </div>
                     <!-- Campos para Roupas (Nome e Marca) -->
@@ -584,66 +583,6 @@
                         <div class="form-group">
                             <label for="itemColor">Cor (opcional)</label>
                             <input type="text" id="itemColor" placeholder="Ex: Preto, Branco, Azul, etc." />
-                        </div>
-                    </div>
-                    
-                    <!-- Campos específicos para Serviços -->
-                    <div id="servicesFields" class="category-specific-fields" style="display: none;">
-                        <div class="form-group">
-                            <label for="serviceName">Nome do Serviço *</label>
-                            <input type="text" id="serviceName" placeholder="Ex: Consulta Médica, Aula de Inglês, etc." required />
-                        </div>
-                        <div class="form-group">
-                            <label for="serviceDescription">Descrição (opcional)</label>
-                            <textarea id="serviceDescription" rows="3" placeholder="Descreva o serviço oferecido..."></textarea>
-                        </div>
-                        <div class="form-group">
-                            <label for="serviceDuration">Duração (opcional)</label>
-                            <input type="text" id="serviceDuration" placeholder="Ex: 1 hora, 30 minutos, etc." />
-                        </div>
-                        <div class="form-group">
-                            <label for="serviceType">Tipo de Serviço (opcional)</label>
-                            <select id="serviceType">
-                                <option value="">Selecione...</option>
-                                <option value="Consultoria">Consultoria</option>
-                                <option value="Aula/Ensino">Aula/Ensino</option>
-                                <option value="Reparo/Manutenção">Reparo/Manutenção</option>
-                                <option value="Design/Criação">Design/Criação</option>
-                                <option value="Saúde/Beleza">Saúde/Beleza</option>
-                                <option value="Outros">Outros</option>
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <label for="serviceUnit">Unidade de Venda (opcional)</label>
-                            <select id="serviceUnit">
-                                <option value="Horas">Horas</option>
-                                <option value="Sessões">Sessões</option>
-                                <option value="Atendimentos">Atendimentos</option>
-                                <option value="Unidades">Unidades</option>
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <label for="serviceDefaultHours">Horas Padrão (opcional)</label>
-                            <div style="display: flex; gap: 0.5rem;">
-                                <input
-                                    type="number"
-                                    id="serviceDefaultHours"
-                                    min="0"
-                                    placeholder="Horas"
-                                    style="flex: 1;"
-                                />
-                                <input
-                                    type="number"
-                                    id="serviceDefaultMinutes"
-                                    min="0"
-                                    max="59"
-                                    placeholder="Minutos"
-                                    style="flex: 1;"
-                                />
-                            </div>
-                            <small style="color: var(--gray); display: block; margin-top: 0.25rem;">
-                                Horas padrão que serão usadas ao registrar o serviço no mês
-                            </small>
                         </div>
                     </div>
                     
