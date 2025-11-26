@@ -754,6 +754,175 @@
             </div>
         </div>
 
+        <!-- Modal: Preview de Recibo -->
+        <div id="receiptPreviewModal" class="modal">
+            <div class="modal-content large">
+                <div class="modal-header">
+                    <h2>Recibo de Venda</h2>
+                    <span class="close" aria-label="Fechar modal" role="button" tabindex="0">&times;</span>
+                </div>
+                <div class="receipt-content" id="receiptContent">
+                    <!-- Conteúdo do recibo será inserido via JavaScript -->
+                </div>
+                <div class="modal-actions" style="margin-top: 1.5rem;">
+                    <button type="button" class="btn-secondary" id="closeReceiptBtn">
+                        Fechar
+                    </button>
+                    <button type="button" class="btn-primary" id="printReceiptBtn">
+                        <i class="fas fa-print"></i> Imprimir
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal: Pedido Pendente -->
+        <div id="pendingOrderModal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2 id="pendingOrderModalTitle">Novo Pedido Pendente</h2>
+                    <span class="close" aria-label="Fechar modal" role="button" tabindex="0">&times;</span>
+                </div>
+                <form id="pendingOrderForm">
+                    <div class="form-group">
+                        <label for="pendingOrderCustomerName">Nome do Cliente *</label>
+                        <input
+                            type="text"
+                            id="pendingOrderCustomerName"
+                            placeholder="Digite o nome do cliente"
+                            required
+                        />
+                    </div>
+                    <div class="form-group">
+                        <label for="pendingOrderCustomerCPF">CPF do Cliente</label>
+                        <input
+                            type="text"
+                            id="pendingOrderCustomerCPF"
+                            placeholder="000.000.000-00"
+                            maxlength="14"
+                        />
+                    </div>
+                    <div class="form-group">
+                        <label for="pendingOrderItems">Itens *</label>
+                        <div id="pendingOrderItemsList" style="display: flex; flex-direction: column; gap: 0.75rem;">
+                            <!-- Itens serão adicionados dinamicamente -->
+                        </div>
+                        <button type="button" class="btn-secondary" id="addPendingOrderItemBtn" style="margin-top: 0.5rem;">
+                            <i class="fas fa-plus"></i> Adicionar Item
+                        </button>
+                    </div>
+                    <div class="form-group">
+                        <label for="pendingOrderTotal">Valor Total (R$)</label>
+                        <input
+                            type="number"
+                            id="pendingOrderTotal"
+                            step="0.01"
+                            min="0.01"
+                            readonly
+                            style="background: var(--light-gray)"
+                        />
+                    </div>
+                    <div class="form-group">
+                        <label for="pendingOrderStatus">Status *</label>
+                        <select id="pendingOrderStatus" required>
+                            <option value="pending">Pendente</option>
+                            <option value="confirmed">Confirmado</option>
+                            <option value="cancelled">Cancelado</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="pendingOrderDueDate">Data de Vencimento</label>
+                        <input type="date" id="pendingOrderDueDate" />
+                    </div>
+                    <div class="modal-actions">
+                        <button type="button" class="btn-secondary" id="cancelPendingOrderBtn">
+                            Cancelar
+                        </button>
+                        <button type="submit" class="btn-primary">
+                            Salvar
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Modal: Agendamento de Serviço -->
+        <div id="serviceAppointmentModal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2 id="serviceAppointmentModalTitle">Novo Agendamento</h2>
+                    <span class="close" aria-label="Fechar modal" role="button" tabindex="0">&times;</span>
+                </div>
+                <form id="serviceAppointmentForm">
+                    <div class="form-group">
+                        <label for="appointmentServiceType">Tipo de Serviço *</label>
+                        <select id="appointmentServiceType" required>
+                            <option value="">Selecione um serviço...</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="appointmentCustomerName">Nome do Cliente *</label>
+                        <input
+                            type="text"
+                            id="appointmentCustomerName"
+                            placeholder="Digite o nome do cliente"
+                            required
+                        />
+                    </div>
+                    <div class="form-group">
+                        <label for="appointmentCustomerContact">Contato do Cliente</label>
+                        <input
+                            type="text"
+                            id="appointmentCustomerContact"
+                            placeholder="Telefone ou e-mail"
+                        />
+                    </div>
+                    <div class="form-group">
+                        <label for="appointmentDate">Data *</label>
+                        <input type="date" id="appointmentDate" required />
+                    </div>
+                    <div class="form-group">
+                        <label for="appointmentTime">Horário *</label>
+                        <input type="time" id="appointmentTime" required />
+                    </div>
+                    <div class="form-group">
+                        <label for="appointmentPrice">Preço (R$) *</label>
+                        <input
+                            type="number"
+                            id="appointmentPrice"
+                            step="0.01"
+                            min="0.01"
+                            required
+                        />
+                    </div>
+                    <div class="form-group">
+                        <label for="appointmentStatus">Status *</label>
+                        <select id="appointmentStatus" required>
+                            <option value="pending">Pendente</option>
+                            <option value="confirmed">Confirmado</option>
+                            <option value="completed">Concluído</option>
+                            <option value="cancelled">Cancelado</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="appointmentNotes">Observações</label>
+                        <textarea
+                            id="appointmentNotes"
+                            rows="3"
+                            placeholder="Observações sobre o agendamento..."
+                        ></textarea>
+                    </div>
+                    <div class="modal-actions">
+                        <button type="button" class="btn-secondary" id="cancelServiceAppointmentBtn">
+                            Cancelar
+                        </button>
+                        <button type="submit" class="btn-primary">
+                            Salvar
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
         <!-- Modal: Criar Grupo Mensal -->
         <div id="groupModal" class="modal">
             <div class="modal-content">

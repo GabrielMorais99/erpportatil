@@ -20,6 +20,8 @@ class LojaApp {
         this.currentEditingCost = null;
         this.currentEditingGoal = null;
         this.currentQRScanner = null; // Scanner de QR code
+        this.currentEditingPendingOrder = null; // Pedido pendente sendo editado
+        this.currentEditingServiceAppointment = null; // Agendamento sendo editado
         this.currentDashboardType = 'sales'; // 'sales' ou 'services'
         this.avgStockChart = null; // Gráfico de média de estoque
         this.goalsChart = null; // Gráfico de metas
@@ -647,6 +649,89 @@ class LojaApp {
             console.log('✅ [APP.JS] Listener anexado ao saleModal .close');
         } else {
             console.error('❌ [APP.JS] saleModal .close não encontrado!');
+        }
+
+        // Modal de recibo
+        const closeReceiptBtn = document.getElementById('closeReceiptBtn');
+        const printReceiptBtn = document.getElementById('printReceiptBtn');
+        const receiptModalClose = document.querySelector(
+            '#receiptPreviewModal .close'
+        );
+
+        if (closeReceiptBtn) {
+            closeReceiptBtn.addEventListener('click', () =>
+                this.closeReceiptPreview()
+            );
+        }
+        if (printReceiptBtn) {
+            printReceiptBtn.addEventListener('click', () =>
+                this.printReceipt()
+            );
+        }
+        if (receiptModalClose) {
+            receiptModalClose.addEventListener('click', () =>
+                this.closeReceiptPreview()
+            );
+        }
+
+        // Modal de pedido pendente
+        const pendingOrderForm = document.getElementById('pendingOrderForm');
+        const cancelPendingOrderBtn = document.getElementById(
+            'cancelPendingOrderBtn'
+        );
+        const pendingOrderModalClose = document.querySelector(
+            '#pendingOrderModal .close'
+        );
+        const addPendingOrderItemBtn = document.getElementById(
+            'addPendingOrderItemBtn'
+        );
+
+        if (pendingOrderForm) {
+            pendingOrderForm.addEventListener('submit', (e) =>
+                this.savePendingOrder(e)
+            );
+        }
+        if (cancelPendingOrderBtn) {
+            cancelPendingOrderBtn.addEventListener('click', () =>
+                this.closePendingOrderModal()
+            );
+        }
+        if (pendingOrderModalClose) {
+            pendingOrderModalClose.addEventListener('click', () =>
+                this.closePendingOrderModal()
+            );
+        }
+        if (addPendingOrderItemBtn) {
+            addPendingOrderItemBtn.addEventListener('click', () =>
+                this.addPendingOrderItemRow()
+            );
+        }
+
+        // Modal de agendamento de serviço
+        const serviceAppointmentForm = document.getElementById(
+            'serviceAppointmentForm'
+        );
+        const cancelServiceAppointmentBtn = document.getElementById(
+            'cancelServiceAppointmentBtn'
+        );
+        const serviceAppointmentModalClose = document.querySelector(
+            '#serviceAppointmentModal .close'
+        );
+
+        if (serviceAppointmentForm) {
+            serviceAppointmentForm.addEventListener('submit', (e) =>
+                this.saveServiceAppointment(e)
+            );
+        }
+        if (cancelServiceAppointmentBtn) {
+            cancelServiceAppointmentBtn.addEventListener('click', () =>
+                this.closeServiceAppointmentModal()
+            );
+        }
+        if (serviceAppointmentModalClose) {
+            serviceAppointmentModalClose.addEventListener('click', () =>
+                this.closeServiceAppointmentModal()
+            );
         }
 
         // Modal de visualização de grupo
@@ -2856,6 +2941,776 @@ class LojaApp {
         } else {
             input.value = '';
         }
+    }
+
+    // ========== PEDIDOS PENDENTES ==========
+
+    openPendingOrderModal(order = null) {
+        const modal = document.getElementById('pendingOrderModal');
+        if (!modal) {
+            console.error('Modal de pedido pendente não encontrado');
+            return;
+        }
+
+        const form = document.getElementById('pendingOrderForm');
+        const title = document.getElementById('pendingOrderModalTitle');
+        const itemsList = document.getElementById('pendingOrderItemsList');
+        const totalInput = document.getElementById('pendingOrderTotal');
+
+        if (title) {
+            title.textContent = order
+                ? 'Editar Pedido Pendente'
+                : 'Novo Pedido Pendente';
+        }
+
+        // Limpar formulário
+        if (form) {
+            form.reset();
+            if (itemsList) itemsList.innerHTML = '';
+        }
+
+        // Preencher se for edição
+        if (order) {
+            document.getElementById('pendingOrderCustomerName').value =
+                order.customerName || '';
+            document.getElementById('pendingOrderCustomerCPF').value =
+                order.customerCPF ? this.formatCPF(order.customerCPF) : '';
+            document.getElementById('pendingOrderStatus').value =
+                order.status || 'pending';
+            document.getElementById('pendingOrderDueDate').value =
+                order.dueDate || '';
+
+            // Adicionar itens
+            if (order.items && itemsList) {
+                order.items.forEach((item, index) => {
+                    this.addPendingOrderItemRow(item, index);
+                });
+            }
+
+            if (totalInput) {
+                totalInput.value = order.totalValue || 0;
+            }
+
+            this.currentEditingPendingOrder = order.id;
+        } else {
+            this.currentEditingPendingOrder = null;
+            // Adicionar primeiro item vazio
+            if (itemsList) {
+                this.addPendingOrderItemRow();
+            }
+            if (totalInput) {
+                totalInput.value = '0.00';
+            }
+        }
+
+        // Aplicar máscara de CPF
+        const cpfInput = document.getElementById('pendingOrderCustomerCPF');
+        if (cpfInput) {
+            cpfInput.addEventListener('input', () =>
+                this.formatCPFInput(cpfInput)
+            );
+        }
+
+        modal.classList.add('active');
+    }
+
+    addPendingOrderItemRow(item = null, index = null) {
+        const itemsList = document.getElementById('pendingOrderItemsList');
+        if (!itemsList) return;
+
+        const rowIndex = index !== null ? index : itemsList.children.length;
+        const row = document.createElement('div');
+        row.className = 'pending-order-item-row';
+        row.style.cssText =
+            'display: flex; gap: 0.5rem; align-items: flex-start; margin-bottom: 0.5rem;';
+
+        const itemSelect = document.createElement('select');
+        itemSelect.required = true;
+        itemSelect.style.cssText = 'flex: 2;';
+        itemSelect.innerHTML = '<option value="">Selecione um item...</option>';
+        this.items
+            .filter((i) => i.category !== 'Serviços')
+            .forEach((i) => {
+                const option = document.createElement('option');
+                option.value = i.id;
+                option.textContent = this.getItemName(i.id);
+                if (item && item.itemId === i.id) option.selected = true;
+                itemSelect.appendChild(option);
+            });
+
+        const qtyInput = document.createElement('input');
+        qtyInput.type = 'number';
+        qtyInput.min = '1';
+        qtyInput.required = true;
+        qtyInput.placeholder = 'Qtd';
+        qtyInput.style.cssText = 'flex: 1; max-width: 80px;';
+        if (item) qtyInput.value = item.quantity || 1;
+
+        const priceInput = document.createElement('input');
+        priceInput.type = 'number';
+        priceInput.step = '0.01';
+        priceInput.min = '0.01';
+        priceInput.required = true;
+        priceInput.placeholder = 'Preço';
+        priceInput.style.cssText = 'flex: 1; max-width: 100px;';
+        if (item) priceInput.value = item.price || 0;
+
+        const removeBtn = document.createElement('button');
+        removeBtn.type = 'button';
+        removeBtn.className = 'btn-secondary';
+        removeBtn.innerHTML = '<i class="fas fa-times"></i>';
+        removeBtn.style.cssText = 'min-width: 36px; padding: 0.5rem;';
+        removeBtn.onclick = () => {
+            row.remove();
+            this.updatePendingOrderTotal();
+        };
+
+        // Atualizar total quando valores mudarem
+        [itemSelect, qtyInput, priceInput].forEach((input) => {
+            input.addEventListener('change', () =>
+                this.updatePendingOrderTotal()
+            );
+        });
+
+        row.appendChild(itemSelect);
+        row.appendChild(qtyInput);
+        row.appendChild(priceInput);
+        row.appendChild(removeBtn);
+        itemsList.appendChild(row);
+    }
+
+    updatePendingOrderTotal() {
+        const itemsList = document.getElementById('pendingOrderItemsList');
+        const totalInput = document.getElementById('pendingOrderTotal');
+        if (!itemsList || !totalInput) return;
+
+        let total = 0;
+        itemsList.querySelectorAll('.pending-order-item-row').forEach((row) => {
+            const qty =
+                parseFloat(
+                    row.querySelector('input[type="number"]:nth-of-type(1)')
+                        .value
+                ) || 0;
+            const price =
+                parseFloat(
+                    row.querySelector('input[type="number"]:nth-of-type(2)')
+                        .value
+                ) || 0;
+            total += qty * price;
+        });
+
+        totalInput.value = total.toFixed(2);
+    }
+
+    savePendingOrder(e) {
+        e.preventDefault();
+
+        const customerName = document
+            .getElementById('pendingOrderCustomerName')
+            .value.trim();
+        const customerCPF = document
+            .getElementById('pendingOrderCustomerCPF')
+            .value.replace(/\D/g, '');
+        const status = document.getElementById('pendingOrderStatus').value;
+        const dueDate = document.getElementById('pendingOrderDueDate').value;
+        const itemsList = document.getElementById('pendingOrderItemsList');
+        const totalInput = document.getElementById('pendingOrderTotal');
+
+        if (!customerName) {
+            alert('Por favor, informe o nome do cliente.');
+            return;
+        }
+
+        const items = [];
+        itemsList.querySelectorAll('.pending-order-item-row').forEach((row) => {
+            const itemId = row.querySelector('select').value;
+            const quantity =
+                parseInt(
+                    row.querySelector('input[type="number"]:nth-of-type(1)')
+                        .value
+                ) || 0;
+            const price =
+                parseFloat(
+                    row.querySelector('input[type="number"]:nth-of-type(2)')
+                        .value
+                ) || 0;
+
+            if (itemId && quantity > 0 && price > 0) {
+                const item = this.items.find((i) => i.id === itemId);
+                items.push({
+                    itemId: itemId,
+                    name: item
+                        ? this.getItemName(itemId)
+                        : 'Item não encontrado',
+                    quantity: quantity,
+                    price: price,
+                });
+            }
+        });
+
+        if (items.length === 0) {
+            alert('Por favor, adicione pelo menos um item.');
+            return;
+        }
+
+        const totalValue = parseFloat(totalInput.value) || 0;
+
+        const orderData = {
+            id:
+                this.currentEditingPendingOrder ||
+                Date.now().toString() + Math.random().toString(36).substr(2, 9),
+            customerName: customerName,
+            customerCPF: customerCPF || null,
+            items: items,
+            totalValue: totalValue,
+            status: status,
+            dueDate: dueDate || null,
+            createdAt: this.currentEditingPendingOrder
+                ? this.pendingOrders.find(
+                      (o) => o.id === this.currentEditingPendingOrder
+                  )?.createdAt || new Date().toISOString()
+                : new Date().toISOString(),
+            updatedAt: new Date().toISOString(),
+        };
+
+        if (this.currentEditingPendingOrder) {
+            const index = this.pendingOrders.findIndex(
+                (o) => o.id === this.currentEditingPendingOrder
+            );
+            if (index !== -1) {
+                this.pendingOrders[index] = orderData;
+            }
+        } else {
+            this.pendingOrders.push(orderData);
+        }
+
+        this.saveData();
+        this.renderPendingOrders();
+        this.closePendingOrderModal();
+        this.showSuccess('Pedido pendente salvo com sucesso!');
+    }
+
+    closePendingOrderModal() {
+        const modal = document.getElementById('pendingOrderModal');
+        if (modal) {
+            modal.classList.remove('active');
+        }
+        this.currentEditingPendingOrder = null;
+        const form = document.getElementById('pendingOrderForm');
+        if (form) form.reset();
+    }
+
+    renderPendingOrders() {
+        const container = document.getElementById('pendingOrdersList');
+        if (!container) return;
+
+        if (this.pendingOrders.length === 0) {
+            container.innerHTML =
+                '<p style="text-align: center; color: var(--gray); padding: 2rem;">Nenhum pedido pendente cadastrado.</p>';
+            return;
+        }
+
+        container.innerHTML = this.pendingOrders
+            .map((order) => {
+                const statusClass = `order-status-${order.status}`;
+                const statusText =
+                    {
+                        pending: 'Pendente',
+                        confirmed: 'Confirmado',
+                        cancelled: 'Cancelado',
+                    }[order.status] || order.status;
+
+                const date = new Date(order.createdAt);
+                const formattedDate = date.toLocaleDateString('pt-BR');
+
+                return `
+                <div class="pending-order-card" style="background: var(--white); border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 1.25rem; box-shadow: var(--shadow-sm);">
+                    <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1rem;">
+                        <div>
+                            <h3 style="margin: 0 0 0.5rem 0; color: var(--dark-gray);">${this.escapeHtml(
+                                order.customerName
+                            )}</h3>
+                            ${
+                                order.customerCPF
+                                    ? `<p style="margin: 0; color: var(--gray-600); font-size: 0.9rem;">CPF: ${this.formatCPF(
+                                          order.customerCPF
+                                      )}</p>`
+                                    : ''
+                            }
+                        </div>
+                        <span class="order-status ${statusClass}">${statusText}</span>
+                    </div>
+                    <div style="margin-bottom: 0.75rem;">
+                        <p style="margin: 0 0 0.5rem 0; color: var(--gray-600); font-size: 0.9rem;"><strong>Itens:</strong></p>
+                        <ul style="margin: 0; padding-left: 1.25rem; color: var(--dark-gray);">
+                            ${order.items
+                                .map(
+                                    (item) =>
+                                        `<li>${this.escapeHtml(item.name)} - ${
+                                            item.quantity
+                                        } un. × R$ ${item.price
+                                            .toFixed(2)
+                                            .replace('.', ',')}</li>`
+                                )
+                                .join('')}
+                        </ul>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
+                        <p style="margin: 0; color: var(--dark-gray);"><strong>Total:</strong> R$ ${order.totalValue
+                            .toFixed(2)
+                            .replace('.', ',')}</p>
+                        <p style="margin: 0; color: var(--gray-600); font-size: 0.85rem;">${formattedDate}</p>
+                    </div>
+                    ${
+                        order.dueDate
+                            ? `<p style="margin: 0 0 0.75rem 0; color: var(--gray-600); font-size: 0.85rem;"><strong>Vencimento:</strong> ${new Date(
+                                  order.dueDate
+                              ).toLocaleDateString('pt-BR')}</p>`
+                            : ''
+                    }
+                    <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+                        <button type="button" class="btn-secondary" onclick="app.editPendingOrder('${
+                            order.id
+                        }')" style="flex: 1; min-width: 80px;">
+                            <i class="fas fa-edit"></i> Editar
+                        </button>
+                        ${
+                            order.status !== 'cancelled' &&
+                            order.status !== 'completed'
+                                ? `
+                            <button type="button" class="btn-primary" onclick="app.completePendingOrder('${order.id}')" style="flex: 1; min-width: 120px;">
+                                <i class="fas fa-check"></i> Finalizar
+                            </button>
+                        `
+                                : ''
+                        }
+                        <button type="button" class="btn-delete" onclick="app.deletePendingOrder('${
+                            order.id
+                        }')" style="min-width: 36px; padding: 0.5rem;">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                </div>
+            `;
+            })
+            .join('');
+    }
+
+    editPendingOrder(orderId) {
+        const order = this.pendingOrders.find((o) => o.id === orderId);
+        if (order) {
+            this.openPendingOrderModal(order);
+        }
+    }
+
+    deletePendingOrder(orderId) {
+        if (confirm('Tem certeza que deseja excluir este pedido pendente?')) {
+            this.pendingOrders = this.pendingOrders.filter(
+                (o) => o.id !== orderId
+            );
+            this.saveData();
+            this.renderPendingOrders();
+            this.showSuccess('Pedido pendente excluído com sucesso!');
+        }
+    }
+
+    completePendingOrder(orderId) {
+        const order = this.pendingOrders.find((o) => o.id === orderId);
+        if (!order) return;
+
+        if (
+            confirm(
+                'Deseja finalizar o pagamento e converter este pedido em venda concluída?'
+            )
+        ) {
+            // Criar venda concluída
+            const completedSale = {
+                id:
+                    Date.now().toString() +
+                    Math.random().toString(36).substr(2, 9),
+                orderCode: this.generateOrderCode(),
+                customerName: order.customerName,
+                customerCPF: order.customerCPF,
+                items: order.items,
+                totalValue: order.totalValue,
+                date: new Date().toISOString(),
+                timestamp: Date.now(),
+                groupId: null,
+                groupMonth: null,
+                day: null,
+                fromPendingOrder: true,
+            };
+
+            this.completedSales.push(completedSale);
+
+            // Remover pedido pendente
+            this.pendingOrders = this.pendingOrders.filter(
+                (o) => o.id !== orderId
+            );
+
+            this.saveData();
+            this.renderPendingOrders();
+            this.showReceiptPreview(completedSale);
+            this.showSuccess(
+                'Pedido finalizado e convertido em venda concluída!'
+            );
+        }
+    }
+
+    // ========== AGENDAMENTOS DE SERVIÇOS ==========
+
+    openServiceAppointmentModal(appointment = null) {
+        const modal = document.getElementById('serviceAppointmentModal');
+        if (!modal) {
+            console.error('Modal de agendamento não encontrado');
+            return;
+        }
+
+        const form = document.getElementById('serviceAppointmentForm');
+        const title = document.getElementById('serviceAppointmentModalTitle');
+        const serviceSelect = document.getElementById('appointmentServiceType');
+
+        if (title) {
+            title.textContent = appointment
+                ? 'Editar Agendamento'
+                : 'Novo Agendamento';
+        }
+
+        // Preencher select de serviços
+        if (serviceSelect) {
+            serviceSelect.innerHTML =
+                '<option value="">Selecione um serviço...</option>';
+            this.items
+                .filter((i) => i.category === 'Serviços')
+                .forEach((service) => {
+                    const option = document.createElement('option');
+                    option.value = service.id;
+                    option.textContent = service.name || 'Serviço';
+                    if (appointment && appointment.serviceTypeId === service.id)
+                        option.selected = true;
+                    serviceSelect.appendChild(option);
+                });
+        }
+
+        // Limpar ou preencher formulário
+        if (form) {
+            if (appointment) {
+                document.getElementById('appointmentServiceType').value =
+                    appointment.serviceTypeId || '';
+                document.getElementById('appointmentCustomerName').value =
+                    appointment.customerName || '';
+                document.getElementById('appointmentCustomerContact').value =
+                    appointment.customerContact || '';
+                document.getElementById('appointmentDate').value =
+                    appointment.date || '';
+                document.getElementById('appointmentTime').value =
+                    appointment.time || '';
+                document.getElementById('appointmentPrice').value =
+                    appointment.price || '';
+                document.getElementById('appointmentStatus').value =
+                    appointment.status || 'pending';
+                document.getElementById('appointmentNotes').value =
+                    appointment.notes || '';
+                this.currentEditingServiceAppointment = appointment.id;
+            } else {
+                form.reset();
+                // Definir data padrão como hoje
+                const today = new Date().toISOString().split('T')[0];
+                document.getElementById('appointmentDate').value = today;
+                this.currentEditingServiceAppointment = null;
+            }
+        }
+
+        modal.classList.add('active');
+    }
+
+    saveServiceAppointment(e) {
+        e.preventDefault();
+
+        const serviceTypeId = document.getElementById(
+            'appointmentServiceType'
+        ).value;
+        const customerName = document
+            .getElementById('appointmentCustomerName')
+            .value.trim();
+        const customerContact = document
+            .getElementById('appointmentCustomerContact')
+            .value.trim();
+        const date = document.getElementById('appointmentDate').value;
+        const time = document.getElementById('appointmentTime').value;
+        const price =
+            parseFloat(document.getElementById('appointmentPrice').value) || 0;
+        const status = document.getElementById('appointmentStatus').value;
+        const notes = document.getElementById('appointmentNotes').value.trim();
+
+        if (!serviceTypeId) {
+            alert('Por favor, selecione um tipo de serviço.');
+            return;
+        }
+
+        if (!customerName) {
+            alert('Por favor, informe o nome do cliente.');
+            return;
+        }
+
+        if (!date || !time) {
+            alert('Por favor, informe a data e horário do agendamento.');
+            return;
+        }
+
+        if (price <= 0) {
+            alert('Por favor, informe um preço válido.');
+            return;
+        }
+
+        const appointmentData = {
+            id:
+                this.currentEditingServiceAppointment ||
+                Date.now().toString() + Math.random().toString(36).substr(2, 9),
+            serviceTypeId: serviceTypeId,
+            customerName: customerName,
+            customerContact: customerContact || null,
+            date: date,
+            time: time,
+            price: price,
+            status: status,
+            notes: notes || null,
+            createdAt: this.currentEditingServiceAppointment
+                ? this.serviceAppointments.find(
+                      (a) => a.id === this.currentEditingServiceAppointment
+                  )?.createdAt || new Date().toISOString()
+                : new Date().toISOString(),
+            updatedAt: new Date().toISOString(),
+        };
+
+        if (this.currentEditingServiceAppointment) {
+            const index = this.serviceAppointments.findIndex(
+                (a) => a.id === this.currentEditingServiceAppointment
+            );
+            if (index !== -1) {
+                this.serviceAppointments[index] = appointmentData;
+            }
+        } else {
+            this.serviceAppointments.push(appointmentData);
+        }
+
+        this.saveData();
+        this.renderServiceAppointments();
+        this.closeServiceAppointmentModal();
+        this.showSuccess('Agendamento salvo com sucesso!');
+    }
+
+    closeServiceAppointmentModal() {
+        const modal = document.getElementById('serviceAppointmentModal');
+        if (modal) {
+            modal.classList.remove('active');
+        }
+        this.currentEditingServiceAppointment = null;
+        const form = document.getElementById('serviceAppointmentForm');
+        if (form) form.reset();
+    }
+
+    renderServiceAppointments() {
+        const container = document.getElementById('serviceAppointmentsList');
+        if (!container) return;
+
+        if (this.serviceAppointments.length === 0) {
+            container.innerHTML =
+                '<p style="text-align: center; color: var(--gray); padding: 2rem;">Nenhum agendamento cadastrado.</p>';
+            return;
+        }
+
+        // Separar agendamentos futuros e passados
+        const now = new Date();
+        const future = [];
+        const past = [];
+
+        this.serviceAppointments.forEach((appointment) => {
+            const appointmentDateTime = new Date(
+                `${appointment.date}T${appointment.time}`
+            );
+            if (appointmentDateTime >= now) {
+                future.push(appointment);
+            } else {
+                past.push(appointment);
+            }
+        });
+
+        // Ordenar: futuros por data/hora crescente, passados por data/hora decrescente
+        future.sort(
+            (a, b) =>
+                new Date(`${a.date}T${a.time}`) -
+                new Date(`${b.date}T${b.time}`)
+        );
+        past.sort(
+            (a, b) =>
+                new Date(`${b.date}T${b.time}`) -
+                new Date(`${a.date}T${a.time}`)
+        );
+
+        let html = '';
+
+        if (future.length > 0) {
+            html +=
+                '<h3 style="margin: 0 0 1rem 0; color: var(--dark-gray); font-size: 1.1rem;">Próximos Agendamentos</h3>';
+            html += future
+                .map((appointment) =>
+                    this.renderServiceAppointmentCard(appointment)
+                )
+                .join('');
+        }
+
+        if (past.length > 0) {
+            html +=
+                '<h3 style="margin: 1.5rem 0 1rem 0; color: var(--dark-gray); font-size: 1.1rem;">Agendamentos Passados</h3>';
+            html += past
+                .map((appointment) =>
+                    this.renderServiceAppointmentCard(appointment)
+                )
+                .join('');
+        }
+
+        container.innerHTML = html;
+    }
+
+    renderServiceAppointmentCard(appointment) {
+        const service = this.items.find(
+            (i) => i.id === appointment.serviceTypeId
+        );
+        const serviceName = service ? service.name : 'Serviço não encontrado';
+
+        const statusClass = `appointment-status-${appointment.status}`;
+        const statusText =
+            {
+                pending: 'Pendente',
+                confirmed: 'Confirmado',
+                completed: 'Concluído',
+                cancelled: 'Cancelado',
+            }[appointment.status] || appointment.status;
+
+        const appointmentDate = new Date(
+            `${appointment.date}T${appointment.time}`
+        );
+        const formattedDate = appointmentDate.toLocaleDateString('pt-BR');
+        const formattedTime = appointmentDate.toLocaleTimeString('pt-BR', {
+            hour: '2-digit',
+            minute: '2-digit',
+        });
+
+        return `
+            <div class="service-appointment-card" style="background: var(--white); border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 1.25rem; box-shadow: var(--shadow-sm); margin-bottom: 1rem;">
+                <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1rem;">
+                    <div>
+                        <h3 style="margin: 0 0 0.5rem 0; color: var(--dark-gray);">${this.escapeHtml(
+                            serviceName
+                        )}</h3>
+                        <p style="margin: 0; color: var(--gray-600); font-size: 0.9rem;">${this.escapeHtml(
+                            appointment.customerName
+                        )}</p>
+                        ${
+                            appointment.customerContact
+                                ? `<p style="margin: 0.25rem 0 0 0; color: var(--gray-600); font-size: 0.85rem;">📞 ${this.escapeHtml(
+                                      appointment.customerContact
+                                  )}</p>`
+                                : ''
+                        }
+                    </div>
+                    <span class="appointment-status ${statusClass}">${statusText}</span>
+                </div>
+                <div style="margin-bottom: 0.75rem;">
+                    <p style="margin: 0 0 0.25rem 0; color: var(--dark-gray);"><strong>📅 Data:</strong> ${formattedDate}</p>
+                    <p style="margin: 0 0 0.25rem 0; color: var(--dark-gray);"><strong>🕐 Horário:</strong> ${formattedTime}</p>
+                    <p style="margin: 0; color: var(--dark-gray);"><strong>💰 Preço:</strong> R$ ${appointment.price
+                        .toFixed(2)
+                        .replace('.', ',')}</p>
+                </div>
+                ${
+                    appointment.notes
+                        ? `<p style="margin: 0 0 0.75rem 0; color: var(--gray-600); font-size: 0.9rem; font-style: italic;">${this.escapeHtml(
+                              appointment.notes
+                          )}</p>`
+                        : ''
+                }
+                <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+                    <button type="button" class="btn-secondary" onclick="app.editServiceAppointment('${
+                        appointment.id
+                    }')" style="flex: 1; min-width: 80px;">
+                        <i class="fas fa-edit"></i> Editar
+                    </button>
+                    <button type="button" class="btn-delete" onclick="app.deleteServiceAppointment('${
+                        appointment.id
+                    }')" style="min-width: 36px; padding: 0.5rem;">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+            </div>
+        `;
+    }
+
+    editServiceAppointment(appointmentId) {
+        const appointment = this.serviceAppointments.find(
+            (a) => a.id === appointmentId
+        );
+        if (appointment) {
+            this.openServiceAppointmentModal(appointment);
+        }
+    }
+
+    deleteServiceAppointment(appointmentId) {
+        if (confirm('Tem certeza que deseja excluir este agendamento?')) {
+            this.serviceAppointments = this.serviceAppointments.filter(
+                (a) => a.id !== appointmentId
+            );
+            this.saveData();
+            this.renderServiceAppointments();
+            this.showSuccess('Agendamento excluído com sucesso!');
+        }
+    }
+
+    // Função auxiliar para escapar HTML
+    escapeHtml(text) {
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+    }
+
+    // Funções de feedback para o usuário
+    showSuccess(message) {
+        // Criar elemento de mensagem
+        const messageEl = document.createElement('div');
+        messageEl.style.cssText =
+            'position: fixed; top: 20px; right: 20px; background: #28a745; color: white; padding: 1rem 1.5rem; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); z-index: 10000; animation: slideInRight 0.3s ease-out;';
+        messageEl.textContent = message;
+        document.body.appendChild(messageEl);
+
+        // Remover após 3 segundos
+        setTimeout(() => {
+            messageEl.style.animation = 'slideOutRight 0.3s ease-out';
+            setTimeout(() => {
+                if (messageEl.parentNode) {
+                    messageEl.parentNode.removeChild(messageEl);
+                }
+            }, 300);
+        }, 3000);
+    }
+
+    showError(message) {
+        // Criar elemento de mensagem
+        const messageEl = document.createElement('div');
+        messageEl.style.cssText =
+            'position: fixed; top: 20px; right: 20px; background: #dc3545; color: white; padding: 1rem 1.5rem; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); z-index: 10000; animation: slideInRight 0.3s ease-out;';
+        messageEl.textContent = message;
+        document.body.appendChild(messageEl);
+
+        // Remover após 4 segundos (erros ficam mais tempo)
+        setTimeout(() => {
+            messageEl.style.animation = 'slideOutRight 0.3s ease-out';
+            setTimeout(() => {
+                if (messageEl.parentNode) {
+                    messageEl.parentNode.removeChild(messageEl);
+                }
+            }, 300);
+        }, 4000);
     }
 
     deleteGroup(groupId) {
@@ -5397,6 +6252,48 @@ class LojaApp {
                     </div>
 
                     <div style="margin-bottom: 2rem;">
+                        <h4 style="color: var(--primary-color); margin-bottom: 0.5rem;">🛒 Pedidos Pendentes</h4>
+                        <p>Gerencie pedidos que ainda não foram pagos:</p>
+                        <ul style="margin-left: 1.5rem;">
+                            <li>Acesse pelo <strong>Painel de Vendas</strong> → Seção "Pedidos Pendentes"</li>
+                            <li>Crie pedidos pendentes com nome do cliente, CPF, itens e valor total</li>
+                            <li>Adicione múltiplos itens ao pedido</li>
+                            <li>Defina status: Pendente, Confirmado ou Cancelado</li>
+                            <li>Configure data de vencimento para acompanhamento</li>
+                            <li>Edite ou exclua pedidos pendentes a qualquer momento</li>
+                            <li><strong>Finalizar Pedido:</strong> Converta um pedido pendente em venda concluída quando o pagamento for realizado</li>
+                            <li>Após finalizar, um recibo é gerado automaticamente</li>
+                        </ul>
+                    </div>
+
+                    <div style="margin-bottom: 2rem;">
+                        <h4 style="color: var(--primary-color); margin-bottom: 0.5rem;">📅 Agenda de Serviços</h4>
+                        <p>Organize seus agendamentos de serviços:</p>
+                        <ul style="margin-left: 1.5rem;">
+                            <li>Acesse pelo <strong>Painel de Serviços</strong> → Seção "Agenda de Serviços"</li>
+                            <li>Cadastre agendamentos com tipo de serviço, cliente, data, horário e preço</li>
+                            <li>Adicione contato do cliente (telefone ou e-mail) e observações</li>
+                            <li>Controle status: Pendente, Confirmado, Concluído ou Cancelado</li>
+                            <li>Visualize agendamentos futuros e passados separadamente</li>
+                            <li>Agendamentos futuros são ordenados por data/hora (mais próximos primeiro)</li>
+                            <li>Agendamentos passados são ordenados por data/hora (mais recentes primeiro)</li>
+                            <li>Edite ou exclua agendamentos conforme necessário</li>
+                        </ul>
+                    </div>
+
+                    <div style="margin-bottom: 2rem;">
+                        <h4 style="color: var(--primary-color); margin-bottom: 0.5rem;">🧾 Preview de Recibo</h4>
+                        <p>Visualize e imprima recibos de vendas:</p>
+                        <ul style="margin-left: 1.5rem;">
+                            <li>Após registrar uma venda ou finalizar um pedido pendente, um <strong>preview de recibo</strong> é exibido automaticamente</li>
+                            <li>O recibo mostra: nome do cliente, CPF, itens comprados, quantidade, valor total, data/hora e código do pedido</li>
+                            <li>Use o botão "Imprimir" para imprimir o recibo diretamente</li>
+                            <li>O código do pedido é gerado automaticamente no formato: <strong>PED-YYYYMMDD-XXXX</strong></li>
+                            <li>Todos os recibos são salvos no histórico de vendas concluídas</li>
+                        </ul>
+                    </div>
+
+                    <div style="margin-bottom: 2rem;">
                         <h4 style="color: var(--primary-color); margin-bottom: 0.5rem;">✨ Melhorias e Recursos</h4>
                         <ul style="margin-left: 1.5rem;">
                             <li><strong>Feedback Visual:</strong> Mensagens de sucesso/erro, estados de loading nos botões</li>
@@ -5405,6 +6302,8 @@ class LojaApp {
                             <li><strong>Responsividade:</strong> Interface adaptada para desktop, tablet e mobile</li>
                             <li><strong>Sugestões de Reposição:</strong> Sistema identifica produtos com estoque baixo baseado nas vendas</li>
                             <li><strong>SKU Inteligente:</strong> Para roupas, combina produto + tamanho para controle preciso</li>
+                            <li><strong>Armazenamento na Nuvem:</strong> Dados sincronizados via JSONBin para acesso de qualquer dispositivo</li>
+                            <li><strong>Tema Personalizado:</strong> Escolha entre tema vermelho ou azul, salvo por usuário</li>
                         </ul>
                     </div>
 
@@ -5528,6 +6427,27 @@ class LojaApp {
                 title: 'Custos',
                 content:
                     'Registre os custos de compra dos produtos na aba "Custos". Visualize gráficos de evolução de custos por mês no resumo, mostrando valor total e quantidade de compras.',
+                target: null,
+                position: 'center',
+            },
+            {
+                title: 'Pedidos Pendentes',
+                content:
+                    'No Painel de Vendas, use "Pedidos Pendentes" para gerenciar vendas que ainda não foram pagas. Crie pedidos com múltiplos itens, defina status e data de vencimento. Quando o pagamento for realizado, finalize o pedido para convertê-lo em venda concluída e gerar o recibo automaticamente.',
+                target: null,
+                position: 'center',
+            },
+            {
+                title: 'Agenda de Serviços',
+                content:
+                    'No Painel de Serviços, use "Agenda de Serviços" para organizar seus agendamentos. Cadastre clientes, escolha o tipo de serviço, defina data/horário, preço e status. Visualize agendamentos futuros e passados separadamente, ordenados automaticamente.',
+                target: null,
+                position: 'center',
+            },
+            {
+                title: 'Preview de Recibo',
+                content:
+                    'Após registrar uma venda ou finalizar um pedido pendente, um preview de recibo é exibido automaticamente mostrando todos os detalhes da compra. Use o botão "Imprimir" para imprimir o recibo. O código do pedido é gerado automaticamente no formato PED-YYYYMMDD-XXXX.',
                 target: null,
                 position: 'center',
             },
