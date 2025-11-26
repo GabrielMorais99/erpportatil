@@ -96,13 +96,16 @@ body.theme-blue {
 
 /* Ajustar background do login para tema azul (mantém preto) */
 body.theme-blue .login-container {
-    background-image: url('/images/background-financial.png'),
+    background-image: url('/images/background-financial.svg'),
         linear-gradient(
             to bottom,
             rgba(0, 0, 0, 0.1) 0%,
             rgba(0, 0, 0, 0.2) 50%,
             rgba(0, 0, 0, 0.3) 100%
         );
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
 }
 
 /* Padronizar cores da tela de login para preto e branco */
@@ -2330,13 +2333,16 @@ body.theme-blue .login-container #entrarBtn:focus {
     justify-content: center;
     align-items: center;
     background-color: #000000;
-    background-image: url('/images/background-financial.png'),
+    background-image: url('/images/background-financial.svg'),
         linear-gradient(
             to bottom,
             rgba(0, 0, 0, 0.1) 0%,
             rgba(0, 0, 0, 0.2) 50%,
             rgba(0, 0, 0, 0.3) 100%
         );
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
     background-size: cover;
     background-position: center right;
     background-repeat: no-repeat;
