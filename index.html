@@ -59,6 +59,7 @@
             window.addEventListener('load', function () {
                 document.body.classList.add('loaded');
             });
+
         </script>
     </head>
     <body>
@@ -87,13 +88,28 @@
                         />
                     </div>
                     <div id="errorMessage" class="error-message"></div>
-                    <button type="button" class="btn-primary" id="entrarBtn">
+                    <button type="button" class="btn-primary" id="entrarBtn" style="background: #000000 !important; background-color: #000000 !important; background-image: none !important; color: #ffffff !important; border: none !important;">
                         Entrar
                     </button>
                 </form>
                 <script>
                     // Script inline para garantir que funcione
+                    // Forçar botão de login a ficar sempre preto
+                    function forceLoginButtonBlack() {
+                        const entrarBtn = document.getElementById('entrarBtn');
+                        if (entrarBtn) {
+                            entrarBtn.style.setProperty('background', '#000000', 'important');
+                            entrarBtn.style.setProperty('background-color', '#000000', 'important');
+                            entrarBtn.style.setProperty('background-image', 'none', 'important');
+                            entrarBtn.style.setProperty('color', '#ffffff', 'important');
+                            entrarBtn.style.setProperty('border', 'none', 'important');
+                        }
+                    }
+
                     document.addEventListener('DOMContentLoaded', function () {
+                        // Forçar cor preta imediatamente
+                        forceLoginButtonBlack();
+                        
                         const entrarBtn = document.getElementById('entrarBtn');
                         const usernameInput =
                             document.getElementById('username');
@@ -101,6 +117,19 @@
                             document.getElementById('password');
                         const errorMessage =
                             document.getElementById('errorMessage');
+
+                        // Observar mudanças no botão para manter cor preta
+                        if (entrarBtn) {
+                            const observer = new MutationObserver(function() {
+                                forceLoginButtonBlack();
+                            });
+                            observer.observe(entrarBtn, { 
+                                attributes: true, 
+                                attributeFilter: ['style', 'class'],
+                                childList: false,
+                                subtree: false
+                            });
+                        }
 
                         if (entrarBtn) {
                             entrarBtn.addEventListener('click', function (e) {

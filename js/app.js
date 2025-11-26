@@ -9,6 +9,9 @@ class LojaApp {
         this.serviceGroups = []; // Grupos mensais de serviços
         this.costs = [];
         this.goals = [];
+        this.completedSales = []; // Vendas concluídas com dados completos
+        this.pendingOrders = []; // Pedidos pendentes
+        this.serviceAppointments = []; // Agendamentos de serviços
         this.currentEditingItem = null;
         this.currentGroup = null;
         this.currentServiceGroup = null;
@@ -84,6 +87,7 @@ class LojaApp {
             // Carregar dados (assíncrono)
             this.loadData().then(() => {
                 // Renderizar após carregar dados
+                this.renderGroups();
                 this.renderItems();
                 this.renderCosts();
                 this.renderGoals();
@@ -91,7 +95,10 @@ class LojaApp {
             });
 
             // Renderizar imediatamente também
+            this.renderGroups();
             this.renderItems();
+            this.renderPendingOrders();
+            this.renderServiceAppointments();
             this.renderServiceGroups();
             this.renderCosts();
             this.renderGoals();
@@ -478,6 +485,18 @@ class LojaApp {
             console.log('✅ [APP.JS] Listener anexado ao groupForm');
         } else {
             console.error('❌ [APP.JS] groupForm não encontrado!');
+        }
+
+        if (cancelGroupBtn) {
+            cancelGroupBtn.addEventListener('click', () =>
+                this.closeGroupModal()
+            );
+        }
+
+        if (groupModalClose) {
+            groupModalClose.addEventListener('click', () =>
+                this.closeGroupModal()
+            );
         }
 
         // Modal de grupo de serviços
@@ -2017,6 +2036,7 @@ class LojaApp {
         this.renderGroups();
         this.updateMonthFilter();
         this.closeGroupModal();
+        alert('Grupo mensal criado com sucesso!');
     }
 
     viewGroup(groupId) {
@@ -2550,17 +2570,67 @@ class LojaApp {
             }
         }
 
-        // Adicionar venda
+        // Obter dados do cliente
+        const customerName = document
+            .getElementById('saleCustomerName')
+            .value.trim();
+        const customerCPF = document
+            .getElementById('saleCustomerCPF')
+            .value.trim()
+            .replace(/\D/g, '');
+
+        if (!customerName) {
+            alert('Por favor, informe o nome do cliente.');
+            return;
+        }
+
+        // Adicionar venda ao grupo (compatibilidade)
         dayData.sales.push({
             itemId: itemId,
             quantity: quantity,
             price: price,
         });
 
+        // Criar venda completa para histórico
+        const orderCode = this.generateOrderCode();
+        const saleItem = this.items.find((i) => i.id === itemId);
+        const itemName = saleItem
+            ? this.getItemName(itemId)
+            : 'Item não encontrado';
+        const totalValue = price * quantity;
+        const now = new Date();
+
+        const completedSale = {
+            id: Date.now().toString() + Math.random().toString(36).substr(2, 9),
+            orderCode: orderCode,
+            customerName: customerName,
+            customerCPF: customerCPF || null,
+            items: [
+                {
+                    itemId: itemId,
+                    name: itemName,
+                    quantity: quantity,
+                    price: price,
+                },
+            ],
+            totalValue: totalValue,
+            date: now.toISOString(),
+            timestamp: now.getTime(),
+            groupId: group.id,
+            groupMonth: group.month,
+            day: this.currentSaleDay,
+        };
+
+        // Adicionar à lista de vendas concluídas
+        this.completedSales.push(completedSale);
+
         // Atualizar referência do grupo atual
         this.currentGroup = group;
 
         this.saveData();
+
+        // Mostrar preview de recibo
+        this.showReceiptPreview(completedSale);
 
         // Atualizar o resumo do grupo no modal (se estiver aberto)
         const viewGroupModal = document.getElementById('viewGroupModal');
@@ -2577,8 +2647,215 @@ class LojaApp {
         // Atualizar resumo geral
         this.updateOverallSummary();
 
-        // Reabrir modal de venda para mostrar a nova venda
-        this.openSaleModal(group.id, this.currentSaleDay);
+        // Fechar modal de venda (o preview de recibo será mostrado)
+        this.closeSaleModal();
+    }
+
+    // Gerar código de pedido único
+    generateOrderCode() {
+        const now = new Date();
+        const year = now.getFullYear();
+        const month = String(now.getMonth() + 1).padStart(2, '0');
+        const day = String(now.getDate()).padStart(2, '0');
+        const random = Math.floor(Math.random() * 10000)
+            .toString()
+            .padStart(4, '0');
+        return `PED-${year}${month}${day}-${random}`;
+    }
+
+    // Mostrar preview de recibo
+    showReceiptPreview(sale) {
+        const modal = document.getElementById('receiptPreviewModal');
+        if (!modal) {
+            // Criar modal se não existir
+            this.createReceiptPreviewModal();
+        }
+
+        const modalElement = document.getElementById('receiptPreviewModal');
+        const receiptContent = document.getElementById('receiptContent');
+
+        if (!receiptContent) return;
+
+        const date = new Date(sale.date);
+        const formattedDate = date.toLocaleDateString('pt-BR', {
+            day: '2-digit',
+            month: '2-digit',
+            year: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit',
+        });
+
+        receiptContent.innerHTML = `
+            <div class="receipt-header">
+                <h2>Recibo de Venda</h2>
+                <p class="receipt-order-code">Código: ${this.escapeHtml(
+                    sale.orderCode
+                )}</p>
+            </div>
+            <div class="receipt-info">
+                <div class="receipt-section">
+                    <h3>Dados do Cliente</h3>
+                    <p><strong>Nome:</strong> ${this.escapeHtml(
+                        sale.customerName
+                    )}</p>
+                    ${
+                        sale.customerCPF
+                            ? `<p><strong>CPF:</strong> ${this.formatCPF(
+                                  sale.customerCPF
+                              )}</p>`
+                            : ''
+                    }
+                </div>
+                <div class="receipt-section">
+                    <h3>Data e Horário</h3>
+                    <p>${formattedDate}</p>
+                </div>
+                <div class="receipt-section">
+                    <h3>Itens Comprados</h3>
+                    <div class="receipt-items">
+                        ${sale.items
+                            .map(
+                                (item) => `
+                            <div class="receipt-item">
+                                <div class="receipt-item-name">${this.escapeHtml(
+                                    item.name
+                                )}</div>
+                                <div class="receipt-item-details">
+                                    ${item.quantity} un. × R$ ${item.price
+                                    .toFixed(2)
+                                    .replace('.', ',')} = 
+                                    <strong>R$ ${(item.quantity * item.price)
+                                        .toFixed(2)
+                                        .replace('.', ',')}</strong>
+                                </div>
+                            </div>
+                        `
+                            )
+                            .join('')}
+                    </div>
+                </div>
+                <div class="receipt-total">
+                    <h3>Valor Total</h3>
+                    <p class="receipt-total-value">R$ ${sale.totalValue
+                        .toFixed(2)
+                        .replace('.', ',')}</p>
+                </div>
+            </div>
+        `;
+
+        modalElement.classList.add('active');
+    }
+
+    // Criar modal de preview de recibo
+    createReceiptPreviewModal() {
+        const modal = document.createElement('div');
+        modal.id = 'receiptPreviewModal';
+        modal.className = 'modal';
+        modal.innerHTML = `
+            <div class="modal-content" style="max-width: 500px;">
+                <div class="modal-header">
+                    <h2>Recibo de Venda</h2>
+                    <span class="close" aria-label="Fechar modal" role="button" tabindex="0">&times;</span>
+                </div>
+                <div id="receiptContent" class="receipt-content">
+                    <!-- Conteúdo do recibo será inserido aqui -->
+                </div>
+                <div class="modal-actions">
+                    <button type="button" class="btn-secondary" id="closeReceiptBtn">
+                        Fechar
+                    </button>
+                    <button type="button" class="btn-primary" id="printReceiptBtn">
+                        <i class="fas fa-print"></i> Imprimir
+                    </button>
+                </div>
+            </div>
+        `;
+        document.body.appendChild(modal);
+
+        // Event listeners
+        const closeBtn = document.getElementById('closeReceiptBtn');
+        const printBtn = document.getElementById('printReceiptBtn');
+        const closeIcon = modal.querySelector('.close');
+
+        if (closeBtn) {
+            closeBtn.addEventListener('click', () =>
+                this.closeReceiptPreview()
+            );
+        }
+        if (printBtn) {
+            printBtn.addEventListener('click', () => this.printReceipt());
+        }
+        if (closeIcon) {
+            closeIcon.addEventListener('click', () =>
+                this.closeReceiptPreview()
+            );
+        }
+    }
+
+    // Fechar preview de recibo
+    closeReceiptPreview() {
+        const modal = document.getElementById('receiptPreviewModal');
+        if (modal) {
+            modal.classList.remove('active');
+        }
+    }
+
+    // Imprimir recibo
+    printReceipt() {
+        const receiptContent = document.getElementById('receiptContent');
+        if (!receiptContent) return;
+
+        const printWindow = window.open('', '_blank');
+        printWindow.document.write(`
+            <!DOCTYPE html>
+            <html>
+            <head>
+                <title>Recibo de Venda</title>
+                <style>
+                    body { font-family: Arial, sans-serif; padding: 20px; }
+                    .receipt-header { text-align: center; margin-bottom: 20px; }
+                    .receipt-section { margin-bottom: 15px; }
+                    .receipt-item { margin-bottom: 10px; padding-bottom: 10px; border-bottom: 1px solid #ddd; }
+                    .receipt-total { margin-top: 20px; padding-top: 15px; border-top: 2px solid #000; text-align: right; }
+                    .receipt-total-value { font-size: 1.5em; font-weight: bold; }
+                </style>
+            </head>
+            <body>
+                ${receiptContent.innerHTML}
+            </body>
+            </html>
+        `);
+        printWindow.document.close();
+        printWindow.print();
+    }
+
+    // Formatar CPF
+    formatCPF(cpf) {
+        const cleaned = cpf.replace(/\D/g, '');
+        if (cleaned.length !== 11) return cpf;
+        return cleaned.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, '$1.$2.$3-$4');
+    }
+
+    // Formatar CPF no input (máscara)
+    formatCPFInput(input) {
+        let value = input.value.replace(/\D/g, '');
+        if (value.length > 11) value = value.slice(0, 11);
+        if (value.length > 0) {
+            if (value.length <= 3) {
+                input.value = value;
+            } else if (value.length <= 6) {
+                input.value = value.replace(/(\d{3})(\d+)/, '$1.$2');
+            } else if (value.length <= 9) {
+                input.value = value.replace(/(\d{3})(\d{3})(\d+)/, '$1.$2.$3');
+            } else {
+                input.value = value.replace(
+                    /(\d{3})(\d{3})(\d{3})(\d+)/,
+                    '$1.$2.$3-$4'
+                );
+            }
+        } else {
+            input.value = '';
+        }
     }
 
     deleteGroup(groupId) {
@@ -3944,10 +4221,27 @@ class LojaApp {
                     legend: {
                         display: true,
                         position: 'top',
+                        labels: {
+                            font: {
+                                size: 14,
+                                weight: 'bold',
+                            },
+                            padding: 15,
+                            usePointStyle: true,
+                            pointStyle: 'circle',
+                        },
                     },
                     tooltip: {
-                        backgroundColor: 'rgba(0, 0, 0, 0.8)',
-                        padding: 10,
+                        backgroundColor: 'rgba(0, 0, 0, 0.85)',
+                        padding: 12,
+                        titleFont: {
+                            size: 14,
+                            weight: 'bold',
+                        },
+                        bodyFont: {
+                            size: 13,
+                            weight: '600',
+                        },
                         callbacks: {
                             label: function (context) {
                                 return (
@@ -3961,6 +4255,12 @@ class LojaApp {
                         },
                     },
                 },
+                elements: {
+                    bar: {
+                        borderWidth: 3,
+                        borderRadius: 4,
+                    },
+                },
                 scales: {
                     y: {
                         beginAtZero: true,
@@ -3969,18 +4269,23 @@ class LojaApp {
                                 return 'R$ ' + value.toFixed(0);
                             },
                             font: {
-                                size: 10,
+                                size: 12,
+                                weight: '600',
                             },
+                            color: 'rgba(0, 0, 0, 0.8)',
                         },
                         grid: {
-                            color: 'rgba(0, 0, 0, 0.05)',
+                            color: 'rgba(0, 0, 0, 0.08)',
+                            lineWidth: 1,
                         },
                     },
                     x: {
                         ticks: {
                             font: {
-                                size: 10,
+                                size: 12,
+                                weight: '600',
                             },
+                            color: 'rgba(0, 0, 0, 0.8)',
                         },
                         grid: {
                             display: false,
@@ -4101,10 +4406,27 @@ class LojaApp {
                     legend: {
                         display: true,
                         position: 'top',
+                        labels: {
+                            font: {
+                                size: 14,
+                                weight: 'bold',
+                            },
+                            padding: 15,
+                            usePointStyle: true,
+                            pointStyle: 'circle',
+                        },
                     },
                     tooltip: {
-                        backgroundColor: 'rgba(0, 0, 0, 0.8)',
-                        padding: 10,
+                        backgroundColor: 'rgba(0, 0, 0, 0.85)',
+                        padding: 12,
+                        titleFont: {
+                            size: 14,
+                            weight: 'bold',
+                        },
+                        bodyFont: {
+                            size: 13,
+                            weight: '600',
+                        },
                         callbacks: {
                             label: function (context) {
                                 if (context.datasetIndex === 0) {
@@ -4127,6 +4449,12 @@ class LojaApp {
                         },
                     },
                 },
+                elements: {
+                    bar: {
+                        borderWidth: 3,
+                        borderRadius: 4,
+                    },
+                },
                 scales: {
                     y: {
                         beginAtZero: true,
@@ -4136,11 +4464,14 @@ class LojaApp {
                                 return 'R$ ' + value.toFixed(0);
                             },
                             font: {
-                                size: 10,
+                                size: 12,
+                                weight: '600',
                             },
+                            color: 'rgba(0, 0, 0, 0.8)',
                         },
                         grid: {
-                            color: 'rgba(0, 0, 0, 0.05)',
+                            color: 'rgba(0, 0, 0, 0.08)',
+                            lineWidth: 1,
                         },
                     },
                     y1: {
@@ -4148,8 +4479,10 @@ class LojaApp {
                         position: 'right',
                         ticks: {
                             font: {
-                                size: 10,
+                                size: 12,
+                                weight: '600',
                             },
+                            color: 'rgba(0, 0, 0, 0.8)',
                         },
                         grid: {
                             drawOnChartArea: false,
@@ -4158,8 +4491,10 @@ class LojaApp {
                     x: {
                         ticks: {
                             font: {
-                                size: 10,
+                                size: 12,
+                                weight: '600',
                             },
+                            color: 'rgba(0, 0, 0, 0.8)',
                         },
                         grid: {
                             display: false,
@@ -4291,10 +4626,27 @@ class LojaApp {
                     legend: {
                         display: true,
                         position: 'top',
+                        labels: {
+                            font: {
+                                size: 14,
+                                weight: 'bold',
+                            },
+                            padding: 15,
+                            usePointStyle: true,
+                            pointStyle: 'circle',
+                        },
                     },
                     tooltip: {
-                        backgroundColor: 'rgba(0, 0, 0, 0.8)',
-                        padding: 10,
+                        backgroundColor: 'rgba(0, 0, 0, 0.85)',
+                        padding: 12,
+                        titleFont: {
+                            size: 14,
+                            weight: 'bold',
+                        },
+                        bodyFont: {
+                            size: 13,
+                            weight: '600',
+                        },
                         callbacks: {
                             label: function (context) {
                                 if (context.datasetIndex === 0) {
@@ -4317,6 +4669,12 @@ class LojaApp {
                         },
                     },
                 },
+                elements: {
+                    bar: {
+                        borderWidth: 3,
+                        borderRadius: 4,
+                    },
+                },
                 scales: {
                     y: {
                         beginAtZero: true,
@@ -4326,11 +4684,14 @@ class LojaApp {
                                 return 'R$ ' + value.toFixed(0);
                             },
                             font: {
-                                size: 10,
+                                size: 12,
+                                weight: '600',
                             },
+                            color: 'rgba(0, 0, 0, 0.8)',
                         },
                         grid: {
-                            color: 'rgba(0, 0, 0, 0.05)',
+                            color: 'rgba(0, 0, 0, 0.08)',
+                            lineWidth: 1,
                         },
                     },
                     y1: {
@@ -4341,8 +4702,10 @@ class LojaApp {
                                 return value.toFixed(1) + 'h';
                             },
                             font: {
-                                size: 10,
+                                size: 12,
+                                weight: '600',
                             },
+                            color: 'rgba(0, 0, 0, 0.8)',
                         },
                         grid: {
                             drawOnChartArea: false,
@@ -4351,8 +4714,10 @@ class LojaApp {
                     x: {
                         ticks: {
                             font: {
-                                size: 10,
+                                size: 12,
+                                weight: '600',
                             },
+                            color: 'rgba(0, 0, 0, 0.8)',
                         },
                         grid: {
                             display: false,
@@ -4857,10 +5222,18 @@ class LojaApp {
             this.renderGoals();
         }
 
-        // Se for o painel de vendas, renderizar produtos e custos
+        // Se for o painel de vendas, renderizar grupos, produtos, pedidos pendentes e custos
         if (tab === 'salesPanel') {
+            this.renderGroups();
             this.renderItems();
+            this.renderPendingOrders();
             this.renderCosts();
+        }
+
+        // Se for o painel de serviços, renderizar agendamentos e grupos de serviços
+        if (tab === 'servicesPanel') {
+            this.renderServiceAppointments();
+            this.renderServiceGroups();
         }
 
         // Se for o painel de serviços, renderizar os tipos de serviço
@@ -7170,6 +7543,9 @@ class LojaApp {
             serviceGroups: this.serviceGroups || [], // Grupos mensais de serviços
             costs: this.costs,
             goals: this.goals,
+            completedSales: this.completedSales || [],
+            pendingOrders: this.pendingOrders || [],
+            serviceAppointments: this.serviceAppointments || [],
             theme: currentTheme, // Salvar tema por usuário
             version: '1.0',
             lastUpdate: new Date().toISOString(),
@@ -7380,6 +7756,10 @@ class LojaApp {
                         this.serviceGroups = cloudData.serviceGroups || [];
                         this.costs = cloudData.costs || [];
                         this.goals = cloudData.goals || [];
+                        this.completedSales = cloudData.completedSales || [];
+                        this.pendingOrders = cloudData.pendingOrders || [];
+                        this.serviceAppointments =
+                            cloudData.serviceAppointments || [];
 
                         // Carregar tema do JSONBin se existir
                         if (cloudData.theme) {
@@ -7543,10 +7923,15 @@ class LojaApp {
                 this.serviceGroups = data.serviceGroups || [];
                 this.costs = data.costs || [];
                 this.goals = data.goals || [];
-                
+                this.completedSales = data.completedSales || [];
+                this.pendingOrders = data.pendingOrders || [];
+                this.serviceAppointments = data.serviceAppointments || [];
+
                 // Carregar tema do localStorage se existir
                 if (data.theme) {
-                    const themeKey = username ? `appTheme_${username}` : 'appTheme';
+                    const themeKey = username
+                        ? `appTheme_${username}`
+                        : 'appTheme';
                     localStorage.setItem(themeKey, data.theme);
                     // Aplicar tema imediatamente
                     if (data.theme === 'blue') {
@@ -7556,7 +7941,9 @@ class LojaApp {
                         document.body.classList.remove('theme-blue');
                         this.updateThemeColor('#dc3545');
                     }
-                    console.log(`✅ [LOAD DATA] Tema carregado do localStorage: ${data.theme}`);
+                    console.log(
+                        `✅ [LOAD DATA] Tema carregado do localStorage: ${data.theme}`
+                    );
                 }
 
                 // Migração: adicionar categoria "Roupas" para itens antigos sem categoria
