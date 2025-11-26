@@ -2289,7 +2289,11 @@ class LojaApp {
         // Verificar se o viewGroupModal está aberto e aumentar z-index do saleModal
         const viewGroupModal = document.getElementById('viewGroupModal');
         const saleModal = document.getElementById('saleModal');
-        if (viewGroupModal && viewGroupModal.classList.contains('active') && saleModal) {
+        if (
+            viewGroupModal &&
+            viewGroupModal.classList.contains('active') &&
+            saleModal
+        ) {
             saleModal.classList.add('modal-overlay');
         }
 
@@ -2571,7 +2575,7 @@ class LojaApp {
         if (modal) {
             // Remover classe de overlay se existir
             modal.classList.remove('modal-overlay');
-            
+
             // Animação ao fechar modal
             modal.style.opacity = '0';
             setTimeout(() => {
@@ -3877,16 +3881,16 @@ class LojaApp {
                         <div><strong>Valor Total:</strong> R$ ${totalValue
                             .toFixed(2)
                             .replace('.', ',')}</div>
-                        <div style="margin-top: 0.5rem; padding-top: 0.5rem; border-top: 1px solid var(--gray-200);">
-                            <div style="color: #0c5460;"><strong>Estoque Total:</strong> ${totalStock} un.</div>
-                            <div style="color: #856404;"><strong>Estoque Vendido:</strong> ${totalStockSold} un.</div>
-                            <div style="color: ${
+                        <div class="stock-section">
+                            <div class="stock-total"><strong>Estoque Total:</strong> ${totalStock} un.</div>
+                            <div class="stock-sold"><strong>Estoque Vendido:</strong> ${totalStockSold} un.</div>
+                            <div class="stock-available ${
                                 totalStockAvailable < 0
-                                    ? '#dc3545'
+                                    ? 'danger'
                                     : totalStockAvailable === 0
-                                    ? '#ffc107'
-                                    : '#155724'
-                            };"><strong>Estoque Disponível:</strong> ${totalStockAvailable} un.</div>
+                                    ? 'warning'
+                                    : ''
+                            }"><strong>Estoque Disponível:</strong> ${totalStockAvailable} un.</div>
                         </div>
                     </div>
                     <div class="group-actions">
