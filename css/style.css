@@ -162,6 +162,61 @@ body {
 }
 
 /* ========================================
+   SCROLLBAR MINIMALISTA E REFINADA
+   ======================================== */
+
+/* Firefox */
+* {
+    scrollbar-width: thin;
+    scrollbar-color: var(--gray-300) transparent;
+}
+
+/* Chrome, Edge, Safari */
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--gray-300);
+    border-radius: 10px;
+    border: 2px solid transparent;
+    background-clip: content-box;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: var(--gray-400);
+    border-radius: 10px;
+    border: 2px solid transparent;
+    background-clip: content-box;
+}
+
+/* Scrollbar para modais e containers específicos */
+.modal-content::-webkit-scrollbar,
+.items-grid::-webkit-scrollbar,
+.content-tabs::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+}
+
+.modal-content::-webkit-scrollbar-thumb,
+.items-grid::-webkit-scrollbar-thumb,
+.content-tabs::-webkit-scrollbar-thumb {
+    background: var(--gray-300);
+    border-radius: 10px;
+}
+
+.modal-content::-webkit-scrollbar-thumb:hover,
+.items-grid::-webkit-scrollbar-thumb:hover,
+.content-tabs::-webkit-scrollbar-thumb:hover {
+    background: var(--primary-color);
+}
+
+/* ========================================
    MELHORIAS NO HEADER - MAIS PROFISSIONAL
    ======================================== */
    
