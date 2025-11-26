@@ -1214,15 +1214,34 @@ body {
 
 .logo {
     text-align: center;
-    margin-bottom: 2rem;
+    margin-bottom: 2.5rem;
+    position: relative;
 }
 
 .logo h1 {
     color: #000000;
-    font-size: 2.5rem;
-    font-weight: 700;
+    font-size: 2.75rem;
+    font-weight: 800;
     font-family: 'Inter', sans-serif;
-    letter-spacing: -0.5px;
+    letter-spacing: -1px;
+    margin-bottom: 0.5rem;
+    background: linear-gradient(135deg, #000000 0%, #333333 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.logo::after {
+    content: '';
+    display: block;
+    width: 60px;
+    height: 3px;
+    background: linear-gradient(90deg, 
+        transparent 0%, 
+        #000000 50%, 
+        transparent 100%);
+    margin: 1rem auto 0;
+    border-radius: 2px;
 }
 
 .signature {
