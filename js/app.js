@@ -734,6 +734,25 @@ class LojaApp {
             );
         }
 
+        // Modal de calendário
+        const calendarModal = document.getElementById('calendarModal');
+        const calendarModalClose = document.querySelector('#calendarModal .close');
+        
+        if (calendarModalClose) {
+            calendarModalClose.addEventListener('click', () =>
+                this.closeCalendarModal()
+            );
+        }
+
+        // Fechar modal ao clicar fora
+        if (calendarModal) {
+            calendarModal.addEventListener('click', (e) => {
+                if (e.target === calendarModal) {
+                    this.closeCalendarModal();
+                }
+            });
+        }
+
         // Modal de visualização de grupo
         const viewGroupModalClose = document.querySelector(
             '#viewGroupModal .close'
@@ -3585,6 +3604,226 @@ class LojaApp {
         }
 
         container.innerHTML = html;
+        
+        // Renderizar mini calendário
+        this.renderMiniCalendar();
+    }
+
+    renderMiniCalendar() {
+        const container = document.getElementById('miniCalendarContainer');
+        if (!container) return;
+
+        const now = new Date();
+        const currentMonth = now.getMonth();
+        const currentYear = now.getFullYear();
+        const currentDate = now.getDate();
+
+        // Obter dias com agendamentos no mês atual
+        const daysWithAppointments = this.getDaysWithAppointments(currentYear, currentMonth);
+
+        // Nomes dos dias da semana (abreviados)
+        const weekDays = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
+        
+        // Primeiro dia do mês
+        const firstDay = new Date(currentYear, currentMonth, 1);
+        const firstDayWeek = firstDay.getDay();
+        
+        // Último dia do mês
+        const lastDay = new Date(currentYear, currentMonth + 1, 0);
+        const totalDays = lastDay.getDate();
+
+        let html = `
+            <div class="mini-calendar" onclick="app.openCalendarModal()">
+                <div class="mini-calendar-header">
+                    <span class="mini-calendar-month">${this.getMonthName(currentMonth)}</span>
+                    <span class="mini-calendar-year">${currentYear}</span>
+                </div>
+                <div class="mini-calendar-weekdays">
+                    ${weekDays.map(day => `<span class="mini-calendar-weekday">${day}</span>`).join('')}
+                </div>
+                <div class="mini-calendar-days">
+        `;
+
+        // Espaços vazios antes do primeiro dia
+        for (let i = 0; i < firstDayWeek; i++) {
+            html += '<div class="mini-calendar-day empty"></div>';
+        }
+
+        // Dias do mês
+        for (let day = 1; day <= totalDays; day++) {
+            const dateStr = `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+            const hasAppointment = daysWithAppointments.includes(day);
+            const isToday = day === currentDate;
+            
+            html += `
+                <div class="mini-calendar-day ${hasAppointment ? 'has-appointment' : ''} ${isToday ? 'today' : ''}" 
+                     data-day="${day}">
+                    <span class="day-number">${day}</span>
+                    ${hasAppointment ? '<span class="appointment-dot"></span>' : ''}
+                </div>
+            `;
+        }
+
+        html += `
+                </div>
+            </div>
+        `;
+
+        container.innerHTML = html;
+    }
+
+    getDaysWithAppointments(year, month) {
+        const days = [];
+        this.serviceAppointments.forEach((appointment) => {
+            const appointmentDate = new Date(appointment.date);
+            if (appointmentDate.getFullYear() === year && appointmentDate.getMonth() === month) {
+                const day = appointmentDate.getDate();
+                if (!days.includes(day)) {
+                    days.push(day);
+                }
+            }
+        });
+        return days;
+    }
+
+    getMonthName(monthIndex) {
+        const months = [
+            'Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho',
+            'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'
+        ];
+        return months[monthIndex];
+    }
+
+    openCalendarModal() {
+        const modal = document.getElementById('calendarModal');
+        if (!modal) return;
+
+        this.currentCalendarMonth = new Date().getMonth();
+        this.currentCalendarYear = new Date().getFullYear();
+        
+        this.renderFullCalendar(this.currentCalendarYear, this.currentCalendarMonth);
+        modal.classList.add('active');
+    }
+
+    closeCalendarModal() {
+        const modal = document.getElementById('calendarModal');
+        if (modal) {
+            modal.classList.remove('active');
+        }
+    }
+
+    renderFullCalendar(year, month) {
+        const monthYearEl = document.getElementById('calendarMonthYear');
+        const gridEl = document.getElementById('calendarGrid');
+        
+        if (!monthYearEl || !gridEl) return;
+
+        monthYearEl.textContent = `${this.getMonthName(month)} ${year}`;
+
+        // Obter dias com agendamentos
+        const daysWithAppointments = this.getDaysWithAppointments(year, month);
+        const appointmentsByDay = this.getAppointmentsByDay(year, month);
+
+        // Nomes dos dias da semana
+        const weekDays = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
+        
+        // Primeiro dia do mês
+        const firstDay = new Date(year, month, 1);
+        const firstDayWeek = firstDay.getDay();
+        
+        // Último dia do mês
+        const lastDay = new Date(year, month + 1, 0);
+        const totalDays = lastDay.getDate();
+
+        const now = new Date();
+        const isCurrentMonth = now.getMonth() === month && now.getFullYear() === year;
+        const today = now.getDate();
+
+        let html = '';
+
+        // Cabeçalho dos dias da semana
+        weekDays.forEach(day => {
+            html += `<div class="calendar-weekday">${day}</div>`;
+        });
+
+        // Espaços vazios antes do primeiro dia
+        for (let i = 0; i < firstDayWeek; i++) {
+            html += '<div class="calendar-day empty"></div>';
+        }
+
+        // Dias do mês
+        for (let day = 1; day <= totalDays; day++) {
+            const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+            const hasAppointment = daysWithAppointments.includes(day);
+            const isToday = isCurrentMonth && day === today;
+            const dayAppointments = appointmentsByDay[day] || [];
+
+            html += `
+                <div class="calendar-day ${hasAppointment ? 'has-appointment' : ''} ${isToday ? 'today' : ''}" 
+                     data-day="${day}" data-date="${dateStr}">
+                    <span class="calendar-day-number">${day}</span>
+                    ${hasAppointment ? `<div class="calendar-appointment-indicator">${dayAppointments.length}</div>` : ''}
+                    ${dayAppointments.length > 0 ? `
+                        <div class="calendar-day-tooltip">
+                            ${dayAppointments.map(apt => `
+                                <div class="tooltip-item">
+                                    <strong>${apt.time}</strong> - ${apt.customerName}
+                                </div>
+                            `).join('')}
+                        </div>
+                    ` : ''}
+                </div>
+            `;
+        }
+
+        gridEl.innerHTML = html;
+
+        // Adicionar event listeners para navegação
+        const prevBtn = document.getElementById('prevMonthBtn');
+        const nextBtn = document.getElementById('nextMonthBtn');
+        
+        if (prevBtn) {
+            prevBtn.onclick = () => {
+                if (this.currentCalendarMonth === 0) {
+                    this.currentCalendarMonth = 11;
+                    this.currentCalendarYear--;
+                } else {
+                    this.currentCalendarMonth--;
+                }
+                this.renderFullCalendar(this.currentCalendarYear, this.currentCalendarMonth);
+            };
+        }
+
+        if (nextBtn) {
+            nextBtn.onclick = () => {
+                if (this.currentCalendarMonth === 11) {
+                    this.currentCalendarMonth = 0;
+                    this.currentCalendarYear++;
+                } else {
+                    this.currentCalendarMonth++;
+                }
+                this.renderFullCalendar(this.currentCalendarYear, this.currentCalendarMonth);
+            };
+        }
+    }
+
+    getAppointmentsByDay(year, month) {
+        const appointmentsByDay = {};
+        this.serviceAppointments.forEach((appointment) => {
+            const appointmentDate = new Date(appointment.date);
+            if (appointmentDate.getFullYear() === year && appointmentDate.getMonth() === month) {
+                const day = appointmentDate.getDate();
+                if (!appointmentsByDay[day]) {
+                    appointmentsByDay[day] = [];
+                }
+                appointmentsByDay[day].push({
+                    time: appointment.time,
+                    customerName: appointment.customerName,
+                    serviceTypeId: appointment.serviceTypeId
+                });
+            }
+        });
+        return appointmentsByDay;
     }
 
     renderServiceAppointmentCard(appointment) {

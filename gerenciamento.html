@@ -394,6 +394,10 @@
                                     <i class="fas fa-plus"></i> Novo Agendamento
                                 </button>
                             </div>
+                            <!-- Mini Calendário -->
+                            <div id="miniCalendarContainer" class="mini-calendar-container">
+                                <!-- Mini calendário será inserido aqui via JavaScript -->
+                            </div>
                             <div id="serviceAppointmentsList" class="service-appointments-list">
                                 <!-- Agendamentos serão inseridos aqui via JavaScript -->
                             </div>
@@ -920,6 +924,40 @@
                         </button>
                     </div>
                 </form>
+            </div>
+        </div>
+
+        <!-- Modal: Calendário Completo de Agendamentos -->
+        <div id="calendarModal" class="modal">
+            <div class="modal-content calendar-modal-content">
+                <div class="modal-header calendar-header">
+                    <h2><i class="fas fa-calendar-check"></i> Calendário de Agendamentos</h2>
+                    <span class="close" aria-label="Fechar modal" role="button" tabindex="0">&times;</span>
+                </div>
+                <div class="calendar-container">
+                    <div class="calendar-nav">
+                        <button class="calendar-nav-btn" id="prevMonthBtn" aria-label="Mês anterior">
+                            <i class="fas fa-chevron-left"></i>
+                        </button>
+                        <h3 id="calendarMonthYear" class="calendar-month-year"></h3>
+                        <button class="calendar-nav-btn" id="nextMonthBtn" aria-label="Próximo mês">
+                            <i class="fas fa-chevron-right"></i>
+                        </button>
+                    </div>
+                    <div class="calendar-grid" id="calendarGrid">
+                        <!-- Calendário será renderizado aqui -->
+                    </div>
+                    <div class="calendar-legend">
+                        <div class="legend-item">
+                            <span class="legend-dot dot-has-appointment"></span>
+                            <span>Dia com agendamento</span>
+                        </div>
+                        <div class="legend-item">
+                            <span class="legend-dot dot-today"></span>
+                            <span>Hoje</span>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
 
