@@ -641,17 +641,16 @@ body {
     justify-content: center;
 }
 
-.item-actions .btn-edit,
-.item-actions .btn-delete {
-    flex: 1;
-    width: 100%;
-    justify-content: center;
-}
-
 .item-actions-row {
     display: flex;
     gap: 0.75rem;
     width: 100%;
+}
+
+.item-actions-row .btn-edit,
+.item-actions-row .btn-delete {
+    flex: 1;
+    justify-content: center;
 }
 
 /* ========================================
