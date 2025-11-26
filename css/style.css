@@ -1183,15 +1183,33 @@ body {
 
 .login-box {
     background: var(--white);
-    padding: 2.5rem;
+    padding: 3rem;
     border-radius: var(--radius-xl);
-    box-shadow: var(--shadow-xl);
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25), 
+                0 10px 20px -5px rgba(0, 0, 0, 0.15);
     width: 100%;
-    max-width: 400px;
+    max-width: 420px;
     margin: 1rem;
     opacity: 0;
     transform: translateX(100%);
     animation: slideInFromRight 0.6s ease-out forwards;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    position: relative;
+    overflow: hidden;
+}
+
+.login-box::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, 
+        transparent 0%, 
+        var(--primary-color) 50%, 
+        transparent 100%);
+    opacity: 0.8;
 }
 
 .logo {
