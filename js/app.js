@@ -7719,7 +7719,9 @@ class LojaApp {
         const avgMonthly = monthCount > 0 ? totalSales / monthCount : 0;
         const avgEl = document.getElementById('avgMonthlySales');
         if (avgEl) {
-            avgEl.textContent = `R$ ${avgMonthly.toFixed(2).replace('.', ',')}`;
+            const avgText = `R$ ${avgMonthly.toFixed(2).replace('.', ',')}`;
+            avgEl.textContent = avgText;
+            avgEl.setAttribute('title', avgText);
         }
 
         // Melhor mês
@@ -8745,42 +8747,57 @@ class LojaApp {
         );
 
         if (avgMonthlyHoursEl) {
-            avgMonthlyHoursEl.textContent = `${avgHoursInt}h ${avgMinutesInt}min`;
+            const hoursText = `${avgHoursInt}h ${avgMinutesInt}min`;
+            avgMonthlyHoursEl.textContent = hoursText;
+            avgMonthlyHoursEl.setAttribute('title', hoursText);
         }
         if (bestMonthHoursEl) {
             const monthText = bestMonthHours ? bestMonthHours.month : '-';
             bestMonthHoursEl.textContent = monthText;
             // Adicionar tooltip com o valor completo
             if (bestMonthHours) {
-                const tooltipText = `${bestMonthHours.month} - ${bestMonthHours.hours.toFixed(1)}h`;
+                const tooltipText = `${
+                    bestMonthHours.month
+                } - ${bestMonthHours.hours.toFixed(1)}h`;
                 bestMonthHoursEl.setAttribute('title', tooltipText);
             } else {
                 bestMonthHoursEl.removeAttribute('title');
             }
         }
         if (avgMonthlyRevenueEl) {
-            avgMonthlyRevenueEl.textContent = `R$ ${avgRevenue
-                .toFixed(2)
-                .replace('.', ',')}`;
+            const revenueText = `R$ ${avgRevenue.toFixed(2).replace('.', ',')}`;
+            avgMonthlyRevenueEl.textContent = revenueText;
+            avgMonthlyRevenueEl.setAttribute('title', revenueText);
         }
         if (bestMonthRevenueEl) {
             const monthText = bestMonthRevenue ? bestMonthRevenue.month : '-';
             bestMonthRevenueEl.textContent = monthText;
             // Adicionar tooltip com o valor completo
             if (bestMonthRevenue) {
-                const tooltipText = `${bestMonthRevenue.month} - R$ ${bestMonthRevenue.revenue.toFixed(2).replace('.', ',')}`;
+                const tooltipText = `${
+                    bestMonthRevenue.month
+                } - R$ ${bestMonthRevenue.revenue
+                    .toFixed(2)
+                    .replace('.', ',')}`;
                 bestMonthRevenueEl.setAttribute('title', tooltipText);
             } else {
                 bestMonthRevenueEl.removeAttribute('title');
             }
         }
         if (avgValuePerHourEl) {
-            avgValuePerHourEl.textContent = `R$ ${avgValuePerHour
+            const valueText = `R$ ${avgValuePerHour
                 .toFixed(2)
                 .replace('.', ',')}`;
+            avgValuePerHourEl.textContent = valueText;
+            avgValuePerHourEl.setAttribute('title', valueText);
         }
         if (totalServicesEl) {
-            totalServicesEl.textContent = totalServices;
+            const totalText = totalServices.toString();
+            totalServicesEl.textContent = totalText;
+            totalServicesEl.setAttribute(
+                'title',
+                `Total: ${totalText} serviços`
+            );
         }
     }
 
