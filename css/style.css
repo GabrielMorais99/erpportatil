@@ -1933,12 +1933,28 @@ body.theme-blue .login-container #entrarBtn:focus {
         padding: 0.875rem;
     }
 
+    .goal-card {
+        min-height: 180px;
+    }
+
     .group-card h3,
     .cost-card h3,
     .goal-card h3 {
         padding-top: 1.75rem;
         font-size: 0.9rem;
         margin-bottom: 0.5rem;
+    }
+
+    .goal-progress-bar {
+        height: 20px;
+        margin-top: 0.5rem;
+        margin-bottom: 0.4rem;
+    }
+
+    .goal-progress-fill {
+        font-size: 0.7rem;
+        min-width: 35px;
+        padding: 0 0.4rem;
     }
 
     .group-info,
