@@ -91,13 +91,7 @@
             </header>
 
             <main class="main-content">
-                <div class="toolbar">
-                    <button type="button" id="newItemBtn" class="btn-primary" aria-label="Cadastrar novo produto">
-                        <i class="fas fa-plus-circle"></i> Novo Produto
-                    </button>
-                    <button type="button" id="newGroupBtn" class="btn-primary" aria-label="Criar novo grupo mensal">
-                        <i class="fas fa-calendar-alt"></i> Grupo Mensal
-                    </button>
+                <div class="toolbar" id="mainToolbar" style="display: none;">
                     <div class="search-filter">
                         <div style="position: relative; flex: 1;">
                             <i class="fas fa-search" style="position: absolute; left: 0.75rem; top: 50%; transform: translateY(-50%); color: var(--gray-400); pointer-events: none;"></i>
@@ -116,32 +110,75 @@
 
                 <div class="content-tabs">
                     <!-- Dashboards agrupados -->
-                    <button class="tab-btn" id="dashboardToggleBtn" data-tab="dashboard" title="Dashboard Vendas">
-                        <i class="fas fa-chart-line"></i> <span class="btn-text">Dashboard Vendas</span>
+                    <button class="tab-btn" id="dashboardToggleBtn" data-tab="dashboard" title="Dashboards">
+                        <i class="fas fa-chart-line"></i> <span class="btn-text">Dashboards</span>
                     </button>
-                    <button class="tab-btn" data-tab="items" title="Itens">
-                        <i class="fas fa-box"></i> <span class="btn-text">Itens</span>
+                    <button class="tab-btn" data-tab="salesPanel" title="Painel de Vendas">
+                        <i class="fas fa-shopping-cart"></i> <span class="btn-text">Painel de Vendas</span>
                     </button>
-                    <button class="tab-btn" data-tab="groups" title="Grupos Mensais">
-                        <i class="fas fa-calendar-check"></i> <span class="btn-text">Grupos Mensais</span>
-                    </button>
-                    <button class="tab-btn" data-tab="services" title="Serviços">
-                        <i class="fas fa-briefcase"></i> <span class="btn-text">Serviços</span>
-                    </button>
-                    <button class="tab-btn" data-tab="costs" title="Custos de Compra">
-                        <i class="fas fa-receipt"></i> <span class="btn-text">Custos de Compra</span>
+                    <button class="tab-btn" data-tab="servicesPanel" title="Painel de Serviços">
+                        <i class="fas fa-briefcase"></i> <span class="btn-text">Painel de Serviços</span>
                     </button>
                     <button class="tab-btn" data-tab="goals" title="Metas">
                         <i class="fas fa-bullseye"></i> <span class="btn-text">Metas</span>
                     </button>
                 </div>
 
-                <!-- Tab: Itens -->
-                <div id="itemsTab" class="tab-content active">
-                    <div id="itemsGrid" class="items-grid">
-                        <!-- Itens serão inseridos aqui via JavaScript -->
+                <!-- Tab: Painel de Vendas -->
+                <div id="salesPanelTab" class="tab-content active">
+                    <div class="sales-panel-layout">
+                        <!-- Seção de Produtos -->
+                        <div class="panel-section">
+                            <div class="panel-header">
+                                <h2><i class="fas fa-box"></i> Produtos</h2>
+                                <button class="btn-primary" onclick="app.openItemModal()">
+                                    <i class="fas fa-plus"></i> Novo Produto
+                                </button>
+                            </div>
+                            <div id="itemsGrid" class="items-grid">
+                                <!-- Produtos serão inseridos aqui via JavaScript -->
+                            </div>
+                        </div>
+                        
+                        <!-- Seção de Custos de Compra -->
+                        <div class="panel-section">
+                            <div class="panel-header">
+                                <h2><i class="fas fa-receipt"></i> Custos de Compra</h2>
+                                <button class="btn-primary" onclick="app.openCostModal()">
+                                    <i class="fas fa-plus"></i> Novo Custo
+                                </button>
+                            </div>
+                            <div class="costs-layout">
+                                <div class="costs-summary-card">
+                                    <h3>Resumo de Custos</h3>
+                                    <div class="summary-stats">
+                                        <div class="stat-item">
+                                            <h4>Total de Custos</h4>
+                                            <p id="totalCostsCount">0</p>
+                                        </div>
+                                        <div class="stat-item">
+                                            <h4>Valor Total</h4>
+                                            <p id="totalCostsValue">R$ 0,00</p>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Gráfico de Custos -->
+                                    <div style="margin-top: 1.5rem; padding-top: 1.5rem; border-top: 1px solid var(--border-color);">
+                                        <h4 style="margin-bottom: 1rem; font-size: 1rem; color: var(--gray-600);">Evolução de Custos</h4>
+                                        <div class="chart-wrapper" style="height: 200px;">
+                                            <canvas id="costsChart"></canvas>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="costs-content">
+                                    <div id="costsList" class="costs-list">
+                                        <!-- Custos serão inseridos aqui via JavaScript -->
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
-                    </div>
+                </div>
 
                 <!-- Tab: Dashboard Vendas -->
                 <div id="dashboardTab" class="tab-content">
@@ -227,115 +264,6 @@
                     </div>
                 </div>
 
-                <!-- Tab: Grupos Mensais -->
-                <div id="groupsTab" class="tab-content">
-                    <div class="groups-layout">
-                        <div class="overall-summary-card">
-                            <h3>Resumo Geral</h3>
-                            <div class="summary-stats">
-                                <div class="stat-item">
-                                    <h4>Total de Vendas</h4>
-                                    <p id="overallTotalSales">0</p>
-                                </div>
-                                <div class="stat-item">
-                                    <h4>Valor Total Vendas</h4>
-                                    <p id="overallTotalValue">R$ 0,00</p>
-                                </div>
-                                <div
-                                    class="stat-item"
-                                    style="
-                                        background: #fff3cd;
-                                        border: 1px solid #ffc107;
-                                    "
-                                >
-                                    <h4>Total de Custos</h4>
-                                    <p
-                                        id="overallTotalCosts"
-                                        style="color: #856404"
-                                    >
-                                        R$ 0,00
-                                    </p>
-                                </div>
-                                <div
-                                    class="stat-item"
-                                    style="
-                                        background: #d4edda;
-                                        border: 1px solid #28a745;
-                                    "
-                                >
-                                    <h4>Lucro Líquido</h4>
-                                    <p
-                                        id="overallNetProfit"
-                                        style="
-                                            color: #155724;
-                                            font-size: 1.6rem;
-                                        "
-                                    >
-                                        R$ 0,00
-                                    </p>
-                                </div>
-                            </div>
-                            
-                            <!-- Mini Gráfico de Média de Estoque -->
-                            <div style="margin-top: 1.5rem; padding-top: 1.5rem; border-top: 1px solid var(--border-color);">
-                                <h4 style="margin-bottom: 1rem; font-size: 1rem; color: var(--gray-600);">Média de Estoque por Mês</h4>
-                                <div class="chart-wrapper" style="height: 150px;">
-                                    <canvas id="avgStockChart"></canvas>
-                                </div>
-                            </div>
-                            
-                            <!-- Sugestões de Reposição -->
-                            <div style="margin-top: 1.5rem; padding-top: 1.5rem; border-top: 1px solid var(--border-color);">
-                                <h4 style="margin-bottom: 1rem; font-size: 1rem; color: var(--gray-600);">Sugestões de Reposição</h4>
-                                <div id="restockSuggestions" style="max-height: 200px; overflow-y: auto;">
-                                    <!-- Sugestões serão inseridas aqui via JavaScript -->
-                                </div>
-                            </div>
-                        </div>
-                        <div class="groups-content">
-                            <div id="groupsList" class="groups-list">
-                                <!-- Grupos serão inseridos aqui via JavaScript -->
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Tab: Custos de Compra -->
-                <div id="costsTab" class="tab-content">
-                    <div class="costs-layout">
-                        <div class="costs-summary-card">
-                            <h3>Resumo de Custos</h3>
-                            <div class="summary-stats">
-                                <div class="stat-item">
-                                    <h4>Total de Compras</h4>
-                                    <p id="totalCostsCount">0</p>
-                                </div>
-                                <div class="stat-item">
-                                    <h4>Valor Total Custos</h4>
-                                    <p id="totalCostsValue">R$ 0,00</p>
-                                </div>
-                            </div>
-                            
-                            <!-- Gráfico de Custos -->
-                            <div style="margin-top: 1.5rem; padding-top: 1.5rem; border-top: 1px solid var(--border-color);">
-                                <h4 style="margin-bottom: 1rem; font-size: 1rem; color: var(--gray-600);">Evolução de Custos por Mês</h4>
-                                <div class="chart-wrapper" style="height: 200px;">
-                                    <canvas id="costsChart"></canvas>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="costs-content">
-                            <div class="toolbar-costs">
-                                <button type="button" id="newCostBtn" class="btn-primary">
-                                    <i class="fas fa-plus-circle"></i> Cadastrar Novo Custo
-                                </button>
-                            </div>
-                            <div id="costsList" class="costs-list">
-                                <!-- Custos serão inseridos aqui via JavaScript -->
-                            </div>
-                        </div>
-                    </div>
-                </div>
 
                 <!-- Tab: Dashboard Serviços -->
                 <div id="servicesDashboardTab" class="tab-content">
@@ -429,8 +357,8 @@
                     </div>
                 </div>
 
-                <!-- Tab: Serviços -->
-                <div id="servicesTab" class="tab-content">
+                <!-- Tab: Painel de Serviços -->
+                <div id="servicesPanelTab" class="tab-content">
                     <div class="services-layout">
                         <div class="overall-summary-card">
                             <h3>Resumo de Serviços</h3>
@@ -700,129 +628,6 @@
             </div>
         </div>
 
-        <!-- Modal: Criar Grupo Mensal -->
-        <div id="groupModal" class="modal">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h2>Grupo Mensal</h2>
-                    <span class="close" aria-label="Fechar modal" role="button" tabindex="0">&times;</span>
-                </div>
-                <form id="groupForm">
-                    <div class="form-group">
-                        <label for="groupMonth">Mês</label>
-                        <input type="month" id="groupMonth" required />
-                    </div>
-                    <div class="modal-actions">
-                        <button
-                            type="button"
-                            class="btn-secondary"
-                            id="cancelGroupBtn"
-                        >
-                            Cancelar
-                        </button>
-                        <button type="submit" class="btn-primary">Criar</button>
-                    </div>
-                </form>
-            </div>
-        </div>
-
-        <!-- Modal: Visualizar/Editar Grupo -->
-        <div id="viewGroupModal" class="modal">
-            <div class="modal-content large">
-                <div class="modal-header">
-                    <h2 id="groupTitle">Grupo Mensal</h2>
-                    <span class="close" aria-label="Fechar modal" role="button" tabindex="0">&times;</span>
-                </div>
-                <div class="group-content">
-                    <div class="group-summary">
-                        <div class="summary-card">
-                            <h3>Total de Vendas (Mês)</h3>
-                            <p id="totalSales">0</p>
-                        </div>
-                        <div class="summary-card">
-                            <h3>Valor Total (Mês)</h3>
-                            <p id="totalValue">R$ 0,00</p>
-                        </div>
-                        <div
-                            class="summary-card"
-                            style="
-                                background: #fff3cd;
-                                border: 2px solid #ffc107;
-                            "
-                        >
-                            <h3>Total de Vendas (Todos os Meses)</h3>
-                            <p
-                                id="totalSalesAll"
-                                style="
-                                    color: #856404;
-                                    font-size: 1.8rem;
-                                    font-weight: bold;
-                                "
-                            >
-                                0
-                            </p>
-                        </div>
-                        <div
-                            class="summary-card"
-                            style="
-                                background: #fff3cd;
-                                border: 2px solid #ffc107;
-                            "
-                        >
-                            <h3>Valor Total (Todos os Meses)</h3>
-                            <p
-                                id="totalValueAll"
-                                style="
-                                    color: #856404;
-                                    font-size: 1.8rem;
-                                    font-weight: bold;
-                                "
-                            >
-                                R$ 0,00
-                            </p>
-                        </div>
-                    </div>
-                    <div class="stock-summary-card" style="margin: 1.5rem 0; padding: 1.5rem; background: #f8f9fa; border-radius: 8px; border: 2px solid #17a2b8;">
-                        <h3 style="margin-bottom: 1rem; color: #0c5460;">📦 Resumo de Estoque do Mês</h3>
-                        <div class="summary-stats" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;">
-                            <div class="stat-item" style="background: #e7f3ff; border: 2px solid #17a2b8; padding: 1rem; border-radius: 8px;">
-                                <h4 style="margin: 0 0 0.5rem 0; color: #0c5460; font-size: 0.9rem;">Estoque Total</h4>
-                                <p id="groupStockTotal" style="margin: 0; color: #0c5460; font-size: 1.5rem; font-weight: bold;">0 un.</p>
-                            </div>
-                            <div class="stat-item" style="background: #fff3cd; border: 2px solid #ffc107; padding: 1rem; border-radius: 8px;">
-                                <h4 style="margin: 0 0 0.5rem 0; color: #856404; font-size: 0.9rem;">Estoque Vendido</h4>
-                                <p id="groupStockSold" style="margin: 0; color: #856404; font-size: 1.5rem; font-weight: bold;">0 un.</p>
-                            </div>
-                            <div class="stat-item" style="background: #d4edda; border: 2px solid #28a745; padding: 1rem; border-radius: 8px;">
-                                <h4 style="margin: 0 0 0.5rem 0; color: #155724; font-size: 0.9rem;">Estoque Disponível</h4>
-                                <p id="groupStockAvailable" style="margin: 0; color: #155724; font-size: 1.5rem; font-weight: bold;">0 un.</p>
-                            </div>
-                            <div class="stat-item" id="groupLowStockAlert" style="display: none; background: #f8d7da; border: 2px solid #dc3545; padding: 1rem; border-radius: 8px;">
-                                <h4 style="margin: 0 0 0.5rem 0; color: #721c24; font-size: 0.9rem;">⚠️ Alerta: Estoque Baixo</h4>
-                                <p id="groupLowStockItems" style="margin: 0; color: #721c24; font-size: 1rem;">-</p>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="days-container">
-                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
-                            <h3>Vendas por Dia</h3>
-                            <button type="button" class="btn-primary" id="manageStockBtn" style="padding: 0.5rem 1rem; font-size: 0.9rem;">
-                                <i class="fas fa-warehouse"></i> Gerenciar Estoque do Dia
-                            </button>
-                        </div>
-                        <div id="daysList" class="days-list">
-                            <!-- Dias serão inseridos aqui -->
-                        </div>
-                    </div>
-                    <div class="items-summary">
-                        <h3>Resumo por Item</h3>
-                        <div id="itemsSummary" class="items-summary-list">
-                            <!-- Resumo será inserido aqui -->
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
 
         <!-- Modal: Registrar Venda -->
         <div id="saleModal" class="modal">

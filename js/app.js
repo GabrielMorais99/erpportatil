@@ -85,16 +85,13 @@ class LojaApp {
             this.loadData().then(() => {
                 // Renderizar após carregar dados
                 this.renderItems();
-                this.renderGroups();
                 this.renderCosts();
                 this.renderGoals();
                 this.updateMonthFilter();
-                this.updateOverallSummary();
             });
 
             // Renderizar imediatamente também
             this.renderItems();
-            this.renderGroups();
             this.renderServiceGroups();
             this.renderCosts();
             this.renderGoals();
@@ -114,9 +111,6 @@ class LojaApp {
         addDebugLog('Configurando event listeners...');
 
         // Botões principais
-        const newItemBtn = document.getElementById('newItemBtn');
-        const newGroupBtn = document.getElementById('newGroupBtn');
-        const newCostBtn = document.getElementById('newCostBtn');
         const logoutBtn = document.getElementById('logoutBtn');
         const themeToggleBtn = document.getElementById('themeToggleBtn');
 
@@ -130,168 +124,11 @@ class LojaApp {
         }
 
         addDebugLog(
-            'Elementos encontrados: newItemBtn=' +
-                !!newItemBtn +
-                ', newGroupBtn=' +
-                !!newGroupBtn +
-                ', newCostBtn=' +
-                !!newCostBtn +
-                ', logoutBtn=' +
-                !!logoutBtn
+            'Elementos encontrados: logoutBtn=' +
+                !!logoutBtn +
+                ', themeToggleBtn=' +
+                !!themeToggleBtn
         );
-
-        // Teste direto - verificar se os botões são clicáveis
-        if (newItemBtn) {
-            addDebugLog(
-                'newItemBtn type: ' +
-                    newItemBtn.type +
-                    ', disabled: ' +
-                    newItemBtn.disabled
-            );
-            addDebugLog(
-                'newItemBtn style.pointerEvents: ' +
-                    (window.getComputedStyle(newItemBtn).pointerEvents ||
-                        'auto')
-            );
-
-            // Teste de clique direto
-            newItemBtn.style.cursor = 'pointer';
-            newItemBtn.style.pointerEvents = 'auto';
-            const self = this; // Guardar referência ao this
-
-            // Teste direto - adicionar onclick também como fallback
-            newItemBtn.onclick = function (e) {
-                addDebugLog('newItemBtn CLICADO (onclick)!');
-                e.preventDefault();
-                e.stopPropagation();
-                addDebugLog('Chamando openItemModal()...');
-                try {
-                    self.openItemModal();
-                    addDebugLog('openItemModal() chamado com sucesso!');
-                } catch (error) {
-                    addDebugLog(
-                        'ERRO ao chamar openItemModal(): ' + error.message
-                    );
-                }
-                return false;
-            };
-
-            // Também adicionar addEventListener como backup
-            newItemBtn.addEventListener(
-                'click',
-                function (e) {
-                    addDebugLog('newItemBtn CLICADO (addEventListener)!');
-                    e.preventDefault();
-                    e.stopPropagation();
-                    addDebugLog('Chamando openItemModal()...');
-                    try {
-                        self.openItemModal();
-                        addDebugLog('openItemModal() chamado com sucesso!');
-                    } catch (error) {
-                        addDebugLog(
-                            'ERRO ao chamar openItemModal(): ' + error.message
-                        );
-                    }
-                },
-                true
-            ); // Usar capture phase
-
-            addDebugLog(
-                'Listener anexado ao newItemBtn (onclick + addEventListener)'
-            );
-        } else {
-            addDebugLog('ERRO: newItemBtn não encontrado!');
-        }
-
-        if (newGroupBtn) {
-            const self = this;
-
-            newGroupBtn.onclick = function (e) {
-                addDebugLog('newGroupBtn CLICADO (onclick)!');
-                e.preventDefault();
-                e.stopPropagation();
-                addDebugLog('Chamando openGroupModal()...');
-                try {
-                    self.openGroupModal();
-                    addDebugLog('openGroupModal() chamado com sucesso!');
-                } catch (error) {
-                    addDebugLog(
-                        'ERRO ao chamar openGroupModal(): ' + error.message
-                    );
-                }
-                return false;
-            };
-
-            newGroupBtn.addEventListener(
-                'click',
-                function (e) {
-                    addDebugLog('newGroupBtn CLICADO (addEventListener)!');
-                    e.preventDefault();
-                    e.stopPropagation();
-                    addDebugLog('Chamando openGroupModal()...');
-                    try {
-                        self.openGroupModal();
-                        addDebugLog('openGroupModal() chamado com sucesso!');
-                    } catch (error) {
-                        addDebugLog(
-                            'ERRO ao chamar openGroupModal(): ' + error.message
-                        );
-                    }
-                },
-                true
-            );
-
-            addDebugLog(
-                'Listener anexado ao newGroupBtn (onclick + addEventListener)'
-            );
-        } else {
-            addDebugLog('ERRO: newGroupBtn não encontrado!');
-        }
-
-        if (newCostBtn) {
-            const self = this;
-
-            newCostBtn.onclick = function (e) {
-                addDebugLog('newCostBtn CLICADO (onclick)!');
-                e.preventDefault();
-                e.stopPropagation();
-                addDebugLog('Chamando openCostModal()...');
-                try {
-                    self.openCostModal();
-                    addDebugLog('openCostModal() chamado com sucesso!');
-                } catch (error) {
-                    addDebugLog(
-                        'ERRO ao chamar openCostModal(): ' + error.message
-                    );
-                }
-                return false;
-            };
-
-            newCostBtn.addEventListener(
-                'click',
-                function (e) {
-                    addDebugLog('newCostBtn CLICADO (addEventListener)!');
-                    e.preventDefault();
-                    e.stopPropagation();
-                    addDebugLog('Chamando openCostModal()...');
-                    try {
-                        self.openCostModal();
-                        addDebugLog('openCostModal() chamado com sucesso!');
-                    } catch (error) {
-                        addDebugLog(
-                            'ERRO ao chamar openCostModal(): ' + error.message
-                        );
-                    }
-                },
-                true
-            );
-
-            addDebugLog(
-                'Listener anexado ao newCostBtn (onclick + addEventListener)'
-            );
-        } else {
-            addDebugLog('ERRO: newCostBtn não encontrado!');
-        }
 
         if (logoutBtn) {
             const self = this;
@@ -5017,8 +4854,14 @@ class LojaApp {
             this.renderGoals();
         }
 
-        // Se for a aba services, renderizar os serviços
-        if (tab === 'services') {
+        // Se for o painel de vendas, renderizar produtos e custos
+        if (tab === 'salesPanel') {
+            this.renderItems();
+            this.renderCosts();
+        }
+
+        // Se for o painel de serviços, renderizar os tipos de serviço
+        if (tab === 'servicesPanel') {
             this.renderServiceGroups();
             this.updateServiceSummary();
         }

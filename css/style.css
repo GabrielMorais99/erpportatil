@@ -1906,6 +1906,48 @@ body {
     align-items: start;
 }
 
+/* ========================================
+   PAINÉIS DE VENDAS E SERVIÇOS
+   ======================================== */
+
+.sales-panel-layout,
+.services-panel-layout {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+}
+
+.panel-section {
+    background: var(--white);
+    border: 1px solid var(--gray-200);
+    border-radius: var(--radius-lg);
+    padding: 1.5rem;
+    box-shadow: var(--shadow-sm);
+}
+
+.panel-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+    padding-bottom: 1rem;
+    border-bottom: 2px solid var(--gray-200);
+}
+
+.panel-header h2 {
+    color: var(--primary-color);
+    font-size: 1.25rem;
+    font-weight: 700;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.panel-header h2 i {
+    font-size: 1.1rem;
+}
+
 .groups-content,
 .costs-content,
 .goals-content {
