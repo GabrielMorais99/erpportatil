@@ -1906,6 +1906,15 @@ body {
     align-items: start;
 }
 
+/* Toolbar para Metas */
+.toolbar-goals {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 1.5rem;
+    padding: 1rem 0;
+}
+
 /* ========================================
    PAINÉIS DE VENDAS E SERVIÇOS
    ======================================== */
