@@ -119,26 +119,19 @@ body.theme-blue .login-container {
     color: #dc2626;
 }
 
-.login-container .btn-primary {
+/* Botão de login sempre preto, independente do tema */
+.login-container .btn-primary,
+body.theme-blue .login-container .btn-primary {
     background-color: #000000 !important;
     color: #ffffff !important;
     border: none !important;
 }
 
-.login-container .btn-primary:hover {
-    background-color: #333333 !important;
+.login-container .btn-primary:hover,
+body.theme-blue .login-container .btn-primary:hover {
+    background-color: #1a1a1a !important;
     transform: translateY(-2px);
     box-shadow: var(--shadow-lg);
-}
-
-/* Garantir que o botão de login não mude com o tema */
-body.theme-blue .login-container .btn-primary {
-    background-color: #000000 !important;
-    color: #ffffff !important;
-}
-
-body.theme-blue .login-container .btn-primary:hover {
-    background-color: #333333 !important;
 }
 
 /* ========================================

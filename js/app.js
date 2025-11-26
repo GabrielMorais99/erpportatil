@@ -6471,7 +6471,11 @@ class LojaApp {
     // ========== GERENCIAMENTO DE TEMA ==========
 
     loadTheme() {
-        const savedTheme = localStorage.getItem('appTheme');
+        // Carregar tema do usuário atual
+        const username = sessionStorage.getItem('username');
+        const themeKey = username ? `appTheme_${username}` : 'appTheme';
+        const savedTheme = localStorage.getItem(themeKey);
+        
         if (savedTheme === 'blue') {
             document.body.classList.add('theme-blue');
             this.updateThemeColor('#007bff');
@@ -6483,15 +6487,21 @@ class LojaApp {
 
     toggleTheme() {
         const isBlue = document.body.classList.contains('theme-blue');
+        const username = sessionStorage.getItem('username');
+        const themeKey = username ? `appTheme_${username}` : 'appTheme';
+        
         if (isBlue) {
             document.body.classList.remove('theme-blue');
-            localStorage.setItem('appTheme', 'red');
+            localStorage.setItem(themeKey, 'red');
             this.updateThemeColor('#dc3545');
         } else {
             document.body.classList.add('theme-blue');
-            localStorage.setItem('appTheme', 'blue');
+            localStorage.setItem(themeKey, 'blue');
             this.updateThemeColor('#007bff');
         }
+        
+        // Salvar tema no JSONBin junto com os dados do usuário
+        this.saveData();
     }
 
     updateThemeColor(color) {
@@ -7150,12 +7160,18 @@ class LojaApp {
             );
         }
 
+        // Obter tema atual do usuário
+        const username = sessionStorage.getItem('username');
+        const themeKey = username ? `appTheme_${username}` : 'appTheme';
+        const currentTheme = localStorage.getItem(themeKey) || 'red';
+        
         const data = {
             items: this.items,
             groups: this.groups,
             serviceGroups: this.serviceGroups || [], // Grupos mensais de serviços
             costs: this.costs,
             goals: this.goals,
+            theme: currentTheme, // Salvar tema por usuário
             version: '1.0',
             lastUpdate: new Date().toISOString(),
         };
@@ -7365,6 +7381,20 @@ class LojaApp {
                         this.serviceGroups = cloudData.serviceGroups || [];
                         this.costs = cloudData.costs || [];
                         this.goals = cloudData.goals || [];
+                        
+                        // Carregar tema do JSONBin se existir
+                        if (cloudData.theme) {
+                            const themeKey = username ? `appTheme_${username}` : 'appTheme';
+                            localStorage.setItem(themeKey, cloudData.theme);
+                            // Aplicar tema imediatamente
+                            if (cloudData.theme === 'blue') {
+                                document.body.classList.add('theme-blue');
+                                this.updateThemeColor('#007bff');
+                            } else {
+                                document.body.classList.remove('theme-blue');
+                                this.updateThemeColor('#dc3545');
+                            }
+                        }
 
                         // Migração: adicionar categoria "Roupas" para itens antigos sem categoria
                         let needsSave = false;

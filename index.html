@@ -221,10 +221,8 @@
                     observer.observe(metaThemeColor, { attributes: true, attributeFilter: ['content'] });
                 }
                 
-                const savedTheme = localStorage.getItem('appTheme');
-                if (savedTheme === 'blue') {
-                    document.body.classList.add('theme-blue');
-                }
+                // Na tela de login, não carregar tema (sempre usar padrão)
+                // O tema será carregado após o login na página de gerenciamento
             })();
         </script>
         <script>
