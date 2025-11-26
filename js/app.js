@@ -1226,10 +1226,7 @@ class LojaApp {
         }
 
         // Gerar código QR numérico exclusivo para produtos físicos
-        if (
-            this.currentEditingItem &&
-            this.currentEditingItem.qrCodeNumber
-        ) {
+        if (this.currentEditingItem && this.currentEditingItem.qrCodeNumber) {
             // Manter código existente ao editar
             item.qrCodeNumber = this.currentEditingItem.qrCodeNumber;
         } else {
