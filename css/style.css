@@ -42,7 +42,7 @@ body {
     /* Variáveis de tema padrão (vermelho) */
     --primary-color: var(--primary-red);
     --primary-color-dark: var(--primary-red-dark);
-    
+
     /* Variáveis de design system (emergente.sh) */
     --radius-md: 8px;
     --transition-base: 0.2s ease;
@@ -271,6 +271,30 @@ body {
     border-color: var(--primary-color);
     box-shadow: 0 0 0 4px rgba(220, 53, 69, 0.12);
     transform: translateY(-1px);
+}
+
+/* Inputs especiais do login - Estilos melhorados do emergente.sh */
+.login-box .form-group input {
+    padding: 1rem 1.25rem;
+    font-size: 1rem;
+    border: 2px solid var(--gray-200);
+    background: var(--gray-50);
+    transition: all var(--transition-base);
+}
+
+.login-box .form-group input:focus {
+    background: var(--white);
+    border-color: #000000;
+    box-shadow: 0 0 0 4px rgba(0, 0, 0, 0.08);
+    transform: translateY(-2px);
+}
+
+.login-box .form-group label {
+    font-weight: 600;
+    color: var(--gray-700);
+    margin-bottom: 0.625rem;
+    font-size: 0.95rem;
+    letter-spacing: -0.01em;
 }
 
 .error-message {
