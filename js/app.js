@@ -1072,8 +1072,8 @@ class LojaApp {
             // Atualizar campos visíveis
             this.toggleCategoryFields();
 
-            // Gerar QR code se estiver editando (apenas para produtos físicos)
-            if (item.id && item.category !== 'Serviços') {
+            // Gerar QR code se estiver editando
+            if (item.id) {
                 // Se não tiver código QR, gerar um
                 if (!item.qrCodeNumber) {
                     item.qrCodeNumber = this.generateQRCodeNumber();
