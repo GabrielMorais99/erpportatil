@@ -1068,6 +1068,7 @@ class LojaApp {
                 document.getElementById('itemCapacity').value =
                     item.capacity || '';
                 document.getElementById('itemColor').value = item.color || '';
+            }
 
             // Atualizar campos visíveis
             this.toggleCategoryFields();
