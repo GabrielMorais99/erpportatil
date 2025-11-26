@@ -2510,6 +2510,54 @@ body.theme-blue .login-container #entrarBtn:focus {
     font-size: 1.1rem;
 }
 
+.panel-filters {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+    flex-wrap: wrap;
+    margin-bottom: 1.5rem;
+    padding: 1rem;
+    background: var(--gray-50);
+    border-radius: var(--radius-md);
+    border: 1px solid var(--gray-200);
+}
+
+.filter-group {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.filter-group label {
+    font-weight: 600;
+    color: var(--gray-700);
+    font-size: 0.9rem;
+    white-space: nowrap;
+}
+
+.filter-select {
+    padding: 0.5rem 1rem;
+    border-radius: var(--radius-md);
+    border: 1px solid var(--gray-300);
+    background: var(--white);
+    color: var(--dark-gray);
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: all var(--transition-base);
+    min-width: 150px;
+}
+
+.filter-select:hover {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(220, 53, 69, 0.1);
+}
+
+.filter-select:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(220, 53, 69, 0.12);
+}
+
 .groups-content,
 .costs-content,
 .goals-content {
@@ -3151,6 +3199,31 @@ body.theme-blue .login-container #entrarBtn:focus {
     .panel-header .btn-primary {
         font-size: 0.875rem;
         padding: 0.5rem 0.875rem;
+    }
+
+    /* Panel filters mobile */
+    .panel-filters {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 0.75rem;
+        padding: 0.75rem;
+    }
+
+    .filter-group {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 0.5rem;
+    }
+
+    .filter-group label {
+        font-size: 0.85rem;
+    }
+
+    .filter-select {
+        width: 100%;
+        min-width: auto;
+        font-size: 0.85rem;
+        padding: 0.5rem 0.75rem;
     }
 
     /* Mini calendário mobile */

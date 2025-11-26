@@ -94,6 +94,7 @@ class LojaApp {
                 this.renderCosts();
                 this.renderGoals();
                 this.updateMonthFilter();
+                this.updateYearFilter();
             });
 
             // Renderizar imediatamente também
@@ -105,6 +106,7 @@ class LojaApp {
             this.renderCosts();
             this.renderGoals();
             this.updateMonthFilter();
+            this.updateYearFilter();
             this.updateOverallSummary();
         }, 100);
     }
@@ -356,6 +358,15 @@ class LojaApp {
             console.log('✅ [APP.JS] Listener anexado ao monthFilter');
         } else {
             console.error('❌ [APP.JS] monthFilter não encontrado!');
+        }
+
+        // Filtro de ano para grupos mensais
+        const yearFilter = document.getElementById('yearFilter');
+        if (yearFilter) {
+            yearFilter.addEventListener('change', () => this.renderGroups());
+            console.log('✅ [APP.JS] Listener anexado ao yearFilter');
+        } else {
+            console.error('❌ [APP.JS] yearFilter não encontrado!');
         }
 
         // Modal de item
@@ -736,8 +747,10 @@ class LojaApp {
 
         // Modal de calendário
         const calendarModal = document.getElementById('calendarModal');
-        const calendarModalClose = document.querySelector('#calendarModal .close');
-        
+        const calendarModalClose = document.querySelector(
+            '#calendarModal .close'
+        );
+
         if (calendarModalClose) {
             calendarModalClose.addEventListener('click', () =>
                 this.closeCalendarModal()
@@ -3356,24 +3369,108 @@ class LojaApp {
                 'Deseja finalizar o pagamento e converter este pedido em venda concluída?'
             )
         ) {
-            // Criar venda concluída
+            // Usar data de vencimento ou data atual
+            const finalizationDate = order.dueDate 
+                ? new Date(order.dueDate) 
+                : new Date();
+            
+            // Obter ano e mês da data de finalização
+            const year = finalizationDate.getFullYear();
+            const month = String(finalizationDate.getMonth() + 1).padStart(2, '0');
+            const day = finalizationDate.getDate();
+            const groupMonth = `${year}-${month}`;
+
+            // Encontrar ou criar grupo mensal
+            let group = this.groups.find((g) => g.month === groupMonth);
+            
+            if (!group) {
+                // Criar novo grupo mensal se não existir
+                group = {
+                    id: Date.now().toString(),
+                    month: groupMonth,
+                    days: [],
+                };
+
+                // Criar dias do mês
+                const daysInMonth = new Date(year, parseInt(month), 0).getDate();
+                for (let d = 1; d <= daysInMonth; d++) {
+                    group.days.push({
+                        day: d,
+                        sales: [],
+                        stock: {},
+                    });
+                }
+
+                this.groups.push(group);
+                this.groups.sort((a, b) => b.month.localeCompare(a.month));
+            }
+
+            // Encontrar ou criar dia
+            let dayData = group.days.find((d) => d.day === day);
+            if (!dayData) {
+                dayData = {
+                    day: day,
+                    sales: [],
+                    stock: {},
+                };
+                group.days.push(dayData);
+                group.days.sort((a, b) => a.day - b.day);
+            }
+
+            // Garantir que stock existe
+            if (!dayData.stock) {
+                dayData.stock = {};
+            }
+
+            // Adicionar vendas e estoque para cada item
+            order.items.forEach((orderItem) => {
+                const item = this.items.find((i) => i.id === orderItem.itemId);
+                const isService = item && item.category === 'Serviços';
+
+                // Adicionar venda ao dia
+                dayData.sales.push({
+                    itemId: orderItem.itemId,
+                    quantity: orderItem.quantity,
+                    price: orderItem.price,
+                });
+
+                // Adicionar ao estoque (apenas para produtos físicos)
+                if (!isService) {
+                    if (!dayData.stock[orderItem.itemId]) {
+                        dayData.stock[orderItem.itemId] = 0;
+                    }
+                    // Adicionar quantidade ao estoque do dia
+                    dayData.stock[orderItem.itemId] += orderItem.quantity;
+                }
+            });
+
+            // Criar venda concluída com informações completas
             const completedSale = {
                 id:
                     Date.now().toString() +
                     Math.random().toString(36).substr(2, 9),
                 orderCode: this.generateOrderCode(),
                 customerName: order.customerName,
-                customerCPF: order.customerCPF,
-                items: order.items,
+                customerCPF: order.customerCPF || null,
+                items: order.items.map((item) => {
+                    const itemObj = this.items.find((i) => i.id === item.itemId);
+                    return {
+                        itemId: item.itemId,
+                        name: itemObj ? this.getItemName(item.itemId) : 'Item não encontrado',
+                        quantity: item.quantity,
+                        price: item.price,
+                    };
+                }),
                 totalValue: order.totalValue,
-                date: new Date().toISOString(),
-                timestamp: Date.now(),
-                groupId: null,
-                groupMonth: null,
-                day: null,
+                date: finalizationDate.toISOString(),
+                timestamp: finalizationDate.getTime(),
+                groupId: group.id,
+                groupMonth: groupMonth,
+                day: day,
                 fromPendingOrder: true,
             };
 
+            // Adicionar à lista de vendas concluídas
             this.completedSales.push(completedSale);
 
             // Remover pedido pendente
@@ -3383,9 +3480,15 @@ class LojaApp {
 
             this.saveData();
             this.renderPendingOrders();
+            this.renderGroups();
+            this.updateYearFilter();
+            
+            // Atualizar resumo geral
+            this.updateOverallSummary();
+
             this.showReceiptPreview(completedSale);
             this.showSuccess(
-                'Pedido finalizado e convertido em venda concluída!'
+                'Pedido finalizado e convertido em venda concluída! Venda registrada no grupo mensal e estoque atualizado.'
             );
         }
     }
@@ -3604,7 +3707,7 @@ class LojaApp {
         }
 
         container.innerHTML = html;
-        
+
         // Renderizar mini calendário
         this.renderMiniCalendar();
     }
@@ -3619,15 +3722,18 @@ class LojaApp {
         const currentDate = now.getDate();
 
         // Obter dias com agendamentos no mês atual
-        const daysWithAppointments = this.getDaysWithAppointments(currentYear, currentMonth);
+        const daysWithAppointments = this.getDaysWithAppointments(
+            currentYear,
+            currentMonth
+        );
 
         // Nomes dos dias da semana (abreviados)
         const weekDays = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
-        
+
         // Primeiro dia do mês
         const firstDay = new Date(currentYear, currentMonth, 1);
         const firstDayWeek = firstDay.getDay();
-        
+
         // Último dia do mês
         const lastDay = new Date(currentYear, currentMonth + 1, 0);
         const totalDays = lastDay.getDate();
@@ -3635,11 +3741,18 @@ class LojaApp {
         let html = `
             <div class="mini-calendar" onclick="app.openCalendarModal()">
                 <div class="mini-calendar-header">
-                    <span class="mini-calendar-month">${this.getMonthName(currentMonth)}</span>
+                    <span class="mini-calendar-month">${this.getMonthName(
+                        currentMonth
+                    )}</span>
                     <span class="mini-calendar-year">${currentYear}</span>
                 </div>
                 <div class="mini-calendar-weekdays">
-                    ${weekDays.map(day => `<span class="mini-calendar-weekday">${day}</span>`).join('')}
+                    ${weekDays
+                        .map(
+                            (day) =>
+                                `<span class="mini-calendar-weekday">${day}</span>`
+                        )
+                        .join('')}
                 </div>
                 <div class="mini-calendar-days">
         `;
@@ -3651,15 +3764,24 @@ class LojaApp {
 
         // Dias do mês
         for (let day = 1; day <= totalDays; day++) {
-            const dateStr = `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+            const dateStr = `${currentYear}-${String(currentMonth + 1).padStart(
+                2,
+                '0'
+            )}-${String(day).padStart(2, '0')}`;
             const hasAppointment = daysWithAppointments.includes(day);
             const isToday = day === currentDate;
-            
+
             html += `
-                <div class="mini-calendar-day ${hasAppointment ? 'has-appointment' : ''} ${isToday ? 'today' : ''}" 
+                <div class="mini-calendar-day ${
+                    hasAppointment ? 'has-appointment' : ''
+                } ${isToday ? 'today' : ''}" 
                      data-day="${day}">
                     <span class="day-number">${day}</span>
-                    ${hasAppointment ? '<span class="appointment-dot"></span>' : ''}
+                    ${
+                        hasAppointment
+                            ? '<span class="appointment-dot"></span>'
+                            : ''
+                    }
                 </div>
             `;
         }
@@ -3676,7 +3798,10 @@ class LojaApp {
         const days = [];
         this.serviceAppointments.forEach((appointment) => {
             const appointmentDate = new Date(appointment.date);
-            if (appointmentDate.getFullYear() === year && appointmentDate.getMonth() === month) {
+            if (
+                appointmentDate.getFullYear() === year &&
+                appointmentDate.getMonth() === month
+            ) {
                 const day = appointmentDate.getDate();
                 if (!days.includes(day)) {
                     days.push(day);
@@ -3688,8 +3813,18 @@ class LojaApp {
 
     getMonthName(monthIndex) {
         const months = [
-            'Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho',
-            'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'
+            'Janeiro',
+            'Fevereiro',
+            'Março',
+            'Abril',
+            'Maio',
+            'Junho',
+            'Julho',
+            'Agosto',
+            'Setembro',
+            'Outubro',
+            'Novembro',
+            'Dezembro',
         ];
         return months[monthIndex];
     }
@@ -3700,8 +3835,11 @@ class LojaApp {
 
         this.currentCalendarMonth = new Date().getMonth();
         this.currentCalendarYear = new Date().getFullYear();
-        
-        this.renderFullCalendar(this.currentCalendarYear, this.currentCalendarMonth);
+
+        this.renderFullCalendar(
+            this.currentCalendarYear,
+            this.currentCalendarMonth
+        );
         modal.classList.add('active');
     }
 
@@ -3715,7 +3853,7 @@ class LojaApp {
     renderFullCalendar(year, month) {
         const monthYearEl = document.getElementById('calendarMonthYear');
         const gridEl = document.getElementById('calendarGrid');
-        
+
         if (!monthYearEl || !gridEl) return;
 
         monthYearEl.textContent = `${this.getMonthName(month)} ${year}`;
@@ -3726,23 +3864,24 @@ class LojaApp {
 
         // Nomes dos dias da semana
         const weekDays = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
-        
+
         // Primeiro dia do mês
         const firstDay = new Date(year, month, 1);
         const firstDayWeek = firstDay.getDay();
-        
+
         // Último dia do mês
         const lastDay = new Date(year, month + 1, 0);
         const totalDays = lastDay.getDate();
 
         const now = new Date();
-        const isCurrentMonth = now.getMonth() === month && now.getFullYear() === year;
+        const isCurrentMonth =
+            now.getMonth() === month && now.getFullYear() === year;
         const today = now.getDate();
 
         let html = '';
 
         // Cabeçalho dos dias da semana
-        weekDays.forEach(day => {
+        weekDays.forEach((day) => {
             html += `<div class="calendar-weekday">${day}</div>`;
         });
 
@@ -3753,25 +3892,42 @@ class LojaApp {
 
         // Dias do mês
         for (let day = 1; day <= totalDays; day++) {
-            const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+            const dateStr = `${year}-${String(month + 1).padStart(
+                2,
+                '0'
+            )}-${String(day).padStart(2, '0')}`;
             const hasAppointment = daysWithAppointments.includes(day);
             const isToday = isCurrentMonth && day === today;
             const dayAppointments = appointmentsByDay[day] || [];
 
             html += `
-                <div class="calendar-day ${hasAppointment ? 'has-appointment' : ''} ${isToday ? 'today' : ''}" 
+                <div class="calendar-day ${
+                    hasAppointment ? 'has-appointment' : ''
+                } ${isToday ? 'today' : ''}" 
                      data-day="${day}" data-date="${dateStr}">
                     <span class="calendar-day-number">${day}</span>
-                    ${hasAppointment ? `<div class="calendar-appointment-indicator">${dayAppointments.length}</div>` : ''}
-                    ${dayAppointments.length > 0 ? `
+                    ${
+                        hasAppointment
+                            ? `<div class="calendar-appointment-indicator">${dayAppointments.length}</div>`
+                            : ''
+                    }
+                    ${
+                        dayAppointments.length > 0
+                            ? `
                         <div class="calendar-day-tooltip">
-                            ${dayAppointments.map(apt => `
+                            ${dayAppointments
+                                .map(
+                                    (apt) => `
                                 <div class="tooltip-item">
                                     <strong>${apt.time}</strong> - ${apt.customerName}
                                 </div>
-                            `).join('')}
+                            `
+                                )
+                                .join('')}
                         </div>
-                    ` : ''}
+                    `
+                            : ''
+                    }
                 </div>
             `;
         }
@@ -3781,7 +3937,7 @@ class LojaApp {
         // Adicionar event listeners para navegação
         const prevBtn = document.getElementById('prevMonthBtn');
         const nextBtn = document.getElementById('nextMonthBtn');
-        
+
         if (prevBtn) {
             prevBtn.onclick = () => {
                 if (this.currentCalendarMonth === 0) {
@@ -3790,7 +3946,10 @@ class LojaApp {
                 } else {
                     this.currentCalendarMonth--;
                 }
-                this.renderFullCalendar(this.currentCalendarYear, this.currentCalendarMonth);
+                this.renderFullCalendar(
+                    this.currentCalendarYear,
+                    this.currentCalendarMonth
+                );
             };
         }
 
@@ -3802,7 +3961,10 @@ class LojaApp {
                 } else {
                     this.currentCalendarMonth++;
                 }
-                this.renderFullCalendar(this.currentCalendarYear, this.currentCalendarMonth);
+                this.renderFullCalendar(
+                    this.currentCalendarYear,
+                    this.currentCalendarMonth
+                );
             };
         }
     }
@@ -3811,7 +3973,10 @@ class LojaApp {
         const appointmentsByDay = {};
         this.serviceAppointments.forEach((appointment) => {
             const appointmentDate = new Date(appointment.date);
-            if (appointmentDate.getFullYear() === year && appointmentDate.getMonth() === month) {
+            if (
+                appointmentDate.getFullYear() === year &&
+                appointmentDate.getMonth() === month
+            ) {
                 const day = appointmentDate.getDate();
                 if (!appointmentsByDay[day]) {
                     appointmentsByDay[day] = [];
@@ -3819,7 +3984,7 @@ class LojaApp {
                 appointmentsByDay[day].push({
                     time: appointment.time,
                     customerName: appointment.customerName,
-                    serviceTypeId: appointment.serviceTypeId
+                    serviceTypeId: appointment.serviceTypeId,
                 });
             }
         });
@@ -3983,6 +4148,18 @@ class LojaApp {
     renderGroups() {
         const list = document.getElementById('groupsList');
 
+        // Obter filtro de ano
+        const yearFilter = document.getElementById('yearFilter')?.value || '';
+        
+        // Filtrar grupos por ano se houver filtro
+        let filteredGroups = this.groups;
+        if (yearFilter) {
+            filteredGroups = this.groups.filter((group) => {
+                const [year] = group.month.split('-');
+                return year === yearFilter;
+            });
+        }
+
         // Atualizar resumo geral de todos os meses
         const allMonthsTotal = this.calculateTotalAllMonths();
         const overallTotalSalesEl =
@@ -4030,13 +4207,15 @@ class LojaApp {
             }
         }
 
-        if (this.groups.length === 0) {
+        if (filteredGroups.length === 0) {
             list.innerHTML =
-                '<p style="grid-column: 1/-1; text-align: center; color: var(--gray); padding: 2rem;">Nenhum grupo mensal criado ainda.</p>';
+                '<p style="grid-column: 1/-1; text-align: center; color: var(--gray); padding: 2rem;">' +
+                (yearFilter ? `Nenhum grupo encontrado para o ano ${yearFilter}.` : 'Nenhum grupo mensal criado ainda.') +
+                '</p>';
             return;
         }
 
-        list.innerHTML = this.groups
+        list.innerHTML = filteredGroups
             .map((group) => {
                 const [year, month] = group.month.split('-');
                 const monthNames = [
@@ -4148,6 +4327,8 @@ class LojaApp {
 
     updateMonthFilter() {
         const select = document.getElementById('monthFilter');
+        if (!select) return;
+        
         const currentOptions = Array.from(select.options)
             .slice(1)
             .map((opt) => opt.value);
@@ -4176,6 +4357,34 @@ class LojaApp {
                 } ${year}`;
                 select.appendChild(option);
             }
+        });
+    }
+
+    updateYearFilter() {
+        const select = document.getElementById('yearFilter');
+        if (!select) return;
+
+        // Obter todos os anos únicos dos grupos
+        const years = new Set();
+        this.groups.forEach((group) => {
+            const [year] = group.month.split('-');
+            years.add(year);
+        });
+
+        // Ordenar anos (mais recente primeiro)
+        const sortedYears = Array.from(years).sort((a, b) => parseInt(b) - parseInt(a));
+
+        // Limpar opções existentes (exceto "Todos os anos")
+        while (select.options.length > 1) {
+            select.remove(1);
+        }
+
+        // Adicionar anos
+        sortedYears.forEach((year) => {
+            const option = document.createElement('option');
+            option.value = year;
+            option.textContent = year;
+            select.appendChild(option);
         });
     }
 
