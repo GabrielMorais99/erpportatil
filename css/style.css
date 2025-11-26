@@ -1304,8 +1304,13 @@ body {
         justify-content: center;
     }
 
+    .tab-btn .btn-text {
+        display: none;
+    }
+
     .tab-btn i {
         font-size: 0.9rem;
+        margin: 0;
     }
 
     /* Layouts de grupos, custos, metas e serviços */
@@ -1466,7 +1471,7 @@ body {
 
     .tab-btn i {
         margin: 0;
-        font-size: 1rem;
+        font-size: 1.1rem;
     }
 
     .btn-primary,
@@ -1670,12 +1675,18 @@ body {
 .btn-delete {
     background-color: var(--gray-500);
     color: var(--white);
+    min-width: 36px;
+    padding: 0.5rem;
 }
 
 .btn-delete:hover {
     background-color: var(--gray-700);
     transform: translateY(-2px);
     box-shadow: var(--shadow-md);
+}
+
+.btn-delete i {
+    font-size: 1rem;
 }
 
 /* ========================================

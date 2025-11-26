@@ -2121,7 +2121,7 @@ class LojaApp {
                         ).replace(/"/g, '&quot;')})">Editar</button>
                         <button class="btn-small btn-delete" onclick="app.deleteItem('${
                             item.id
-                        }')">Excluir</button>
+                        }')" title="Excluir"><i class="fas fa-times"></i></button>
                     </div>
                 </div>
             </div>
@@ -2569,7 +2569,7 @@ class LojaApp {
                         </div>
                         <button class="btn-small btn-delete" onclick="app.deleteSale(${
                             this.currentSaleDay
-                        }, ${index})">Excluir</button>
+                        }, ${index})" title="Excluir"><i class="fas fa-times"></i></button>
                     </div>
                 `;
                 })
@@ -2913,7 +2913,7 @@ class LojaApp {
                         }')">Ver Detalhes</button>
                         <button class="btn-small btn-delete" onclick="app.deleteGroup('${
                             group.id
-                        }')">Excluir</button>
+                        }')" title="Excluir"><i class="fas fa-times"></i></button>
                     </div>
                 </div>
             `;
@@ -3086,8 +3086,8 @@ class LojaApp {
                         </div>
                         <button type="button" class="btn-small btn-delete" onclick="app.deleteServiceRecord(${
                             this.currentServiceDay
-                        }, ${index})">
-                            Excluir
+                        }, ${index})" title="Excluir">
+                            <i class="fas fa-times"></i>
                         </button>
                     </div>
                 `;
@@ -3455,7 +3455,7 @@ class LojaApp {
                         }')">Ver Detalhes</button>
                         <button class="btn-small btn-delete" onclick="app.deleteServiceGroup('${
                             serviceGroup.id
-                        }')">Excluir</button>
+                        }')" title="Excluir"><i class="fas fa-times"></i></button>
                     </div>
                 </div>
             `;
@@ -3744,7 +3744,7 @@ class LojaApp {
                         ).replace(/"/g, '&quot;')})">Editar</button>
                         <button class="btn-small btn-delete" onclick="app.deleteCost('${
                             cost.id
-                        }')">Excluir</button>
+                        }')" title="Excluir"><i class="fas fa-times"></i></button>
                     </div>
                 </div>
             `;
@@ -4001,7 +4001,7 @@ class LojaApp {
                         ).replace(/"/g, '&quot;')})">Editar</button>
                         <button class="btn-small btn-delete" onclick="app.deleteGoal('${
                             goal.id
-                        }')">Excluir</button>
+                        }')" title="Excluir"><i class="fas fa-times"></i></button>
                     </div>
                 </div>
             `;
