@@ -91,18 +91,29 @@ class LojaApp {
                 // Renderizar após carregar dados
                 this.renderGroups();
                 this.renderItems();
+                this.renderPendingOrders();
+                // Renderizar carrossel APÓS carregar dados com um pequeno delay para garantir que o DOM está pronto
+                setTimeout(() => {
+                    this.renderLastReceiptsCarousel();
+                }, 200);
+                this.renderServiceAppointments();
+                this.renderServiceGroups();
                 this.renderCosts();
                 this.renderGoals();
                 this.updateMonthFilter();
                 this.updateYearFilter();
                 this.updateGoalsYearFilter();
+                this.updateOverallSummary();
             });
 
-            // Renderizar imediatamente também
+            // Renderizar imediatamente também (com dados vazios, será atualizado após loadData)
             this.renderGroups();
             this.renderItems();
             this.renderPendingOrders();
-            this.renderLastReceiptsCarousel(); // Renderizar carrossel de últimos comprovantes
+            // Renderizar carrossel com delay para garantir que o DOM está pronto
+            setTimeout(() => {
+                this.renderLastReceiptsCarousel();
+            }, 300);
             this.renderServiceAppointments();
             this.renderServiceGroups();
             this.renderCosts();
@@ -111,6 +122,11 @@ class LojaApp {
             this.updateYearFilter();
             this.updateGoalsYearFilter();
             this.updateOverallSummary();
+            
+            // Forçar renderização do carrossel após 1 segundo (caso os dados ainda estejam carregando)
+            setTimeout(() => {
+                this.renderLastReceiptsCarousel();
+            }, 1000);
         }, 100);
     }
 
@@ -2568,7 +2584,7 @@ class LojaApp {
 
         this.saveData();
 
-        // Atualizar carrossel de últimos comprovantes
+        // Atualizar carrossel de últimos comprovantes na seção fixa
         this.renderLastReceiptsCarousel();
 
         // Mostrar preview de recibo
@@ -2786,12 +2802,11 @@ class LojaApp {
 
         modal.classList.add('active');
 
-        // Renderizar carrossel com últimos 3 comprovantes
-        this.renderReceiptCarousel();
-
         // Limpar busca e mostrar todos os comprovantes
-        document.getElementById('receiptSearchName').value = '';
-        document.getElementById('receiptSearchCPF').value = '';
+        const nameInput = document.getElementById('receiptSearchName');
+        const cpfInput = document.getElementById('receiptSearchCPF');
+        if (nameInput) nameInput.value = '';
+        if (cpfInput) cpfInput.value = '';
         this.searchReceipts();
     }
 
@@ -2813,7 +2828,33 @@ class LojaApp {
     renderLastReceiptsCarousel(container = null) {
         // Usar container fornecido ou buscar o carrossel fixo
         const carousel = container || document.getElementById('lastReceiptsCarousel');
-        if (!carousel) return;
+        if (!carousel) {
+            console.warn('⚠️ [CARROSSEL] Container do carrossel não encontrado. Tentando novamente em 500ms...');
+            // Tentar novamente após um delay caso o elemento ainda não esteja no DOM
+            setTimeout(() => {
+                const retryCarousel = document.getElementById('lastReceiptsCarousel');
+                if (retryCarousel) {
+                    this.renderLastReceiptsCarousel(retryCarousel);
+                } else {
+                    console.error('❌ [CARROSSEL] Container não encontrado após retry');
+                }
+            }, 500);
+            return;
+        }
+
+        // Debug: verificar se há comprovantes
+        console.log(`📊 [CARROSSEL] Total de comprovantes: ${this.completedSales.length}`);
+        console.log(`📊 [CARROSSEL] Array completedSales:`, this.completedSales);
+        if (this.completedSales.length > 0) {
+            console.log('📋 [CARROSSEL] Primeiros 3 comprovantes:', this.completedSales.slice(0, 3).map(s => ({
+                id: s.id,
+                name: s.customerName,
+                date: s.date,
+                total: s.totalValue
+            })));
+        } else {
+            console.warn('⚠️ [CARROSSEL] Nenhum comprovante encontrado no array completedSales');
+        }
 
         // Ordenar comprovantes por data (mais recentes primeiro)
         const sortedSales = [...this.completedSales].sort(
@@ -2828,22 +2869,39 @@ class LojaApp {
         // Pegar sempre os 3 últimos (se houver mais de 3, remover automaticamente o mais antigo)
         const lastThree = sortedSales.slice(0, 3);
 
+        console.log(`🎯 [CARROSSEL] Renderizando ${lastThree.length} comprovantes`);
+
         if (lastThree.length === 0) {
             carousel.innerHTML =
                 '<p style="text-align: center; color: var(--gray-600); padding: 2rem; width: 100%;">Nenhum comprovante encontrado.</p>';
             return;
         }
 
-        carousel.innerHTML = lastThree
-            .map((sale, index) => {
-                const date = new Date(sale.date);
-                const formattedDate = date.toLocaleDateString('pt-BR', {
-                    day: '2-digit',
-                    month: '2-digit',
-                    year: 'numeric',
-                });
+        try {
+            carousel.innerHTML = lastThree
+                .map((sale, index) => {
+                    // Verificar se a data é válida
+                    let formattedDate = 'Data inválida';
+                    try {
+                        const date = new Date(sale.date);
+                        if (!isNaN(date.getTime())) {
+                            formattedDate = date.toLocaleDateString('pt-BR', {
+                                day: '2-digit',
+                                month: '2-digit',
+                                year: 'numeric',
+                            });
+                        }
+                    } catch (e) {
+                        console.error('❌ [CARROSSEL] Erro ao formatar data:', e, sale);
+                    }
 
-                return `
+                    // Verificar se os dados necessários existem
+                    if (!sale.customerName || !sale.totalValue) {
+                        console.error('❌ [CARROSSEL] Dados incompletos no comprovante:', sale);
+                        return '';
+                    }
+
+                    return `
                 <div class="receipt-mini-card" 
                      style="
                          flex: 0 0 auto;
@@ -2891,14 +2949,18 @@ class LojaApp {
                     </div>
                 </div>
             `;
-            })
-            .join('');
+                })
+                .filter(html => html !== '') // Remover strings vazias
+                .join('');
 
-        // Configurar drag após renderizar (apenas para o carrossel fixo)
-        if (!container) {
+            // Configurar drag após renderizar (para ambos os carrosséis)
             setTimeout(() => {
-                this.setupReceiptCarouselDrag();
+                this.setupReceiptCarouselDrag(carousel);
             }, 100);
+        } catch (error) {
+            console.error('❌ [CARROSSEL] Erro ao renderizar carrossel:', error);
+            carousel.innerHTML =
+                '<p style="text-align: center; color: var(--gray-600); padding: 2rem; width: 100%;">Erro ao carregar comprovantes.</p>';
         }
     }
 
@@ -3038,20 +3100,32 @@ class LojaApp {
         this.showReceiptPreview(sale);
     }
 
-    setupReceiptCarouselDrag() {
-        const carousel = document.getElementById('lastReceiptsCarousel');
+    setupReceiptCarouselDrag(container = null) {
+        // Usar container fornecido ou buscar o carrossel fixo
+        const carousel = container || document.getElementById('lastReceiptsCarousel');
         if (!carousel) return;
+
+        // Remover listeners antigos se existirem (evitar duplicação)
+        // Criar um identificador único para os listeners
+        if (carousel.dataset.dragSetup === 'true') {
+            // Já foi configurado, não configurar novamente
+            return;
+        }
+        carousel.dataset.dragSetup = 'true';
 
         let isDown = false;
         let startX;
         let scrollLeft;
 
         // Mouse events
+        let mouseMoved = false;
         carousel.addEventListener('mousedown', (e) => {
+            mouseMoved = false;
             isDown = true;
             carousel.style.cursor = 'grabbing';
             startX = e.pageX - carousel.offsetLeft;
             scrollLeft = carousel.scrollLeft;
+            // Não prevenir default para permitir click nos cards
         });
 
         carousel.addEventListener('mouseleave', () => {
@@ -3059,37 +3133,76 @@ class LojaApp {
             carousel.style.cursor = 'grab';
         });
 
-        carousel.addEventListener('mouseup', () => {
+        carousel.addEventListener('mouseup', (e) => {
+            if (isDown && !mouseMoved) {
+                // Se não houve movimento, pode ser um click no card
+                const card = e.target.closest('.receipt-mini-card');
+                if (card && card.onclick) {
+                    // Executar click no card
+                    setTimeout(() => {
+                        const clickEvent = new MouseEvent('click', {
+                            bubbles: true,
+                            cancelable: true,
+                            view: window
+                        });
+                        card.dispatchEvent(clickEvent);
+                    }, 10);
+                }
+            }
             isDown = false;
+            mouseMoved = false;
             carousel.style.cursor = 'grab';
         });
 
         carousel.addEventListener('mousemove', (e) => {
             if (!isDown) return;
-            e.preventDefault();
-            const x = e.pageX - carousel.offsetLeft;
-            const walk = (x - startX) * 2; // Velocidade do scroll
-            carousel.scrollLeft = scrollLeft - walk;
+            const moved = Math.abs(e.pageX - startX - carousel.offsetLeft) > 5;
+            if (moved) {
+                mouseMoved = true;
+                e.preventDefault();
+                const x = e.pageX - carousel.offsetLeft;
+                const walk = (x - startX) * 2; // Velocidade do scroll
+                carousel.scrollLeft = scrollLeft - walk;
+            }
         });
 
         // Touch events (para mobile)
         let touchStartX = 0;
         let touchScrollLeft = 0;
+        let touchStartTime = 0;
+        let touchMoved = false;
 
         carousel.addEventListener('touchstart', (e) => {
             touchStartX = e.touches[0].pageX - carousel.offsetLeft;
             touchScrollLeft = carousel.scrollLeft;
+            touchStartTime = Date.now();
+            touchMoved = false;
         }, { passive: true });
 
         carousel.addEventListener('touchmove', (e) => {
             if (!touchStartX) return;
             const x = e.touches[0].pageX - carousel.offsetLeft;
             const walk = (x - touchStartX) * 2;
+            if (Math.abs(walk) > 5) {
+                touchMoved = true;
+            }
             carousel.scrollLeft = touchScrollLeft - walk;
         }, { passive: true });
 
-        carousel.addEventListener('touchend', () => {
+        carousel.addEventListener('touchend', (e) => {
+            // Se foi um toque rápido sem movimento, pode ser um click no card
+            const touchDuration = Date.now() - touchStartTime;
+            if (!touchMoved && touchDuration < 300) {
+                const touch = e.changedTouches[0];
+                const element = document.elementFromPoint(touch.clientX, touch.clientY);
+                const card = element?.closest('.receipt-mini-card');
+                if (card && card.onclick) {
+                    // Executar click no card
+                    setTimeout(() => card.click(), 10);
+                }
+            }
             touchStartX = 0;
+            touchMoved = false;
         });
     }
 
@@ -3617,7 +3730,8 @@ class LojaApp {
 
             this.saveData();
             this.renderPendingOrders();
-            this.renderLastReceiptsCarousel(); // Atualizar carrossel de últimos comprovantes
+            // Atualizar carrossel de últimos comprovantes na seção fixa
+            this.renderLastReceiptsCarousel();
             this.renderGroups();
             this.updateYearFilter();
 
@@ -3938,7 +4052,18 @@ class LojaApp {
     getDaysWithAppointments(year, month) {
         const days = [];
         this.serviceAppointments.forEach((appointment) => {
-            const appointmentDate = new Date(appointment.date);
+            // Parse da data de forma segura, considerando apenas a parte da data (sem hora/timezone)
+            let appointmentDate;
+            if (typeof appointment.date === 'string') {
+                // Se for string ISO, pegar apenas a parte da data (YYYY-MM-DD)
+                const datePart = appointment.date.split('T')[0].split(' ')[0];
+                const [yearStr, monthStr, dayStr] = datePart.split('-');
+                appointmentDate = new Date(parseInt(yearStr), parseInt(monthStr) - 1, parseInt(dayStr));
+            } else {
+                appointmentDate = new Date(appointment.date);
+            }
+            
+            // Comparar apenas ano, mês e dia (ignorar hora/timezone)
             if (
                 appointmentDate.getFullYear() === year &&
                 appointmentDate.getMonth() === month
@@ -4113,7 +4238,18 @@ class LojaApp {
     getAppointmentsByDay(year, month) {
         const appointmentsByDay = {};
         this.serviceAppointments.forEach((appointment) => {
-            const appointmentDate = new Date(appointment.date);
+            // Parse da data de forma segura, considerando apenas a parte da data (sem hora/timezone)
+            let appointmentDate;
+            if (typeof appointment.date === 'string') {
+                // Se for string ISO, pegar apenas a parte da data (YYYY-MM-DD)
+                const datePart = appointment.date.split('T')[0].split(' ')[0];
+                const [yearStr, monthStr, dayStr] = datePart.split('-');
+                appointmentDate = new Date(parseInt(yearStr), parseInt(monthStr) - 1, parseInt(dayStr));
+            } else {
+                appointmentDate = new Date(appointment.date);
+            }
+            
+            // Comparar apenas ano, mês e dia (ignorar hora/timezone)
             if (
                 appointmentDate.getFullYear() === year &&
                 appointmentDate.getMonth() === month
@@ -6704,6 +6840,12 @@ class LojaApp {
     }
 
     switchTab(tab) {
+        // Se mudar para a aba de vendas, renderizar o carrossel novamente
+        if (tab === 'salesPanel') {
+            setTimeout(() => {
+                this.renderLastReceiptsCarousel();
+            }, 300);
+        }
         if (!tab) {
             console.warn('⚠️ [SWITCH TAB] Tab não especificado');
             return;
@@ -9433,6 +9575,21 @@ class LojaApp {
                         this.serviceAppointments =
                             cloudData.serviceAppointments || [];
 
+                        console.log(
+                            `📋 [LOAD DATA] Comprovantes carregados: ${this.completedSales.length}`
+                        );
+                        if (this.completedSales.length > 0) {
+                            console.log(
+                                '📋 [LOAD DATA] Primeiro comprovante:',
+                                {
+                                    id: this.completedSales[0].id,
+                                    name: this.completedSales[0].customerName,
+                                    date: this.completedSales[0].date,
+                                    total: this.completedSales[0].totalValue
+                                }
+                            );
+                        }
+
                         // Carregar tema do JSONBin se existir
                         if (cloudData.theme) {
                             const themeKey = username
@@ -9495,7 +9652,7 @@ class LojaApp {
                             '✅ [LOAD DATA] Dados carregados da nuvem com sucesso!'
                         );
                         console.log(
-                            `📊 [LOAD DATA] Items: ${this.items.length} | Grupos: ${this.groups.length} | Custos: ${this.costs.length} | Metas: ${this.goals.length}`
+                            `📊 [LOAD DATA] Items: ${this.items.length} | Grupos: ${this.groups.length} | Custos: ${this.costs.length} | Metas: ${this.goals.length} | Comprovantes: ${this.completedSales.length}`
                         );
                         return Promise.resolve();
                     } else {
@@ -9598,6 +9755,21 @@ class LojaApp {
                 this.completedSales = data.completedSales || [];
                 this.pendingOrders = data.pendingOrders || [];
                 this.serviceAppointments = data.serviceAppointments || [];
+
+                console.log(
+                    `📋 [LOAD DATA] Comprovantes carregados do localStorage: ${this.completedSales.length}`
+                );
+                if (this.completedSales.length > 0) {
+                    console.log(
+                        '📋 [LOAD DATA] Primeiro comprovante:',
+                        {
+                            id: this.completedSales[0].id,
+                            name: this.completedSales[0].customerName,
+                            date: this.completedSales[0].date,
+                            total: this.completedSales[0].totalValue
+                        }
+                    );
+                }
 
                 // Carregar tema do localStorage se existir
                 if (data.theme) {
