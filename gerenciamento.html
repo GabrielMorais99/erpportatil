@@ -163,9 +163,14 @@
                         <div class="panel-section">
                             <div class="panel-header">
                                 <h2><i class="fas fa-clock"></i> Pedidos Pendentes</h2>
-                                <button class="btn-primary" onclick="app.openPendingOrderModal()">
-                                    <i class="fas fa-plus"></i> Novo Pedido
-                                </button>
+                                <div style="display: flex; gap: 0.5rem;">
+                                    <button class="btn-secondary" onclick="app.openReceiptSearchModal()" title="Buscar Comprovantes">
+                                        <i class="fas fa-search"></i> <span class="btn-text">Buscar Comprovantes</span>
+                                    </button>
+                                    <button class="btn-primary" onclick="app.openPendingOrderModal()">
+                                        <i class="fas fa-plus"></i> Novo Pedido
+                                    </button>
+                                </div>
                             </div>
                             <div id="pendingOrdersList" class="pending-orders-list">
                                 <!-- Pedidos pendentes serão inseridos aqui via JavaScript -->
@@ -727,6 +732,73 @@
                     </button>
                     <button type="button" class="btn-primary" id="printReceiptBtn">
                         <i class="fas fa-print"></i> Imprimir
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal: Busca de Comprovantes -->
+        <div id="receiptSearchModal" class="modal">
+            <div class="modal-content large" style="max-width: 900px;">
+                <div class="modal-header">
+                    <h2><i class="fas fa-search"></i> Buscar Comprovantes</h2>
+                    <span class="close" aria-label="Fechar modal" role="button" tabindex="0" onclick="app.closeReceiptSearchModal()">&times;</span>
+                </div>
+                <div class="receipt-search-content" style="padding: 1.5rem;">
+                    <!-- Carrossel de últimos comprovantes -->
+                    <div class="receipt-carousel-container" style="margin-bottom: 2rem;">
+                        <h3 style="margin: 0 0 1rem 0; color: var(--dark-gray); font-size: 1.1rem;">
+                            <i class="fas fa-receipt"></i> Últimos Comprovantes
+                        </h3>
+                        <div id="receiptCarousel" class="receipt-carousel" style="display: flex; gap: 1rem; overflow-x: auto; padding: 0.5rem; scroll-behavior: smooth;">
+                            <!-- Carrossel será preenchido via JavaScript -->
+                        </div>
+                    </div>
+
+                    <!-- Campo de busca -->
+                    <div class="receipt-search-form" style="margin-bottom: 2rem;">
+                        <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
+                            <div style="flex: 1; min-width: 200px;">
+                                <label for="receiptSearchName" style="display: block; margin-bottom: 0.5rem; color: var(--dark-gray); font-weight: 600;">
+                                    <i class="fas fa-user"></i> Nome do Cliente
+                                </label>
+                                <input 
+                                    type="text" 
+                                    id="receiptSearchName" 
+                                    placeholder="Digite o nome do cliente..."
+                                    style="width: 100%; padding: 0.875rem 1.125rem; border-radius: var(--radius-md); border: 1px solid var(--gray-300); font-size: 0.95rem; transition: all var(--transition-base);"
+                                    onkeyup="app.searchReceipts()"
+                                />
+                            </div>
+                            <div style="flex: 1; min-width: 200px;">
+                                <label for="receiptSearchCPF" style="display: block; margin-bottom: 0.5rem; color: var(--dark-gray); font-weight: 600;">
+                                    <i class="fas fa-id-card"></i> CPF (opcional)
+                                </label>
+                                <input 
+                                    type="text" 
+                                    id="receiptSearchCPF" 
+                                    placeholder="Digite o CPF..."
+                                    style="width: 100%; padding: 0.875rem 1.125rem; border-radius: var(--radius-md); border: 1px solid var(--gray-300); font-size: 0.95rem; transition: all var(--transition-base);"
+                                    onkeyup="app.searchReceipts()"
+                                    oninput="app.formatCPFInput(this)"
+                                />
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Lista de resultados -->
+                    <div class="receipt-results-container">
+                        <h3 style="margin: 0 0 1rem 0; color: var(--dark-gray); font-size: 1.1rem;">
+                            <i class="fas fa-list"></i> Resultados da Busca
+                        </h3>
+                        <div id="receiptResultsList" class="receipt-results-list" style="max-height: 400px; overflow-y: auto;">
+                            <!-- Resultados serão inseridos aqui via JavaScript -->
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-actions" style="margin-top: 1.5rem; padding: 0 1.5rem 1.5rem;">
+                    <button type="button" class="btn-secondary" onclick="app.closeReceiptSearchModal()">
+                        <i class="fas fa-times"></i> Fechar
                     </button>
                 </div>
             </div>

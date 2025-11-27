@@ -779,6 +779,17 @@ class LojaApp {
             });
         }
 
+        // Modal de busca de comprovantes
+        const receiptSearchModal =
+            document.getElementById('receiptSearchModal');
+        if (receiptSearchModal) {
+            receiptSearchModal.addEventListener('click', (e) => {
+                if (e.target === receiptSearchModal) {
+                    this.closeReceiptSearchModal();
+                }
+            });
+        }
+
         // Modal de visualização de grupo
         const viewGroupModalClose = document.querySelector(
             '#viewGroupModal .close'
@@ -2760,6 +2771,230 @@ class LojaApp {
         return cleaned.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, '$1.$2.$3-$4');
     }
 
+    // ========== BUSCA DE COMPROVANTES ==========
+
+    openReceiptSearchModal() {
+        const modal = document.getElementById('receiptSearchModal');
+        if (!modal) return;
+
+        modal.classList.add('active');
+
+        // Renderizar carrossel com últimos 3 comprovantes
+        this.renderReceiptCarousel();
+
+        // Limpar busca e mostrar todos os comprovantes
+        document.getElementById('receiptSearchName').value = '';
+        document.getElementById('receiptSearchCPF').value = '';
+        this.searchReceipts();
+    }
+
+    closeReceiptSearchModal() {
+        const modal = document.getElementById('receiptSearchModal');
+        if (modal) {
+            modal.classList.remove('active');
+        }
+    }
+
+    renderReceiptCarousel() {
+        const carousel = document.getElementById('receiptCarousel');
+        if (!carousel) return;
+
+        // Ordenar comprovantes por data (mais recentes primeiro)
+        const sortedSales = [...this.completedSales].sort(
+            (a, b) => new Date(b.date) - new Date(a.date)
+        );
+
+        // Pegar os 3 últimos
+        const lastThree = sortedSales.slice(0, 3);
+
+        if (lastThree.length === 0) {
+            carousel.innerHTML =
+                '<p style="text-align: center; color: var(--gray-600); padding: 2rem;">Nenhum comprovante encontrado.</p>';
+            return;
+        }
+
+        carousel.innerHTML = lastThree
+            .map((sale, index) => {
+                const date = new Date(sale.date);
+                const formattedDate = date.toLocaleDateString('pt-BR', {
+                    day: '2-digit',
+                    month: '2-digit',
+                    year: 'numeric',
+                });
+
+                return `
+                <div class="receipt-mini-card" 
+                     style="
+                         min-width: 200px; 
+                         background: var(--white); 
+                         border: 1px solid var(--gray-300); 
+                         border-radius: var(--radius-md); 
+                         padding: 1rem; 
+                         box-shadow: var(--shadow-sm);
+                         cursor: pointer;
+                         transition: all var(--transition-base);
+                         animation: slideInUp 0.3s ease-out ${
+                             index * 0.1
+                         }s both;
+                     "
+                     onclick="app.viewFullReceipt('${sale.id}')"
+                     onmouseover="this.style.transform='translateY(-4px)'; this.style.boxShadow='var(--shadow-md)';"
+                     onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='var(--shadow-sm)';">
+                    <div style="margin-bottom: 0.75rem;">
+                        <h4 style="margin: 0 0 0.5rem 0; color: var(--dark-gray); font-size: 0.95rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                            ${this.escapeHtml(sale.customerName)}
+                        </h4>
+                        <p style="margin: 0; color: var(--gray-600); font-size: 0.85rem;">
+                            📅 ${formattedDate}
+                        </p>
+                    </div>
+                    <div style="border-top: 1px solid var(--gray-200); padding-top: 0.75rem;">
+                        <p style="margin: 0; color: var(--primary-color); font-weight: 600; font-size: 1.1rem;">
+                            R$ ${sale.totalValue.toFixed(2).replace('.', ',')}
+                        </p>
+                        <p style="margin: 0.25rem 0 0 0; color: var(--gray-500); font-size: 0.75rem;">
+                            ${sale.items.length} ${
+                    sale.items.length === 1 ? 'item' : 'itens'
+                }
+                        </p>
+                    </div>
+                </div>
+            `;
+            })
+            .join('');
+    }
+
+    searchReceipts() {
+        const nameInput = document.getElementById('receiptSearchName');
+        const cpfInput = document.getElementById('receiptSearchCPF');
+        const resultsList = document.getElementById('receiptResultsList');
+
+        if (!nameInput || !cpfInput || !resultsList) return;
+
+        const searchName = nameInput.value.toLowerCase().trim();
+        const searchCPF = cpfInput.value.replace(/\D/g, '').trim();
+
+        // Filtrar comprovantes
+        let filtered = this.completedSales;
+
+        if (searchName) {
+            filtered = filtered.filter((sale) =>
+                sale.customerName.toLowerCase().includes(searchName)
+            );
+        }
+
+        if (searchCPF) {
+            filtered = filtered.filter((sale) => {
+                if (!sale.customerCPF) return false;
+                const saleCPF = sale.customerCPF.replace(/\D/g, '');
+                return saleCPF.includes(searchCPF);
+            });
+        }
+
+        // Ordenar por data (mais recentes primeiro)
+        filtered.sort((a, b) => new Date(b.date) - new Date(a.date));
+
+        // Renderizar resultados
+        if (filtered.length === 0) {
+            resultsList.innerHTML = `
+                <div style="text-align: center; padding: 3rem; color: var(--gray-600);">
+                    <i class="fas fa-search" style="font-size: 2rem; margin-bottom: 1rem; opacity: 0.5;"></i>
+                    <p style="margin: 0;">Nenhum comprovante encontrado.</p>
+                </div>
+            `;
+            return;
+        }
+
+        resultsList.innerHTML = filtered
+            .map((sale, index) => {
+                const date = new Date(sale.date);
+                const formattedDate = date.toLocaleDateString('pt-BR', {
+                    day: '2-digit',
+                    month: '2-digit',
+                    year: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit',
+                });
+
+                return `
+                <div class="receipt-result-card" 
+                     style="
+                         background: var(--white); 
+                         border: 1px solid var(--gray-300); 
+                         border-radius: var(--radius-md); 
+                         padding: 1.25rem; 
+                         margin-bottom: 1rem;
+                         box-shadow: var(--shadow-sm);
+                         cursor: pointer;
+                         transition: all var(--transition-base);
+                         animation: slideInLeft 0.3s ease-out ${
+                             index * 0.05
+                         }s both;
+                     "
+                     onclick="app.viewFullReceipt('${sale.id}')"
+                     onmouseover="this.style.transform='translateX(4px)'; this.style.boxShadow='var(--shadow-md)'; this.style.borderColor='var(--primary-color)';"
+                     onmouseout="this.style.transform='translateX(0)'; this.style.boxShadow='var(--shadow-sm)'; this.style.borderColor='var(--gray-300)';">
+                    <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.75rem;">
+                        <div style="flex: 1;">
+                            <h4 style="margin: 0 0 0.5rem 0; color: var(--dark-gray); font-size: 1rem;">
+                                ${this.escapeHtml(sale.customerName)}
+                            </h4>
+                            <p style="margin: 0; color: var(--gray-600); font-size: 0.9rem;">
+                                📅 ${formattedDate}
+                            </p>
+                            ${
+                                sale.customerCPF
+                                    ? `
+                                <p style="margin: 0.25rem 0 0 0; color: var(--gray-600); font-size: 0.85rem;">
+                                    🆔 ${this.formatCPF(sale.customerCPF)}
+                                </p>
+                            `
+                                    : ''
+                            }
+                        </div>
+                        <div style="text-align: right;">
+                            <p style="margin: 0; color: var(--primary-color); font-weight: 600; font-size: 1.2rem;">
+                                R$ ${sale.totalValue
+                                    .toFixed(2)
+                                    .replace('.', ',')}
+                            </p>
+                            <p style="margin: 0.25rem 0 0 0; color: var(--gray-500); font-size: 0.85rem;">
+                                Código: ${this.escapeHtml(sale.orderCode)}
+                            </p>
+                        </div>
+                    </div>
+                    <div style="border-top: 1px solid var(--gray-200); padding-top: 0.75rem;">
+                        <p style="margin: 0; color: var(--gray-600); font-size: 0.9rem;">
+                            <strong>Itens:</strong> ${sale.items
+                                .map(
+                                    (item) =>
+                                        `${item.quantity}x ${this.escapeHtml(
+                                            item.name
+                                        )}`
+                                )
+                                .join(', ')}
+                        </p>
+                    </div>
+                </div>
+            `;
+            })
+            .join('');
+    }
+
+    viewFullReceipt(saleId) {
+        const sale = this.completedSales.find((s) => s.id === saleId);
+        if (!sale) {
+            this.showError('Comprovante não encontrado.');
+            return;
+        }
+
+        // Fechar modal de busca
+        this.closeReceiptSearchModal();
+
+        // Mostrar preview completo
+        this.showReceiptPreview(sale);
+    }
+
     // Formatar CPF no input (máscara)
     formatCPFInput(input) {
         let value = input.value.replace(/\D/g, '');
@@ -3503,11 +3738,14 @@ class LojaApp {
         if (past.length > 0) {
             html +=
                 '<h3 style="margin: 1.5rem 0 1rem 0; color: var(--dark-gray); font-size: 1.1rem;">Agendamentos Passados</h3>';
+            html +=
+                '<div style="display: flex; flex-direction: column; align-items: center; gap: 0.75rem;">';
             html += past
                 .map((appointment) =>
-                    this.renderServiceAppointmentCard(appointment)
+                    this.renderServiceAppointmentCard(appointment, true)
                 )
                 .join('');
+            html += '</div>';
         }
 
         container.innerHTML = html;
@@ -3795,7 +4033,7 @@ class LojaApp {
         return appointmentsByDay;
     }
 
-    renderServiceAppointmentCard(appointment) {
+    renderServiceAppointmentCard(appointment, isPast = false) {
         const service = this.items.find(
             (i) => i.id === appointment.serviceTypeId
         );
@@ -3819,36 +4057,61 @@ class LojaApp {
             minute: '2-digit',
         });
 
+        // Estilos diferentes para agendamentos passados
+        const cardStyle = isPast
+            ? `background: var(--white); border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 0.875rem; box-shadow: var(--shadow-sm); width: 100%; max-width: 400px; margin: 0 auto;`
+            : `background: var(--white); border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 1.25rem; box-shadow: var(--shadow-sm); margin-bottom: 1rem;`;
+
+        const titleStyle = isPast
+            ? `margin: 0 0 0.4rem 0; color: var(--dark-gray); font-size: 0.95rem;`
+            : `margin: 0 0 0.5rem 0; color: var(--dark-gray);`;
+
+        const textStyle = isPast
+            ? `margin: 0; color: var(--gray-600); font-size: 0.85rem;`
+            : `margin: 0; color: var(--gray-600); font-size: 0.9rem;`;
+
+        const detailStyle = isPast
+            ? `margin: 0 0 0.2rem 0; color: var(--dark-gray); font-size: 0.85rem;`
+            : `margin: 0 0 0.25rem 0; color: var(--dark-gray);`;
+
         return `
-            <div class="service-appointment-card" style="background: var(--white); border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 1.25rem; box-shadow: var(--shadow-sm); margin-bottom: 1rem;">
-                <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1rem;">
-                    <div>
-                        <h3 style="margin: 0 0 0.5rem 0; color: var(--dark-gray);">${this.escapeHtml(
-                            serviceName
-                        )}</h3>
-                        <p style="margin: 0; color: var(--gray-600); font-size: 0.9rem;">${this.escapeHtml(
-                            appointment.customerName
-                        )}</p>
+            <div class="service-appointment-card" style="${cardStyle}">
+                <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: ${
+                    isPast ? '0.75rem' : '1rem'
+                };">
+                    <div style="flex: 1; min-width: 0;">
+                        <h3 style="${titleStyle}">${this.escapeHtml(
+            serviceName
+        )}</h3>
+                        <p style="${textStyle}">${this.escapeHtml(
+            appointment.customerName
+        )}</p>
                         ${
                             appointment.customerContact
-                                ? `<p style="margin: 0.25rem 0 0 0; color: var(--gray-600); font-size: 0.85rem;">📞 ${this.escapeHtml(
+                                ? `<p style="margin: 0.2rem 0 0 0; color: var(--gray-600); font-size: 0.8rem;">📞 ${this.escapeHtml(
                                       appointment.customerContact
                                   )}</p>`
                                 : ''
                         }
                     </div>
-                    <span class="appointment-status ${statusClass}">${statusText}</span>
+                    <span class="appointment-status ${statusClass}" style="flex-shrink: 0; margin-left: 0.5rem;">${statusText}</span>
                 </div>
-                <div style="margin-bottom: 0.75rem;">
-                    <p style="margin: 0 0 0.25rem 0; color: var(--dark-gray);"><strong>📅 Data:</strong> ${formattedDate}</p>
-                    <p style="margin: 0 0 0.25rem 0; color: var(--dark-gray);"><strong>🕐 Horário:</strong> ${formattedTime}</p>
-                    <p style="margin: 0; color: var(--dark-gray);"><strong>💰 Preço:</strong> R$ ${appointment.price
-                        .toFixed(2)
-                        .replace('.', ',')}</p>
+                <div style="margin-bottom: ${isPast ? '0.5rem' : '0.75rem'};">
+                    <p style="${detailStyle}"><strong>📅 Data:</strong> ${formattedDate}</p>
+                    <p style="${detailStyle}"><strong>🕐 Horário:</strong> ${formattedTime}</p>
+                    <p style="margin: 0; color: var(--dark-gray); font-size: ${
+                        isPast ? '0.85rem' : '1rem'
+                    };"><strong>💰 Preço:</strong> R$ ${appointment.price
+            .toFixed(2)
+            .replace('.', ',')}</p>
                 </div>
                 ${
                     appointment.notes
-                        ? `<p style="margin: 0 0 0.75rem 0; color: var(--gray-600); font-size: 0.9rem; font-style: italic;">${this.escapeHtml(
+                        ? `<p style="margin: 0 0 ${
+                              isPast ? '0.5rem' : '0.75rem'
+                          } 0; color: var(--gray-600); font-size: ${
+                              isPast ? '0.8rem' : '0.9rem'
+                          }; font-style: italic;">${this.escapeHtml(
                               appointment.notes
                           )}</p>`
                         : ''
@@ -3856,12 +4119,16 @@ class LojaApp {
                 <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
                     <button type="button" class="btn-secondary" onclick="app.editServiceAppointment('${
                         appointment.id
-                    }')" style="flex: 1; min-width: 80px;">
+                    }')" style="flex: 1; min-width: 80px; font-size: ${
+            isPast ? '0.85rem' : '0.95rem'
+        }; padding: ${isPast ? '0.5rem' : '0.625rem'};">
                         <i class="fas fa-edit"></i> Editar
                     </button>
                     <button type="button" class="btn-delete" onclick="app.deleteServiceAppointment('${
                         appointment.id
-                    }')" style="min-width: 36px; padding: 0.5rem;">
+                    }')" style="min-width: 36px; padding: ${
+            isPast ? '0.4rem' : '0.5rem'
+        }; font-size: ${isPast ? '0.85rem' : '0.95rem'};">
                         <i class="fas fa-times"></i>
                     </button>
                 </div>
@@ -3885,6 +4152,8 @@ class LojaApp {
             );
             this.saveData();
             this.renderServiceAppointments();
+            // Atualizar calendário após excluir
+            this.renderMiniCalendar();
             this.showSuccess('Agendamento excluído com sucesso!');
         }
     }
@@ -7763,7 +8032,10 @@ class LojaApp {
         if (itemsEl) {
             const itemsText = this.items.length.toString();
             itemsEl.textContent = itemsText;
-            itemsEl.setAttribute('title', `Total: ${itemsText} itens cadastrados`);
+            itemsEl.setAttribute(
+                'title',
+                `Total: ${itemsText} itens cadastrados`
+            );
         }
     }
 
