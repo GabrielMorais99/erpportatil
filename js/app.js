@@ -169,7 +169,7 @@ class LojaApp {
                 this.loadData().then(() => {
                     // Renderizar após carregar dados
                     this.renderGroups();
-                    // renderItems() removido - seção foi removida do layout
+                    this.renderItems();
                     this.renderPendingOrders();
                     // Renderizar carrossel APÓS carregar dados com um pequeno delay para garantir que o DOM está pronto
                     setTimeout(() => {
@@ -1862,7 +1862,7 @@ class LojaApp {
 
     renderItems() {
         const grid = document.getElementById('itemsGrid');
-        // Se a seção de produtos foi removida, não renderizar
+        // Se a seção de produtos não existe, não renderizar
         if (!grid) return;
         
         const searchInput = document.getElementById('searchInput');
@@ -5433,10 +5433,10 @@ class LojaApp {
     }
 
     updateServiceSummary() {
-        // Verificar se os elementos do resumo de serviços existem (seção foi removida do layout)
+        // Verificar se os elementos do resumo de serviços existem
         const totalHoursEl = document.getElementById('servicesTotalHours');
         if (!totalHoursEl) {
-            // Seção de resumo foi removida, não atualizar
+            // Seção de resumo não existe, não atualizar
             return;
         }
 
@@ -7135,19 +7135,19 @@ class LojaApp {
             this.renderGoals();
         }
 
-        // Se for o painel de vendas, renderizar grupos, pedidos pendentes e custos
+        // Se for o painel de vendas, renderizar grupos, produtos, pedidos pendentes e custos
         if (tab === 'salesPanel') {
             this.renderGroups();
+            this.renderItems();
             this.renderPendingOrders();
             this.renderCosts();
-            // renderItems() removido - seção foi removida do layout
         }
 
-        // Se for o painel de serviços, renderizar agendamentos e grupos de serviços
+        // Se for o painel de serviços, renderizar agendamentos, resumo e grupos de serviços
         if (tab === 'servicesPanel') {
             this.renderServiceAppointments();
             this.renderServiceGroups();
-            // updateServiceSummary() removido - seção foi removida do layout
+            this.updateServiceSummary();
         }
     }
 
