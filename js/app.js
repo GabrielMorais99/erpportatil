@@ -179,10 +179,11 @@ class LojaApp {
                     this.renderServiceGroups();
                     this.renderCosts();
                     this.renderGoals();
-                    this.updateMonthFilter();
-                    this.updateYearFilter();
-                    this.updateGoalsYearFilter();
-                    this.updateOverallSummary();
+                this.updateMonthFilter();
+                this.updateYearFilter();
+                this.updateGoalsYearFilter();
+                this.updateServicesYearFilter();
+                this.updateOverallSummary();
                 });
             }
         }, 100);
@@ -473,6 +474,18 @@ class LojaApp {
             console.log('✅ [APP.JS] Listener anexado ao goalsYearFilter');
         } else {
             console.error('❌ [APP.JS] goalsYearFilter não encontrado!');
+        }
+
+        // Filtro de ano para serviços
+        const servicesYearFilter = document.getElementById('servicesYearFilter');
+        if (servicesYearFilter) {
+            servicesYearFilter.addEventListener('change', () => {
+                this.renderServiceGroups();
+                this.updateServicesChart();
+            });
+            console.log('✅ [APP.JS] Listener anexado ao servicesYearFilter');
+        } else {
+            console.error('❌ [APP.JS] servicesYearFilter não encontrado!');
         }
 
         // Modal de item
@@ -4897,6 +4910,47 @@ class LojaApp {
             select.remove(1);
         }
 
+        // Adicionar anos ao select
+        sortedYears.forEach((year) => {
+            const option = document.createElement('option');
+            option.value = year;
+            option.textContent = year;
+            select.appendChild(option);
+        });
+    }
+
+    updateServicesYearFilter() {
+        const select = document.getElementById('servicesYearFilter');
+        if (!select) return;
+
+        // Obter todos os anos únicos dos grupos de serviços
+        const years = new Set();
+        this.serviceGroups.forEach((serviceGroup) => {
+            if (serviceGroup.month) {
+                const [year] = serviceGroup.month.split('-');
+                years.add(year);
+            }
+        });
+
+        // Ordenar anos (mais recente primeiro)
+        const sortedYears = Array.from(years).sort(
+            (a, b) => parseInt(b) - parseInt(a)
+        );
+
+        // Limpar opções existentes (exceto "Todos os anos")
+        while (select.options.length > 1) {
+            select.remove(1);
+        }
+
+        // Adicionar anos ao select
+        sortedYears.forEach((year) => {
+            const option = document.createElement('option');
+            option.value = year;
+            option.textContent = year;
+            select.appendChild(option);
+        });
+    }
+
         // Adicionar anos
         sortedYears.forEach((year) => {
             const option = document.createElement('option');
@@ -4946,6 +5000,7 @@ class LojaApp {
         this.serviceGroups.push(serviceGroup);
         this.serviceGroups.sort((a, b) => b.month.localeCompare(a.month));
         this.saveData();
+        this.updateServicesYearFilter();
         this.renderServiceGroups();
         this.closeServiceGroupModal();
     }
@@ -5356,6 +5411,7 @@ class LojaApp {
                 (g) => g.id !== serviceGroupId
             );
             this.saveData();
+            this.updateServicesYearFilter();
             this.renderServiceGroups();
             this.updateServiceSummary();
         }
@@ -5365,13 +5421,33 @@ class LojaApp {
         const list = document.getElementById('servicesList');
         if (!list) return;
 
-        if (this.serviceGroups.length === 0) {
+        // Obter filtro de ano
+        const servicesYearFilterEl = document.getElementById('servicesYearFilter');
+        const servicesYearFilter = servicesYearFilterEl
+            ? servicesYearFilterEl.value
+            : '';
+
+        // Filtrar grupos de serviços por ano se houver filtro
+        let filteredServiceGroups = this.serviceGroups;
+        if (servicesYearFilter && servicesYearFilter !== '') {
+            filteredServiceGroups = this.serviceGroups.filter((serviceGroup) => {
+                if (!serviceGroup.month) return false;
+                const [year] = serviceGroup.month.split('-');
+                return year === servicesYearFilter;
+            });
+        }
+
+        if (filteredServiceGroups.length === 0) {
             list.innerHTML =
-                '<p style="grid-column: 1/-1; text-align: center; color: var(--gray); padding: 2rem;">Nenhum mês de serviços cadastrado ainda.</p>';
+                '<p style="grid-column: 1/-1; text-align: center; color: var(--gray); padding: 2rem;">' +
+                (servicesYearFilter
+                    ? `Nenhum mês de serviços encontrado para o ano ${servicesYearFilter}.`
+                    : 'Nenhum mês de serviços cadastrado ainda.') +
+                '</p>';
             return;
         }
 
-        list.innerHTML = this.serviceGroups
+        list.innerHTML = filteredServiceGroups
             .map((serviceGroup) => {
                 const [year, monthNum] = serviceGroup.month.split('-');
                 const monthNames = [
@@ -6431,9 +6507,25 @@ class LojaApp {
             return;
         }
 
+        // Obter filtro de ano
+        const servicesYearFilterEl = document.getElementById('servicesYearFilter');
+        const servicesYearFilter = servicesYearFilterEl
+            ? servicesYearFilterEl.value
+            : '';
+
+        // Filtrar grupos de serviços por ano se houver filtro
+        let filteredServiceGroups = this.serviceGroups;
+        if (servicesYearFilter && servicesYearFilter !== '') {
+            filteredServiceGroups = this.serviceGroups.filter((serviceGroup) => {
+                if (!serviceGroup.month) return false;
+                const [year] = serviceGroup.month.split('-');
+                return year === servicesYearFilter;
+            });
+        }
+
         // Agrupar serviços por mês
         const servicesByMonth = {};
-        this.serviceGroups.forEach((serviceGroup) => {
+        filteredServiceGroups.forEach((serviceGroup) => {
             const monthKey = serviceGroup.month;
             if (!servicesByMonth[monthKey]) {
                 servicesByMonth[monthKey] = {
@@ -6454,47 +6546,66 @@ class LojaApp {
             });
         });
 
-        // Obter últimos 6 meses
-        const now = new Date();
         const months = [];
         const revenueData = [];
         const hoursData = [];
+        const monthNames = [
+            'Jan',
+            'Fev',
+            'Mar',
+            'Abr',
+            'Mai',
+            'Jun',
+            'Jul',
+            'Ago',
+            'Set',
+            'Out',
+            'Nov',
+            'Dez',
+        ];
 
-        for (let i = 5; i >= 0; i--) {
-            const date = new Date(now.getFullYear(), now.getMonth() - i, 1);
-            const monthKey = `${date.getFullYear()}-${String(
-                date.getMonth() + 1
-            ).padStart(2, '0')}`;
-            const monthNames = [
-                'Jan',
-                'Fev',
-                'Mar',
-                'Abr',
-                'Mai',
-                'Jun',
-                'Jul',
-                'Ago',
-                'Set',
-                'Out',
-                'Nov',
-                'Dez',
-            ];
+        if (servicesYearFilter && servicesYearFilter !== '') {
+            // Se há filtro de ano, mostrar todos os meses desse ano
+            const year = parseInt(servicesYearFilter);
+            for (let month = 1; month <= 12; month++) {
+                const monthKey = `${year}-${String(month).padStart(2, '0')}`;
+                const monthData = servicesByMonth[monthKey] || {
+                    revenue: 0,
+                    hours: 0,
+                    minutes: 0,
+                    count: 0,
+                };
+                
+                months.push(`${monthNames[month - 1]}/${String(year).slice(-2)}`);
+                revenueData.push(monthData.revenue);
+                const totalHours = monthData.hours + monthData.minutes / 60;
+                hoursData.push(totalHours);
+            }
+        } else {
+            // Sem filtro, usar últimos 6 meses
+            const now = new Date();
+            for (let i = 5; i >= 0; i--) {
+                const date = new Date(now.getFullYear(), now.getMonth() - i, 1);
+                const monthKey = `${date.getFullYear()}-${String(
+                    date.getMonth() + 1
+                ).padStart(2, '0')}`;
 
-            months.push(
-                `${monthNames[date.getMonth()]}/${String(
-                    date.getFullYear()
-                ).slice(-2)}`
-            );
+                months.push(
+                    `${monthNames[date.getMonth()]}/${String(
+                        date.getFullYear()
+                    ).slice(-2)}`
+                );
 
-            const monthData = servicesByMonth[monthKey] || {
-                revenue: 0,
-                hours: 0,
-                minutes: 0,
-                count: 0,
-            };
-            revenueData.push(monthData.revenue);
-            const totalHours = monthData.hours + monthData.minutes / 60;
-            hoursData.push(totalHours);
+                const monthData = servicesByMonth[monthKey] || {
+                    revenue: 0,
+                    hours: 0,
+                    minutes: 0,
+                    count: 0,
+                };
+                revenueData.push(monthData.revenue);
+                const totalHours = monthData.hours + monthData.minutes / 60;
+                hoursData.push(totalHours);
+            }
         }
 
         // Destruir gráfico anterior se existir
