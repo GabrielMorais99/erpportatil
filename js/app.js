@@ -10114,6 +10114,8 @@ class LojaApp {
 
     async loadAdminData() {
         const username = sessionStorage.getItem('username');
+        console.log('🟢 [ADMIN] loadAdminData chamado, username:', username);
+        
         if (username !== 'admin') {
             console.warn('⚠️ [ADMIN] Acesso negado - apenas administradores');
             return;
@@ -10121,21 +10123,42 @@ class LojaApp {
 
         try {
             console.log('🟢 [ADMIN] Carregando dados do admin...');
+            console.log('🟢 [ADMIN] Fazendo fetch para /api/admin?username=' + username);
+            
             const response = await fetch(
                 `/api/admin?username=${username}`
             );
             
+            console.log('🟢 [ADMIN] Response status:', response.status);
+            console.log('🟢 [ADMIN] Response ok:', response.ok);
+            
             if (!response.ok) {
-                throw new Error(`Erro HTTP: ${response.status}`);
+                const errorText = await response.text();
+                console.error('❌ [ADMIN] Erro HTTP:', response.status, errorText);
+                throw new Error(`Erro HTTP: ${response.status} - ${errorText}`);
             }
             
             const result = await response.json();
             console.log('🟢 [ADMIN] Dados recebidos:', result);
+            console.log('🟢 [ADMIN] Result.success:', result.success);
 
             if (result.success) {
                 console.log('🟢 [ADMIN] Renderizando dashboards...');
-                this.renderAdminTotalUsageDashboard(result.totalUsage);
-                this.renderAdminUsersUsageDashboard(result.usersUsage, result.totalUsage);
+                console.log('🟢 [ADMIN] totalUsage:', result.totalUsage);
+                console.log('🟢 [ADMIN] usersUsage:', result.usersUsage);
+                
+                if (result.totalUsage) {
+                    this.renderAdminTotalUsageDashboard(result.totalUsage);
+                } else {
+                    console.error('❌ [ADMIN] totalUsage não encontrado no resultado');
+                }
+                
+                if (result.usersUsage) {
+                    this.renderAdminUsersUsageDashboard(result.usersUsage, result.totalUsage);
+                } else {
+                    console.error('❌ [ADMIN] usersUsage não encontrado no resultado');
+                }
+                
                 console.log('✅ [ADMIN] Dashboards renderizados com sucesso!');
             } else {
                 console.error('❌ [ADMIN] Erro ao carregar dados:', result.error);
@@ -10144,6 +10167,7 @@ class LojaApp {
             }
         } catch (error) {
             console.error('❌ [ADMIN] Erro ao carregar dados:', error);
+            console.error('❌ [ADMIN] Stack:', error.stack);
             this.showError(`Erro ao carregar dados de administração: ${error.message}`);
         }
     }
