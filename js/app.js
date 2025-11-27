@@ -102,6 +102,7 @@ class LojaApp {
             this.renderGroups();
             this.renderItems();
             this.renderPendingOrders();
+            this.renderLastReceiptsCarousel(); // Renderizar carrossel de últimos comprovantes
             this.renderServiceAppointments();
             this.renderServiceGroups();
             this.renderCosts();
@@ -789,6 +790,9 @@ class LojaApp {
                 }
             });
         }
+
+        // Suporte a arrastar no carrossel de últimos comprovantes
+        this.setupReceiptCarouselDrag();
 
         // Modal de visualização de grupo
         const viewGroupModalClose = document.querySelector(
@@ -2564,6 +2568,9 @@ class LojaApp {
 
         this.saveData();
 
+        // Atualizar carrossel de últimos comprovantes
+        this.renderLastReceiptsCarousel();
+
         // Mostrar preview de recibo
         this.showReceiptPreview(completedSale);
 
@@ -2796,20 +2803,34 @@ class LojaApp {
     }
 
     renderReceiptCarousel() {
+        // Renderizar carrossel no modal (mantido para compatibilidade)
         const carousel = document.getElementById('receiptCarousel');
+        if (carousel) {
+            this.renderLastReceiptsCarousel(carousel);
+        }
+    }
+
+    renderLastReceiptsCarousel(container = null) {
+        // Usar container fornecido ou buscar o carrossel fixo
+        const carousel = container || document.getElementById('lastReceiptsCarousel');
         if (!carousel) return;
 
         // Ordenar comprovantes por data (mais recentes primeiro)
         const sortedSales = [...this.completedSales].sort(
-            (a, b) => new Date(b.date) - new Date(a.date)
+            (a, b) => {
+                // Usar timestamp se disponível, senão usar date
+                const timeA = a.timestamp || new Date(a.date).getTime();
+                const timeB = b.timestamp || new Date(b.date).getTime();
+                return timeB - timeA;
+            }
         );
 
-        // Pegar os 3 últimos
+        // Pegar sempre os 3 últimos (se houver mais de 3, remover automaticamente o mais antigo)
         const lastThree = sortedSales.slice(0, 3);
 
         if (lastThree.length === 0) {
             carousel.innerHTML =
-                '<p style="text-align: center; color: var(--gray-600); padding: 2rem;">Nenhum comprovante encontrado.</p>';
+                '<p style="text-align: center; color: var(--gray-600); padding: 2rem; width: 100%;">Nenhum comprovante encontrado.</p>';
             return;
         }
 
@@ -2825,11 +2846,14 @@ class LojaApp {
                 return `
                 <div class="receipt-mini-card" 
                      style="
-                         min-width: 200px; 
+                         flex: 0 0 auto;
+                         width: 280px; 
+                         min-width: 280px;
+                         max-width: 280px;
                          background: var(--white); 
                          border: 1px solid var(--gray-300); 
                          border-radius: var(--radius-md); 
-                         padding: 1rem; 
+                         padding: 1.25rem; 
                          box-shadow: var(--shadow-sm);
                          cursor: pointer;
                          transition: all var(--transition-base);
@@ -2838,8 +2862,8 @@ class LojaApp {
                          }s both;
                      "
                      onclick="app.viewFullReceipt('${sale.id}')"
-                     onmouseover="this.style.transform='translateY(-4px)'; this.style.boxShadow='var(--shadow-md)';"
-                     onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='var(--shadow-sm)';">
+                     onmouseover="this.style.transform='translateY(-4px)'; this.style.boxShadow='var(--shadow-md)'; this.style.borderColor='var(--primary-color)';"
+                     onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='var(--shadow-sm)'; this.style.borderColor='var(--gray-300)';">
                     <div style="margin-bottom: 0.75rem;">
                         <h4 style="margin: 0 0 0.5rem 0; color: var(--dark-gray); font-size: 0.95rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
                             ${this.escapeHtml(sale.customerName)}
@@ -2847,9 +2871,16 @@ class LojaApp {
                         <p style="margin: 0; color: var(--gray-600); font-size: 0.85rem;">
                             📅 ${formattedDate}
                         </p>
+                        ${
+                            sale.customerCPF
+                                ? `<p style="margin: 0.25rem 0 0 0; color: var(--gray-500); font-size: 0.8rem;">
+                                    🆔 ${this.formatCPF(sale.customerCPF)}
+                                </p>`
+                                : ''
+                        }
                     </div>
                     <div style="border-top: 1px solid var(--gray-200); padding-top: 0.75rem;">
-                        <p style="margin: 0; color: var(--primary-color); font-weight: 600; font-size: 1.1rem;">
+                        <p style="margin: 0; color: var(--primary-color); font-weight: 600; font-size: 1.2rem;">
                             R$ ${sale.totalValue.toFixed(2).replace('.', ',')}
                         </p>
                         <p style="margin: 0.25rem 0 0 0; color: var(--gray-500); font-size: 0.75rem;">
@@ -2862,6 +2893,13 @@ class LojaApp {
             `;
             })
             .join('');
+
+        // Configurar drag após renderizar (apenas para o carrossel fixo)
+        if (!container) {
+            setTimeout(() => {
+                this.setupReceiptCarouselDrag();
+            }, 100);
+        }
     }
 
     searchReceipts() {
@@ -2874,13 +2912,14 @@ class LojaApp {
         const searchName = nameInput.value.toLowerCase().trim();
         const searchCPF = cpfInput.value.replace(/\D/g, '').trim();
 
-        // Filtrar comprovantes
-        let filtered = this.completedSales;
+        // Filtrar comprovantes - usar cópia do array para evitar problemas de referência
+        let filtered = [...this.completedSales];
 
         if (searchName) {
-            filtered = filtered.filter((sale) =>
-                sale.customerName.toLowerCase().includes(searchName)
-            );
+            filtered = filtered.filter((sale) => {
+                if (!sale.customerName) return false;
+                return sale.customerName.toLowerCase().includes(searchName);
+            });
         }
 
         if (searchCPF) {
@@ -2891,8 +2930,12 @@ class LojaApp {
             });
         }
 
-        // Ordenar por data (mais recentes primeiro)
-        filtered.sort((a, b) => new Date(b.date) - new Date(a.date));
+        // Ordenar por data (mais recentes primeiro) - usar timestamp se disponível
+        filtered.sort((a, b) => {
+            const timeA = a.timestamp || new Date(a.date).getTime();
+            const timeB = b.timestamp || new Date(b.date).getTime();
+            return timeB - timeA;
+        });
 
         // Renderizar resultados
         if (filtered.length === 0) {
@@ -2988,11 +3031,66 @@ class LojaApp {
             return;
         }
 
-        // Fechar modal de busca
+        // Fechar modal de busca (se estiver aberto)
         this.closeReceiptSearchModal();
 
         // Mostrar preview completo
         this.showReceiptPreview(sale);
+    }
+
+    setupReceiptCarouselDrag() {
+        const carousel = document.getElementById('lastReceiptsCarousel');
+        if (!carousel) return;
+
+        let isDown = false;
+        let startX;
+        let scrollLeft;
+
+        // Mouse events
+        carousel.addEventListener('mousedown', (e) => {
+            isDown = true;
+            carousel.style.cursor = 'grabbing';
+            startX = e.pageX - carousel.offsetLeft;
+            scrollLeft = carousel.scrollLeft;
+        });
+
+        carousel.addEventListener('mouseleave', () => {
+            isDown = false;
+            carousel.style.cursor = 'grab';
+        });
+
+        carousel.addEventListener('mouseup', () => {
+            isDown = false;
+            carousel.style.cursor = 'grab';
+        });
+
+        carousel.addEventListener('mousemove', (e) => {
+            if (!isDown) return;
+            e.preventDefault();
+            const x = e.pageX - carousel.offsetLeft;
+            const walk = (x - startX) * 2; // Velocidade do scroll
+            carousel.scrollLeft = scrollLeft - walk;
+        });
+
+        // Touch events (para mobile)
+        let touchStartX = 0;
+        let touchScrollLeft = 0;
+
+        carousel.addEventListener('touchstart', (e) => {
+            touchStartX = e.touches[0].pageX - carousel.offsetLeft;
+            touchScrollLeft = carousel.scrollLeft;
+        }, { passive: true });
+
+        carousel.addEventListener('touchmove', (e) => {
+            if (!touchStartX) return;
+            const x = e.touches[0].pageX - carousel.offsetLeft;
+            const walk = (x - touchStartX) * 2;
+            carousel.scrollLeft = touchScrollLeft - walk;
+        }, { passive: true });
+
+        carousel.addEventListener('touchend', () => {
+            touchStartX = 0;
+        });
     }
 
     // Formatar CPF no input (máscara)
@@ -3519,6 +3617,7 @@ class LojaApp {
 
             this.saveData();
             this.renderPendingOrders();
+            this.renderLastReceiptsCarousel(); // Atualizar carrossel de últimos comprovantes
             this.renderGroups();
             this.updateYearFilter();
 

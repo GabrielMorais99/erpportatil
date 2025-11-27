@@ -3858,6 +3858,47 @@ body.theme-blue .login-container #entrarBtn:focus {
     scrollbar-color: var(--gray-300) transparent;
 }
 
+/* Carrossel de Últimos Comprovantes - View Fixa */
+.last-receipts-section {
+    margin-bottom: 2rem;
+    padding: 1.5rem;
+    background: var(--white);
+    border-radius: var(--radius-md);
+    border: 1px solid var(--gray-200);
+    box-shadow: var(--shadow-sm);
+}
+
+.last-receipts-carousel {
+    display: flex;
+    gap: 1.25rem;
+    overflow-x: auto;
+    overflow-y: hidden;
+    padding: 0.5rem;
+    scroll-behavior: smooth;
+    -webkit-overflow-scrolling: touch; /* Suporte a scroll suave no iOS */
+    scrollbar-width: none; /* Firefox */
+    -ms-overflow-style: none; /* IE e Edge */
+}
+
+.last-receipts-carousel::-webkit-scrollbar {
+    display: none;
+    width: 0;
+    height: 0;
+}
+
+/* Suporte a arrastar com mouse/touch */
+.last-receipts-carousel {
+    cursor: grab;
+}
+
+.last-receipts-carousel:active {
+    cursor: grabbing;
+}
+
+.last-receipts-carousel .receipt-mini-card {
+    flex-shrink: 0;
+}
+
 /* Cards de resultados */
 .receipt-result-card {
     transition: all var(--transition-base);
