@@ -175,58 +175,50 @@ body {
 }
 
 /* ========================================
-   SCROLLBAR MINIMALISTA E REFINADA
+   SCROLLBAR OCULTA - NAVEGAÇÃO DINÂMICA
+   Mantém funcionalidade de scroll, mas esconde as barras visuais
    ======================================== */
 
-/* Firefox */
+/* Firefox - Esconder scrollbar */
 * {
-    scrollbar-width: thin;
-    scrollbar-color: var(--gray-300) transparent;
+    scrollbar-width: none; /* Firefox */
+    -ms-overflow-style: none; /* IE e Edge */
 }
 
-/* Chrome, Edge, Safari */
-::-webkit-scrollbar {
-    width: 8px;
-    height: 8px;
-}
-
-::-webkit-scrollbar-track {
+/* Chrome, Edge, Safari - Esconder scrollbar */
+*::-webkit-scrollbar {
+    display: none;
+    width: 0;
+    height: 0;
     background: transparent;
 }
 
-::-webkit-scrollbar-thumb {
-    background: var(--gray-300);
-    border-radius: 10px;
-    border: 2px solid transparent;
-    background-clip: content-box;
+*::-webkit-scrollbar-track {
+    display: none;
+    background: transparent;
 }
 
-::-webkit-scrollbar-thumb:hover {
-    background: var(--gray-400);
-    border-radius: 10px;
-    border: 2px solid transparent;
-    background-clip: content-box;
+*::-webkit-scrollbar-thumb {
+    display: none;
+    background: transparent;
 }
 
-/* Scrollbar para modais e containers específicos */
+/* Garantir que containers específicos também tenham scrollbar oculta */
 .modal-content::-webkit-scrollbar,
 .items-grid::-webkit-scrollbar,
-.content-tabs::-webkit-scrollbar {
-    width: 6px;
-    height: 6px;
+.content-tabs::-webkit-scrollbar,
+.receipt-carousel::-webkit-scrollbar {
+    display: none;
+    width: 0;
+    height: 0;
 }
 
-.modal-content::-webkit-scrollbar-thumb,
-.items-grid::-webkit-scrollbar-thumb,
-.content-tabs::-webkit-scrollbar-thumb {
-    background: var(--gray-300);
-    border-radius: 10px;
-}
-
-.modal-content::-webkit-scrollbar-thumb:hover,
-.items-grid::-webkit-scrollbar-thumb:hover,
-.content-tabs::-webkit-scrollbar-thumb:hover {
-    background: var(--primary-color);
+.modal-content,
+.items-grid,
+.content-tabs,
+.receipt-carousel {
+    scrollbar-width: none; /* Firefox */
+    -ms-overflow-style: none; /* IE e Edge */
 }
 
 /* ========================================
@@ -523,6 +515,56 @@ body.theme-blue .login-container #entrarBtn:focus {
     border-color: rgba(255, 255, 255, 1);
 }
 
+/* Botões do header com cor preta fixa (não muda com tema) */
+.header .btn-secondary {
+    color: #000000 !important;
+}
+
+.header .btn-secondary i {
+    color: #000000 !important;
+}
+
+.header .btn-secondary .btn-text {
+    color: #000000 !important;
+}
+
+/* Garantir cor preta em todos os estados dos botões do header */
+.header .btn-secondary:hover {
+    color: #000000 !important;
+}
+
+.header .btn-secondary:hover i {
+    color: #000000 !important;
+}
+
+.header .btn-secondary:hover .btn-text {
+    color: #000000 !important;
+}
+
+.header .btn-secondary:active {
+    color: #000000 !important;
+}
+
+.header .btn-secondary:active i {
+    color: #000000 !important;
+}
+
+.header .btn-secondary:active .btn-text {
+    color: #000000 !important;
+}
+
+.header .btn-secondary:focus {
+    color: #000000 !important;
+}
+
+.header .btn-secondary:focus i {
+    color: #000000 !important;
+}
+
+.header .btn-secondary:focus .btn-text {
+    color: #000000 !important;
+}
+
 /* ========================================
    MAIN CONTENT - LAYOUT REFINADO
    ======================================== */
@@ -616,7 +658,7 @@ body.theme-blue .login-container #entrarBtn:focus {
     cursor: pointer;
     font-size: 0.9rem;
     font-weight: 600;
-    color: var(--gray-600);
+    color: #000000;
     transition: all var(--transition-base);
     border-radius: var(--radius-md);
     position: relative;
@@ -626,6 +668,18 @@ body.theme-blue .login-container #entrarBtn:focus {
     display: flex;
     align-items: center;
     gap: 0.5rem;
+}
+
+/* Ícones dos botões de navegação em preto por padrão */
+.tab-btn i {
+    color: #000000;
+    transition: color var(--transition-base);
+}
+
+/* Texto dos botões de navegação em preto por padrão */
+.tab-btn .btn-text {
+    color: #000000;
+    transition: color var(--transition-base);
 }
 
 .tab-btn::after {
@@ -641,14 +695,32 @@ body.theme-blue .login-container #entrarBtn:focus {
     transition: transform var(--transition-base);
 }
 
+/* Hover permite mudança de cor (animação) */
 .tab-btn:hover {
     color: var(--primary-color);
     background: rgba(220, 53, 69, 0.05);
 }
 
+.tab-btn:hover i {
+    color: var(--primary-color);
+}
+
+.tab-btn:hover .btn-text {
+    color: var(--primary-color);
+}
+
+/* Active permite mudança de cor (animação) */
 .tab-btn.active {
     color: var(--primary-color);
     background: rgba(220, 53, 69, 0.08);
+}
+
+.tab-btn.active i {
+    color: var(--primary-color);
+}
+
+.tab-btn.active .btn-text {
+    color: var(--primary-color);
 }
 
 .tab-btn.active::after {
@@ -1173,13 +1245,6 @@ body.theme-blue .login-container #entrarBtn:focus {
    GROUP SUMMARY - ESTILIZAÇÃO PADRONIZADA
    ======================================== */
 
-.group-summary {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 1.5rem;
-    margin-bottom: 2rem;
-}
-
 /* Summary cards com largura fixa para não esticar */
 .group-summary {
     display: flex;
@@ -1223,6 +1288,72 @@ body.theme-blue .login-container #entrarBtn:focus {
     border-bottom: 2px solid var(--gray-200);
     text-transform: uppercase;
     letter-spacing: 0.5px;
+}
+
+/* Resumo por Item - Estrutura limpa e centralizada */
+#viewGroupModal .items-summary {
+    margin-top: 2rem;
+    width: 100%;
+    max-width: 100%;
+}
+
+#viewGroupModal .items-summary-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    max-width: 600px;
+    width: 100%;
+    margin: 0 auto;
+    padding: 0;
+}
+
+#viewGroupModal .items-summary-list .summary-item {
+    background: var(--white);
+    border: 1px solid var(--gray-200);
+    border-radius: var(--radius-md);
+    padding: 1rem 1.25rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    transition: all var(--transition-base);
+    box-shadow: var(--shadow-sm);
+    max-width: 100%;
+    width: 100%;
+}
+
+#viewGroupModal .items-summary-list .summary-item:hover {
+    background-color: var(--gray-50);
+    box-shadow: var(--shadow-md);
+    transform: translateY(-2px);
+    border-color: var(--gray-300);
+}
+
+#viewGroupModal .items-summary-list .summary-item-name {
+    color: var(--dark-gray);
+    font-weight: 600;
+    font-size: 0.95rem;
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    margin-right: 1rem;
+}
+
+#viewGroupModal .items-summary-list .summary-item-total {
+    color: var(--primary-color);
+    font-weight: 600;
+    font-size: 0.9rem;
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+
+#viewGroupModal .items-summary-list p {
+    text-align: center;
+    color: var(--gray-600);
+    padding: 2rem;
+    margin: 0;
+    font-size: 0.95rem;
 }
 
 .summary-card {
@@ -1287,24 +1418,65 @@ body.theme-blue .login-container #entrarBtn:focus {
 
 .days-container > div:first-child {
     display: flex;
-    justify-content: center;
+    flex-direction: column;
     align-items: center;
+    justify-content: center;
     margin-bottom: 1.5rem;
     gap: 1rem;
-    flex-wrap: wrap;
 }
 
-.days-container h3 {
-    color: var(--primary-color);
-    font-size: 1.3rem;
-    font-weight: 700;
-    margin: 0 0 1.5rem 0;
-    text-align: center;
-    padding-bottom: 1rem;
-    border-bottom: 2px solid var(--gray-200);
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
+/* Card de resumo de estoque - Estrutura limpa e centralizada */
+#viewGroupModal .stock-summary-card {
+    margin: 1.5rem 0;
+    padding: 1.5rem;
+    background: #f8f9fa;
+    border-radius: var(--radius-md);
+    border: 2px solid #17a2b8;
+    max-width: 100%;
+    width: 100%;
 }
+
+#viewGroupModal .stock-summary-card h3 {
+    margin: 0 0 1rem 0;
+    color: #0c5460;
+    font-size: 1.1rem;
+    font-weight: 600;
+    text-align: center;
+}
+
+#viewGroupModal .stock-summary-card .summary-stats {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 1rem;
+    max-width: 100%;
+}
+
+#viewGroupModal .stock-summary-card .stat-item {
+    flex: 0 0 auto;
+    max-width: 220px;
+    width: 220px;
+    min-width: 200px;
+    text-align: center;
+}
+
+/* Botão de gerenciar estoque centralizado */
+#viewGroupModal .days-container > div:first-child {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 1.5rem;
+    gap: 1rem;
+}
+
+#viewGroupModal #manageStockBtn {
+    margin-top: 1rem;
+    padding: 0.5rem 1rem;
+    font-size: 0.9rem;
+}
+
+/* Título "Vendas por Dia" já estilizado acima nos títulos dos modais */
 
 .days-list {
     display: flex;
@@ -1463,6 +1635,8 @@ body.theme-blue .login-container #entrarBtn:focus {
 /* Título "Resumo por Serviço" com estilização */
 #viewServiceGroupModal .service-items-summary {
     margin-top: 2rem;
+    width: 100%;
+    max-width: 100%;
 }
 
 #viewServiceGroupModal .service-items-summary h3 {
@@ -1475,6 +1649,56 @@ body.theme-blue .login-container #entrarBtn:focus {
     border-bottom: 2px solid var(--gray-200);
     text-transform: uppercase;
     letter-spacing: 0.5px;
+}
+
+/* Resumo por Serviço - Estrutura limpa e centralizada */
+#viewServiceGroupModal .service-items-summary-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    max-width: 600px;
+    width: 100%;
+    margin: 0 auto;
+    padding: 0;
+}
+
+#viewServiceGroupModal .service-items-summary-list .summary-item {
+    background: var(--white);
+    border: 1px solid var(--gray-200);
+    border-radius: var(--radius-md);
+    padding: 1rem 1.25rem;
+    transition: all var(--transition-base);
+    box-shadow: var(--shadow-sm);
+    max-width: 100%;
+    width: 100%;
+}
+
+#viewServiceGroupModal .service-items-summary-list .summary-item:hover {
+    background-color: var(--gray-50);
+    box-shadow: var(--shadow-md);
+    transform: translateY(-2px);
+    border-color: var(--gray-300);
+}
+
+#viewServiceGroupModal .service-items-summary-list .summary-item strong {
+    color: var(--dark-gray);
+    font-weight: 600;
+    font-size: 0.95rem;
+    display: block;
+    margin-bottom: 0.25rem;
+}
+
+#viewServiceGroupModal .service-items-summary-list .summary-item div {
+    color: var(--gray-600);
+    font-size: 0.85rem;
+}
+
+#viewServiceGroupModal .service-items-summary-list p {
+    text-align: center;
+    color: var(--gray-600);
+    padding: 2rem;
+    margin: 0;
+    font-size: 0.95rem;
 }
 
 /* ========================================
@@ -3545,6 +3769,24 @@ body.theme-blue .login-container #entrarBtn:focus {
         max-width: 100%;
         width: 100%;
     }
+
+    /* Resumo por Item responsivo */
+    #viewGroupModal .items-summary-list,
+    #viewServiceGroupModal .service-items-summary-list {
+        max-width: 100%;
+    }
+
+    /* Card de estoque responsivo */
+    #viewGroupModal .stock-summary-card .stat-item {
+        max-width: 100%;
+        width: 100%;
+        min-width: auto;
+    }
+
+    #viewGroupModal .stock-summary-card .summary-stats {
+        flex-direction: column;
+        align-items: center;
+    }
 }
 
 /* ========== ANIMAÇÕES PARA MODAL DE BUSCA DE COMPROVANTES ========== */
@@ -3595,24 +3837,6 @@ body.theme-blue .login-container #entrarBtn:focus {
 .receipt-carousel {
     scrollbar-width: thin;
     scrollbar-color: var(--gray-300) transparent;
-}
-
-.receipt-carousel::-webkit-scrollbar {
-    height: 6px;
-}
-
-.receipt-carousel::-webkit-scrollbar-track {
-    background: var(--gray-100);
-    border-radius: 3px;
-}
-
-.receipt-carousel::-webkit-scrollbar-thumb {
-    background: var(--gray-300);
-    border-radius: 3px;
-}
-
-.receipt-carousel::-webkit-scrollbar-thumb:hover {
-    background: var(--gray-400);
 }
 
 /* Cards de resultados */
