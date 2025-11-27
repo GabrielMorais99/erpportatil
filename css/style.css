@@ -44,6 +44,7 @@ body {
     --primary-blue-dark: #0056b3;
     --primary-blue-light: #4da3ff;
     --white: #ffffff;
+    --cinza-back: #ebebeb;
     --light-gray: #f8f9fa;
     --gray: #6c757d;
     --dark-gray: #343a40;
@@ -1179,6 +1180,51 @@ body.theme-blue .login-container #entrarBtn:focus {
     margin-bottom: 2rem;
 }
 
+/* Summary cards com largura fixa para não esticar */
+.group-summary {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.group-summary .summary-card,
+#viewServiceGroupModal .service-group-summary .summary-card,
+#viewGroupModal .group-summary .summary-card {
+    flex: 0 0 auto;
+    max-width: 220px;
+    width: 220px;
+    margin: 0;
+}
+
+/* Aplicar padding e centralização nos modais */
+#viewGroupModal .group-content {
+    padding: 1.5rem;
+}
+
+#viewGroupModal .group-summary {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+/* Títulos dos modais com estilização consistente */
+#viewGroupModal .days-container h3,
+#viewGroupModal .items-summary h3 {
+    color: var(--primary-color);
+    font-size: 1.3rem;
+    font-weight: 700;
+    text-align: center;
+    margin: 0 0 1.5rem 0;
+    padding-bottom: 1rem;
+    border-bottom: 2px solid var(--gray-200);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
 .summary-card {
     background: var(--white);
     padding: 1.5rem;
@@ -1250,10 +1296,14 @@ body.theme-blue .login-container #entrarBtn:focus {
 
 .days-container h3 {
     color: var(--primary-color);
-    font-size: 1.25rem;
+    font-size: 1.3rem;
     font-weight: 700;
-    margin: 0;
+    margin: 0 0 1.5rem 0;
     text-align: center;
+    padding-bottom: 1rem;
+    border-bottom: 2px solid var(--gray-200);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
 }
 
 .days-list {
@@ -1263,6 +1313,14 @@ body.theme-blue .login-container #entrarBtn:focus {
     align-items: stretch;
     gap: 1.25rem;
     max-width: 100%;
+}
+
+/* Aplicar largura fixa aos cards de dia em todos os modais */
+.days-list .day-card,
+#viewGroupModal .days-list .day-card {
+    flex: 0 0 auto;
+    max-width: 200px;
+    width: 200px;
 }
 
 .day-card {
@@ -1275,7 +1333,8 @@ body.theme-blue .login-container #entrarBtn:focus {
     transition: all var(--transition-base);
     min-width: 160px;
     max-width: 200px;
-    flex: 0 1 auto;
+    width: 200px;
+    flex: 0 0 auto;
     display: flex;
     flex-direction: column;
     justify-content: space-between;
@@ -1309,6 +1368,113 @@ body.theme-blue .login-container #entrarBtn:focus {
 
 .day-card .btn-small {
     margin-top: auto;
+    position: relative;
+    z-index: 10;
+}
+
+/* Garantir que botões dentro do modal de serviços estejam acima */
+/* Garantir que botões dentro do modal de serviços estejam acima */
+#viewServiceGroupModal .service-days-list .day-card {
+    position: relative;
+    z-index: 10;
+    overflow: visible;
+}
+
+#viewServiceGroupModal .service-days-list .day-card .btn-small {
+    position: relative;
+    z-index: 1002;
+    pointer-events: auto;
+    transform: translateZ(0); /* Força aceleração de hardware */
+}
+
+/* Garantir que o conteúdo do modal não sobreponha os botões */
+#viewServiceGroupModal .modal-content {
+    position: relative;
+    z-index: 1000;
+}
+
+#viewServiceGroupModal .modal-content.large {
+    overflow-y: auto;
+}
+
+#viewServiceGroupModal .modal-header {
+    position: relative;
+    z-index: 1;
+}
+
+#viewServiceGroupModal .service-group-content {
+    position: relative;
+    z-index: 1;
+    padding: 1.5rem;
+}
+
+/* Service group summary com largura fixa e centralização */
+#viewServiceGroupModal .service-group-summary {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+    max-width: 100%;
+}
+
+#viewServiceGroupModal .service-group-summary .summary-card {
+    flex: 0 0 auto;
+    max-width: 220px;
+    width: 220px;
+}
+
+#viewServiceGroupModal .service-days-container {
+    position: relative;
+    z-index: 1;
+    margin-bottom: 2rem;
+}
+
+/* Título "Serviços por Dia" com estilização e centralização */
+#viewServiceGroupModal .service-days-container h3 {
+    color: var(--primary-color);
+    font-size: 1.3rem;
+    font-weight: 700;
+    text-align: center;
+    margin: 0 0 1.5rem 0;
+    padding-bottom: 1rem;
+    border-bottom: 2px solid var(--gray-200);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+/* Centralizar cards de dias */
+#viewServiceGroupModal .service-days-list {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 1.25rem;
+    max-width: 100%;
+}
+
+#viewServiceGroupModal .service-days-list .day-card {
+    flex: 0 0 auto;
+    max-width: 200px;
+    width: 200px;
+}
+
+/* Título "Resumo por Serviço" com estilização */
+#viewServiceGroupModal .service-items-summary {
+    margin-top: 2rem;
+}
+
+#viewServiceGroupModal .service-items-summary h3 {
+    color: var(--primary-color);
+    font-size: 1.3rem;
+    font-weight: 700;
+    text-align: center;
+    margin: 0 0 1.5rem 0;
+    padding-bottom: 1rem;
+    border-bottom: 2px solid var(--gray-200);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
 }
 
 /* ========================================
@@ -1381,6 +1547,14 @@ body.theme-blue .login-container #entrarBtn:focus {
 
 .modal-content.large {
     max-width: 900px;
+}
+
+/* Modais com largura fixa para manter proporção */
+#viewServiceGroupModal .modal-content.large,
+#viewGroupModal .modal-content.large {
+    width: 800px;
+    max-width: 800px;
+    min-width: 800px;
 }
 
 .modal-header {
@@ -2475,7 +2649,7 @@ body.theme-blue .login-container #entrarBtn:focus {
 }
 
 .panel-section {
-    background: var(--white);
+    background: var(--cinza-back);
     border: 1px solid var(--gray-200);
     border-radius: var(--radius-lg);
     padding: 1.5rem;
@@ -3347,4 +3521,127 @@ body.theme-blue .login-container #entrarBtn:focus {
         grid-template-columns: 1fr;
         gap: 1rem;
     }
+
+    /* Modais responsivos */
+    #viewServiceGroupModal .modal-content.large,
+    #viewGroupModal .modal-content.large {
+        width: 95%;
+        max-width: 95%;
+        min-width: auto;
+    }
+
+    /* Cards de resumo responsivos */
+    .group-summary .summary-card,
+    #viewServiceGroupModal .service-group-summary .summary-card,
+    #viewGroupModal .group-summary .summary-card {
+        max-width: 100%;
+        width: 100%;
+    }
+
+    /* Cards de dia responsivos */
+    .days-list .day-card,
+    #viewGroupModal .days-list .day-card,
+    #viewServiceGroupModal .service-days-list .day-card {
+        max-width: 100%;
+        width: 100%;
+    }
+}
+
+/* ========== ANIMAÇÕES PARA MODAL DE BUSCA DE COMPROVANTES ========== */
+
+@keyframes slideInUp {
+    from {
+        transform: translateY(20px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+@keyframes slideInLeft {
+    from {
+        transform: translateX(-20px);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+@keyframes slideInRight {
+    from {
+        transform: translateX(20px);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+/* Modal de busca de comprovantes */
+#receiptSearchModal.modal.active {
+    animation: modalFadeIn 0.3s ease-out;
+}
+
+#receiptSearchModal .modal-content {
+    animation: modalContentSlideIn 0.3s ease-out forwards;
+}
+
+/* Carrossel de comprovantes */
+.receipt-carousel {
+    scrollbar-width: thin;
+    scrollbar-color: var(--gray-300) transparent;
+}
+
+.receipt-carousel::-webkit-scrollbar {
+    height: 6px;
+}
+
+.receipt-carousel::-webkit-scrollbar-track {
+    background: var(--gray-100);
+    border-radius: 3px;
+}
+
+.receipt-carousel::-webkit-scrollbar-thumb {
+    background: var(--gray-300);
+    border-radius: 3px;
+}
+
+.receipt-carousel::-webkit-scrollbar-thumb:hover {
+    background: var(--gray-400);
+}
+
+/* Cards de resultados */
+.receipt-result-card {
+    transition: all var(--transition-base);
+}
+
+.receipt-result-card:hover {
+    transform: translateX(4px);
+    box-shadow: var(--shadow-md);
+    border-color: var(--primary-color);
+}
+
+/* Mini cards do carrossel */
+.receipt-mini-card {
+    transition: all var(--transition-base);
+}
+
+.receipt-mini-card:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-md);
+}
+
+/* Inputs de busca com animação de focus */
+#receiptSearchName:focus,
+#receiptSearchCPF:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(220, 53, 69, 0.12);
+    transform: scale(1.01);
+    transition: all var(--transition-base);
 }
