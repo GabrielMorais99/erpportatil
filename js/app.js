@@ -7291,6 +7291,10 @@ class LojaApp {
             this.renderServiceAppointments();
             this.renderServiceGroups();
             this.updateServiceSummary();
+            // Aguardar um pouco para garantir que o DOM está pronto e Chart.js está carregado
+            setTimeout(() => {
+                this.updateServicesChart();
+            }, 100);
         }
     }
 
@@ -9636,10 +9640,10 @@ class LojaApp {
             'servicesBestMonthRevenue'
         );
         const avgValuePerHourEl = document.getElementById(
-            'servicesAvgValuePerHour'
+            'servicesDashboardAvgValuePerHour'
         );
         const totalServicesEl = document.getElementById(
-            'servicesTotalServices'
+            'servicesDashboardTotalServices'
         );
 
         if (avgMonthlyHoursEl) {
