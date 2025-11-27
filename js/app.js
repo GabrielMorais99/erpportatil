@@ -6023,43 +6023,75 @@ class LojaApp {
             return;
         }
 
-        // Obter últimos 6 meses de metas
-        const now = new Date();
+        // Obter filtro de ano
+        const goalsYearFilterEl = document.getElementById('goalsYearFilter');
+        const goalsYearFilter = goalsYearFilterEl
+            ? goalsYearFilterEl.value
+            : '';
+
+        // Filtrar metas por ano se houver filtro
+        let filteredGoals = this.goals;
+        if (goalsYearFilter && goalsYearFilter !== '') {
+            filteredGoals = this.goals.filter((goal) => {
+                if (!goal.month) return false;
+                const [year] = goal.month.split('-');
+                return year === goalsYearFilter;
+            });
+        }
+
+        // Se houver filtro de ano, usar apenas os meses desse ano
+        // Caso contrário, usar últimos 6 meses
         const months = [];
         const goalsData = [];
         const salesData = [];
+        const monthNames = [
+            'Jan',
+            'Fev',
+            'Mar',
+            'Abr',
+            'Mai',
+            'Jun',
+            'Jul',
+            'Ago',
+            'Set',
+            'Out',
+            'Nov',
+            'Dez',
+        ];
 
-        for (let i = 5; i >= 0; i--) {
-            const date = new Date(now.getFullYear(), now.getMonth() - i, 1);
-            const monthKey = `${date.getFullYear()}-${String(
-                date.getMonth() + 1
-            ).padStart(2, '0')}`;
-            const monthNames = [
-                'Jan',
-                'Fev',
-                'Mar',
-                'Abr',
-                'Mai',
-                'Jun',
-                'Jul',
-                'Ago',
-                'Set',
-                'Out',
-                'Nov',
-                'Dez',
-            ];
+        if (goalsYearFilter && goalsYearFilter !== '') {
+            // Se há filtro de ano, mostrar todos os meses desse ano que têm metas
+            const year = parseInt(goalsYearFilter);
+            for (let month = 1; month <= 12; month++) {
+                const monthKey = `${year}-${String(month).padStart(2, '0')}`;
+                const goal = filteredGoals.find((g) => g.month === monthKey);
+                const sales = this.getMonthSales(monthKey);
+                
+                months.push(`${monthNames[month - 1]}/${String(year).slice(-2)}`);
+                goalsData.push(goal ? goal.amount : 0);
+                salesData.push(sales);
+            }
+        } else {
+            // Sem filtro, usar últimos 6 meses
+            const now = new Date();
+            for (let i = 5; i >= 0; i--) {
+                const date = new Date(now.getFullYear(), now.getMonth() - i, 1);
+                const monthKey = `${date.getFullYear()}-${String(
+                    date.getMonth() + 1
+                ).padStart(2, '0')}`;
 
-            months.push(
-                `${monthNames[date.getMonth()]}/${String(
-                    date.getFullYear()
-                ).slice(-2)}`
-            );
+                months.push(
+                    `${monthNames[date.getMonth()]}/${String(
+                        date.getFullYear()
+                    ).slice(-2)}`
+                );
 
-            const goal = this.goals.find((g) => g.month === monthKey);
-            const sales = this.getMonthSales(monthKey);
+                const goal = this.goals.find((g) => g.month === monthKey);
+                const sales = this.getMonthSales(monthKey);
 
-            goalsData.push(goal ? goal.amount : 0);
-            salesData.push(sales);
+                goalsData.push(goal ? goal.amount : 0);
+                salesData.push(sales);
+            }
         }
 
         // Destruir gráfico anterior se existir
