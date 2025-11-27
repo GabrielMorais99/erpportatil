@@ -5442,6 +5442,13 @@ class LojaApp {
     }
 
     updateServiceSummary() {
+        // Verificar se os elementos do resumo de serviços existem (seção foi removida do layout)
+        const totalHoursEl = document.getElementById('servicesTotalHours');
+        if (!totalHoursEl) {
+            // Seção de resumo foi removida, não atualizar
+            return;
+        }
+
         // Calcular totais de todos os meses
         let totalHours = 0;
         let totalMinutes = 0;
@@ -5494,7 +5501,6 @@ class LojaApp {
             avgMinutesPerService = Math.round(avgMinutesPerServiceDecimal % 60);
         }
 
-        const totalHoursEl = document.getElementById('servicesTotalHours');
         const avgHoursEl = document.getElementById('servicesAvgHours');
         const totalRevenueEl = document.getElementById('servicesTotalRevenue');
         const totalCountEl = document.getElementById('servicesTotalCount');
