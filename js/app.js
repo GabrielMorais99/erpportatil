@@ -176,8 +176,8 @@ class LojaApp {
                         this.renderLastReceiptsCarousel();
                     }, 200);
                     this.renderServiceAppointments();
-                    // renderServiceGroups() removido - seção foi removida do layout
-                    // renderCosts() removido - seção foi removida do layout
+                    this.renderServiceGroups();
+                    this.renderCosts();
                     this.renderGoals();
                     this.updateMonthFilter();
                     this.updateYearFilter();
@@ -7135,17 +7135,19 @@ class LojaApp {
             this.renderGoals();
         }
 
-        // Se for o painel de vendas, renderizar grupos e pedidos pendentes
+        // Se for o painel de vendas, renderizar grupos, pedidos pendentes e custos
         if (tab === 'salesPanel') {
             this.renderGroups();
             this.renderPendingOrders();
-            // renderItems() e renderCosts() removidos - seções foram removidas do layout
+            this.renderCosts();
+            // renderItems() removido - seção foi removida do layout
         }
 
-        // Se for o painel de serviços, renderizar apenas agendamentos
+        // Se for o painel de serviços, renderizar agendamentos e grupos de serviços
         if (tab === 'servicesPanel') {
             this.renderServiceAppointments();
-            // renderServiceGroups() e updateServiceSummary() removidos - seções foram removidas do layout
+            this.renderServiceGroups();
+            // updateServiceSummary() removido - seção foi removida do layout
         }
     }
 
