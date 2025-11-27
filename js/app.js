@@ -4589,7 +4589,21 @@ class LojaApp {
             }
         }
 
-        document.getElementById('serviceRecordModal').classList.add('active');
+        // Verificar se o modal de visualização está aberto e adicionar classe para z-index maior
+        const viewServiceGroupModal = document.getElementById(
+            'viewServiceGroupModal'
+        );
+        const serviceRecordModal =
+            document.getElementById('serviceRecordModal');
+
+        if (
+            viewServiceGroupModal &&
+            viewServiceGroupModal.classList.contains('active')
+        ) {
+            serviceRecordModal.classList.add('modal-overlay');
+        }
+
+        serviceRecordModal.classList.add('active');
     }
 
     showDayServices(dayData) {
@@ -4743,9 +4757,12 @@ class LojaApp {
     }
 
     closeServiceRecordModal() {
-        document
-            .getElementById('serviceRecordModal')
-            .classList.remove('active');
+        const serviceRecordModal =
+            document.getElementById('serviceRecordModal');
+        if (serviceRecordModal) {
+            serviceRecordModal.classList.remove('active');
+            serviceRecordModal.classList.remove('modal-overlay');
+        }
         this.currentServiceGroup = null;
         this.currentServiceDay = null;
     }
