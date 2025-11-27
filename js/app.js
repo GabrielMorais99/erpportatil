@@ -152,7 +152,7 @@ class LojaApp {
                 this.loadData().then(() => {
                     // Renderizar após carregar dados
                     this.renderGroups();
-                    this.renderItems();
+                    // renderItems() removido - seção foi removida do layout
                     this.renderPendingOrders();
                     // Renderizar carrossel APÓS carregar dados com um pequeno delay para garantir que o DOM está pronto
                     setTimeout(() => {
@@ -160,7 +160,7 @@ class LojaApp {
                     }, 200);
                     this.renderServiceAppointments();
                     this.renderServiceGroups();
-                    this.renderCosts();
+                    // renderCosts() removido - seção foi removida do layout
                     this.renderGoals();
                     this.updateMonthFilter();
                     this.updateYearFilter();
@@ -172,7 +172,7 @@ class LojaApp {
             // Renderizar imediatamente também (com dados vazios, será atualizado após loadData) - apenas para usuários normais
             if (username !== 'admin') {
                 this.renderGroups();
-                this.renderItems();
+                // renderItems() removido - seção foi removida do layout
                 this.renderPendingOrders();
                 // Renderizar carrossel com delay para garantir que o DOM está pronto
                 setTimeout(() => {
@@ -180,7 +180,7 @@ class LojaApp {
                 }, 300);
                 this.renderServiceAppointments();
                 this.renderServiceGroups();
-                this.renderCosts();
+                // renderCosts() removido - seção foi removida do layout
                 this.renderGoals();
                 this.updateMonthFilter();
                 this.updateYearFilter();
@@ -1871,10 +1871,14 @@ class LojaApp {
 
     renderItems() {
         const grid = document.getElementById('itemsGrid');
-        const searchTerm = document
-            .getElementById('searchInput')
-            .value.toLowerCase();
-        const monthFilter = document.getElementById('monthFilter').value;
+        // Se a seção de produtos foi removida, não renderizar
+        if (!grid) return;
+        
+        const searchInput = document.getElementById('searchInput');
+        const monthFilterEl = document.getElementById('monthFilter');
+        
+        const searchTerm = searchInput ? searchInput.value.toLowerCase() : '';
+        const monthFilter = monthFilterEl ? monthFilterEl.value : '';
 
         // Filtrar apenas produtos físicos (excluir serviços) para o Painel de Vendas
         let filteredItems = this.items.filter(
@@ -5658,6 +5662,9 @@ class LojaApp {
 
     renderCosts() {
         const list = document.getElementById('costsList');
+        // Se a seção de custos foi removida, não renderizar
+        if (!list) return;
+        
         const countEl = document.getElementById('totalCostsCount');
         const valueEl = document.getElementById('totalCostsValue');
 
@@ -7128,12 +7135,11 @@ class LojaApp {
             this.renderGoals();
         }
 
-        // Se for o painel de vendas, renderizar grupos, produtos, pedidos pendentes e custos
+        // Se for o painel de vendas, renderizar grupos e pedidos pendentes
         if (tab === 'salesPanel') {
             this.renderGroups();
-            this.renderItems();
             this.renderPendingOrders();
-            this.renderCosts();
+            // renderItems() e renderCosts() removidos - seções foram removidas do layout
         }
 
         // Se for o painel de serviços, renderizar agendamentos e grupos de serviços
