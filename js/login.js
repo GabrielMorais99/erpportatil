@@ -43,7 +43,7 @@ document.addEventListener('DOMContentLoaded', function() {
         // Verificar credenciais
         const validUsers = {
             'nilda': '123',
-            'admin': '123',
+            'admin': 'gab123', // Usuário administrador
             'usuarioteste1': '123',
             'usuarioteste2': '123',
             'usuarioteste3': '123',

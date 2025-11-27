@@ -3937,6 +3937,118 @@ body.theme-blue .login-container #entrarBtn:focus {
     flex-shrink: 0;
 }
 
+/* ========================================
+   PAINEL DE ADMINISTRAÇÃO
+   ======================================== */
+
+.admin-panel-layout {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+}
+
+.admin-dashboard-content {
+    padding: 1.5rem;
+    background: var(--cinza-back);
+    border-radius: var(--radius-md);
+}
+
+.admin-stat-card {
+    transition: all var(--transition-base);
+}
+
+.admin-stat-card:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md) !important;
+}
+
+.admin-stat-card h3 {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--gray-600);
+    margin: 0 0 0.5rem 0;
+}
+
+.admin-stat-card p {
+    margin: 0;
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--dark-gray);
+}
+
+/* Tabelas do admin */
+.admin-dashboard-content table {
+    width: 100%;
+    border-collapse: collapse;
+    background: var(--white);
+    border-radius: var(--radius-md);
+    overflow: hidden;
+}
+
+.admin-dashboard-content table thead {
+    background: var(--gray-50);
+}
+
+.admin-dashboard-content table th {
+    padding: 0.75rem;
+    text-align: left;
+    font-weight: 600;
+    color: var(--dark-gray);
+    font-size: 0.9rem;
+}
+
+.admin-dashboard-content table td {
+    padding: 0.75rem;
+    color: var(--gray-700);
+    font-size: 0.9rem;
+}
+
+.admin-dashboard-content table tbody tr {
+    border-bottom: 1px solid var(--gray-200);
+    transition: background var(--transition-base);
+}
+
+.admin-dashboard-content table tbody tr:hover {
+    background: var(--gray-50);
+}
+
+/* Indicador de capacidade */
+.admin-dashboard-content .capacity-indicator {
+    background: var(--gray-200);
+    border-radius: var(--radius-md);
+    height: 30px;
+    position: relative;
+    overflow: hidden;
+    margin-bottom: 0.5rem;
+}
+
+.admin-dashboard-content .capacity-bar {
+    height: 100%;
+    transition: width 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-weight: 600;
+    font-size: 0.85rem;
+}
+
+/* Responsividade para admin */
+@media (max-width: 768px) {
+    .admin-dashboard-content {
+        padding: 1rem;
+    }
+
+    .admin-dashboard-content table {
+        font-size: 0.8rem;
+    }
+
+    .admin-dashboard-content table th,
+    .admin-dashboard-content table td {
+        padding: 0.5rem;
+    }
+}
+
 /* Cards de resultados */
 .receipt-result-card {
     transition: all var(--transition-base);

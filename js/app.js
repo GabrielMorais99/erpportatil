@@ -80,6 +80,15 @@ class LojaApp {
         setTimeout(() => {
             addDebugLog('Iniciando setup...');
 
+            // Verificar se é admin e mostrar aba de administração
+            const username = sessionStorage.getItem('username');
+            if (username === 'admin') {
+                const adminTabBtn = document.getElementById('adminTabBtn');
+                if (adminTabBtn) {
+                    adminTabBtn.style.display = 'flex';
+                }
+            }
+
             // Carregar tema salvo
             this.loadTheme();
 
@@ -6939,6 +6948,16 @@ class LojaApp {
                 this.renderLastReceiptsCarousel();
             }, 300);
         }
+        // Se mudar para a aba de administração, carregar dados do admin
+        if (tab === 'adminPanel') {
+            const username = sessionStorage.getItem('username');
+            if (username === 'admin') {
+                this.loadAdminData();
+            } else {
+                console.warn('⚠️ [ADMIN] Acesso negado - apenas administradores');
+                return;
+            }
+        }
         if (!tab) {
             console.warn('⚠️ [SWITCH TAB] Tab não especificado');
             return;
@@ -9984,6 +10003,332 @@ class LojaApp {
         URL.revokeObjectURL(url);
 
         alert('Dados exportados com sucesso!');
+    }
+
+    // ========== ADMINISTRAÇÃO ==========
+
+    async loadAdminData() {
+        const username = sessionStorage.getItem('username');
+        if (username !== 'admin') {
+            console.warn('⚠️ [ADMIN] Acesso negado - apenas administradores');
+            return;
+        }
+
+        try {
+            const response = await fetch(
+                `/api/admin?username=${username}&action=all`
+            );
+            const result = await response.json();
+
+            if (result.success) {
+                this.renderAdminUsageDashboard(result);
+                this.renderAdminMemoryDashboard(result.memory);
+                this.renderAdminUsersManagement(result.users, result.summary);
+            } else {
+                console.error('❌ [ADMIN] Erro ao carregar dados:', result.error);
+                this.showError('Erro ao carregar dados de administração.');
+            }
+        } catch (error) {
+            console.error('❌ [ADMIN] Erro ao carregar dados:', error);
+            this.showError('Erro ao carregar dados de administração.');
+        }
+    }
+
+    refreshAdminData() {
+        this.loadAdminData();
+        this.showSuccess('Dados atualizados com sucesso!');
+    }
+
+    renderAdminUsageDashboard(data) {
+        const container = document.getElementById('adminUsageDashboard');
+        if (!container) return;
+
+        const { users, summary } = data;
+
+        // Calcular frequência de uso (baseado em última atualização)
+        const now = new Date();
+        const activeUsers = users.filter((u) => {
+            if (!u.lastUpdate) return false;
+            const lastUpdate = new Date(u.lastUpdate);
+            const daysSinceUpdate = (now - lastUpdate) / (1000 * 60 * 60 * 24);
+            return daysSinceUpdate <= 30; // Usuários ativos nos últimos 30 dias
+        });
+
+        container.innerHTML = `
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.5rem; margin-bottom: 2rem;">
+                <div class="admin-stat-card" style="background: var(--white); padding: 1.5rem; border-radius: var(--radius-md); box-shadow: var(--shadow-sm); border-left: 4px solid var(--primary-color);">
+                    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.5rem;">
+                        <h3 style="margin: 0; color: var(--gray-600); font-size: 0.9rem; font-weight: 600;">Total de Usuários</h3>
+                        <i class="fas fa-users" style="color: var(--primary-color); font-size: 1.5rem;"></i>
+                    </div>
+                    <p style="margin: 0; font-size: 2rem; font-weight: 700; color: var(--dark-gray);">${summary.totalUsers}</p>
+                </div>
+                <div class="admin-stat-card" style="background: var(--white); padding: 1.5rem; border-radius: var(--radius-md); box-shadow: var(--shadow-sm); border-left: 4px solid #28a745;">
+                    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.5rem;">
+                        <h3 style="margin: 0; color: var(--gray-600); font-size: 0.9rem; font-weight: 600;">Usuários Ativos</h3>
+                        <i class="fas fa-user-check" style="color: #28a745; font-size: 1.5rem;"></i>
+                    </div>
+                    <p style="margin: 0; font-size: 2rem; font-weight: 700; color: var(--dark-gray);">${activeUsers.length}</p>
+                    <p style="margin: 0.25rem 0 0 0; font-size: 0.75rem; color: var(--gray-500);">Últimos 30 dias</p>
+                </div>
+                <div class="admin-stat-card" style="background: var(--white); padding: 1.5rem; border-radius: var(--radius-md); box-shadow: var(--shadow-sm); border-left: 4px solid #007bff;">
+                    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.5rem;">
+                        <h3 style="margin: 0; color: var(--gray-600); font-size: 0.9rem; font-weight: 600;">Total de Vendas</h3>
+                        <i class="fas fa-shopping-cart" style="color: #007bff; font-size: 1.5rem;"></i>
+                    </div>
+                    <p style="margin: 0; font-size: 2rem; font-weight: 700; color: var(--dark-gray);">${summary.totalSales}</p>
+                </div>
+                <div class="admin-stat-card" style="background: var(--white); padding: 1.5rem; border-radius: var(--radius-md); box-shadow: var(--shadow-sm); border-left: 4px solid #ffc107;">
+                    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.5rem;">
+                        <h3 style="margin: 0; color: var(--gray-600); font-size: 0.9rem; font-weight: 600;">Total de Agendamentos</h3>
+                        <i class="fas fa-calendar-check" style="color: #ffc107; font-size: 1.5rem;"></i>
+                    </div>
+                    <p style="margin: 0; font-size: 2rem; font-weight: 700; color: var(--dark-gray);">${summary.totalAppointments}</p>
+                </div>
+            </div>
+
+            <div style="background: var(--white); padding: 1.5rem; border-radius: var(--radius-md); box-shadow: var(--shadow-sm); margin-bottom: 2rem;">
+                <h3 style="margin: 0 0 1rem 0; color: var(--dark-gray); font-size: 1.1rem;">
+                    <i class="fas fa-chart-line"></i> Gráfico de Uso por Usuário
+                </h3>
+                <div style="height: 300px; position: relative;">
+                    <canvas id="adminUsersChart"></canvas>
+                </div>
+            </div>
+
+            <div style="background: var(--white); padding: 1.5rem; border-radius: var(--radius-md); box-shadow: var(--shadow-sm);">
+                <h3 style="margin: 0 0 1rem 0; color: var(--dark-gray); font-size: 1.1rem;">
+                    <i class="fas fa-list"></i> Resumo de Ações por Usuário
+                </h3>
+                <div style="overflow-x: auto;">
+                    <table style="width: 100%; border-collapse: collapse;">
+                        <thead>
+                            <tr style="background: var(--gray-50); border-bottom: 2px solid var(--gray-200);">
+                                <th style="padding: 0.75rem; text-align: left; font-weight: 600; color: var(--dark-gray);">Usuário</th>
+                                <th style="padding: 0.75rem; text-align: center; font-weight: 600; color: var(--dark-gray);">Produtos</th>
+                                <th style="padding: 0.75rem; text-align: center; font-weight: 600; color: var(--dark-gray);">Grupos</th>
+                                <th style="padding: 0.75rem; text-align: center; font-weight: 600; color: var(--dark-gray);">Vendas</th>
+                                <th style="padding: 0.75rem; text-align: center; font-weight: 600; color: var(--dark-gray);">Agendamentos</th>
+                                <th style="padding: 0.75rem; text-align: center; font-weight: 600; color: var(--dark-gray);">Última Atualização</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${users
+                                .map(
+                                    (user) => `
+                                <tr style="border-bottom: 1px solid var(--gray-200);">
+                                    <td style="padding: 0.75rem; font-weight: 600; color: var(--dark-gray);">${this.escapeHtml(user.username)}</td>
+                                    <td style="padding: 0.75rem; text-align: center; color: var(--gray-700);">${user.itemsCount}</td>
+                                    <td style="padding: 0.75rem; text-align: center; color: var(--gray-700);">${user.groupsCount}</td>
+                                    <td style="padding: 0.75rem; text-align: center; color: var(--gray-700);">${user.completedSalesCount}</td>
+                                    <td style="padding: 0.75rem; text-align: center; color: var(--gray-700);">${user.serviceAppointmentsCount}</td>
+                                    <td style="padding: 0.75rem; text-align: center; color: var(--gray-600); font-size: 0.85rem;">${user.lastUpdateFormatted}</td>
+                                </tr>
+                            `
+                                )
+                                .join('')}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        `;
+
+        // Renderizar gráfico de uso por usuário
+        setTimeout(() => {
+            this.renderAdminUsersChart(users);
+        }, 100);
+    }
+
+    renderAdminUsersChart(users) {
+        const canvas = document.getElementById('adminUsersChart');
+        if (!canvas || !window.Chart) return;
+
+        const ctx = canvas.getContext('2d');
+
+        // Destruir gráfico anterior se existir
+        if (this.adminUsersChart) {
+            this.adminUsersChart.destroy();
+        }
+
+        const labels = users.map((u) => u.username);
+        const salesData = users.map((u) => u.completedSalesCount);
+        const itemsData = users.map((u) => u.itemsCount);
+
+        this.adminUsersChart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: labels,
+                datasets: [
+                    {
+                        label: 'Vendas',
+                        data: salesData,
+                        backgroundColor: 'rgba(220, 53, 69, 0.7)',
+                        borderColor: '#dc3545',
+                        borderWidth: 2,
+                    },
+                    {
+                        label: 'Produtos',
+                        data: itemsData,
+                        backgroundColor: 'rgba(0, 123, 255, 0.7)',
+                        borderColor: '#007bff',
+                        borderWidth: 2,
+                    },
+                ],
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: true,
+                        position: 'top',
+                    },
+                    title: {
+                        display: false,
+                    },
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            stepSize: 1,
+                        },
+                    },
+                },
+            },
+        });
+    }
+
+    renderAdminMemoryDashboard(memory) {
+        const container = document.getElementById('adminMemoryDashboard');
+        if (!container) return;
+
+        const usageColor =
+            memory.usagePercent > 80
+                ? '#dc3545'
+                : memory.usagePercent > 60
+                ? '#ffc107'
+                : '#28a745';
+
+        container.innerHTML = `
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.5rem; margin-bottom: 2rem;">
+                <div class="admin-stat-card" style="background: var(--white); padding: 1.5rem; border-radius: var(--radius-md); box-shadow: var(--shadow-sm); border-left: 4px solid ${usageColor};">
+                    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.5rem;">
+                        <h3 style="margin: 0; color: var(--gray-600); font-size: 0.9rem; font-weight: 600;">Uso Atual</h3>
+                        <i class="fas fa-database" style="color: ${usageColor}; font-size: 1.5rem;"></i>
+                    </div>
+                    <p style="margin: 0; font-size: 2rem; font-weight: 700; color: var(--dark-gray);">${memory.binSizeMB} MB</p>
+                    <p style="margin: 0.25rem 0 0 0; font-size: 0.75rem; color: var(--gray-500);">${memory.usagePercent}% do limite</p>
+                </div>
+                <div class="admin-stat-card" style="background: var(--white); padding: 1.5rem; border-radius: var(--radius-md); box-shadow: var(--shadow-sm); border-left: 4px solid #007bff;">
+                    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.5rem;">
+                        <h3 style="margin: 0; color: var(--gray-600); font-size: 0.9rem; font-weight: 600;">Limite do Plano</h3>
+                        <i class="fas fa-chart-pie" style="color: #007bff; font-size: 1.5rem;"></i>
+                    </div>
+                    <p style="margin: 0; font-size: 2rem; font-weight: 700; color: var(--dark-gray);">${memory.freePlanLimitMB} MB</p>
+                    <p style="margin: 0.25rem 0 0 0; font-size: 0.75rem; color: var(--gray-500);">Plano gratuito</p>
+                </div>
+                <div class="admin-stat-card" style="background: var(--white); padding: 1.5rem; border-radius: var(--radius-md); box-shadow: var(--shadow-sm); border-left: 4px solid #28a745;">
+                    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.5rem;">
+                        <h3 style="margin: 0; color: var(--gray-600); font-size: 0.9rem; font-weight: 600;">Espaço Restante</h3>
+                        <i class="fas fa-hdd" style="color: #28a745; font-size: 1.5rem;"></i>
+                    </div>
+                    <p style="margin: 0; font-size: 2rem; font-weight: 700; color: var(--dark-gray);">${memory.remainingMB} MB</p>
+                    <p style="margin: 0.25rem 0 0 0; font-size: 0.75rem; color: var(--gray-500);">Disponível</p>
+                </div>
+            </div>
+
+            <div style="background: var(--white); padding: 1.5rem; border-radius: var(--radius-md); box-shadow: var(--shadow-sm);">
+                <h3 style="margin: 0 0 1rem 0; color: var(--dark-gray); font-size: 1.1rem;">
+                    <i class="fas fa-tachometer-alt"></i> Indicador de Capacidade
+                </h3>
+                <div style="background: var(--gray-200); border-radius: var(--radius-md); height: 30px; position: relative; overflow: hidden; margin-bottom: 0.5rem;">
+                    <div style="background: ${usageColor}; height: 100%; width: ${memory.usagePercent}%; transition: width 0.3s ease; display: flex; align-items: center; justify-content: center; color: white; font-weight: 600; font-size: 0.85rem;">
+                        ${memory.usagePercent}%
+                    </div>
+                </div>
+                <div style="display: flex; justify-content: space-between; font-size: 0.85rem; color: var(--gray-600);">
+                    <span>0 MB</span>
+                    <span style="color: ${memory.isNearLimit ? '#dc3545' : 'var(--gray-600)'}; font-weight: ${memory.isNearLimit ? '600' : '400'};">
+                        ${memory.isNearLimit ? '⚠️ Próximo do limite!' : 'Limite: ' + memory.freePlanLimitMB + ' MB'}
+                    </span>
+                </div>
+            </div>
+        `;
+    }
+
+    renderAdminUsersManagement(users, summary) {
+        const container = document.getElementById('adminUsersManagement');
+        if (!container) return;
+
+        container.innerHTML = `
+            <div style="background: var(--white); padding: 1.5rem; border-radius: var(--radius-md); box-shadow: var(--shadow-sm); margin-bottom: 2rem;">
+                <h3 style="margin: 0 0 1rem 0; color: var(--dark-gray); font-size: 1.1rem;">
+                    <i class="fas fa-table"></i> Dados Individuais por Usuário
+                </h3>
+                <div style="overflow-x: auto;">
+                    <table style="width: 100%; border-collapse: collapse;">
+                        <thead>
+                            <tr style="background: var(--gray-50); border-bottom: 2px solid var(--gray-200);">
+                                <th style="padding: 0.75rem; text-align: left; font-weight: 600; color: var(--dark-gray);">Usuário</th>
+                                <th style="padding: 0.75rem; text-align: center; font-weight: 600; color: var(--dark-gray);">Tamanho dos Dados</th>
+                                <th style="padding: 0.75rem; text-align: center; font-weight: 600; color: var(--dark-gray);">Produtos</th>
+                                <th style="padding: 0.75rem; text-align: center; font-weight: 600; color: var(--dark-gray);">Grupos</th>
+                                <th style="padding: 0.75rem; text-align: center; font-weight: 600; color: var(--dark-gray);">Vendas</th>
+                                <th style="padding: 0.75rem; text-align: center; font-weight: 600; color: var(--dark-gray);">Agendamentos</th>
+                                <th style="padding: 0.75rem; text-align: center; font-weight: 600; color: var(--dark-gray);">Última Atualização</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${users
+                                .map(
+                                    (user) => `
+                                <tr style="border-bottom: 1px solid var(--gray-200);">
+                                    <td style="padding: 0.75rem; font-weight: 600; color: var(--dark-gray);">
+                                        <i class="fas fa-user" style="margin-right: 0.5rem; color: var(--primary-color);"></i>
+                                        ${this.escapeHtml(user.username)}
+                                    </td>
+                                    <td style="padding: 0.75rem; text-align: center; color: var(--gray-700);">${user.dataSizeKB} KB</td>
+                                    <td style="padding: 0.75rem; text-align: center; color: var(--gray-700);">${user.itemsCount}</td>
+                                    <td style="padding: 0.75rem; text-align: center; color: var(--gray-700);">${user.groupsCount}</td>
+                                    <td style="padding: 0.75rem; text-align: center; color: var(--gray-700);">${user.completedSalesCount}</td>
+                                    <td style="padding: 0.75rem; text-align: center; color: var(--gray-700);">${user.serviceAppointmentsCount}</td>
+                                    <td style="padding: 0.75rem; text-align: center; color: var(--gray-600); font-size: 0.85rem;">${user.lastUpdateFormatted}</td>
+                                </tr>
+                            `
+                                )
+                                .join('')}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div style="background: var(--white); padding: 1.5rem; border-radius: var(--radius-md); box-shadow: var(--shadow-sm);">
+                <h3 style="margin: 0 0 1rem 0; color: var(--dark-gray); font-size: 1.1rem;">
+                    <i class="fas fa-history"></i> Histórico de Atividades
+                </h3>
+                <div style="max-height: 400px; overflow-y: auto;">
+                    ${users
+                        .map(
+                            (user) => `
+                        <div style="padding: 1rem; margin-bottom: 0.75rem; background: var(--gray-50); border-radius: var(--radius-md); border-left: 3px solid var(--primary-color);">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                                <strong style="color: var(--dark-gray);">${this.escapeHtml(user.username)}</strong>
+                                <span style="font-size: 0.85rem; color: var(--gray-600);">${user.lastUpdateFormatted}</span>
+                            </div>
+                            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 0.5rem; font-size: 0.85rem; color: var(--gray-700);">
+                                <div><i class="fas fa-box" style="margin-right: 0.25rem; color: var(--primary-color);"></i> ${user.itemsCount} produtos</div>
+                                <div><i class="fas fa-calendar" style="margin-right: 0.25rem; color: var(--primary-color);"></i> ${user.groupsCount} grupos</div>
+                                <div><i class="fas fa-shopping-cart" style="margin-right: 0.25rem; color: var(--primary-color);"></i> ${user.completedSalesCount} vendas</div>
+                                <div><i class="fas fa-calendar-check" style="margin-right: 0.25rem; color: var(--primary-color);"></i> ${user.serviceAppointmentsCount} agendamentos</div>
+                            </div>
+                        </div>
+                    `
+                        )
+                        .join('')}
+                </div>
+            </div>
+        `;
     }
 
     importData(event) {

@@ -120,6 +120,10 @@
                     <button class="tab-btn" data-tab="goals" title="Metas">
                         <i class="fas fa-bullseye"></i> <span class="btn-text">Metas</span>
                     </button>
+                    <!-- Aba de Administração (apenas para admin) -->
+                    <button class="tab-btn" id="adminTabBtn" data-tab="adminPanel" title="Administração" style="display: none;">
+                        <i class="fas fa-shield-alt"></i> <span class="btn-text">Administração</span>
+                    </button>
                 </div>
 
                 <!-- Tab: Painel de Vendas -->
@@ -524,6 +528,44 @@
                             </div>
                             <div id="goalsList" class="goals-list">
                                 <!-- Metas serão inseridas aqui via JavaScript -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tab: Administração (apenas para admin) -->
+                <div id="adminPanelTab" class="tab-content" style="display: none;">
+                    <div class="admin-panel-layout">
+                        <!-- Dashboard de Uso do Aplicativo -->
+                        <div class="panel-section">
+                            <div class="panel-header">
+                                <h2><i class="fas fa-chart-bar"></i> Dashboard de Uso do Aplicativo</h2>
+                                <button class="btn-secondary" onclick="app.refreshAdminData()" title="Atualizar Dados">
+                                    <i class="fas fa-sync-alt"></i> <span class="btn-text">Atualizar</span>
+                                </button>
+                            </div>
+                            <div id="adminUsageDashboard" class="admin-dashboard-content">
+                                <!-- Dashboard será preenchido via JavaScript -->
+                            </div>
+                        </div>
+
+                        <!-- Dashboard de Memória -->
+                        <div class="panel-section">
+                            <div class="panel-header">
+                                <h2><i class="fas fa-database"></i> Dashboard de Memória (JSONBin)</h2>
+                            </div>
+                            <div id="adminMemoryDashboard" class="admin-dashboard-content">
+                                <!-- Dashboard de memória será preenchido via JavaScript -->
+                            </div>
+                        </div>
+
+                        <!-- Gerenciamento de Dados por Usuário -->
+                        <div class="panel-section">
+                            <div class="panel-header">
+                                <h2><i class="fas fa-users"></i> Gerenciamento de Dados por Usuário</h2>
+                            </div>
+                            <div id="adminUsersManagement" class="admin-dashboard-content">
+                                <!-- Gerenciamento de usuários será preenchido via JavaScript -->
                             </div>
                         </div>
                     </div>
