@@ -4951,15 +4951,6 @@ class LojaApp {
         });
     }
 
-        // Adicionar anos
-        sortedYears.forEach((year) => {
-            const option = document.createElement('option');
-            option.value = year;
-            option.textContent = year;
-            select.appendChild(option);
-        });
-    }
-
     // ========== SERVIÇOS MENSAIS ==========
 
     openServiceGroupModal() {
