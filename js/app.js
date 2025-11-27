@@ -146,6 +146,23 @@ class LojaApp {
             // Event listeners (deve ser chamado primeiro)
             this.setupEventListeners();
 
+            // Garantir que o painel de vendas seja ativado por padrão (apenas para usuários normais)
+            if (username !== 'admin') {
+                // Remover active de todas as tabs primeiro
+                document.querySelectorAll('.tab-content').forEach((content) => {
+                    content.classList.remove('active');
+                    content.style.display = 'none';
+                });
+                document.querySelectorAll('.tab-btn').forEach((btn) => {
+                    btn.classList.remove('active');
+                });
+
+                // Ativar painel de vendas por padrão
+                setTimeout(() => {
+                    this.switchTab('salesPanel');
+                }, 50);
+            }
+
             // Carregar dados apenas para usuários normais (não admin)
             if (username !== 'admin') {
                 // Carregar dados (assíncrono)
@@ -167,32 +184,6 @@ class LojaApp {
                     this.updateGoalsYearFilter();
                     this.updateOverallSummary();
                 });
-            }
-
-            // Renderizar imediatamente também (com dados vazios, será atualizado após loadData) - apenas para usuários normais
-            if (username !== 'admin') {
-                this.renderGroups();
-                // renderItems() removido - seção foi removida do layout
-                this.renderPendingOrders();
-                // Renderizar carrossel com delay para garantir que o DOM está pronto
-                setTimeout(() => {
-                    this.renderLastReceiptsCarousel();
-                }, 300);
-                this.renderServiceAppointments();
-                // renderServiceGroups() removido - seção foi removida do layout
-                // renderCosts() removido - seção foi removida do layout
-                this.renderGoals();
-                this.updateMonthFilter();
-                this.updateYearFilter();
-                this.updateGoalsYearFilter();
-                this.updateOverallSummary();
-            }
-            
-            // Forçar renderização do carrossel após 1 segundo (caso os dados ainda estejam carregando) - apenas para usuários normais
-            if (username !== 'admin') {
-                setTimeout(() => {
-                    this.renderLastReceiptsCarousel();
-                }, 1000);
             }
         }, 100);
     }
@@ -6989,9 +6980,9 @@ class LojaApp {
             'servicesDashboardTab'
         );
         const isSalesActive =
-            salesDashboard && salesDashboard.classList.contains('active');
+            salesDashboard && (salesDashboard.classList.contains('active') || salesDashboard.style.display === 'block');
         const isServicesActive =
-            servicesDashboard && servicesDashboard.classList.contains('active');
+            servicesDashboard && (servicesDashboard.classList.contains('active') || servicesDashboard.style.display === 'block');
 
         // Alternar entre dashboard de vendas e serviços
         if (isServicesActive) {
@@ -7061,7 +7052,10 @@ class LojaApp {
             .forEach((btn) => btn.classList.remove('active'));
         document
             .querySelectorAll('.tab-content')
-            .forEach((content) => content.classList.remove('active'));
+            .forEach((content) => {
+                content.classList.remove('active');
+                content.style.display = 'none';
+            });
 
         // Adicionar active ao botão da aba selecionada
         const tabBtn = document.querySelector(`[data-tab="${tab}"]`);
