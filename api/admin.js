@@ -125,58 +125,31 @@ module.exports = async (req, res) => {
             0
         );
 
-        // Retornar dados baseado na ação solicitada
-        if (action === 'memory') {
-            return res.status(200).json({
-                success: true,
-                memory: {
-                    binSize,
-                    binSizeKB,
-                    binSizeMB,
-                    freePlanLimitMB: FREE_PLAN_LIMIT_MB,
-                    freePlanLimitBytes: FREE_PLAN_LIMIT_BYTES,
-                    usagePercent: parseFloat(usagePercent),
-                    remainingMB: parseFloat(remainingMB),
-                    isNearLimit: parseFloat(usagePercent) > 80,
-                },
-            });
-        } else if (action === 'users') {
-            return res.status(200).json({
-                success: true,
-                users: usersStats,
-                summary: {
-                    totalUsers,
-                    totalItems,
-                    totalGroups,
-                    totalSales,
-                    totalAppointments,
-                },
-            });
-        } else {
-            // Retornar tudo
-            return res.status(200).json({
-                success: true,
-                memory: {
-                    binSize,
-                    binSizeKB,
-                    binSizeMB,
-                    freePlanLimitMB: FREE_PLAN_LIMIT_MB,
-                    freePlanLimitBytes: FREE_PLAN_LIMIT_BYTES,
-                    usagePercent: parseFloat(usagePercent),
-                    remainingMB: parseFloat(remainingMB),
-                    isNearLimit: parseFloat(usagePercent) > 80,
-                },
-                users: usersStats,
-                summary: {
-                    totalUsers,
-                    totalItems,
-                    totalGroups,
-                    totalSales,
-                    totalAppointments,
-                },
-                timestamp: new Date().toISOString(),
-            });
-        }
+        // Retornar apenas dados de uso do banco de dados
+        return res.status(200).json({
+            success: true,
+            totalUsage: {
+                binSize,
+                binSizeKB,
+                binSizeMB,
+                freePlanLimitMB: FREE_PLAN_LIMIT_MB,
+                freePlanLimitBytes: FREE_PLAN_LIMIT_BYTES,
+                usagePercent: parseFloat(usagePercent),
+                remainingMB: parseFloat(remainingMB),
+                remainingKB: (parseFloat(remainingMB) * 1024).toFixed(2),
+                isNearLimit: parseFloat(usagePercent) > 80,
+            },
+            usersUsage: usersStats.map((user) => ({
+                username: user.username,
+                dataSize: user.dataSize,
+                dataSizeKB: user.dataSizeKB,
+                dataSizeMB: (user.dataSize / (1024 * 1024)).toFixed(4),
+                usagePercent: ((user.dataSize / binSize) * 100).toFixed(2),
+                lastUpdate: user.lastUpdate,
+                lastUpdateFormatted: user.lastUpdateFormatted,
+            })),
+            timestamp: new Date().toISOString(),
+        });
     } catch (error) {
         console.error('Erro na API de administração:', error);
         return res.status(500).json({

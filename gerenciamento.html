@@ -536,36 +536,26 @@
                 <!-- Tab: Administração (apenas para admin) -->
                 <div id="adminPanelTab" class="tab-content" style="display: none;">
                     <div class="admin-panel-layout">
-                        <!-- Dashboard de Uso do Aplicativo -->
+                        <!-- Dashboard de Uso Total do Banco de Dados -->
                         <div class="panel-section">
                             <div class="panel-header">
-                                <h2><i class="fas fa-chart-bar"></i> Dashboard de Uso do Aplicativo</h2>
+                                <h2><i class="fas fa-database"></i> Dashboard de Uso Total do Banco de Dados</h2>
                                 <button class="btn-secondary" onclick="app.refreshAdminData()" title="Atualizar Dados">
                                     <i class="fas fa-sync-alt"></i> <span class="btn-text">Atualizar</span>
                                 </button>
                             </div>
-                            <div id="adminUsageDashboard" class="admin-dashboard-content">
+                            <div id="adminTotalUsageDashboard" class="admin-dashboard-content">
                                 <!-- Dashboard será preenchido via JavaScript -->
                             </div>
                         </div>
 
-                        <!-- Dashboard de Memória -->
+                        <!-- Dashboard de Uso do Banco por Usuário -->
                         <div class="panel-section">
                             <div class="panel-header">
-                                <h2><i class="fas fa-database"></i> Dashboard de Memória (JSONBin)</h2>
+                                <h2><i class="fas fa-users"></i> Dashboard de Uso do Banco por Usuário</h2>
                             </div>
-                            <div id="adminMemoryDashboard" class="admin-dashboard-content">
-                                <!-- Dashboard de memória será preenchido via JavaScript -->
-                            </div>
-                        </div>
-
-                        <!-- Gerenciamento de Dados por Usuário -->
-                        <div class="panel-section">
-                            <div class="panel-header">
-                                <h2><i class="fas fa-users"></i> Gerenciamento de Dados por Usuário</h2>
-                            </div>
-                            <div id="adminUsersManagement" class="admin-dashboard-content">
-                                <!-- Gerenciamento de usuários será preenchido via JavaScript -->
+                            <div id="adminUsersUsageDashboard" class="admin-dashboard-content">
+                                <!-- Dashboard será preenchido via JavaScript -->
                             </div>
                         </div>
                     </div>
