@@ -1187,19 +1187,17 @@ class LojaApp {
 
         // Adicionar campos baseado na categoria
         if (category === 'Roupas') {
-            item.name = document.getElementById('itemName').value.trim() || '';
-            item.brand = document.getElementById('itemBrand').value.trim();
-            item.style =
-                document.getElementById('itemStyle').value.trim() || '';
+            // Formatar nome, marca e estilo automaticamente
+            item.name = this.formatText(document.getElementById('itemName').value) || '';
+            item.brand = this.formatText(document.getElementById('itemBrand').value);
+            item.style = this.formatText(document.getElementById('itemStyle').value) || '';
             item.size = document.getElementById('itemSize').value.trim() || '';
             item.gender = document.getElementById('itemGender').value || '';
         } else if (category === 'Eletrônicos') {
             // Para eletrônicos, usar modelo como nome (ou modelo + capacidade + cor)
-            const model = document.getElementById('itemModel').value.trim();
-            const capacity = document
-                .getElementById('itemCapacity')
-                .value.trim();
-            const color = document.getElementById('itemColor').value.trim();
+            const model = this.formatText(document.getElementById('itemModel').value);
+            const capacity = this.formatText(document.getElementById('itemCapacity').value);
+            const color = this.formatText(document.getElementById('itemColor').value);
 
             // Criar nome composto para eletrônicos
             let nameParts = [];
@@ -2526,9 +2524,10 @@ class LojaApp {
         }
 
         // Obter dados do cliente
-        const customerName = document
-            .getElementById('saleCustomerName')
-            .value.trim();
+        // Formatar nome do cliente automaticamente
+        const customerName = this.formatText(
+            document.getElementById('saleCustomerName').value
+        );
         const customerCPF = document
             .getElementById('saleCustomerCPF')
             .value.trim()
@@ -3390,9 +3389,10 @@ class LojaApp {
     savePendingOrder(e) {
         e.preventDefault();
 
-        const customerName = document
-            .getElementById('pendingOrderCustomerName')
-            .value.trim();
+        // Formatar nome do cliente automaticamente
+        const customerName = this.formatText(
+            document.getElementById('pendingOrderCustomerName').value
+        );
         const customerCPF = document
             .getElementById('pendingOrderCustomerCPF')
             .value.replace(/\D/g, '');
@@ -3818,9 +3818,10 @@ class LojaApp {
         const serviceTypeId = document.getElementById(
             'appointmentServiceType'
         ).value;
-        const customerName = document
-            .getElementById('appointmentCustomerName')
-            .value.trim();
+        // Formatar nome do cliente automaticamente
+        const customerName = this.formatText(
+            document.getElementById('appointmentCustomerName').value
+        );
         const customerContact = document
             .getElementById('appointmentCustomerContact')
             .value.trim();
@@ -3829,7 +3830,8 @@ class LojaApp {
         const price =
             parseFloat(document.getElementById('appointmentPrice').value) || 0;
         const status = document.getElementById('appointmentStatus').value;
-        const notes = document.getElementById('appointmentNotes').value.trim();
+        // Formatar observações automaticamente
+        const notes = this.formatText(document.getElementById('appointmentNotes').value);
 
         if (!serviceTypeId) {
             alert('Por favor, selecione um tipo de serviço.');
@@ -4398,6 +4400,97 @@ class LojaApp {
         const div = document.createElement('div');
         div.textContent = text;
         return div.innerHTML;
+    }
+
+    // Função para corrigir acentos automaticamente
+    fixAccents(text) {
+        if (!text || typeof text !== 'string') return text;
+        
+        // Mapa de correções comuns de acentos
+        const accentMap = {
+            // Palavras comuns sem acento -> com acento
+            'acao': 'ação',
+            'aviao': 'avião',
+            'cao': 'cão',
+            'coracao': 'coração',
+            'edicao': 'edição',
+            'eleicao': 'eleição',
+            'funcao': 'função',
+            'informacao': 'informação',
+            'nacao': 'nação',
+            'opcao': 'opção',
+            'previsao': 'previsão',
+            'sessao': 'sessão',
+            'situacao': 'situação',
+            'televisao': 'televisão',
+            'transacao': 'transação',
+            'camisa': 'camisa',
+            'calca': 'calça',
+            'blusa': 'blusa',
+            'vestido': 'vestido',
+            'sapato': 'sapato',
+            'tenis': 'tênis',
+            'bone': 'boné',
+            'oculos': 'óculos',
+            'relogio': 'relógio',
+            'celular': 'celular',
+            'tablet': 'tablet',
+            'notebook': 'notebook',
+            'computador': 'computador',
+            'televisao': 'televisão',
+            'som': 'som',
+            'fone': 'fone',
+            'mouse': 'mouse',
+            'teclado': 'teclado',
+        };
+
+        // Primeiro, tentar corrigir palavras completas
+        let corrected = text;
+        for (const [wrong, correct] of Object.entries(accentMap)) {
+            // Usar regex para substituir palavras inteiras (case insensitive)
+            const regex = new RegExp(`\\b${wrong}\\b`, 'gi');
+            corrected = corrected.replace(regex, (match) => {
+                // Manter o case original
+                if (match === match.toUpperCase()) {
+                    return correct.toUpperCase();
+                } else if (match[0] === match[0].toUpperCase()) {
+                    return correct.charAt(0).toUpperCase() + correct.slice(1);
+                }
+                return correct;
+            });
+        }
+
+        return corrected;
+    }
+
+    // Função para capitalizar palavras (primeira letra maiúscula)
+    capitalizeWords(text) {
+        if (!text || typeof text !== 'string') return text;
+        
+        // Lista de palavras que não devem ser capitalizadas (artigos, preposições, etc.)
+        const lowercaseWords = ['de', 'da', 'do', 'das', 'dos', 'e', 'em', 'na', 'no', 'nas', 'nos', 'para', 'por', 'com', 'sem', 'a', 'o', 'as', 'os'];
+        
+        return text
+            .split(' ')
+            .map((word, index) => {
+                // Se for a primeira palavra ou não estiver na lista de exceções, capitalizar
+                if (index === 0 || !lowercaseWords.includes(word.toLowerCase())) {
+                    return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
+                }
+                return word.toLowerCase();
+            })
+            .join(' ');
+    }
+
+    // Função para formatar texto (corrigir acentos e capitalizar)
+    formatText(text) {
+        if (!text || typeof text !== 'string') return text;
+        
+        // Primeiro corrigir acentos, depois capitalizar
+        let formatted = this.fixAccents(text.trim());
+        formatted = this.capitalizeWords(formatted);
+        
+        return formatted;
     }
 
     // Funções de feedback para o usuário
