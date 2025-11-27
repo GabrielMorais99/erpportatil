@@ -80,13 +80,43 @@ class LojaApp {
         setTimeout(() => {
             addDebugLog('Iniciando setup...');
 
-            // Verificar se é admin e mostrar aba de administração
+            // Verificar se é admin e mostrar apenas aba de administração
             const username = sessionStorage.getItem('username');
             if (username === 'admin') {
+                // Esconder todas as outras abas
+                const allTabBtns = document.querySelectorAll('.tab-btn');
+                allTabBtns.forEach((btn) => {
+                    const tab = btn.getAttribute('data-tab');
+                    if (tab !== 'adminPanel') {
+                        btn.style.display = 'none';
+                    }
+                });
+
+                // Mostrar apenas a aba de administração
                 const adminTabBtn = document.getElementById('adminTabBtn');
                 if (adminTabBtn) {
                     adminTabBtn.style.display = 'flex';
                 }
+
+                // Esconder todas as outras seções de conteúdo
+                const allTabContents = document.querySelectorAll('.tab-content');
+                allTabContents.forEach((content) => {
+                    if (content.id !== 'adminPanelTab') {
+                        content.style.display = 'none';
+                    }
+                });
+
+                // Esconder toolbar principal (não necessário para admin)
+                const mainToolbar = document.getElementById('mainToolbar');
+                if (mainToolbar) {
+                    mainToolbar.style.display = 'none';
+                }
+
+                // Não carregar dados desnecessários para admin
+                // Apenas carregar dados do admin
+                setTimeout(() => {
+                    this.switchTab('adminPanel');
+                }, 100);
             }
 
             // Carregar tema salvo
@@ -95,16 +125,38 @@ class LojaApp {
             // Event listeners (deve ser chamado primeiro)
             this.setupEventListeners();
 
-            // Carregar dados (assíncrono)
-            this.loadData().then(() => {
-                // Renderizar após carregar dados
+            // Carregar dados apenas para usuários normais (não admin)
+            if (username !== 'admin') {
+                // Carregar dados (assíncrono)
+                this.loadData().then(() => {
+                    // Renderizar após carregar dados
+                    this.renderGroups();
+                    this.renderItems();
+                    this.renderPendingOrders();
+                    // Renderizar carrossel APÓS carregar dados com um pequeno delay para garantir que o DOM está pronto
+                    setTimeout(() => {
+                        this.renderLastReceiptsCarousel();
+                    }, 200);
+                    this.renderServiceAppointments();
+                    this.renderServiceGroups();
+                    this.renderCosts();
+                    this.renderGoals();
+                    this.updateMonthFilter();
+                    this.updateYearFilter();
+                    this.updateGoalsYearFilter();
+                    this.updateOverallSummary();
+                });
+            }
+
+            // Renderizar imediatamente também (com dados vazios, será atualizado após loadData) - apenas para usuários normais
+            if (username !== 'admin') {
                 this.renderGroups();
                 this.renderItems();
                 this.renderPendingOrders();
-                // Renderizar carrossel APÓS carregar dados com um pequeno delay para garantir que o DOM está pronto
+                // Renderizar carrossel com delay para garantir que o DOM está pronto
                 setTimeout(() => {
                     this.renderLastReceiptsCarousel();
-                }, 200);
+                }, 300);
                 this.renderServiceAppointments();
                 this.renderServiceGroups();
                 this.renderCosts();
@@ -113,29 +165,14 @@ class LojaApp {
                 this.updateYearFilter();
                 this.updateGoalsYearFilter();
                 this.updateOverallSummary();
-            });
-
-            // Renderizar imediatamente também (com dados vazios, será atualizado após loadData)
-            this.renderGroups();
-            this.renderItems();
-            this.renderPendingOrders();
-            // Renderizar carrossel com delay para garantir que o DOM está pronto
-            setTimeout(() => {
-                this.renderLastReceiptsCarousel();
-            }, 300);
-            this.renderServiceAppointments();
-            this.renderServiceGroups();
-            this.renderCosts();
-            this.renderGoals();
-            this.updateMonthFilter();
-            this.updateYearFilter();
-            this.updateGoalsYearFilter();
-            this.updateOverallSummary();
+            }
             
-            // Forçar renderização do carrossel após 1 segundo (caso os dados ainda estejam carregando)
-            setTimeout(() => {
-                this.renderLastReceiptsCarousel();
-            }, 1000);
+            // Forçar renderização do carrossel após 1 segundo (caso os dados ainda estejam carregando) - apenas para usuários normais
+            if (username !== 'admin') {
+                setTimeout(() => {
+                    this.renderLastReceiptsCarousel();
+                }, 1000);
+            }
         }, 100);
     }
 

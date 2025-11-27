@@ -64,8 +64,8 @@ module.exports = async (req, res) => {
         const remainingMB = (FREE_PLAN_LIMIT_MB - parseFloat(binSizeMB)).toFixed(2);
 
         // Processar dados de cada usuário
-        const usersStats = Object.keys(usersData).map((user) => {
-            const userData = usersData[user];
+        const usersStats = Object.keys(usersData || {}).map((user) => {
+            const userData = usersData[user] || {};
             const userDataSize = JSON.stringify(userData).length;
             const userDataSizeKB = (userDataSize / 1024).toFixed(2);
 
@@ -112,18 +112,8 @@ module.exports = async (req, res) => {
             return new Date(b.lastUpdate) - new Date(a.lastUpdate);
         });
 
-        // Calcular estatísticas gerais
-        const totalUsers = usersStats.length;
-        const totalItems = usersStats.reduce((sum, u) => sum + u.itemsCount, 0);
-        const totalGroups = usersStats.reduce((sum, u) => sum + u.groupsCount, 0);
-        const totalSales = usersStats.reduce(
-            (sum, u) => sum + u.completedSalesCount,
-            0
-        );
-        const totalAppointments = usersStats.reduce(
-            (sum, u) => sum + u.serviceAppointmentsCount,
-            0
-        );
+        // Evitar divisão por zero
+        const safeBinSize = binSize > 0 ? binSize : 1;
 
         // Retornar apenas dados de uso do banco de dados
         return res.status(200).json({
@@ -144,7 +134,7 @@ module.exports = async (req, res) => {
                 dataSize: user.dataSize,
                 dataSizeKB: user.dataSizeKB,
                 dataSizeMB: (user.dataSize / (1024 * 1024)).toFixed(4),
-                usagePercent: ((user.dataSize / binSize) * 100).toFixed(2),
+                usagePercent: safeBinSize > 0 ? ((user.dataSize / safeBinSize) * 100).toFixed(2) : '0.00',
                 lastUpdate: user.lastUpdate,
                 lastUpdateFormatted: user.lastUpdateFormatted,
             })),
