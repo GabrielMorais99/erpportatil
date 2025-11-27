@@ -76,12 +76,21 @@ class LojaApp {
 
         addDebugLog('Usuário autenticado, continuando...');
 
+        // Verificar se é admin ANTES de qualquer coisa
+        const username = sessionStorage.getItem('username');
+        if (username === 'admin') {
+            // Esconder botão "Como usar" imediatamente
+            const helpBtn = document.getElementById('helpBtn');
+            if (helpBtn) {
+                helpBtn.style.display = 'none';
+            }
+        }
+
         // Aguardar um pouco para garantir que o DOM está totalmente pronto
         setTimeout(() => {
             addDebugLog('Iniciando setup...');
 
             // Verificar se é admin e mostrar apenas aba de administração
-            const username = sessionStorage.getItem('username');
             if (username === 'admin') {
                 // Esconder todas as outras abas
                 const allTabBtns = document.querySelectorAll('.tab-btn');
@@ -112,10 +121,10 @@ class LojaApp {
                     mainToolbar.style.display = 'none';
                 }
 
-                // Esconder botão "Como usar" para admin
-                const helpBtn = document.getElementById('helpBtn');
-                if (helpBtn) {
-                    helpBtn.style.display = 'none';
+                // Garantir que o botão "Como usar" está escondido
+                const helpBtnAgain = document.getElementById('helpBtn');
+                if (helpBtnAgain) {
+                    helpBtnAgain.style.display = 'none';
                 }
 
                 // Não carregar dados desnecessários para admin
@@ -260,6 +269,12 @@ class LojaApp {
         const importBtn = document.getElementById('importBtn');
         const importFile = document.getElementById('importFile');
         const exportBtn = document.getElementById('exportBtn');
+        
+        // Verificar se é admin e esconder botão "Como usar"
+        const currentUsername = sessionStorage.getItem('username');
+        if (helpBtn && currentUsername === 'admin') {
+            helpBtn.style.display = 'none';
+        }
 
         if (importBtn && importFile) {
             importBtn.addEventListener('click', () => {
@@ -284,10 +299,14 @@ class LojaApp {
             console.error('❌ [APP.JS] exportBtn não encontrado!');
         }
 
-        // Botão de ajuda / Como usar
-        if (helpBtn) {
+        // Botão de ajuda / Como usar (apenas para usuários não-admin)
+        if (helpBtn && currentUsername !== 'admin') {
             helpBtn.addEventListener('click', () => this.openTutorialModal());
             console.log('✅ [APP.JS] Listener anexado ao helpBtn');
+        } else if (helpBtn && currentUsername === 'admin') {
+            // Garantir que está escondido para admin
+            helpBtn.style.display = 'none';
+            console.log('ℹ️ [APP.JS] helpBtn escondido para admin');
         } else {
             console.error('❌ [APP.JS] helpBtn não encontrado!');
         }

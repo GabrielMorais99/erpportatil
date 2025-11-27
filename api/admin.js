@@ -35,22 +35,41 @@ module.exports = async (req, res) => {
         }
 
         // Obter dados do bin
-        const response = await fetch(
-            `https://api.jsonbin.io/v3/b/${JSONBIN_BIN_ID}/latest`,
-            {
-                headers: {
-                    'X-Master-Key': JSONBIN_API_KEY,
-                },
+        let response;
+        let result;
+        let allData = {};
+        let usersData = {};
+
+        try {
+            response = await fetch(
+                `https://api.jsonbin.io/v3/b/${JSONBIN_BIN_ID}/latest`,
+                {
+                    headers: {
+                        'X-Master-Key': JSONBIN_API_KEY,
+                    },
+                }
+            );
+
+            if (!response.ok) {
+                // Se o bin não existe ou está vazio, retornar dados vazios
+                if (response.status === 404) {
+                    console.log('Bin não encontrado, retornando dados vazios');
+                    allData = {};
+                    usersData = {};
+                } else {
+                    throw new Error(`Erro ao carregar do JSONBin (${response.status})`);
+                }
+            } else {
+                result = await response.json();
+                allData = result.record || {};
+                usersData = allData.users || {};
             }
-        );
-
-        if (!response.ok) {
-            throw new Error(`Erro ao carregar do JSONBin (${response.status})`);
+        } catch (fetchError) {
+            console.error('Erro ao buscar dados do JSONBin:', fetchError);
+            // Retornar dados vazios em caso de erro
+            allData = {};
+            usersData = {};
         }
-
-        const result = await response.json();
-        const allData = result.record || {};
-        const usersData = allData.users || {};
 
         // Verificar se há dados válidos
         if (!allData || typeof allData !== 'object') {
