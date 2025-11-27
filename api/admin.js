@@ -52,65 +52,144 @@ module.exports = async (req, res) => {
         const allData = result.record || {};
         const usersData = allData.users || {};
 
+        // Verificar se há dados válidos
+        if (!allData || typeof allData !== 'object') {
+            // Retornar dados vazios se não houver dados
+            return res.status(200).json({
+                success: true,
+                totalUsage: {
+                    binSize: 0,
+                    binSizeKB: '0.00',
+                    binSizeMB: '0.00',
+                    freePlanLimitMB: 10,
+                    freePlanLimitBytes: 10485760,
+                    usagePercent: 0,
+                    remainingMB: '10.00',
+                    remainingKB: '10240.00',
+                    isNearLimit: false,
+                },
+                usersUsage: [],
+                timestamp: new Date().toISOString(),
+            });
+        }
+
         // Calcular tamanho do bin (aproximado em bytes)
-        const binSize = JSON.stringify(allData).length;
+        let binSize = 0;
+        try {
+            binSize = JSON.stringify(allData).length;
+        } catch (e) {
+            binSize = 0;
+        }
         const binSizeKB = (binSize / 1024).toFixed(2);
         const binSizeMB = (binSize / (1024 * 1024)).toFixed(2);
 
         // Limite do plano gratuito do JSONBin: 10MB por bin
         const FREE_PLAN_LIMIT_MB = 10;
         const FREE_PLAN_LIMIT_BYTES = FREE_PLAN_LIMIT_MB * 1024 * 1024;
-        const usagePercent = ((binSize / FREE_PLAN_LIMIT_BYTES) * 100).toFixed(2);
-        const remainingMB = (FREE_PLAN_LIMIT_MB - parseFloat(binSizeMB)).toFixed(2);
+        const usagePercent = binSize > 0 ? ((binSize / FREE_PLAN_LIMIT_BYTES) * 100).toFixed(2) : '0.00';
+        const remainingMBValue = FREE_PLAN_LIMIT_MB - parseFloat(binSizeMB);
+        const remainingMB = remainingMBValue > 0 ? remainingMBValue.toFixed(2) : '0.00';
 
         // Processar dados de cada usuário
-        const usersStats = Object.keys(usersData || {}).map((user) => {
-            const userData = usersData[user] || {};
-            const userDataSize = JSON.stringify(userData).length;
-            const userDataSizeKB = (userDataSize / 1024).toFixed(2);
+        let usersStats = [];
+        try {
+            if (usersData && typeof usersData === 'object' && Object.keys(usersData).length > 0) {
+                usersStats = Object.keys(usersData).map((user) => {
+                    try {
+                        const userData = usersData[user] || {};
+                        let userDataSize = 0;
+                        try {
+                            userDataSize = JSON.stringify(userData).length;
+                        } catch (e) {
+                            userDataSize = 0;
+                        }
+                        const userDataSizeKB = (userDataSize / 1024).toFixed(2);
 
-            // Contar itens
-            const itemsCount = (userData.items || []).length;
-            const groupsCount = (userData.groups || []).length;
-            const serviceGroupsCount = (userData.serviceGroups || []).length;
-            const costsCount = (userData.costs || []).length;
-            const goalsCount = (userData.goals || []).length;
-            const completedSalesCount = (userData.completedSales || []).length;
-            const pendingOrdersCount = (userData.pendingOrders || []).length;
-            const serviceAppointmentsCount = (userData.serviceAppointments || []).length;
+                        // Contar itens
+                        const itemsCount = Array.isArray(userData.items) ? userData.items.length : 0;
+                        const groupsCount = Array.isArray(userData.groups) ? userData.groups.length : 0;
+                        const serviceGroupsCount = Array.isArray(userData.serviceGroups) ? userData.serviceGroups.length : 0;
+                        const costsCount = Array.isArray(userData.costs) ? userData.costs.length : 0;
+                        const goalsCount = Array.isArray(userData.goals) ? userData.goals.length : 0;
+                        const completedSalesCount = Array.isArray(userData.completedSales) ? userData.completedSales.length : 0;
+                        const pendingOrdersCount = Array.isArray(userData.pendingOrders) ? userData.pendingOrders.length : 0;
+                        const serviceAppointmentsCount = Array.isArray(userData.serviceAppointments) ? userData.serviceAppointments.length : 0;
 
-            // Calcular última atualização
-            const lastUpdate = userData.lastUpdate
-                ? new Date(userData.lastUpdate)
-                : null;
+                        // Calcular última atualização
+                        let lastUpdate = null;
+                        try {
+                            if (userData.lastUpdate) {
+                                lastUpdate = new Date(userData.lastUpdate);
+                                if (isNaN(lastUpdate.getTime())) {
+                                    lastUpdate = null;
+                                }
+                            }
+                        } catch (e) {
+                            lastUpdate = null;
+                        }
 
-            return {
-                username: user,
-                dataSize: userDataSize,
-                dataSizeKB: userDataSizeKB,
-                itemsCount,
-                groupsCount,
-                serviceGroupsCount,
-                costsCount,
-                goalsCount,
-                completedSalesCount,
-                pendingOrdersCount,
-                serviceAppointmentsCount,
-                lastUpdate: lastUpdate
-                    ? lastUpdate.toISOString()
-                    : null,
-                lastUpdateFormatted: lastUpdate
-                    ? lastUpdate.toLocaleString('pt-BR')
-                    : 'Nunca',
-            };
-        });
+                        return {
+                            username: user || 'unknown',
+                            dataSize: userDataSize,
+                            dataSizeKB: userDataSizeKB,
+                            itemsCount,
+                            groupsCount,
+                            serviceGroupsCount,
+                            costsCount,
+                            goalsCount,
+                            completedSalesCount,
+                            pendingOrdersCount,
+                            serviceAppointmentsCount,
+                            lastUpdate: lastUpdate
+                                ? lastUpdate.toISOString()
+                                : null,
+                            lastUpdateFormatted: lastUpdate
+                                ? lastUpdate.toLocaleString('pt-BR')
+                                : 'Nunca',
+                        };
+                    } catch (e) {
+                        console.error(`Erro ao processar usuário ${user}:`, e);
+                        return {
+                            username: user || 'unknown',
+                            dataSize: 0,
+                            dataSizeKB: '0.00',
+                            itemsCount: 0,
+                            groupsCount: 0,
+                            serviceGroupsCount: 0,
+                            costsCount: 0,
+                            goalsCount: 0,
+                            completedSalesCount: 0,
+                            pendingOrdersCount: 0,
+                            serviceAppointmentsCount: 0,
+                            lastUpdate: null,
+                            lastUpdateFormatted: 'Nunca',
+                        };
+                    }
+                });
+            }
+        } catch (e) {
+            console.error('Erro ao processar usuários:', e);
+            usersStats = [];
+        }
 
         // Ordenar por última atualização (mais recente primeiro)
-        usersStats.sort((a, b) => {
-            if (!a.lastUpdate) return 1;
-            if (!b.lastUpdate) return -1;
-            return new Date(b.lastUpdate) - new Date(a.lastUpdate);
-        });
+        try {
+            usersStats.sort((a, b) => {
+                try {
+                    if (!a.lastUpdate) return 1;
+                    if (!b.lastUpdate) return -1;
+                    const dateA = new Date(a.lastUpdate);
+                    const dateB = new Date(b.lastUpdate);
+                    if (isNaN(dateA.getTime())) return 1;
+                    if (isNaN(dateB.getTime())) return -1;
+                    return dateB.getTime() - dateA.getTime();
+                } catch (e) {
+                    return 0;
+                }
+            });
+        } catch (e) {
+            console.error('Erro ao ordenar usuários:', e);
+        }
 
         // Evitar divisão por zero
         const safeBinSize = binSize > 0 ? binSize : 1;
@@ -124,20 +203,36 @@ module.exports = async (req, res) => {
                 binSizeMB,
                 freePlanLimitMB: FREE_PLAN_LIMIT_MB,
                 freePlanLimitBytes: FREE_PLAN_LIMIT_BYTES,
-                usagePercent: parseFloat(usagePercent),
-                remainingMB: parseFloat(remainingMB),
-                remainingKB: (parseFloat(remainingMB) * 1024).toFixed(2),
+                usagePercent: parseFloat(usagePercent) || 0,
+                remainingMB: parseFloat(remainingMB) || 0,
+                remainingKB: (parseFloat(remainingMB) * 1024).toFixed(2) || '0.00',
                 isNearLimit: parseFloat(usagePercent) > 80,
             },
-            usersUsage: usersStats.map((user) => ({
-                username: user.username,
-                dataSize: user.dataSize,
-                dataSizeKB: user.dataSizeKB,
-                dataSizeMB: (user.dataSize / (1024 * 1024)).toFixed(4),
-                usagePercent: safeBinSize > 0 ? ((user.dataSize / safeBinSize) * 100).toFixed(2) : '0.00',
-                lastUpdate: user.lastUpdate,
-                lastUpdateFormatted: user.lastUpdateFormatted,
-            })),
+            usersUsage: (usersStats || []).map((user) => {
+                try {
+                    const dataSizeMB = user.dataSize > 0 ? (user.dataSize / (1024 * 1024)).toFixed(4) : '0.0000';
+                    const usagePercent = safeBinSize > 0 && user.dataSize > 0 ? ((user.dataSize / safeBinSize) * 100).toFixed(2) : '0.00';
+                    return {
+                        username: user.username || 'unknown',
+                        dataSize: user.dataSize || 0,
+                        dataSizeKB: user.dataSizeKB || '0.00',
+                        dataSizeMB: dataSizeMB,
+                        usagePercent: usagePercent,
+                        lastUpdate: user.lastUpdate || null,
+                        lastUpdateFormatted: user.lastUpdateFormatted || 'Nunca',
+                    };
+                } catch (e) {
+                    return {
+                        username: user.username || 'unknown',
+                        dataSize: 0,
+                        dataSizeKB: '0.00',
+                        dataSizeMB: '0.0000',
+                        usagePercent: '0.00',
+                        lastUpdate: null,
+                        lastUpdateFormatted: 'Nunca',
+                    };
+                }
+            }),
             timestamp: new Date().toISOString(),
         });
     } catch (error) {

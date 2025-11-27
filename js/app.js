@@ -112,6 +112,12 @@ class LojaApp {
                     mainToolbar.style.display = 'none';
                 }
 
+                // Esconder botão "Como usar" para admin
+                const helpBtn = document.getElementById('helpBtn');
+                if (helpBtn) {
+                    helpBtn.style.display = 'none';
+                }
+
                 // Não carregar dados desnecessários para admin
                 // Apenas carregar dados do admin
                 setTimeout(() => {
