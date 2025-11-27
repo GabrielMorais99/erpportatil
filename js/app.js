@@ -179,7 +179,7 @@ class LojaApp {
                     this.renderLastReceiptsCarousel();
                 }, 300);
                 this.renderServiceAppointments();
-                this.renderServiceGroups();
+                // renderServiceGroups() removido - seção foi removida do layout
                 // renderCosts() removido - seção foi removida do layout
                 this.renderGoals();
                 this.updateMonthFilter();
