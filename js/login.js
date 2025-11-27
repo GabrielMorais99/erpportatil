@@ -48,7 +48,10 @@ document.addEventListener('DOMContentLoaded', function() {
             'usuarioteste2': '123',
             'usuarioteste3': '123',
             'usuarioteste4': '123',
-            'usuarioteste5': '123'
+            'usuarioteste5': '123',
+            'deivson': '123',
+            'isaac': '123',
+            'vinicius': '123'
         };
         
         if (validUsers[username] && validUsers[username] === password) {
