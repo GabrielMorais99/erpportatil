@@ -79,10 +79,16 @@ class LojaApp {
         // Verificar se é admin ANTES de qualquer coisa
         const username = sessionStorage.getItem('username');
         if (username === 'admin') {
-            // Esconder botão "Como usar" imediatamente
+            // Esconder botão "Como usar" e modal de tutorial imediatamente
             const helpBtn = document.getElementById('helpBtn');
             if (helpBtn) {
                 helpBtn.style.display = 'none';
+            }
+            // Esconder modal de tutorial se estiver visível
+            const tutorialModal = document.getElementById('tutorialModal');
+            if (tutorialModal) {
+                tutorialModal.classList.remove('active');
+                tutorialModal.style.display = 'none';
             }
         }
 
@@ -270,10 +276,18 @@ class LojaApp {
         const importFile = document.getElementById('importFile');
         const exportBtn = document.getElementById('exportBtn');
         
-        // Verificar se é admin e esconder botão "Como usar"
+        // Verificar se é admin e esconder botão "Como usar" e modal de tutorial
         const currentUsername = sessionStorage.getItem('username');
-        if (helpBtn && currentUsername === 'admin') {
-            helpBtn.style.display = 'none';
+        if (currentUsername === 'admin') {
+            if (helpBtn) {
+                helpBtn.style.display = 'none';
+            }
+            // Esconder modal de tutorial se estiver visível
+            const tutorialModal = document.getElementById('tutorialModal');
+            if (tutorialModal) {
+                tutorialModal.classList.remove('active');
+                tutorialModal.style.display = 'none';
+            }
         }
 
         if (importBtn && importFile) {
@@ -7014,7 +7028,10 @@ class LojaApp {
         if (tab === 'adminPanel') {
             const username = sessionStorage.getItem('username');
             if (username === 'admin') {
-                this.loadAdminData();
+                // Aguardar um pouco para garantir que o DOM está pronto
+                setTimeout(() => {
+                    this.loadAdminData();
+                }, 200);
             } else {
                 console.warn('⚠️ [ADMIN] Acesso negado - apenas administradores');
                 return;
@@ -7060,7 +7077,15 @@ class LojaApp {
             tabContent = document.getElementById('servicesDashboardTab');
         }
 
+        // Se não encontrar, pode ser que o tab seja 'adminPanel' mas o ID seja diferente
+        if (!tabContent && tab === 'adminPanel') {
+            tabContent = document.getElementById('adminPanelTab');
+        }
+
         if (tabContent) {
+            // Mostrar o conteúdo antes de animar
+            tabContent.style.display = 'block';
+            
             // Animação rápida ao trocar de tab
             tabContent.style.opacity = '0';
             tabContent.style.transform = 'translateX(10px)';
@@ -7157,6 +7182,12 @@ class LojaApp {
     // ========== TUTORIAL ==========
 
     checkFirstTimeUser() {
+        // Não mostrar tutorial para admin
+        const username = sessionStorage.getItem('username');
+        if (username === 'admin') {
+            return;
+        }
+        
         const hasSeenTutorial = localStorage.getItem('hasSeenTutorial');
         if (!hasSeenTutorial) {
             // Aguardar um pouco para a página carregar completamente
@@ -7167,6 +7198,18 @@ class LojaApp {
     }
 
     openTutorialModal() {
+        // Não abrir tutorial para admin
+        const username = sessionStorage.getItem('username');
+        if (username === 'admin') {
+            // Garantir que o modal está fechado
+            const modal = document.getElementById('tutorialModal');
+            if (modal) {
+                modal.classList.remove('active');
+                modal.style.display = 'none';
+            }
+            return;
+        }
+        
         const modal = document.getElementById('tutorialModal');
         if (!modal) return;
 
@@ -10077,21 +10120,31 @@ class LojaApp {
         }
 
         try {
+            console.log('🟢 [ADMIN] Carregando dados do admin...');
             const response = await fetch(
                 `/api/admin?username=${username}`
             );
+            
+            if (!response.ok) {
+                throw new Error(`Erro HTTP: ${response.status}`);
+            }
+            
             const result = await response.json();
+            console.log('🟢 [ADMIN] Dados recebidos:', result);
 
             if (result.success) {
+                console.log('🟢 [ADMIN] Renderizando dashboards...');
                 this.renderAdminTotalUsageDashboard(result.totalUsage);
                 this.renderAdminUsersUsageDashboard(result.usersUsage, result.totalUsage);
+                console.log('✅ [ADMIN] Dashboards renderizados com sucesso!');
             } else {
                 console.error('❌ [ADMIN] Erro ao carregar dados:', result.error);
-                this.showError('Erro ao carregar dados de administração.');
+                const errorMsg = result.error || result.message || 'Erro desconhecido';
+                this.showError(`Erro ao carregar dados de administração: ${errorMsg}`);
             }
         } catch (error) {
             console.error('❌ [ADMIN] Erro ao carregar dados:', error);
-            this.showError('Erro ao carregar dados de administração.');
+            this.showError(`Erro ao carregar dados de administração: ${error.message}`);
         }
     }
 
