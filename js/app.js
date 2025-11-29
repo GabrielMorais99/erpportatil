@@ -2768,6 +2768,14 @@ class LojaApp {
 
         if (!this.currentGroup || !this.currentSaleDay) return;
 
+        // Adicionar loading no botão de salvar
+        const saveBtn = e.target.querySelector('button[type="submit"]') || 
+                       document.querySelector('#saleForm button[type="submit"]');
+        if (saveBtn) {
+            saveBtn.classList.add('loading');
+            saveBtn.disabled = true;
+        }
+
         const saleItem = document.getElementById('saleItem');
         const saleQuantity = document.getElementById('saleQuantity');
         const salePrice = document.getElementById('salePrice');
@@ -2775,6 +2783,11 @@ class LojaApp {
         if (!saleItem || !saleQuantity || !salePrice) {
             console.error('❌ [SAVE SALE] Elementos do formulário não encontrados!');
             alert('Erro: Formulário incompleto. Por favor, recarregue a página.');
+            // Remover loading se houver
+            if (saveBtn) {
+                saveBtn.classList.remove('loading');
+                saveBtn.disabled = false;
+            }
             return;
         }
 
@@ -2810,6 +2823,11 @@ class LojaApp {
         // Verificar se é roupa ou eletrônico e se tamanho foi informado
         if (item && (item.category === 'Roupas' || item.category === 'Eletrônicos') && !size) {
             alert(`Por favor, informe o tamanho do ${item.category === 'Roupas' ? 'roupa' : 'eletrônico'}.`);
+            // Remover loading se houver
+            if (saveBtn) {
+                saveBtn.classList.remove('loading');
+                saveBtn.disabled = false;
+            }
             return;
         }
 
@@ -2843,6 +2861,11 @@ class LojaApp {
                         `Atenção! Estoque disponível: ${availableStock} un. Deseja registrar ${quantity} un. mesmo assim?`
                     )
                 ) {
+                    // Remover loading se houver
+                    if (saveBtn) {
+                        saveBtn.classList.remove('loading');
+                        saveBtn.disabled = false;
+                    }
                     return;
                 }
             }
@@ -2960,6 +2983,15 @@ class LojaApp {
 
         // Atualizar resumo geral
         this.updateOverallSummary();
+
+        // Remover loading do botão após salvar
+        if (saveBtn) {
+            // Pequeno delay para garantir que a animação seja visível
+            setTimeout(() => {
+                saveBtn.classList.remove('loading');
+                saveBtn.disabled = false;
+            }, 300);
+        }
     }
 
     // Gerar código de pedido único
