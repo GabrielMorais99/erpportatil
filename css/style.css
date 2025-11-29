@@ -609,9 +609,10 @@ body.theme-blue .login-container #entrarBtn:focus {
     box-sizing: border-box;
 }
 
+/* Padrões do Emergente para inputs e selects */
 .search-filter input,
 .search-filter select {
-    padding: 0.625rem 1rem;
+    padding: 0.875rem 1.125rem; /* Padrão Emergente */
     border: 2px solid var(--gray-200);
     border-radius: var(--radius-md);
     font-size: 1rem;
@@ -3073,10 +3074,11 @@ body.theme-blue .login-container #entrarBtn:focus {
     white-space: nowrap;
 }
 
+/* Padrões do Emergente para filter-select */
 .filter-select {
-    padding: 0.5rem 1rem;
+    padding: 0.875rem 1.125rem; /* Padrão Emergente */
     border-radius: var(--radius-md);
-    border: 1px solid var(--gray-300);
+    border: 2px solid var(--gray-200); /* Consistente com outros inputs */
     background: var(--white);
     color: var(--dark-gray);
     font-size: 0.9rem;
@@ -3093,7 +3095,8 @@ body.theme-blue .login-container #entrarBtn:focus {
 .filter-select:focus {
     outline: none;
     border-color: var(--primary-color);
-    box-shadow: 0 0 0 3px rgba(220, 53, 69, 0.12);
+    box-shadow: 0 0 0 4px rgba(220, 53, 69, 0.12); /* Padrão Emergente */
+    transform: translateY(-1px);
 }
 
 .groups-content,
