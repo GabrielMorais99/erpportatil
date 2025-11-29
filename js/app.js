@@ -2884,8 +2884,8 @@ class LojaApp {
 
         // Criar venda completa para histórico
         const orderCode = this.generateOrderCode();
-        const saleItem = this.items.find((i) => i.id === itemId);
-        const itemName = saleItem
+        // Usar 'item' que já foi declarado anteriormente na linha 2807
+        const itemName = item
             ? this.getItemName(itemId)
             : 'Item não encontrado';
         const totalValue = price * quantity;
