@@ -2181,10 +2181,28 @@ class LojaApp {
         modal.style.display = 'flex';
         modal.style.setProperty('z-index', '1000', 'important');
         modal.style.pointerEvents = 'auto';
+        
+        // Garantir que o botão de fechar esteja clicável
+        const closeBtn = modal.querySelector('.close');
+        if (closeBtn) {
+            closeBtn.style.pointerEvents = 'auto';
+            closeBtn.style.opacity = '1';
+            closeBtn.style.zIndex = '1001';
+            closeBtn.style.position = 'relative';
+        }
+        
         const modalContent = modal.querySelector('.modal-content');
         if (modalContent) {
             modalContent.style.zIndex = '';
+            modalContent.style.pointerEvents = 'auto';
         }
+        
+        // Garantir que todos os botões estejam clicáveis
+        const buttons = modal.querySelectorAll('button');
+        buttons.forEach(btn => {
+            btn.style.pointerEvents = 'auto';
+            btn.style.opacity = '1';
+        });
         
         requestAnimationFrame(() => {
             modal.classList.add('active');
