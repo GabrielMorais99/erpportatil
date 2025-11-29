@@ -4401,6 +4401,83 @@ body.theme-blue .login-container #entrarBtn:focus {
 }
 
 /* ========================================
+   ACESSIBILIDADE - PADRÃO EMERGENTE
+   ======================================== */
+
+/* Focus visible melhorado para todos os elementos interativos */
+*:focus-visible {
+    outline: 2px solid var(--primary-color);
+    outline-offset: 2px;
+    border-radius: var(--radius-sm);
+}
+
+/* Botões com focus visible melhorado */
+.btn-primary:focus-visible,
+.btn-secondary:focus-visible,
+.btn-small:focus-visible {
+    outline: 3px solid var(--primary-color);
+    outline-offset: 3px;
+    box-shadow: 0 0 0 6px rgba(220, 53, 69, 0.2);
+}
+
+/* Inputs e selects com focus visible melhorado */
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible {
+    outline: 3px solid var(--primary-color);
+    outline-offset: 2px;
+    box-shadow: 0 0 0 4px rgba(220, 53, 69, 0.12);
+}
+
+/* Links com focus visible */
+a:focus-visible {
+    outline: 2px solid var(--primary-color);
+    outline-offset: 2px;
+    border-radius: var(--radius-sm);
+}
+
+/* Cards clicáveis com focus visible */
+.item-card:focus-visible,
+.group-card:focus-visible,
+.cost-card:focus-visible,
+.goal-card:focus-visible,
+.day-card:focus-visible {
+    outline: 3px solid var(--primary-color);
+    outline-offset: 3px;
+    box-shadow: 0 0 0 6px rgba(220, 53, 69, 0.15);
+}
+
+/* Botão de fechar com focus visible */
+.close:focus-visible {
+    outline: 3px solid var(--white);
+    outline-offset: 2px;
+    background: rgba(255, 255, 255, 0.2);
+}
+
+/* Contraste adequado - Garantir WCAG AA */
+/* Textos devem ter contraste mínimo de 4.5:1 para texto normal e 3:1 para texto grande */
+.text-low-contrast {
+    color: var(--gray-600); /* Contraste adequado */
+}
+
+/* Navegação por teclado - Skip link */
+.skip-link {
+    position: absolute;
+    top: -40px;
+    left: 0;
+    background: var(--primary-color);
+    color: var(--white);
+    padding: 0.5rem 1rem;
+    text-decoration: none;
+    z-index: 10000;
+    border-radius: 0 0 var(--radius-md) 0;
+}
+
+.skip-link:focus {
+    top: 0;
+}
+
+/* ========================================
    SKELETON LOADING - PADRÃO EMERGENTE
    ======================================== */
 
