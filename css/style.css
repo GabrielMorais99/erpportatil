@@ -2501,11 +2501,12 @@ body.theme-blue .login-container #entrarBtn:focus {
         padding: 0.75rem;
     }
 
+    /* Padrões do Emergente - Font scaling responsivo em cards de resumo */
     .overall-summary-card h3,
     .costs-summary-card h3,
     .goals-summary-card h3,
     .services-summary-card h3 {
-        font-size: 1rem;
+        font-size: clamp(0.9rem, 2.5vw, 1.2rem); /* Responsivo com clamp */
         margin-bottom: 0.75rem;
     }
 
@@ -2535,8 +2536,9 @@ body.theme-blue .login-container #entrarBtn:focus {
         max-width: 95%;
     }
 
+    /* Padrões do Emergente - Font scaling responsivo em modais */
     .modal-header h2 {
-        font-size: 1.25rem;
+        font-size: clamp(1.1rem, 3vw, 1.5rem); /* Responsivo com clamp */
     }
 
     .form-group {
@@ -4064,6 +4066,34 @@ body.theme-blue .login-container #entrarBtn:focus {
     .goals-summary-card,
     .services-summary-card {
         position: static;
+    }
+}
+
+/* Padrões do Emergente - Breakpoint intermediário para tablets pequenos */
+@media (max-width: 600px) {
+    .items-grid {
+        grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+        gap: 0.875rem;
+    }
+    
+    .groups-list,
+    .costs-list,
+    .goals-list {
+        grid-template-columns: 1fr;
+        gap: 0.875rem;
+    }
+    
+    .dashboard-stats {
+        grid-template-columns: 1fr;
+        gap: 0.875rem;
+    }
+    
+    .chart-card {
+        padding: 0.875rem;
+    }
+    
+    .modal-content {
+        padding: 1rem;
     }
 }
 
