@@ -1635,6 +1635,11 @@ class LojaApp {
 
         // Usar o código numérico no QR Code
         const qrData = item.qrCodeNumber;
+        console.log('Gerando QR code para:', qrData);
+
+        // Limpar canvas antes de gerar novo QR code
+        const ctx = canvas.getContext('2d');
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
 
         QRCode.toCanvas(
             canvas,
@@ -1646,13 +1651,17 @@ class LojaApp {
                     dark: '#000000',
                     light: '#FFFFFF',
                 },
+                errorCorrectionLevel: 'M',
             },
             (error) => {
                 if (error) {
                     console.error('Erro ao gerar QR code:', error);
-                    alert('Erro ao gerar QR code');
+                    alert('Erro ao gerar QR code: ' + error.message);
                 } else {
-                    section.style.display = 'block';
+                    console.log('QR code gerado com sucesso para:', qrData);
+                    if (section) {
+                        section.style.display = 'block';
+                    }
                 }
             }
         );
