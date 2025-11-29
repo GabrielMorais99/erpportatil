@@ -2588,8 +2588,9 @@ body.theme-blue .login-container #entrarBtn:focus {
         padding: 0.75rem;
     }
 
+    /* Padrões do Emergente - Font scaling responsivo em mobile pequeno */
     .header h1 {
-        font-size: 1.3rem;
+        font-size: clamp(1.1rem, 4vw, 1.3rem); /* Responsivo com clamp */
     }
 
     .header .btn-secondary {
