@@ -8263,7 +8263,7 @@ class LojaApp {
 
         document.getElementById(
             'stockModalTitle'
-        ).textContent = `Gerenciar Estoque - ${
+        ).textContent = `Gerenciar Estoque do Mês - ${
             monthNames[parseInt(month) - 1]
         } ${year}`;
 
