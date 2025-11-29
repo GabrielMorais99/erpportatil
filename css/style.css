@@ -840,6 +840,7 @@ body.theme-blue .login-container #entrarBtn:focus {
    CARDS MODERNIZADOS - DESIGN LIMPO
    ======================================== */
 
+/* Padrões do Emergente - Cards com padding padronizado */
 .item-card,
 .group-card,
 .cost-card,
@@ -847,7 +848,7 @@ body.theme-blue .login-container #entrarBtn:focus {
     background: var(--white);
     border: 1px solid var(--gray-200);
     border-radius: var(--radius-lg);
-    padding: 1.25rem;
+    padding: 1.25rem; /* Padrão desktop - consistente */
     transition: all var(--transition-base);
     position: relative;
     box-shadow: var(--shadow-sm);
@@ -1239,10 +1240,11 @@ body.theme-blue .login-container #entrarBtn:focus {
    ITEMS GRID
    ======================================== */
 
+/* Padrões do Emergente - Grids com gap padronizado */
 .items-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
-    gap: 1.25rem;
+    gap: 1.5rem; /* Padrão desktop - padronizado */
 }
 
 /* ========================================
@@ -1338,12 +1340,14 @@ body.theme-blue .login-container #entrarBtn:focus {
     margin-bottom: 2rem;
 }
 
+/* Padrões do Emergente - Summary cards com largura flexível */
 .group-summary .summary-card,
 #viewServiceGroupModal .service-group-summary .summary-card,
 #viewGroupModal .group-summary .summary-card {
     flex: 0 0 auto;
+    min-width: 200px; /* Mínimo ao invés de fixo */
     max-width: 220px;
-    width: 220px;
+    width: auto; /* Flexível ao invés de fixo */
     margin: 0;
 }
 
@@ -1665,9 +1669,10 @@ body.theme-blue .login-container #entrarBtn:focus {
     width: 200px;
 }
 
+/* Padrões do Emergente - Day cards com border padronizado */
 .day-card {
     background: var(--white);
-    border: 2px solid var(--gray-200);
+    border: 1px solid var(--gray-200); /* Padronizado de 2px para 1px */
     border-radius: var(--radius-md);
     padding: 1.25rem;
     text-align: center;
@@ -2121,10 +2126,11 @@ body.theme-blue .login-container #entrarBtn:focus {
     letter-spacing: -0.02em;
 }
 
+/* Padrões do Emergente - Dashboard stats com gap padronizado */
 .dashboard-stats {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 1rem;
+    gap: 1.5rem; /* Padrão desktop - padronizado */
 }
 
 .stat-card {
@@ -2307,9 +2313,10 @@ body.theme-blue .login-container #entrarBtn:focus {
         font-size: 0.9rem;
     }
 
+    /* Padrões do Emergente - Items grid com gap padronizado em mobile */
     .items-grid {
         grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-        gap: 0.8rem;
+        gap: 1rem; /* Padrão mobile - padronizado */
     }
 
     .charts-grid {
@@ -2358,9 +2365,10 @@ body.theme-blue .login-container #entrarBtn:focus {
         gap: 0.75rem;
     }
 
+    /* Padrões do Emergente - Dashboard stats com gap padronizado em mobile */
     .dashboard-stats {
         grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-        gap: 0.75rem;
+        gap: 1rem; /* Padrão mobile - padronizado */
     }
 
     .stat-card {
@@ -2545,18 +2553,21 @@ body.theme-blue .login-container #entrarBtn:focus {
         padding: 0.6rem 0.85rem;
     }
 
+    /* Padrões do Emergente - Grids com gap padronizado em mobile */
     .items-grid,
     .groups-list,
     .costs-list,
     .goals-list {
         grid-template-columns: 1fr;
-        gap: 0.75rem;
+        gap: 1rem; /* Padrão mobile - padronizado */
     }
 
+    /* Padrões do Emergente - Cards com padding padronizado em mobile */
+    .item-card,
     .group-card,
     .cost-card,
     .goal-card {
-        padding: 0.875rem;
+        padding: 1rem; /* Padrão mobile - consistente */
     }
 
     .goal-card {
@@ -3188,12 +3199,13 @@ body.theme-blue .login-container #entrarBtn:focus {
     min-width: 0;
 }
 
+/* Padrões do Emergente - Listas com gap padronizado */
 .groups-list,
 .costs-list,
 .goals-list {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
-    gap: 1.25rem;
+    gap: 1.5rem; /* Padrão desktop - padronizado */
 }
 
 /* ========================================
