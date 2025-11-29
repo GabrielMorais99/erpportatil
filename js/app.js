@@ -1670,25 +1670,43 @@ class LojaApp {
     generateQRCodeForModal(itemId, canvasId) {
         if (!window.QRCode) {
             console.error('Biblioteca QRCode não carregada');
+            alert('Biblioteca QRCode não está carregada. Recarregue a página.');
             return;
         }
 
         const canvas = document.getElementById(canvasId);
-        if (!canvas) return;
+        if (!canvas) {
+            console.error('Canvas não encontrado:', canvasId);
+            return;
+        }
 
         // Buscar o item para obter o código numérico
         const item = this.items.find((i) => i.id === itemId);
-        if (!item || !item.qrCodeNumber) {
-            console.error('Item não encontrado ou sem código QR');
+        if (!item) {
+            console.error('Item não encontrado:', itemId);
             return;
+        }
+
+        if (!item.qrCodeNumber) {
+            console.error('Item sem código QR:', itemId);
+            alert('Item não possui código QR. Um código será gerado agora.');
+            item.qrCodeNumber = this.generateQRCodeNumber();
+            this.saveData();
         }
 
         // Usar o código numérico no QR Code
         const qrData = item.qrCodeNumber;
+        console.log('Gerando QR code no canvas:', canvasId, 'com dados:', qrData);
 
         // Limpar canvas antes de gerar novo QR code
         const ctx = canvas.getContext('2d');
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.clearRect(0, 0, canvas.width || 300, canvas.height || 300);
+
+        // Garantir que o canvas tenha dimensões
+        if (!canvas.width || !canvas.height) {
+            canvas.width = 300;
+            canvas.height = 300;
+        }
 
         QRCode.toCanvas(
             canvas,
@@ -1707,7 +1725,13 @@ class LojaApp {
                     console.error('Erro ao gerar QR code:', error);
                     alert('Erro ao gerar QR code: ' + error.message);
                 } else {
-                    console.log('QR code gerado com sucesso para modal:', qrData);
+                    console.log('✅ QR code gerado com sucesso no modal:', qrData);
+                    // Verificar se o QR code foi realmente desenhado
+                    const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+                    const hasContent = imageData.data.some(channel => channel !== 0 && channel !== 255);
+                    if (!hasContent) {
+                        console.warn('⚠️ Canvas pode estar vazio após geração');
+                    }
                 }
             }
         );
@@ -1715,19 +1739,41 @@ class LojaApp {
 
     showQRCodeModal(itemId) {
         const item = this.items.find((i) => i.id === itemId);
-        if (!item) return;
+        if (!item) {
+            console.error('Item não encontrado:', itemId);
+            return;
+        }
+
+        // Verificar se o item tem código QR
+        if (!item.qrCodeNumber) {
+            // Gerar código QR se não existir
+            item.qrCodeNumber = this.generateQRCodeNumber();
+            this.saveData();
+            console.log('Código QR gerado para item:', item.qrCodeNumber);
+        }
 
         const modal = document.getElementById('qrcodeModal');
         const canvas = document.getElementById('qrcodeModalCanvas');
         const itemNameEl = document.getElementById('qrcodeItemName');
         const downloadBtn = document.getElementById('downloadQRModalBtn');
 
-        if (!modal || !canvas || !itemNameEl) return;
+        if (!modal || !canvas || !itemNameEl) {
+            console.error('Elementos do modal não encontrados');
+            return;
+        }
 
+        // Atualizar nome do item
         itemNameEl.textContent = this.getItemName(itemId);
         if (downloadBtn) downloadBtn.dataset.itemId = itemId;
-        this.generateQRCodeForModal(itemId, 'qrcodeModalCanvas');
+
+        // Abrir modal primeiro para garantir que o canvas esteja visível
         modal.classList.add('active');
+
+        // Aguardar um pouco para o modal renderizar antes de gerar o QR code
+        setTimeout(() => {
+            console.log('Gerando QR code no modal para:', item.qrCodeNumber);
+            this.generateQRCodeForModal(itemId, 'qrcodeModalCanvas');
+        }, 100);
     }
 
     downloadQRCode(canvasId, filename) {
