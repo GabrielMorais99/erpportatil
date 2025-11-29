@@ -2831,7 +2831,14 @@ class LojaApp {
         }
 
         const dayData = group.days.find((d) => d.day === this.currentSaleDay);
-        if (!dayData) return;
+        if (!dayData) {
+            // Remover loading se houver
+            if (saveBtn) {
+                saveBtn.classList.remove('loading');
+                saveBtn.disabled = false;
+            }
+            return;
+        }
 
         // Verificar se é serviço (serviços não têm estoque físico)
         const item = this.items.find((i) => i.id === itemId);
