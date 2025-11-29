@@ -3173,7 +3173,6 @@ body.theme-blue .login-container #entrarBtn:focus {
 }
 
 .panel-section {
-    background: var(--cinza-back);
     border: 1px solid var(--gray-200);
     border-radius: var(--radius-lg);
     padding: 1.5rem;
@@ -3486,9 +3485,8 @@ body.theme-blue .login-container #entrarBtn:focus {
     border: 3px solid var(--primary-color);
     border-radius: 16px;
     padding: 1.25rem;
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12), 
-                0 4px 8px rgba(0, 0, 0, 0.08),
-                inset 0 1px 0 rgba(255, 255, 255, 0.5);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12), 0 4px 8px rgba(0, 0, 0, 0.08),
+        inset 0 1px 0 rgba(255, 255, 255, 0.5);
     cursor: pointer;
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     position: relative;
@@ -3505,16 +3503,19 @@ body.theme-blue .login-container #entrarBtn:focus {
     left: -50%;
     width: 200%;
     height: 200%;
-    background: radial-gradient(circle, rgba(255, 255, 255, 0.3) 0%, transparent 70%);
+    background: radial-gradient(
+        circle,
+        rgba(255, 255, 255, 0.3) 0%,
+        transparent 70%
+    );
     opacity: 0;
     transition: opacity 0.3s;
 }
 
 .mini-calendar:hover {
     transform: translateY(-4px) scale(1.02);
-    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.16), 
-                0 6px 12px rgba(0, 0, 0, 0.12),
-                inset 0 1px 0 rgba(255, 255, 255, 0.6);
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.16), 0 6px 12px rgba(0, 0, 0, 0.12),
+        inset 0 1px 0 rgba(255, 255, 255, 0.6);
     border-color: var(--primary-color-dark);
 }
 
@@ -3594,7 +3595,11 @@ body.theme-blue .login-container #entrarBtn:focus {
 }
 
 .mini-calendar-day.today {
-    background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-color-dark) 100%);
+    background: linear-gradient(
+        135deg,
+        var(--primary-color) 0%,
+        var(--primary-color-dark) 100%
+    );
     color: white;
     font-weight: 700;
     border-color: var(--primary-color-dark);
@@ -3639,7 +3644,8 @@ body.theme-blue .login-container #entrarBtn:focus {
 }
 
 @keyframes dotPulse {
-    0%, 100% {
+    0%,
+    100% {
         transform: scale(1);
         opacity: 1;
     }
@@ -3659,7 +3665,11 @@ body.theme-blue .login-container #entrarBtn:focus {
 }
 
 .calendar-header {
-    background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-color-dark) 100%);
+    background: linear-gradient(
+        135deg,
+        var(--primary-color) 0%,
+        var(--primary-color-dark) 100%
+    );
     color: white;
     border-radius: var(--radius-lg) var(--radius-lg) 0 0;
     margin: -1.5rem -1.5rem 1.5rem -1.5rem;
@@ -3770,7 +3780,11 @@ body.theme-blue .login-container #entrarBtn:focus {
 }
 
 .calendar-day.today {
-    background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-color-dark) 100%);
+    background: linear-gradient(
+        135deg,
+        var(--primary-color) 0%,
+        var(--primary-color-dark) 100%
+    );
     border-color: var(--primary-color-dark);
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
 }
@@ -3893,7 +3907,8 @@ body.theme-blue .login-container #entrarBtn:focus {
 }
 
 @keyframes appointmentDayGlow {
-    0%, 100% {
+    0%,
+    100% {
         box-shadow: 0 0 0 0 rgba(255, 193, 7, 0.4);
     }
     50% {
@@ -4076,23 +4091,23 @@ body.theme-blue .login-container #entrarBtn:focus {
         grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
         gap: 0.875rem;
     }
-    
+
     .groups-list,
     .costs-list,
     .goals-list {
         grid-template-columns: 1fr;
         gap: 0.875rem;
     }
-    
+
     .dashboard-stats {
         grid-template-columns: 1fr;
         gap: 0.875rem;
     }
-    
+
     .chart-card {
         padding: 0.875rem;
     }
-    
+
     .modal-content {
         padding: 1rem;
     }
