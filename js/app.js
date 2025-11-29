@@ -2801,17 +2801,34 @@ class LojaApp {
 
         if (!itemId) {
             alert('Por favor, selecione um item.');
+            // Remover loading se houver
+            if (saveBtn) {
+                saveBtn.classList.remove('loading');
+                saveBtn.disabled = false;
+            }
             return;
         }
 
         if (price <= 0 || quantity <= 0) {
             alert('Preço e quantidade devem ser maiores que zero.');
+            // Remover loading se houver
+            if (saveBtn) {
+                saveBtn.classList.remove('loading');
+                saveBtn.disabled = false;
+            }
             return;
         }
 
         // Buscar o grupo atualizado do array principal
         const group = this.groups.find((g) => g.id === this.currentGroup.id);
-        if (!group) return;
+        if (!group) {
+            // Remover loading se houver
+            if (saveBtn) {
+                saveBtn.classList.remove('loading');
+                saveBtn.disabled = false;
+            }
+            return;
+        }
 
         const dayData = group.days.find((d) => d.day === this.currentSaleDay);
         if (!dayData) return;
