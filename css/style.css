@@ -2318,8 +2318,9 @@ body.theme-blue .login-container #entrarBtn:focus {
         align-items: flex-start;
     }
 
+    /* Padrões do Emergente - Font scaling responsivo */
     .header h1 {
-        font-size: 1.2rem;
+        font-size: clamp(1.1rem, 3vw, 1.5rem); /* Responsivo com clamp */
         width: 100%;
     }
 
@@ -2512,8 +2513,9 @@ body.theme-blue .login-container #entrarBtn:focus {
         padding: 0.5rem;
     }
 
+    /* Padrões do Emergente - Font scaling responsivo em stat items */
     .stat-item p {
-        font-size: 1.3rem;
+        font-size: clamp(1rem, 4vw, 1.5rem); /* Responsivo com clamp */
     }
 
     .stat-item h4 {
