@@ -1474,6 +1474,47 @@ class LojaApp {
         this.animateValue(element, startValue, value, 300, format);
     }
 
+    // ========== SKELETON LOADING ==========
+    
+    // Criar HTML do skeleton
+    createSkeletonHTML(count = 6, isSmall = false) {
+        const skeletonClass = isSmall ? 'skeleton-card-small' : 'skeleton-card';
+        let html = '';
+        for (let i = 0; i < count; i++) {
+            html += `
+                <div class="${skeletonClass}">
+                    <div class="skeleton-line"></div>
+                    <div class="skeleton-line"></div>
+                    <div class="skeleton-line"></div>
+                    <div class="skeleton-line"></div>
+                </div>
+            `;
+        }
+        return html;
+    }
+    
+    // Mostrar skeleton em um container
+    showSkeleton(containerId, count = 6, isSmall = false) {
+        const container = document.getElementById(containerId);
+        if (!container) return;
+        
+        const skeletonContainer = document.createElement('div');
+        skeletonContainer.className = isSmall ? 'skeleton-list' : 'skeleton-container';
+        skeletonContainer.id = `${containerId}-skeleton`;
+        skeletonContainer.innerHTML = this.createSkeletonHTML(count, isSmall);
+        
+        container.innerHTML = '';
+        container.appendChild(skeletonContainer);
+    }
+    
+    // Ocultar skeleton
+    hideSkeleton(containerId) {
+        const skeleton = document.getElementById(`${containerId}-skeleton`);
+        if (skeleton) {
+            skeleton.remove();
+        }
+    }
+
     // Funções auxiliares para feedback visual
     showError(message) {
         // Remover mensagens anteriores
@@ -6180,6 +6221,12 @@ class LojaApp {
         // Se a seção de custos foi removida, não renderizar
         if (!list) return;
         
+        // Mostrar skeleton enquanto carrega (apenas se não houver dados ainda)
+        if (this.costs.length === 0 && !list.querySelector('.cost-card')) {
+            this.showSkeleton('costsList', 4, true);
+            return;
+        }
+        
         const countEl = document.getElementById('totalCostsCount');
         const valueEl = document.getElementById('totalCostsValue');
 
@@ -6364,6 +6411,14 @@ class LojaApp {
 
     renderGoals() {
         const list = document.getElementById('goalsList');
+        if (!list) return;
+        
+        // Mostrar skeleton enquanto carrega (apenas se não houver dados ainda)
+        if (this.goals.length === 0 && !list.querySelector('.goal-card')) {
+            this.showSkeleton('goalsList', 4, true);
+            return;
+        }
+        
         const currentMonthGoalEl = document.getElementById('currentMonthGoal');
         const currentMonthSalesEl =
             document.getElementById('currentMonthSales');

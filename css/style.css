@@ -4366,3 +4366,90 @@ body.theme-blue .login-container #entrarBtn:focus {
     transform: scale(1.01);
     transition: all var(--transition-base);
 }
+
+/* ========================================
+   SKELETON LOADING - PADRÃO EMERGENTE
+   ======================================== */
+
+.skeleton-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 1.5rem;
+}
+
+.skeleton-card {
+    background: var(--white);
+    border: 1px solid var(--gray-200);
+    border-radius: var(--radius-lg);
+    padding: 1.25rem;
+    min-height: 200px;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    overflow: hidden;
+}
+
+.skeleton-line {
+    height: 1rem;
+    background: linear-gradient(
+        90deg,
+        var(--gray-200) 0%,
+        var(--gray-100) 50%,
+        var(--gray-200) 100%
+    );
+    background-size: 200% 100%;
+    border-radius: var(--radius-md);
+    margin-bottom: 0.75rem;
+    animation: skeleton-pulse 1.5s ease-in-out infinite;
+}
+
+.skeleton-line:first-child {
+    height: 1.5rem;
+    width: 60%;
+    margin-bottom: 1rem;
+}
+
+.skeleton-line:nth-child(2) {
+    width: 100%;
+}
+
+.skeleton-line:nth-child(3) {
+    width: 80%;
+}
+
+.skeleton-line:nth-child(4) {
+    width: 90%;
+    margin-top: auto;
+}
+
+@keyframes skeleton-pulse {
+    0% {
+        background-position: 200% 0;
+    }
+    100% {
+        background-position: -200% 0;
+    }
+}
+
+/* Skeleton para listas (groups, costs, goals) */
+.skeleton-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 1.5rem;
+}
+
+/* Skeleton específico para cards menores */
+.skeleton-card-small {
+    min-height: 150px;
+    padding: 1rem;
+}
+
+.skeleton-card-small .skeleton-line:first-child {
+    height: 1.2rem;
+    width: 50%;
+}
+
+.skeleton-card-small .skeleton-line {
+    height: 0.875rem;
+    margin-bottom: 0.5rem;
+}
