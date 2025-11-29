@@ -1404,7 +1404,32 @@ body.theme-blue .login-container #entrarBtn:focus {
 
 /* Modal com z-index maior quando aberto sobre outro modal */
 .modal.modal-overlay {
-    z-index: 1001;
+    z-index: 1001 !important;
+}
+
+.modal.modal-overlay.active {
+    z-index: 1001 !important;
+    display: flex !important;
+}
+
+.modal.modal-overlay .modal-content {
+    position: relative;
+    z-index: 1002 !important;
+}
+
+/* Modal de venda (saleModal) quando aberto sobre viewGroupModal */
+#saleModal.modal-overlay {
+    z-index: 1001 !important;
+}
+
+#saleModal.modal-overlay.active {
+    z-index: 1001 !important;
+    display: flex !important;
+}
+
+#saleModal.modal-overlay .modal-content {
+    position: relative;
+    z-index: 1002 !important;
 }
 
 /* Modal de registro de serviço deve aparecer acima do modal de visualização */
@@ -1425,6 +1450,48 @@ body.theme-blue .login-container #entrarBtn:focus {
 #serviceRecordModal.active {
     background-color: rgba(0, 0, 0, 0.6) !important;
 }
+
+/* Modal de recibo deve aparecer acima de todos os outros modais */
+#receiptPreviewModal {
+    z-index: 10000 !important;
+    pointer-events: none;
+    position: fixed !important;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+}
+
+#receiptPreviewModal.active {
+    z-index: 10000 !important;
+    display: flex !important;
+    pointer-events: auto !important;
+    position: fixed !important;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+}
+
+#receiptPreviewModal .modal-content {
+    position: relative !important;
+    z-index: 10001 !important;
+    pointer-events: auto !important;
+    margin: auto;
+}
+
+/* Garantir que viewGroupModal não bloqueie o recibo */
+#viewGroupModal {
+    z-index: 1000;
+    position: fixed;
+}
+
+#viewGroupModal.active {
+    z-index: 1000;
+    position: fixed;
+}
+
+/* Quando o recibo está ativo, viewGroupModal deve ficar atrás (controlado via JavaScript) */
 
 /* ========================================
    DAYS CONTAINER - VENDAS POR DIA
@@ -1737,6 +1804,11 @@ body.theme-blue .login-container #entrarBtn:focus {
     opacity: 0;
     transition: opacity var(--transition-base);
     backdrop-filter: blur(0px);
+    pointer-events: none;
+}
+
+.modal.active {
+    pointer-events: auto;
 }
 
 .modal.active {
@@ -1915,6 +1987,11 @@ body.theme-blue .login-container #entrarBtn:focus {
 
 .dashboard-container {
     padding: 1.5rem;
+    max-width: 100%;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center; /* Centralizar conteúdo */
 }
 
 .dashboard-filters {
@@ -1925,6 +2002,9 @@ body.theme-blue .login-container #entrarBtn:focus {
     padding: 1.25rem;
     background: var(--white);
     border-radius: var(--radius-lg);
+    width: 100%;
+    max-width: 100%;
+    justify-content: center; /* Centralizar filtros */
     box-shadow: var(--shadow-md);
     border: 1px solid var(--gray-200);
 }
@@ -1934,6 +2014,7 @@ body.theme-blue .login-container #entrarBtn:focus {
     grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
     gap: 1.5rem;
     margin-bottom: 2rem;
+    justify-items: center; /* Centralizar cards */
 }
 
 .chart-card {
@@ -1943,6 +2024,11 @@ body.theme-blue .login-container #entrarBtn:focus {
     border: 1px solid var(--gray-200);
     box-shadow: var(--shadow-md);
     transition: all var(--transition-base);
+    width: 100%;
+    max-width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center; /* Centralizar conteúdo */
 }
 
 .chart-card:hover {
@@ -1959,12 +2045,30 @@ body.theme-blue .login-container #entrarBtn:focus {
     padding-bottom: 0.75rem;
     border-bottom: 2px solid var(--gray-200);
     letter-spacing: -0.02em;
+    width: 100%;
+}
+
+/* Wrapper para gráficos - centralização */
+.chart-card .chart-wrapper {
+    width: 100%;
+    max-width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+    margin: 0 auto;
+}
+
+.chart-card canvas {
+    max-width: 100% !important;
+    height: auto !important;
 }
 
 .dashboard-stats {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
     gap: 1rem;
+    justify-items: center; /* Centralizar cards */
 }
 
 .stat-card {
@@ -1977,6 +2081,12 @@ body.theme-blue .login-container #entrarBtn:focus {
     transition: all var(--transition-base);
     overflow: hidden;
     min-width: 0;
+    width: 100%;
+    max-width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center; /* Centralizar conteúdo */
+    justify-content: center;
 }
 
 .stat-card:hover {
@@ -2155,10 +2265,29 @@ body.theme-blue .login-container #entrarBtn:focus {
     .charts-grid {
         grid-template-columns: 1fr;
         gap: 1rem;
+        justify-items: center; /* Centralizar cards em mobile */
     }
 
     .chart-card {
         padding: 1rem;
+        width: 100%;
+        max-width: 100%;
+    }
+
+    .chart-card .chart-wrapper {
+        width: 100%;
+        max-width: 100%;
+        height: auto;
+        min-height: 200px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .chart-card canvas {
+        max-width: 100% !important;
+        height: auto !important;
+        width: 100% !important;
     }
 
     .dashboard-filters {
@@ -2897,6 +3026,14 @@ body.theme-blue .login-container #entrarBtn:focus {
     border-radius: var(--radius-lg);
     padding: 1.5rem;
     box-shadow: var(--shadow-sm);
+    transition: all var(--transition-base);
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+}
+
+.panel-section > * {
+    width: 100%;
 }
 
 .panel-header {
@@ -2993,6 +3130,15 @@ body.theme-blue .login-container #entrarBtn:focus {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
     gap: 1.25rem;
+    justify-items: center; /* Centralizar cards */
+}
+
+/* Aplicar padrões do Emergente - centralização e responsividade */
+.groups-list > *,
+.costs-list > *,
+.goals-list > * {
+    width: 100%;
+    max-width: 100%;
 }
 
 /* ========================================

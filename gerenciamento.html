@@ -732,6 +732,31 @@
                             <small id="serviceDescriptionText" style="color: #155724; display: block;"></small>
                         </div>
                     </div>
+                    <!-- Campo de tamanho (para roupas e eletrônicos) -->
+                    <div class="form-group" id="saleSizeGroup" style="display: none;">
+                        <label for="saleSize">Tamanho *</label>
+                        <input
+                            type="text"
+                            id="saleSize"
+                            placeholder="Ex: P, M, G, 42, 128GB, etc."
+                            required
+                        />
+                        <small style="color: var(--gray-600); font-size: 0.85rem; display: block; margin-top: 0.25rem;">
+                            O estoque é controlado separadamente para cada tamanho
+                        </small>
+                    </div>
+                    <!-- Campo de cor (opcional para roupas e eletrônicos) -->
+                    <div class="form-group" id="saleColorGroup" style="display: none;">
+                        <label for="saleColor">Cor (opcional)</label>
+                        <input
+                            type="text"
+                            id="saleColor"
+                            placeholder="Ex: Preto, Branco, Azul, etc."
+                        />
+                        <small style="color: var(--gray-600); font-size: 0.85rem; display: block; margin-top: 0.25rem;">
+                            O estoque também é diferenciado por cor quando informada
+                        </small>
+                    </div>
                     <div class="form-group">
                         <label for="saleQuantity" id="saleQuantityLabel">Quantidade *</label>
                         <input
@@ -1183,33 +1208,6 @@
                         </button>
                     </div>
                 </form>
-            </div>
-        </div>
-
-        <!-- Modal: Gerenciar Estoque do Dia -->
-        <div id="stockModal" class="modal">
-            <div class="modal-content large">
-                <div class="modal-header">
-                    <h2 id="stockModalTitle">Gerenciar Estoque do Dia</h2>
-                    <span class="close" aria-label="Fechar modal" role="button" tabindex="0">&times;</span>
-                </div>
-                <div class="stock-content">
-                    <div class="form-group">
-                        <label for="stockDay">Dia *</label>
-                        <input type="number" id="stockDay" min="1" max="31" required />
-                    </div>
-                    <div class="stock-items-list" id="stockItemsList">
-                        <!-- Itens com estoque serão inseridos aqui -->
-                    </div>
-                </div>
-                <div class="modal-actions">
-                    <button type="button" class="btn-secondary" id="cancelStockBtn">
-                        Cancelar
-                    </button>
-                    <button type="button" class="btn-primary" id="saveStockBtn">
-                        Salvar Estoque
-                    </button>
-                </div>
             </div>
         </div>
 

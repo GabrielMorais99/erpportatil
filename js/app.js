@@ -1087,6 +1087,24 @@ class LojaApp {
             );
         }
 
+        // Listener para campo de tamanho (atualizar estoque quando tamanho mudar)
+        const saleSize = document.getElementById('saleSize');
+        if (saleSize) {
+            saleSize.addEventListener('input', () => {
+                this.updateStockInfo();
+            });
+            console.log('✅ [APP.JS] Listener anexado ao saleSize para atualizar estoque');
+        }
+
+        // Listener para campo de cor (atualizar estoque quando cor mudar)
+        const saleColor = document.getElementById('saleColor');
+        if (saleColor) {
+            saleColor.addEventListener('input', () => {
+                this.updateStockInfo();
+            });
+            console.log('✅ [APP.JS] Listener anexado ao saleColor para atualizar estoque');
+        }
+
         // Fechar modais ao clicar fora
         window.addEventListener('click', (e) => {
             if (e.target.classList.contains('modal')) {
@@ -2122,8 +2140,19 @@ class LojaApp {
         const group = this.groups.find((g) => g.id === groupId);
         if (!group) return;
 
+        // Fechar modal de recibo se estiver aberto
+        const receiptModal = document.getElementById('receiptPreviewModal');
+        if (receiptModal && receiptModal.classList.contains('active')) {
+            this.closeReceiptPreview();
+        }
+
         this.currentGroup = group;
         const modal = document.getElementById('viewGroupModal');
+        if (!modal) {
+            console.error('❌ [VIEW GROUP] Modal não encontrado!');
+            return;
+        }
+
         const [year, month] = group.month.split('-');
         const monthNames = [
             'Janeiro',
@@ -2145,7 +2174,40 @@ class LojaApp {
         } ${year}`;
 
         this.renderGroupView(group);
-        modal.classList.add('active');
+        
+        // Garantir que o modal seja exibido corretamente
+        // Fechar modal de recibo se ainda estiver aberto
+        const receiptModal = document.getElementById('receiptPreviewModal');
+        if (receiptModal && receiptModal.classList.contains('active')) {
+            console.log('🔧 [VIEW GROUP] Fechando modal de recibo antes de abrir viewGroupModal');
+            receiptModal.style.pointerEvents = 'none';
+            receiptModal.style.display = 'none';
+            receiptModal.style.opacity = '0';
+            receiptModal.classList.remove('active');
+            // Limpar estilos inline
+            setTimeout(() => {
+                receiptModal.style.zIndex = '';
+                receiptModal.style.opacity = '';
+                receiptModal.style.position = '';
+            }, 300);
+        }
+        
+        // Restaurar opacidade e z-index do viewGroupModal se foi reduzida
+        console.log('🔧 [VIEW GROUP] Restaurando z-index do viewGroupModal');
+        modal.style.opacity = '1';
+        modal.style.display = 'flex';
+        modal.style.setProperty('z-index', '1000', 'important');
+        modal.style.pointerEvents = 'auto';
+        const modalContent = modal.querySelector('.modal-content');
+        if (modalContent) {
+            modalContent.style.zIndex = '';
+        }
+        
+        requestAnimationFrame(() => {
+            modal.classList.add('active');
+            modal.style.display = 'flex';
+            modal.style.pointerEvents = 'auto';
+        });
     }
 
     calculateTotalAllMonths() {
@@ -2274,7 +2336,10 @@ class LojaApp {
     openSaleModal(groupId, day) {
         // Sempre buscar o grupo atualizado do array principal
         const group = this.groups.find((g) => g.id === groupId);
-        if (!group) return;
+        if (!group) {
+            console.error('❌ [SALE MODAL] Grupo não encontrado:', groupId);
+            return;
+        }
 
         this.currentGroup = group;
         this.currentSaleDay = day;
@@ -2283,16 +2348,33 @@ class LojaApp {
         // Verificar se o viewGroupModal está aberto e aumentar z-index do saleModal
         const viewGroupModal = document.getElementById('viewGroupModal');
         const saleModal = document.getElementById('saleModal');
+        
+        if (!saleModal) {
+            console.error('❌ [SALE MODAL] Modal de venda não encontrado no DOM');
+            return;
+        }
+
+        // Garantir que o modal esteja visível e com z-index correto
         if (
             viewGroupModal &&
             viewGroupModal.classList.contains('active') &&
             saleModal
         ) {
             saleModal.classList.add('modal-overlay');
+            // Garantir z-index inline para sobrescrever qualquer estilo conflitante
+            saleModal.style.zIndex = '1001';
+        } else {
+            // Remover classe de overlay se o viewGroupModal não estiver aberto
+            saleModal.classList.remove('modal-overlay');
+            saleModal.style.zIndex = '';
         }
 
         // Popular select de itens (incluindo serviços)
         const saleItemSelect = document.getElementById('saleItem');
+        if (!saleItemSelect) {
+            console.error('❌ [SALE MODAL] saleItem não encontrado!');
+            return;
+        }
         saleItemSelect.innerHTML =
             '<option value="">Selecione um item...</option>' +
             this.items
@@ -2320,7 +2402,12 @@ class LojaApp {
                 .join('');
 
         // Resetar formulário
-        document.getElementById('saleForm').reset();
+        const saleForm = document.getElementById('saleForm');
+        if (saleForm) {
+            saleForm.reset();
+        } else {
+            console.error('❌ [SALE MODAL] saleForm não encontrado!');
+        }
 
         // Atualizar exibição do dia
         const saleDayDisplay = document.getElementById('saleDayDisplay');
@@ -2344,7 +2431,53 @@ class LojaApp {
             }
         }
 
-        document.getElementById('saleModal').classList.add('active');
+        // Garantir que o modal seja exibido corretamente
+        if (saleModal) {
+            // Forçar display antes de adicionar active para garantir que o modal apareça
+            saleModal.style.display = 'flex';
+            // Garantir que o z-index esteja correto antes de adicionar active
+            if (saleModal.classList.contains('modal-overlay')) {
+                saleModal.style.zIndex = '1001';
+            }
+            
+            // Pequeno delay para garantir que o DOM esteja pronto e evitar conflitos
+            requestAnimationFrame(() => {
+                saleModal.classList.add('active');
+                // Garantir novamente o z-index após adicionar active
+                if (saleModal.classList.contains('modal-overlay')) {
+                    saleModal.style.zIndex = '1001';
+                    const modalContent = saleModal.querySelector('.modal-content');
+                    if (modalContent) {
+                        modalContent.style.zIndex = '1002';
+                    }
+                }
+            });
+        } else {
+            console.error('❌ [SALE MODAL] Não foi possível abrir o modal - elemento não encontrado');
+        }
+    }
+
+    // Função auxiliar para gerar chave de estoque
+    getStockKey(itemId, size, color) {
+        const parts = [itemId];
+        
+        // Adicionar tamanho se existir
+        if (size && size.trim()) {
+            parts.push(size.trim());
+        }
+        
+        // Adicionar cor se existir
+        if (color && color.trim()) {
+            parts.push(color.trim());
+        }
+        
+        // Se tiver tamanho ou cor, retornar chave composta
+        if (parts.length > 1) {
+            return parts.join('_');
+        }
+        
+        // Para produtos sem tamanho nem cor, usar apenas itemId
+        return itemId;
     }
 
     updateSaleModalForItem(itemId) {
@@ -2355,6 +2488,10 @@ class LojaApp {
         const serviceInfo = document.getElementById('serviceInfo');
         const saleQuantityLabel = document.getElementById('saleQuantityLabel');
         const stockInfo = document.getElementById('stockInfo');
+        const saleSizeGroup = document.getElementById('saleSizeGroup');
+        const saleSize = document.getElementById('saleSize');
+        const saleColorGroup = document.getElementById('saleColorGroup');
+        const saleColor = document.getElementById('saleColor');
 
         if (!item) {
             // Resetar para padrão (produto físico)
@@ -2363,6 +2500,15 @@ class LojaApp {
             if (saleQuantityLabel)
                 saleQuantityLabel.textContent = 'Quantidade *';
             if (stockInfo) stockInfo.style.display = 'block';
+            if (saleSizeGroup) saleSizeGroup.style.display = 'none';
+            if (saleColorGroup) saleColorGroup.style.display = 'none';
+            if (saleSize) {
+                saleSize.required = false;
+                saleSize.value = '';
+            }
+            if (saleColor) {
+                saleColor.value = '';
+            }
             return;
         }
 
@@ -2382,6 +2528,43 @@ class LojaApp {
         if (stockInfo) {
             stockInfo.style.display = 'block';
         }
+
+        // Mostrar/esconder campos de tamanho e cor para roupas e eletrônicos
+        const needsSize = item.category === 'Roupas' || item.category === 'Eletrônicos';
+        const needsColor = item.category === 'Roupas' || item.category === 'Eletrônicos';
+
+        if (saleSizeGroup && saleSize) {
+            if (needsSize) {
+                saleSizeGroup.style.display = 'block';
+                saleSize.required = true;
+                // Preencher com o tamanho do item se existir
+                if (item.size) {
+                    saleSize.value = item.size;
+                } else {
+                    saleSize.value = '';
+                }
+            } else {
+                saleSizeGroup.style.display = 'none';
+                saleSize.required = false;
+                saleSize.value = '';
+            }
+        }
+
+        if (saleColorGroup && saleColor) {
+            if (needsColor) {
+                saleColorGroup.style.display = 'block';
+                saleColor.required = false; // Cor é opcional
+                // Preencher com a cor do item se existir
+                if (item.color) {
+                    saleColor.value = item.color;
+                } else {
+                    saleColor.value = '';
+                }
+            } else {
+                saleColorGroup.style.display = 'none';
+                saleColor.value = '';
+            }
+        }
     }
 
     updateStockInfo() {
@@ -2389,6 +2572,8 @@ class LojaApp {
 
         const itemId = document.getElementById('saleItem').value;
         const stockInfo = document.getElementById('stockInfo');
+        const saleSize = document.getElementById('saleSize');
+        const saleColor = document.getElementById('saleColor');
 
         if (!itemId || !stockInfo) return;
 
@@ -2410,14 +2595,45 @@ class LojaApp {
             dayData.stock = {};
         }
 
-        const stockQuantity = dayData.stock[itemId] || 0;
+        // Obter tamanho e cor
+        const size = (saleSize && saleSize.value) ? saleSize.value.trim() : '';
+        const color = (saleColor && saleColor.value) ? saleColor.value.trim() : '';
+        const stockKey = this.getStockKey(itemId, size, color);
+
+        const stockQuantity = dayData.stock[stockKey] || 0;
         const soldQuantity = dayData.sales
-            .filter((sale) => sale.itemId === itemId)
+            .filter((sale) => {
+                // Para roupas e eletrônicos, considerar tamanho e cor na venda
+                if (item && (item.category === 'Roupas' || item.category === 'Eletrônicos')) {
+                    const saleSize = sale.size || '';
+                    const saleColor = sale.color || '';
+                    const saleStockKey = this.getStockKey(sale.itemId, saleSize, saleColor);
+                    return saleStockKey === stockKey;
+                }
+                // Para outros produtos, apenas itemId
+                return sale.itemId === itemId;
+            })
             .reduce((sum, sale) => sum + sale.quantity, 0);
         const availableStock = stockQuantity - soldQuantity;
 
+        // Montar mensagem de estoque
+        let stockMessage = '';
+        const needsSize = item && (item.category === 'Roupas' || item.category === 'Eletrônicos');
+        if (needsSize) {
+            let details = [];
+            if (size) details.push(`Tamanho: ${size}`);
+            if (color) details.push(`Cor: ${color}`);
+            if (details.length > 0) {
+                stockMessage = `Estoque disponível (${details.join(', ')}): ${availableStock} un. (Total: ${stockQuantity} un. - Vendido: ${soldQuantity} un.)`;
+            } else {
+                stockMessage = `Estoque disponível: ${availableStock} un. (Total: ${stockQuantity} un. - Vendido: ${soldQuantity} un.)`;
+            }
+        } else {
+            stockMessage = `Estoque disponível: ${availableStock} un. (Total: ${stockQuantity} un. - Vendido: ${soldQuantity} un.)`;
+        }
+
         if (stockQuantity > 0) {
-            stockInfo.textContent = `Estoque disponível: ${availableStock} un. (Total: ${stockQuantity} un. - Vendido: ${soldQuantity} un.)`;
+            stockInfo.textContent = stockMessage;
             if (availableStock < 0) {
                 stockInfo.style.color = '#dc3545';
                 stockInfo.textContent += ' ⚠️ Estoque negativo!';
@@ -2461,7 +2677,7 @@ class LojaApp {
                         <div>
                             <strong>${this.escapeHtml(
                                 item ? item.name : 'Item não encontrado'
-                            )}</strong><br>
+                            )}</strong>${sale.size || sale.color ? ` <span style="color: var(--primary-color); font-weight: 600;">(${sale.size ? `Tamanho: ${this.escapeHtml(sale.size)}` : ''}${sale.size && sale.color ? ', ' : ''}${sale.color ? `Cor: ${this.escapeHtml(sale.color)}` : ''})</span>` : ''}<br>
                             <small style="color: var(--gray);">${
                                 sale.quantity
                             } un. × R$ ${sale.price
@@ -2481,7 +2697,11 @@ class LojaApp {
 
         // Inserir antes do formulário
         const form = document.getElementById('saleForm');
-        form.parentNode.insertBefore(salesList, form);
+        if (form && form.parentNode) {
+            form.parentNode.insertBefore(salesList, form);
+        } else {
+            console.error('❌ [SHOW DAY SALES] saleForm não encontrado!');
+        }
     }
 
     deleteSale(day, saleIndex) {
@@ -2522,6 +2742,8 @@ class LojaApp {
         if (modal) {
             // Remover classe de overlay se existir
             modal.classList.remove('modal-overlay');
+            // Remover z-index inline
+            modal.style.zIndex = '';
 
             // Animação ao fechar modal
             modal.style.opacity = '0';
@@ -2563,13 +2785,23 @@ class LojaApp {
 
         if (!this.currentGroup || !this.currentSaleDay) return;
 
-        const itemId = document.getElementById('saleItem').value;
-        const quantity = parseInt(
-            document.getElementById('saleQuantity').value
-        );
-        const price = this.parsePrice(
-            document.getElementById('salePrice').value
-        );
+        const saleItem = document.getElementById('saleItem');
+        const saleQuantity = document.getElementById('saleQuantity');
+        const salePrice = document.getElementById('salePrice');
+
+        if (!saleItem || !saleQuantity || !salePrice) {
+            console.error('❌ [SAVE SALE] Elementos do formulário não encontrados!');
+            alert('Erro: Formulário incompleto. Por favor, recarregue a página.');
+            return;
+        }
+
+        const itemId = saleItem.value;
+        const quantity = parseInt(saleQuantity.value);
+        const price = this.parsePrice(salePrice.value);
+        const saleSizeInput = document.getElementById('saleSize');
+        const saleColorInput = document.getElementById('saleColor');
+        const size = (saleSizeInput && saleSizeInput.value) ? saleSizeInput.value.trim() : '';
+        const color = (saleColorInput && saleColorInput.value) ? saleColorInput.value.trim() : '';
 
         if (!itemId) {
             alert('Por favor, selecione um item.');
@@ -2592,6 +2824,12 @@ class LojaApp {
         const item = this.items.find((i) => i.id === itemId);
         const isService = item && item.category === 'Serviços';
 
+        // Verificar se é roupa ou eletrônico e se tamanho foi informado
+        if (item && (item.category === 'Roupas' || item.category === 'Eletrônicos') && !size) {
+            alert(`Por favor, informe o tamanho do ${item.category === 'Roupas' ? 'roupa' : 'eletrônico'}.`);
+            return;
+        }
+
         // Verificar estoque disponível (apenas para produtos físicos)
         if (!isService) {
             // Garantir que stock existe
@@ -2599,9 +2837,20 @@ class LojaApp {
                 dayData.stock = {};
             }
 
-            const stockQuantity = dayData.stock[itemId] || 0;
+            const stockKey = this.getStockKey(itemId, size, color);
+            const stockQuantity = dayData.stock[stockKey] || 0;
             const soldQuantity = dayData.sales
-                .filter((sale) => sale.itemId === itemId)
+                .filter((sale) => {
+                    // Para roupas e eletrônicos, considerar tamanho e cor na venda
+                    if (item && (item.category === 'Roupas' || item.category === 'Eletrônicos')) {
+                        const saleSize = sale.size || '';
+                        const saleColor = sale.color || '';
+                        const saleStockKey = this.getStockKey(sale.itemId, saleSize, saleColor);
+                        return saleStockKey === stockKey;
+                    }
+                    // Para outros produtos, apenas itemId
+                    return sale.itemId === itemId;
+                })
                 .reduce((sum, sale) => sum + sale.quantity, 0);
             const availableStock = stockQuantity - soldQuantity;
 
@@ -2632,11 +2881,23 @@ class LojaApp {
         }
 
         // Adicionar venda ao grupo (compatibilidade)
-        dayData.sales.push({
+        const sale = {
             itemId: itemId,
             quantity: quantity,
             price: price,
-        });
+        };
+        
+        // Incluir tamanho e cor se for roupa ou eletrônico
+        if (item && (item.category === 'Roupas' || item.category === 'Eletrônicos')) {
+            if (size) {
+                sale.size = size;
+            }
+            if (color) {
+                sale.color = color;
+            }
+        }
+        
+        dayData.sales.push(sale);
 
         // Criar venda completa para histórico
         const orderCode = this.generateOrderCode();
@@ -2658,6 +2919,8 @@ class LojaApp {
                     name: itemName,
                     quantity: quantity,
                     price: price,
+                    size: (item && (item.category === 'Roupas' || item.category === 'Eletrônicos') && size) ? size : undefined,
+                    color: (item && (item.category === 'Roupas' || item.category === 'Eletrônicos') && color) ? color : undefined,
                 },
             ],
             totalValue: totalValue,
@@ -2679,14 +2942,32 @@ class LojaApp {
         // Atualizar carrossel de últimos comprovantes na seção fixa
         this.renderLastReceiptsCarousel();
 
-        // Mostrar preview de recibo
-        this.showReceiptPreview(completedSale);
-
-        // Atualizar o resumo do grupo no modal (se estiver aberto)
+        // Verificar e reduzir z-index do viewGroupModal ANTES de fechar o modal de venda
         const viewGroupModal = document.getElementById('viewGroupModal');
         if (viewGroupModal && viewGroupModal.classList.contains('active')) {
-            this.renderGroupView(group);
+            console.log('🔧 [SAVE SALE] viewGroupModal está ativo, reduzindo z-index antes de mostrar recibo');
+            viewGroupModal.style.setProperty('z-index', '999', 'important');
+            viewGroupModal.style.pointerEvents = 'none';
+            viewGroupModal.style.opacity = '0.3';
+            const viewGroupContent = viewGroupModal.querySelector('.modal-content');
+            if (viewGroupContent) {
+                viewGroupContent.style.setProperty('z-index', '999', 'important');
+            }
         }
+
+        // Fechar modal de venda antes de mostrar o recibo
+        this.closeSaleModal();
+
+        // Aguardar um pouco para garantir que o modal de venda foi fechado
+        setTimeout(() => {
+            // Mostrar preview de recibo
+            console.log('🔧 [SAVE SALE] Mostrando preview de recibo');
+            this.showReceiptPreview(completedSale);
+
+            // Atualizar o resumo do grupo no modal (se estiver aberto)
+            // IMPORTANTE: Não renderizar novamente aqui para evitar quebrar os event listeners
+            // O renderGroupView será chamado quando o recibo for fechado
+        }, 150);
 
         // Atualizar resumo geral na lista de grupos (se estiver na aba de grupos)
         const groupsTab = document.getElementById('groupsTab');
@@ -2696,9 +2977,6 @@ class LojaApp {
 
         // Atualizar resumo geral
         this.updateOverallSummary();
-
-        // Fechar modal de venda (o preview de recibo será mostrado)
-        this.closeSaleModal();
     }
 
     // Gerar código de pedido único
@@ -2724,7 +3002,11 @@ class LojaApp {
         const modalElement = document.getElementById('receiptPreviewModal');
         const receiptContent = document.getElementById('receiptContent');
 
-        if (!receiptContent) return;
+        if (!receiptContent || !modalElement) return;
+
+        // Garantir que o modal esteja visível e com z-index correto
+        modalElement.style.display = 'flex';
+        modalElement.style.zIndex = '1003';
 
         const date = new Date(sale.date);
         const formattedDate = date.toLocaleDateString('pt-BR', {
@@ -2793,7 +3075,60 @@ class LojaApp {
             </div>
         `;
 
-        modalElement.classList.add('active');
+        // Garantir que o modal seja exibido corretamente e acima de todos os outros
+        // Mover o modal para o final do body para garantir que apareça acima (ordem no DOM)
+        if (modalElement.parentNode !== document.body) {
+            document.body.appendChild(modalElement);
+        }
+        
+        // Desabilitar cliques e reduzir z-index do viewGroupModal quando o recibo estiver aberto
+        const viewGroupModal = document.getElementById('viewGroupModal');
+        if (viewGroupModal && viewGroupModal.classList.contains('active')) {
+            console.log('🔧 [RECEIPT] Reduzindo z-index do viewGroupModal');
+            // Reduzir z-index para garantir que fique atrás do recibo
+            viewGroupModal.style.setProperty('z-index', '999', 'important');
+            viewGroupModal.style.pointerEvents = 'none';
+            // Reduzir opacidade visual para deixar claro que está atrás
+            viewGroupModal.style.opacity = '0.3';
+            // Também reduzir z-index do conteúdo do modal
+            const viewGroupContent = viewGroupModal.querySelector('.modal-content');
+            if (viewGroupContent) {
+                viewGroupContent.style.setProperty('z-index', '999', 'important');
+            }
+        }
+        
+        // Primeiro, garantir que o modal esteja visível e com z-index correto
+        console.log('🔧 [RECEIPT] Configurando z-index do receiptPreviewModal');
+        modalElement.style.setProperty('z-index', '10000', 'important');
+        modalElement.style.display = 'flex';
+        modalElement.style.pointerEvents = 'auto';
+        modalElement.style.opacity = '1';
+        modalElement.style.position = 'fixed';
+        
+        requestAnimationFrame(() => {
+            modalElement.classList.add('active');
+            
+            const modalContent = modalElement.querySelector('.modal-content');
+            if (modalContent) {
+                modalContent.style.setProperty('z-index', '10001', 'important');
+                modalContent.style.pointerEvents = 'auto';
+                modalContent.style.position = 'relative';
+            }
+            
+            // Forçar z-index novamente após animação para garantir
+            setTimeout(() => {
+                console.log('🔧 [RECEIPT] Forçando z-index novamente após animação');
+                modalElement.style.setProperty('z-index', '10000', 'important');
+                modalElement.style.position = 'fixed';
+                if (modalContent) {
+                    modalContent.style.setProperty('z-index', '10001', 'important');
+                }
+                // Verificar se viewGroupModal ainda está ativo e reduzir novamente
+                if (viewGroupModal && viewGroupModal.classList.contains('active')) {
+                    viewGroupModal.style.setProperty('z-index', '999', 'important');
+                }
+            }, 100);
+        });
     }
 
     // Criar modal de preview de recibo
@@ -2846,7 +3181,61 @@ class LojaApp {
     closeReceiptPreview() {
         const modal = document.getElementById('receiptPreviewModal');
         if (modal) {
-            modal.classList.remove('active');
+            console.log('🔧 [CLOSE RECEIPT] Fechando modal de recibo');
+            // Animação ao fechar modal
+            modal.style.opacity = '0';
+            modal.style.pointerEvents = 'none'; // Desabilitar cliques durante animação
+            
+            // Reabilitar cliques e opacidade no viewGroupModal IMEDIATAMENTE
+            const viewGroupModal = document.getElementById('viewGroupModal');
+            if (viewGroupModal) {
+                console.log('🔧 [CLOSE RECEIPT] Restaurando viewGroupModal completamente');
+                // Restaurar todos os estilos do viewGroupModal
+                viewGroupModal.style.setProperty('z-index', '1000', 'important');
+                viewGroupModal.style.pointerEvents = 'auto';
+                viewGroupModal.style.opacity = '1';
+                viewGroupModal.style.display = 'flex';
+                
+                // Garantir que o modal esteja ativo
+                if (!viewGroupModal.classList.contains('active')) {
+                    viewGroupModal.classList.add('active');
+                }
+                
+                const viewGroupContent = viewGroupModal.querySelector('.modal-content');
+                if (viewGroupContent) {
+                    viewGroupContent.style.zIndex = '';
+                    viewGroupContent.style.pointerEvents = 'auto';
+                }
+                
+                // Garantir que todos os botões dentro do modal sejam clicáveis
+                const buttons = viewGroupModal.querySelectorAll('button');
+                buttons.forEach(btn => {
+                    btn.style.pointerEvents = 'auto';
+                    btn.style.opacity = '1';
+                    btn.disabled = false; // Garantir que não esteja desabilitado
+                });
+                
+                // Re-renderizar a view do grupo para garantir que os event listeners estejam ativos
+                if (this.currentGroup) {
+                    console.log('🔧 [CLOSE RECEIPT] Re-renderizando viewGroup para restaurar event listeners');
+                    this.renderGroupView(this.currentGroup);
+                }
+                
+                console.log('✅ [CLOSE RECEIPT] viewGroupModal totalmente restaurado');
+            }
+            
+            setTimeout(() => {
+                modal.classList.remove('active');
+                modal.style.display = 'none';
+                modal.style.opacity = '';
+                modal.style.zIndex = '';
+                modal.style.pointerEvents = '';
+                modal.style.position = '';
+                const modalContent = modal.querySelector('.modal-content');
+                if (modalContent) {
+                    modalContent.style.zIndex = '';
+                }
+            }, 300);
         }
     }
 
@@ -7868,39 +8257,146 @@ class LojaApp {
             return;
         }
 
-        stockItemsList.innerHTML = physicalItems
-            .map((item) => {
-                const stockQuantity = dayData.stock[item.id] || 0;
-                const soldQuantity = dayData.sales
-                    .filter((sale) => sale.itemId === item.id)
-                    .reduce((sum, sale) => sum + sale.quantity, 0);
-                const availableStock = stockQuantity - soldQuantity;
+        // Separar roupas e eletrônicos de outros produtos
+        const itemsWithVariations = physicalItems.filter(item => item.category === 'Roupas' || item.category === 'Eletrônicos');
+        const otherItems = physicalItems.filter(item => item.category !== 'Roupas' && item.category !== 'Eletrônicos');
 
-                return `
-                <div style="display: flex; justify-content: space-between; align-items: center; padding: 1rem; background: white; margin-bottom: 0.5rem; border-radius: 5px; border: 1px solid var(--border-color);">
-                    <div style="flex: 1;">
-                        <strong>${this.escapeHtml(
-                            item.name
-                        )}</strong> - ${this.escapeHtml(item.brand)}
-                        <div style="font-size: 0.85rem; color: var(--gray); margin-top: 0.25rem;">
-                            Estoque: ${stockQuantity} un. | Vendido: ${soldQuantity} un. | Disponível: ${availableStock} un.
+        let html = '';
+
+        // Processar roupas e eletrônicos (com controle por tamanho e cor)
+        if (itemsWithVariations.length > 0) {
+            itemsWithVariations.forEach((item) => {
+                // Coletar todas as combinações únicas de tamanho e cor que têm estoque ou vendas
+                const variations = new Map(); // Map<"size_color", {size, color}>
+                
+                // Adicionar variações do estoque
+                Object.keys(dayData.stock).forEach(key => {
+                    if (key.startsWith(item.id + '_')) {
+                        // Extrair tamanho e cor da chave
+                        const parts = key.substring(item.id.length + 1).split('_');
+                        const size = parts[0] || '';
+                        const color = parts[1] || '';
+                        const variationKey = `${size}|||${color}`;
+                        if (!variations.has(variationKey)) {
+                            variations.set(variationKey, { size, color });
+                        }
+                    } else if (key === item.id) {
+                        // Estoque antigo sem tamanho/cor - manter compatibilidade
+                        variations.set('|||', { size: '', color: '' });
+                    }
+                });
+                
+                // Adicionar variações das vendas
+                dayData.sales
+                    .filter(sale => sale.itemId === item.id)
+                    .forEach(sale => {
+                        const size = sale.size || '';
+                        const color = sale.color || '';
+                        const variationKey = `${size}|||${color}`;
+                        if (!variations.has(variationKey)) {
+                            variations.set(variationKey, { size, color });
+                        }
+                    });
+
+                // Se não houver variações, adicionar um campo vazio para permitir cadastro
+                if (variations.size === 0) {
+                    variations.set('|||', { size: '', color: '' });
+                }
+
+                // Criar entrada para cada variação (tamanho + cor)
+                variations.forEach((variation, variationKey) => {
+                    const { size, color } = variation;
+                    const stockKey = this.getStockKey(item.id, size, color);
+                    const stockQuantity = dayData.stock[stockKey] || 0;
+                    const soldQuantity = dayData.sales
+                        .filter((sale) => {
+                            const saleSize = sale.size || '';
+                            const saleColor = sale.color || '';
+                            const saleStockKey = this.getStockKey(sale.itemId, saleSize, saleColor);
+                            return saleStockKey === stockKey;
+                        })
+                        .reduce((sum, sale) => sum + sale.quantity, 0);
+                    const availableStock = stockQuantity - soldQuantity;
+                    const sizeLabel = size || '(sem tamanho)';
+                    const colorLabel = color || '(sem cor)';
+
+                    html += `
+                    <div style="display: flex; justify-content: space-between; align-items: center; padding: 1rem; background: white; margin-bottom: 0.5rem; border-radius: 5px; border: 1px solid var(--border-color);">
+                        <div style="flex: 1;">
+                            <strong>${this.escapeHtml(item.name || item.model || item.brand)}</strong>${item.brand ? ' - ' + this.escapeHtml(item.brand) : ''}
+                            <div style="font-size: 0.9rem; color: var(--primary-color); font-weight: 600; margin-top: 0.25rem;">
+                                Tamanho: ${this.escapeHtml(sizeLabel)}${color ? ` | Cor: ${this.escapeHtml(colorLabel)}` : ''}
+                            </div>
+                            <div style="font-size: 0.85rem; color: var(--gray); margin-top: 0.25rem;">
+                                Estoque: ${stockQuantity} un. | Vendido: ${soldQuantity} un. | Disponível: ${availableStock} un.
+                            </div>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap;">
+                            <input 
+                                type="text" 
+                                id="stock_size_${item.id}_${variationKey}" 
+                                value="${this.escapeHtml(size)}" 
+                                placeholder="Tamanho"
+                                style="width: 80px; padding: 0.5rem; border: 2px solid var(--border-color); border-radius: 5px;"
+                            />
+                            <input 
+                                type="text" 
+                                id="stock_color_${item.id}_${variationKey}" 
+                                value="${this.escapeHtml(color)}" 
+                                placeholder="Cor"
+                                style="width: 80px; padding: 0.5rem; border: 2px solid var(--border-color); border-radius: 5px;"
+                            />
+                            <input 
+                                type="number" 
+                                id="stock_${stockKey}" 
+                                value="${stockQuantity}" 
+                                min="0" 
+                                style="width: 80px; padding: 0.5rem; border: 2px solid var(--border-color); border-radius: 5px;"
+                                placeholder="0"
+                            />
+                            <span style="font-size: 0.9rem; color: var(--gray);">un.</span>
                         </div>
                     </div>
-                    <div style="display: flex; align-items: center; gap: 0.5rem;">
-                        <input 
-                            type="number" 
-                            id="stock_${item.id}" 
-                            value="${stockQuantity}" 
-                            min="0" 
-                            style="width: 80px; padding: 0.5rem; border: 2px solid var(--border-color); border-radius: 5px;"
-                            placeholder="0"
-                        />
-                        <span style="font-size: 0.9rem; color: var(--gray);">un.</span>
+                    `;
+                });
+            });
+        }
+
+        // Processar outros produtos (sem controle por tamanho/cor)
+        otherItems.forEach((item) => {
+            const stockKey = this.getStockKey(item.id, '', '');
+            const stockQuantity = dayData.stock[stockKey] || 0;
+            const soldQuantity = dayData.sales
+                .filter((sale) => sale.itemId === item.id)
+                .reduce((sum, sale) => sum + sale.quantity, 0);
+            const availableStock = stockQuantity - soldQuantity;
+
+            html += `
+            <div style="display: flex; justify-content: space-between; align-items: center; padding: 1rem; background: white; margin-bottom: 0.5rem; border-radius: 5px; border: 1px solid var(--border-color);">
+                <div style="flex: 1;">
+                    <strong>${this.escapeHtml(
+                        item.name || item.model || 'Item'
+                    )}</strong>${item.brand ? ' - ' + this.escapeHtml(item.brand) : ''}
+                    <div style="font-size: 0.85rem; color: var(--gray); margin-top: 0.25rem;">
+                        Estoque: ${stockQuantity} un. | Vendido: ${soldQuantity} un. | Disponível: ${availableStock} un.
                     </div>
                 </div>
+                <div style="display: flex; align-items: center; gap: 0.5rem;">
+                    <input 
+                        type="number" 
+                        id="stock_${stockKey}" 
+                        value="${stockQuantity}" 
+                        min="0" 
+                        style="width: 80px; padding: 0.5rem; border: 2px solid var(--border-color); border-radius: 5px;"
+                        placeholder="0"
+                    />
+                    <span style="font-size: 0.9rem; color: var(--gray);">un.</span>
+                </div>
+            </div>
             `;
-            })
-            .join('');
+        });
+
+        stockItemsList.innerHTML = html;
     }
 
     saveStock() {
@@ -7923,14 +8419,17 @@ class LojaApp {
             dayData.stock = {};
         }
 
-        // Salvar estoque de cada item
-        this.items.forEach((item) => {
-            const input = document.getElementById(`stock_${item.id}`);
-            if (input) {
-                const quantity = parseInt(input.value) || 0;
-                if (quantity >= 0) {
-                    dayData.stock[item.id] = quantity;
-                }
+        // Salvar estoque - percorrer todos os inputs de estoque (excluir inputs de tamanho e cor)
+        const stockInputs = document.querySelectorAll('input[id^="stock_"]:not([id^="stock_size_"]):not([id^="stock_color_"])');
+        stockInputs.forEach(input => {
+            const stockKey = input.id.replace('stock_', '');
+            const quantity = parseInt(input.value) || 0;
+            if (quantity >= 0) {
+                dayData.stock[stockKey] = quantity;
+            } else if (quantity === 0) {
+                // Remover estoque zero (opcional - pode manter se quiser)
+                // delete dayData.stock[stockKey];
+                dayData.stock[stockKey] = 0;
             }
         });
 
@@ -7942,7 +8441,10 @@ class LojaApp {
     }
 
     closeViewGroupModal() {
-        document.getElementById('viewGroupModal').classList.remove('active');
+        const viewGroupModal = document.getElementById('viewGroupModal');
+        if (viewGroupModal) {
+            viewGroupModal.classList.remove('active');
+        }
         this.currentGroup = null;
     }
 
@@ -9762,6 +10264,16 @@ class LojaApp {
                 `📡 [SAVE DATA] Status HTTP: ${response.status} ${response.statusText}`
             );
 
+            // Tratar erro 504 (Gateway Timeout) especificamente
+            if (response.status === 504) {
+                const text = await response.text();
+                console.warn('⚠️ [SAVE DATA] Erro 504 (Gateway Timeout) - A API demorou muito para responder');
+                console.warn('💾 [SAVE DATA] Dados foram salvos localmente, mas não na nuvem');
+                console.warn('💡 [SAVE DATA] Isso pode acontecer se o servidor estiver sobrecarregado');
+                // Não lançar erro para não bloquear a interface
+                return;
+            }
+
             // Verificar se a resposta é JSON
             const contentType = response.headers.get('content-type');
             if (!contentType || !contentType.includes('application/json')) {
@@ -9780,6 +10292,12 @@ class LojaApp {
                     console.error(
                         '💡 [SAVE DATA] Verifique se a API está configurada corretamente na Vercel'
                     );
+                }
+
+                // Para outros erros, não bloquear a interface
+                if (response.status >= 500) {
+                    console.warn('⚠️ [SAVE DATA] Erro do servidor - dados salvos apenas localmente');
+                    return;
                 }
 
                 throw new Error(
