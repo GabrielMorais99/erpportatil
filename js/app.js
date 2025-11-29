@@ -2907,6 +2907,11 @@ class LojaApp {
 
         if (!customerName) {
             alert('Por favor, informe o nome do cliente.');
+            // Remover loading se houver
+            if (saveBtn) {
+                saveBtn.classList.remove('loading');
+                saveBtn.disabled = false;
+            }
             return;
         }
 
