@@ -2043,11 +2043,23 @@ body.theme-blue .login-container #entrarBtn:focus {
     align-items: center;
     justify-content: center;
     border-radius: 50%;
+    /* Garantir que o botão de fechar sempre seja clicável */
+    pointer-events: auto !important;
+    position: relative;
+    z-index: 1001 !important;
 }
 
 .close:hover {
     background: rgba(255, 255, 255, 0.1);
     transform: rotate(90deg);
+}
+
+/* Garantir que o botão de fechar do viewGroupModal sempre funcione */
+#viewGroupModal .close {
+    pointer-events: auto !important;
+    z-index: 1001 !important;
+    position: relative !important;
+    opacity: 1 !important;
 }
 
 .modal form {
