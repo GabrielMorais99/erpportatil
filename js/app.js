@@ -8304,40 +8304,40 @@ class LojaApp {
                     const colorLabel = color || '(sem cor)';
 
                     html += `
-                    <div style="display: flex; justify-content: space-between; align-items: center; padding: 1rem; background: white; margin-bottom: 0.5rem; border-radius: 5px; border: 1px solid var(--border-color);">
-                        <div style="flex: 1;">
-                            <strong>${this.escapeHtml(item.name || item.model || item.brand)}</strong>${item.brand ? ' - ' + this.escapeHtml(item.brand) : ''}
-                            <div style="font-size: 0.9rem; color: var(--primary-color); font-weight: 600; margin-top: 0.25rem;">
+                    <div class="stock-variation-item">
+                        <div class="stock-variation-info">
+                            <div class="stock-variation-name">${this.escapeHtml(item.name || item.model || item.brand)}${item.brand ? ' - ' + this.escapeHtml(item.brand) : ''}</div>
+                            <div class="stock-variation-details">
                                 Tamanho: ${this.escapeHtml(sizeLabel)}${color ? ` | Cor: ${this.escapeHtml(colorLabel)}` : ''}
                             </div>
-                            <div style="font-size: 0.85rem; color: var(--gray); margin-top: 0.25rem;">
+                            <div class="stock-variation-stats">
                                 Estoque: ${stockQuantity} un. | Vendido: ${soldQuantity} un. | Disponível: ${availableStock} un.
                             </div>
                         </div>
-                        <div style="display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap;">
+                        <div class="stock-inputs-group">
                             <input 
                                 type="text" 
                                 id="stock_size_${item.id}_${variationKey}" 
+                                class="stock-input"
                                 value="${this.escapeHtml(size)}" 
                                 placeholder="Tamanho"
-                                style="width: 80px; padding: 0.5rem; border: 2px solid var(--border-color); border-radius: 5px;"
                             />
                             <input 
                                 type="text" 
                                 id="stock_color_${item.id}_${variationKey}" 
+                                class="stock-input"
                                 value="${this.escapeHtml(color)}" 
                                 placeholder="Cor"
-                                style="width: 80px; padding: 0.5rem; border: 2px solid var(--border-color); border-radius: 5px;"
                             />
                             <input 
                                 type="number" 
                                 id="stock_${stockKey}" 
+                                class="stock-input"
                                 value="${stockQuantity}" 
                                 min="0" 
-                                style="width: 80px; padding: 0.5rem; border: 2px solid var(--border-color); border-radius: 5px;"
                                 placeholder="0"
                             />
-                            <span style="font-size: 0.9rem; color: var(--gray);">un.</span>
+                            <span class="stock-unit-label">un.</span>
                         </div>
                     </div>
                     `;

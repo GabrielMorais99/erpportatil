@@ -91,13 +91,13 @@
             <main class="main-content">
                 <div class="toolbar" id="mainToolbar" style="display: none;">
                     <div class="search-filter">
-                        <div style="position: relative; flex: 1;">
-                            <i class="fas fa-search" style="position: absolute; left: 0.75rem; top: 50%; transform: translateY(-50%); color: var(--gray-400); pointer-events: none;"></i>
+                        <div class="search-filter-wrapper">
+                            <i class="fas fa-search search-icon"></i>
                             <input
                                 type="text"
                                 id="searchInput"
+                                class="search-input-with-icon"
                                 placeholder="Pesquisar..."
-                                style="padding-left: 2.5rem;"
                             />
                         </div>
                         <select id="monthFilter">

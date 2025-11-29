@@ -634,6 +634,89 @@ body.theme-blue .login-container #entrarBtn:focus {
     flex: 1;
 }
 
+/* Padrões do Emergente - Search Input com Ícone */
+.search-filter-wrapper {
+    position: relative;
+    flex: 1;
+}
+
+.search-icon {
+    position: absolute;
+    left: 0.75rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--gray-400);
+    pointer-events: none;
+    z-index: 1;
+}
+
+.search-input-with-icon {
+    padding-left: 2.5rem !important;
+}
+
+/* Padrões do Emergente - Inputs de Estoque */
+.stock-variation-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem;
+    background: var(--white);
+    margin-bottom: 0.5rem;
+    border-radius: var(--radius-md);
+    border: 1px solid var(--border-color);
+}
+
+.stock-variation-info {
+    flex: 1;
+}
+
+.stock-variation-name {
+    font-weight: 600;
+    color: var(--dark-gray);
+}
+
+.stock-variation-details {
+    font-size: 0.9rem;
+    color: var(--primary-color);
+    font-weight: 600;
+    margin-top: 0.25rem;
+}
+
+.stock-variation-stats {
+    font-size: 0.85rem;
+    color: var(--gray);
+    margin-top: 0.25rem;
+}
+
+.stock-inputs-group {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+}
+
+.stock-input {
+    width: 80px;
+    padding: 0.875rem 1.125rem; /* Padrão Emergente */
+    border: 2px solid var(--border-color);
+    border-radius: var(--radius-md);
+    font-size: 0.9rem;
+    transition: all var(--transition-base);
+    background: var(--white);
+}
+
+.stock-input:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 4px rgba(220, 53, 69, 0.12); /* Padrão Emergente */
+    transform: translateY(-1px);
+}
+
+.stock-unit-label {
+    font-size: 0.9rem;
+    color: var(--gray);
+}
+
 /* ========================================
    TABS REFINADAS - MINIMALISTAS
    ======================================== */
