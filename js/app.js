@@ -1677,6 +1677,10 @@ class LojaApp {
         // Usar o código numérico no QR Code
         const qrData = item.qrCodeNumber;
 
+        // Limpar canvas antes de gerar novo QR code
+        const ctx = canvas.getContext('2d');
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
         QRCode.toCanvas(
             canvas,
             qrData,
@@ -1687,11 +1691,14 @@ class LojaApp {
                     dark: '#000000',
                     light: '#FFFFFF',
                 },
+                errorCorrectionLevel: 'M',
             },
             (error) => {
                 if (error) {
                     console.error('Erro ao gerar QR code:', error);
-                    alert('Erro ao gerar QR code');
+                    alert('Erro ao gerar QR code: ' + error.message);
+                } else {
+                    console.log('QR code gerado com sucesso para modal:', qrData);
                 }
             }
         );
@@ -1716,12 +1723,63 @@ class LojaApp {
 
     downloadQRCode(canvasId, filename) {
         const canvas = document.getElementById(canvasId);
-        if (!canvas) return;
+        if (!canvas) {
+            console.error('Canvas não encontrado:', canvasId);
+            return;
+        }
 
-        const link = document.createElement('a');
-        link.download = filename || `qrcode-${Date.now()}.png`;
-        link.href = canvas.toDataURL('image/png');
-        link.click();
+        // Verificar se o canvas tem conteúdo
+        const context = canvas.getContext('2d');
+        const imageData = context.getImageData(0, 0, canvas.width, canvas.height);
+        const hasContent = imageData.data.some(channel => channel !== 0);
+
+        // Se o canvas estiver vazio, tentar gerar o QR code primeiro
+        if (!hasContent || canvas.width === 0 || canvas.height === 0) {
+            console.warn('Canvas vazio, tentando gerar QR code...');
+            
+            // Tentar obter o itemId do contexto
+            let itemId = null;
+            if (canvasId === 'qrcodeCanvas' && this.currentEditingItem) {
+                itemId = this.currentEditingItem.id;
+            } else if (canvasId === 'qrcodeModalCanvas') {
+                const downloadBtn = document.getElementById('downloadQRModalBtn');
+                if (downloadBtn && downloadBtn.dataset.itemId) {
+                    itemId = downloadBtn.dataset.itemId;
+                }
+            }
+
+            if (itemId) {
+                // Gerar QR code primeiro
+                if (canvasId === 'qrcodeCanvas') {
+                    this.generateQRCode(itemId);
+                } else if (canvasId === 'qrcodeModalCanvas') {
+                    this.generateQRCodeForModal(itemId, canvasId);
+                }
+                
+                // Aguardar um pouco para o QR code ser gerado
+                setTimeout(() => {
+                    this.downloadQRCode(canvasId, filename);
+                }, 500);
+                return;
+            } else {
+                alert('Erro: Não foi possível identificar o item para gerar o QR code.');
+                return;
+            }
+        }
+
+        // Gerar o download
+        try {
+            const link = document.createElement('a');
+            link.download = filename || `qrcode-${Date.now()}.png`;
+            link.href = canvas.toDataURL('image/png');
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            console.log('QR code baixado com sucesso:', filename);
+        } catch (error) {
+            console.error('Erro ao baixar QR code:', error);
+            alert('Erro ao baixar QR code. Tente novamente.');
+        }
     }
 
     printQRCode(canvasId) {
