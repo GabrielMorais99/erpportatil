@@ -1937,6 +1937,12 @@ class LojaApp {
         // Se a seção de produtos não existe, não renderizar
         if (!grid) return;
         
+        // Mostrar skeleton enquanto carrega (apenas se não houver dados ainda)
+        if (this.items.length === 0 && !grid.querySelector('.item-card')) {
+            this.showSkeleton('itemsGrid', 6, false);
+            return;
+        }
+        
         const searchInput = document.getElementById('searchInput');
         const monthFilterEl = document.getElementById('monthFilter');
         
@@ -5134,6 +5140,13 @@ class LojaApp {
 
     renderGroups() {
         const list = document.getElementById('groupsList');
+        if (!list) return;
+        
+        // Mostrar skeleton enquanto carrega (apenas se não houver dados ainda)
+        if (this.groups.length === 0 && !list.querySelector('.group-card')) {
+            this.showSkeleton('groupsList', 6, true);
+            return;
+        }
 
         // Obter filtro de ano
         const yearFilter = document.getElementById('yearFilter')?.value || '';
