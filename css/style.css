@@ -2216,9 +2216,12 @@ body.theme-blue .login-container #entrarBtn:focus {
     min-width: 0;
 }
 
+/* Padrões do Emergente - Hover melhorado com transição suave de cor */
 .stat-card:hover {
     transform: translateY(-4px);
     box-shadow: var(--shadow-lg);
+    background: linear-gradient(135deg, var(--white) 0%, var(--gray-50) 100%);
+    transition: all var(--transition-base);
 }
 
 .stat-card h4 {
