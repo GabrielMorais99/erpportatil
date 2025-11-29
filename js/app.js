@@ -2175,23 +2175,6 @@ class LojaApp {
 
         this.renderGroupView(group);
         
-        // Garantir que o modal seja exibido corretamente
-        // Fechar modal de recibo se ainda estiver aberto
-        const receiptModal = document.getElementById('receiptPreviewModal');
-        if (receiptModal && receiptModal.classList.contains('active')) {
-            console.log('🔧 [VIEW GROUP] Fechando modal de recibo antes de abrir viewGroupModal');
-            receiptModal.style.pointerEvents = 'none';
-            receiptModal.style.display = 'none';
-            receiptModal.style.opacity = '0';
-            receiptModal.classList.remove('active');
-            // Limpar estilos inline
-            setTimeout(() => {
-                receiptModal.style.zIndex = '';
-                receiptModal.style.opacity = '';
-                receiptModal.style.position = '';
-            }, 300);
-        }
-        
         // Restaurar opacidade e z-index do viewGroupModal se foi reduzida
         console.log('🔧 [VIEW GROUP] Restaurando z-index do viewGroupModal');
         modal.style.opacity = '1';
