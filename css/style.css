@@ -920,6 +920,7 @@ body.theme-blue .login-container #entrarBtn:focus {
     transition: transform var(--transition-base);
 }
 
+/* Padrões do Emergente - Hover melhorado com transição suave de cor */
 .item-card:hover,
 .group-card:hover,
 .cost-card:hover,
@@ -927,6 +928,8 @@ body.theme-blue .login-container #entrarBtn:focus {
     transform: translateY(-4px);
     box-shadow: var(--shadow-lg);
     border-color: var(--gray-300);
+    background: linear-gradient(135deg, var(--white) 0%, var(--gray-50) 100%);
+    transition: all var(--transition-base);
 }
 
 .item-card:hover::before,
@@ -1501,9 +1504,12 @@ body.theme-blue .login-container #entrarBtn:focus {
     transition: all var(--transition-base);
 }
 
+/* Padrões do Emergente - Hover melhorado com transição suave de cor */
 .summary-card:hover {
     box-shadow: var(--shadow-md);
     transform: translateY(-2px);
+    background: linear-gradient(135deg, var(--white) 0%, var(--gray-50) 100%);
+    transition: all var(--transition-base);
 }
 
 .summary-card h3 {
@@ -1734,10 +1740,13 @@ body.theme-blue .login-container #entrarBtn:focus {
     justify-content: space-between;
 }
 
+/* Padrões do Emergente - Hover melhorado com transição suave de cor */
 .day-card:hover {
     transform: translateY(-4px);
     box-shadow: var(--shadow-md);
     border-color: var(--primary-color);
+    background: linear-gradient(135deg, var(--white) 0%, var(--gray-50) 100%);
+    transition: all var(--transition-base);
 }
 
 .day-card h4 {
@@ -2169,9 +2178,12 @@ body.theme-blue .login-container #entrarBtn:focus {
     transition: all var(--transition-base);
 }
 
+/* Padrões do Emergente - Hover melhorado com transição suave de cor */
 .chart-card:hover {
     box-shadow: var(--shadow-lg);
     transform: translateY(-2px);
+    background: linear-gradient(135deg, var(--white) 0%, var(--gray-50) 100%);
+    transition: all var(--transition-base);
 }
 
 .chart-card h3 {
