@@ -8485,11 +8485,47 @@ class LojaApp {
     }
 
     closeViewGroupModal() {
+        console.log('🔧 [CLOSE VIEW GROUP] Fechando viewGroupModal');
         const viewGroupModal = document.getElementById('viewGroupModal');
         if (viewGroupModal) {
-            viewGroupModal.classList.remove('active');
+            // Restaurar todos os estilos antes de fechar
+            viewGroupModal.style.opacity = '';
+            viewGroupModal.style.pointerEvents = '';
+            viewGroupModal.style.zIndex = '';
+            viewGroupModal.style.display = '';
+            
+            // Garantir que o botão de fechar esteja clicável
+            const closeBtn = viewGroupModal.querySelector('.close');
+            if (closeBtn) {
+                closeBtn.style.pointerEvents = 'auto';
+                closeBtn.style.opacity = '1';
+                closeBtn.style.zIndex = '1001';
+            }
+            
+            // Garantir que todos os botões dentro do modal estejam clicáveis
+            const buttons = viewGroupModal.querySelectorAll('button');
+            buttons.forEach(btn => {
+                btn.style.pointerEvents = 'auto';
+                btn.style.opacity = '1';
+            });
+            
+            // Restaurar estilos do modal-content
+            const modalContent = viewGroupModal.querySelector('.modal-content');
+            if (modalContent) {
+                modalContent.style.zIndex = '';
+                modalContent.style.pointerEvents = '';
+            }
+            
+            // Fechar modal com animação
+            viewGroupModal.style.opacity = '0';
+            setTimeout(() => {
+                viewGroupModal.classList.remove('active');
+                viewGroupModal.style.display = 'none';
+                viewGroupModal.style.opacity = '';
+            }, 300);
         }
         this.currentGroup = null;
+        console.log('✅ [CLOSE VIEW GROUP] viewGroupModal fechado');
     }
 
     closeAllModals() {
