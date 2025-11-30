@@ -37,7 +37,14 @@
                 
                 // ========== CONFIGURAÇÃO ==========
                 const QRCODE_VERSION = '1.5.3';
-                const QRCODE_LOCAL = '/lib/qrcode.min.js';
+                // Tentar múltiplos caminhos locais possíveis
+                const QRCODE_LOCAL_PATHS = [
+                    '/lib/qrcode.min.js',
+                    '/public/lib/qrcode.min.js',
+                    '/static/lib/qrcode.min.js',
+                    '/js/lib/qrcode.min.js'
+                ];
+                const QRCODE_LOCAL = QRCODE_LOCAL_PATHS[0]; // Usar o primeiro como padrão
                 const QRCODE_CDNS = [
                     'https://cdn.jsdelivr.net/npm/qrcode@' + QRCODE_VERSION + '/build/qrcode.min.js',
                     'https://unpkg.com/qrcode@' + QRCODE_VERSION + '/build/qrcode.min.js',
@@ -170,13 +177,22 @@
                     
                     // Tentar arquivo local primeiro (Vercel ou localhost)
                     if (isLocalhost || isVercel) {
-                        try {
-                            console.log('📥 [QRCode] Tentando carregar do arquivo local...');
-                            await loadFromSource(QRCODE_LOCAL, 'arquivo local');
-                            return; // Sucesso!
-                        } catch (error) {
-                            console.warn('⚠️ [QRCode] Falha ao carregar arquivo local:', error.message);
-                            console.log('📥 [QRCode] Tentando CDNs como fallback...');
+                        let localLoaded = false;
+                        for (let i = 0; i < QRCODE_LOCAL_PATHS.length; i++) {
+                            try {
+                                console.log(`📥 [QRCode] Tentando carregar do arquivo local (tentativa ${i + 1}/${QRCODE_LOCAL_PATHS.length}):`, QRCODE_LOCAL_PATHS[i]);
+                                await loadFromSource(QRCODE_LOCAL_PATHS[i], `arquivo local ${i + 1}`);
+                                localLoaded = true;
+                                return; // Sucesso!
+                            } catch (error) {
+                                console.warn(`⚠️ [QRCode] Falha ao carregar de ${QRCODE_LOCAL_PATHS[i]}:`, error.message);
+                                if (i < QRCODE_LOCAL_PATHS.length - 1) {
+                                    console.log(`📥 [QRCode] Tentando próximo caminho local...`);
+                                }
+                            }
+                        }
+                        if (!localLoaded) {
+                            console.log('📥 [QRCode] Todos os caminhos locais falharam, tentando CDNs como fallback...');
                         }
                     }
                     
