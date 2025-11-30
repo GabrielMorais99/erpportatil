@@ -19,13 +19,6 @@ module.exports = async (req, res) => {
             });
         }
 
-        // Log para debug
-        console.log('=== DEBUG ===');
-        console.log('Request URL:', req.url);
-        console.log('Request Path:', req.path);
-        console.log('Normalized Path:', filePath);
-        console.log('Clean Path:', cleanPath);
-
         // Se for raiz, servir index.html
         if (filePath === '/' || filePath === '') {
             filePath = '/index.html';
@@ -35,6 +28,13 @@ module.exports = async (req, res) => {
         const cleanPath = filePath.startsWith('/')
             ? filePath.slice(1)
             : filePath;
+
+        // Log para debug (após definir cleanPath)
+        console.log('=== DEBUG ===');
+        console.log('Request URL:', req.url);
+        console.log('Request Path:', req.path);
+        console.log('Normalized Path:', filePath);
+        console.log('Clean Path:', cleanPath);
 
         // Tentar múltiplos caminhos possíveis
         const possiblePaths = [
