@@ -2278,6 +2278,53 @@
                             </label>
                         </div>
                         
+                        <!-- Agendamento de Relatórios -->
+                        <div class="form-group" style="background: var(--gray-50); padding: 1rem; border-radius: var(--radius-md); border: 1px solid var(--gray-200); margin-top: 1rem;">
+                            <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer; margin-bottom: 0.75rem; font-weight: 600; color: var(--primary-color);">
+                                <input type="checkbox" id="reportBuilderSchedule" onchange="app.toggleScheduleFields()" />
+                                <span><i class="fas fa-calendar-alt"></i> Agendar Relatório</span>
+                            </label>
+                            <div id="scheduleFields" style="display: none;">
+                                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 0.75rem;">
+                                    <div class="form-group" style="margin-bottom: 0;">
+                                        <label for="reportBuilderScheduleDate">Data de Agendamento</label>
+                                        <input type="date" id="reportBuilderScheduleDate" />
+                                    </div>
+                                    <div class="form-group" style="margin-bottom: 0;">
+                                        <label for="reportBuilderScheduleTime">Hora</label>
+                                        <input type="time" id="reportBuilderScheduleTime" />
+                                    </div>
+                                </div>
+                                <div class="form-group" style="margin-bottom: 0;">
+                                    <label for="reportBuilderScheduleFrequency">Frequência</label>
+                                    <select id="reportBuilderScheduleFrequency">
+                                        <option value="once">Uma vez</option>
+                                        <option value="daily">Diariamente</option>
+                                        <option value="weekly">Semanalmente</option>
+                                        <option value="monthly">Mensalmente</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Compartilhamento de Relatórios -->
+                        <div class="form-group" style="background: var(--gray-50); padding: 1rem; border-radius: var(--radius-md); border: 1px solid var(--gray-200); margin-top: 1rem;">
+                            <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer; margin-bottom: 0.75rem; font-weight: 600; color: var(--primary-color);">
+                                <input type="checkbox" id="reportBuilderShare" onchange="app.toggleShareFields()" />
+                                <span><i class="fas fa-share-alt"></i> Compartilhar Relatório</span>
+                            </label>
+                            <div id="shareFields" style="display: none;">
+                                <div class="form-group" style="margin-bottom: 0.75rem;">
+                                    <label for="reportBuilderShareEmails">Emails (separados por vírgula)</label>
+                                    <input type="text" id="reportBuilderShareEmails" placeholder="email1@exemplo.com, email2@exemplo.com" />
+                                </div>
+                                <div class="form-group" style="margin-bottom: 0;">
+                                    <label for="reportBuilderShareMessage">Mensagem (opcional)</label>
+                                    <textarea id="reportBuilderShareMessage" rows="2" placeholder="Mensagem personalizada para o compartilhamento..."></textarea>
+                                </div>
+                            </div>
+                        </div>
+                        
                         <div style="display: flex; gap: 0.5rem; margin-top: 1.5rem;">
                             <button type="button" class="btn-secondary" onclick="app.closeReportBuilderModal()">
                                 Cancelar
@@ -2333,6 +2380,53 @@
                                 <input type="checkbox" id="exportIncludeSummary" checked />
                                 <span>Incluir resumo executivo</span>
                             </label>
+                        </div>
+                        
+                        <!-- Agendamento de Exportações -->
+                        <div class="form-group" style="background: var(--gray-50); padding: 1rem; border-radius: var(--radius-md); border: 1px solid var(--gray-200); margin-top: 1rem;">
+                            <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer; margin-bottom: 0.75rem; font-weight: 600; color: var(--primary-color);">
+                                <input type="checkbox" id="exportSchedule" onchange="app.toggleExportScheduleFields()" />
+                                <span><i class="fas fa-calendar-alt"></i> Agendar Exportação</span>
+                            </label>
+                            <div id="exportScheduleFields" style="display: none;">
+                                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 0.75rem;">
+                                    <div class="form-group" style="margin-bottom: 0;">
+                                        <label for="exportScheduleDate">Data de Agendamento</label>
+                                        <input type="date" id="exportScheduleDate" />
+                                    </div>
+                                    <div class="form-group" style="margin-bottom: 0;">
+                                        <label for="exportScheduleTime">Hora</label>
+                                        <input type="time" id="exportScheduleTime" />
+                                    </div>
+                                </div>
+                                <div class="form-group" style="margin-bottom: 0;">
+                                    <label for="exportScheduleFrequency">Frequência</label>
+                                    <select id="exportScheduleFrequency">
+                                        <option value="once">Uma vez</option>
+                                        <option value="daily">Diariamente</option>
+                                        <option value="weekly">Semanalmente</option>
+                                        <option value="monthly">Mensalmente</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Email Automático de Exportações -->
+                        <div class="form-group" style="background: var(--gray-50); padding: 1rem; border-radius: var(--radius-md); border: 1px solid var(--gray-200); margin-top: 1rem;">
+                            <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer; margin-bottom: 0.75rem; font-weight: 600; color: var(--primary-color);">
+                                <input type="checkbox" id="exportEmail" onchange="app.toggleExportEmailFields()" />
+                                <span><i class="fas fa-envelope"></i> Enviar por Email</span>
+                            </label>
+                            <div id="exportEmailFields" style="display: none;">
+                                <div class="form-group" style="margin-bottom: 0.75rem;">
+                                    <label for="exportEmailRecipients">Emails (separados por vírgula)</label>
+                                    <input type="text" id="exportEmailRecipients" placeholder="email1@exemplo.com, email2@exemplo.com" />
+                                </div>
+                                <div class="form-group" style="margin-bottom: 0;">
+                                    <label for="exportEmailSubject">Assunto do Email</label>
+                                    <input type="text" id="exportEmailSubject" placeholder="Exportação de Dados - Loja" />
+                                </div>
+                            </div>
                         </div>
                         
                         <div style="display: flex; gap: 0.5rem; margin-top: 1.5rem;">

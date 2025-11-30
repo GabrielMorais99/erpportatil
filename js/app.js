@@ -645,6 +645,22 @@ class LojaApp {
             threshold: 80, // Distância mínima para ativar refresh
             maxPull: 120, // Distância máxima de pull
         };
+        this.scheduledReports = []; // Relatórios agendados: [{ id, config, scheduleDate, frequency, lastRun, nextRun }]
+        this.sharedReports = []; // Relatórios compartilhados: [{ id, config, sharedWith, sharedAt, message }]
+        this.scheduledExports = []; // Exportações agendadas: [{ id, config, scheduleDate, frequency, lastRun, nextRun }]
+        this.scheduleCheckInterval = null; // Intervalo para verificar agendamentos
+        this.exportScheduleCheckInterval = null; // Intervalo para verificar agendamentos de exportações
+        this.emailTracking = {}; // Tracking de abertura de emails: { emailId: { sentAt, openedAt, openedCount, recipients } }
+        this.whatsappConfig = { // Configurações de WhatsApp
+            enabled: false,
+            provider: 'whatsapp_business',
+            apiKey: '',
+            phoneNumberId: '',
+            businessAccountId: '',
+            webhookUrl: ''
+        };
+        this.whatsappChats = []; // Chats com clientes: [{ id, clientId, messages, lastMessageAt, unreadCount }]
+        this.whatsappAutomations = []; // Automações de mensagens: [{ id, trigger, message, enabled }]
 
         this.init();
     }
@@ -1031,6 +1047,16 @@ class LojaApp {
 
             // Inicializar pull-to-refresh
             this.initPullToRefresh();
+
+            // Inicializar verificador de agendamentos de relatórios
+            if (this.scheduledReports && this.scheduledReports.length > 0) {
+                this.initScheduleChecker();
+            }
+            
+            // Inicializar verificador de agendamentos de exportações
+            if (this.scheduledExports && this.scheduledExports.length > 0) {
+                this.initExportScheduleChecker();
+            }
 
             // Event listeners (deve ser chamado primeiro)
             this.setupEventListeners();
@@ -14585,6 +14611,13 @@ class LojaApp {
             emailConfig: this.emailConfig || {}, // Configurações de email
             smsConfig: this.smsConfig || {}, // Configurações de SMS
             dataAccessLogs: this.dataAccessLogs || [], // Logs de acesso a dados pessoais (LGPD)
+            scheduledReports: this.scheduledReports || [], // Relatórios agendados
+            sharedReports: this.sharedReports || [], // Relatórios compartilhados
+            scheduledExports: this.scheduledExports || [], // Exportações agendadas
+            emailTracking: this.emailTracking || {}, // Tracking de abertura de emails
+            whatsappConfig: this.whatsappConfig || {}, // Configurações de WhatsApp
+            whatsappChats: this.whatsappChats || [], // Chats com clientes
+            whatsappAutomations: this.whatsappAutomations || [], // Automações de mensagens
             theme: currentTheme, // Salvar tema por usuário
             encryptionEnabled: this.encryptionEnabled, // Flag de criptografia
             version: '1.0',
@@ -14875,6 +14908,13 @@ class LojaApp {
                         this.erpConfig = cloudData.erpConfig || this.erpConfig;
                         this.emailConfig = cloudData.emailConfig || this.emailConfig;
                         this.smsConfig = cloudData.smsConfig || this.smsConfig;
+                        this.scheduledReports = cloudData.scheduledReports || [];
+                        this.sharedReports = cloudData.sharedReports || [];
+                        this.scheduledExports = cloudData.scheduledExports || [];
+                        this.emailTracking = cloudData.emailTracking || {};
+                        this.whatsappConfig = cloudData.whatsappConfig || this.whatsappConfig;
+                        this.whatsappChats = cloudData.whatsappChats || [];
+                        this.whatsappAutomations = cloudData.whatsappAutomations || [];
                         
                         // Gerar tags automáticas se habilitado
                         if (this.autoTagsEnabled) {
@@ -15085,6 +15125,13 @@ class LojaApp {
                 this.emailConfig = data.emailConfig || this.emailConfig;
                 this.smsConfig = data.smsConfig || this.smsConfig;
                 this.dataAccessLogs = data.dataAccessLogs || [];
+                this.scheduledReports = data.scheduledReports || [];
+                this.sharedReports = data.sharedReports || [];
+                this.scheduledExports = data.scheduledExports || [];
+                this.emailTracking = data.emailTracking || {};
+                this.whatsappConfig = data.whatsappConfig || this.whatsappConfig;
+                this.whatsappChats = data.whatsappChats || [];
+                this.whatsappAutomations = data.whatsappAutomations || [];
 
                 console.log(
                     `📋 [LOAD DATA] Comprovantes carregados do localStorage: ${this.completedSales.length}`
@@ -17712,15 +17759,295 @@ class LojaApp {
                 break;
         }
         
-        // Exportar no formato selecionado
-        this.exportReport(reportData, reportTitle, format, includeCharts, includeSummary);
+        // Verificar se é agendamento ou compartilhamento
+        const isScheduled = document.getElementById('reportBuilderSchedule')?.checked || false;
+        const isShared = document.getElementById('reportBuilderShare')?.checked || false;
         
-        // Fechar modal
-        this.closeReportBuilderModal();
+        // Configuração do relatório
+        const reportConfig = {
+            type,
+            startDate,
+            endDate,
+            format,
+            includeCharts,
+            includeSummary,
+            category,
+            status,
+            title: reportTitle
+        };
         
-        if (typeof toast !== 'undefined' && toast) {
-            toast.success('Relatório gerado com sucesso!', 3000);
+        // Agendar relatório se solicitado
+        if (isScheduled) {
+            const scheduleDate = document.getElementById('reportBuilderScheduleDate')?.value;
+            const scheduleTime = document.getElementById('reportBuilderScheduleTime')?.value;
+            const frequency = document.getElementById('reportBuilderScheduleFrequency')?.value || 'once';
+            
+            if (scheduleDate && scheduleTime) {
+                this.scheduleReport(reportConfig, scheduleDate, scheduleTime, frequency);
+                if (typeof toast !== 'undefined' && toast) {
+                    toast.success('Relatório agendado com sucesso!', 3000);
+                }
+            } else {
+                if (typeof toast !== 'undefined' && toast) {
+                    toast.warning('Por favor, preencha data e hora do agendamento.', 3000);
+                }
+                return;
+            }
         }
+        
+        // Compartilhar relatório se solicitado
+        if (isShared) {
+            const shareEmails = document.getElementById('reportBuilderShareEmails')?.value;
+            const shareMessage = document.getElementById('reportBuilderShareMessage')?.value || '';
+            
+            if (shareEmails) {
+                this.shareReport(reportConfig, shareEmails, shareMessage);
+                if (typeof toast !== 'undefined' && toast) {
+                    toast.success('Relatório compartilhado com sucesso!', 3000);
+                }
+            } else {
+                if (typeof toast !== 'undefined' && toast) {
+                    toast.warning('Por favor, informe pelo menos um email para compartilhamento.', 3000);
+                }
+                return;
+            }
+        }
+        
+        // Se não for agendamento, gerar imediatamente
+        if (!isScheduled) {
+            // Exportar no formato selecionado
+            this.exportReport(reportData, reportTitle, format, includeCharts, includeSummary);
+            
+            // Fechar modal
+            this.closeReportBuilderModal();
+            
+            if (typeof toast !== 'undefined' && toast) {
+                toast.success('Relatório gerado com sucesso!', 3000);
+            }
+        } else {
+            // Se for agendamento, apenas fechar modal
+            this.closeReportBuilderModal();
+        }
+    }
+    
+    // Toggle campos de agendamento
+    toggleScheduleFields() {
+        const scheduleCheckbox = document.getElementById('reportBuilderSchedule');
+        const scheduleFields = document.getElementById('scheduleFields');
+        
+        if (scheduleCheckbox && scheduleFields) {
+            scheduleFields.style.display = scheduleCheckbox.checked ? 'block' : 'none';
+            
+            // Definir data/hora padrão se estiver marcado
+            if (scheduleCheckbox.checked) {
+                const now = new Date();
+                const scheduleDate = document.getElementById('reportBuilderScheduleDate');
+                const scheduleTime = document.getElementById('reportBuilderScheduleTime');
+                
+                if (scheduleDate) {
+                    scheduleDate.value = now.toISOString().split('T')[0];
+                }
+                if (scheduleTime) {
+                    scheduleTime.value = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+                }
+            }
+        }
+    }
+    
+    // Toggle campos de compartilhamento
+    toggleShareFields() {
+        const shareCheckbox = document.getElementById('reportBuilderShare');
+        const shareFields = document.getElementById('shareFields');
+        
+        if (shareCheckbox && shareFields) {
+            shareFields.style.display = shareCheckbox.checked ? 'block' : 'none';
+        }
+    }
+    
+    // Agendar relatório
+    scheduleReport(config, scheduleDate, scheduleTime, frequency) {
+        const scheduleDateTime = new Date(`${scheduleDate}T${scheduleTime}`);
+        const now = new Date();
+        
+        if (scheduleDateTime <= now && frequency === 'once') {
+            if (typeof toast !== 'undefined' && toast) {
+                toast.warning('A data/hora do agendamento deve ser no futuro.', 3000);
+            }
+            return;
+        }
+        
+        const scheduledReport = {
+            id: `schedule_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+            config,
+            scheduleDate: scheduleDateTime.toISOString(),
+            frequency,
+            createdAt: new Date().toISOString(),
+            lastRun: null,
+            nextRun: scheduleDateTime.toISOString(),
+            active: true
+        };
+        
+        this.scheduledReports.push(scheduledReport);
+        this.saveData();
+        
+        console.log('✅ [SCHEDULE] Relatório agendado:', scheduledReport);
+        
+        // Iniciar verificação de agendamentos se ainda não estiver rodando
+        if (!this.scheduleCheckInterval) {
+            this.initScheduleChecker();
+        }
+    }
+    
+    // Compartilhar relatório
+    shareReport(config, emails, message) {
+        const emailList = emails.split(',').map(email => email.trim()).filter(email => email);
+        
+        if (emailList.length === 0) {
+            if (typeof toast !== 'undefined' && toast) {
+                toast.warning('Nenhum email válido fornecido.', 3000);
+            }
+            return;
+        }
+        
+        const sharedReport = {
+            id: `share_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+            config,
+            sharedWith: emailList,
+            message,
+            sharedAt: new Date().toISOString(),
+            sent: false // Será marcado como true quando enviado (simulado)
+        };
+        
+        this.sharedReports.push(sharedReport);
+        this.saveData();
+        
+        console.log('✅ [SHARE] Relatório compartilhado:', sharedReport);
+        
+        // Simular envio (em produção, isso chamaria a API de email)
+        this.sendSharedReport(sharedReport);
+    }
+    
+    // Enviar relatório compartilhado (simulado)
+    async sendSharedReport(sharedReport) {
+        // Em produção, isso chamaria a API de email configurada
+        // Por enquanto, apenas simula o envio
+        console.log('📧 [SHARE] Simulando envio de relatório para:', sharedReport.sharedWith);
+        
+        // Marcar como enviado após simulação
+        setTimeout(() => {
+            sharedReport.sent = true;
+            this.saveData();
+            if (typeof toast !== 'undefined' && toast) {
+                toast.info(`Relatório compartilhado com ${sharedReport.sharedWith.length} destinatário(s)`, 3000);
+            }
+        }, 1000);
+    }
+    
+    // Inicializar verificador de agendamentos
+    initScheduleChecker() {
+        // Verificar a cada minuto
+        this.scheduleCheckInterval = setInterval(() => {
+            this.checkScheduledReports();
+        }, 60000); // 1 minuto
+        
+        // Verificar imediatamente também
+        this.checkScheduledReports();
+        
+        console.log('✅ [SCHEDULE] Verificador de agendamentos iniciado');
+    }
+    
+    // Verificar e executar relatórios agendados
+    checkScheduledReports() {
+        const now = new Date();
+        let hasChanges = false;
+        
+        this.scheduledReports.forEach(scheduled => {
+            if (!scheduled.active) return;
+            
+            const nextRun = new Date(scheduled.nextRun);
+            
+            // Se chegou a hora de executar
+            if (nextRun <= now) {
+                console.log('⏰ [SCHEDULE] Executando relatório agendado:', scheduled.id);
+                
+                // Gerar relatório
+                this.executeScheduledReport(scheduled);
+                
+                // Atualizar próxima execução baseado na frequência
+                scheduled.lastRun = new Date().toISOString();
+                
+                if (scheduled.frequency === 'once') {
+                    scheduled.active = false;
+                } else {
+                    // Calcular próxima execução
+                    const nextDate = new Date(nextRun);
+                    switch (scheduled.frequency) {
+                        case 'daily':
+                            nextDate.setDate(nextDate.getDate() + 1);
+                            break;
+                        case 'weekly':
+                            nextDate.setDate(nextDate.getDate() + 7);
+                            break;
+                        case 'monthly':
+                            nextDate.setMonth(nextDate.getMonth() + 1);
+                            break;
+                    }
+                    scheduled.nextRun = nextDate.toISOString();
+                }
+                
+                hasChanges = true;
+            }
+        });
+        
+        // Remover agendamentos inativos
+        this.scheduledReports = this.scheduledReports.filter(s => s.active);
+        
+        if (hasChanges) {
+            this.saveData();
+        }
+    }
+    
+    // Executar relatório agendado
+    executeScheduledReport(scheduled) {
+        const { config } = scheduled;
+        const start = new Date(config.startDate);
+        const end = new Date(config.endDate);
+        end.setHours(23, 59, 59, 999);
+        
+        let reportData = {};
+        let reportTitle = config.title || 'Relatório Agendado';
+        
+        // Gerar dados do relatório
+        switch (config.type) {
+            case 'sales':
+                reportData = this.generateSalesReport(start, end, config.category, config.status);
+                break;
+            case 'services':
+                reportData = this.generateServicesReport(start, end, config.status);
+                break;
+            case 'products':
+                reportData = this.generateProductsReport(start, end, config.category);
+                break;
+            case 'clients':
+                reportData = this.generateClientsReport(start, end);
+                break;
+            case 'financial':
+                reportData = this.generateFinancialReport(start, end);
+                break;
+            case 'custom':
+                reportData = this.generateCustomCombinedReport(start, end, config.category, config.status);
+                break;
+        }
+        
+        // Exportar relatório
+        this.exportReport(reportData, reportTitle, config.format, config.includeCharts, config.includeSummary);
+        
+        // Notificar usuário
+        if (typeof toast !== 'undefined' && toast) {
+            toast.success(`Relatório agendado "${reportTitle}" gerado automaticamente!`, 5000);
+        }
+        
+        console.log('✅ [SCHEDULE] Relatório agendado executado:', scheduled.id);
     }
 
     // Gerar relatório de vendas
@@ -18162,30 +18489,284 @@ class LojaApp {
                 break;
         }
         
-        // Exportar no formato selecionado
-        const filename = `loja_export_${dataType}_${new Date().toISOString().split('T')[0]}`;
+        // Verificar se é agendamento ou email automático
+        const isScheduled = document.getElementById('exportSchedule')?.checked || false;
+        const isEmail = document.getElementById('exportEmail')?.checked || false;
         
-        switch (format) {
+        // Configuração da exportação
+        const exportConfig = {
+            format,
+            dataType,
+            includeCharts,
+            includeSummary,
+            exportDataObj
+        };
+        
+        // Agendar exportação se solicitado
+        if (isScheduled) {
+            const scheduleDate = document.getElementById('exportScheduleDate')?.value;
+            const scheduleTime = document.getElementById('exportScheduleTime')?.value;
+            const frequency = document.getElementById('exportScheduleFrequency')?.value || 'once';
+            
+            if (scheduleDate && scheduleTime) {
+                this.scheduleExport(exportConfig, scheduleDate, scheduleTime, frequency, isEmail);
+                if (typeof toast !== 'undefined' && toast) {
+                    toast.success('Exportação agendada com sucesso!', 3000);
+                }
+            } else {
+                if (typeof toast !== 'undefined' && toast) {
+                    toast.warning('Por favor, preencha data e hora do agendamento.', 3000);
+                }
+                return;
+            }
+        }
+        
+        // Enviar por email se solicitado
+        if (isEmail && !isScheduled) {
+            const emailRecipients = document.getElementById('exportEmailRecipients')?.value;
+            const emailSubject = document.getElementById('exportEmailSubject')?.value || 'Exportação de Dados - Loja';
+            
+            if (emailRecipients) {
+                this.sendExportByEmail(exportConfig, emailRecipients, emailSubject);
+                if (typeof toast !== 'undefined' && toast) {
+                    toast.success('Exportação enviada por email!', 3000);
+                }
+            } else {
+                if (typeof toast !== 'undefined' && toast) {
+                    toast.warning('Por favor, informe pelo menos um email.', 3000);
+                }
+                return;
+            }
+        }
+        
+        // Se não for agendamento, exportar imediatamente
+        if (!isScheduled) {
+            // Exportar no formato selecionado
+            const filename = `loja_export_${dataType}_${new Date().toISOString().split('T')[0]}`;
+            
+            switch (format) {
+                case 'json':
+                    this.exportAsJSON(exportDataObj, filename);
+                    break;
+                case 'pdf':
+                    this.exportAsPDF(exportDataObj, dataType, filename, includeCharts, includeSummary);
+                    break;
+                case 'excel':
+                    this.exportAsExcel(exportDataObj, dataType, filename);
+                    break;
+                case 'csv':
+                    this.exportAsCSV(exportDataObj, dataType, filename);
+                    break;
+            }
+            
+            // Fechar modal
+            this.closeExportModal();
+            
+            if (typeof toast !== 'undefined' && toast) {
+                toast.success('Dados exportados com sucesso!', 3000);
+            }
+        } else {
+            // Se for agendamento, apenas fechar modal
+            this.closeExportModal();
+        }
+    }
+    
+    // Toggle campos de agendamento de exportação
+    toggleExportScheduleFields() {
+        const scheduleCheckbox = document.getElementById('exportSchedule');
+        const scheduleFields = document.getElementById('exportScheduleFields');
+        
+        if (scheduleCheckbox && scheduleFields) {
+            scheduleFields.style.display = scheduleCheckbox.checked ? 'block' : 'none';
+            
+            // Definir data/hora padrão se estiver marcado
+            if (scheduleCheckbox.checked) {
+                const now = new Date();
+                const scheduleDate = document.getElementById('exportScheduleDate');
+                const scheduleTime = document.getElementById('exportScheduleTime');
+                
+                if (scheduleDate) {
+                    scheduleDate.value = now.toISOString().split('T')[0];
+                }
+                if (scheduleTime) {
+                    scheduleTime.value = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+                }
+            }
+        }
+    }
+    
+    // Toggle campos de email de exportação
+    toggleExportEmailFields() {
+        const emailCheckbox = document.getElementById('exportEmail');
+        const emailFields = document.getElementById('exportEmailFields');
+        
+        if (emailCheckbox && emailFields) {
+            emailFields.style.display = emailCheckbox.checked ? 'block' : 'none';
+        }
+    }
+    
+    // Agendar exportação
+    scheduleExport(config, scheduleDate, scheduleTime, frequency, sendEmail = false) {
+        const scheduleDateTime = new Date(`${scheduleDate}T${scheduleTime}`);
+        const now = new Date();
+        
+        if (scheduleDateTime <= now && frequency === 'once') {
+            if (typeof toast !== 'undefined' && toast) {
+                toast.warning('A data/hora do agendamento deve ser no futuro.', 3000);
+            }
+            return;
+        }
+        
+        const scheduledExport = {
+            id: `export_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+            config,
+            scheduleDate: scheduleDateTime.toISOString(),
+            frequency,
+            sendEmail,
+            emailRecipients: sendEmail ? document.getElementById('exportEmailRecipients')?.value : null,
+            emailSubject: sendEmail ? (document.getElementById('exportEmailSubject')?.value || 'Exportação de Dados - Loja') : null,
+            createdAt: new Date().toISOString(),
+            lastRun: null,
+            nextRun: scheduleDateTime.toISOString(),
+            active: true
+        };
+        
+        this.scheduledExports.push(scheduledExport);
+        this.saveData();
+        
+        console.log('✅ [EXPORT SCHEDULE] Exportação agendada:', scheduledExport);
+        
+        // Iniciar verificação de agendamentos se ainda não estiver rodando
+        if (!this.exportScheduleCheckInterval) {
+            this.initExportScheduleChecker();
+        }
+    }
+    
+    // Enviar exportação por email
+    async sendExportByEmail(config, recipients, subject) {
+        const emailList = recipients.split(',').map(email => email.trim()).filter(email => email);
+        
+        if (emailList.length === 0) {
+            if (typeof toast !== 'undefined' && toast) {
+                toast.warning('Nenhum email válido fornecido.', 3000);
+            }
+            return;
+        }
+        
+        // Preparar dados para exportação
+        const filename = `loja_export_${config.dataType}_${new Date().toISOString().split('T')[0]}`;
+        
+        // Simular envio (em produção, isso chamaria a API de email configurada)
+        console.log('📧 [EXPORT EMAIL] Simulando envio de exportação para:', emailList);
+        console.log('📧 [EXPORT EMAIL] Assunto:', subject);
+        console.log('📧 [EXPORT EMAIL] Formato:', config.format);
+        console.log('📧 [EXPORT EMAIL] Tipo de dados:', config.dataType);
+        
+        // Em produção, aqui seria feita a chamada à API de email
+        // Por enquanto, apenas simula
+        setTimeout(() => {
+            if (typeof toast !== 'undefined' && toast) {
+                toast.info(`Exportação enviada para ${emailList.length} destinatário(s)`, 3000);
+            }
+        }, 1000);
+    }
+    
+    // Inicializar verificador de agendamentos de exportação
+    initExportScheduleChecker() {
+        // Verificar a cada minuto
+        this.exportScheduleCheckInterval = setInterval(() => {
+            this.checkScheduledExports();
+        }, 60000); // 1 minuto
+        
+        // Verificar imediatamente também
+        this.checkScheduledExports();
+        
+        console.log('✅ [EXPORT SCHEDULE] Verificador de agendamentos de exportação iniciado');
+    }
+    
+    // Verificar e executar exportações agendadas
+    checkScheduledExports() {
+        const now = new Date();
+        let hasChanges = false;
+        
+        this.scheduledExports.forEach(scheduled => {
+            if (!scheduled.active) return;
+            
+            const nextRun = new Date(scheduled.nextRun);
+            
+            // Se chegou a hora de executar
+            if (nextRun <= now) {
+                console.log('⏰ [EXPORT SCHEDULE] Executando exportação agendada:', scheduled.id);
+                
+                // Executar exportação
+                this.executeScheduledExport(scheduled);
+                
+                // Atualizar próxima execução baseado na frequência
+                scheduled.lastRun = new Date().toISOString();
+                
+                if (scheduled.frequency === 'once') {
+                    scheduled.active = false;
+                } else {
+                    // Calcular próxima execução
+                    const nextDate = new Date(nextRun);
+                    switch (scheduled.frequency) {
+                        case 'daily':
+                            nextDate.setDate(nextDate.getDate() + 1);
+                            break;
+                        case 'weekly':
+                            nextDate.setDate(nextDate.getDate() + 7);
+                            break;
+                        case 'monthly':
+                            nextDate.setMonth(nextDate.getMonth() + 1);
+                            break;
+                    }
+                    scheduled.nextRun = nextDate.toISOString();
+                }
+                
+                hasChanges = true;
+            }
+        });
+        
+        // Remover exportações inativas
+        this.scheduledExports = this.scheduledExports.filter(s => s.active);
+        
+        if (hasChanges) {
+            this.saveData();
+        }
+    }
+    
+    // Executar exportação agendada
+    executeScheduledExport(scheduled) {
+        const { config } = scheduled;
+        const filename = `loja_export_${config.dataType}_${new Date().toISOString().split('T')[0]}`;
+        
+        // Exportar no formato configurado
+        switch (config.format) {
             case 'json':
-                this.exportAsJSON(exportDataObj, filename);
+                this.exportAsJSON(config.exportDataObj, filename);
                 break;
             case 'pdf':
-                this.exportAsPDF(exportDataObj, dataType, filename, includeCharts, includeSummary);
+                this.exportAsPDF(config.exportDataObj, config.dataType, filename, config.includeCharts, config.includeSummary);
                 break;
             case 'excel':
-                this.exportAsExcel(exportDataObj, dataType, filename);
+                this.exportAsExcel(config.exportDataObj, config.dataType, filename);
                 break;
             case 'csv':
-                this.exportAsCSV(exportDataObj, dataType, filename);
+                this.exportAsCSV(config.exportDataObj, config.dataType, filename);
                 break;
         }
         
-        // Fechar modal
-        this.closeExportModal();
-        
-        if (typeof toast !== 'undefined' && toast) {
-            toast.success('Dados exportados com sucesso!', 3000);
+        // Enviar por email se configurado
+        if (scheduled.sendEmail && scheduled.emailRecipients) {
+            this.sendExportByEmail(config, scheduled.emailRecipients, scheduled.emailSubject || 'Exportação de Dados - Loja');
         }
+        
+        // Notificar usuário
+        if (typeof toast !== 'undefined' && toast) {
+            toast.success(`Exportação agendada executada automaticamente!`, 5000);
+        }
+        
+        console.log('✅ [EXPORT SCHEDULE] Exportação agendada executada:', scheduled.id);
     }
 
     // Exportar como JSON
