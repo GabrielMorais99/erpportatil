@@ -1583,8 +1583,9 @@ class LojaApp {
             console.log('📥 Carregando biblioteca QRCode dinamicamente...');
             const script = document.createElement('script');
             
-            // Tentar múltiplas URLs do CDN
+            // Tentar versão local primeiro, depois múltiplas URLs do CDN
             const cdnUrls = [
+                '/lib/qrcode.min.js', // Versão local primeiro
                 'https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js',
                 'https://unpkg.com/qrcode@1.5.3/build/qrcode.min.js',
                 'https://cdnjs.cloudflare.com/ajax/libs/qrcode/1.5.3/qrcode.min.js'

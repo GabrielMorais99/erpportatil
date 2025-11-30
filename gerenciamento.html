@@ -27,10 +27,15 @@
         <link rel="stylesheet" href="/css/style.css" />
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
         <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js" onload="window.chartJsLoaded = true;" onerror="console.error('Erro ao carregar Chart.js');"></script>
-        <!-- QR Code Libraries -->
-        <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js" 
-                onload="window.qrcodeLoaded = true; console.log('✅ Biblioteca QRCode carregada com sucesso');" 
-                onerror="console.error('❌ Erro ao carregar biblioteca QRCode'); window.qrcodeLoaded = false;"></script>
+        <!-- QR Code Libraries - Versão local primeiro, fallback para CDN -->
+        <script src="/lib/qrcode.min.js" 
+                onload="window.qrcodeLoaded = true; console.log('✅ Biblioteca QRCode carregada localmente com sucesso');" 
+                onerror="console.warn('⚠️ Erro ao carregar biblioteca QRCode local, tentando CDN...'); window.qrcodeLoaded = false; 
+                         var fallbackScript = document.createElement('script');
+                         fallbackScript.src = 'https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js';
+                         fallbackScript.onload = function() { window.qrcodeLoaded = true; console.log('✅ Biblioteca QRCode carregada do CDN'); };
+                         fallbackScript.onerror = function() { console.error('❌ Erro ao carregar biblioteca QRCode do CDN'); window.qrcodeLoaded = false; };
+                         document.head.appendChild(fallbackScript);"></script>
         <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
         <link rel="manifest" href="/manifest.json" />
         <link
