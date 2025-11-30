@@ -5598,6 +5598,15 @@ body.spacing-comfortable * {
     line-height: 1.6;
 }
 
+/* Parágrafos dentro de empty-state com espaçamento adequado */
+.empty-state p {
+    font-size: 0.9375rem;
+    color: var(--gray-600);
+    margin-bottom: 3rem !important;
+    line-height: 1.6;
+    margin-top: 0;
+}
+
 .empty-state-action {
     margin-top: 2rem;
 }
@@ -5605,7 +5614,7 @@ body.spacing-comfortable * {
 /* Botões dentro de empty-state com melhor legibilidade */
 .empty-state .btn-primary,
 .empty-state button.btn-primary {
-    padding: 0.875rem 1.75rem;
+    padding: 0.875rem 2rem;
     font-size: 1rem;
     font-weight: 600;
     letter-spacing: 0.02em;
@@ -5617,11 +5626,39 @@ body.spacing-comfortable * {
     gap: 0.5rem;
     color: #ffffff !important;
     text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+    white-space: nowrap;
+    width: auto;
+    max-width: 100%;
+    box-sizing: border-box;
+    word-wrap: normal;
+    overflow: visible;
 }
 
 .empty-state .btn-primary i,
 .empty-state button.btn-primary i {
     font-size: 1.1rem;
+}
+
+/* Garantir que texto dos botões em empty-state sempre seja visível, mesmo no mobile */
+.empty-state .btn-primary > *:not(i),
+.empty-state button.btn-primary > *:not(i) {
+    display: inline !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    width: auto !important;
+    height: auto !important;
+    text-indent: 0 !important;
+    overflow: visible !important;
+    font-size: inherit !important;
+    color: inherit !important;
+}
+
+.empty-state .btn-primary,
+.empty-state button.btn-primary {
+    font-size: 0.95rem !important;
+    padding: 0.875rem 1.5rem !important;
+    min-width: auto !important;
+    max-width: calc(100% - 2rem) !important;
 }
 
 .empty-state-example {
@@ -6071,6 +6108,41 @@ body.dark-mode .skeleton-line {
         visibility: visible !important;
         opacity: 1 !important;
         line-height: 1 !important;
+    }
+
+    /* EXCEÇÃO: Botões dentro de empty-state sempre mostram texto completo */
+    .empty-state .btn-primary,
+    .empty-state button.btn-primary {
+        padding: 0.875rem 1.5rem !important;
+        font-size: 0.9rem !important;
+        min-width: auto !important;
+        max-width: calc(100% - 2rem) !important;
+        width: auto !important;
+        white-space: normal !important;
+        word-wrap: break-word !important;
+        overflow-wrap: break-word !important;
+        text-align: center !important;
+        gap: 0.5rem !important;
+    }
+
+    .empty-state .btn-primary > *:not(i),
+    .empty-state button.btn-primary > *:not(i) {
+        display: inline !important;
+        visibility: visible !important;
+        opacity: 1 !important;
+        width: auto !important;
+        height: auto !important;
+        text-indent: 0 !important;
+        overflow: visible !important;
+        font-size: inherit !important;
+        color: inherit !important;
+        text-align: center !important;
+    }
+
+    .empty-state .btn-primary i,
+    .empty-state button.btn-primary i {
+        font-size: 1rem !important;
+        margin-right: 0.25rem !important;
     }
 
     /* Garantir que modais e formulários sejam responsivos */
