@@ -60,6 +60,31 @@ self.addEventListener('activate', (event) => {
 self.addEventListener('fetch', (event) => {
   const url = new URL(event.request.url);
   
+  // DETECTAR LOCALHOST: Desabilitar cache em desenvolvimento
+  const isLocalhost = url.hostname === 'localhost' || 
+                      url.hostname === '127.0.0.1' || 
+                      url.hostname === '[::1]' ||
+                      url.hostname.includes('.local');
+  
+  // Em localhost, sempre buscar da rede (sem cache)
+  if (isLocalhost) {
+    event.respondWith(
+      fetch(event.request)
+        .then((response) => {
+          // Não fazer cache em localhost
+          return response;
+        })
+        .catch(() => {
+          // Se falhar, retornar página offline se for HTML
+          if (event.request.destination === 'document') {
+            return caches.match('/index.html');
+          }
+          throw new Error('Network request failed');
+        })
+    );
+    return;
+  }
+  
   // Ignorar requisições de API e externas
   if (url.origin !== self.location.origin && !url.pathname.startsWith('/api/')) {
     return; // Deixar o navegador lidar com requisições externas

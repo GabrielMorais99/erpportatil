@@ -3294,12 +3294,53 @@
             });
         </script>
         <script>
+            // Função para limpar cache (útil para desenvolvimento)
+            window.clearAllCache = async function() {
+                console.log('🧹 Limpando cache...');
+                
+                // Desregistrar Service Workers
+                if ('serviceWorker' in navigator) {
+                    const registrations = await navigator.serviceWorker.getRegistrations();
+                    for (let registration of registrations) {
+                        await registration.unregister();
+                        console.log('✅ Service Worker desregistrado');
+                    }
+                }
+                
+                // Limpar todos os caches
+                const cacheNames = await caches.keys();
+                for (let cacheName of cacheNames) {
+                    await caches.delete(cacheName);
+                    console.log('✅ Cache deletado:', cacheName);
+                }
+                
+                // Limpar cache do navegador (localStorage e sessionStorage opcional)
+                // localStorage.clear();
+                // sessionStorage.clear();
+                
+                console.log('✅ Cache limpo! Recarregando página...');
+                setTimeout(() => {
+                    window.location.reload(true);
+                }, 500);
+            };
+            
             // Registrar Service Worker para PWA
             if ('serviceWorker' in navigator) {
                 window.addEventListener('load', () => {
+                    // Detectar se está em localhost
+                    const isLocalhost = window.location.hostname === 'localhost' || 
+                                       window.location.hostname === '127.0.0.1' || 
+                                       window.location.hostname === '[::1]' ||
+                                       window.location.hostname.includes('.local');
+                    
                     navigator.serviceWorker.register('/sw.js')
                         .then((registration) => {
                             console.log('✅ [PWA] Service Worker registrado:', registration.scope);
+                            
+                            if (isLocalhost) {
+                                console.log('💡 [DEV] Modo localhost detectado - cache desabilitado no SW');
+                                console.log('💡 [DEV] Para limpar cache, execute: clearAllCache()');
+                            }
                             
                             // Verificar atualizações
                             registration.addEventListener('updatefound', () => {
