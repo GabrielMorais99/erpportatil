@@ -1495,9 +1495,14 @@ class LojaApp {
                 console.log('🔍 Verificando window.qrcode:', typeof window.qrcode);
                 console.log('🔍 Verificando window.qrcodeLoaded:', window.qrcodeLoaded);
                 
-                // Se o script já foi marcado como carregado mas a biblioteca não está disponível,
-                // pode ser que a biblioteca expõe a API de forma diferente
-                if (window.qrcodeLoaded) {
+                // Se o script falhou ao carregar (qrcodeLoaded é false), tentar recarregar
+                if (window.qrcodeLoaded === false) {
+                    console.warn('⚠️ Script QRCode falhou ao carregar anteriormente. Tentando recarregar...');
+                    // Remover script antigo
+                    existingScript.remove();
+                    // Continuar para carregar dinamicamente abaixo (não retornar)
+                } else if (window.qrcodeLoaded === true) {
+                    // Script marcado como carregado, mas biblioteca não encontrada
                     console.log('📦 Script marcado como carregado, mas biblioteca não encontrada. Verificando formas alternativas...');
                     // Tentar acessar diretamente (pode estar em escopo global sem window)
                     try {
@@ -1512,8 +1517,9 @@ class LojaApp {
                     }
                 }
                 
+                // Se qrcodeLoaded é undefined, o script ainda está carregando
                 let attempts = 0;
-                const maxAttempts = 50; // 5 segundos (50 * 100ms)
+                const maxAttempts = 30; // 3 segundos (30 * 100ms) - reduzido para detectar falha mais rápido
                 const checkInterval = setInterval(() => {
                     attempts++;
                     // Verificar múltiplas formas de acesso
@@ -1533,6 +1539,15 @@ class LojaApp {
                         return;
                     }
                     
+                    // Se o script foi marcado como falhou, parar de esperar
+                    if (window.qrcodeLoaded === false) {
+                        clearInterval(checkInterval);
+                        console.error('❌ Script QRCode falhou ao carregar. Tentando recarregar...');
+                        existingScript.remove();
+                        // Continuar para carregar dinamicamente abaixo
+                        return;
+                    }
+                    
                     // Log a cada 10 tentativas
                     if (attempts % 10 === 0) {
                         console.log(`⏳ Aguardando biblioteca QRCode... (${attempts}/${maxAttempts})`);
@@ -1549,37 +1564,83 @@ class LojaApp {
                         console.error('🔍 Estado final - window.qrcode:', typeof window.qrcode);
                         console.error('🔍 Estado final - typeof QRCode:', typeof QRCode);
                         console.error('🔍 Estado final - window.qrcodeLoaded:', window.qrcodeLoaded);
-                        console.error('💡 Dica: A biblioteca pode estar carregando de forma assíncrona. Tente recarregar a página.');
-                        reject(new Error('Timeout ao carregar biblioteca QRCode. O script pode ter falhado ao carregar ou a biblioteca não está expondo sua API corretamente.'));
+                        console.warn('🔄 Tentando recarregar script QRCode...');
+                        // Remover script antigo e tentar recarregar
+                        existingScript.remove();
+                        // Continuar para carregar dinamicamente abaixo (não retornar)
+                        break;
                     }
                 }, 100);
-                return;
+                
+                // Se o script ainda está carregando normalmente, aguardar
+                if (window.qrcodeLoaded !== false && attempts < maxAttempts) {
+                    return; // Ainda está aguardando
+                }
+                // Se chegou aqui, o script falhou ou deu timeout - continuar para carregar dinamicamente
             }
 
             // Carregar script dinamicamente
             console.log('📥 Carregando biblioteca QRCode dinamicamente...');
             const script = document.createElement('script');
-            script.src = 'https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js';
-            script.onload = () => {
-                console.log('✅ Script QRCode carregado, verificando disponibilidade...');
-                // Aguardar um pouco para garantir que a biblioteca está disponível
-                setTimeout(() => {
-                    const QRCodeLib = window.QRCode || window.qrcode || (window.QRCodeLib && window.QRCodeLib.default);
-                    if (QRCodeLib) {
-                        console.log('✅ Biblioteca QRCode disponível!');
-                        resolve();
-                    } else {
-                        console.error('❌ Biblioteca QRCode não encontrada após carregamento do script');
-                        console.error('🔍 window.QRCode:', typeof window.QRCode);
-                        console.error('🔍 window.qrcode:', typeof window.qrcode);
-                        reject(new Error('Biblioteca carregada mas não disponível em window.QRCode ou window.qrcode'));
-                    }
-                }, 200);
+            
+            // Tentar múltiplas URLs do CDN
+            const cdnUrls = [
+                'https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js',
+                'https://unpkg.com/qrcode@1.5.3/build/qrcode.min.js',
+                'https://cdnjs.cloudflare.com/ajax/libs/qrcode/1.5.3/qrcode.min.js'
+            ];
+            
+            let currentUrlIndex = 0;
+            
+            const tryLoadScript = (urlIndex) => {
+                if (urlIndex >= cdnUrls.length) {
+                    console.error('❌ Todas as URLs do CDN falharam ao carregar');
+                    reject(new Error('Erro ao carregar script QRCode de todos os CDNs. Verifique sua conexão com a internet.'));
+                    return;
+                }
+                
+                const url = cdnUrls[urlIndex];
+                console.log(`📥 Tentando carregar de: ${url}`);
+                script.src = url;
+                
+                script.onload = () => {
+                    console.log('✅ Script QRCode carregado, verificando disponibilidade...');
+                    window.qrcodeLoaded = true;
+                    
+                    // Aguardar um pouco para garantir que a biblioteca está disponível
+                    setTimeout(() => {
+                        // Verificar múltiplas formas de acesso
+                        let QRCodeLib = window.QRCode || window.qrcode || (window.QRCodeLib && window.QRCodeLib.default);
+                        
+                        // Tentar acessar diretamente
+                        if (!QRCodeLib && typeof QRCode !== 'undefined') {
+                            window.QRCode = QRCode;
+                            QRCodeLib = QRCode;
+                        }
+                        
+                        if (QRCodeLib) {
+                            console.log('✅ Biblioteca QRCode disponível!');
+                            resolve();
+                        } else {
+                            console.error('❌ Biblioteca QRCode não encontrada após carregamento do script');
+                            console.error('🔍 window.QRCode:', typeof window.QRCode);
+                            console.error('🔍 window.qrcode:', typeof window.qrcode);
+                            console.error('🔍 typeof QRCode:', typeof QRCode);
+                            // Tentar próxima URL
+                            tryLoadScript(urlIndex + 1);
+                        }
+                    }, 300);
+                };
+                
+                script.onerror = (error) => {
+                    console.error(`❌ Erro ao carregar de ${url}:`, error);
+                    window.qrcodeLoaded = false;
+                    // Tentar próxima URL
+                    tryLoadScript(urlIndex + 1);
+                };
             };
-            script.onerror = (error) => {
-                console.error('❌ Erro ao carregar biblioteca QRCode:', error);
-                reject(new Error('Erro ao carregar script QRCode. Verifique sua conexão com a internet.'));
-            };
+            
+            tryLoadScript(0);
             document.head.appendChild(script);
         });
     }
