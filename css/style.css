@@ -1040,7 +1040,7 @@ body.theme-blue .login-container #entrarBtn:focus {
     left: 0;
     width: 4px;
     height: 100%;
-    background: var(--primary-color);
+    background: #c0c3c5;
     transform: scaleY(0);
     transition: transform var(--transition-base);
 }
@@ -2468,12 +2468,13 @@ body.theme-blue .login-container #entrarBtn:focus {
 
 @media (max-width: 768px) {
     /* Prevenir overflow horizontal em mobile */
-    body, html {
+    body,
+    html {
         overflow-x: hidden;
         max-width: 100vw;
         position: relative;
     }
-    
+
     /* Garantir que todos os containers respeitem a largura */
     .app-container,
     .main-content,
@@ -2483,20 +2484,29 @@ body.theme-blue .login-container #entrarBtn:focus {
         max-width: 100%;
         overflow-x: hidden;
     }
-    
+
     /* Prevenir textos cortados */
     * {
         word-wrap: break-word;
         overflow-wrap: break-word;
     }
-    
+
     /* Garantir que textos longos quebrem */
-    h1, h2, h3, h4, h5, h6, p, span, label, .btn-text {
+    h1,
+    h2,
+    h3,
+    h4,
+    h5,
+    h6,
+    p,
+    span,
+    label,
+    .btn-text {
         word-wrap: break-word;
         overflow-wrap: break-word;
         hyphens: auto;
     }
-    
+
     .header {
         flex-direction: column;
         gap: 1rem;
@@ -2774,7 +2784,7 @@ body.theme-blue .login-container #entrarBtn:focus {
         word-wrap: break-word;
         box-sizing: border-box;
     }
-    
+
     .modal-content * {
         max-width: 100%;
         word-wrap: break-word;
@@ -5426,7 +5436,11 @@ body.spacing-comfortable * {
 
 .progress-bar-fill {
     height: 100%;
-    background: linear-gradient(90deg, var(--primary-color) 0%, var(--primary-color-light) 100%);
+    background: linear-gradient(
+        90deg,
+        var(--primary-color) 0%,
+        var(--primary-color-light) 100%
+    );
     border-radius: var(--radius-md);
     transition: width var(--transition-base);
     position: relative;
@@ -5814,7 +5828,11 @@ body.dark-mode .toast-warning {
 }
 
 body.dark-mode .toast-info {
-    background: linear-gradient(135deg, var(--gray-100) 0%, var(--gray-50) 100%);
+    background: linear-gradient(
+        135deg,
+        var(--gray-100) 0%,
+        var(--gray-50) 100%
+    );
 }
 
 body.dark-mode .confirm-modal-content {
@@ -5933,8 +5951,8 @@ body.dark-mode .skeleton-line {
     button:not(.dark-mode-toggle):not(.theme-toggle-btn) span.btn-text,
     .btn:not(.dark-mode-toggle):not(.theme-toggle-btn) .btn-text,
     .btn:not(.dark-mode-toggle):not(.theme-toggle-btn) span.btn-text,
-    [class*="btn"] .btn-text,
-    [class*="btn"] span.btn-text {
+    [class*='btn'] .btn-text,
+    [class*='btn'] span.btn-text {
         display: none !important;
         visibility: hidden !important;
         width: 0 !important;
@@ -5956,7 +5974,8 @@ body.dark-mode .skeleton-line {
 
     /* Esconder texto usando text-indent e overflow */
     .btn-primary:not(.dark-mode-toggle):not(.theme-toggle-btn) > *:not(i),
-    button.btn-primary:not(.dark-mode-toggle):not(.theme-toggle-btn) > *:not(i) {
+    button.btn-primary:not(.dark-mode-toggle):not(.theme-toggle-btn)
+        > *:not(i) {
         text-indent: -9999px !important;
         overflow: hidden !important;
         width: 0 !important;
@@ -6035,10 +6054,10 @@ body.dark-mode .skeleton-line {
     }
 
     /* Ajustar inputs e selects para não quebrar */
-    input[type="text"],
-    input[type="number"],
-    input[type="email"],
-    input[type="tel"],
+    input[type='text'],
+    input[type='number'],
+    input[type='email'],
+    input[type='tel'],
     select,
     textarea {
         width: 100% !important;
