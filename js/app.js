@@ -1519,6 +1519,7 @@ class LojaApp {
                 
                 // Se qrcodeLoaded é undefined, o script ainda está carregando
                 let attempts = 0;
+                let shouldContinue = false; // Flag para indicar se deve continuar para carregar dinamicamente
                 const maxAttempts = 30; // 3 segundos (30 * 100ms) - reduzido para detectar falha mais rápido
                 const checkInterval = setInterval(() => {
                     attempts++;
@@ -1544,7 +1545,7 @@ class LojaApp {
                         clearInterval(checkInterval);
                         console.error('❌ Script QRCode falhou ao carregar. Tentando recarregar...');
                         existingScript.remove();
-                        // Continuar para carregar dinamicamente abaixo
+                        shouldContinue = true; // Marcar para continuar
                         return;
                     }
                     
@@ -1567,13 +1568,12 @@ class LojaApp {
                         console.warn('🔄 Tentando recarregar script QRCode...');
                         // Remover script antigo e tentar recarregar
                         existingScript.remove();
-                        // Continuar para carregar dinamicamente abaixo (não retornar)
-                        break;
+                        shouldContinue = true; // Marcar para continuar
                     }
                 }, 100);
                 
                 // Se o script ainda está carregando normalmente, aguardar
-                if (window.qrcodeLoaded !== false && attempts < maxAttempts) {
+                if (!shouldContinue && window.qrcodeLoaded !== false) {
                     return; // Ainda está aguardando
                 }
                 // Se chegou aqui, o script falhou ou deu timeout - continuar para carregar dinamicamente
