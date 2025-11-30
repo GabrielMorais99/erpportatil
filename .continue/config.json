@@ -1,0 +1,177 @@
+{
+    "models": [
+        {
+            "title": "Claude 3.5 Sonnet",
+            "provider": "anthropic",
+            "model": "claude-3-5-sonnet-20241022",
+            "apiKey": ""
+        },
+        {
+            "title": "GPT-4",
+            "provider": "openai",
+            "model": "gpt-4",
+            "apiKey": ""
+        },
+        {
+            "title": "GPT-3.5 Turbo",
+            "provider": "openai",
+            "model": "gpt-3.5-turbo",
+            "apiKey": ""
+        },
+        {
+            "title": "GitHub Copilot (via Extension)",
+            "provider": "openai",
+            "model": "gpt-4",
+            "apiKey": "",
+            "contextLength": 8192,
+            "completionOptions": {
+                "model": "gpt-4"
+            }
+        }
+    ],
+    "customCommands": [
+        {
+            "name": "test-business-logic",
+            "description": "Testa a lógica de negócio do ERP",
+            "prompt": "Teste a lógica de negócio do ERP para: {{input}}. Considere as regras: estoque não pode ser negativo, desconto máximo 50%, validações de permissões."
+        },
+        {
+            "name": "validate-data",
+            "description": "Valida dados e regras de negócio",
+            "prompt": "Valide os dados e regras de negócio: {{input}}. Verifique: validação de entrada, regras de negócio, tratamento de erros."
+        },
+        {
+            "name": "erp-function",
+            "description": "Cria função de ERP seguindo padrões do projeto",
+            "prompt": "Crie uma função de ERP considerando: estoque, vendas, clientes, financeiro, multiusuário. Use JSDoc, validações, e siga os padrões do projeto."
+        },
+        {
+            "name": "optimize-performance",
+            "description": "Otimiza performance de funções",
+            "prompt": "Otimize a performance desta função considerando: cache, debounce, lazy loading, paginação. Projeto ERP com foco em escalabilidade."
+        },
+        {
+            "name": "emergente-ui",
+            "description": "Aplica padrões do emergente.sh na UI",
+            "prompt": "Aplique os padrões do emergente.sh para: {{input}}. Use: padding 0.875rem 1.125rem, debounce 300ms, gap padronizado, skeleton loading, shimmer effects, hover com transições suaves, font scaling responsivo, mobile-first. Consulte os comentários 'Padrões Emergente.sh' no código existente."
+        },
+        {
+            "name": "emergente-css",
+            "description": "Cria estilos seguindo padrões emergente.sh",
+            "prompt": "Crie estilos CSS seguindo os padrões do emergente.sh para: {{input}}. Inclua: padding padronizado, gap em grids, estados de loading, hover suave, responsividade mobile-first, acessibilidade. Use os padrões já existentes no projeto como referência."
+        },
+        {
+            "name": "emergente-component",
+            "description": "Cria componente seguindo padrões emergente.sh",
+            "prompt": "Crie um componente HTML/CSS/JS seguindo os padrões do emergente.sh para: {{input}}. Inclua: estrutura semântica, estilos padronizados, debounce em buscas (300ms), loading states, skeleton loading, responsividade mobile-first, acessibilidade. Use const/let, arrow functions, JSDoc."
+        }
+    ],
+    "systemMessage": "Você é um assistente especializado em desenvolvimento ERP Full Stack. Stack: HTML, CSS, JavaScript (sem frameworks pesados). Foco: controle de estoque, vendas, clientes, financeiro, multiusuário. Sempre considere: validações, regras de negócio, auditoria, performance, segurança. IMPORTANTE: Este projeto usa os padrões do emergente.sh para UI/UX. Sempre siga os padrões emergente.sh: padding padronizado (0.875rem 1.125rem), debounce de 300ms, gap padronizado em grids, skeleton loading, shimmer effects, estados de loading, hover com transições suaves, font scaling responsivo, mobile-first. Consulte os comentários 'Padrões Emergente.sh' no código CSS e JS para referência.",
+    "contextProviders": [
+        {
+            "name": "codebase",
+            "params": {}
+        },
+        {
+            "name": "docs",
+            "params": {}
+        },
+        {
+            "name": "diff",
+            "params": {}
+        },
+        {
+            "name": "folder",
+            "params": {}
+        },
+        {
+            "name": "github",
+            "params": {}
+        },
+        {
+            "name": "open",
+            "params": {}
+        },
+        {
+            "name": "problems",
+            "params": {}
+        },
+        {
+            "name": "terminal",
+            "params": {}
+        },
+        {
+            "name": "tree",
+            "params": {}
+        }
+    ],
+    "tabAutocompleteSettings": {
+        "enabled": true,
+        "useCache": true,
+        "maxPromptTokens": 2048,
+        "maxSuffixTokens": 512,
+        "debounceDelay": 350,
+        "multilineCompletions": "auto",
+        "useOtherContext": true,
+        "onlyMyCode": false
+    },
+    "allowAnonymousTelemetry": false,
+    "embeddingsProvider": {
+        "provider": "transformers.js",
+        "title": "Transformers.js (local)"
+    },
+    "slashCommands": [
+        {
+            "name": "edit",
+            "description": "Editar seleção no editor"
+        },
+        {
+            "name": "comment",
+            "description": "Escrever comentários para o código selecionado"
+        },
+        {
+            "name": "share",
+            "description": "Exportar conversa como markdown"
+        },
+        {
+            "name": "cmd",
+            "description": "Gerar comando de terminal"
+        }
+    ],
+    "ui": {
+        "fontSize": 14,
+        "fontFamily": "ui-sans-serif, system-ui",
+        "theme": "dark",
+        "showFileTree": true,
+        "showGitButtons": true,
+        "showContextButtons": true
+    },
+    "experimental": {
+        "disableSessionTitles": false,
+        "disableIndexing": false
+    },
+    "ignoreFiles": [
+        "**/.git/**",
+        "**/node_modules/**",
+        "**/dist/**",
+        "**/build/**",
+        "**/.next/**",
+        "**/.vscode/**",
+        "**/.continue/**",
+        "**/package-lock.json",
+        "**/yarn.lock",
+        "**/pnpm-lock.yaml"
+    ],
+    "maxTokens": 4096,
+    "temperature": 0.5,
+    "completionOptions": {
+        "maxTokens": 2048,
+        "temperature": 0.3
+    },
+    "copilotSettings": {
+        "enabled": true,
+        "useCopilotExtension": true,
+        "preferContinueForChat": true,
+        "preferCopilotForAutocomplete": false
+    }
+}

@@ -3170,6 +3170,33 @@
                             <option value="weekly">Semanal (1x por semana)</option>
                         </select>
                     </div>
+                    
+                    <div class="form-group" style="margin-top: 1rem; padding: 1rem; background: var(--light-gray); border-radius: var(--radius-md);">
+                        <h4 style="margin: 0 0 0.75rem 0; font-size: 0.95rem; color: var(--dark-gray);">
+                            <i class="fas fa-database"></i> Pontos de Armazenamento
+                        </h4>
+                        <div style="display: flex; flex-direction: column; gap: 0.5rem;">
+                            <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer; font-size: 0.9rem;">
+                                <input type="checkbox" checked disabled />
+                                <span>localStorage (sempre ativo)</span>
+                            </label>
+                            <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer; font-size: 0.9rem;">
+                                <input type="checkbox" id="backupIndexedDB" checked onchange="app.toggleBackupStorage('indexedDB', this.checked)" />
+                                <span>IndexedDB (quando disponível)</span>
+                            </label>
+                            <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer; font-size: 0.9rem;">
+                                <input type="checkbox" id="backupCloud" checked onchange="app.toggleBackupStorage('cloud', this.checked)" />
+                                <span>Nuvem (JSONBin - quando configurado)</span>
+                            </label>
+                            <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer; font-size: 0.9rem;">
+                                <input type="checkbox" id="backupDownload" onchange="app.toggleBackupStorage('download', this.checked)" />
+                                <span>Download automático (opcional)</span>
+                            </label>
+                        </div>
+                        <p style="margin: 0.75rem 0 0 0; font-size: 0.8rem; color: var(--gray-600);">
+                            <i class="fas fa-info-circle"></i> Múltiplos pontos garantem maior segurança dos seus dados.
+                        </p>
+                    </div>
 
                     <h3 style="margin: 1.5rem 0 1rem 0; font-size: 1.1rem; color: var(--primary-color);">
                         <i class="fas fa-history"></i> Histórico de Backups

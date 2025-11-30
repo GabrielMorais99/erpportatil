@@ -22,15 +22,25 @@ Thumbs.db
 # icon-512.png
 
 # IDE
-.vscode/
+# .vscode/  # Manter .vscode/extensions.json e settings.json no repositório
 .idea/
 *.swp
 *.swo
+# Manter configurações de IA
+!.vscode/extensions.json
+!.vscode/settings.json
+!.continue/
 
 # Variáveis de ambiente (não commitar credenciais!)
 .env
 .env.local
 .env.*.local
+
+
+# Continue.dev - chaves de API não devem ser commitadas
+# O arquivo .continue/config.json pode ser commitado, mas sem chaves
+# Se quiser manter privado, descomente a linha abaixo:
+# .continue/config.json
 
 -e 
 # Environment files

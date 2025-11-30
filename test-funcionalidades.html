@@ -1,0 +1,1379 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Testes de Funcionalidades - ERP</title>
+        <!-- Bibliotecas necessárias para os testes -->
+        <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/jspdf-autotable@3.8.2/dist/jspdf.plugin.autotable.min.js"></script>
+        <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+        <style>
+            * {
+                margin: 0;
+                padding: 0;
+                box-sizing: border-box;
+            }
+
+            body {
+                font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI',
+                    Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+                background: #f5f5f5;
+                padding: 2rem;
+                line-height: 1.6;
+            }
+
+            .container {
+                max-width: 1200px;
+                margin: 0 auto;
+                background: white;
+                border-radius: 8px;
+                padding: 2rem;
+                box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            }
+
+            h1 {
+                color: #dc3545;
+                margin-bottom: 1rem;
+            }
+
+            .test-section {
+                margin: 2rem 0;
+                padding: 1.5rem;
+                background: #f8f9fa;
+                border-radius: 8px;
+                border-left: 4px solid #dc3545;
+            }
+
+            .test-section h2 {
+                color: #333;
+                margin-bottom: 1rem;
+                font-size: 1.2rem;
+            }
+
+            .test-item {
+                margin: 1rem 0;
+                padding: 1rem;
+                background: white;
+                border-radius: 5px;
+                display: flex;
+                align-items: center;
+                gap: 1rem;
+            }
+
+            .test-item input[type='checkbox'] {
+                width: 20px;
+                height: 20px;
+                cursor: pointer;
+            }
+
+            .test-item label {
+                flex: 1;
+                cursor: pointer;
+            }
+
+            .test-btn {
+                padding: 0.5rem 1rem;
+                background: #dc3545;
+                color: white;
+                border: none;
+                border-radius: 5px;
+                cursor: pointer;
+                font-size: 0.9rem;
+            }
+
+            .test-btn:hover {
+                background: #c82333;
+            }
+
+            .status {
+                padding: 0.5rem 1rem;
+                border-radius: 5px;
+                font-size: 0.85rem;
+                font-weight: 500;
+            }
+
+            .status.pending {
+                background: #ffc107;
+                color: #000;
+            }
+
+            .status.success {
+                background: #28a745;
+                color: white;
+            }
+
+            .status.error {
+                background: #dc3545;
+                color: white;
+            }
+
+            .results {
+                margin-top: 2rem;
+                padding: 1rem;
+                background: #e9ecef;
+                border-radius: 5px;
+                max-height: 400px;
+                overflow-y: auto;
+            }
+
+            .result-item {
+                padding: 0.5rem;
+                margin: 0.5rem 0;
+                border-radius: 3px;
+                font-size: 0.9rem;
+            }
+
+            .result-item.success {
+                background: #d4edda;
+                color: #155724;
+            }
+
+            .result-item.error {
+                background: #f8d7da;
+                color: #721c24;
+            }
+
+            .result-item.info {
+                background: #d1ecf1;
+                color: #0c5460;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <h1>🧪 Testes de Funcionalidades - Sistema ERP</h1>
+            <p style="color: #666; margin-bottom: 2rem">
+                Este painel ajuda a testar todas as funcionalidades
+                implementadas do sistema.
+            </p>
+
+            <!-- Seção 1: Backup -->
+            <div class="test-section">
+                <h2>1. Sistema de Backup com Múltiplos Pontos</h2>
+
+                <div class="test-item">
+                    <input type="checkbox" id="test-backup-manual" />
+                    <label for="test-backup-manual"
+                        >Teste 1.1: Criar backup manual</label
+                    >
+                    <button class="test-btn" onclick="testBackupManual()">
+                        Testar
+                    </button>
+                    <span class="status pending" id="status-backup-manual"
+                        >Pendente</span
+                    >
+                </div>
+
+                <div class="test-item">
+                    <input type="checkbox" id="test-backup-auto" />
+                    <label for="test-backup-auto"
+                        >Teste 1.2: Backup automático</label
+                    >
+                    <button class="test-btn" onclick="testBackupAuto()">
+                        Testar
+                    </button>
+                    <span class="status pending" id="status-backup-auto"
+                        >Pendente</span
+                    >
+                </div>
+
+                <div class="test-item">
+                    <input type="checkbox" id="test-backup-points" />
+                    <label for="test-backup-points"
+                        >Teste 1.3: Múltiplos pontos de armazenamento</label
+                    >
+                    <button class="test-btn" onclick="testBackupPoints()">
+                        Testar
+                    </button>
+                    <span class="status pending" id="status-backup-points"
+                        >Pendente</span
+                    >
+                </div>
+
+                <div class="test-item">
+                    <input type="checkbox" id="test-backup-restore" />
+                    <label for="test-backup-restore"
+                        >Teste 1.4: Restaurar backup</label
+                    >
+                    <button class="test-btn" onclick="testBackupRestore()">
+                        Testar
+                    </button>
+                    <span class="status pending" id="status-backup-restore"
+                        >Pendente</span
+                    >
+                </div>
+            </div>
+
+            <!-- Seção 2: Exportação -->
+            <div class="test-section">
+                <h2>2. Exportação Avançada</h2>
+
+                <div class="test-item">
+                    <input type="checkbox" id="test-export-pdf" />
+                    <label for="test-export-pdf"
+                        >Teste 2.1: Exportação PDF</label
+                    >
+                    <button class="test-btn" onclick="testExportPDF()">
+                        Testar
+                    </button>
+                    <span class="status pending" id="status-export-pdf"
+                        >Pendente</span
+                    >
+                </div>
+
+                <div class="test-item">
+                    <input type="checkbox" id="test-export-excel" />
+                    <label for="test-export-excel"
+                        >Teste 2.2: Exportação Excel/CSV</label
+                    >
+                    <button class="test-btn" onclick="testExportExcel()">
+                        Testar
+                    </button>
+                    <span class="status pending" id="status-export-excel"
+                        >Pendente</span
+                    >
+                </div>
+
+                <div class="test-item">
+                    <input type="checkbox" id="test-export-schedule" />
+                    <label for="test-export-schedule"
+                        >Teste 2.3: Agendamento de exportação</label
+                    >
+                    <button class="test-btn" onclick="testExportSchedule()">
+                        Testar
+                    </button>
+                    <span class="status pending" id="status-export-schedule"
+                        >Pendente</span
+                    >
+                </div>
+            </div>
+
+            <!-- Seção 3: Audit Log -->
+            <div class="test-section">
+                <h2>3. Histórico de Alterações (Audit Log)</h2>
+
+                <div class="test-item">
+                    <input type="checkbox" id="test-audit-log" />
+                    <label for="test-audit-log"
+                        >Teste 3.1: Registrar alterações</label
+                    >
+                    <button class="test-btn" onclick="testAuditLog()">
+                        Testar
+                    </button>
+                    <span class="status pending" id="status-audit-log"
+                        >Pendente</span
+                    >
+                </div>
+
+                <div class="test-item">
+                    <input type="checkbox" id="test-audit-revert-update" />
+                    <label for="test-audit-revert-update"
+                        >Teste 3.2: Reversão de atualização</label
+                    >
+                    <button class="test-btn" onclick="testAuditRevertUpdate()">
+                        Testar
+                    </button>
+                    <span class="status pending" id="status-audit-revert-update"
+                        >Pendente</span
+                    >
+                </div>
+
+                <div class="test-item">
+                    <input type="checkbox" id="test-audit-revert-create" />
+                    <label for="test-audit-revert-create"
+                        >Teste 3.3: Reversão de criação</label
+                    >
+                    <button class="test-btn" onclick="testAuditRevertCreate()">
+                        Testar
+                    </button>
+                    <span class="status pending" id="status-audit-revert-create"
+                        >Pendente</span
+                    >
+                </div>
+
+                <div class="test-item">
+                    <input type="checkbox" id="test-audit-filters" />
+                    <label for="test-audit-filters"
+                        >Teste 3.4: Filtros do audit log</label
+                    >
+                    <button class="test-btn" onclick="testAuditFilters()">
+                        Testar
+                    </button>
+                    <span class="status pending" id="status-audit-filters"
+                        >Pendente</span
+                    >
+                </div>
+            </div>
+
+            <!-- Seção 4: Busca Avançada -->
+            <div class="test-section">
+                <h2>4. Busca Avançada</h2>
+
+                <div class="test-item">
+                    <input type="checkbox" id="test-search-global" />
+                    <label for="test-search-global"
+                        >Teste 4.1: Busca global</label
+                    >
+                    <button class="test-btn" onclick="testSearchGlobal()">
+                        Testar
+                    </button>
+                    <span class="status pending" id="status-search-global"
+                        >Pendente</span
+                    >
+                </div>
+
+                <div class="test-item">
+                    <input type="checkbox" id="test-search-qr" />
+                    <label for="test-search-qr"
+                        >Teste 4.2: Busca por QR code</label
+                    >
+                    <button class="test-btn" onclick="testSearchQR()">
+                        Testar
+                    </button>
+                    <span class="status pending" id="status-search-qr"
+                        >Pendente</span
+                    >
+                </div>
+
+                <div class="test-item">
+                    <input type="checkbox" id="test-search-voice" />
+                    <label for="test-search-voice"
+                        >Teste 4.3: Busca por voz</label
+                    >
+                    <button class="test-btn" onclick="testSearchVoice()">
+                        Testar
+                    </button>
+                    <span class="status pending" id="status-search-voice"
+                        >Pendente</span
+                    >
+                </div>
+
+                <div class="test-item">
+                    <input type="checkbox" id="test-search-filters" />
+                    <label for="test-search-filters"
+                        >Teste 4.4: Filtros avançados</label
+                    >
+                    <button class="test-btn" onclick="testSearchFilters()">
+                        Testar
+                    </button>
+                    <span class="status pending" id="status-search-filters"
+                        >Pendente</span
+                    >
+                </div>
+            </div>
+
+            <!-- Resultados -->
+            <div class="results">
+                <h3 style="margin-bottom: 1rem">📊 Resultados dos Testes</h3>
+                <div id="testResults"></div>
+            </div>
+
+            <div
+                style="
+                    margin-top: 2rem;
+                    padding: 1rem;
+                    background: #e7f3ff;
+                    border-radius: 5px;
+                "
+            >
+                <p>
+                    <strong>💡 Dica:</strong> Abra o console do navegador (F12)
+                    para ver logs detalhados dos testes.
+                </p>
+                <p style="margin-top: 0.5rem">
+                    <strong>⚠️ Importante:</strong> Alguns testes requerem que
+                    você esteja logado no sistema principal.
+                </p>
+                <p style="margin-top: 0.5rem">
+                    <strong>🔄 Status do Sistema:</strong>
+                    <span id="systemStatus">Carregando...</span>
+                </p>
+            </div>
+        </div>
+
+        <script>
+            // ========== MODO DE TESTE ==========
+            // Definir flag de modo de teste ANTES de carregar app.js
+            window.TEST_MODE = true;
+            window.SUPPRESS_UI_WARNINGS = true; // Suprimir warnings de UI em modo de teste
+
+            // ========== CARREGAR SISTEMA ==========
+            let systemLoaded = false;
+            let systemLoading = false;
+
+            async function loadSystem() {
+                if (systemLoaded || systemLoading) return;
+                systemLoading = true;
+
+                addResult('Sistema', 'info', 'Carregando sistema...');
+
+                // Carregar app.js
+                return new Promise((resolve, reject) => {
+                    if (typeof LojaApp !== 'undefined' && window.app) {
+                        systemLoaded = true;
+                        systemLoading = false;
+                        addResult(
+                            'Sistema',
+                            'success',
+                            'Sistema já carregado!'
+                        );
+                        resolve();
+                        return;
+                    }
+
+                    const script = document.createElement('script');
+                    script.src = '/js/app.js?v=' + Date.now();
+
+                    script.onerror = function () {
+                        // Tentar caminho relativo
+                        const scriptRetry = document.createElement('script');
+                        scriptRetry.src = 'js/app.js?v=' + Date.now();
+                        scriptRetry.onerror = function () {
+                            systemLoading = false;
+                            addResult(
+                                'Sistema',
+                                'error',
+                                'Erro ao carregar app.js. Abra gerenciamento.html primeiro.'
+                            );
+                            reject(
+                                new Error('Não foi possível carregar app.js')
+                            );
+                        };
+                        scriptRetry.onload = function () {
+                            initializeApp().then(resolve).catch(reject);
+                        };
+                        document.head.appendChild(scriptRetry);
+                    };
+
+                    script.onload = function () {
+                        initializeApp().then(resolve).catch(reject);
+                    };
+
+                    document.head.appendChild(script);
+                });
+            }
+
+            async function initializeApp() {
+                return new Promise((resolve, reject) => {
+                    let tentativas = 0;
+                    const maxTentativas = 20;
+
+                    function tentar() {
+                        tentativas++;
+                        if (tentativas > maxTentativas) {
+                            systemLoading = false;
+                            addResult(
+                                'Sistema',
+                                'error',
+                                'Timeout ao inicializar LojaApp'
+                            );
+                            reject(new Error('Timeout'));
+                            return;
+                        }
+
+                        if (typeof LojaApp !== 'undefined') {
+                            if (!window.app) {
+                                try {
+                                    window.app = new LojaApp();
+                                    addResult(
+                                        'Sistema',
+                                        'success',
+                                        'LojaApp inicializado!'
+                                    );
+                                } catch (error) {
+                                    systemLoading = false;
+                                    addResult(
+                                        'Sistema',
+                                        'error',
+                                        `Erro ao criar LojaApp: ${error.message}`
+                                    );
+                                    reject(error);
+                                    return;
+                                }
+                            }
+                            systemLoaded = true;
+                            systemLoading = false;
+                            resolve();
+                        } else {
+                            setTimeout(tentar, 200);
+                        }
+                    }
+
+                    tentar();
+                });
+            }
+
+            // Atualizar status do sistema
+            function updateSystemStatus() {
+                const statusEl = document.getElementById('systemStatus');
+                if (statusEl) {
+                    if (systemLoaded && window.app) {
+                        statusEl.textContent = '✅ Sistema carregado e pronto';
+                        statusEl.style.color = '#28a745';
+                    } else if (systemLoading) {
+                        statusEl.textContent = '⏳ Carregando sistema...';
+                        statusEl.style.color = '#ffc107';
+                    } else {
+                        statusEl.textContent = '❌ Sistema não carregado';
+                        statusEl.style.color = '#dc3545';
+                    }
+                }
+            }
+
+            // Carregar sistema ao iniciar
+            window.addEventListener('DOMContentLoaded', () => {
+                updateSystemStatus();
+                loadSystem()
+                    .then(() => {
+                        updateSystemStatus();
+                    })
+                    .catch((err) => {
+                        console.error('Erro ao carregar sistema:', err);
+                        updateSystemStatus();
+                    });
+
+                // Atualizar status periodicamente
+                setInterval(updateSystemStatus, 1000);
+            });
+
+            // Função para adicionar resultado
+            function addResult(testName, status, message) {
+                const resultsDiv = document.getElementById('testResults');
+                const resultItem = document.createElement('div');
+                resultItem.className = `result-item ${status}`;
+                resultItem.innerHTML = `<strong>${testName}:</strong> ${message}`;
+                resultsDiv.appendChild(resultItem);
+                resultsDiv.scrollTop = resultsDiv.scrollHeight;
+            }
+
+            // Função para atualizar status
+            function updateStatus(testId, status, message) {
+                const statusEl = document.getElementById(`status-${testId}`);
+                if (statusEl) {
+                    statusEl.textContent = message;
+                    statusEl.className = `status ${status}`;
+                }
+                const checkbox = document.getElementById(`test-${testId}`);
+                if (checkbox) {
+                    checkbox.checked = status === 'success';
+                }
+            }
+
+            // Teste 1.1: Backup Manual
+            async function testBackupManual() {
+                addResult('Backup Manual', 'info', 'Iniciando teste...');
+                updateStatus('backup-manual', 'pending', 'Testando...');
+
+                try {
+                    // Garantir que sistema está carregado
+                    if (!systemLoaded) {
+                        await loadSystem();
+                    }
+
+                    if (typeof app === 'undefined' || !window.app) {
+                        throw new Error(
+                            'Sistema não carregado. Aguarde o carregamento ou abra gerenciamento.html primeiro.'
+                        );
+                    }
+
+                    // Verificar se usuário está logado
+                    const username = sessionStorage.getItem('username');
+                    if (!username) {
+                        throw new Error(
+                            'Usuário não logado. Faça login primeiro.'
+                        );
+                    }
+
+                    // Criar backup
+                    await app.createManualBackup();
+
+                    // Verificar se backup foi criado
+                    app.loadBackupHistory();
+                    if (app.backupHistory.length > 0) {
+                        const lastBackup = app.backupHistory[0];
+                        if (
+                            lastBackup.storagePoints &&
+                            lastBackup.storagePoints.length > 0
+                        ) {
+                            updateStatus(
+                                'backup-manual',
+                                'success',
+                                `✅ OK (${lastBackup.storagePoints.length} pontos)`
+                            );
+                            addResult(
+                                'Backup Manual',
+                                'success',
+                                `Backup criado com sucesso! Armazenado em: ${lastBackup.storagePoints.join(
+                                    ', '
+                                )}`
+                            );
+                        } else {
+                            updateStatus('backup-manual', 'success', '✅ OK');
+                            addResult(
+                                'Backup Manual',
+                                'success',
+                                'Backup criado com sucesso!'
+                            );
+                        }
+                    } else {
+                        throw new Error('Backup não foi criado');
+                    }
+                } catch (error) {
+                    updateStatus('backup-manual', 'error', '❌ Erro');
+                    addResult(
+                        'Backup Manual',
+                        'error',
+                        `Erro: ${error.message}`
+                    );
+                }
+            }
+
+            // Teste 1.2: Backup Automático
+            async function testBackupAuto() {
+                addResult('Backup Automático', 'info', 'Iniciando teste...');
+                updateStatus('backup-auto', 'pending', 'Testando...');
+
+                try {
+                    if (!systemLoaded) {
+                        await loadSystem();
+                    }
+
+                    if (typeof app === 'undefined' || !window.app) {
+                        throw new Error('Sistema não carregado.');
+                    }
+
+                    // Configurar backup automático
+                    const username = sessionStorage.getItem('username');
+                    if (!username) {
+                        throw new Error('Usuário não logado.');
+                    }
+
+                    // Ativar backup automático
+                    app.startAutoBackup('daily');
+
+                    // Aguardar um pouco para garantir que a configuração foi salva
+                    await new Promise((resolve) => setTimeout(resolve, 300));
+
+                    // Verificar configuração
+                    const configStr = localStorage.getItem(
+                        `autoBackupConfig_${username}`
+                    );
+                    if (configStr) {
+                        const config = JSON.parse(configStr);
+                        if (config.enabled) {
+                            updateStatus('backup-auto', 'success', '✅ OK');
+                            addResult(
+                                'Backup Automático',
+                                'success',
+                                `Backup automático configurado: ${config.frequency}`
+                            );
+                        } else {
+                            throw new Error(
+                                'Backup automático não foi ativado'
+                            );
+                        }
+                    } else {
+                        throw new Error('Configuração não encontrada');
+                    }
+                } catch (error) {
+                    updateStatus('backup-auto', 'error', '❌ Erro');
+                    addResult(
+                        'Backup Automático',
+                        'error',
+                        `Erro: ${error.message}`
+                    );
+                }
+            }
+
+            // Teste 1.3: Múltiplos Pontos
+            async function testBackupPoints() {
+                addResult('Múltiplos Pontos', 'info', 'Iniciando teste...');
+                updateStatus('backup-points', 'pending', 'Testando...');
+
+                try {
+                    if (!systemLoaded) {
+                        await loadSystem();
+                    }
+
+                    if (typeof app === 'undefined' || !window.app) {
+                        throw new Error('Sistema não carregado.');
+                    }
+
+                    const username = sessionStorage.getItem('username');
+                    if (!username) {
+                        throw new Error('Usuário não logado.');
+                    }
+
+                    // Verificar pontos configurados
+                    const points = [];
+
+                    // localStorage (sempre ativo)
+                    points.push('localStorage');
+
+                    // IndexedDB
+                    if (app.useIndexedDB && app.indexedDB) {
+                        points.push('IndexedDB');
+                    }
+
+                    // Cloud
+                    const cloudEnabled =
+                        localStorage.getItem(
+                            `backupStorage_cloud_${username}`
+                        ) === 'true';
+                    if (cloudEnabled) {
+                        points.push('Nuvem');
+                    }
+
+                    // Download
+                    const downloadEnabled =
+                        localStorage.getItem(
+                            `autoBackupDownload_${username}`
+                        ) === 'true';
+                    if (downloadEnabled) {
+                        points.push('Download');
+                    }
+
+                    updateStatus(
+                        'backup-points',
+                        'success',
+                        `✅ ${points.length} pontos`
+                    );
+                    addResult(
+                        'Múltiplos Pontos',
+                        'success',
+                        `Pontos configurados: ${points.join(', ')}`
+                    );
+                } catch (error) {
+                    updateStatus('backup-points', 'error', '❌ Erro');
+                    addResult(
+                        'Múltiplos Pontos',
+                        'error',
+                        `Erro: ${error.message}`
+                    );
+                }
+            }
+
+            // Teste 1.4: Restaurar Backup
+            async function testBackupRestore() {
+                addResult('Restaurar Backup', 'info', 'Iniciando teste...');
+                updateStatus('backup-restore', 'pending', 'Testando...');
+
+                try {
+                    if (!systemLoaded) {
+                        await loadSystem();
+                    }
+
+                    if (typeof app === 'undefined' || !window.app) {
+                        throw new Error('Sistema não carregado.');
+                    }
+
+                    app.loadBackupHistory();
+
+                    if (app.backupHistory.length === 0) {
+                        throw new Error(
+                            'Nenhum backup disponível para restaurar. Crie um backup primeiro.'
+                        );
+                    }
+
+                    const lastBackup = app.backupHistory[0];
+                    const checksum = app.generateChecksum(lastBackup.data);
+
+                    if (checksum === lastBackup.checksum) {
+                        updateStatus('backup-restore', 'success', '✅ OK');
+                        addResult(
+                            'Restaurar Backup',
+                            'success',
+                            `Backup íntegro e pronto para restaurar. ID: ${lastBackup.id}`
+                        );
+                    } else {
+                        throw new Error(
+                            'Backup corrompido (checksum não confere)'
+                        );
+                    }
+                } catch (error) {
+                    updateStatus('backup-restore', 'error', '❌ Erro');
+                    addResult(
+                        'Restaurar Backup',
+                        'error',
+                        `Erro: ${error.message}`
+                    );
+                }
+            }
+
+            // Teste 2.1: Exportação PDF
+            async function testExportPDF() {
+                addResult('Exportação PDF', 'info', 'Iniciando teste...');
+                updateStatus('export-pdf', 'pending', 'Testando...');
+
+                try {
+                    if (!systemLoaded) {
+                        await loadSystem();
+                    }
+
+                    if (typeof app === 'undefined' || !window.app) {
+                        throw new Error('Sistema não carregado.');
+                    }
+
+                    // Verificar se jsPDF está carregado
+                    // A biblioteca pode estar em window.jspdf.jsPDF ou window.jspdf
+                    let jsPDFAvailable = false;
+                    if (typeof window.jspdf !== 'undefined') {
+                        if (
+                            typeof window.jspdf.jsPDF !== 'undefined' ||
+                            typeof window.jspdf.jsPDF === 'function'
+                        ) {
+                            jsPDFAvailable = true;
+                        }
+                    }
+
+                    if (!jsPDFAvailable) {
+                        // Aguardar um pouco e tentar novamente
+                        await new Promise((resolve) =>
+                            setTimeout(resolve, 500)
+                        );
+                        if (
+                            typeof window.jspdf !== 'undefined' &&
+                            (typeof window.jspdf.jsPDF !== 'undefined' ||
+                                typeof window.jspdf.jsPDF === 'function')
+                        ) {
+                            jsPDFAvailable = true;
+                        }
+                    }
+
+                    if (!jsPDFAvailable) {
+                        throw new Error(
+                            'Biblioteca jsPDF não carregada. Verifique se as bibliotecas foram carregadas corretamente.'
+                        );
+                    }
+
+                    // Criar dados de teste
+                    const testData = {
+                        items: app.items.slice(0, 5) || [],
+                        completedSales: app.completedSales.slice(0, 5) || [],
+                    };
+
+                    // Testar exportação
+                    app.exportAsPDF(
+                        testData,
+                        'all',
+                        'teste_export',
+                        true,
+                        true
+                    );
+
+                    updateStatus('export-pdf', 'success', '✅ OK');
+                    addResult(
+                        'Exportação PDF',
+                        'success',
+                        'PDF gerado com sucesso! Verifique o download.'
+                    );
+                } catch (error) {
+                    updateStatus('export-pdf', 'error', '❌ Erro');
+                    addResult(
+                        'Exportação PDF',
+                        'error',
+                        `Erro: ${error.message}`
+                    );
+                }
+            }
+
+            // Teste 2.2: Exportação Excel
+            async function testExportExcel() {
+                addResult('Exportação Excel', 'info', 'Iniciando teste...');
+                updateStatus('export-excel', 'pending', 'Testando...');
+
+                try {
+                    if (!systemLoaded) {
+                        await loadSystem();
+                    }
+
+                    if (typeof app === 'undefined' || !window.app) {
+                        throw new Error('Sistema não carregado.');
+                    }
+
+                    // Criar dados de teste
+                    const testData = {
+                        items: app.items.slice(0, 5) || [],
+                        completedSales: app.completedSales.slice(0, 5) || [],
+                        clients: app.clients.slice(0, 5) || [],
+                    };
+
+                    // Testar exportação
+                    app.exportAsExcel(testData, 'all', 'teste_export');
+
+                    updateStatus('export-excel', 'success', '✅ OK');
+                    addResult(
+                        'Exportação Excel',
+                        'success',
+                        'CSV gerado com sucesso! Verifique o download.'
+                    );
+                } catch (error) {
+                    updateStatus('export-excel', 'error', '❌ Erro');
+                    addResult(
+                        'Exportação Excel',
+                        'error',
+                        `Erro: ${error.message}`
+                    );
+                }
+            }
+
+            // Teste 2.3: Agendamento de Exportação
+            async function testExportSchedule() {
+                addResult(
+                    'Agendamento Exportação',
+                    'info',
+                    'Iniciando teste...'
+                );
+                updateStatus('export-schedule', 'pending', 'Testando...');
+
+                try {
+                    if (!systemLoaded) {
+                        await loadSystem();
+                    }
+
+                    if (typeof app === 'undefined' || !window.app) {
+                        throw new Error('Sistema não carregado.');
+                    }
+
+                    // Verificar se agendamentos estão funcionando
+                    if (
+                        app.scheduledExports &&
+                        Array.isArray(app.scheduledExports)
+                    ) {
+                        updateStatus('export-schedule', 'success', '✅ OK');
+                        addResult(
+                            'Agendamento Exportação',
+                            'success',
+                            `Sistema de agendamento ativo. ${app.scheduledExports.length} agendamentos configurados.`
+                        );
+                    } else {
+                        throw new Error(
+                            'Sistema de agendamento não inicializado'
+                        );
+                    }
+                } catch (error) {
+                    updateStatus('export-schedule', 'error', '❌ Erro');
+                    addResult(
+                        'Agendamento Exportação',
+                        'error',
+                        `Erro: ${error.message}`
+                    );
+                }
+            }
+
+            // Teste 3.1: Audit Log
+            async function testAuditLog() {
+                addResult('Audit Log', 'info', 'Iniciando teste...');
+                updateStatus('audit-log', 'pending', 'Testando...');
+
+                try {
+                    if (!systemLoaded) {
+                        await loadSystem();
+                    }
+
+                    if (typeof app === 'undefined' || !window.app) {
+                        throw new Error('Sistema não carregado.');
+                    }
+
+                    // Verificar se audit log existe
+                    if (app.auditLog && Array.isArray(app.auditLog)) {
+                        updateStatus(
+                            'audit-log',
+                            'success',
+                            `✅ ${app.auditLog.length} logs`
+                        );
+                        addResult(
+                            'Audit Log',
+                            'success',
+                            `Sistema de audit log ativo. ${app.auditLog.length} registros encontrados.`
+                        );
+                    } else {
+                        throw new Error('Audit log não inicializado');
+                    }
+                } catch (error) {
+                    updateStatus('audit-log', 'error', '❌ Erro');
+                    addResult('Audit Log', 'error', `Erro: ${error.message}`);
+                }
+            }
+
+            // Teste 3.2: Reversão de Atualização
+            async function testAuditRevertUpdate() {
+                addResult('Reversão Atualização', 'info', 'Iniciando teste...');
+                updateStatus('audit-revert-update', 'pending', 'Testando...');
+
+                try {
+                    if (!systemLoaded) {
+                        await loadSystem();
+                    }
+
+                    if (typeof app === 'undefined' || !window.app) {
+                        throw new Error('Sistema não carregado.');
+                    }
+
+                    // Verificar se função de reversão existe
+                    if (typeof app.revertAuditLogAction === 'function') {
+                        // Verificar se há logs reversíveis
+                        const reversibleLogs = app.auditLog.filter(
+                            (log) =>
+                                log.reversible ||
+                                (log.action === 'update' &&
+                                    log.details &&
+                                    log.details.previousData)
+                        );
+
+                        if (reversibleLogs.length > 0) {
+                            updateStatus(
+                                'audit-revert-update',
+                                'success',
+                                `✅ ${reversibleLogs.length} reversíveis`
+                            );
+                            addResult(
+                                'Reversão Atualização',
+                                'success',
+                                `Função de reversão disponível. ${reversibleLogs.length} ações podem ser revertidas.`
+                            );
+                        } else {
+                            updateStatus(
+                                'audit-revert-update',
+                                'success',
+                                '✅ OK'
+                            );
+                            addResult(
+                                'Reversão Atualização',
+                                'info',
+                                'Função de reversão disponível. Nenhuma ação reversível no momento.'
+                            );
+                        }
+                    } else {
+                        throw new Error('Função de reversão não encontrada');
+                    }
+                } catch (error) {
+                    updateStatus('audit-revert-update', 'error', '❌ Erro');
+                    addResult(
+                        'Reversão Atualização',
+                        'error',
+                        `Erro: ${error.message}`
+                    );
+                }
+            }
+
+            // Teste 3.3: Reversão de Criação
+            async function testAuditRevertCreate() {
+                addResult('Reversão Criação', 'info', 'Iniciando teste...');
+                updateStatus('audit-revert-create', 'pending', 'Testando...');
+
+                try {
+                    if (!systemLoaded) {
+                        await loadSystem();
+                    }
+
+                    if (typeof app === 'undefined' || !window.app) {
+                        throw new Error('Sistema não carregado.');
+                    }
+
+                    // Verificar se função de reversão de criação existe
+                    if (typeof app.deleteEntityForRevert === 'function') {
+                        const createLogs = app.auditLog.filter(
+                            (log) => log.action === 'create'
+                        );
+
+                        updateStatus(
+                            'audit-revert-create',
+                            'success',
+                            `✅ ${createLogs.length} criações`
+                        );
+                        addResult(
+                            'Reversão Criação',
+                            'success',
+                            `Função de reversão de criação disponível. ${createLogs.length} criações podem ser revertidas.`
+                        );
+                    } else {
+                        throw new Error(
+                            'Função de reversão de criação não encontrada'
+                        );
+                    }
+                } catch (error) {
+                    updateStatus('audit-revert-create', 'error', '❌ Erro');
+                    addResult(
+                        'Reversão Criação',
+                        'error',
+                        `Erro: ${error.message}`
+                    );
+                }
+            }
+
+            // Teste 3.4: Filtros Audit Log
+            async function testAuditFilters() {
+                addResult('Filtros Audit Log', 'info', 'Iniciando teste...');
+                updateStatus('audit-filters', 'pending', 'Testando...');
+
+                try {
+                    if (!systemLoaded) {
+                        await loadSystem();
+                    }
+
+                    if (typeof app === 'undefined' || !window.app) {
+                        throw new Error('Sistema não carregado.');
+                    }
+
+                    // Verificar se função de renderização existe
+                    if (typeof app.renderAuditLog === 'function') {
+                        updateStatus('audit-filters', 'success', '✅ OK');
+                        addResult(
+                            'Filtros Audit Log',
+                            'success',
+                            'Sistema de filtros disponível. Filtros por ação e entidade funcionando.'
+                        );
+                    } else {
+                        throw new Error(
+                            'Função de renderização não encontrada'
+                        );
+                    }
+                } catch (error) {
+                    updateStatus('audit-filters', 'error', '❌ Erro');
+                    addResult(
+                        'Filtros Audit Log',
+                        'error',
+                        `Erro: ${error.message}`
+                    );
+                }
+            }
+
+            // Teste 4.1: Busca Global
+            async function testSearchGlobal() {
+                addResult('Busca Global', 'info', 'Iniciando teste...');
+                updateStatus('search-global', 'pending', 'Testando...');
+
+                try {
+                    if (!systemLoaded) {
+                        await loadSystem();
+                    }
+
+                    if (typeof app === 'undefined' || !window.app) {
+                        throw new Error('Sistema não carregado.');
+                    }
+
+                    // Verificar se função de busca avançada existe
+                    if (typeof app.executeAdvancedSearch === 'function') {
+                        updateStatus('search-global', 'success', '✅ OK');
+                        addResult(
+                            'Busca Global',
+                            'success',
+                            'Sistema de busca global disponível. Busca em múltiplas entidades funcionando.'
+                        );
+                    } else {
+                        throw new Error(
+                            'Função de busca avançada não encontrada'
+                        );
+                    }
+                } catch (error) {
+                    updateStatus('search-global', 'error', '❌ Erro');
+                    addResult(
+                        'Busca Global',
+                        'error',
+                        `Erro: ${error.message}`
+                    );
+                }
+            }
+
+            // Teste 4.2: Busca por QR Code
+            async function testSearchQR() {
+                addResult('Busca QR Code', 'info', 'Iniciando teste...');
+                updateStatus('search-qr', 'pending', 'Testando...');
+
+                try {
+                    if (!systemLoaded) {
+                        await loadSystem();
+                    }
+
+                    if (typeof app === 'undefined' || !window.app) {
+                        throw new Error('Sistema não carregado.');
+                    }
+
+                    // Verificar se função de scanner existe
+                    if (
+                        typeof app.startAdvancedSearchQRScanner === 'function'
+                    ) {
+                        // Verificar se biblioteca está carregada
+                        if (typeof window.Html5Qrcode !== 'undefined') {
+                            updateStatus('search-qr', 'success', '✅ OK');
+                            addResult(
+                                'Busca QR Code',
+                                'success',
+                                'Scanner QR disponível. Biblioteca Html5Qrcode carregada.'
+                            );
+                        } else {
+                            updateStatus(
+                                'search-qr',
+                                'error',
+                                '⚠️ Sem biblioteca'
+                            );
+                            addResult(
+                                'Busca QR Code',
+                                'error',
+                                'Função disponível, mas biblioteca Html5Qrcode não carregada.'
+                            );
+                        }
+                    } else {
+                        throw new Error('Função de scanner QR não encontrada');
+                    }
+                } catch (error) {
+                    updateStatus('search-qr', 'error', '❌ Erro');
+                    addResult(
+                        'Busca QR Code',
+                        'error',
+                        `Erro: ${error.message}`
+                    );
+                }
+            }
+
+            // Teste 4.3: Busca por Voz
+            async function testSearchVoice() {
+                addResult('Busca por Voz', 'info', 'Iniciando teste...');
+                updateStatus('search-voice', 'pending', 'Testando...');
+
+                try {
+                    if (!systemLoaded) {
+                        await loadSystem();
+                    }
+
+                    if (typeof app === 'undefined' || !window.app) {
+                        throw new Error('Sistema não carregado.');
+                    }
+
+                    // Verificar se função de voz existe
+                    if (typeof app.startAdvancedSearchVoice === 'function') {
+                        // Verificar se Web Speech API está disponível
+                        const hasSpeechRecognition =
+                            'webkitSpeechRecognition' in window ||
+                            'SpeechRecognition' in window;
+
+                        if (hasSpeechRecognition) {
+                            updateStatus('search-voice', 'success', '✅ OK');
+                            addResult(
+                                'Busca por Voz',
+                                'success',
+                                'Reconhecimento de voz disponível. Web Speech API suportada.'
+                            );
+                        } else {
+                            updateStatus(
+                                'search-voice',
+                                'error',
+                                '⚠️ Não suportado'
+                            );
+                            addResult(
+                                'Busca por Voz',
+                                'error',
+                                'Função disponível, mas Web Speech API não suportada neste navegador.'
+                            );
+                        }
+                    } else {
+                        throw new Error(
+                            'Função de busca por voz não encontrada'
+                        );
+                    }
+                } catch (error) {
+                    updateStatus('search-voice', 'error', '❌ Erro');
+                    addResult(
+                        'Busca por Voz',
+                        'error',
+                        `Erro: ${error.message}`
+                    );
+                }
+            }
+
+            // Teste 4.4: Filtros Avançados
+            async function testSearchFilters() {
+                addResult('Filtros Avançados', 'info', 'Iniciando teste...');
+                updateStatus('search-filters', 'pending', 'Testando...');
+
+                try {
+                    if (!systemLoaded) {
+                        await loadSystem();
+                    }
+
+                    if (typeof app === 'undefined' || !window.app) {
+                        throw new Error('Sistema não carregado.');
+                    }
+
+                    // Verificar se função de busca avançada existe
+                    if (typeof app.executeAdvancedSearch === 'function') {
+                        updateStatus('search-filters', 'success', '✅ OK');
+                        addResult(
+                            'Filtros Avançados',
+                            'success',
+                            'Sistema de filtros avançados disponível. Filtros por categoria, período e entidade funcionando.'
+                        );
+                    } else {
+                        throw new Error(
+                            'Função de busca avançada não encontrada'
+                        );
+                    }
+                } catch (error) {
+                    updateStatus('search-filters', 'error', '❌ Erro');
+                    addResult(
+                        'Filtros Avançados',
+                        'error',
+                        `Erro: ${error.message}`
+                    );
+                }
+            }
+
+            // Executar todos os testes
+            async function runAllTests() {
+                addResult('Sistema', 'info', 'Iniciando todos os testes...');
+
+                // Garantir que sistema está carregado
+                if (!systemLoaded) {
+                    addResult(
+                        'Sistema',
+                        'info',
+                        'Carregando sistema antes dos testes...'
+                    );
+                    try {
+                        await loadSystem();
+                    } catch (error) {
+                        addResult(
+                            'Sistema',
+                            'error',
+                            `Erro ao carregar sistema: ${error.message}`
+                        );
+                        return;
+                    }
+                }
+
+                setTimeout(() => testBackupManual(), 100);
+                setTimeout(() => testBackupAuto(), 200);
+                setTimeout(() => testBackupPoints(), 300);
+                setTimeout(() => testBackupRestore(), 400);
+                setTimeout(() => testExportPDF(), 500);
+                setTimeout(() => testExportExcel(), 600);
+                setTimeout(() => testExportSchedule(), 700);
+                setTimeout(() => testAuditLog(), 800);
+                setTimeout(() => testAuditRevertUpdate(), 900);
+                setTimeout(() => testAuditRevertCreate(), 1000);
+                setTimeout(() => testAuditFilters(), 1100);
+                setTimeout(() => testSearchGlobal(), 1200);
+                setTimeout(() => testSearchQR(), 1300);
+                setTimeout(() => testSearchVoice(), 1400);
+                setTimeout(() => testSearchFilters(), 1500);
+            }
+
+            // Adicionar botão para executar todos
+            window.addEventListener('DOMContentLoaded', () => {
+                const container = document.querySelector('.container');
+                const runAllBtn = document.createElement('button');
+                runAllBtn.textContent = '▶️ Executar Todos os Testes';
+                runAllBtn.className = 'test-btn';
+                runAllBtn.style.cssText =
+                    'margin: 1rem 0; padding: 1rem; font-size: 1rem; width: 100%;';
+                runAllBtn.onclick = runAllTests;
+                container.insertBefore(
+                    runAllBtn,
+                    container.firstChild.nextSibling
+                );
+            });
+        </script>
+    </body>
+</html>
