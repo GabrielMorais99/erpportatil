@@ -2707,10 +2707,7 @@ class LojaApp {
         const item = this.items.find(i => i.id === id);
         const itemName = item ? this.getItemName(id) : 'este item';
         
-        confirmDialog.danger(
-            `Tem certeza que deseja excluir "${itemName}"? Esta ação não pode ser desfeita.`,
-            'Excluir Produto'
-        ).then((confirmed) => {
+        const performDelete = (confirmed) => {
             if (!confirmed) return;
             
             this.items = this.items.filter((item) => item.id !== id);
@@ -2723,8 +2720,22 @@ class LojaApp {
             this.saveData();
             this.renderItems();
             this.renderGroups();
-            toast.success(`Produto "${itemName}" excluído com sucesso!`, 3000);
-        });
+            if (typeof toast !== 'undefined' && toast) {
+                toast.success(`Produto "${itemName}" excluído com sucesso!`, 3000);
+            }
+        };
+        
+        if (typeof confirmDialog !== 'undefined' && confirmDialog) {
+            confirmDialog.danger(
+                `Tem certeza que deseja excluir "${itemName}"? Esta ação não pode ser desfeita.`,
+                'Excluir Produto'
+            ).then(performDelete);
+        } else {
+            // Fallback para confirm nativo
+            if (confirm(`Tem certeza que deseja excluir "${itemName}"?`)) {
+                performDelete(true);
+            }
+        }
     }
 
     renderItems() {
@@ -3554,7 +3565,7 @@ class LojaApp {
 
         const dayData = group.days.find((d) => d.day === day);
         if (dayData && dayData.sales[saleIndex]) {
-            confirmDialog.danger('Deseja excluir esta venda?', 'Excluir Venda').then((confirmed) => {
+            const performDelete = (confirmed) => {
                 if (!confirmed) return;
                 dayData.sales.splice(saleIndex, 1);
 
@@ -3574,8 +3585,18 @@ class LojaApp {
                 this.updateOverallSummary();
 
                 this.openSaleModal(group.id, day);
-                toast.success('Venda excluída com sucesso!', 3000);
-            });
+                if (typeof toast !== 'undefined' && toast) {
+                    toast.success('Venda excluída com sucesso!', 3000);
+                }
+            };
+            
+            if (typeof confirmDialog !== 'undefined' && confirmDialog) {
+                confirmDialog.danger('Deseja excluir esta venda?', 'Excluir Venda').then(performDelete);
+            } else {
+                if (confirm('Deseja excluir esta venda?')) {
+                    performDelete(true);
+                }
+            }
         }
     }
 
@@ -3662,7 +3683,11 @@ class LojaApp {
         const color = (saleColorInput && saleColorInput.value) ? saleColorInput.value.trim() : '';
 
         if (!itemId) {
-            toast.warning('Por favor, selecione um item.', 3000);
+            if (typeof toast !== 'undefined' && toast) {
+                toast.warning('Por favor, selecione um item.', 3000);
+            } else {
+                alert('Por favor, selecione um item.');
+            }
             // Remover loading se houver
             if (saveBtn) {
                 saveBtn.classList.remove('loading');
@@ -3672,7 +3697,11 @@ class LojaApp {
         }
 
         if (price <= 0 || quantity <= 0) {
-            toast.warning('Preço e quantidade devem ser maiores que zero.', 3000);
+            if (typeof toast !== 'undefined' && toast) {
+                toast.warning('Preço e quantidade devem ser maiores que zero.', 3000);
+            } else {
+                alert('Preço e quantidade devem ser maiores que zero.');
+            }
             // Remover loading se houver
             if (saveBtn) {
                 saveBtn.classList.remove('loading');
