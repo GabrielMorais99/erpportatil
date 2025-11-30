@@ -5749,6 +5749,27 @@ body.dark-mode .tab-btn.active::after {
     background: #ffffff;
 }
 
+/* Dark mode - Ícone themeToggleBtn branco */
+body.dark-mode #themeToggleBtn,
+body.dark-mode .theme-toggle-btn {
+    color: #ffffff !important;
+}
+
+body.dark-mode #themeToggleBtn i,
+body.dark-mode .theme-toggle-btn i {
+    color: #ffffff !important;
+}
+
+body.dark-mode #themeToggleBtn:hover,
+body.dark-mode .theme-toggle-btn:hover {
+    color: #ffffff !important;
+}
+
+body.dark-mode #themeToggleBtn:hover i,
+body.dark-mode .theme-toggle-btn:hover i {
+    color: #ffffff !important;
+}
+
 body.dark-mode .form-group input,
 body.dark-mode .form-group select,
 body.dark-mode .form-group textarea {
