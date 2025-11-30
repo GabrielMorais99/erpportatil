@@ -24,6 +24,7 @@ module.exports = async (req, res) => {
         console.log('Request URL:', req.url);
         console.log('Request Path:', req.path);
         console.log('Normalized Path:', filePath);
+        console.log('Clean Path:', cleanPath);
 
         // Se for raiz, servir index.html
         if (filePath === '/' || filePath === '') {
@@ -318,17 +319,37 @@ module.exports = async (req, res) => {
         
         // Para arquivos na pasta lib/, tentar PRIMEIRO (antes de outras verificações)
         // Verificar tanto cleanPath quanto filePath para garantir detecção
-        if (cleanPath.startsWith('lib/') || filePath.startsWith('/lib/') || filePath.includes('/lib/')) {
-            // Normalizar o caminho removendo barras duplicadas
+        const isLibFile = cleanPath.startsWith('lib/') || 
+                         filePath.startsWith('/lib/') || 
+                         filePath.includes('/lib/') ||
+                         req.url.includes('/lib/');
+        
+        if (isLibFile) {
+            console.log('🔍 [LIB] Detectado arquivo lib/ - filePath:', filePath, 'cleanPath:', cleanPath);
+            
+            // Normalizar o caminho
             let normalizedPath = cleanPath;
             if (filePath.startsWith('/lib/')) {
-                normalizedPath = filePath.slice(1); // Remove / inicial
+                normalizedPath = filePath.slice(1); // Remove / inicial: /lib/qrcode.min.js -> lib/qrcode.min.js
             } else if (filePath.includes('/lib/')) {
                 const parts = filePath.split('/lib/');
-                normalizedPath = 'lib/' + parts[parts.length - 1]; // Pega a última parte após /lib/
+                normalizedPath = 'lib/' + parts[parts.length - 1];
+            } else if (req.url.includes('/lib/')) {
+                const urlPath = req.url.split('?')[0].split('#')[0];
+                if (urlPath.startsWith('/lib/')) {
+                    normalizedPath = urlPath.slice(1);
+                } else {
+                    const parts = urlPath.split('/lib/');
+                    normalizedPath = 'lib/' + parts[parts.length - 1];
+                }
             } else if (!cleanPath.startsWith('lib/')) {
-                normalizedPath = 'lib/' + cleanPath; // Adiciona lib/ se não tiver
+                normalizedPath = 'lib/' + cleanPath;
             }
+            
+            // Garantir que não tenha lib/lib/
+            normalizedPath = normalizedPath.replace(/^lib\/lib\//, 'lib/');
+            
+            console.log('🔍 [LIB] Caminho normalizado:', normalizedPath);
             
             const libAltPaths = [
                 path.join(projectRoot, normalizedPath),
@@ -336,20 +357,24 @@ module.exports = async (req, res) => {
                 path.join(process.cwd(), normalizedPath),
                 path.join('/var/task', normalizedPath),
                 path.join('/var/task', '..', normalizedPath),
-                // Tentar também com lib/ explícito
-                path.join(projectRoot, 'lib', normalizedPath.replace('lib/', '')),
-                path.join(__dirname, '..', 'lib', normalizedPath.replace('lib/', ''))
+                // Tentar também extraindo apenas o nome do arquivo
+                path.join(projectRoot, 'lib', path.basename(normalizedPath)),
+                path.join(__dirname, '..', 'lib', path.basename(normalizedPath)),
+                path.join('/var/task', 'lib', path.basename(normalizedPath))
             ];
             
             console.log('🔍 [LIB] Tentando encontrar arquivo:', normalizedPath);
-            console.log('🔍 [LIB] Caminhos a tentar:', libAltPaths.slice(0, 3));
+            console.log('🔍 [LIB] Project Root:', projectRoot);
+            console.log('🔍 [LIB] __dirname:', __dirname);
+            console.log('🔍 [LIB] process.cwd():', process.cwd());
+            console.log('🔍 [LIB] Primeiros 3 caminhos:', libAltPaths.slice(0, 3));
             
             for (const altPath of libAltPaths) {
                 try {
                     if (fs.existsSync(altPath)) {
-                        console.log('✅ [LIB] Arquivo encontrado em:', altPath);
                         const stats = fs.statSync(altPath);
                         if (stats.isFile()) {
+                            console.log('✅ [LIB] Arquivo encontrado em:', altPath);
                             const ext = path.extname(altPath).toLowerCase();
                             const contentTypes = {
                                 '.js': 'application/javascript',
@@ -363,16 +388,25 @@ module.exports = async (req, res) => {
                             // Não usar Vary: * para compatibilidade com Service Worker
                             res.setHeader('Vary', 'Accept, Accept-Encoding');
                             return res.status(200).send(fileContent);
+                        } else {
+                            console.log('⚠️ [LIB] Caminho existe mas não é arquivo:', altPath);
                         }
                     }
                 } catch (err) {
+                    console.log('⚠️ [LIB] Erro ao verificar caminho:', altPath, err.message);
                     // Continuar tentando outros caminhos
                     continue;
                 }
             }
             console.error('❌ [LIB] Arquivo não encontrado em nenhum caminho:', normalizedPath);
-            console.error('❌ [LIB] Caminhos tentados:', libAltPaths);
-            return res.status(404).json({ error: 'Library file not found', path: normalizedPath });
+            console.error('❌ [LIB] Todos os caminhos tentados:', libAltPaths);
+            return res.status(404).json({ 
+                error: 'Library file not found', 
+                path: normalizedPath,
+                triedPaths: libAltPaths,
+                projectRoot: projectRoot,
+                __dirname: __dirname
+            });
         }
 
         // Para sw.js, tentar caminhos alternativos
