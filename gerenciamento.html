@@ -2563,14 +2563,47 @@
                 <div style="padding: 1.5rem;">
                     <div class="form-group">
                         <label for="advancedSearchTerm">Termo de Busca</label>
-                        <input 
-                            type="text" 
-                            id="advancedSearchTerm" 
-                            class="search-input-with-icon" 
-                            placeholder="Digite o termo para buscar..."
-                            onkeyup="if(event.key==='Enter') app.executeAdvancedSearch()"
-                            style="width: 100%;"
-                        />
+                        <div style="display: flex; gap: 0.5rem; align-items: center;">
+                            <div class="search-filter-wrapper" style="flex: 1;">
+                                <i class="fas fa-search search-icon"></i>
+                                <input 
+                                    type="text" 
+                                    id="advancedSearchTerm" 
+                                    class="search-input-with-icon" 
+                                    placeholder="Digite o termo para buscar..."
+                                    onkeyup="if(event.key==='Enter') app.executeAdvancedSearch()"
+                                    style="width: 100%;"
+                                />
+                            </div>
+                            <button 
+                                type="button" 
+                                class="btn-secondary" 
+                                onclick="app.startAdvancedSearchQRScanner()" 
+                                title="Escanear QR Code"
+                                aria-label="Escanear QR Code para busca"
+                                style="white-space: nowrap;"
+                            >
+                                <i class="fas fa-qrcode"></i>
+                            </button>
+                            <button 
+                                type="button" 
+                                class="btn-secondary" 
+                                id="advancedSearchVoiceBtn"
+                                onclick="app.toggleAdvancedSearchVoice()" 
+                                title="Buscar por Voz"
+                                aria-label="Ativar busca por voz"
+                                style="white-space: nowrap;"
+                            >
+                                <i class="fas fa-microphone"></i>
+                            </button>
+                        </div>
+                        <!-- Container para scanner QR na busca avançada -->
+                        <div id="advancedSearchQRContainer" style="display: none; margin-top: 1rem; padding: 1rem; background: var(--light-gray); border-radius: 5px;">
+                            <div id="advancedSearchQRReader" style="width: 100%; max-width: 400px; margin: 0 auto;"></div>
+                            <button type="button" class="btn-secondary" onclick="app.stopAdvancedSearchQRScanner()" style="margin-top: 1rem; width: 100%;">
+                                <i class="fas fa-stop"></i> Parar Escaneamento
+                            </button>
+                        </div>
                     </div>
                     
                     <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin: 1.5rem 0;">

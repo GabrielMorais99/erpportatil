@@ -558,6 +558,7 @@ class LojaApp {
         this.currentEditingCost = null;
         this.currentEditingGoal = null;
         this.currentQRScanner = null; // Scanner de QR code
+        this.advancedSearchQRScanner = null; // Scanner QR para busca avançada
         this.currentEditingPendingOrder = null; // Pedido pendente sendo editado
         this.currentEditingServiceAppointment = null; // Agendamento sendo editado
         this.currentDashboardType = 'sales'; // 'sales' ou 'services'
@@ -16930,6 +16931,199 @@ class LojaApp {
         }
     }
 
+    // Iniciar scanner QR na busca avançada
+    startAdvancedSearchQRScanner() {
+        if (!window.Html5Qrcode) {
+            if (typeof toast !== 'undefined' && toast) {
+                toast.error('Biblioteca de scanner não carregada. Verifique sua conexão.', 3000);
+            } else {
+                alert('Biblioteca de scanner não carregada. Verifique sua conexão.');
+            }
+            return;
+        }
+
+        const container = document.getElementById('advancedSearchQRContainer');
+        const readerDiv = document.getElementById('advancedSearchQRReader');
+
+        if (!container || !readerDiv) return;
+
+        // Parar scanner anterior se existir
+        if (this.advancedSearchQRScanner) {
+            this.stopAdvancedSearchQRScanner();
+        }
+
+        // Limpar conteúdo anterior
+        readerDiv.innerHTML = '';
+        container.style.display = 'block';
+
+        const html5QrCode = new Html5Qrcode('advancedSearchQRReader');
+        this.advancedSearchQRScanner = html5QrCode;
+
+        html5QrCode
+            .start(
+                { facingMode: 'environment' },
+                {
+                    fps: 10,
+                    qrbox: { width: 250, height: 250 },
+                },
+                (decodedText) => {
+                    // QR code lido - preencher campo de busca e executar
+                    const searchInput = document.getElementById('advancedSearchTerm');
+                    if (searchInput) {
+                        searchInput.value = decodedText.trim();
+                    }
+                    this.stopAdvancedSearchQRScanner();
+                    this.executeAdvancedSearch();
+                    
+                    if (typeof toast !== 'undefined' && toast) {
+                        toast.success('QR Code escaneado! Buscando...', 2000);
+                    }
+                },
+                (errorMessage) => {
+                    // Erro ignorado (continua escaneando)
+                }
+            )
+            .catch((err) => {
+                console.error('Erro ao iniciar scanner:', err);
+                if (typeof toast !== 'undefined' && toast) {
+                    toast.error('Erro ao acessar a câmera. Verifique as permissões.', 3000);
+                }
+                container.style.display = 'none';
+                this.advancedSearchQRScanner = null;
+            });
+    }
+
+    // Parar scanner QR na busca avançada
+    stopAdvancedSearchQRScanner() {
+        const container = document.getElementById('advancedSearchQRContainer');
+        const readerDiv = document.getElementById('advancedSearchQRReader');
+
+        if (this.advancedSearchQRScanner) {
+            this.advancedSearchQRScanner
+                .stop()
+                .then(() => {
+                    if (container) container.style.display = 'none';
+                    if (readerDiv) readerDiv.innerHTML = '';
+                    this.advancedSearchQRScanner = null;
+                })
+                .catch((err) => {
+                    console.error('Erro ao parar scanner:', err);
+                    if (container) container.style.display = 'none';
+                    if (readerDiv) readerDiv.innerHTML = '';
+                    this.advancedSearchQRScanner = null;
+                });
+        } else {
+            if (container) container.style.display = 'none';
+            if (readerDiv) readerDiv.innerHTML = '';
+        }
+    }
+
+    // Toggle busca por voz na busca avançada
+    toggleAdvancedSearchVoice() {
+        const voiceBtn = document.getElementById('advancedSearchVoiceBtn');
+        const searchInput = document.getElementById('advancedSearchTerm');
+        
+        if (!voiceBtn || !searchInput) return;
+
+        if (this.voiceRecognitionActive) {
+            // Parar reconhecimento
+            this.stopVoiceRecognition();
+            voiceBtn.classList.remove('active');
+            voiceBtn.style.background = '';
+            if (typeof toast !== 'undefined' && toast) {
+                toast.info('Busca por voz desativada', 2000);
+            }
+        } else {
+            // Iniciar reconhecimento específico para busca
+            this.startAdvancedSearchVoice();
+            voiceBtn.classList.add('active');
+            voiceBtn.style.background = 'var(--primary-color)';
+            voiceBtn.style.color = 'white';
+            if (typeof toast !== 'undefined' && toast) {
+                toast.info('Fale o termo de busca...', 2000);
+            }
+        }
+    }
+
+    // Iniciar busca por voz na busca avançada
+    startAdvancedSearchVoice() {
+        if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
+            if (typeof toast !== 'undefined' && toast) {
+                toast.error('Reconhecimento de voz não suportado neste navegador', 3000);
+            }
+            return;
+        }
+
+        if (this.voiceRecognitionActive) {
+            return;
+        }
+
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        const recognition = new SpeechRecognition();
+        
+        recognition.lang = 'pt-BR';
+        recognition.continuous = false;
+        recognition.interimResults = false;
+
+        recognition.onstart = () => {
+            this.voiceRecognitionActive = true;
+            console.log('🎤 [VOICE SEARCH] Reconhecimento de voz iniciado para busca');
+        };
+
+        recognition.onresult = (event) => {
+            const transcript = event.results[0][0].transcript;
+            console.log('🎤 [VOICE SEARCH] Texto reconhecido:', transcript);
+            
+            // Preencher campo de busca
+            const searchInput = document.getElementById('advancedSearchTerm');
+            if (searchInput) {
+                searchInput.value = transcript.trim();
+            }
+            
+            // Executar busca automaticamente
+            setTimeout(() => {
+                this.executeAdvancedSearch();
+            }, 500);
+            
+            if (typeof toast !== 'undefined' && toast) {
+                toast.success(`Buscando: "${transcript}"`, 2000);
+            }
+        };
+
+        recognition.onerror = (event) => {
+            console.error('❌ [VOICE SEARCH] Erro no reconhecimento:', event.error);
+            this.voiceRecognitionActive = false;
+            const voiceBtn = document.getElementById('advancedSearchVoiceBtn');
+            if (voiceBtn) {
+                voiceBtn.classList.remove('active');
+                voiceBtn.style.background = '';
+            }
+            
+            if (event.error === 'no-speech') {
+                if (typeof toast !== 'undefined' && toast) {
+                    toast.warning('Nenhum áudio detectado. Tente novamente.', 2000);
+                }
+            } else {
+                if (typeof toast !== 'undefined' && toast) {
+                    toast.error('Erro no reconhecimento de voz', 2000);
+                }
+            }
+        };
+
+        recognition.onend = () => {
+            this.voiceRecognitionActive = false;
+            const voiceBtn = document.getElementById('advancedSearchVoiceBtn');
+            if (voiceBtn) {
+                voiceBtn.classList.remove('active');
+                voiceBtn.style.background = '';
+            }
+            console.log('🎤 [VOICE SEARCH] Reconhecimento de voz finalizado');
+        };
+
+        this.voiceRecognition = recognition;
+        recognition.start();
+    }
+
     // Executar busca avançada
     executeAdvancedSearch() {
         const searchTerm = document.getElementById('advancedSearchTerm')?.value.trim();
@@ -18961,20 +19155,43 @@ class LojaApp {
     updatePredictiveAnalysis() {
         const period = parseInt(document.getElementById('predictivePeriod')?.value || 6);
         
-        // Calcular previsão de vendas
+        // Calcular previsão de vendas (melhorada)
         const forecast = this.calculateSalesForecast(period);
         const forecastEl = document.getElementById('salesForecast');
         if (forecastEl) {
-            forecastEl.textContent = `R$ ${forecast.value.toFixed(2).replace('.', ',')}`;
+            const confidenceBadge = forecast.confidence >= 70 ? '🟢' : forecast.confidence >= 50 ? '🟡' : '🔴';
+            forecastEl.innerHTML = `R$ ${forecast.value.toFixed(2).replace('.', ',')} <span style="font-size: 0.8em; color: var(--gray-600);" title="Confiança: ${forecast.confidence}%">${confidenceBadge}</span>`;
         }
         
-        // Calcular tendência
+        // Mostrar detalhes da previsão se disponível
+        const forecastDetailsEl = document.getElementById('salesForecastDetails');
+        if (forecastDetailsEl && forecast.method) {
+            let details = `Confiança: ${forecast.confidence}%`;
+            if (forecast.trend) {
+                details += ` | Tendência: ${forecast.trend > 0 ? '+' : ''}${forecast.trend.toFixed(2)}`;
+            }
+            if (forecast.seasonalAdjustment) {
+                details += ` | Ajuste sazonal: ${forecast.seasonalAdjustment > 0 ? '+' : ''}${forecast.seasonalAdjustment.toFixed(2)}`;
+            }
+            forecastDetailsEl.textContent = details;
+            forecastDetailsEl.style.display = 'block';
+        }
+        
+        // Calcular tendência (melhorada)
         const trend = this.calculateSalesTrend(period);
         const trendEl = document.getElementById('salesTrend');
         if (trendEl) {
             const trendIcon = trend.direction === 'up' ? '📈' : trend.direction === 'down' ? '📉' : '➡️';
             const trendColor = trend.direction === 'up' ? '#28a745' : trend.direction === 'down' ? '#dc3545' : '#6c757d';
-            trendEl.innerHTML = `${trendIcon} <span style="color: ${trendColor};">${trend.percentage > 0 ? '+' : ''}${trend.percentage.toFixed(1)}%</span>`;
+            const strengthIcon = trend.strength === 'strong' ? '💪' : trend.strength === 'moderate' ? '👍' : '👎';
+            trendEl.innerHTML = `${trendIcon} <span style="color: ${trendColor};">${trend.percentage > 0 ? '+' : ''}${trend.percentage.toFixed(1)}%</span> <span style="font-size: 0.8em;" title="Força da tendência: ${trend.strength} (R²=${trend.rSquared})">${strengthIcon}</span>`;
+        }
+        
+        // Mostrar detalhes da tendência
+        const trendDetailsEl = document.getElementById('salesTrendDetails');
+        if (trendDetailsEl && trend.strength) {
+            trendDetailsEl.innerHTML = `Força: <strong>${trend.strength === 'strong' ? 'Forte' : trend.strength === 'moderate' ? 'Moderada' : 'Fraca'}</strong> (R²=${trend.rSquared})`;
+            trendDetailsEl.style.display = 'block';
         }
         
         // Calcular crescimento esperado
@@ -19023,18 +19240,72 @@ class LojaApp {
             trend = (secondAvg - firstAvg) / firstHalf.length;
         }
         
-        // Previsão = média recente + tendência
-        const forecast = average + trend;
+        // Previsão melhorada: média ponderada (últimos meses têm mais peso) + tendência + sazonalidade
+        let weightedAverage = 0;
+        let totalWeight = 0;
+        salesByMonth.forEach((sales, index) => {
+            const weight = index + 1; // Últimos meses têm mais peso
+            weightedAverage += sales * weight;
+            totalWeight += weight;
+        });
+        weightedAverage = totalWeight > 0 ? weightedAverage / totalWeight : average;
         
-        // Calcular confiança baseada na variância
+        // Detectar sazonalidade (comparar mês atual com mesmo mês em anos anteriores)
+        const currentMonth = now.getMonth();
+        const seasonalAdjustment = this.calculateSeasonalAdjustment(currentMonth, salesByMonth);
+        
+        // Previsão = média ponderada + tendência + ajuste sazonal
+        const forecast = weightedAverage + trend + seasonalAdjustment;
+        
+        // Calcular confiança melhorada baseada em múltiplos fatores
         const variance = salesByMonth.reduce((sum, val) => sum + Math.pow(val - average, 2), 0) / salesByMonth.length;
         const stdDev = Math.sqrt(variance);
-        const confidence = Math.max(0, Math.min(100, 100 - (stdDev / average * 100)));
+        const coefficientOfVariation = average > 0 ? stdDev / average : 1;
+        
+        // Confiança baseada em: baixa variância, tendência consistente, dados suficientes
+        let confidence = 100;
+        confidence -= Math.min(50, coefficientOfVariation * 100); // Penalizar alta variância
+        if (salesByMonth.length < 3) confidence -= 20; // Penalizar poucos dados
+        if (Math.abs(trend) > average * 0.5) confidence -= 10; // Penalizar tendências muito fortes (instabilidade)
+        
+        confidence = Math.max(0, Math.min(100, confidence));
         
         return {
             value: Math.max(0, forecast),
-            confidence: confidence
+            confidence: Math.round(confidence),
+            trend: trend,
+            seasonalAdjustment: seasonalAdjustment,
+            method: 'weighted_average_with_seasonality'
         };
+    }
+    
+    // Calcular ajuste sazonal
+    calculateSeasonalAdjustment(currentMonth, salesByMonth) {
+        if (salesByMonth.length < 12) {
+            // Não há dados suficientes para análise sazonal completa
+            return 0;
+        }
+        
+        // Calcular média por mês do ano
+        const monthlyAverages = {};
+        salesByMonth.forEach((sales, index) => {
+            const monthIndex = (currentMonth - (salesByMonth.length - 1 - index) + 12) % 12;
+            if (!monthlyAverages[monthIndex]) {
+                monthlyAverages[monthIndex] = [];
+            }
+            monthlyAverages[monthIndex].push(sales);
+        });
+        
+        // Calcular média geral
+        const overallAverage = salesByMonth.reduce((sum, val) => sum + val, 0) / salesByMonth.length;
+        
+        // Calcular ajuste para o mês atual
+        if (monthlyAverages[currentMonth] && monthlyAverages[currentMonth].length > 0) {
+            const monthAverage = monthlyAverages[currentMonth].reduce((sum, val) => sum + val, 0) / monthlyAverages[currentMonth].length;
+            return monthAverage - overallAverage;
+        }
+        
+        return 0;
     }
 
     // Calcular tendência de vendas
