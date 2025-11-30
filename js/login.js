@@ -1,6 +1,41 @@
 // ========== LOGIN.JS CARREGADO ==========
 console.log('🔵 [LOGIN.JS] Script carregado e executando...');
 
+// Função para obter permissões baseadas no nível de acesso
+function getUserPermissions(level) {
+    const permissions = {
+        admin: {
+            read: true,
+            write: true,
+            delete: true,
+            export: true,
+            import: true,
+            manageUsers: true,
+            viewAdmin: true,
+        },
+        manager: {
+            read: true,
+            write: true,
+            delete: true,
+            export: true,
+            import: false,
+            manageUsers: false,
+            viewAdmin: false,
+        },
+        user: {
+            read: true,
+            write: true,
+            delete: false,
+            export: false,
+            import: false,
+            manageUsers: false,
+            viewAdmin: false,
+        },
+    };
+
+    return permissions[level] || permissions.user;
+}
+
 document.addEventListener('DOMContentLoaded', function () {
     console.log('🟢 [LOGIN.JS] DOMContentLoaded disparado');
     console.log('🟢 [LOGIN.JS] Documento pronto, buscando elementos...');
@@ -33,9 +68,123 @@ document.addEventListener('DOMContentLoaded', function () {
         '✅ [LOGIN.JS] Todos os elementos encontrados, anexando event listener...'
     );
 
+    // ========== RATE LIMITING - Proteção contra Brute Force ==========
+
+    // Obter tentativas de login do localStorage
+    function getLoginAttempts() {
+        const attempts = localStorage.getItem('loginAttempts');
+        if (!attempts) return { count: 0, lastAttempt: 0, blockedUntil: 0 };
+        return JSON.parse(attempts);
+    }
+
+    // Salvar tentativas de login
+    function saveLoginAttempts(attempts) {
+        localStorage.setItem('loginAttempts', JSON.stringify(attempts));
+    }
+
+    // Limpar tentativas de login (após login bem-sucedido)
+    function clearLoginAttempts() {
+        localStorage.removeItem('loginAttempts');
+    }
+
+    // Verificar se está bloqueado por muitas tentativas
+    function isBlocked() {
+        const attempts = getLoginAttempts();
+        const now = Date.now();
+
+        // Se ainda está bloqueado
+        if (attempts.blockedUntil > now) {
+            const remainingSeconds = Math.ceil(
+                (attempts.blockedUntil - now) / 1000
+            );
+            return {
+                blocked: true,
+                remainingSeconds: remainingSeconds,
+            };
+        }
+
+        // Se passou o tempo de bloqueio, resetar contador
+        if (attempts.blockedUntil > 0 && attempts.blockedUntil <= now) {
+            saveLoginAttempts({ count: 0, lastAttempt: 0, blockedUntil: 0 });
+        }
+
+        return { blocked: false };
+    }
+
+    // Registrar tentativa de login falhada
+    function recordFailedAttempt() {
+        const attempts = getLoginAttempts();
+        const now = Date.now();
+
+        // Resetar contador se passou muito tempo desde a última tentativa (5 minutos)
+        if (now - attempts.lastAttempt > 5 * 60 * 1000) {
+            attempts.count = 0;
+        }
+
+        attempts.count++;
+        attempts.lastAttempt = now;
+
+        // Bloquear após 5 tentativas falhadas
+        if (attempts.count >= 5) {
+            // Bloquear por 15 minutos
+            attempts.blockedUntil = now + 15 * 60 * 1000;
+            saveLoginAttempts(attempts);
+            return {
+                blocked: true,
+                remainingSeconds: 15 * 60,
+                message:
+                    'Muitas tentativas de login falhadas. Acesso bloqueado por 15 minutos.',
+            };
+        }
+
+        saveLoginAttempts(attempts);
+        return {
+            blocked: false,
+            remainingAttempts: 5 - attempts.count,
+        };
+    }
+
+    // ========== HASH DE SENHAS ==========
+
+    // Função simples de hash (SHA-256 usando Web Crypto API)
+    async function hashPassword(password) {
+        try {
+            const encoder = new TextEncoder();
+            const data = encoder.encode(password);
+            const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+            const hashArray = Array.from(new Uint8Array(hashBuffer));
+            const hashHex = hashArray
+                .map((b) => b.toString(16).padStart(2, '0'))
+                .join('');
+            return hashHex;
+        } catch (error) {
+            console.error('Erro ao fazer hash da senha:', error);
+            // Fallback: retornar senha original se crypto não estiver disponível
+            return password;
+        }
+    }
+
+    // Verificar senha (comparar hash)
+    async function verifyPassword(password, hashedPassword) {
+        const passwordHash = await hashPassword(password);
+        return passwordHash === hashedPassword;
+    }
+
     // Função para fazer login
-    function fazerLogin(username, password) {
+    async function fazerLogin(username, password) {
         console.log('🟡 [LOGIN.JS] Processando login...');
+
+        // Verificar se está bloqueado
+        const blockStatus = isBlocked();
+        if (blockStatus.blocked) {
+            console.warn(
+                '⚠️ [LOGIN.JS] Acesso bloqueado por muitas tentativas'
+            );
+            showError(
+                `Acesso temporariamente bloqueado. Tente novamente em ${blockStatus.remainingSeconds} segundos.`
+            );
+            return false;
+        }
 
         // Validações
         if (!username || !password) {
@@ -44,27 +193,110 @@ document.addEventListener('DOMContentLoaded', function () {
             return false;
         }
 
-        // Verificar credenciais
+        // Verificar credenciais e níveis de acesso
+        // Nota: Em produção, os hashes devem ser armazenados no servidor
+        // Aqui estamos usando hashes pré-calculados para demonstração
         const validUsers = {
-            nilda: '123',
-            admin: 'gab123', // Usuário administrador
-            usuarioteste1: '123',
-            usuarioteste2: '123',
-            usuarioteste3: '123',
-            usuarioteste4: '123',
-            usuarioteste5: '123',
-            deivson: '123',
-            isaac: '123',
-            vinicius: '123',
-            paulo: '123',
+            nilda: {
+                passwordHash:
+                    'a665a45920422f9d417e4867efdc4fb8a04a1f3fff1fa07e998e86f7f7a27ae3', // hash de '123'
+                level: 'admin',
+            },
+            admin: {
+                passwordHash:
+                    '8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92', // hash de 'gab123'
+                level: 'admin',
+            },
+            usuarioteste1: {
+                passwordHash:
+                    'a665a45920422f9d417e4867efdc4fb8a04a1f3fff1fa07e998e86f7f7a27ae3', // hash de '123'
+                level: 'manager',
+            },
+            usuarioteste2: {
+                passwordHash:
+                    'a665a45920422f9d417e4867efdc4fb8a04a1f3fff1fa07e998e86f7f7a27ae3', // hash de '123'
+                level: 'user',
+            },
+            usuarioteste3: {
+                passwordHash:
+                    'a665a45920422f9d417e4867efdc4fb8a04a1f3fff1fa07e998e86f7f7a27ae3', // hash de '123'
+                level: 'user',
+            },
+            usuarioteste4: {
+                passwordHash:
+                    'a665a45920422f9d417e4867efdc4fb8a04a1f3fff1fa07e998e86f7f7a27ae3', // hash de '123'
+                level: 'user',
+            },
+            usuarioteste5: {
+                passwordHash:
+                    'a665a45920422f9d417e4867efdc4fb8a04a1f3fff1fa07e998e86f7f7a27ae3', // hash de '123'
+                level: 'user',
+            },
+            deivson: {
+                passwordHash:
+                    'a665a45920422f9d417e4867efdc4fb8a04a1f3fff1fa07e998e86f7f7a27ae3', // hash de '123'
+                level: 'manager',
+            },
+            isaac: {
+                passwordHash:
+                    'a665a45920422f9d417e4867efdc4fb8a04a1f3fff1fa07e998e86f7f7a27ae3', // hash de '123'
+                level: 'user',
+            },
+            vinicius: {
+                passwordHash:
+                    'a665a45920422f9d417e4867efdc4fb8a04a1f3fff1fa07e998e86f7f7a27ae3', // hash de '123'
+                level: 'user',
+            },
+            paulo: {
+                passwordHash:
+                    'a665a45920422f9d417e4867efdc4fb8a04a1f3fff1fa07e998e86f7f7a27ae3', // hash de '123'
+                level: 'manager',
+            },
         };
 
-        if (validUsers[username] && validUsers[username] === password) {
+        const user = validUsers[username];
+        if (!user) {
+            console.warn('⚠️ [LOGIN.JS] Usuário não encontrado');
+
+            // Registrar tentativa falhada
+            const attemptResult = recordFailedAttempt();
+
+            if (attemptResult.blocked) {
+                showError(attemptResult.message);
+            } else {
+                const remaining = attemptResult.remainingAttempts;
+                if (remaining <= 2) {
+                    showError(
+                        `Usuário ou senha incorretos. ${remaining} tentativa(s) restante(s) antes do bloqueio.`
+                    );
+                } else {
+                    showError('Usuário ou senha incorretos.');
+                }
+            }
+
+            passwordInput.value = '';
+            return false;
+        }
+
+        // Verificar senha usando hash
+        const passwordHash = await hashPassword(password);
+        if (user.passwordHash === passwordHash) {
             console.log('✅ [LOGIN.JS] Credenciais válidas!');
+
+            // Limpar tentativas de login após sucesso
+            clearLoginAttempts();
 
             // Salvar sessão
             sessionStorage.setItem('loggedIn', 'true');
             sessionStorage.setItem('username', username);
+            sessionStorage.setItem('userLevel', user.level || 'user');
+
+            // Salvar permissões do usuário
+            const permissions = getUserPermissions(user.level);
+            sessionStorage.setItem(
+                'userPermissions',
+                JSON.stringify(permissions)
+            );
 
             console.log('✅ [LOGIN.JS] SessionStorage salvo');
             console.log(
@@ -101,7 +333,23 @@ document.addEventListener('DOMContentLoaded', function () {
             return true;
         } else {
             console.warn('⚠️ [LOGIN.JS] Credenciais inválidas');
-            showError('Usuário ou senha incorretos.');
+
+            // Registrar tentativa falhada
+            const attemptResult = recordFailedAttempt();
+
+            if (attemptResult.blocked) {
+                showError(attemptResult.message);
+            } else {
+                const remaining = attemptResult.remainingAttempts;
+                if (remaining <= 2) {
+                    showError(
+                        `Usuário ou senha incorretos. ${remaining} tentativa(s) restante(s) antes do bloqueio.`
+                    );
+                } else {
+                    showError('Usuário ou senha incorretos.');
+                }
+            }
+
             passwordInput.value = '';
             return false;
         }

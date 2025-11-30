@@ -304,6 +304,235 @@ if (document.readyState === 'loading') {
     initToastAndConfirm();
 }
 
+// ========================================
+// SISTEMA DE LOADING OVERLAY
+// ========================================
+class LoadingOverlay {
+    constructor() {
+        this.overlay = this.createOverlay();
+    }
+
+    createOverlay() {
+        let overlay = document.getElementById('loading-overlay');
+        if (!overlay) {
+            overlay = document.createElement('div');
+            overlay.id = 'loading-overlay';
+            overlay.className = 'loading-overlay';
+            overlay.innerHTML = `
+                <div class="loading-overlay-content">
+                    <div class="loading-overlay-spinner"></div>
+                    <div class="loading-overlay-message" id="loading-overlay-message">Carregando...</div>
+                </div>
+            `;
+            document.body.appendChild(overlay);
+        }
+        return overlay;
+    }
+
+    show(message = 'Carregando...') {
+        const messageEl = this.overlay.querySelector('#loading-overlay-message');
+        if (messageEl) {
+            messageEl.textContent = message;
+        }
+        this.overlay.classList.add('active');
+    }
+
+    hide() {
+        this.overlay.classList.remove('active');
+    }
+}
+
+// Instância global de LoadingOverlay
+let loadingOverlay;
+
+const initLoadingOverlay = () => {
+    if (!loadingOverlay) {
+        loadingOverlay = new LoadingOverlay();
+    }
+};
+
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initLoadingOverlay);
+} else {
+    initLoadingOverlay();
+}
+
+// ========================================
+// SISTEMA DE VALIDAÇÃO EM TEMPO REAL
+// ========================================
+class FieldValidator {
+    constructor() {
+        this.validators = {
+            required: (value) => value.trim().length > 0,
+            email: (value) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value),
+            minLength: (value, min) => value.length >= min,
+            maxLength: (value, max) => value.length <= max,
+            cpf: (value) => {
+                const clean = value.replace(/\D/g, '');
+                return clean.length === 11;
+            },
+            phone: (value) => {
+                const clean = value.replace(/\D/g, '');
+                return clean.length >= 10 && clean.length <= 11;
+            },
+            number: (value) => !isNaN(value) && value !== '',
+            positive: (value) => parseFloat(value) > 0,
+        };
+    }
+
+    validateField(field, rules = {}) {
+        const value = field.value;
+        const errors = [];
+        let isValid = true;
+
+        // Validação required
+        if (rules.required && !this.validators.required(value)) {
+            errors.push('Este campo é obrigatório');
+            isValid = false;
+        }
+
+        // Validação email
+        if (rules.email && value && !this.validators.email(value)) {
+            errors.push('Email inválido');
+            isValid = false;
+        }
+
+        // Validação minLength
+        if (rules.minLength && value && !this.validators.minLength(value, rules.minLength)) {
+            errors.push(`Mínimo de ${rules.minLength} caracteres`);
+            isValid = false;
+        }
+
+        // Validação maxLength
+        if (rules.maxLength && value && !this.validators.maxLength(value, rules.maxLength)) {
+            errors.push(`Máximo de ${rules.maxLength} caracteres`);
+            isValid = false;
+        }
+
+        // Validação CPF
+        if (rules.cpf && value && !this.validators.cpf(value)) {
+            errors.push('CPF inválido');
+            isValid = false;
+        }
+
+        // Validação phone
+        if (rules.phone && value && !this.validators.phone(value)) {
+            errors.push('Telefone inválido');
+            isValid = false;
+        }
+
+        // Validação number
+        if (rules.number && value && !this.validators.number(value)) {
+            errors.push('Deve ser um número');
+            isValid = false;
+        }
+
+        // Validação positive
+        if (rules.positive && value && !this.validators.positive(value)) {
+            errors.push('Deve ser maior que zero');
+            isValid = false;
+        }
+
+        return { isValid, errors };
+    }
+
+    setupFieldValidation(field, rules = {}) {
+        // Criar wrapper se não existir
+        let wrapper = field.parentElement;
+        if (!wrapper.classList.contains('field-wrapper')) {
+            wrapper = document.createElement('div');
+            wrapper.className = 'field-wrapper';
+            field.parentElement.insertBefore(wrapper, field);
+            wrapper.appendChild(field);
+        }
+
+        // Adicionar ícone de status
+        let statusIcon = wrapper.querySelector('.field-status');
+        if (!statusIcon) {
+            statusIcon = document.createElement('i');
+            statusIcon.className = 'field-status fas';
+            wrapper.appendChild(statusIcon);
+        }
+
+        // Adicionar mensagem de erro
+        let messageEl = wrapper.querySelector('.field-message');
+        if (!messageEl) {
+            messageEl = document.createElement('div');
+            messageEl.className = 'field-message';
+            wrapper.appendChild(messageEl);
+        }
+
+        // Adicionar contador de caracteres se maxLength
+        let charCounter = null;
+        if (rules.maxLength) {
+            charCounter = wrapper.querySelector('.char-counter');
+            if (!charCounter) {
+                charCounter = document.createElement('div');
+                charCounter.className = 'char-counter';
+                wrapper.appendChild(charCounter);
+            }
+        }
+
+        // Função de validação
+        const validate = () => {
+            const { isValid, errors } = this.validateField(field, rules);
+
+            // Atualizar classes
+            field.classList.remove('valid', 'invalid');
+            if (field.value.trim() !== '') {
+                field.classList.add(isValid ? 'valid' : 'invalid');
+            }
+
+            // Atualizar ícone
+            statusIcon.className = 'field-status fas';
+            if (field.value.trim() !== '') {
+                statusIcon.classList.add(isValid ? 'fa-check-circle' : 'fa-exclamation-circle', isValid ? 'valid' : 'invalid');
+            } else {
+                statusIcon.classList.remove('fa-check-circle', 'fa-exclamation-circle', 'valid', 'invalid');
+            }
+
+            // Atualizar mensagem
+            messageEl.className = 'field-message';
+            if (errors.length > 0) {
+                messageEl.classList.add('error', 'show');
+                messageEl.textContent = errors[0];
+            } else if (field.value.trim() !== '' && isValid) {
+                messageEl.classList.add('success', 'show');
+                messageEl.textContent = 'Campo válido';
+            } else {
+                messageEl.classList.remove('show');
+            }
+
+            // Atualizar contador
+            if (charCounter) {
+                const length = field.value.length;
+                const max = rules.maxLength;
+                charCounter.textContent = `${length}/${max}`;
+                charCounter.classList.remove('warning', 'error');
+                if (length > max * 0.9) {
+                    charCounter.classList.add('error');
+                } else if (length > max * 0.75) {
+                    charCounter.classList.add('warning');
+                }
+            }
+
+            return isValid;
+        };
+
+        // Event listeners
+        field.addEventListener('input', validate);
+        field.addEventListener('blur', validate);
+
+        // Validação inicial
+        if (field.value) {
+            validate();
+        }
+    }
+}
+
+// Instância global de FieldValidator
+const fieldValidator = new FieldValidator();
+
 // Sistema de Gestão de Loja
 class LojaApp {
     constructor() {
@@ -313,11 +542,15 @@ class LojaApp {
         this.costs = [];
         this.goals = [];
         this.clients = []; // Clientes cadastrados
+        this.clientNotifications = []; // Notificações para clientes
+        this.suppliers = []; // Fornecedores cadastrados
         this.completedSales = []; // Vendas concluídas com dados completos
         this.pendingOrders = []; // Pedidos pendentes
         this.serviceAppointments = []; // Agendamentos de serviços
         this.currentEditingItem = null;
         this.currentEditingClient = null;
+        this.currentEditingCoupon = null;
+        this.currentEditingSupplier = null;
         this.currentGroup = null;
         this.currentServiceGroup = null;
         this.currentServiceDay = null;
@@ -332,10 +565,326 @@ class LojaApp {
         this.goalsChart = null; // Gráfico de metas
         this.costsChart = null; // Gráfico de custos
         this.servicesChart = null; // Gráfico de serviços
+        this.chartCache = {}; // Cache de dados de gráficos: { chartId: { data, timestamp, ttl } }
+        this.cacheStrategies = {
+            charts: { ttl: 5 * 60 * 1000 }, // 5 minutos
+            data: { ttl: 1 * 60 * 1000 }, // 1 minuto
+            images: { ttl: 24 * 60 * 60 * 1000 }, // 24 horas
+        };
         this.tutorialStep = 0; // Passo atual do tutorial
         this.tutorialActive = false; // Se o tutorial está ativo
+        this.searchHistory = []; // Histórico de buscas
+        this.searchDebounceTimer = null; // Timer para debounce de busca
+        this.clientSearchDebounceTimer = null; // Timer para debounce de busca de clientes
+        this.supplierSearchDebounceTimer = null; // Timer para debounce de busca de fornecedores
+        this.coupons = []; // Cupons de desconto
+        this.auditLog = []; // Histórico de alterações
+        this.templates = []; // Templates de produtos, vendas, serviços
+        this.currentEditingTemplate = null;
+        this.itemTags = {}; // Tags por item: { itemId: ['tag1', 'tag2'] }
+        this.dataAccessLogs = []; // Logs de acesso a dados pessoais (LGPD)
+        this.cookieConsent = null; // Consentimento de cookies
+        this.actionThrottle = {}; // Throttling de ações: { action: timestamp }
+        this.requestQueue = []; // Fila de requisições para rate limiting
+        this.lastRequestTime = 0; // Timestamp da última requisição
+        this.requestCount = 0; // Contador de requisições no período
+        this.requestWindowStart = Date.now(); // Início da janela de rate limiting
+        this.inactivityTimer = null; // Timer para logout automático
+        this.inactivityTimeout = 30 * 60 * 1000; // 30 minutos de inatividade
+        this.lastActivityTime = Date.now(); // Última atividade do usuário
+        this.backupHistory = []; // Histórico de backups: [{ id, timestamp, data, checksum }]
+        this.encryptionKeys = {}; // Chaves de criptografia por usuário: { username: CryptoKey }
+        this.encryptionEnabled = true; // Habilitar criptografia por padrão
+        this.backupInterval = null; // Intervalo de backup automático
+        this.lastBackupTime = null; // Última vez que o backup foi feito
+        this.userPermissions = {}; // Permissões por usuário: { username: { level, permissions } }
+        this.entityLocks = {}; // Locks de entidades: { entityType_entityId: { username, timestamp } }
+        this.maxAuditLogSize = 1000; // Limitar tamanho do log para performance
+        this.indexedDB = null; // Instância do IndexedDB
+        this.paymentConfig = { // Configurações de pagamento
+            pagseguro: { enabled: false, email: '', token: '' },
+            mercadoPago: { enabled: false, accessToken: '', publicKey: '' },
+            stripe: { enabled: false, publishableKey: '', secretKey: '' },
+            pix: { enabled: true, key: '', merchantName: '', merchantCity: '' }
+        };
+        this.ecommerceConfig = { // Configurações de e-commerce
+            woocommerce: { enabled: false, url: '', consumerKey: '', consumerSecret: '' },
+            shopify: { enabled: false, shop: '', apiKey: '', apiSecret: '' },
+            mercadoLivre: { enabled: false, clientId: '', clientSecret: '', accessToken: '' }
+        };
+        this.erpConfig = { // Configurações de ERPs
+            totvs: { enabled: false, url: '', username: '', password: '', database: '' },
+            sap: { enabled: false, url: '', username: '', password: '', client: '' },
+            outros: []
+        };
+        this.emailConfig = { // Configurações de email
+            enabled: false,
+            provider: 'smtp',
+            smtp: { host: '', port: 587, secure: false, username: '', password: '' },
+            sendgrid: { apiKey: '' },
+            ses: { accessKeyId: '', secretAccessKey: '', region: 'us-east-1' },
+            mailgun: { apiKey: '', domain: '' }
+        };
+        this.smsConfig = { // Configurações de SMS
+            enabled: false,
+            provider: 'twilio',
+            twilio: { accountSid: '', authToken: '', fromNumber: '' },
+            zenvia: { apiKey: '', fromNumber: '' },
+            totalvoice: { accessToken: '', fromNumber: '' }
+        };
+        this.useIndexedDB = false; // Flag para usar IndexedDB quando disponível
+        this.dbName = 'LojaGestaoDB';
+        this.dbVersion = 1;
+        this.voiceRecognition = null; // Instância do reconhecimento de voz
+        this.voiceRecognitionActive = false; // Flag para controle de reconhecimento de voz
+        this.voiceCommands = {}; // Mapeamento de comandos de voz
+        this.pullToRefresh = {
+            startY: 0,
+            currentY: 0,
+            isPulling: false,
+            threshold: 80, // Distância mínima para ativar refresh
+            maxPull: 120, // Distância máxima de pull
+        };
 
         this.init();
+    }
+
+    // ========== AUDIT LOG (Histórico de Alterações) ==========
+
+    logAction(action, entityType, entityId, entityName, details = {}) {
+        const username = sessionStorage.getItem('username') || 'unknown';
+        const timestamp = new Date().toISOString();
+        
+        const logEntry = {
+            id: 'AUDIT_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9),
+            action: action, // 'create', 'update', 'delete', 'view', 'export', etc.
+            entityType: entityType, // 'item', 'client', 'supplier', 'coupon', 'sale', 'cost', 'goal', etc.
+            entityId: entityId,
+            entityName: entityName,
+            username: username,
+            timestamp: timestamp,
+            details: details, // Informações adicionais sobre a alteração
+        };
+
+        this.auditLog.unshift(logEntry); // Adicionar no início
+
+        // Limitar tamanho do log (manter apenas os últimos N registros)
+        if (this.auditLog.length > this.maxAuditLogSize) {
+            this.auditLog = this.auditLog.slice(0, this.maxAuditLogSize);
+        }
+
+        // Salvar automaticamente (mas não bloquear a operação principal)
+        setTimeout(() => {
+            this.saveData();
+        }, 100);
+    }
+
+    renderAuditLog(containerId = 'auditLogList', limit = 100) {
+        const container = document.getElementById(containerId);
+        if (!container) return;
+
+        // Aplicar filtros
+        const actionFilter = document.getElementById('auditLogFilter')?.value || 'all';
+        const entityFilter = document.getElementById('auditLogEntityFilter')?.value || 'all';
+        
+        let filteredLogs = this.auditLog;
+        
+        if (actionFilter !== 'all') {
+            filteredLogs = filteredLogs.filter(log => log.action === actionFilter);
+        }
+        
+        if (entityFilter !== 'all') {
+            filteredLogs = filteredLogs.filter(log => log.entityType === entityFilter);
+        }
+
+        const logs = filteredLogs.slice(0, limit);
+
+        if (logs.length === 0) {
+            container.innerHTML = `
+                <div class="empty-state" style="grid-column: 1/-1;">
+                    <div class="empty-state-icon">
+                        <i class="fas fa-history"></i>
+                    </div>
+                    <h3 class="empty-state-title">Nenhuma alteração registrada</h3>
+                    <p class="empty-state-message">
+                        O histórico de alterações aparecerá aqui conforme você usar o sistema.
+                    </p>
+                </div>`;
+            return;
+        }
+
+        const actionIcons = {
+            create: 'fa-plus-circle',
+            update: 'fa-edit',
+            delete: 'fa-trash',
+            view: 'fa-eye',
+            export: 'fa-download',
+            import: 'fa-upload',
+            login: 'fa-sign-in-alt',
+            logout: 'fa-sign-out-alt',
+        };
+
+        const actionColors = {
+            create: '#28a745',
+            update: '#ffc107',
+            delete: '#dc3545',
+            view: '#17a2b8',
+            export: '#6c757d',
+            import: '#6c757d',
+            login: '#28a745',
+            logout: '#dc3545',
+        };
+
+        const entityTypeNames = {
+            item: 'Produto',
+            client: 'Cliente',
+            supplier: 'Fornecedor',
+            coupon: 'Cupom',
+            sale: 'Venda',
+            cost: 'Custo',
+            goal: 'Meta',
+            group: 'Grupo Mensal',
+            serviceGroup: 'Grupo de Serviços',
+            pendingOrder: 'Pedido Pendente',
+            serviceAppointment: 'Agendamento',
+        };
+
+        container.innerHTML = logs
+            .map((log) => {
+                const actionName = {
+                    create: 'Criou',
+                    update: 'Atualizou',
+                    delete: 'Excluiu',
+                    view: 'Visualizou',
+                    export: 'Exportou',
+                    import: 'Importou',
+                    login: 'Entrou',
+                    logout: 'Saiu',
+                }[log.action] || log.action;
+
+                const icon = actionIcons[log.action] || 'fa-circle';
+                const color = actionColors[log.action] || '#6c757d';
+                const entityName = entityTypeNames[log.entityType] || log.entityType;
+                const date = new Date(log.timestamp);
+                const dateStr = date.toLocaleDateString('pt-BR', {
+                    day: '2-digit',
+                    month: '2-digit',
+                    year: 'numeric',
+                });
+                const timeStr = date.toLocaleTimeString('pt-BR', {
+                    hour: '2-digit',
+                    minute: '2-digit',
+                });
+
+                // Verificar se pode reverter (apenas para delete e update)
+                const canRevert = (log.action === 'delete' || log.action === 'update') && log.entityId && log.entityType;
+                
+                return `
+                <div class="item-card" style="border-left: 4px solid ${color}; position: relative;">
+                    <div class="item-header">
+                        <div style="display: flex; align-items: center; gap: 0.5rem; flex: 1;">
+                            <i class="fas ${icon}" style="color: ${color}; font-size: 1.1rem;"></i>
+                            <div style="flex: 1;">
+                                <h3 style="margin: 0; font-size: 0.95rem; font-weight: 600;">${actionName} ${entityName}</h3>
+                                ${log.entityName ? `<p style="margin: 0.25rem 0 0 0; font-size: 0.85rem; color: var(--gray-600);"><i class="fas fa-tag"></i> ${this.escapeHtml(log.entityName)}</p>` : ''}
+                            </div>
+                        </div>
+                        <div style="display: flex; flex-direction: column; align-items: flex-end; gap: 0.25rem;">
+                            <div style="font-size: 0.75rem; color: var(--gray-500);">
+                                ${dateStr}
+                            </div>
+                            <div style="font-size: 0.75rem; color: var(--gray-500);">
+                                ${timeStr}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="item-details" style="padding-top: 0.75rem; border-top: 1px solid var(--border-color); margin-top: 0.75rem;">
+                        <p style="margin: 0.5rem 0;"><i class="fas fa-user" style="color: var(--primary-color);"></i> <strong>Usuário:</strong> ${this.escapeHtml(log.username)}</p>
+                        ${log.details && Object.keys(log.details).length > 0 ? `
+                            <details style="margin-top: 0.5rem;">
+                                <summary style="cursor: pointer; color: var(--primary-color); font-size: 0.85rem; font-weight: 500;">
+                                    <i class="fas fa-info-circle"></i> Ver Detalhes
+                                </summary>
+                                <div style="margin-top: 0.5rem; padding: 0.75rem; background: var(--light-gray); border-radius: var(--radius-sm); font-size: 0.85rem;">
+                                    ${Object.entries(log.details).map(([key, value]) => 
+                                        `<p style="margin: 0.25rem 0;"><strong>${this.escapeHtml(key)}:</strong> ${this.escapeHtml(String(value))}</p>`
+                                    ).join('')}
+                                </div>
+                            </details>
+                        ` : ''}
+                        ${canRevert ? `
+                            <div style="margin-top: 0.75rem; padding-top: 0.75rem; border-top: 1px solid var(--border-color);">
+                                <button class="btn-small btn-secondary" onclick="app.revertAuditLogAction('${log.id}')" style="font-size: 0.8rem;">
+                                    <i class="fas fa-undo"></i> Reverter Ação
+                                </button>
+                            </div>
+                        ` : ''}
+                    </div>
+                </div>
+            `;
+            })
+            .join('');
+    }
+
+    // Reverter ação do audit log
+    revertAuditLogAction(logId) {
+        const log = this.auditLog.find(l => l.id === logId);
+        if (!log) {
+            if (typeof toast !== 'undefined' && toast) {
+                toast.error('Registro de log não encontrado.', 3000);
+            }
+            return;
+        }
+
+        if (!log.entityId || !log.entityType) {
+            if (typeof toast !== 'undefined' && toast) {
+                toast.warning('Esta ação não pode ser revertida (dados insuficientes).', 3000);
+            }
+            return;
+        }
+
+        const performRevert = (confirmed) => {
+            if (!confirmed) return;
+
+            try {
+                if (log.action === 'delete') {
+                    // Reverter exclusão - não é possível restaurar dados deletados sem backup
+                    if (typeof toast !== 'undefined' && toast) {
+                        toast.warning('Não é possível reverter exclusões automaticamente. Use o backup para restaurar dados.', 4000);
+                    }
+                    return;
+                } else if (log.action === 'update') {
+                    // Reverter atualização - restaurar dados anteriores
+                    // Nota: Isso requer que os dados anteriores estejam nos detalhes do log
+                    if (log.details && log.details.previousData) {
+                        // Implementar restauração baseada em previousData
+                        if (typeof toast !== 'undefined' && toast) {
+                            toast.info('Funcionalidade de reversão de atualizações será implementada em breve.', 3000);
+                        }
+                    } else {
+                        if (typeof toast !== 'undefined' && toast) {
+                            toast.warning('Dados anteriores não disponíveis para reversão.', 3000);
+                        }
+                    }
+                }
+            } catch (error) {
+                console.error('Erro ao reverter ação:', error);
+                if (typeof toast !== 'undefined' && toast) {
+                    toast.error('Erro ao reverter ação. Verifique o console para mais detalhes.', 4000);
+                }
+            }
+        };
+
+        if (typeof confirmDialog !== 'undefined' && confirmDialog) {
+            confirmDialog.confirm(
+                `Tem certeza que deseja reverter a ação "${log.action}" em "${log.entityName || log.entityType}"?`,
+                'Reverter Ação'
+            ).then(performRevert);
+        } else {
+            if (confirm(`Tem certeza que deseja reverter a ação "${log.action}"?`)) {
+                performRevert(true);
+            }
+        }
     }
 
     init() {
@@ -415,7 +964,12 @@ class LojaApp {
                 // Mostrar apenas a aba de administração
                 const adminTabBtn = document.getElementById('adminTabBtn');
                 if (adminTabBtn) {
-                    adminTabBtn.style.display = 'flex';
+                    // Verificar permissão de visualizar admin
+                    if (this.checkPermission('viewAdmin')) {
+                        adminTabBtn.style.display = 'flex';
+                    } else {
+                        adminTabBtn.style.display = 'none';
+                    }
                 }
 
                 // Esconder todas as outras seções de conteúdo
@@ -448,6 +1002,36 @@ class LojaApp {
             // Carregar tema salvo
             this.loadTheme();
 
+            // Verificar consentimento de cookies (LGPD)
+            this.checkCookieConsent();
+
+            // Iniciar monitoramento de inatividade (logout automático)
+            this.startInactivityMonitoring();
+
+            // Inicializar PWA
+            this.initPWA();
+
+            // Inicializar lazy loading
+            this.initLazyLoading();
+
+            // Inicializar navegação por teclado
+            this.initKeyboardNavigation();
+
+            // Inicializar cache inteligente
+            this.initCacheCleanup();
+
+            // Configurar throttle de scroll
+            this.setupScrollThrottle();
+
+            // Inicializar IndexedDB
+            this.initIndexedDB();
+
+            // Inicializar navegação por voz
+            this.initVoiceNavigation();
+
+            // Inicializar pull-to-refresh
+            this.initPullToRefresh();
+
             // Event listeners (deve ser chamado primeiro)
             this.setupEventListeners();
 
@@ -468,15 +1052,46 @@ class LojaApp {
                 }, 50);
             }
 
+            // Carregar histórico de buscas
+            this.loadSearchHistory();
+            
             // Carregar dados apenas para usuários normais (não admin)
             if (username !== 'admin') {
                 // Carregar dados (assíncrono)
                 this.loadData().then(() => {
                     // Renderizar após carregar dados
                     this.renderGroups();
+                    this.updateTagFilter(); // Atualizar lista de tags antes de renderizar
                     this.renderItems();
                     this.renderClients();
+                    this.renderSuppliers();
+                    this.renderTemplates();
+                    this.renderCoupons();
                     this.renderPendingOrders();
+                    
+                    // Verificar alertas após carregar dados
+                    setTimeout(() => {
+                        this.checkPendingOrdersAlerts();
+                        this.checkGoalsAlerts();
+                        this.checkAppointmentsReminders();
+                    }, 1000);
+                    
+                    // Carregar e iniciar backup automático se configurado
+                    this.loadBackupHistory();
+                    const username = sessionStorage.getItem('username');
+                    if (username) {
+                        const configStr = localStorage.getItem(`autoBackupConfig_${username}`);
+                        if (configStr) {
+                            try {
+                                const config = JSON.parse(configStr);
+                                if (config.enabled) {
+                                    this.startAutoBackup(config.frequency || 'daily');
+                                }
+                            } catch (e) {
+                                console.error('Erro ao carregar configuração de backup:', e);
+                            }
+                        }
+                    }
                     // Renderizar carrossel APÓS carregar dados com um pequeno delay para garantir que o DOM está pronto
                     setTimeout(() => {
                         this.renderLastReceiptsCarousel();
@@ -516,6 +1131,17 @@ class LojaApp {
                 self.toggleTheme();
             });
             addDebugLog('Listener anexado ao themeToggleBtn');
+        }
+
+        // Botão de dark mode
+        const darkModeToggle = document.getElementById('darkModeToggle');
+        if (darkModeToggle) {
+            darkModeToggle.addEventListener('click', () => {
+                this.toggleDarkMode();
+            });
+            addDebugLog('Listener anexado ao darkModeToggle');
+            // Carregar estado salvo
+            this.loadDarkMode();
         }
 
         addDebugLog(
@@ -604,12 +1230,8 @@ class LojaApp {
             console.log('✅ [APP.JS] Listener anexado ao importFile');
         }
 
-        if (exportBtn) {
-            exportBtn.addEventListener('click', () => this.exportData());
-            console.log('✅ [APP.JS] Listener anexado ao exportBtn');
-        } else {
-            console.error('❌ [APP.JS] exportBtn não encontrado!');
-        }
+        // Export button agora abre modal (removido listener direto)
+        // O botão já tem onclick="app.openExportModal()" no HTML
 
         // Botão de ajuda / Como usar (apenas para usuários não-admin)
         if (helpBtn && currentUsername !== 'admin') {
@@ -637,9 +1259,21 @@ class LojaApp {
         const tutorialSkipBtn = document.getElementById('tutorialSkipBtn');
 
         if (closeTutorialBtn) {
-            closeTutorialBtn.addEventListener('click', () =>
-                this.closeTutorialModal()
-            );
+            closeTutorialBtn.addEventListener('click', (e) => {
+                console.log('🟢 [TUTORIAL] Botão Fechar clicado');
+                e.preventDefault();
+                e.stopPropagation();
+                this.closeTutorialModal();
+            });
+            // Também adicionar onclick como fallback
+            closeTutorialBtn.onclick = (e) => {
+                console.log('🟢 [TUTORIAL] Botão Fechar (onclick) clicado');
+                e.preventDefault();
+                e.stopPropagation();
+                this.closeTutorialModal();
+            };
+        } else {
+            console.error('❌ [TUTORIAL] closeTutorialBtn não encontrado!');
         }
         if (startTutorialBtn) {
             startTutorialBtn.addEventListener('click', () =>
@@ -647,9 +1281,46 @@ class LojaApp {
             );
         }
         if (tutorialModalClose) {
-            tutorialModalClose.addEventListener('click', () =>
-                this.closeTutorialModal()
-            );
+            tutorialModalClose.addEventListener('click', (e) => {
+                console.log('🟢 [TUTORIAL] Botão X (close) clicado');
+                e.preventDefault();
+                e.stopPropagation();
+                this.closeTutorialModal();
+            });
+            // Também adicionar onclick como fallback
+            tutorialModalClose.onclick = (e) => {
+                console.log('🟢 [TUTORIAL] Botão X (onclick) clicado');
+                e.preventDefault();
+                e.stopPropagation();
+                this.closeTutorialModal();
+            };
+        } else {
+            console.error('❌ [TUTORIAL] tutorialModalClose não encontrado!');
+        }
+
+        // Fechar modal ao clicar no overlay (fora do conteúdo)
+        const tutorialModal = document.getElementById('tutorialModal');
+        if (tutorialModal) {
+            tutorialModal.addEventListener('click', (e) => {
+                console.log('🟢 [TUTORIAL] Overlay clicado, target:', e.target, 'currentTarget:', e.currentTarget);
+                // Se clicou diretamente no modal (overlay), fechar
+                if (e.target === tutorialModal || e.target.id === 'tutorialModal') {
+                    console.log('🟢 [TUTORIAL] Fechando modal via overlay');
+                    this.closeTutorialModal();
+                }
+            }, true); // Usar capture phase para garantir que o evento seja capturado
+
+            // Fechar modal com tecla ESC (usar capture no document)
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape' && tutorialModal.classList.contains('active')) {
+                    console.log('🟢 [TUTORIAL] Tecla ESC pressionada');
+                    e.preventDefault();
+                    e.stopPropagation();
+                    this.closeTutorialModal();
+                }
+            }, true);
+        } else {
+            console.error('❌ [TUTORIAL] tutorialModal não encontrado!');
         }
         if (closeTutorialTooltip) {
             closeTutorialTooltip.addEventListener('click', () =>
@@ -749,8 +1420,42 @@ class LojaApp {
         const monthFilter = document.getElementById('monthFilter');
 
         if (searchInput) {
-            searchInput.addEventListener('input', () => this.renderItems());
-            console.log('✅ [APP.JS] Listener anexado ao searchInput');
+            // Debounce para melhorar performance (padrão emergente.sh)
+            searchInput.addEventListener('input', (e) => {
+                // Limpar timer anterior
+                if (this.searchDebounceTimer) {
+                    clearTimeout(this.searchDebounceTimer);
+                }
+                
+                // Novo timer com delay de 300ms (padrão emergente.sh)
+                this.searchDebounceTimer = setTimeout(() => {
+                    this.handleSearch(e.target.value);
+                }, 300);
+            });
+            
+            // Salvar busca no histórico ao pressionar Enter
+            searchInput.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter' && searchInput.value.trim()) {
+                    this.addToSearchHistory(searchInput.value.trim());
+                }
+            });
+            
+            // Mostrar histórico ao focar
+            searchInput.addEventListener('focus', () => {
+                if (searchInput.value.trim() === '') {
+                    this.showSearchHistory();
+                }
+            });
+            
+            // Esconder histórico ao clicar fora
+            document.addEventListener('click', (e) => {
+                const historyContainer = document.getElementById('searchHistoryContainer');
+                if (historyContainer && !historyContainer.contains(e.target) && e.target !== searchInput) {
+                    this.hideSearchHistory();
+                }
+            });
+            
+            console.log('✅ [APP.JS] Listener anexado ao searchInput (com debounce)');
         } else {
             console.error('❌ [APP.JS] searchInput não encontrado!');
         }
@@ -794,6 +1499,15 @@ class LojaApp {
             console.error('❌ [APP.JS] servicesYearFilter não encontrado!');
         }
 
+        // Formulário de construtor de relatórios
+        const reportBuilderForm = document.getElementById('reportBuilderForm');
+        if (reportBuilderForm) {
+            reportBuilderForm.addEventListener('submit', (e) => this.generateCustomReport(e));
+            console.log('✅ [APP.JS] Listener anexado ao reportBuilderForm');
+        } else {
+            console.error('❌ [APP.JS] reportBuilderForm não encontrado!');
+        }
+
         // Modal de item
         const itemForm = document.getElementById('itemForm');
         const cancelBtn = document.getElementById('cancelBtn');
@@ -805,6 +1519,13 @@ class LojaApp {
             console.log('✅ [APP.JS] Listener anexado ao itemForm');
         } else {
             console.error('❌ [APP.JS] itemForm não encontrado!');
+        }
+
+        // Formulário de Exportação
+        const exportForm = document.getElementById('exportForm');
+        if (exportForm) {
+            exportForm.addEventListener('submit', (e) => this.exportData(e));
+            console.log('✅ [APP.JS] Listener anexado ao exportForm');
         }
 
         // Formulário de Cliente
@@ -822,8 +1543,66 @@ class LojaApp {
         }
 
         if (clientSearch) {
-            clientSearch.addEventListener('input', () => this.renderClients());
-            console.log('✅ [APP.JS] Listener anexado ao clientSearch');
+            // Debounce para busca de clientes também (padrão emergente.sh)
+            clientSearch.addEventListener('input', (e) => {
+                // Limpar timer anterior
+                if (this.clientSearchDebounceTimer) {
+                    clearTimeout(this.clientSearchDebounceTimer);
+                }
+                
+                // Novo timer com delay de 300ms
+                this.clientSearchDebounceTimer = setTimeout(() => {
+                    this.renderClients();
+                }, 300);
+            });
+            console.log('✅ [APP.JS] Listener anexado ao clientSearch (com debounce)');
+        }
+
+        // Modal de fornecedor
+        const supplierForm = document.getElementById('supplierForm');
+        const supplierModalClose = document.querySelector('#supplierModal .close');
+        const supplierRating = document.getElementById('supplierRating');
+        
+        if (supplierForm) {
+            supplierForm.addEventListener('submit', (e) => this.saveSupplier(e));
+            console.log('✅ [APP.JS] Listener anexado ao supplierForm');
+        }
+        
+        if (supplierModalClose) {
+            supplierModalClose.addEventListener('click', () => this.closeSupplierModal());
+            console.log('✅ [APP.JS] Listener anexado ao supplierModal .close');
+        }
+        
+        if (supplierRating) {
+            supplierRating.addEventListener('input', () => this.updateSupplierRatingDisplay());
+            console.log('✅ [APP.JS] Listener anexado ao supplierRating');
+        }
+
+        const supplierSearch = document.getElementById('supplierSearch');
+        if (supplierSearch) {
+            supplierSearch.addEventListener('input', (e) => {
+                if (this.supplierSearchDebounceTimer) {
+                    clearTimeout(this.supplierSearchDebounceTimer);
+                }
+                this.supplierSearchDebounceTimer = setTimeout(() => {
+                    this.renderSuppliers();
+                }, 300);
+            });
+            console.log('✅ [APP.JS] Listener anexado ao supplierSearch (com debounce)');
+        }
+
+        // Modal de cupom
+        const couponForm = document.getElementById('couponForm');
+        const couponModalClose = document.querySelector('#couponModal .close');
+        
+        if (couponForm) {
+            couponForm.addEventListener('submit', (e) => this.saveCoupon(e));
+            console.log('✅ [APP.JS] Listener anexado ao couponForm');
+        }
+        
+        if (couponModalClose) {
+            couponModalClose.addEventListener('click', () => this.closeCouponModal());
+            console.log('✅ [APP.JS] Listener anexado ao couponModal .close');
         }
 
         // Máscaras para CPF e Telefone
@@ -1349,6 +2128,31 @@ class LojaApp {
                 if (value.includes(',')) {
                     e.target.value = value.replace(',', '.');
                 }
+                // Atualizar cálculo de desconto em tempo real
+                this.updateDiscountCalculation();
+            });
+        }
+        
+        // Event listeners para desconto
+        const saleQuantity = document.getElementById('saleQuantity');
+        const saleDiscountType = document.getElementById('saleDiscountType');
+        const saleDiscountValue = document.getElementById('saleDiscountValue');
+        
+        if (saleQuantity) {
+            saleQuantity.addEventListener('input', () => {
+                this.updateDiscountCalculation();
+            });
+        }
+        
+        if (saleDiscountType) {
+            saleDiscountType.addEventListener('change', () => {
+                this.updateDiscountCalculation();
+            });
+        }
+        
+        if (saleDiscountValue) {
+            saleDiscountValue.addEventListener('input', () => {
+                this.updateDiscountCalculation();
             });
         }
 
@@ -1550,6 +2354,11 @@ class LojaApp {
                 item.category || 'Roupas';
             // Exibir preço com ponto (input type="number" usa ponto)
             document.getElementById('itemPrice').value = item.price || '';
+            // Preencher custo se existir
+            const itemCostInput = document.getElementById('itemCost');
+            if (itemCostInput) {
+                itemCostInput.value = item.cost || '';
+            }
 
             // Preencher campos baseado na categoria
             if (item.category === 'Roupas') {
@@ -1602,6 +2411,24 @@ class LojaApp {
         }
 
         modal.classList.add('active');
+
+        // Configurar validação em tempo real
+        if (typeof fieldValidator !== 'undefined') {
+            const itemName = document.getElementById('itemName');
+            const itemPrice = document.getElementById('itemPrice');
+            const itemModel = document.getElementById('itemModel');
+            const itemEmail = document.getElementById('itemEmail');
+
+            if (itemName) {
+                fieldValidator.setupFieldValidation(itemName, { required: true, minLength: 2 });
+            }
+            if (itemPrice) {
+                fieldValidator.setupFieldValidation(itemPrice, { required: true, number: true, positive: true });
+            }
+            if (itemModel) {
+                fieldValidator.setupFieldValidation(itemModel, { minLength: 2 });
+            }
+        }
     }
 
     closeItemModal() {
@@ -1630,6 +2457,37 @@ class LojaApp {
 
     saveItem(e) {
         e.preventDefault();
+        
+        // Verificar permissão de escrita
+        if (!this.checkPermission('write', 'item')) {
+            if (typeof toast !== 'undefined' && toast) {
+                toast.error('Você não tem permissão para criar/editar produtos.', 3000);
+            } else {
+                alert('Você não tem permissão para criar/editar produtos.');
+            }
+            return;
+        }
+        
+        // Verificar e bloquear entidade se estiver editando
+        if (this.currentEditingItem) {
+            const lockResult = this.checkEntityLock('item', this.currentEditingItem.id);
+            if (lockResult.locked && !lockResult.isOwner) {
+                if (typeof toast !== 'undefined' && toast) {
+                    toast.warning(`Este item está sendo editado por ${lockResult.lockedBy}. Aguarde alguns minutos.`, 4000);
+                } else {
+                    alert(`Este item está sendo editado por ${lockResult.lockedBy}. Aguarde alguns minutos.`);
+                }
+                return;
+            }
+            
+            // Bloquear entidade
+            if (!this.lockEntity('item', this.currentEditingItem.id)) {
+                if (typeof toast !== 'undefined' && toast) {
+                    toast.error('Não foi possível bloquear o item para edição.', 3000);
+                }
+                return;
+            }
+        }
 
         // Desabilitar botão e mostrar loading
         const submitBtn = e.target.querySelector('button[type="submit"]');
@@ -1641,13 +2499,33 @@ class LojaApp {
 
         const category = document.getElementById('itemCategory').value;
 
+        const minStockInput = document.getElementById('itemMinStock');
+        const minStock = minStockInput && minStockInput.value ? parseInt(minStockInput.value) : null;
+        const tagsInput = document.getElementById('itemTags');
+        const tags = tagsInput && tagsInput.value ? tagsInput.value.split(',').map(t => t.trim()).filter(t => t) : [];
+        const notesInput = document.getElementById('itemNotes');
+        const notes = notesInput && notesInput.value ? notesInput.value.trim() : '';
+        
+        const itemCostInput = document.getElementById('itemCost');
+        const itemCost = itemCostInput && itemCostInput.value ? this.parsePrice(itemCostInput.value) : undefined;
+        
         const item = {
             id: this.currentEditingItem
                 ? this.currentEditingItem.id
                 : Date.now().toString(),
             category: category,
             price: this.parsePrice(document.getElementById('itemPrice').value),
+            cost: itemCost, // Custo de compra para cálculo de ROI
+            minStock: minStock || undefined, // Estoque mínimo configurável
+            notes: notes || undefined, // Notas/comentários
         };
+        
+        // Salvar tags separadamente
+        if (tags.length > 0) {
+            this.itemTags[item.id] = tags;
+        } else if (this.itemTags[item.id]) {
+            delete this.itemTags[item.id];
+        }
 
         // Adicionar campos baseado na categoria
         if (category === 'Roupas') {
@@ -1741,11 +2619,15 @@ class LojaApp {
             console.log(`✅ Novo QR Code único gerado após detecção de duplicata: ${item.qrCodeNumber}`);
         }
 
+        // Salvar dados anteriores antes de atualizar (para reversão)
+        let previousData = null;
         if (this.currentEditingItem) {
             const index = this.items.findIndex(
                 (i) => i.id === this.currentEditingItem.id
             );
             if (index !== -1) {
+                // Salvar cópia dos dados anteriores antes de atualizar
+                previousData = JSON.parse(JSON.stringify(this.items[index]));
                 this.items[index] = item;
             }
         } else {
@@ -1758,9 +2640,29 @@ class LojaApp {
             submitBtn.classList.remove('loading');
         }
 
+        // Desbloquear entidade após salvar
+        if (this.currentEditingItem) {
+            this.unlockEntity('item', this.currentEditingItem.id);
+        }
+        
         this.saveData();
+        this.updateTagFilter(); // Atualizar lista de tags após salvar
         this.renderItems();
         this.closeItemModal();
+
+        // Registrar no audit log (incluir dados anteriores para reversão)
+        this.logAction(
+            this.currentEditingItem ? 'update' : 'create',
+            'item',
+            item.id,
+            this.getItemName(item.id),
+            {
+                category: item.category,
+                price: item.price,
+                minStock: item.minStock || null,
+                previousData: previousData, // Dados anteriores para reversão
+            }
+        );
 
         // Mostrar mensagem de sucesso
         this.showSuccess(
@@ -1954,9 +2856,8 @@ class LojaApp {
             console.log('📥 Carregando biblioteca QRCode dinamicamente...');
             const script = document.createElement('script');
             
-            // Tentar versão local primeiro, depois múltiplas URLs do CDN
+            // Tentar múltiplas URLs do CDN (não tentar local - sempre usar CDN)
             const cdnUrls = [
-                '/lib/qrcode.min.js', // Versão local primeiro
                 'https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js',
                 'https://unpkg.com/qrcode@1.5.3/build/qrcode.min.js',
                 'https://cdnjs.cloudflare.com/ajax/libs/qrcode/1.5.3/qrcode.min.js'
@@ -2758,6 +3659,16 @@ class LojaApp {
     }
 
     deleteItem(id) {
+        // Verificar permissão de exclusão
+        if (!this.checkPermission('delete', 'item')) {
+            if (typeof toast !== 'undefined' && toast) {
+                toast.error('Você não tem permissão para excluir produtos.', 3000);
+            } else {
+                alert('Você não tem permissão para excluir produtos.');
+            }
+            return;
+        }
+        
         const item = this.items.find(i => i.id === id);
         const itemName = item ? this.getItemName(id) : 'este item';
         
@@ -2765,6 +3676,10 @@ class LojaApp {
             if (!confirmed) return;
             
             this.items = this.items.filter((item) => item.id !== id);
+            // Remover tags relacionadas
+            if (this.itemTags[id]) {
+                delete this.itemTags[id];
+            }
             // Remover vendas relacionadas
             this.groups.forEach((group) => {
                 group.days.forEach((day) => {
@@ -2772,8 +3687,12 @@ class LojaApp {
                 });
             });
             this.saveData();
+            this.updateTagFilter(); // Atualizar lista de tags após deletar
             this.renderItems();
             this.renderGroups();
+            
+            // Registrar no audit log
+            this.logAction('delete', 'item', id, itemName);
             if (typeof toast !== 'undefined' && toast) {
                 toast.success(`Produto "${itemName}" excluído com sucesso!`, 3000);
             }
@@ -2790,6 +3709,235 @@ class LojaApp {
                 performDelete(true);
             }
         }
+    }
+
+    // ========================================
+    // SISTEMA DE BUSCA AVANÇADA
+    // Padrões Emergente.sh
+    // ========================================
+    
+    handleSearch(searchTerm) {
+        if (!searchTerm || !searchTerm.trim()) {
+            // Se busca vazia, renderizar normalmente
+            this.renderItems();
+            this.renderClients();
+            this.hideSearchHistory();
+            return;
+        }
+        
+        const term = searchTerm.trim().toLowerCase();
+        
+        // Renderizar itens e clientes com busca
+        this.renderItems();
+        this.renderClients();
+        
+        // Mostrar contador de resultados
+        this.showSearchResults(term);
+    }
+    
+    addToSearchHistory(searchTerm) {
+        if (!searchTerm || !searchTerm.trim()) return;
+        
+        const term = searchTerm.trim();
+        
+        // Remover se já existe
+        this.searchHistory = this.searchHistory.filter(h => h !== term);
+        
+        // Adicionar no início
+        this.searchHistory.unshift(term);
+        
+        // Limitar a 10 itens
+        if (this.searchHistory.length > 10) {
+            this.searchHistory = this.searchHistory.slice(0, 10);
+        }
+        
+        // Salvar no localStorage
+        localStorage.setItem('searchHistory', JSON.stringify(this.searchHistory));
+    }
+    
+    loadSearchHistory() {
+        const saved = localStorage.getItem('searchHistory');
+        if (saved) {
+            try {
+                this.searchHistory = JSON.parse(saved);
+            } catch (e) {
+                this.searchHistory = [];
+            }
+        }
+    }
+    
+    showSearchHistory() {
+        if (this.searchHistory.length === 0) return;
+        
+        let historyContainer = document.getElementById('searchHistoryContainer');
+        if (!historyContainer) {
+            historyContainer = document.createElement('div');
+            historyContainer.id = 'searchHistoryContainer';
+            historyContainer.className = 'search-history-container';
+            const searchInput = document.getElementById('searchInput');
+            if (searchInput && searchInput.parentElement) {
+                searchInput.parentElement.appendChild(historyContainer);
+            }
+        }
+        
+        historyContainer.innerHTML = `
+            <div class="search-history-header">
+                <span>Buscas recentes</span>
+                <button class="search-history-clear" onclick="app.clearSearchHistory()" aria-label="Limpar histórico">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="search-history-list">
+                ${this.searchHistory.map(term => `
+                    <button class="search-history-item" onclick="app.selectSearchHistory('${term.replace(/'/g, "\\'")}')">
+                        <i class="fas fa-history"></i>
+                        <span>${this.escapeHtml(term)}</span>
+                    </button>
+                `).join('')}
+            </div>
+        `;
+        
+        historyContainer.style.display = 'block';
+    }
+    
+    hideSearchHistory() {
+        const historyContainer = document.getElementById('searchHistoryContainer');
+        if (historyContainer) {
+            historyContainer.style.display = 'none';
+        }
+    }
+    
+    selectSearchHistory(term) {
+        const searchInput = document.getElementById('searchInput');
+        if (searchInput) {
+            searchInput.value = term;
+            this.handleSearch(term);
+            this.hideSearchHistory();
+        }
+    }
+    
+    clearSearchHistory() {
+        this.searchHistory = [];
+        localStorage.removeItem('searchHistory');
+        this.hideSearchHistory();
+        if (typeof toast !== 'undefined' && toast) {
+            toast.info('Histórico de buscas limpo', 2000);
+        }
+    }
+    
+    showSearchResults(searchTerm) {
+        // Contar resultados
+        const itemsGrid = document.getElementById('itemsGrid');
+        const clientsList = document.getElementById('clientsList');
+        
+        let itemsCount = 0;
+        let clientsCount = 0;
+        
+        if (itemsGrid) {
+            itemsCount = itemsGrid.querySelectorAll('.item-card').length;
+        }
+        
+        if (clientsList) {
+            clientsCount = clientsList.querySelectorAll('.client-card, .item-card').length;
+        }
+        
+        const totalResults = itemsCount + clientsCount;
+        
+        // Mostrar toast com resultados (se houver)
+        if (totalResults > 0 && typeof toast !== 'undefined' && toast) {
+            // Não mostrar toast a cada busca, apenas se for uma busca nova
+            // (evitar spam de notificações)
+        }
+    }
+
+    // Renderizar tags de um item com cores
+    renderItemTags(itemId) {
+        const tags = this.itemTags[itemId] || [];
+        if (tags.length === 0) return '';
+
+        // Cores predefinidas para tags (paleta consistente)
+        const tagColors = [
+            '#dc3545', '#28a745', '#007bff', '#ffc107', '#17a2b8',
+            '#6f42c1', '#e83e8c', '#fd7e14', '#20c997', '#6610f2'
+        ];
+
+        const getTagColor = (tag) => {
+            // Gerar índice baseado no hash da tag para consistência
+            let hash = 0;
+            for (let i = 0; i < tag.length; i++) {
+                hash = tag.charCodeAt(i) + ((hash << 5) - hash);
+            }
+            return tagColors[Math.abs(hash) % tagColors.length];
+        };
+
+        return `
+            <div class="item-tags" style="display: flex; flex-wrap: wrap; gap: 0.5rem; margin: 0.75rem 0;">
+                ${tags.map(tag => {
+                    const color = getTagColor(tag);
+                    const textColor = this.getContrastColor(color);
+                    return `
+                        <span class="item-tag" 
+                              style="background-color: ${color}; color: ${textColor}; padding: 0.25rem 0.5rem; border-radius: 12px; font-size: 0.75rem; font-weight: 500; display: inline-flex; align-items: center; gap: 0.25rem; cursor: pointer; transition: all 0.2s;"
+                              onclick="app.filterByTag('${tag.replace(/'/g, "\\'")}')"
+                              title="Clique para filtrar por esta tag">
+                            <i class="fas fa-tag" style="font-size: 0.65rem;"></i>
+                            ${this.escapeHtml(tag)}
+                        </span>
+                    `;
+                }).join('')}
+            </div>
+        `;
+    }
+
+    // Filtrar por tag
+    filterByTag(tag) {
+        const tagFilter = document.getElementById('tagFilter');
+        if (tagFilter) {
+            tagFilter.value = tag;
+            // Disparar evento change para atualizar a lista
+            tagFilter.dispatchEvent(new Event('change'));
+        }
+    }
+
+    // Atualizar lista de tags disponíveis no filtro
+    updateTagFilter() {
+        const tagFilter = document.getElementById('tagFilter');
+        if (!tagFilter) return;
+
+        // Coletar todas as tags únicas
+        const allTags = new Set();
+        Object.values(this.itemTags || {}).forEach(tags => {
+            tags.forEach(tag => allTags.add(tag));
+        });
+
+        const currentValue = tagFilter.value;
+        tagFilter.innerHTML = '<option value="">Todas as tags</option>';
+        
+        Array.from(allTags).sort().forEach(tag => {
+            const option = document.createElement('option');
+            option.value = tag;
+            option.textContent = tag;
+            tagFilter.appendChild(option);
+        });
+
+        // Restaurar valor anterior se existir
+        if (currentValue && allTags.has(currentValue)) {
+            tagFilter.value = currentValue;
+        }
+    }
+
+    // Calcular cor de texto contrastante
+    getContrastColor(hexColor) {
+        // Converter hex para RGB
+        const r = parseInt(hexColor.substr(1, 2), 16);
+        const g = parseInt(hexColor.substr(3, 2), 16);
+        const b = parseInt(hexColor.substr(5, 2), 16);
+        
+        // Calcular luminosidade relativa
+        const luminance = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
+        
+        // Retornar branco ou preto baseado na luminosidade
+        return luminance > 0.5 ? '#000000' : '#ffffff';
     }
 
     renderItems() {
@@ -2839,7 +3987,8 @@ class LojaApp {
                         item.capacity.toLowerCase().includes(search)) ||
                     (category === 'Eletrônicos' &&
                         item.color &&
-                        item.color.toLowerCase().includes(search))
+                        item.color.toLowerCase().includes(search)) ||
+                    (item.notes && item.notes.toLowerCase().includes(search))
                 );
             });
         }
@@ -2859,9 +4008,35 @@ class LojaApp {
             });
         }
 
+        // Filtro por tag
+        const tagFilter = document.getElementById('tagFilter')?.value;
+        if (tagFilter) {
+            filteredItems = filteredItems.filter((item) => {
+                const itemTags = this.itemTags[item.id] || [];
+                return itemTags.includes(tagFilter);
+            });
+        }
+
         if (filteredItems.length === 0) {
             grid.innerHTML =
-                '<p style="grid-column: 1/-1; text-align: center; color: var(--gray); padding: 2rem;">Nenhum item encontrado.</p>';
+                `<div class="empty-state" style="grid-column: 1/-1;">
+                    <div class="empty-state-icon">
+                        <i class="fas fa-box-open"></i>
+                    </div>
+                    <h3 class="empty-state-title">${searchTerm ? 'Nenhum item encontrado' : 'Nenhum produto cadastrado'}</h3>
+                    <p class="empty-state-message">
+                        ${searchTerm 
+                            ? 'Tente ajustar os filtros de pesquisa ou adicionar um novo produto.' 
+                            : 'Comece adicionando seu primeiro produto ao sistema. Clique no botão abaixo para começar!'}
+                    </p>
+                    ${!searchTerm ? `
+                        <div class="empty-state-action">
+                            <button class="btn-primary" onclick="app.openItemModal()">
+                                <i class="fas fa-plus"></i> Adicionar Primeiro Produto
+                            </button>
+                        </div>
+                    ` : ''}
+                </div>`;
             return;
         }
 
@@ -2966,6 +4141,7 @@ class LojaApp {
                         : ''
                 }
                 ${categoryInfo}
+                ${this.renderItemTags(item.id)}
                 <div class="item-price">R$ ${item.price
                     .toFixed(2)
                     .replace('.', ',')}</div>
@@ -3016,12 +4192,39 @@ class LojaApp {
             form.clientEmail.value = this.currentEditingClient.email || '';
             form.clientAddress.value = this.currentEditingClient.address || '';
             form.clientNotes.value = this.currentEditingClient.notes || '';
+            form.clientLoyaltyPoints.value = this.currentEditingClient.loyaltyPoints || 0;
+            form.clientReceiveNotifications.checked = this.currentEditingClient.receiveNotifications !== false;
         } else {
             title.textContent = 'Novo Cliente';
             form.reset();
         }
 
         modal.classList.add('active');
+
+        // Configurar validação em tempo real
+        if (typeof fieldValidator !== 'undefined') {
+            const clientName = form.clientName;
+            const clientCPF = form.clientCPF;
+            const clientPhone = form.clientPhone;
+            const clientEmail = form.clientEmail;
+            const clientNotes = form.clientNotes;
+
+            if (clientName) {
+                fieldValidator.setupFieldValidation(clientName, { required: true, minLength: 2, maxLength: 100 });
+            }
+            if (clientCPF) {
+                fieldValidator.setupFieldValidation(clientCPF, { cpf: true });
+            }
+            if (clientPhone) {
+                fieldValidator.setupFieldValidation(clientPhone, { phone: true });
+            }
+            if (clientEmail) {
+                fieldValidator.setupFieldValidation(clientEmail, { email: true });
+            }
+            if (clientNotes) {
+                fieldValidator.setupFieldValidation(clientNotes, { maxLength: 500 });
+            }
+        }
     }
 
     closeClientModal() {
@@ -3038,6 +4241,14 @@ class LojaApp {
 
     saveClient(e) {
         if (e) e.preventDefault();
+        
+        // Verificar permissão de escrita
+        if (!this.checkPermission('write', 'client')) {
+            if (typeof toast !== 'undefined' && toast) {
+                toast.error('Você não tem permissão para criar/editar clientes.', 3000);
+            }
+            return;
+        }
 
         const form = document.getElementById('clientForm');
         if (!form) return;
@@ -3052,6 +4263,9 @@ class LojaApp {
             return;
         }
 
+        const loyaltyPoints = parseInt(form.clientLoyaltyPoints.value) || 0;
+        const receiveNotifications = form.clientReceiveNotifications.checked;
+        
         const client = {
             id: this.currentEditingClient
                 ? this.currentEditingClient.id
@@ -3062,17 +4276,23 @@ class LojaApp {
             email: form.clientEmail.value.trim(),
             address: form.clientAddress.value.trim(),
             notes: form.clientNotes.value.trim(),
+            loyaltyPoints: loyaltyPoints,
+            receiveNotifications: receiveNotifications,
             createdAt: this.currentEditingClient
                 ? this.currentEditingClient.createdAt
                 : new Date().toISOString(),
             updatedAt: new Date().toISOString(),
         };
 
+        // Salvar dados anteriores antes de atualizar (para reversão)
+        let previousData = null;
         if (this.currentEditingClient) {
             const index = this.clients.findIndex(
                 (c) => c.id === this.currentEditingClient.id
             );
             if (index !== -1) {
+                // Salvar cópia dos dados anteriores antes de atualizar
+                previousData = JSON.parse(JSON.stringify(this.clients[index]));
                 this.clients[index] = client;
             }
         } else {
@@ -3082,6 +4302,27 @@ class LojaApp {
         this.saveData();
         this.renderClients();
         this.closeClientModal();
+
+        // Registrar no audit log (incluir dados anteriores para reversão)
+        this.logAction(
+            this.currentEditingClient ? 'update' : 'create',
+            'client',
+            client.id,
+            client.name,
+            {
+                cpf: client.cpf || null,
+                phone: client.phone || null,
+                previousData: previousData, // Dados anteriores para reversão
+            }
+        );
+
+        // Registrar acesso a dados pessoais (LGPD)
+        this.logDataAccess(
+            this.currentEditingClient ? 'update' : 'create',
+            'client',
+            client.id,
+            `${this.currentEditingClient ? 'Atualização' : 'Criação'} de cliente: ${client.name}`
+        );
 
         if (typeof toast !== 'undefined' && toast) {
             toast.success(
@@ -3094,6 +4335,14 @@ class LojaApp {
     }
 
     deleteClient(clientId) {
+        // Verificar permissão de exclusão
+        if (!this.checkPermission('delete', 'client')) {
+            if (typeof toast !== 'undefined' && toast) {
+                toast.error('Você não tem permissão para excluir clientes.', 3000);
+            }
+            return;
+        }
+        
         const client = this.clients.find((c) => c.id === clientId);
         const clientName = client ? client.name : 'este cliente';
 
@@ -3101,6 +4350,10 @@ class LojaApp {
             if (!confirmed) return;
 
             this.clients = this.clients.filter((c) => c.id !== clientId);
+            
+            // Registrar acesso a dados pessoais (LGPD)
+            this.logDataAccess('delete', 'client', clientId, `Exclusão de cliente: ${clientName}`);
+            
             this.saveData();
             this.renderClients();
 
@@ -3148,12 +4401,24 @@ class LojaApp {
 
         if (filteredClients.length === 0) {
             container.innerHTML = `
-                <div style="text-align: center; padding: 3rem; color: var(--gray-500);">
-                    <i class="fas fa-users" style="font-size: 3rem; margin-bottom: 1rem; opacity: 0.3;"></i>
-                    <p style="font-size: 1.1rem; margin-bottom: 0.5rem;">${searchTerm ? 'Nenhum cliente encontrado' : 'Nenhum cliente cadastrado'}</p>
-                    <p style="font-size: 0.9rem;">${searchTerm ? 'Tente buscar com outros termos' : 'Clique em "Novo Cliente" para começar'}</p>
-                </div>
-            `;
+                <div class="empty-state">
+                    <div class="empty-state-icon">
+                        <i class="fas fa-users"></i>
+                    </div>
+                    <h3 class="empty-state-title">${searchTerm ? 'Nenhum cliente encontrado' : 'Nenhum cliente cadastrado'}</h3>
+                    <p class="empty-state-message">
+                        ${searchTerm 
+                            ? 'Tente ajustar os termos de busca ou cadastrar um novo cliente.' 
+                            : 'Comece cadastrando seus clientes para facilitar o controle de vendas e histórico de compras.'}
+                    </p>
+                    ${!searchTerm ? `
+                        <div class="empty-state-action">
+                            <button class="btn-primary" onclick="app.openClientModal()">
+                                <i class="fas fa-user-plus"></i> Cadastrar Primeiro Cliente
+                            </button>
+                        </div>
+                    ` : ''}
+                </div>`;
             return;
         }
 
@@ -3185,11 +4450,1229 @@ class LojaApp {
                         ${client.email ? `<p><i class="fas fa-envelope"></i> ${this.escapeHtml(client.email)}</p>` : ''}
                         ${purchaseCount > 0 ? `<p><i class="fas fa-shopping-cart"></i> ${purchaseCount} compra${purchaseCount > 1 ? 's' : ''}</p>` : ''}
                         ${totalSpent > 0 ? `<p><i class="fas fa-dollar-sign"></i> Total: R$ ${totalSpent.toFixed(2).replace('.', ',')}</p>` : ''}
+                        ${client.loyaltyPoints > 0 ? `<p><i class="fas fa-star" style="color: #ffc107;"></i> ${client.loyaltyPoints} pontos de fidelidade</p>` : ''}
+                        ${client.receiveNotifications ? `<p><i class="fas fa-bell" style="color: #28a745;"></i> Recebe notificações</p>` : ''}
                     </div>
                 </div>
             `;
             })
             .join('');
+    }
+
+    // ========== FORNECEDORES ==========
+
+    openSupplierModal(supplierId = null) {
+        const modal = document.getElementById('supplierModal');
+        const form = document.getElementById('supplierForm');
+        const title = document.getElementById('supplierModalTitle');
+
+        if (!modal || !form || !title) {
+            console.error('Elementos do modal de fornecedor não encontrados');
+            return;
+        }
+
+        this.currentEditingSupplier = supplierId
+            ? this.suppliers.find((s) => s.id === supplierId)
+            : null;
+
+        if (this.currentEditingSupplier) {
+            title.textContent = 'Editar Fornecedor';
+            form.supplierName.value = this.currentEditingSupplier.name || '';
+            form.supplierCNPJ.value = this.currentEditingSupplier.cnpj || '';
+            form.supplierContactName.value = this.currentEditingSupplier.contactName || '';
+            form.supplierPhone.value = this.currentEditingSupplier.phone || '';
+            form.supplierEmail.value = this.currentEditingSupplier.email || '';
+            form.supplierAddress.value = this.currentEditingSupplier.address || '';
+            form.supplierRating.value = this.currentEditingSupplier.rating || 3;
+            form.supplierNotes.value = this.currentEditingSupplier.notes || '';
+            this.updateSupplierRatingDisplay();
+        } else {
+            title.textContent = 'Novo Fornecedor';
+            form.reset();
+            form.supplierRating.value = 3;
+            this.updateSupplierRatingDisplay();
+        }
+
+        modal.classList.add('active');
+    }
+
+    updateSupplierRatingDisplay() {
+        const ratingInput = document.getElementById('supplierRating');
+        const ratingDisplay = document.getElementById('supplierRatingDisplay');
+        if (ratingInput && ratingDisplay) {
+            const rating = parseInt(ratingInput.value);
+            ratingDisplay.textContent = `${rating} ${'⭐'.repeat(rating)}`;
+        }
+    }
+
+    closeSupplierModal() {
+        const modal = document.getElementById('supplierModal');
+        const form = document.getElementById('supplierForm');
+        if (modal) {
+            modal.classList.remove('active');
+        }
+        if (form) {
+            form.reset();
+        }
+        this.currentEditingSupplier = null;
+    }
+
+    saveSupplier(e) {
+        if (e) e.preventDefault();
+        
+        // Verificar permissão de escrita
+        if (!this.checkPermission('write', 'supplier')) {
+            if (typeof toast !== 'undefined' && toast) {
+                toast.error('Você não tem permissão para criar/editar fornecedores.', 3000);
+            }
+            return;
+        }
+
+        const form = document.getElementById('supplierForm');
+        if (!form) return;
+
+        const name = form.supplierName.value.trim();
+        if (!name) {
+            if (typeof toast !== 'undefined' && toast) {
+                toast.warning('Por favor, informe o nome do fornecedor.', 3000);
+            }
+            return;
+        }
+
+        const supplier = {
+            id: this.currentEditingSupplier
+                ? this.currentEditingSupplier.id
+                : this.generateSupplierId(),
+            name: name,
+            cnpj: form.supplierCNPJ.value.trim(),
+            contactName: form.supplierContactName.value.trim(),
+            phone: form.supplierPhone.value.trim(),
+            email: form.supplierEmail.value.trim(),
+            address: form.supplierAddress.value.trim(),
+            rating: parseInt(form.supplierRating.value) || 3,
+            notes: form.supplierNotes.value.trim(),
+            createdAt: this.currentEditingSupplier
+                ? this.currentEditingSupplier.createdAt
+                : new Date().toISOString(),
+            updatedAt: new Date().toISOString(),
+        };
+
+        // Salvar dados anteriores antes de atualizar (para reversão)
+        let previousData = null;
+        if (this.currentEditingSupplier) {
+            const index = this.suppliers.findIndex(
+                (s) => s.id === this.currentEditingSupplier.id
+            );
+            if (index !== -1) {
+                // Salvar cópia dos dados anteriores antes de atualizar
+                previousData = JSON.parse(JSON.stringify(this.suppliers[index]));
+                this.suppliers[index] = supplier;
+            }
+        } else {
+            this.suppliers.push(supplier);
+        }
+
+        this.saveData();
+        this.renderSuppliers();
+        this.closeSupplierModal();
+
+        // Registrar no audit log (incluir dados anteriores para reversão)
+        this.logAction(
+            this.currentEditingSupplier ? 'update' : 'create',
+            'supplier',
+            supplier.id,
+            supplier.name,
+            {
+                name: supplier.name,
+                rating: supplier.rating,
+                previousData: previousData, // Dados anteriores para reversão
+            }
+        );
+
+        // Registrar acesso a dados pessoais (LGPD)
+        this.logDataAccess(
+            this.currentEditingSupplier ? 'update' : 'create',
+            'supplier',
+            supplier.id,
+            `${this.currentEditingSupplier ? 'Atualização' : 'Criação'} de fornecedor: ${supplier.name}`
+        );
+
+        if (typeof toast !== 'undefined' && toast) {
+            toast.success(
+                this.currentEditingSupplier
+                    ? 'Fornecedor atualizado com sucesso!'
+                    : 'Fornecedor cadastrado com sucesso!',
+                3000
+            );
+        }
+    }
+
+    deleteSupplier(supplierId) {
+        // Verificar permissão de exclusão
+        if (!this.checkPermission('delete', 'supplier')) {
+            if (typeof toast !== 'undefined' && toast) {
+                toast.error('Você não tem permissão para excluir fornecedores.', 3000);
+            }
+            return;
+        }
+        
+        const supplier = this.suppliers.find(s => s.id === supplierId);
+        const supplierName = supplier ? supplier.name : 'este fornecedor';
+        
+        const performDelete = (confirmed) => {
+            if (!confirmed) return;
+            
+            this.suppliers = this.suppliers.filter((s) => s.id !== supplierId);
+            
+            // Registrar acesso a dados pessoais (LGPD)
+            this.logDataAccess('delete', 'supplier', supplierId, `Exclusão de fornecedor: ${supplierName}`);
+            
+            this.saveData();
+            this.renderSuppliers();
+            
+            // Registrar no audit log
+            this.logAction('delete', 'supplier', supplierId, supplierName);
+            
+            if (typeof toast !== 'undefined' && toast) {
+                toast.success(`Fornecedor "${supplierName}" excluído com sucesso!`, 3000);
+            }
+        };
+        
+        if (typeof confirmDialog !== 'undefined' && confirmDialog) {
+            confirmDialog.danger(
+                `Tem certeza que deseja excluir o fornecedor "${supplierName}"? Esta ação não pode ser desfeita.`,
+                'Excluir Fornecedor'
+            ).then(performDelete);
+        } else {
+            if (confirm(`Tem certeza que deseja excluir o fornecedor "${supplierName}"?`)) {
+                performDelete(true);
+            }
+        }
+    }
+
+    renderSuppliers() {
+        const container = document.getElementById('suppliersList');
+        if (!container) return;
+
+        const searchTerm = document.getElementById('supplierSearch')
+            ? document.getElementById('supplierSearch').value.toLowerCase()
+            : '';
+
+        let filteredSuppliers = this.suppliers;
+        if (searchTerm) {
+            filteredSuppliers = this.suppliers.filter(
+                (supplier) =>
+                    supplier.name.toLowerCase().includes(searchTerm) ||
+                    (supplier.cnpj && supplier.cnpj.includes(searchTerm)) ||
+                    (supplier.phone && supplier.phone.includes(searchTerm))
+            );
+        }
+
+        if (filteredSuppliers.length === 0 && !container.querySelector('.item-card')) {
+            this.showSkeleton('suppliersList', 6, false);
+            return;
+        }
+
+        this.hideSkeleton('suppliersList');
+
+        if (filteredSuppliers.length === 0) {
+            container.innerHTML = `
+                <div class="empty-state" style="grid-column: 1/-1;">
+                    <div class="empty-state-icon">
+                        <i class="fas fa-truck"></i>
+                    </div>
+                    <h3 class="empty-state-title">${searchTerm ? 'Nenhum fornecedor encontrado' : 'Nenhum fornecedor cadastrado'}</h3>
+                    <p class="empty-state-message">
+                        ${searchTerm 
+                            ? 'Tente ajustar os termos de busca ou cadastrar um novo fornecedor.' 
+                            : 'Comece cadastrando seus fornecedores para facilitar o controle de compras e custos.'}
+                    </p>
+                    ${!searchTerm ? `
+                        <div class="empty-state-action">
+                            <button class="btn-primary" onclick="app.openSupplierModal()">
+                                <i class="fas fa-truck"></i> Cadastrar Primeiro Fornecedor
+                            </button>
+                        </div>
+                    ` : ''}
+                </div>`;
+            return;
+        }
+
+        container.innerHTML = filteredSuppliers
+            .map((supplier) => {
+                // Calcular histórico de compras (custos relacionados)
+                const purchaseCount = this.costs.filter(
+                    (cost) => cost.supplierId === supplier.id
+                ).length;
+                const totalPurchases = this.costs
+                    .filter((cost) => cost.supplierId === supplier.id)
+                    .reduce((sum, cost) => sum + (cost.total || 0), 0);
+
+                return `
+                <div class="item-card">
+                    <div class="item-header">
+                        <h3>${this.escapeHtml(supplier.name)}</h3>
+                        <div class="item-actions">
+                            <button class="btn-small btn-edit" onclick="app.openSupplierModal('${supplier.id}')" title="Editar">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button class="btn-small btn-delete" onclick="app.deleteSupplier('${supplier.id}')" title="Excluir">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="item-details">
+                        ${supplier.cnpj ? `<p><i class="fas fa-id-card"></i> CNPJ: ${this.escapeHtml(supplier.cnpj)}</p>` : ''}
+                        ${supplier.contactName ? `<p><i class="fas fa-user"></i> Contato: ${this.escapeHtml(supplier.contactName)}</p>` : ''}
+                        ${supplier.phone ? `<p><i class="fas fa-phone"></i> ${this.escapeHtml(supplier.phone)}</p>` : ''}
+                        ${supplier.email ? `<p><i class="fas fa-envelope"></i> ${this.escapeHtml(supplier.email)}</p>` : ''}
+                        <p><i class="fas fa-star" style="color: #ffc107;"></i> Avaliação: ${'⭐'.repeat(supplier.rating || 3)} (${supplier.rating || 3}/5)</p>
+                        ${purchaseCount > 0 ? `<p><i class="fas fa-shopping-cart"></i> ${purchaseCount} compra${purchaseCount > 1 ? 's' : ''}</p>` : ''}
+                        ${totalPurchases > 0 ? `<p><i class="fas fa-dollar-sign"></i> Total: R$ ${totalPurchases.toFixed(2).replace('.', ',')}</p>` : ''}
+                    </div>
+                </div>
+            `;
+            })
+            .join('');
+    }
+
+    generateSupplierId() {
+        let id;
+        let attempts = 0;
+        const maxAttempts = 10;
+        
+        do {
+            id = 'SUPPLIER_' + Date.now() + '_' + Math.random().toString(36).substr(2, 5).toUpperCase();
+            attempts++;
+        } while (this.suppliers.find(s => s.id === id) && attempts < maxAttempts);
+        
+        if (attempts >= maxAttempts) {
+            id = 'SUPPLIER_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9).toUpperCase();
+        }
+        
+        return id;
+    }
+
+    // ========== CUPONS DE DESCONTO ==========
+
+    openCouponModal(couponId = null) {
+        const modal = document.getElementById('couponModal');
+        const form = document.getElementById('couponForm');
+        const title = document.getElementById('couponModalTitle');
+
+        if (!modal || !form || !title) {
+            console.error('Elementos do modal de cupom não encontrados');
+            return;
+        }
+
+        this.currentEditingCoupon = couponId
+            ? this.coupons.find((c) => c.id === couponId)
+            : null;
+
+        if (this.currentEditingCoupon) {
+            title.textContent = 'Editar Cupom';
+            form.couponCode.value = this.currentEditingCoupon.code || '';
+            form.couponType.value = this.currentEditingCoupon.type || '';
+            form.couponValue.value = this.currentEditingCoupon.value || '';
+            form.couponDescription.value = this.currentEditingCoupon.description || '';
+            form.couponStartsAt.value = this.currentEditingCoupon.startsAt || '';
+            form.couponExpiresAt.value = this.currentEditingCoupon.expiresAt || '';
+            form.couponMaxUses.value = this.currentEditingCoupon.maxUses || '';
+            form.couponMinQuantity.value = this.currentEditingCoupon.minQuantity || '';
+            form.couponActive.checked = this.currentEditingCoupon.active !== false;
+        } else {
+            title.textContent = 'Novo Cupom';
+            form.reset();
+            form.couponActive.checked = true;
+        }
+
+        modal.classList.add('active');
+    }
+
+    closeCouponModal() {
+        const modal = document.getElementById('couponModal');
+        const form = document.getElementById('couponForm');
+        if (modal) {
+            modal.classList.remove('active');
+        }
+        if (form) {
+            form.reset();
+        }
+        this.currentEditingCoupon = null;
+    }
+
+    saveCoupon(e) {
+        if (e) e.preventDefault();
+
+        const form = document.getElementById('couponForm');
+        if (!form) return;
+
+        const code = form.couponCode.value.trim().toUpperCase();
+        const type = form.couponType.value;
+        const value = parseFloat(form.couponValue.value);
+        const description = form.couponDescription.value.trim();
+        const expiresAt = form.couponExpiresAt.value || null;
+        const maxUses = form.couponMaxUses.value ? parseInt(form.couponMaxUses.value) : null;
+        const active = form.couponActive.checked;
+
+        if (!code) {
+            if (typeof toast !== 'undefined' && toast) {
+                toast.warning('Por favor, informe o código do cupom.', 3000);
+            }
+            return;
+        }
+
+        if (!type) {
+            if (typeof toast !== 'undefined' && toast) {
+                toast.warning('Por favor, selecione o tipo de desconto.', 3000);
+            }
+            return;
+        }
+
+        if (!value || value <= 0) {
+            if (typeof toast !== 'undefined' && toast) {
+                toast.warning('Por favor, informe um valor válido para o desconto.', 3000);
+            }
+            return;
+        }
+
+        if (type === 'percent' && value > 100) {
+            if (typeof toast !== 'undefined' && toast) {
+                toast.warning('O desconto percentual não pode ser maior que 100%.', 3000);
+            }
+            return;
+        }
+
+        // Verificar se código já existe (exceto se estiver editando o mesmo cupom)
+        const existingCoupon = this.coupons.find(
+            (c) => c.code === code && (!this.currentEditingCoupon || c.id !== this.currentEditingCoupon.id)
+        );
+        if (existingCoupon) {
+            if (typeof toast !== 'undefined' && toast) {
+                toast.warning('Já existe um cupom com este código.', 3000);
+            }
+            return;
+        }
+
+        const coupon = {
+            id: this.currentEditingCoupon
+                ? this.currentEditingCoupon.id
+                : this.generateCouponId(),
+            code: code,
+            type: type,
+            value: value,
+            description: description,
+            startsAt: startsAt,
+            expiresAt: expiresAt,
+            maxUses: maxUses,
+            minQuantity: minQuantity, // Quantidade mínima para aplicar desconto
+            active: active,
+            uses: this.currentEditingCoupon ? (this.currentEditingCoupon.uses || 0) : 0,
+            createdAt: this.currentEditingCoupon
+                ? this.currentEditingCoupon.createdAt
+                : new Date().toISOString(),
+            updatedAt: new Date().toISOString(),
+        };
+
+        // Salvar dados anteriores antes de atualizar (para reversão)
+        let previousData = null;
+        if (this.currentEditingCoupon) {
+            const index = this.coupons.findIndex(
+                (c) => c.id === this.currentEditingCoupon.id
+            );
+            if (index !== -1) {
+                // Salvar cópia dos dados anteriores antes de atualizar
+                previousData = JSON.parse(JSON.stringify(this.coupons[index]));
+                this.coupons[index] = coupon;
+            }
+        } else {
+            this.coupons.push(coupon);
+        }
+
+        this.saveData();
+        this.renderCoupons();
+        this.closeCouponModal();
+        
+        // Registrar no audit log (incluir dados anteriores para reversão)
+        this.logAction(
+            this.currentEditingCoupon ? 'update' : 'create',
+            'coupon',
+            coupon.id,
+            coupon.code,
+            {
+                type: coupon.type,
+                value: coupon.value,
+                previousData: previousData, // Dados anteriores para reversão
+            }
+        );
+
+        if (typeof toast !== 'undefined' && toast) {
+            toast.success(
+                this.currentEditingCoupon
+                    ? 'Cupom atualizado com sucesso!'
+                    : 'Cupom cadastrado com sucesso!',
+                3000
+            );
+        }
+    }
+
+    deleteCoupon(couponId) {
+        const coupon = this.coupons.find(c => c.id === couponId);
+        const couponCode = coupon ? coupon.code : 'este cupom';
+        
+        const performDelete = (confirmed) => {
+            if (!confirmed) return;
+            
+            this.coupons = this.coupons.filter((c) => c.id !== couponId);
+            this.saveData();
+            this.renderCoupons();
+            if (typeof toast !== 'undefined' && toast) {
+                toast.success(`Cupom "${couponCode}" excluído com sucesso!`, 3000);
+            }
+        };
+        
+        if (typeof confirmDialog !== 'undefined' && confirmDialog) {
+            confirmDialog.danger(
+                `Tem certeza que deseja excluir o cupom "${couponCode}"? Esta ação não pode ser desfeita.`,
+                'Excluir Cupom'
+            ).then(performDelete);
+        } else {
+            if (confirm(`Tem certeza que deseja excluir o cupom "${couponCode}"?`)) {
+                performDelete(true);
+            }
+        }
+    }
+
+    renderCoupons() {
+        const container = document.getElementById('couponsList');
+        if (!container) return;
+
+        if (this.coupons.length === 0 && !container.querySelector('.item-card')) {
+            this.showSkeleton('couponsList', 6, false);
+            return;
+        }
+
+        this.hideSkeleton('couponsList');
+
+        if (this.coupons.length === 0) {
+            container.innerHTML = `
+                <div class="empty-state" style="grid-column: 1/-1;">
+                    <div class="empty-state-icon">
+                        <i class="fas fa-tag"></i>
+                    </div>
+                    <h3 class="empty-state-title">Nenhum cupom cadastrado</h3>
+                    <p class="empty-state-message">
+                        Comece criando cupons de desconto para oferecer promoções aos seus clientes.
+                    </p>
+                    <div class="empty-state-action">
+                        <button class="btn-primary" onclick="app.openCouponModal()">
+                            <i class="fas fa-tag"></i> Criar Primeiro Cupom
+                        </button>
+                    </div>
+                </div>`;
+            return;
+        }
+
+        container.innerHTML = this.coupons
+            .map((coupon) => {
+                const isExpired = coupon.expiresAt && new Date(coupon.expiresAt) < new Date();
+                const isMaxUsesReached = coupon.maxUses && coupon.uses >= coupon.maxUses;
+                const isActive = coupon.active && !isExpired && !isMaxUsesReached;
+
+                return `
+                <div class="item-card ${!isActive ? 'opacity-50' : ''}">
+                    <div class="item-header">
+                        <h3>${this.escapeHtml(coupon.code)}</h3>
+                        <div class="item-actions">
+                            <button class="btn-small btn-edit" onclick="app.openCouponModal('${coupon.id}')" title="Editar">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button class="btn-small btn-delete" onclick="app.deleteCoupon('${coupon.id}')" title="Excluir">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="item-details">
+                        <p><i class="fas fa-percent"></i> Tipo: ${coupon.type === 'percent' ? 'Percentual' : 'Valor Fixo'}</p>
+                        <p><i class="fas fa-dollar-sign"></i> Desconto: ${coupon.type === 'percent' ? `${coupon.value}%` : `R$ ${coupon.value.toFixed(2).replace('.', ',')}`}</p>
+                        ${coupon.description ? `<p><i class="fas fa-info-circle"></i> ${this.escapeHtml(coupon.description)}</p>` : ''}
+                        ${coupon.startsAt ? `<p><i class="fas fa-calendar-check"></i> Início: ${new Date(coupon.startsAt).toLocaleDateString('pt-BR')}</p>` : ''}
+                        ${coupon.expiresAt ? `<p><i class="fas fa-calendar-times"></i> Expira em: ${new Date(coupon.expiresAt).toLocaleDateString('pt-BR')}</p>` : ''}
+                        ${coupon.minQuantity ? `<p><i class="fas fa-shopping-bag"></i> Qtd. mínima: ${coupon.minQuantity} unidade(s)</p>` : ''}
+                        ${coupon.maxUses ? `<p><i class="fas fa-times-circle"></i> Limite: ${coupon.maxUses} uso${coupon.maxUses > 1 ? 's' : ''}</p>` : ''}
+                        <p><i class="fas fa-chart-line"></i> Usado: ${coupon.uses || 0} vez${(coupon.uses || 0) !== 1 ? 'es' : ''}</p>
+                        <p><i class="fas fa-${isActive ? 'check-circle' : 'times-circle'}" style="color: ${isActive ? '#28a745' : '#dc3545'};"></i> Status: ${isActive ? 'Ativo' : isExpired ? 'Expirado' : isMaxUsesReached ? 'Limite atingido' : 'Inativo'}</p>
+                    </div>
+                </div>
+            `;
+            })
+            .join('');
+    }
+
+    generateCouponId() {
+        let id;
+        let attempts = 0;
+        const maxAttempts = 10;
+        
+        do {
+            id = 'COUPON_' + Date.now() + '_' + Math.random().toString(36).substr(2, 5).toUpperCase();
+            attempts++;
+        } while (this.coupons.find(c => c.id === id) && attempts < maxAttempts);
+        
+        if (attempts >= maxAttempts) {
+            id = 'COUPON_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9).toUpperCase();
+        }
+        
+        return id;
+    }
+
+    applyCouponCode() {
+        const couponCodeInput = document.getElementById('saleCouponCode');
+        if (!couponCodeInput) return;
+
+        const code = couponCodeInput.value.trim().toUpperCase();
+        if (!code) {
+            if (typeof toast !== 'undefined' && toast) {
+                toast.warning('Por favor, informe o código do cupom.', 3000);
+            }
+            return;
+        }
+
+        const coupon = this.coupons.find(
+            (c) => c.code === code && c.active
+        );
+
+        if (!coupon) {
+            if (typeof toast !== 'undefined' && toast) {
+                toast.error('Cupom não encontrado ou inativo.', 3000);
+            }
+            return;
+        }
+
+        // Verificar se está dentro do período válido
+        const now = new Date();
+        if (coupon.startsAt && new Date(coupon.startsAt) > now) {
+            if (typeof toast !== 'undefined' && toast) {
+                toast.error(`Este cupom ainda não está ativo. Válido a partir de ${new Date(coupon.startsAt).toLocaleDateString('pt-BR')}.`, 4000);
+            }
+            return;
+        }
+        
+        if (coupon.expiresAt && new Date(coupon.expiresAt) < now) {
+            if (typeof toast !== 'undefined' && toast) {
+                toast.error('Este cupom está expirado.', 3000);
+            }
+            return;
+        }
+
+        // Verificar limite de uso
+        if (coupon.maxUses && coupon.uses >= coupon.maxUses) {
+            if (typeof toast !== 'undefined' && toast) {
+                toast.error('Este cupom atingiu o limite de uso.', 3000);
+            }
+            return;
+        }
+
+        // Verificar quantidade mínima (desconto por quantidade)
+        const saleQuantity = parseInt(document.getElementById('saleQuantity')?.value || 0);
+        if (coupon.minQuantity && saleQuantity < coupon.minQuantity) {
+            if (typeof toast !== 'undefined' && toast) {
+                toast.warning(`Este cupom requer compra mínima de ${coupon.minQuantity} unidade(s). Quantidade atual: ${saleQuantity}.`, 4000);
+            }
+            return;
+        }
+
+        // Aplicar desconto
+        const discountType = document.getElementById('saleDiscountType');
+        const discountValue = document.getElementById('saleDiscountValue');
+        
+        if (discountType && discountValue) {
+            discountType.value = coupon.type;
+            discountValue.value = coupon.value;
+            
+            // Armazenar código do cupom para salvar na venda
+            if (!window.currentSaleCouponCode) {
+                window.currentSaleCouponCode = coupon.code;
+            }
+            
+            if (typeof this.updateSaleTotals === 'function') {
+                this.updateSaleTotals();
+            } else if (typeof this.updateDiscountCalculation === 'function') {
+                this.updateDiscountCalculation();
+            }
+            
+            if (typeof toast !== 'undefined' && toast) {
+                toast.success(`Cupom "${coupon.code}" aplicado com sucesso!`, 3000);
+            }
+        }
+    }
+
+    // Alias para compatibilidade com HTML
+    applyCoupon() {
+        this.applyCouponCode();
+    }
+
+    // ========== TEMPLATES ==========
+
+    openTemplateModal(templateId = null) {
+        const modal = document.getElementById('templateModal');
+        const form = document.getElementById('templateForm');
+        const title = document.getElementById('templateModalTitle');
+
+        if (!modal || !form || !title) {
+            console.error('Elementos do modal de template não encontrados');
+            return;
+        }
+
+        this.currentEditingTemplate = templateId
+            ? this.templates.find((t) => t.id === templateId)
+            : null;
+
+        if (this.currentEditingTemplate) {
+            title.textContent = 'Editar Template';
+            form.templateName.value = this.currentEditingTemplate.name || '';
+            form.templateType.value = this.currentEditingTemplate.type || '';
+            form.templateDescription.value = this.currentEditingTemplate.description || '';
+            
+            // Preencher campos específicos do tipo
+            if (this.currentEditingTemplate.type === 'product') {
+                form.templateCategory.value = this.currentEditingTemplate.data?.category || '';
+                form.templatePrice.value = this.currentEditingTemplate.data?.price || '';
+            } else if (this.currentEditingTemplate.type === 'sale') {
+                form.templateSaleQuantity.value = this.currentEditingTemplate.data?.quantity || '';
+                form.templateSaleDiscount.value = this.currentEditingTemplate.data?.discount || '';
+            } else if (this.currentEditingTemplate.type === 'service') {
+                form.templateServiceHours.value = this.currentEditingTemplate.data?.hours || '';
+                form.templateServiceMinutes.value = this.currentEditingTemplate.data?.minutes || '';
+            } else if (this.currentEditingTemplate.type === 'report') {
+                form.templateReportType.value = this.currentEditingTemplate.data?.reportType || '';
+                form.templateReportPeriod.value = this.currentEditingTemplate.data?.period || 'month';
+                form.templateReportFormat.value = this.currentEditingTemplate.data?.format || 'pdf';
+                form.templateReportColumns.value = this.currentEditingTemplate.data?.columns || '';
+                form.templateReportIncludeCharts.checked = this.currentEditingTemplate.data?.includeCharts || false;
+            }
+            
+            this.toggleTemplateFields(this.currentEditingTemplate.type);
+        } else {
+            title.textContent = 'Novo Template';
+            form.reset();
+        }
+
+        modal.classList.add('active');
+    }
+
+    toggleTemplateFields(type) {
+        const productFields = document.getElementById('templateProductFields');
+        const saleFields = document.getElementById('templateSaleFields');
+        const serviceFields = document.getElementById('templateServiceFields');
+        const reportFields = document.getElementById('templateReportFields');
+        
+        if (productFields) productFields.style.display = type === 'product' ? 'block' : 'none';
+        if (saleFields) saleFields.style.display = type === 'sale' ? 'block' : 'none';
+        if (serviceFields) serviceFields.style.display = type === 'service' ? 'block' : 'none';
+        if (reportFields) reportFields.style.display = type === 'report' ? 'block' : 'none';
+    }
+
+    closeTemplateModal() {
+        const modal = document.getElementById('templateModal');
+        const form = document.getElementById('templateForm');
+        if (modal) {
+            modal.classList.remove('active');
+        }
+        if (form) {
+            form.reset();
+        }
+        this.currentEditingTemplate = null;
+    }
+
+    saveTemplate(e) {
+        if (e) e.preventDefault();
+
+        const form = document.getElementById('templateForm');
+        if (!form) return;
+
+        const name = form.templateName.value.trim();
+        const type = form.templateType.value;
+        const description = form.templateDescription.value.trim();
+
+        if (!name) {
+            if (typeof toast !== 'undefined' && toast) {
+                toast.warning('Por favor, informe o nome do template.', 3000);
+            }
+            return;
+        }
+
+        if (!type) {
+            if (typeof toast !== 'undefined' && toast) {
+                toast.warning('Por favor, selecione o tipo de template.', 3000);
+            }
+            return;
+        }
+
+        // Coletar dados específicos do tipo
+        let templateData = {};
+        if (type === 'product') {
+            templateData = {
+                category: form.templateCategory.value || '',
+                price: parseFloat(form.templatePrice.value) || 0,
+            };
+        } else if (type === 'sale') {
+            templateData = {
+                quantity: parseInt(form.templateSaleQuantity.value) || 1,
+                discount: parseFloat(form.templateSaleDiscount.value) || 0,
+            };
+        } else if (type === 'service') {
+            templateData = {
+                hours: parseInt(form.templateServiceHours.value) || 0,
+                minutes: parseInt(form.templateServiceMinutes.value) || 0,
+            };
+        } else if (type === 'report') {
+            const reportType = form.templateReportType.value;
+            if (!reportType) {
+                if (typeof toast !== 'undefined' && toast) {
+                    toast.warning('Por favor, selecione o tipo de relatório.', 3000);
+                }
+                return;
+            }
+            templateData = {
+                reportType: reportType,
+                period: form.templateReportPeriod.value || 'month',
+                format: form.templateReportFormat.value || 'pdf',
+                columns: form.templateReportColumns.value.split(',').map(c => c.trim()).filter(c => c) || [],
+                includeCharts: form.templateReportIncludeCharts.checked || false,
+            };
+        }
+
+        const template = {
+            id: this.currentEditingTemplate
+                ? this.currentEditingTemplate.id
+                : this.generateTemplateId(),
+            name: name,
+            type: type,
+            description: description,
+            data: templateData,
+            createdAt: this.currentEditingTemplate
+                ? this.currentEditingTemplate.createdAt
+                : new Date().toISOString(),
+            updatedAt: new Date().toISOString(),
+        };
+
+        if (this.currentEditingTemplate) {
+            const index = this.templates.findIndex(
+                (t) => t.id === this.currentEditingTemplate.id
+            );
+            if (index !== -1) {
+                this.templates[index] = template;
+            }
+        } else {
+            this.templates.push(template);
+        }
+
+        this.saveData();
+        this.renderTemplates();
+        this.closeTemplateModal();
+
+        // Registrar no audit log
+        this.logAction(
+            this.currentEditingTemplate ? 'update' : 'create',
+            'template',
+            template.id,
+            template.name,
+            { type: template.type }
+        );
+
+        if (typeof toast !== 'undefined' && toast) {
+            toast.success(
+                this.currentEditingTemplate
+                    ? 'Template atualizado com sucesso!'
+                    : 'Template criado com sucesso!',
+                3000
+            );
+        }
+    }
+
+    deleteTemplate(templateId) {
+        const template = this.templates.find(t => t.id === templateId);
+        const templateName = template ? template.name : 'este template';
+        
+        const performDelete = (confirmed) => {
+            if (!confirmed) return;
+            
+            this.templates = this.templates.filter((t) => t.id !== templateId);
+            this.saveData();
+            this.renderTemplates();
+            
+            // Registrar no audit log
+            this.logAction('delete', 'template', templateId, templateName);
+            
+            if (typeof toast !== 'undefined' && toast) {
+                toast.success(`Template "${templateName}" excluído com sucesso!`, 3000);
+            }
+        };
+        
+        if (typeof confirmDialog !== 'undefined' && confirmDialog) {
+            confirmDialog.danger(
+                `Tem certeza que deseja excluir o template "${templateName}"? Esta ação não pode ser desfeita.`,
+                'Excluir Template'
+            ).then(performDelete);
+        } else {
+            if (confirm(`Tem certeza que deseja excluir o template "${templateName}"?`)) {
+                performDelete(true);
+            }
+        }
+    }
+
+    renderTemplates() {
+        const container = document.getElementById('templatesList');
+        if (!container) return;
+
+        if (this.templates.length === 0 && !container.querySelector('.item-card')) {
+            this.showSkeleton('templatesList', 6, false);
+            return;
+        }
+
+        this.hideSkeleton('templatesList');
+
+        if (this.templates.length === 0) {
+            container.innerHTML = `
+                <div class="empty-state" style="grid-column: 1/-1;">
+                    <div class="empty-state-icon">
+                        <i class="fas fa-file-alt"></i>
+                    </div>
+                    <h3 class="empty-state-title">Nenhum template cadastrado</h3>
+                    <p class="empty-state-message">
+                        Crie templates para agilizar o cadastro de produtos, vendas e serviços frequentes.
+                    </p>
+                    <div class="empty-state-action">
+                        <button class="btn-primary" onclick="app.openTemplateModal()">
+                            <i class="fas fa-file-alt"></i> Criar Primeiro Template
+                        </button>
+                    </div>
+                </div>`;
+            return;
+        }
+
+        const typeNames = {
+            product: 'Produto',
+            sale: 'Venda',
+            service: 'Serviço',
+            report: 'Relatório',
+        };
+
+        const typeIcons = {
+            product: 'fa-box',
+            sale: 'fa-shopping-cart',
+            service: 'fa-tools',
+            report: 'fa-chart-bar',
+        };
+
+        container.innerHTML = this.templates
+            .map((template) => {
+                let details = '';
+                if (template.type === 'product' && template.data) {
+                    details = `<p><i class="fas fa-tag"></i> Categoria: ${template.data.category || 'N/A'}</p>
+                               <p><i class="fas fa-dollar-sign"></i> Preço: R$ ${(template.data.price || 0).toFixed(2).replace('.', ',')}</p>`;
+                } else if (template.type === 'sale' && template.data) {
+                    details = `<p><i class="fas fa-shopping-bag"></i> Qtd. padrão: ${template.data.quantity || 1}</p>
+                               <p><i class="fas fa-percent"></i> Desconto: ${(template.data.discount || 0).toFixed(1)}%</p>`;
+                } else if (template.type === 'service' && template.data) {
+                    details = `<p><i class="fas fa-clock"></i> Duração: ${template.data.hours || 0}h ${template.data.minutes || 0}min</p>`;
+                } else if (template.type === 'report' && template.data) {
+                    const reportTypeNames = {
+                        sales: 'Vendas',
+                        services: 'Serviços',
+                        products: 'Produtos',
+                        clients: 'Clientes',
+                        financial: 'Financeiro',
+                        custom: 'Personalizado'
+                    };
+                    details = `<p><i class="fas fa-chart-line"></i> Tipo: ${reportTypeNames[template.data.reportType] || template.data.reportType}</p>
+                               <p><i class="fas fa-calendar"></i> Período: ${template.data.period || 'Este Mês'}</p>
+                               <p><i class="fas fa-file"></i> Formato: ${template.data.format?.toUpperCase() || 'PDF'}</p>`;
+                }
+
+                return `
+                <div class="item-card">
+                    <div class="item-header">
+                        <div style="display: flex; align-items: center; gap: 0.5rem;">
+                            <i class="fas ${typeIcons[template.type] || 'fa-file'}" style="color: var(--primary-color);"></i>
+                            <h3>${this.escapeHtml(template.name)}</h3>
+                        </div>
+                        <div class="item-actions">
+                            <button class="btn-small btn-secondary" onclick="app.useTemplate('${template.id}')" title="Usar Template">
+                                <i class="fas fa-check"></i>
+                            </button>
+                            <button class="btn-small btn-edit" onclick="app.openTemplateModal('${template.id}')" title="Editar">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button class="btn-small btn-delete" onclick="app.deleteTemplate('${template.id}')" title="Excluir">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="item-details">
+                        <p><i class="fas fa-file-alt"></i> Tipo: ${typeNames[template.type] || template.type}</p>
+                        ${template.description ? `<p><i class="fas fa-info-circle"></i> ${this.escapeHtml(template.description)}</p>` : ''}
+                        ${details}
+                    </div>
+                </div>
+            `;
+            })
+            .join('');
+    }
+
+    useTemplate(templateId) {
+        const template = this.templates.find(t => t.id === templateId);
+        if (!template) return;
+
+        if (template.type === 'product') {
+            // Abrir modal de produto e preencher com dados do template
+            this.openItemModal();
+            setTimeout(() => {
+                if (template.data.category) {
+                    document.getElementById('itemCategory').value = template.data.category;
+                    this.toggleCategoryFields();
+                }
+                if (template.data.price) {
+                    document.getElementById('itemPrice').value = template.data.price;
+                }
+                if (typeof toast !== 'undefined' && toast) {
+                    toast.success(`Template "${template.name}" aplicado! Preencha os campos restantes.`, 3000);
+                }
+            }, 100);
+        } else if (template.type === 'sale') {
+            // Aplicar template na venda atual (se modal estiver aberto)
+            const saleQuantity = document.getElementById('saleQuantity');
+            const saleDiscountValue = document.getElementById('saleDiscountValue');
+            const saleDiscountType = document.getElementById('saleDiscountType');
+            
+            if (saleQuantity && template.data.quantity) {
+                saleQuantity.value = template.data.quantity;
+            }
+            if (saleDiscountValue && template.data.discount) {
+                saleDiscountValue.value = template.data.discount;
+                if (saleDiscountType) {
+                    saleDiscountType.value = 'percent';
+                }
+                this.updateDiscountCalculation();
+            }
+            if (typeof toast !== 'undefined' && toast) {
+                toast.success(`Template "${template.name}" aplicado!`, 3000);
+            }
+        } else if (template.type === 'service') {
+            // Aplicar template em serviço (se modal estiver aberto)
+            const serviceHours = document.getElementById('serviceRecordHours');
+            const serviceMinutes = document.getElementById('serviceRecordMinutes');
+            
+            if (serviceHours && template.data.hours !== undefined) {
+                serviceHours.value = template.data.hours;
+            }
+            if (serviceMinutes && template.data.minutes !== undefined) {
+                serviceMinutes.value = template.data.minutes;
+            }
+            if (typeof toast !== 'undefined' && toast) {
+                toast.success(`Template "${template.name}" aplicado!`, 3000);
+            }
+        } else if (template.type === 'report') {
+            // Aplicar template de relatório - gerar relatório com configurações do template
+            if (typeof toast !== 'undefined' && toast) {
+                toast.info(`Gerando relatório com template "${template.name}"...`, 3000);
+            }
+            
+            // Armazenar configurações do template para uso posterior
+            sessionStorage.setItem('reportTemplate', JSON.stringify(template.data));
+            
+            // Navegar para a aba de relatórios ou abrir modal de relatórios se existir
+            const reportTab = document.querySelector('[data-tab="reports"]') || 
+                             document.querySelector('button[onclick*="report"]') ||
+                             document.querySelector('a[href*="report"]');
+            
+            if (reportTab) {
+                reportTab.click();
+            }
+            
+            // Notificar que o template foi aplicado
+            setTimeout(() => {
+                if (typeof toast !== 'undefined' && toast) {
+                    toast.success(`Template de relatório "${template.name}" aplicado! Configure o período e gere o relatório.`, 4000);
+                }
+            }, 500);
+        }
+    }
+
+    generateTemplateId() {
+        let id;
+        let attempts = 0;
+        const maxAttempts = 10;
+        
+        do {
+            id = 'TEMPLATE_' + Date.now() + '_' + Math.random().toString(36).substr(2, 5).toUpperCase();
+            attempts++;
+        } while (this.templates.find(t => t.id === id) && attempts < maxAttempts);
+        
+        if (attempts >= maxAttempts) {
+            id = 'TEMPLATE_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9).toUpperCase();
+        }
+        
+        return id;
+    }
+
+    // Exportar templates
+    exportTemplates() {
+        if (!this.checkPermission('export')) {
+            if (typeof toast !== 'undefined' && toast) {
+                toast.error('Você não tem permissão para exportar templates.', 3000);
+            } else {
+                alert('Você não tem permissão para exportar templates.');
+            }
+            return;
+        }
+
+        if (this.templates.length === 0) {
+            if (typeof toast !== 'undefined' && toast) {
+                toast.warning('Não há templates para exportar.', 3000);
+            } else {
+                alert('Não há templates para exportar.');
+            }
+            return;
+        }
+
+        const exportData = {
+            templates: this.templates,
+            version: '1.0',
+            exportDate: new Date().toISOString(),
+            exportedBy: sessionStorage.getItem('username') || 'unknown',
+        };
+
+        const blob = new Blob([JSON.stringify(exportData, null, 2)], {
+            type: 'application/json',
+        });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `templates_export_${new Date().toISOString().split('T')[0]}.json`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+
+        // Registrar no audit log
+        this.logAction('export', 'template', null, `Exportação de ${this.templates.length} template(s)`);
+
+        if (typeof toast !== 'undefined' && toast) {
+            toast.success(`${this.templates.length} template(s) exportado(s) com sucesso!`, 3000);
+        } else {
+            alert(`${this.templates.length} template(s) exportado(s) com sucesso!`);
+        }
+    }
+
+    // Importar templates
+    importTemplates(event) {
+        if (!this.checkPermission('import')) {
+            if (typeof toast !== 'undefined' && toast) {
+                toast.error('Você não tem permissão para importar templates.', 3000);
+            } else {
+                alert('Você não tem permissão para importar templates.');
+            }
+            return;
+        }
+
+        const file = event.target.files[0];
+        if (!file) return;
+
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            try {
+                const data = JSON.parse(e.target.result);
+
+                if (!data.templates || !Array.isArray(data.templates)) {
+                    if (typeof toast !== 'undefined' && toast) {
+                        toast.error('Arquivo inválido. O arquivo deve conter um array de templates.', 3000);
+                    } else {
+                        alert('Arquivo inválido. O arquivo deve conter um array de templates.');
+                    }
+                    return;
+                }
+
+                const importCount = data.templates.length;
+                let importedCount = 0;
+                let skippedCount = 0;
+
+                data.templates.forEach((template) => {
+                    // Validar template
+                    if (!template.name || !template.type) {
+                        skippedCount++;
+                        return;
+                    }
+
+                    // Verificar se já existe template com mesmo nome e tipo
+                    const existing = this.templates.find(
+                        (t) => t.name === template.name && t.type === template.type
+                    );
+
+                    if (existing) {
+                        // Perguntar se deseja substituir
+                        if (confirm(`Template "${template.name}" (${template.type}) já existe. Deseja substituir?`)) {
+                            const index = this.templates.findIndex((t) => t.id === existing.id);
+                            if (index !== -1) {
+                                // Manter ID original, atualizar dados
+                                template.id = existing.id;
+                                template.updatedAt = new Date().toISOString();
+                                this.templates[index] = template;
+                                importedCount++;
+                            }
+                        } else {
+                            skippedCount++;
+                        }
+                    } else {
+                        // Gerar novo ID para evitar conflitos
+                        template.id = this.generateTemplateId();
+                        template.createdAt = template.createdAt || new Date().toISOString();
+                        template.updatedAt = new Date().toISOString();
+                        this.templates.push(template);
+                        importedCount++;
+                    }
+                });
+
+                this.saveData();
+                this.renderTemplates();
+
+                // Registrar no audit log
+                this.logAction('import', 'template', null, `Importação de ${importedCount} template(s)`);
+
+                if (typeof toast !== 'undefined' && toast) {
+                    if (skippedCount > 0) {
+                        toast.success(`${importedCount} template(s) importado(s), ${skippedCount} ignorado(s).`, 4000);
+                    } else {
+                        toast.success(`${importedCount} template(s) importado(s) com sucesso!`, 3000);
+                    }
+                } else {
+                    alert(`${importedCount} template(s) importado(s)${skippedCount > 0 ? `, ${skippedCount} ignorado(s)` : ''}.`);
+                }
+
+                // Limpar input
+                event.target.value = '';
+            } catch (error) {
+                console.error('Erro ao importar templates:', error);
+                if (typeof toast !== 'undefined' && toast) {
+                    toast.error('Erro ao importar templates. Verifique se o arquivo está no formato correto.', 4000);
+                } else {
+                    alert('Erro ao importar templates. Verifique se o arquivo está no formato correto.');
+                }
+                event.target.value = '';
+            }
+        };
+
+        reader.onerror = () => {
+            if (typeof toast !== 'undefined' && toast) {
+                toast.error('Erro ao ler o arquivo.', 3000);
+            } else {
+                alert('Erro ao ler o arquivo.');
+            }
+            event.target.value = '';
+        };
+
+        reader.readAsText(file);
     }
 
     // Função para quando cliente é selecionado no select
@@ -3350,6 +5833,15 @@ class LojaApp {
         });
     }
 
+    // Função helper para calcular valor total de uma venda (considerando desconto)
+    getSaleTotalValue(sale) {
+        const baseTotal = sale.price * sale.quantity;
+        if (sale.discount && sale.discount.amount) {
+            return baseTotal - sale.discount.amount;
+        }
+        return baseTotal;
+    }
+
     calculateTotalAllMonths() {
         let totalSalesAll = 0;
         let totalValueAll = 0;
@@ -3358,7 +5850,7 @@ class LojaApp {
             group.days.forEach((day) => {
                 day.sales.forEach((sale) => {
                     totalSalesAll += sale.quantity;
-                    totalValueAll += sale.price * sale.quantity;
+                    totalValueAll += this.getSaleTotalValue(sale);
                 });
             });
         });
@@ -3378,7 +5870,8 @@ class LojaApp {
         group.days.forEach((day) => {
             day.sales.forEach((sale) => {
                 totalSales += sale.quantity;
-                totalValue += sale.price * sale.quantity;
+                const saleTotal = this.getSaleTotalValue(sale);
+                totalValue += saleTotal;
 
                 if (!itemsSummary[sale.itemId]) {
                     itemsSummary[sale.itemId] = {
@@ -3388,7 +5881,7 @@ class LojaApp {
                     };
                 }
                 itemsSummary[sale.itemId].quantity += sale.quantity;
-                itemsSummary[sale.itemId].total += sale.price * sale.quantity;
+                itemsSummary[sale.itemId].total += saleTotal;
             });
         });
 
@@ -3452,7 +5945,15 @@ class LojaApp {
 
         if (itemsArray.length === 0) {
             itemsSummaryList.innerHTML =
-                '<p style="text-align: center; color: var(--gray);">Nenhuma venda registrada ainda.</p>';
+                `<div class="empty-state">
+                    <div class="empty-state-icon">
+                        <i class="fas fa-shopping-cart"></i>
+                    </div>
+                    <h3 class="empty-state-title">Nenhuma venda registrada</h3>
+                    <p class="empty-state-message">
+                        Comece registrando suas vendas para acompanhar o desempenho do negócio.
+                    </p>
+                </div>`;
         } else {
             itemsSummaryList.innerHTML = itemsArray
                 .map(
@@ -3918,6 +6419,21 @@ class LojaApp {
             }, 300);
         }
 
+        // Limpar campos de desconto
+        const discountFields = document.getElementById('discountFields');
+        const discountSummary = document.getElementById('discountSummary');
+        const toggleDiscountBtn = document.getElementById('toggleDiscountBtn');
+        if (discountFields) discountFields.style.display = 'none';
+        if (discountSummary) discountSummary.style.display = 'none';
+        if (toggleDiscountBtn) toggleDiscountBtn.innerHTML = '<i class="fas fa-plus"></i> Aplicar';
+        
+        const discountType = document.getElementById('saleDiscountType');
+        const discountValue = document.getElementById('saleDiscountValue');
+        const couponCode = document.getElementById('saleCouponCode');
+        if (discountType) discountType.value = '';
+        if (discountValue) discountValue.value = '';
+        if (couponCode) couponCode.value = '';
+
         // Se o modal do grupo estiver aberto, atualizar o resumo
         const viewGroupModal = document.getElementById('viewGroupModal');
         if (
@@ -3974,11 +6490,17 @@ class LojaApp {
 
         const itemId = saleItem.value;
         const quantity = parseInt(saleQuantity.value);
-        const price = this.parsePrice(salePrice.value);
+        const basePrice = this.parsePrice(salePrice.value);
         const saleSizeInput = document.getElementById('saleSize');
         const saleColorInput = document.getElementById('saleColor');
         const size = (saleSizeInput && saleSizeInput.value) ? saleSizeInput.value.trim() : '';
         const color = (saleColorInput && saleColorInput.value) ? saleColorInput.value.trim() : '';
+        
+        // Calcular desconto (o desconto é aplicado ao total, não ao preço unitário)
+        // Calcular desconto (a função já verifica o cupom do campo)
+        const discountInfo = this.calculateDiscount(basePrice, quantity);
+        // O preço unitário permanece o mesmo, o desconto é aplicado ao total
+        const price = basePrice;
 
         if (!itemId) {
             if (typeof toast !== 'undefined' && toast) {
@@ -4104,11 +6626,43 @@ class LojaApp {
             return;
         }
 
+        // Calcular base total antes de descontos
+        const baseTotal = basePrice * quantity;
+        
+        // Verificar e aplicar desconto automático de fidelidade
+        let loyaltyDiscount = 0;
+        let loyaltyPointsUsed = 0;
+        const client = this.clients.find(c => c.name === customerName);
+        if (client && client.loyaltyPoints > 0) {
+            const loyaltyDiscountInfo = this.calculateLoyaltyDiscount(customerName, baseTotal);
+            loyaltyDiscount = loyaltyDiscountInfo.discount;
+            loyaltyPointsUsed = loyaltyDiscountInfo.pointsUsed;
+        }
+
+        // Combinar desconto manual/cupom com desconto de fidelidade
+        const totalDiscount = discountInfo.discount + loyaltyDiscount;
+        const finalDiscountInfo = {
+            ...discountInfo,
+            discount: totalDiscount,
+            loyaltyDiscount: loyaltyDiscount,
+            loyaltyPointsUsed: loyaltyPointsUsed,
+        };
+
         // Adicionar venda ao grupo (compatibilidade)
+        // O preço unitário permanece o mesmo, o desconto é aplicado ao total
         const sale = {
             itemId: itemId,
             quantity: quantity,
-            price: price,
+            price: basePrice, // Preço unitário original (sem desconto)
+            basePrice: basePrice, // Preço original antes do desconto
+            discount: totalDiscount > 0 ? {
+                type: discountInfo.discountType || 'loyalty',
+                value: discountInfo.discountValue || loyaltyDiscount,
+                amount: totalDiscount,
+                couponCode: discountInfo.couponCode || null,
+                loyaltyDiscount: loyaltyDiscount,
+                loyaltyPointsUsed: loyaltyPointsUsed,
+            } : null
         };
         
         // Incluir tamanho e cor se for roupa ou eletrônico
@@ -4129,8 +6683,15 @@ class LojaApp {
         const itemName = item
             ? this.getItemName(itemId)
             : 'Item não encontrado';
-        const totalValue = price * quantity;
+        // Calcular totalValue considerando desconto (já calculado acima)
+        const totalValue = totalDiscount > 0 
+            ? baseTotal - totalDiscount 
+            : baseTotal;
         const now = new Date();
+
+        // Coletar notas da venda
+        const saleNotesInput = document.getElementById('saleNotes');
+        const saleNotes = saleNotesInput && saleNotesInput.value ? saleNotesInput.value.trim() : null;
 
         const completedSale = {
             id: Date.now().toString() + Math.random().toString(36).substr(2, 9),
@@ -4142,12 +6703,14 @@ class LojaApp {
                     itemId: itemId,
                     name: itemName,
                     quantity: quantity,
-                    price: price,
+                    price: basePrice, // Preço unitário original
                     size: (item && (item.category === 'Roupas' || item.category === 'Eletrônicos') && size) ? size : undefined,
                     color: (item && (item.category === 'Roupas' || item.category === 'Eletrônicos') && color) ? color : undefined,
                 },
             ],
-            totalValue: totalValue,
+            totalValue: totalValue, // Total final com desconto aplicado
+            discount: sale.discount, // Informações do desconto
+            notes: saleNotes, // Notas/observações da venda
             date: now.toISOString(),
             timestamp: now.getTime(),
             groupId: group.id,
@@ -4157,6 +6720,56 @@ class LojaApp {
 
         // Adicionar à lista de vendas concluídas
         this.completedSales.push(completedSale);
+
+        // Incrementar uso do cupom se foi aplicado
+        if (completedSale.discount && completedSale.discount.couponCode) {
+            const coupon = this.coupons.find(c => c.code === completedSale.discount.couponCode);
+            if (coupon) {
+                coupon.uses = (coupon.uses || 0) + 1;
+                this.saveData();
+                this.renderCoupons();
+            }
+        }
+        
+        // Limpar código do cupom da venda atual
+        if (window.currentSaleCouponCode) {
+            delete window.currentSaleCouponCode;
+        }
+
+        // Adicionar pontos de fidelidade após a venda
+        if (client) {
+            // Descontar pontos usados
+            if (loyaltyPointsUsed > 0 && client.loyaltyPoints >= loyaltyPointsUsed) {
+                client.loyaltyPoints -= loyaltyPointsUsed;
+            }
+            // Adicionar novos pontos (1 ponto para cada R$ 10,00 gastos)
+            this.addLoyaltyPoints(customerName, totalValue);
+            
+            // Criar notificação se o cliente optou por receber
+            if (client.receiveNotifications) {
+                this.createClientNotification(
+                    client.id,
+                    'Nova Compra Registrada',
+                    `Sua compra de R$ ${totalValue.toFixed(2).replace('.', ',')} foi registrada com sucesso!${loyaltyPointsUsed > 0 ? ` Você usou ${loyaltyPointsUsed} ponto(s) de fidelidade.` : ''}`,
+                    'success'
+                );
+            }
+        } else if (customerName) {
+            // Se o cliente não está cadastrado, criar automaticamente com pontos
+            const newClient = {
+                id: Date.now().toString(),
+                name: customerName,
+                cpf: customerCPF || '',
+                loyaltyPoints: Math.floor(totalValue / 10), // Adicionar pontos iniciais
+                receiveNotifications: false,
+                createdAt: new Date().toISOString(),
+                updatedAt: new Date().toISOString(),
+            };
+            this.clients.push(newClient);
+            if (typeof toast !== 'undefined' && toast) {
+                toast.info(`Cliente "${customerName}" foi cadastrado automaticamente e ganhou ${newClient.loyaltyPoints} ponto(s)!`, 4000);
+            }
+        }
 
         // Atualizar referência do grupo atual
         this.currentGroup = group;
@@ -5223,8 +7836,38 @@ class LojaApp {
                 const date = new Date(order.createdAt);
                 const formattedDate = date.toLocaleDateString('pt-BR');
 
+                // Verificar vencimento
+                let dueDateAlert = '';
+                let cardBorderColor = 'var(--border-color)';
+                if (order.dueDate && order.status !== 'cancelled' && order.status !== 'completed') {
+                    const dueDate = new Date(order.dueDate);
+                    const today = new Date();
+                    today.setHours(0, 0, 0, 0);
+                    dueDate.setHours(0, 0, 0, 0);
+                    const daysUntilDue = Math.ceil((dueDate - today) / (1000 * 60 * 60 * 24));
+                    
+                    if (daysUntilDue < 0) {
+                        // Vencido
+                        dueDateAlert = `<div style="padding: 0.75rem; background: #fee; border: 2px solid #dc3545; border-radius: var(--radius-sm); margin-bottom: 0.75rem;">
+                            <p style="margin: 0; color: #721c24; font-weight: 600;">
+                                <i class="fas fa-exclamation-triangle"></i> VENCIDO há ${Math.abs(daysUntilDue)} dia(s)
+                            </p>
+                        </div>`;
+                        cardBorderColor = '#dc3545';
+                    } else if (daysUntilDue <= 3) {
+                        // Próximo do vencimento
+                        dueDateAlert = `<div style="padding: 0.75rem; background: #fff3cd; border: 2px solid #ffc107; border-radius: var(--radius-sm); margin-bottom: 0.75rem;">
+                            <p style="margin: 0; color: #856404; font-weight: 600;">
+                                <i class="fas fa-clock"></i> Vence em ${daysUntilDue} dia(s)
+                            </p>
+                        </div>`;
+                        cardBorderColor = '#ffc107';
+                    }
+                }
+
                 return `
-                <div class="pending-order-card" style="background: var(--white); border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 1.25rem; box-shadow: var(--shadow-sm);">
+                <div class="pending-order-card" style="background: var(--white); border: 2px solid ${cardBorderColor}; border-radius: var(--radius-md); padding: 1.25rem; box-shadow: var(--shadow-sm);">
+                    ${dueDateAlert}
                     <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1rem;">
                         <div>
                             <h3 style="margin: 0 0 0.5rem 0; color: var(--dark-gray);">${this.escapeHtml(
@@ -5680,6 +8323,9 @@ class LojaApp {
 
         container.innerHTML = html;
 
+        // Verificar e exibir lembretes de agendamentos próximos
+        this.checkAppointmentsReminders();
+
         // Renderizar mini calendário
         this.renderMiniCalendar();
     }
@@ -6025,9 +8671,40 @@ class LojaApp {
         const detailStyle = isPast
             ? `margin: 0 0 0.2rem 0; color: var(--dark-gray); font-size: 0.85rem;`
             : `margin: 0 0 0.25rem 0; color: var(--dark-gray);`;
+        
+        // Verificar se é hoje ou amanhã para exibir alerta
+        const now = new Date();
+        const tomorrow = new Date(now);
+        tomorrow.setDate(tomorrow.getDate() + 1);
+        tomorrow.setHours(0, 0, 0, 0);
+        const todayEnd = new Date(now);
+        todayEnd.setHours(23, 59, 59, 999);
+        const tomorrowEnd = new Date(tomorrow);
+        tomorrowEnd.setHours(23, 59, 59, 999);
+        
+        let reminderAlert = '';
+        let cardBorderColor = 'var(--border-color)';
+        if (!isPast && appointment.status !== 'completed' && appointment.status !== 'cancelled') {
+            if (appointmentDate >= now && appointmentDate <= todayEnd) {
+                reminderAlert = `<div style="padding: 0.75rem; background: #d1ecf1; border: 2px solid #17a2b8; border-radius: var(--radius-sm); margin-bottom: 0.75rem;">
+                    <p style="margin: 0; color: #0c5460; font-weight: 600;">
+                        <i class="fas fa-bell"></i> Agendamento HOJE às ${formattedTime}
+                    </p>
+                </div>`;
+                cardBorderColor = '#17a2b8';
+            } else if (appointmentDate >= tomorrow && appointmentDate <= tomorrowEnd) {
+                reminderAlert = `<div style="padding: 0.75rem; background: #fff3cd; border: 2px solid #ffc107; border-radius: var(--radius-sm); margin-bottom: 0.75rem;">
+                    <p style="margin: 0; color: #856404; font-weight: 600;">
+                        <i class="fas fa-clock"></i> Agendamento AMANHÃ às ${formattedTime}
+                    </p>
+                </div>`;
+                cardBorderColor = '#ffc107';
+            }
+        }
 
         return `
-            <div class="service-appointment-card" style="${cardStyle}">
+            <div class="service-appointment-card" style="${cardStyle}; border: 2px solid ${cardBorderColor};">
+                ${reminderAlert}
                 <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: ${
                     isPast ? '0.75rem' : '1rem'
                 };">
@@ -6336,11 +9013,19 @@ class LojaApp {
 
         if (filteredGroups.length === 0) {
             list.innerHTML =
-                '<p style="grid-column: 1/-1; text-align: center; color: var(--gray); padding: 2rem;">' +
-                (yearFilter
-                    ? `Nenhum grupo encontrado para o ano ${yearFilter}.`
-                    : 'Nenhum grupo mensal criado ainda.') +
-                '</p>';
+                `<div class="empty-state" style="grid-column: 1/-1;">
+                    <div class="empty-state-icon">
+                        <i class="fas fa-calendar-alt"></i>
+                    </div>
+                    <h3 class="empty-state-title">${yearFilter
+                        ? `Nenhum grupo encontrado para ${yearFilter}`
+                        : 'Nenhum grupo mensal criado ainda'}</h3>
+                    <p class="empty-state-message">
+                        ${yearFilter
+                            ? 'Tente selecionar outro ano ou criar um novo grupo mensal.'
+                            : 'Comece criando um grupo mensal para organizar suas vendas por mês.'}
+                    </p>
+                </div>`;
             return;
         }
 
@@ -6373,7 +9058,7 @@ class LojaApp {
                     (sum, day) =>
                         sum +
                         day.sales.reduce(
-                            (s, sale) => s + sale.price * sale.quantity,
+                            (s, sale) => s + this.getSaleTotalValue(sale),
                             0
                         ),
                     0
@@ -7264,12 +9949,24 @@ class LojaApp {
                 })
                 .join('');
 
+        // Popular select de fornecedores
+        const costSupplier = document.getElementById('costSupplier');
+        if (costSupplier) {
+            costSupplier.innerHTML = '<option value="">Selecione um fornecedor ou deixe em branco...</option>' +
+                this.suppliers.map(supplier => 
+                    `<option value="${supplier.id}">${this.escapeHtml(supplier.name)}</option>`
+                ).join('');
+        }
+
         if (cost) {
             title.textContent = 'Editar Custo';
             document.getElementById('costItem').value = cost.itemId;
             document.getElementById('costDate').value = cost.date;
             document.getElementById('costQuantity').value = cost.quantity;
             document.getElementById('costPrice').value = cost.price;
+            if (costSupplier && cost.supplierId) {
+                costSupplier.value = cost.supplierId;
+            }
             this.calculateCostTotal();
         } else {
             title.textContent = 'Cadastrar Novo Custo';
@@ -7319,11 +10016,14 @@ class LojaApp {
             return;
         }
 
+        const supplierId = document.getElementById('costSupplier')?.value || null;
+        
         const cost = {
             id: this.currentEditingCost
                 ? this.currentEditingCost.id
                 : Date.now().toString(),
             itemId: itemId,
+            supplierId: supplierId,
             date: date,
             quantity: quantity,
             price: price,
@@ -7391,7 +10091,20 @@ class LojaApp {
 
         if (this.costs.length === 0) {
             list.innerHTML =
-                '<p style="grid-column: 1/-1; text-align: center; color: var(--gray); padding: 2rem;">Nenhum custo cadastrado ainda.</p>';
+                `<div class="empty-state" style="grid-column: 1/-1;">
+                    <div class="empty-state-icon">
+                        <i class="fas fa-receipt"></i>
+                    </div>
+                    <h3 class="empty-state-title">Nenhum custo cadastrado ainda</h3>
+                    <p class="empty-state-message">
+                        Comece registrando seus custos para ter um controle financeiro completo.
+                    </p>
+                    <div class="empty-state-action">
+                        <button class="btn-primary" onclick="app.openCostModal()">
+                            <i class="fas fa-plus"></i> Adicionar Primeiro Custo
+                        </button>
+                    </div>
+                </div>`;
             return;
         }
 
@@ -7543,7 +10256,7 @@ class LojaApp {
         let total = 0;
         group.days.forEach((day) => {
             day.sales.forEach((sale) => {
-                total += sale.price * sale.quantity;
+                total += this.getSaleTotalValue(sale);
             });
         });
         return total;
@@ -7644,13 +10357,32 @@ class LojaApp {
 
         if (filteredGoals.length === 0) {
             list.innerHTML =
-                '<p style="grid-column: 1/-1; text-align: center; color: var(--gray); padding: 2rem;">' +
-                (goalsYearFilter
-                    ? `Nenhuma meta encontrada para o ano ${goalsYearFilter}.`
-                    : 'Nenhuma meta cadastrada ainda.') +
+                `<div class="empty-state" style="grid-column: 1/-1;">
+                    <div class="empty-state-icon">
+                        <i class="fas fa-bullseye"></i>
+                    </div>
+                    <h3 class="empty-state-title">${goalsYearFilter
+                        ? `Nenhuma meta encontrada para ${goalsYearFilter}`
+                        : 'Nenhuma meta cadastrada ainda'}</h3>
+                    <p class="empty-state-message">
+                        ${goalsYearFilter
+                            ? 'Tente selecionar outro ano ou criar uma nova meta.'
+                            : 'Comece definindo suas metas financeiras para acompanhar o desempenho do negócio.'}
+                    </p>
+                    ${!goalsYearFilter ? `
+                        <div class="empty-state-action">
+                            <button class="btn-primary" onclick="app.openGoalModal()">
+                                <i class="fas fa-bullseye"></i> Criar Primeira Meta
+                            </button>
+                        </div>
+                    ` : ''}
+                </div>`;
                 '</p>';
             return;
         }
+
+        // Verificar e exibir alertas de metas próximas
+        this.checkGoalsAlerts();
 
         // Ordenar por mês (mais recente primeiro)
         const sortedGoals = [...filteredGoals].sort((a, b) =>
@@ -7683,9 +10415,31 @@ class LojaApp {
                         : progress >= 75
                         ? 'warning'
                         : 'danger';
+                
+                // Verificar se está próximo de atingir (75-95%)
+                const isNearGoal = progress >= 75 && progress < 100;
+                const daysInMonth = new Date(parseInt(year), parseInt(month), 0).getDate();
+                const now = new Date();
+                const isCurrentMonth = goal.month === `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+                const daysRemaining = isCurrentMonth ? daysInMonth - now.getDate() : null;
+                const isNearEndOfMonth = isCurrentMonth && daysRemaining !== null && daysRemaining <= 7;
 
                 return `
-                <div class="goal-card">
+                <div class="goal-card" ${isNearGoal || isNearEndOfMonth ? 'style="border: 2px solid #ffc107;"' : ''}>
+                    ${isNearGoal ? `
+                        <div style="padding: 0.75rem; background: #fff3cd; border: 2px solid #ffc107; border-radius: var(--radius-sm); margin-bottom: 1rem;">
+                            <p style="margin: 0; color: #856404; font-weight: 600;">
+                                <i class="fas fa-bullseye"></i> Meta quase atingida! ${progress.toFixed(1)}% concluído
+                            </p>
+                        </div>
+                    ` : ''}
+                    ${isNearEndOfMonth && progress < 100 ? `
+                        <div style="padding: 0.75rem; background: #fff3cd; border: 2px solid #ffc107; border-radius: var(--radius-sm); margin-bottom: 1rem;">
+                            <p style="margin: 0; color: #856404; font-weight: 600;">
+                                <i class="fas fa-clock"></i> Faltam ${daysRemaining} dia(s) para o fim do mês! Progresso: ${progress.toFixed(1)}%
+                            </p>
+                        </div>
+                    ` : ''}
                     <h3>${monthName}/${year}</h3>
                     ${
                         goal.description
@@ -8810,6 +11564,10 @@ class LojaApp {
         }
         // Se mudar para a aba de administração, carregar dados do admin
         if (tab === 'adminPanel') {
+            // Popular select de produtos para ROI quando abrir o painel admin
+            setTimeout(() => {
+                this.populateROIProductSelect();
+            }, 100);
             const username = sessionStorage.getItem('username');
             if (username === 'admin') {
                 // Aguardar um pouco para garantir que o DOM está pronto
@@ -8999,6 +11757,9 @@ class LojaApp {
         const modal = document.getElementById('tutorialModal');
         if (!modal) return;
 
+        // Garantir que o modal está visível
+        modal.style.display = 'flex';
+        
         const content = document.getElementById('tutorialContent');
         if (content) {
             content.innerHTML = `
@@ -9169,13 +11930,101 @@ class LojaApp {
             `;
         }
 
+        // Garantir que não há loading overlay bloqueando
+        const loadingOverlay = document.getElementById('loading-overlay');
+        if (loadingOverlay && loadingOverlay.classList.contains('active')) {
+            loadingOverlay.classList.remove('active');
+            loadingOverlay.style.display = 'none';
+        }
+        
+        // Garantir que o modal está visível e ativo
+        modal.style.display = 'flex';
         modal.classList.add('active');
+        
+        // Garantir que o app está disponível globalmente para onclick inline
+        if (typeof window !== 'undefined') {
+            window.app = this;
+        }
+        
+        // Garantir que o modal está acima de tudo
+        modal.style.zIndex = '10003';
+        modal.style.pointerEvents = 'auto';
+        
+        // Re-anexar event listeners quando o modal é aberto (garantir que funcionem)
+        setTimeout(() => {
+            const closeBtn = modal.querySelector('.close');
+            const closeTutorialBtn = document.getElementById('closeTutorialBtn');
+            
+            if (closeBtn) {
+                // Remover listeners antigos e adicionar novos
+                const newCloseBtn = closeBtn.cloneNode(true);
+                closeBtn.parentNode.replaceChild(newCloseBtn, closeBtn);
+                newCloseBtn.addEventListener('click', (e) => {
+                    console.log('🟢 [TUTORIAL] Botão X clicado (re-anexado)');
+                    e.preventDefault();
+                    e.stopPropagation();
+                    this.closeTutorialModal();
+                });
+                newCloseBtn.onclick = (e) => {
+                    console.log('🟢 [TUTORIAL] Botão X (onclick) clicado (re-anexado)');
+                    e.preventDefault();
+                    e.stopPropagation();
+                    this.closeTutorialModal();
+                };
+            }
+            
+            if (closeTutorialBtn) {
+                // Remover listeners antigos e adicionar novos
+                const newCloseTutorialBtn = closeTutorialBtn.cloneNode(true);
+                closeTutorialBtn.parentNode.replaceChild(newCloseTutorialBtn, closeTutorialBtn);
+                newCloseTutorialBtn.addEventListener('click', (e) => {
+                    console.log('🟢 [TUTORIAL] Botão Fechar clicado (re-anexado)');
+                    e.preventDefault();
+                    e.stopPropagation();
+                    this.closeTutorialModal();
+                });
+                newCloseTutorialBtn.onclick = (e) => {
+                    console.log('🟢 [TUTORIAL] Botão Fechar (onclick) clicado (re-anexado)');
+                    e.preventDefault();
+                    e.stopPropagation();
+                    this.closeTutorialModal();
+                };
+            }
+            
+            // Focar no botão de fechar para acessibilidade
+            const finalCloseBtn = modal.querySelector('.close');
+            if (finalCloseBtn) {
+                finalCloseBtn.focus();
+            }
+        }, 100);
     }
 
     closeTutorialModal() {
+        console.log('🔴 [TUTORIAL] closeTutorialModal() chamado');
         const modal = document.getElementById('tutorialModal');
         if (modal) {
+            console.log('🔴 [TUTORIAL] Modal encontrado, fechando...');
+            
+            // Forçar fechamento de múltiplas formas
             modal.classList.remove('active');
+            modal.style.display = 'none';
+            modal.style.opacity = '0';
+            modal.style.visibility = 'hidden';
+            modal.style.pointerEvents = 'none';
+            modal.style.zIndex = '-1';
+            
+            // Garantir que o modal-content também está escondido
+            const modalContent = modal.querySelector('.modal-content');
+            if (modalContent) {
+                modalContent.style.display = 'none';
+            }
+            
+            // Salvar que o usuário viu o tutorial
+            localStorage.setItem('hasSeenTutorial', 'true');
+            
+            console.log('✅ [TUTORIAL] Modal fechado com sucesso');
+        } else {
+            console.error('❌ [TUTORIAL] Modal não encontrado!');
         }
     }
 
@@ -9978,7 +12827,7 @@ class LojaApp {
             group.days.forEach((day) => {
                 day.sales.forEach((sale) => {
                     monthlyData[key].sales += sale.quantity;
-                    monthlyData[key].value += sale.price * sale.quantity;
+                    monthlyData[key].value += this.getSaleTotalValue(sale);
                 });
             });
         });
@@ -10127,7 +12976,7 @@ class LojaApp {
 
             group.days.forEach((day) => {
                 day.sales.forEach((sale) => {
-                    monthlyData[key].profit += sale.price * sale.quantity;
+                    monthlyData[key].profit += this.getSaleTotalValue(sale);
                 });
             });
         });
@@ -10306,7 +13155,7 @@ class LojaApp {
 
             group.days.forEach((day) => {
                 day.sales.forEach((sale) => {
-                    monthlyData[key].sales += sale.price * sale.quantity;
+                    monthlyData[key].sales += this.getSaleTotalValue(sale);
                 });
             });
         });
@@ -10389,8 +13238,8 @@ class LojaApp {
 
             group.days.forEach((day) => {
                 day.sales.forEach((sale) => {
-                    monthlyTotals[key] += sale.price * sale.quantity;
-                    totalSales += sale.price * sale.quantity;
+                    monthlyTotals[key] += this.getSaleTotalValue(sale);
+                    totalSales += this.getSaleTotalValue(sale);
                 });
             });
         });
@@ -10499,11 +13348,13 @@ class LojaApp {
             const available = data.stock - data.sold;
             const item = this.items.find((i) => i.id === itemId);
 
-            // Alerta de estoque baixo (menos de 5 unidades ou negativo)
-            if (available <= 5 && item) {
+            // Alerta de estoque baixo (usar minStock do item ou padrão de 5)
+            const minStock = item?.minStock || 5;
+            if (available <= minStock && item) {
                 lowStockItems.push({
                     name: this.getItemName(itemId),
                     available: available,
+                    minStock: minStock,
                 });
             }
         });
@@ -10780,7 +13631,7 @@ class LojaApp {
         }
     }
 
-    // ========== GERENCIAMENTO DE TEMA ==========
+    // ========== GERENCIAMENTO DE TEMA E ACESSIBILIDADE ==========
 
     loadTheme() {
         // Carregar tema do usuário atual
@@ -10794,6 +13645,163 @@ class LojaApp {
         } else {
             document.body.classList.remove('theme-blue');
             this.updateThemeColor('#dc3545');
+        }
+
+        // Carregar preferências de acessibilidade
+        this.loadAccessibilitySettings();
+    }
+
+    // Carregar configurações de acessibilidade
+    loadAccessibilitySettings() {
+        const username = sessionStorage.getItem('username');
+        const settingsKey = username ? `accessibilitySettings_${username}` : 'accessibilitySettings';
+        const settingsStr = localStorage.getItem(settingsKey);
+        
+        if (settingsStr) {
+            try {
+                const settings = JSON.parse(settingsStr);
+                
+                // Aplicar alto contraste
+                if (settings.highContrast) {
+                    document.body.classList.add('high-contrast');
+                } else {
+                    document.body.classList.remove('high-contrast');
+                }
+                
+                // Aplicar tamanho de fonte
+                document.body.classList.remove('font-small', 'font-normal', 'font-large', 'font-extra-large');
+                if (settings.fontSize) {
+                    document.body.classList.add(`font-${settings.fontSize}`);
+                } else {
+                    document.body.classList.add('font-normal');
+                }
+                
+                // Aplicar espaçamento
+                document.body.classList.remove('spacing-compact', 'spacing-normal', 'spacing-comfortable');
+                if (settings.spacing) {
+                    document.body.classList.add(`spacing-${settings.spacing}`);
+                } else {
+                    document.body.classList.add('spacing-normal');
+                }
+            } catch (error) {
+                console.error('Erro ao carregar configurações de acessibilidade:', error);
+            }
+        }
+    }
+
+    // Salvar configurações de acessibilidade
+    saveAccessibilitySettings() {
+        const username = sessionStorage.getItem('username');
+        const settingsKey = username ? `accessibilitySettings_${username}` : 'accessibilitySettings';
+        
+        const settings = {
+            highContrast: document.body.classList.contains('high-contrast'),
+            fontSize: this.getCurrentFontSize(),
+            spacing: this.getCurrentSpacing(),
+        };
+        
+        localStorage.setItem(settingsKey, JSON.stringify(settings));
+    }
+
+    // Obter tamanho de fonte atual
+    getCurrentFontSize() {
+        if (document.body.classList.contains('font-small')) return 'small';
+        if (document.body.classList.contains('font-large')) return 'large';
+        if (document.body.classList.contains('font-extra-large')) return 'extra-large';
+        return 'normal';
+    }
+
+    // Obter espaçamento atual
+    getCurrentSpacing() {
+        if (document.body.classList.contains('spacing-compact')) return 'compact';
+        if (document.body.classList.contains('spacing-comfortable')) return 'comfortable';
+        return 'normal';
+    }
+
+    // Alternar modo alto contraste
+    toggleHighContrast() {
+        document.body.classList.toggle('high-contrast');
+        this.saveAccessibilitySettings();
+        
+        if (typeof toast !== 'undefined' && toast) {
+            const isEnabled = document.body.classList.contains('high-contrast');
+            toast.info(isEnabled ? 'Modo alto contraste ativado' : 'Modo alto contraste desativado', 2000);
+        }
+    }
+
+    // Definir tamanho de fonte
+    setFontSize(size) {
+        document.body.classList.remove('font-small', 'font-normal', 'font-large', 'font-extra-large');
+        if (size && size !== 'normal') {
+            document.body.classList.add(`font-${size}`);
+        } else {
+            document.body.classList.add('font-normal');
+        }
+        this.saveAccessibilitySettings();
+    }
+
+    // Definir espaçamento
+    setSpacing(spacing) {
+        document.body.classList.remove('spacing-compact', 'spacing-normal', 'spacing-comfortable');
+        if (spacing && spacing !== 'normal') {
+            document.body.classList.add(`spacing-${spacing}`);
+        } else {
+            document.body.classList.add('spacing-normal');
+        }
+        this.saveAccessibilitySettings();
+    }
+
+    // Abrir modal de acessibilidade
+    openAccessibilityModal() {
+        const modal = document.getElementById('accessibilityModal');
+        if (!modal) return;
+
+        // Carregar configurações atuais
+        const highContrastToggle = document.getElementById('highContrastToggle');
+        const fontSizeSelect = document.getElementById('fontSizeSelect');
+        const spacingSelect = document.getElementById('spacingSelect');
+
+        if (highContrastToggle) {
+            highContrastToggle.checked = document.body.classList.contains('high-contrast');
+        }
+        if (fontSizeSelect) {
+            fontSizeSelect.value = this.getCurrentFontSize();
+        }
+        if (spacingSelect) {
+            spacingSelect.value = this.getCurrentSpacing();
+        }
+
+        modal.classList.add('active');
+    }
+
+    // Fechar modal de acessibilidade
+    closeAccessibilityModal() {
+        const modal = document.getElementById('accessibilityModal');
+        if (modal) {
+            modal.classList.remove('active');
+        }
+    }
+
+    // Restaurar configurações padrão de acessibilidade
+    resetAccessibilitySettings() {
+        document.body.classList.remove('high-contrast');
+        document.body.classList.remove('font-small', 'font-normal', 'font-large', 'font-extra-large');
+        document.body.classList.remove('spacing-compact', 'spacing-normal', 'spacing-comfortable');
+        document.body.classList.add('font-normal', 'spacing-normal');
+
+        // Atualizar controles
+        const highContrastToggle = document.getElementById('highContrastToggle');
+        const fontSizeSelect = document.getElementById('fontSizeSelect');
+        const spacingSelect = document.getElementById('spacingSelect');
+
+        if (highContrastToggle) highContrastToggle.checked = false;
+        if (fontSizeSelect) fontSizeSelect.value = 'normal';
+        if (spacingSelect) spacingSelect.value = 'normal';
+
+        this.saveAccessibilitySettings();
+
+        if (typeof toast !== 'undefined' && toast) {
+            toast.success('Configurações de acessibilidade restauradas para os padrões', 3000);
         }
     }
 
@@ -10814,6 +13822,43 @@ class LojaApp {
 
         // Salvar tema no JSONBin junto com os dados do usuário
         this.saveData();
+    }
+
+    // ========================================
+    // DARK MODE
+    // ========================================
+    toggleDarkMode() {
+        const isDark = document.body.classList.contains('dark-mode');
+        const username = sessionStorage.getItem('username');
+        const darkModeKey = username ? `darkMode_${username}` : 'darkMode';
+
+        if (isDark) {
+            document.body.classList.remove('dark-mode');
+            localStorage.setItem(darkModeKey, 'false');
+        } else {
+            document.body.classList.add('dark-mode');
+            localStorage.setItem(darkModeKey, 'true');
+        }
+
+        // Atualizar toggle visual
+        const darkModeToggle = document.getElementById('darkModeToggle');
+        if (darkModeToggle) {
+            darkModeToggle.classList.toggle('active', !isDark);
+        }
+    }
+
+    loadDarkMode() {
+        const username = sessionStorage.getItem('username');
+        const darkModeKey = username ? `darkMode_${username}` : 'darkMode';
+        const savedDarkMode = localStorage.getItem(darkModeKey);
+
+        if (savedDarkMode === 'true') {
+            document.body.classList.add('dark-mode');
+            const darkModeToggle = document.getElementById('darkModeToggle');
+            if (darkModeToggle) {
+                darkModeToggle.classList.add('active');
+            }
+        }
     }
 
     updateThemeColor(color) {
@@ -11503,17 +14548,45 @@ class LojaApp {
         const themeKey = username ? `appTheme_${username}` : 'appTheme';
         const currentTheme = localStorage.getItem(themeKey) || 'red';
 
+        // Preparar dados (criptografar campos sensíveis se habilitado)
+        let clientsData = this.clients || [];
+        let suppliersData = this.suppliers || [];
+        
+        if (this.encryptionEnabled && username) {
+            try {
+                clientsData = await this.encryptClientData(clientsData, username);
+                suppliersData = await this.encryptClientData(suppliersData, username);
+            } catch (error) {
+                console.error('Erro ao criptografar dados antes de salvar:', error);
+                // Continuar sem criptografia em caso de erro
+            }
+        }
+
         const data = {
             items: this.items,
             groups: this.groups,
             serviceGroups: this.serviceGroups || [], // Grupos mensais de serviços
             costs: this.costs,
             goals: this.goals,
-            clients: this.clients || [], // Clientes cadastrados
+            clients: clientsData, // Clientes (criptografados se habilitado)
+            clientNotifications: this.clientNotifications || [], // Notificações para clientes
+            suppliers: suppliersData, // Fornecedores (criptografados se habilitado)
             completedSales: this.completedSales || [],
             pendingOrders: this.pendingOrders || [],
             serviceAppointments: this.serviceAppointments || [],
+            coupons: this.coupons || [], // Cupons de desconto
+            auditLog: this.auditLog || [], // Histórico de alterações
+            templates: this.templates || [], // Templates
+            itemTags: this.itemTags || {}, // Tags por item
+            categoryHierarchy: this.categoryHierarchy || {}, // Hierarquia de categorias
+            paymentConfig: this.paymentConfig || {}, // Configurações de pagamento
+            ecommerceConfig: this.ecommerceConfig || {}, // Configurações de e-commerce
+            erpConfig: this.erpConfig || {}, // Configurações de ERPs
+            emailConfig: this.emailConfig || {}, // Configurações de email
+            smsConfig: this.smsConfig || {}, // Configurações de SMS
+            dataAccessLogs: this.dataAccessLogs || [], // Logs de acesso a dados pessoais (LGPD)
             theme: currentTheme, // Salvar tema por usuário
+            encryptionEnabled: this.encryptionEnabled, // Flag de criptografia
             version: '1.0',
             lastUpdate: new Date().toISOString(),
         };
@@ -11543,7 +14616,19 @@ class LojaApp {
             console.log(
                 `☁️ [SAVE DATA] Tentando salvar na nuvem (API: /api/save) para usuário: ${username}...`
             );
-            const response = await fetch('/api/save', {
+            
+            // Verificar rate limiting antes de fazer requisição
+            const rateLimitCheck = this.canMakeRequest();
+            if (!rateLimitCheck.allowed) {
+                console.warn(`⚠️ [SAVE DATA] Rate limit atingido. Aguardando ${rateLimitCheck.remainingSeconds} segundos...`);
+                if (typeof toast !== 'undefined' && toast) {
+                    toast.warning(`Muitas requisições. Aguarde ${rateLimitCheck.remainingSeconds} segundos.`, 3000);
+                }
+                // Salvar localmente mesmo assim
+                return;
+            }
+            
+            const response = await this.makeRequestWithRateLimit('/api/save', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -11671,23 +14756,36 @@ class LojaApp {
                 console.log(
                     `☁️ [LOAD DATA] Tentando carregar da nuvem (API: /api/load) para usuário: ${username}...`
                 );
-                const response = await fetch(
-                    `/api/load?username=${encodeURIComponent(username)}`
-                );
+                
+                // Verificar rate limiting antes de fazer requisição
+                const rateLimitCheck = this.canMakeRequest();
+                if (!rateLimitCheck.allowed) {
+                    console.warn(`⚠️ [LOAD DATA] Rate limit atingido. Aguardando ${rateLimitCheck.remainingSeconds} segundos...`);
+                    // Continuar com localStorage como fallback
+                } else {
+                    const response = await this.makeRequestWithRateLimit(
+                        `/api/load?username=${encodeURIComponent(username)}`,
+                        {
+                            method: 'GET',
+                            headers: {
+                                'Content-Type': 'application/json',
+                            },
+                        }
+                    );
 
-                console.log(
-                    `📡 [LOAD DATA] Status HTTP: ${response.status} ${response.statusText}`
-                );
+                    console.log(
+                        `📡 [LOAD DATA] Status HTTP: ${response.status} ${response.statusText}`
+                    );
 
-                // Verificar se a resposta é JSON antes de fazer parse
-                const contentType = response.headers.get('content-type');
-                console.log(
-                    `📋 [LOAD DATA] Content-Type: ${
-                        contentType || 'não especificado'
-                    }`
-                );
+                    // Verificar se a resposta é JSON antes de fazer parse
+                    const contentType = response.headers.get('content-type');
+                    console.log(
+                        `📋 [LOAD DATA] Content-Type: ${
+                            contentType || 'não especificado'
+                        }`
+                    );
 
-                if (!contentType || !contentType.includes('application/json')) {
+                    if (!contentType || !contentType.includes('application/json')) {
                     const text = await response.text();
                     console.error('❌ [LOAD DATA] Resposta da API não é JSON!');
                     console.error(`❌ [LOAD DATA] Status: ${response.status}`);
@@ -11707,20 +14805,20 @@ class LojaApp {
                         console.error('❌ [LOAD DATA] Erro do servidor (5xx)');
                     }
 
-                    throw new Error(
-                        `Resposta da API não é JSON (Status: ${response.status}). Possível erro 404 ou rota não encontrada.`
-                    );
-                }
+                        throw new Error(
+                            `Resposta da API não é JSON (Status: ${response.status}). Possível erro 404 ou rota não encontrada.`
+                        );
+                    }
 
-                const result = await response.json();
-                console.log('📦 [LOAD DATA] Resposta JSON recebida:', {
+                    const result = await response.json();
+                    console.log('📦 [LOAD DATA] Resposta JSON recebida:', {
                     success: result.success,
                     hasData: !!result.data,
                     hasError: !!result.error,
-                    hasMessage: !!result.message,
-                });
+                        hasMessage: !!result.message,
+                    });
 
-                if (response.ok && result.success && result.data) {
+                    if (response.ok && result.success && result.data) {
                     const cloudData = result.data;
 
                     // Verificar se há dados ou se é apenas estrutura vazia
@@ -11740,11 +14838,57 @@ class LojaApp {
                         this.serviceGroups = cloudData.serviceGroups || [];
                         this.costs = cloudData.costs || [];
                         this.goals = cloudData.goals || [];
-                        this.clients = cloudData.clients || [];
+                        
+                        // Descriptografar dados sensíveis se necessário
+                        let clientsData = cloudData.clients || [];
+                        let suppliersData = cloudData.suppliers || [];
+                        
+                        if (cloudData.encryptionEnabled && username) {
+                            try {
+                                clientsData = await this.decryptClientData(clientsData, username);
+                                suppliersData = await this.decryptClientData(suppliersData, username);
+                            } catch (error) {
+                                console.error('Erro ao descriptografar dados ao carregar:', error);
+                                // Continuar com dados criptografados em caso de erro
+                            }
+                        }
+                        
+                        this.clients = clientsData;
+                        this.clientNotifications = cloudData.clientNotifications || [];
+                        this.suppliers = suppliersData;
+                        
+                        // Atualizar flag de criptografia
+                        if (cloudData.encryptionEnabled !== undefined) {
+                            this.encryptionEnabled = cloudData.encryptionEnabled;
+                        }
                         this.completedSales = cloudData.completedSales || [];
                         this.pendingOrders = cloudData.pendingOrders || [];
                         this.serviceAppointments =
                             cloudData.serviceAppointments || [];
+                        this.coupons = cloudData.coupons || [];
+                        this.auditLog = cloudData.auditLog || [];
+                        this.templates = cloudData.templates || [];
+                        this.itemTags = cloudData.itemTags || {};
+                        this.categoryHierarchy = cloudData.categoryHierarchy || {};
+                        this.paymentConfig = cloudData.paymentConfig || this.paymentConfig;
+                        this.ecommerceConfig = cloudData.ecommerceConfig || this.ecommerceConfig;
+                        this.erpConfig = cloudData.erpConfig || this.erpConfig;
+                        this.emailConfig = cloudData.emailConfig || this.emailConfig;
+                        this.smsConfig = cloudData.smsConfig || this.smsConfig;
+                        
+                        // Gerar tags automáticas se habilitado
+                        if (this.autoTagsEnabled) {
+                            setTimeout(() => {
+                                this.generateAutoTagsFromSales();
+                            }, 2000); // Aguardar 2 segundos após carregar dados
+                        }
+                        
+                        // Gerar tags automáticas se habilitado
+                        if (this.autoTagsEnabled) {
+                            setTimeout(() => {
+                                this.generateAutoTagsFromSales();
+                            }, 2000); // Aguardar 2 segundos após carregar dados
+                        }
 
                         console.log(
                             `📋 [LOAD DATA] Comprovantes carregados: ${this.completedSales.length}`
@@ -11868,6 +15012,7 @@ class LojaApp {
                         );
                     }
                 }
+                }
             } catch (error) {
                 console.error(
                     '❌ [LOAD DATA] Erro ao carregar da nuvem:',
@@ -11924,9 +15069,22 @@ class LojaApp {
                 this.costs = data.costs || [];
                 this.goals = data.goals || [];
                 this.clients = data.clients || [];
+                this.clientNotifications = data.clientNotifications || [];
+                this.suppliers = data.suppliers || [];
                 this.completedSales = data.completedSales || [];
                 this.pendingOrders = data.pendingOrders || [];
                 this.serviceAppointments = data.serviceAppointments || [];
+                this.coupons = data.coupons || [];
+                this.auditLog = data.auditLog || [];
+                this.templates = data.templates || [];
+                this.itemTags = data.itemTags || {};
+                this.categoryHierarchy = data.categoryHierarchy || {};
+                this.paymentConfig = data.paymentConfig || this.paymentConfig;
+                this.ecommerceConfig = data.ecommerceConfig || this.ecommerceConfig;
+                this.erpConfig = data.erpConfig || this.erpConfig;
+                this.emailConfig = data.emailConfig || this.emailConfig;
+                this.smsConfig = data.smsConfig || this.smsConfig;
+                this.dataAccessLogs = data.dataAccessLogs || [];
 
                 console.log(
                     `📋 [LOAD DATA] Comprovantes carregados do localStorage: ${this.completedSales.length}`
@@ -12039,6 +15197,16 @@ class LojaApp {
     }
 
     exportData() {
+        // Verificar permissão de exportação
+        if (!this.checkPermission('export')) {
+            if (typeof toast !== 'undefined' && toast) {
+                toast.error('Você não tem permissão para exportar dados.', 3000);
+            } else {
+                alert('Você não tem permissão para exportar dados.');
+            }
+            return;
+        }
+        
         const data = {
             items: this.items,
             groups: this.groups,
@@ -12061,8 +15229,839 @@ class LojaApp {
         a.click();
         document.body.removeChild(a);
         URL.revokeObjectURL(url);
+    }
 
-        alert('Dados exportados com sucesso!');
+    // ========== SISTEMA DE BACKUP AUTOMÁTICO ==========
+
+    // Criar checksum simples para verificação de integridade
+    generateChecksum(data) {
+        const str = JSON.stringify(data);
+        let hash = 0;
+        for (let i = 0; i < str.length; i++) {
+            const char = str.charCodeAt(i);
+            hash = ((hash << 5) - hash) + char;
+            hash = hash & hash; // Convert to 32bit integer
+        }
+        return Math.abs(hash).toString(16);
+    }
+
+    // Criar backup manual
+    async createManualBackup() {
+        const username = sessionStorage.getItem('username');
+        if (!username) {
+            if (typeof toast !== 'undefined' && toast) {
+                toast.error('Usuário não autenticado. Faça login novamente.', 3000);
+            }
+            return;
+        }
+
+        try {
+            // Preparar dados do backup (criptografar se habilitado)
+            let backupData = {
+                items: this.items,
+                groups: this.groups,
+                serviceGroups: this.serviceGroups,
+                costs: this.costs,
+                goals: this.goals,
+                clients: this.clients,
+                clientNotifications: this.clientNotifications,
+                suppliers: this.suppliers,
+                completedSales: this.completedSales,
+                pendingOrders: this.pendingOrders,
+                serviceAppointments: this.serviceAppointments,
+                coupons: this.coupons,
+                auditLog: this.auditLog,
+                templates: this.templates,
+                itemTags: this.itemTags,
+                version: '1.0',
+                timestamp: new Date().toISOString(),
+            };
+
+            // Criptografar backup se habilitado
+            if (this.encryptionEnabled && username) {
+                try {
+                    backupData = await this.encryptBackup(backupData, username);
+                    backupData.encrypted = true;
+                } catch (error) {
+                    console.error('Erro ao criptografar backup:', error);
+                    // Continuar sem criptografia em caso de erro
+                }
+            }
+
+            const checksum = this.generateChecksum(backupData);
+            const backup = {
+                id: 'BACKUP_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9),
+                timestamp: new Date().toISOString(),
+                data: backupData,
+                checksum: checksum,
+                type: 'manual',
+                username: username,
+            };
+
+            // Adicionar ao histórico (limitar a 50 backups)
+            this.backupHistory.unshift(backup);
+            if (this.backupHistory.length > 50) {
+                this.backupHistory = this.backupHistory.slice(0, 50);
+            }
+
+            // Salvar histórico no localStorage
+            const backupHistoryKey = `backupHistory_${username}`;
+            localStorage.setItem(backupHistoryKey, JSON.stringify(this.backupHistory));
+
+            this.lastBackupTime = new Date();
+            this.saveData();
+            this.renderBackupHistory();
+
+            // Registrar no audit log
+            this.logAction('export', 'backup', backup.id, 'Backup Manual', {
+                checksum: checksum,
+                itemsCount: this.items.length,
+                groupsCount: this.groups.length,
+            });
+
+            if (typeof toast !== 'undefined' && toast) {
+                toast.success('Backup criado com sucesso!', 3000);
+            }
+        } catch (error) {
+            console.error('Erro ao criar backup:', error);
+            if (typeof toast !== 'undefined' && toast) {
+                toast.error('Erro ao criar backup. Verifique o console para mais detalhes.', 4000);
+            }
+        }
+    }
+
+    // Configurar backup automático
+    configureAutoBackup() {
+        const enabled = document.getElementById('autoBackupEnabled')?.checked || false;
+        const frequency = document.getElementById('autoBackupFrequency')?.value || 'daily';
+
+        if (enabled) {
+            this.startAutoBackup(frequency);
+        } else {
+            this.stopAutoBackup();
+        }
+
+        // Salvar configuração
+        const username = sessionStorage.getItem('username');
+        if (username) {
+            const config = {
+                enabled: enabled,
+                frequency: frequency,
+            };
+            localStorage.setItem(`autoBackupConfig_${username}`, JSON.stringify(config));
+        }
+    }
+
+    // Iniciar backup automático
+    startAutoBackup(frequency = 'daily') {
+        this.stopAutoBackup(); // Parar qualquer backup automático existente
+
+        const intervalMs = frequency === 'daily' 
+            ? 24 * 60 * 60 * 1000 // 24 horas
+            : 7 * 24 * 60 * 60 * 1000; // 7 dias
+
+        this.backupInterval = setInterval(() => {
+            this.createAutoBackup();
+        }, intervalMs);
+
+        // Criar backup imediatamente se ainda não foi criado hoje
+        if (!this.lastBackupTime || this.shouldCreateBackup(frequency)) {
+            this.createAutoBackup();
+        }
+
+        if (typeof toast !== 'undefined' && toast) {
+            toast.info(`Backup automático ${frequency === 'daily' ? 'diário' : 'semanal'} ativado!`, 3000);
+        }
+    }
+
+    // Parar backup automático
+    stopAutoBackup() {
+        if (this.backupInterval) {
+            clearInterval(this.backupInterval);
+            this.backupInterval = null;
+        }
+    }
+
+    // Verificar se deve criar backup
+    shouldCreateBackup(frequency) {
+        if (!this.lastBackupTime) return true;
+
+        const now = new Date();
+        const lastBackup = new Date(this.lastBackupTime);
+        const diffMs = now - lastBackup;
+
+        if (frequency === 'daily') {
+            return diffMs >= 24 * 60 * 60 * 1000; // 24 horas
+        } else {
+            return diffMs >= 7 * 24 * 60 * 60 * 1000; // 7 dias
+        }
+    }
+
+    // Criar backup automático
+    async createAutoBackup() {
+        const username = sessionStorage.getItem('username');
+        if (!username) return;
+
+        try {
+            // Preparar dados do backup (criptografar se habilitado)
+            let backupData = {
+                items: this.items,
+                groups: this.groups,
+                serviceGroups: this.serviceGroups,
+                costs: this.costs,
+                goals: this.goals,
+                clients: this.clients,
+                clientNotifications: this.clientNotifications,
+                suppliers: this.suppliers,
+                completedSales: this.completedSales,
+                pendingOrders: this.pendingOrders,
+                serviceAppointments: this.serviceAppointments,
+                coupons: this.coupons,
+                auditLog: this.auditLog,
+                templates: this.templates,
+                itemTags: this.itemTags,
+                version: '1.0',
+                timestamp: new Date().toISOString(),
+            };
+
+            // Criptografar backup se habilitado
+            if (this.encryptionEnabled && username) {
+                try {
+                    backupData = await this.encryptBackup(backupData, username);
+                    backupData.encrypted = true;
+                } catch (error) {
+                    console.error('Erro ao criptografar backup automático:', error);
+                    // Continuar sem criptografia em caso de erro
+                }
+            }
+
+            const checksum = this.generateChecksum(backupData);
+            const backup = {
+                id: 'BACKUP_AUTO_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9),
+                timestamp: new Date().toISOString(),
+                data: backupData,
+                checksum: checksum,
+                type: 'auto',
+                username: username,
+            };
+
+            this.backupHistory.unshift(backup);
+            if (this.backupHistory.length > 50) {
+                this.backupHistory = this.backupHistory.slice(0, 50);
+            }
+
+            const backupHistoryKey = `backupHistory_${username}`;
+            localStorage.setItem(backupHistoryKey, JSON.stringify(this.backupHistory));
+
+            this.lastBackupTime = new Date();
+            this.saveData();
+            this.renderBackupHistory();
+
+            // Notificação de backup automático
+            if (typeof toast !== 'undefined' && toast) {
+                toast.success('Backup automático criado com sucesso!', 3000);
+            }
+
+            // Registrar no audit log
+            this.logAction('export', 'backup', backup.id, 'Backup Automático', {
+                checksum: checksum,
+            });
+        } catch (error) {
+            console.error('Erro ao criar backup automático:', error);
+        }
+    }
+
+    // Toggle backup automático
+    toggleAutoBackup() {
+        const enabled = document.getElementById('autoBackupEnabled')?.checked || false;
+        const frequency = document.getElementById('autoBackupFrequency')?.value || 'daily';
+
+        if (enabled) {
+            this.startAutoBackup(frequency);
+        } else {
+            this.stopAutoBackup();
+        }
+
+        this.configureAutoBackup();
+    }
+
+    // Atualizar frequência do backup automático
+    updateAutoBackupFrequency() {
+        const enabled = document.getElementById('autoBackupEnabled')?.checked || false;
+        if (enabled) {
+            const frequency = document.getElementById('autoBackupFrequency')?.value || 'daily';
+            this.startAutoBackup(frequency);
+        }
+        this.configureAutoBackup();
+    }
+
+    // Abrir modal de backup
+    openBackupModal() {
+        const modal = document.getElementById('backupModal');
+        if (!modal) return;
+
+        // Carregar histórico de backups
+        this.loadBackupHistory();
+        this.renderBackupHistory();
+
+        // Carregar configuração de backup automático
+        const username = sessionStorage.getItem('username');
+        if (username) {
+            const configStr = localStorage.getItem(`autoBackupConfig_${username}`);
+            if (configStr) {
+                try {
+                    const config = JSON.parse(configStr);
+                    const enabledCheckbox = document.getElementById('autoBackupEnabled');
+                    const frequencySelect = document.getElementById('autoBackupFrequency');
+                    if (enabledCheckbox) enabledCheckbox.checked = config.enabled || false;
+                    if (frequencySelect) frequencySelect.value = config.frequency || 'daily';
+                } catch (e) {
+                    console.error('Erro ao carregar configuração de backup:', e);
+                }
+            }
+        }
+
+        modal.classList.add('active');
+    }
+
+    // Fechar modal de backup
+    closeBackupModal() {
+        const modal = document.getElementById('backupModal');
+        if (modal) {
+            modal.classList.remove('active');
+        }
+    }
+
+    // Carregar histórico de backups
+    loadBackupHistory() {
+        const username = sessionStorage.getItem('username');
+        if (!username) {
+            this.backupHistory = [];
+            return;
+        }
+
+        const backupHistoryKey = `backupHistory_${username}`;
+        const historyStr = localStorage.getItem(backupHistoryKey);
+        if (historyStr) {
+            try {
+                this.backupHistory = JSON.parse(historyStr) || [];
+            } catch (e) {
+                console.error('Erro ao carregar histórico de backups:', e);
+                this.backupHistory = [];
+            }
+        } else {
+            this.backupHistory = [];
+        }
+    }
+
+    // Renderizar histórico de backups
+    renderBackupHistory() {
+        const container = document.getElementById('backupHistoryList');
+        if (!container) return;
+
+        if (this.backupHistory.length === 0) {
+            container.innerHTML = `
+                <div class="empty-state" style="padding: 2rem;">
+                    <div class="empty-state-icon">
+                        <i class="fas fa-database"></i>
+                    </div>
+                    <h3 class="empty-state-title">Nenhum backup encontrado</h3>
+                    <p class="empty-state-message">
+                        Crie seu primeiro backup para começar a proteger seus dados.
+                    </p>
+                </div>`;
+            return;
+        }
+
+        container.innerHTML = this.backupHistory
+            .map((backup) => {
+                const date = new Date(backup.timestamp);
+                const dateStr = date.toLocaleDateString('pt-BR', {
+                    day: '2-digit',
+                    month: '2-digit',
+                    year: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit',
+                });
+
+                // Verificar integridade
+                const currentChecksum = this.generateChecksum(backup.data);
+                const isIntegrityOk = currentChecksum === backup.checksum;
+
+                return `
+                    <div class="item-card" style="margin-bottom: 1rem; border-left: 4px solid ${backup.type === 'auto' ? '#28a745' : '#007bff'};">
+                        <div class="item-header">
+                            <div style="display: flex; align-items: center; gap: 0.5rem; flex: 1;">
+                                <i class="fas ${backup.type === 'auto' ? 'fa-clock' : 'fa-save'}" style="color: ${backup.type === 'auto' ? '#28a745' : '#007bff'};"></i>
+                                <div style="flex: 1;">
+                                    <h3 style="margin: 0; font-size: 0.95rem; font-weight: 600;">
+                                        ${backup.type === 'auto' ? 'Backup Automático' : 'Backup Manual'}
+                                    </h3>
+                                    <p style="margin: 0.25rem 0 0 0; font-size: 0.85rem; color: var(--gray-600);">
+                                        <i class="fas fa-calendar"></i> ${dateStr}
+                                    </p>
+                                </div>
+                            </div>
+                            <div style="display: flex; gap: 0.5rem;">
+                                ${isIntegrityOk ? 
+                                    '<span style="color: #28a745; font-size: 0.75rem;"><i class="fas fa-check-circle"></i> Íntegro</span>' : 
+                                    '<span style="color: #dc3545; font-size: 0.75rem;"><i class="fas fa-exclamation-circle"></i> Corrompido</span>'
+                                }
+                            </div>
+                        </div>
+                        <div class="item-details" style="padding-top: 0.75rem; border-top: 1px solid var(--border-color); margin-top: 0.75rem;">
+                            <p style="margin: 0.5rem 0; font-size: 0.85rem;">
+                                <i class="fas fa-box"></i> <strong>Itens:</strong> ${backup.data.items?.length || 0} | 
+                                <i class="fas fa-users"></i> <strong>Clientes:</strong> ${backup.data.clients?.length || 0} | 
+                                <i class="fas fa-shopping-cart"></i> <strong>Vendas:</strong> ${backup.data.completedSales?.length || 0}
+                            </p>
+                            <div style="display: flex; gap: 0.5rem; margin-top: 0.75rem;">
+                                <button class="btn-small btn-secondary" onclick="app.restoreBackup('${backup.id}')" ${!isIntegrityOk ? 'disabled title="Backup corrompido"' : ''}>
+                                    <i class="fas fa-undo"></i> Restaurar
+                                </button>
+                                <button class="btn-small btn-secondary" onclick="app.downloadBackup('${backup.id}')">
+                                    <i class="fas fa-download"></i> Baixar
+                                </button>
+                                <button class="btn-small btn-delete" onclick="app.deleteBackup('${backup.id}')">
+                                    <i class="fas fa-times"></i> Excluir
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            })
+            .join('');
+    }
+
+    // Restaurar backup
+    async restoreBackup(backupId) {
+        const backup = this.backupHistory.find(b => b.id === backupId);
+        if (!backup) {
+            if (typeof toast !== 'undefined' && toast) {
+                toast.error('Backup não encontrado.', 3000);
+            }
+            return;
+        }
+
+        const username = sessionStorage.getItem('username');
+        
+        // Descriptografar backup se necessário
+        let backupData = backup.data;
+        if (backupData.encrypted && username) {
+            try {
+                backupData = await this.decryptBackup(backupData, username);
+            } catch (error) {
+                console.error('Erro ao descriptografar backup:', error);
+                if (typeof toast !== 'undefined' && toast) {
+                    toast.error('Erro ao descriptografar backup. Verifique se você está usando a mesma conta.', 4000);
+                }
+                return;
+            }
+        }
+
+        // Verificar integridade (usar dados descriptografados)
+        const currentChecksum = this.generateChecksum(backupData);
+        if (currentChecksum !== backup.checksum) {
+            if (typeof toast !== 'undefined' && toast) {
+                toast.warning('Backup pode estar corrompido. Continuar mesmo assim?', 5000);
+            }
+        }
+
+        const performRestore = (confirmed) => {
+            if (!confirmed) return;
+
+            try {
+                // Restaurar dados (já descriptografados)
+                this.items = backupData.items || [];
+                this.groups = backupData.groups || [];
+                this.serviceGroups = backupData.serviceGroups || [];
+                this.costs = backupData.costs || [];
+                this.goals = backupData.goals || [];
+                this.clients = backupData.clients || [];
+                this.clientNotifications = backupData.clientNotifications || [];
+                this.suppliers = backupData.suppliers || [];
+                this.completedSales = backupData.completedSales || [];
+                this.pendingOrders = backupData.pendingOrders || [];
+                this.serviceAppointments = backupData.serviceAppointments || [];
+                this.coupons = backupData.coupons || [];
+                this.auditLog = backupData.auditLog || [];
+                this.templates = backupData.templates || [];
+                this.itemTags = backupData.itemTags || {};
+
+                this.saveData();
+                this.renderItems();
+                this.renderGroups();
+                this.renderClients();
+                this.renderSuppliers();
+                this.renderCoupons();
+                this.renderTemplates();
+                this.updateTagFilter();
+
+                // Registrar no audit log
+                this.logAction('import', 'backup', backupId, 'Restauração de Backup', {
+                    backupTimestamp: backup.timestamp,
+                });
+
+                if (typeof toast !== 'undefined' && toast) {
+                    toast.success('Backup restaurado com sucesso!', 3000);
+                }
+
+                this.closeBackupModal();
+            } catch (error) {
+                console.error('Erro ao restaurar backup:', error);
+                if (typeof toast !== 'undefined' && toast) {
+                    toast.error('Erro ao restaurar backup. Verifique o console para mais detalhes.', 4000);
+                }
+            }
+        };
+
+        if (typeof confirmDialog !== 'undefined' && confirmDialog) {
+            confirmDialog.danger(
+                'Tem certeza que deseja restaurar este backup? Todos os dados atuais serão substituídos pelos dados do backup.',
+                'Restaurar Backup'
+            ).then(performRestore);
+        } else {
+            if (confirm('Tem certeza que deseja restaurar este backup?')) {
+                performRestore(true);
+            }
+        }
+    }
+
+    // Baixar backup
+    downloadBackup(backupId) {
+        const backup = this.backupHistory.find(b => b.id === backupId);
+        if (!backup) {
+            if (typeof toast !== 'undefined' && toast) {
+                toast.error('Backup não encontrado.', 3000);
+            }
+            return;
+        }
+
+        const blob = new Blob([JSON.stringify(backup.data, null, 2)], {
+            type: 'application/json',
+        });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `backup_${backupId}_${new Date(backup.timestamp).toISOString().split('T')[0]}.json`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+
+        if (typeof toast !== 'undefined' && toast) {
+            toast.success('Backup baixado com sucesso!', 3000);
+        }
+    }
+
+    // Excluir backup
+    deleteBackup(backupId) {
+        const backup = this.backupHistory.find(b => b.id === backupId);
+        const backupName = backup ? (backup.type === 'auto' ? 'Backup Automático' : 'Backup Manual') : 'este backup';
+
+        const performDelete = (confirmed) => {
+            if (!confirmed) return;
+
+            this.backupHistory = this.backupHistory.filter(b => b.id !== backupId);
+            const username = sessionStorage.getItem('username');
+            if (username) {
+                const backupHistoryKey = `backupHistory_${username}`;
+                localStorage.setItem(backupHistoryKey, JSON.stringify(this.backupHistory));
+            }
+
+            this.renderBackupHistory();
+
+            if (typeof toast !== 'undefined' && toast) {
+                toast.success(`Backup "${backupName}" excluído com sucesso!`, 3000);
+            }
+        };
+
+        if (typeof confirmDialog !== 'undefined' && confirmDialog) {
+            confirmDialog.danger(
+                `Tem certeza que deseja excluir o ${backupName}?`,
+                'Excluir Backup'
+            ).then(performDelete);
+        } else {
+            if (confirm(`Tem certeza que deseja excluir o ${backupName}?`)) {
+                performDelete(true);
+            }
+        }
+    }
+
+    // Exportar lista de clientes
+    exportClients() {
+        if (this.clients.length === 0) {
+            if (typeof toast !== 'undefined' && toast) {
+                toast.warning('Não há clientes cadastrados para exportar.', 3000);
+            } else {
+                alert('Não há clientes cadastrados para exportar.');
+            }
+            return;
+        }
+
+        // Criar CSV
+        const headers = ['Nome', 'CPF', 'Telefone', 'E-mail', 'Endereço', 'Pontos de Fidelidade', 'Total Gasto', 'Número de Compras', 'Observações'];
+        const rows = this.clients.map(client => {
+            const purchaseCount = this.completedSales.filter(sale => sale.customerName === client.name).length;
+            const totalSpent = this.completedSales
+                .filter(sale => sale.customerName === client.name)
+                .reduce((sum, sale) => sum + (sale.totalValue || 0), 0);
+            
+            return [
+                client.name || '',
+                client.cpf || '',
+                client.phone || '',
+                client.email || '',
+                client.address || '',
+                (client.loyaltyPoints || 0).toString(),
+                totalSpent.toFixed(2).replace('.', ','),
+                purchaseCount.toString(),
+                (client.notes || '').replace(/"/g, '""') // Escapar aspas no CSV
+            ];
+        });
+
+        const csvContent = [
+            headers.join(','),
+            ...rows.map(row => row.map(cell => `"${cell}"`).join(','))
+        ].join('\n');
+
+        // Adicionar BOM para Excel reconhecer UTF-8
+        const BOM = '\uFEFF';
+        const blob = new Blob([BOM + csvContent], { type: 'text/csv;charset=utf-8;' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `clientes_${new Date().toISOString().split('T')[0]}.csv`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+
+        // Registrar no audit log
+        this.logAction('export', 'client', null, 'Lista de Clientes', {
+            totalClients: this.clients.length
+        });
+
+        if (typeof toast !== 'undefined' && toast) {
+            toast.success(`Lista de ${this.clients.length} cliente(s) exportada com sucesso!`, 3000);
+        }
+    }
+
+    // Calcular desconto automático baseado em pontos de fidelidade
+    calculateLoyaltyDiscount(clientName, totalValue) {
+        const client = this.clients.find(c => c.name === clientName);
+        if (!client || !client.loyaltyPoints) {
+            return { discount: 0, pointsUsed: 0 };
+        }
+
+        // Regra: 1 ponto = R$ 0,10 de desconto
+        // Máximo de 50% do valor total
+        const maxDiscountFromPoints = client.loyaltyPoints * 0.10;
+        const maxDiscountPercent = totalValue * 0.50;
+        const discount = Math.min(maxDiscountFromPoints, maxDiscountPercent);
+        const pointsUsed = Math.ceil(discount / 0.10);
+
+        return {
+            discount: Math.round(discount * 100) / 100, // Arredondar para 2 casas decimais
+            pointsUsed: pointsUsed
+        };
+    }
+
+    // Adicionar pontos de fidelidade após uma venda
+    addLoyaltyPoints(clientName, saleValue) {
+        const client = this.clients.find(c => c.name === clientName);
+        if (!client) return;
+
+        // Regra: 1 ponto para cada R$ 10,00 gastos
+        const pointsEarned = Math.floor(saleValue / 10);
+        
+        if (!client.loyaltyPoints) {
+            client.loyaltyPoints = 0;
+        }
+        
+        client.loyaltyPoints += pointsEarned;
+        client.updatedAt = new Date().toISOString();
+        
+        this.saveData();
+        
+        if (pointsEarned > 0 && typeof toast !== 'undefined' && toast) {
+            toast.info(`Cliente "${clientName}" ganhou ${pointsEarned} ponto(s) de fidelidade!`, 3000);
+        }
+    }
+
+    // Criar notificação para cliente
+    createClientNotification(clientId, title, message, type = 'info') {
+        const notification = {
+            id: 'NOTIF_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9),
+            clientId: clientId,
+            title: title,
+            message: message,
+            type: type, // 'info', 'success', 'warning', 'promotion'
+            read: false,
+            createdAt: new Date().toISOString(),
+        };
+
+        this.clientNotifications.push(notification);
+        this.saveData();
+
+        return notification;
+    }
+
+    // Marcar notificação como lida
+    markNotificationAsRead(notificationId) {
+        const notification = this.clientNotifications.find(n => n.id === notificationId);
+        if (notification) {
+            notification.read = true;
+            notification.readAt = new Date().toISOString();
+            this.saveData();
+        }
+    }
+
+    // Obter notificações de um cliente
+    getClientNotifications(clientId) {
+        return this.clientNotifications
+            .filter(n => n.clientId === clientId)
+            .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+    }
+
+    // Calcular desconto baseado em campos do formulário
+    calculateDiscount(basePrice, quantity) {
+        const discountType = document.getElementById('saleDiscountType')?.value || '';
+        const discountValue = parseFloat(document.getElementById('saleDiscountValue')?.value || 0);
+        const couponCode = document.getElementById('saleCouponCode')?.value.trim().toUpperCase() || '';
+        
+        let discount = 0;
+        let appliedCoupon = null;
+        
+        // Verificar se há cupom aplicado
+        if (couponCode) {
+            const coupon = this.coupons.find(c => c.code === couponCode && c.active);
+            if (coupon) {
+                // Verificar período
+                const now = new Date();
+                const isValidPeriod = (!coupon.startsAt || new Date(coupon.startsAt) <= now) &&
+                                     (!coupon.expiresAt || new Date(coupon.expiresAt) >= now);
+                
+                // Verificar quantidade mínima
+                const hasMinQuantity = !coupon.minQuantity || quantity >= coupon.minQuantity;
+                
+                // Verificar limite de uso
+                const hasUsesLeft = !coupon.maxUses || (coupon.uses || 0) < coupon.maxUses;
+                
+                if (isValidPeriod && hasMinQuantity && hasUsesLeft) {
+                    appliedCoupon = coupon;
+                    if (coupon.type === 'percent') {
+                        discount = (basePrice * quantity * coupon.value) / 100;
+                    } else {
+                        discount = coupon.value;
+                    }
+                }
+            }
+        }
+        
+        // Se não houver cupom ou cupom não aplicável, verificar desconto manual
+        if (!appliedCoupon && discountType && discountValue > 0) {
+            if (discountType === 'percent') {
+                discount = (basePrice * quantity * discountValue) / 100;
+            } else {
+                discount = discountValue;
+            }
+        }
+        
+        // Limitar desconto ao valor total
+        const total = basePrice * quantity;
+        discount = Math.min(discount, total);
+        
+        return {
+            discount: Math.round(discount * 100) / 100,
+            discountType: discountType || (appliedCoupon ? appliedCoupon.type : ''),
+            discountValue: discountValue || (appliedCoupon ? appliedCoupon.value : 0),
+            couponCode: appliedCoupon ? appliedCoupon.code : null,
+        };
+    }
+
+    // Atualizar cálculo de desconto em tempo real
+    updateDiscountCalculation() {
+        const salePrice = document.getElementById('salePrice');
+        const saleQuantity = document.getElementById('saleQuantity');
+        const discountType = document.getElementById('saleDiscountType');
+        const discountValue = document.getElementById('saleDiscountValue');
+        const discountSummary = document.getElementById('discountSummary');
+        
+        if (!salePrice || !saleQuantity || !discountSummary) return;
+        
+        const basePrice = this.parsePrice(salePrice.value) || 0;
+        const quantity = parseInt(saleQuantity.value) || 0;
+        const baseTotal = basePrice * quantity;
+        
+        let discount = 0;
+        
+        if (discountType && discountValue && discountType.value && discountValue.value) {
+            const type = discountType.value;
+            const value = parseFloat(discountValue.value);
+            
+            if (type === 'percent') {
+                discount = (baseTotal * value) / 100;
+            } else {
+                discount = value;
+            }
+            
+            discount = Math.min(discount, baseTotal);
+        }
+        
+        const total = baseTotal - discount;
+        
+        discountSummary.innerHTML = `
+            <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 0.75rem; text-align: center;">
+                <div>
+                    <div style="font-size: 0.75rem; color: var(--gray-600); margin-bottom: 0.25rem;">Subtotal</div>
+                    <div style="font-weight: 600; color: var(--gray-800);">R$ ${baseTotal.toFixed(2).replace('.', ',')}</div>
+                </div>
+                <div>
+                    <div style="font-size: 0.75rem; color: var(--gray-600); margin-bottom: 0.25rem;">Desconto</div>
+                    <div style="font-weight: 600; color: ${discount > 0 ? '#28a745' : 'var(--gray-800)'};">R$ ${discount.toFixed(2).replace('.', ',')}</div>
+                </div>
+                <div>
+                    <div style="font-size: 0.75rem; color: var(--gray-600); margin-bottom: 0.25rem;">Total</div>
+                    <div style="font-weight: 700; font-size: 1.1rem; color: var(--primary-color);">R$ ${total.toFixed(2).replace('.', ',')}</div>
+                </div>
+            </div>
+        `;
+        discountSummary.style.display = 'block';
+    }
+
+    // Atualizar totais da venda (alias para updateDiscountCalculation)
+    updateSaleTotals() {
+        this.updateDiscountCalculation();
+    }
+
+    // Toggle campos de desconto
+    toggleDiscountFields() {
+        const discountFields = document.getElementById('discountFields');
+        const discountSummary = document.getElementById('discountSummary');
+        const toggleBtn = document.getElementById('toggleDiscountBtn');
+        
+        if (discountFields && discountSummary && toggleBtn) {
+            const isVisible = discountFields.style.display !== 'none';
+            
+            if (isVisible) {
+                discountFields.style.display = 'none';
+                discountSummary.style.display = 'none';
+                toggleBtn.innerHTML = '<i class="fas fa-plus"></i> Aplicar';
+                
+                // Limpar campos
+                const discountType = document.getElementById('saleDiscountType');
+                const discountValue = document.getElementById('saleDiscountValue');
+                const couponCode = document.getElementById('saleCouponCode');
+                if (discountType) discountType.value = '';
+                if (discountValue) discountValue.value = '';
+                if (couponCode) couponCode.value = '';
+            } else {
+                discountFields.style.display = 'block';
+                toggleBtn.innerHTML = '<i class="fas fa-times"></i> Remover';
+                this.updateDiscountCalculation();
+            }
+        }
     }
 
     // ========== ADMINISTRAÇÃO ==========
@@ -12401,6 +16400,116 @@ class LojaApp {
         });
     }
 
+    // ========== CALCULADORA FINANCEIRA ==========
+
+    // Calcular ROI por produto
+    calculateProductROI() {
+        const productSelect = document.getElementById('roiProductSelect');
+        const resultsDiv = document.getElementById('roiResults');
+        
+        if (!productSelect || !resultsDiv) return;
+        
+        const productId = productSelect.value;
+        if (!productId) {
+            resultsDiv.style.display = 'none';
+            return;
+        }
+        
+        const product = this.items.find(item => item.id === productId);
+        if (!product) {
+            resultsDiv.style.display = 'none';
+            return;
+        }
+        
+        const salePrice = product.price || 0;
+        const cost = product.cost || 0;
+        
+        if (cost <= 0) {
+            resultsDiv.innerHTML = `
+                <div style="text-align: center; padding: 1rem; color: var(--gray-600);">
+                    <i class="fas fa-info-circle"></i> Este produto não possui custo cadastrado.
+                    <br><small style="font-size: 0.75rem; margin-top: 0.5rem; display: block;">Adicione o custo de compra no cadastro do produto para calcular o ROI.</small>
+                </div>
+            `;
+            resultsDiv.style.display = 'block';
+            return;
+        }
+        
+        const profit = salePrice - cost;
+        const margin = salePrice > 0 ? ((profit / salePrice) * 100) : 0;
+        const roi = cost > 0 ? ((profit / cost) * 100) : 0;
+        
+        document.getElementById('roiSalePrice').textContent = `R$ ${salePrice.toFixed(2).replace('.', ',')}`;
+        document.getElementById('roiCost').textContent = `R$ ${cost.toFixed(2).replace('.', ',')}`;
+        document.getElementById('roiProfit').textContent = `R$ ${profit.toFixed(2).replace('.', ',')}`;
+        document.getElementById('roiMargin').textContent = `${margin.toFixed(2)}%`;
+        document.getElementById('roiValue').textContent = `${roi.toFixed(2)}%`;
+        
+        resultsDiv.style.display = 'block';
+    }
+
+    // Simular preço baseado em custo e margem
+    simulatePrice() {
+        const costInput = document.getElementById('simulatorCost');
+        const marginInput = document.getElementById('simulatorMargin');
+        const discountInput = document.getElementById('simulatorDiscount');
+        
+        if (!costInput || !marginInput || !discountInput) return;
+        
+        const cost = parseFloat(costInput.value) || 0;
+        const margin = parseFloat(marginInput.value) || 0;
+        const discount = parseFloat(discountInput.value) || 0;
+        
+        if (cost <= 0) {
+            document.getElementById('simulatorPrice').textContent = 'R$ 0,00';
+            document.getElementById('simulatorProfit').textContent = 'R$ 0,00';
+            document.getElementById('simulatorFinalPrice').textContent = 'R$ 0,00';
+            return;
+        }
+        
+        // Calcular preço de venda: custo / (1 - margem/100)
+        const suggestedPrice = cost / (1 - (margin / 100));
+        const profit = suggestedPrice - cost;
+        const finalPrice = suggestedPrice * (1 - (discount / 100));
+        
+        document.getElementById('simulatorPrice').textContent = `R$ ${suggestedPrice.toFixed(2).replace('.', ',')}`;
+        document.getElementById('simulatorProfit').textContent = `R$ ${profit.toFixed(2).replace('.', ',')}`;
+        document.getElementById('simulatorFinalPrice').textContent = `R$ ${finalPrice.toFixed(2).replace('.', ',')}`;
+    }
+
+    // Popular select de produtos para ROI
+    populateROIProductSelect() {
+        const select = document.getElementById('roiProductSelect');
+        if (!select) return;
+        
+        // Limpar opções existentes (exceto a primeira)
+        while (select.options.length > 1) {
+            select.remove(1);
+        }
+        
+        // Adicionar produtos que tenham custo cadastrado
+        this.items.forEach(item => {
+            if (item.cost && item.cost > 0) {
+                const option = document.createElement('option');
+                option.value = item.id;
+                const itemName = item.name || item.brand || item.model || `Produto ${item.id}`;
+                option.textContent = `${itemName} - R$ ${(item.price || 0).toFixed(2).replace('.', ',')}`;
+                select.appendChild(option);
+            }
+        });
+        
+        // Se não houver produtos com custo, adicionar todos os produtos
+        if (select.options.length === 1) {
+            this.items.forEach(item => {
+                const option = document.createElement('option');
+                option.value = item.id;
+                const itemName = item.name || item.brand || item.model || `Produto ${item.id}`;
+                option.textContent = `${itemName} - R$ ${(item.price || 0).toFixed(2).replace('.', ',')}`;
+                select.appendChild(option);
+            });
+        }
+    }
+
     importData(event) {
         const file = event.target.files[0];
         if (!file) return;
@@ -12449,6 +16558,4828 @@ class LojaApp {
 
         // Limpar input
         event.target.value = '';
+    }
+
+    // ========== BUSCA POR NOTAS ==========
+
+    // Abrir modal de busca por notas
+    openNotesSearchModal() {
+        const modal = document.getElementById('notesSearchModal');
+        if (!modal) {
+            console.error('Modal de busca por notas não encontrado');
+            return;
+        }
+        
+        const searchInput = document.getElementById('notesSearchInput');
+        if (searchInput) {
+            searchInput.value = '';
+            searchInput.focus();
+        }
+        
+        const resultsContainer = document.getElementById('notesSearchResults');
+        if (resultsContainer) {
+            resultsContainer.innerHTML = '<p style="text-align: center; color: var(--gray-600); padding: 2rem;">Digite um termo para buscar nas notas...</p>';
+        }
+        
+        modal.classList.add('active');
+    }
+
+    // Fechar modal de busca por notas
+    closeNotesSearchModal() {
+        const modal = document.getElementById('notesSearchModal');
+        if (modal) {
+            modal.classList.remove('active');
+        }
+    }
+
+    // Buscar por notas em todos os lugares
+    searchNotes(searchTerm) {
+        if (!searchTerm || searchTerm.trim() === '') {
+            return {
+                items: [],
+                clients: [],
+                suppliers: [],
+                sales: [],
+                appointments: []
+            };
+        }
+
+        const search = searchTerm.toLowerCase().trim();
+        const results = {
+            items: [],
+            clients: [],
+            suppliers: [],
+            sales: [],
+            appointments: []
+        };
+
+        // Buscar em produtos
+        this.items.forEach(item => {
+            if (item.notes && item.notes.toLowerCase().includes(search)) {
+                results.items.push({
+                    id: item.id,
+                    name: item.name || item.brand || item.model || `Produto ${item.id}`,
+                    notes: item.notes,
+                    type: 'item'
+                });
+            }
+        });
+
+        // Buscar em clientes
+        this.clients.forEach(client => {
+            if (client.notes && client.notes.toLowerCase().includes(search)) {
+                results.clients.push({
+                    id: client.id,
+                    name: client.name,
+                    notes: client.notes,
+                    type: 'client'
+                });
+            }
+        });
+
+        // Buscar em fornecedores
+        this.suppliers.forEach(supplier => {
+            if (supplier.notes && supplier.notes.toLowerCase().includes(search)) {
+                results.suppliers.push({
+                    id: supplier.id,
+                    name: supplier.name,
+                    notes: supplier.notes,
+                    type: 'supplier'
+                });
+            }
+        });
+
+        // Buscar em vendas
+        this.completedSales.forEach(sale => {
+            if (sale.notes && sale.notes.toLowerCase().includes(search)) {
+                results.sales.push({
+                    id: sale.id,
+                    name: sale.customerName,
+                    notes: sale.notes,
+                    date: sale.date,
+                    type: 'sale'
+                });
+            }
+        });
+
+        // Buscar em agendamentos
+        this.serviceAppointments.forEach(appointment => {
+            if (appointment.notes && appointment.notes.toLowerCase().includes(search)) {
+                results.appointments.push({
+                    id: appointment.id,
+                    name: appointment.customerName,
+                    notes: appointment.notes,
+                    date: appointment.date,
+                    type: 'appointment'
+                });
+            }
+        });
+
+        return results;
+    }
+
+    // Executar busca por notas e renderizar resultados
+    executeNotesSearch() {
+        const searchInput = document.getElementById('notesSearchInput');
+        const resultsContainer = document.getElementById('notesSearchResults');
+        
+        if (!searchInput || !resultsContainer) return;
+        
+        const searchTerm = searchInput.value.trim();
+        
+        if (!searchTerm) {
+            resultsContainer.innerHTML = '<p style="text-align: center; color: var(--gray-600); padding: 2rem;">Digite um termo para buscar nas notas...</p>';
+            return;
+        }
+        
+        const results = this.searchNotes(searchTerm);
+        const totalResults = results.items.length + results.clients.length + 
+                           results.suppliers.length + results.sales.length + 
+                           results.appointments.length;
+
+        if (totalResults === 0) {
+            resultsContainer.innerHTML = `
+                <div class="empty-state" style="grid-column: 1/-1;">
+                    <div class="empty-state-icon">
+                        <i class="fas fa-search"></i>
+                    </div>
+                    <h3 class="empty-state-title">Nenhum resultado encontrado</h3>
+                    <p class="empty-state-message">
+                        Não foram encontradas notas contendo "${this.escapeHtml(searchTerm)}"
+                    </p>
+                </div>
+            `;
+            return;
+        }
+
+        let html = `<div style="grid-column: 1/-1; margin-bottom: 1rem; padding: 1rem; background: var(--light-gray); border-radius: var(--radius-md);">
+            <h3 style="margin: 0 0 0.5rem 0; color: var(--primary-color);">
+                <i class="fas fa-search"></i> Resultados da busca: "${this.escapeHtml(searchTerm)}"
+            </h3>
+            <p style="margin: 0; color: var(--gray-600); font-size: 0.9rem;">
+                Encontrados ${totalResults} resultado(s)
+            </p>
+        </div>`;
+
+        // Produtos
+        if (results.items.length > 0) {
+            html += `<div style="grid-column: 1/-1; margin-bottom: 0.5rem;">
+                <h4 style="margin: 0 0 0.75rem 0; color: var(--dark-gray); font-size: 1rem;">
+                    <i class="fas fa-box"></i> Produtos (${results.items.length})
+                </h4>
+            </div>`;
+            results.items.forEach(item => {
+                html += `
+                    <div class="item-card">
+                        <div class="item-header">
+                            <h3>${this.escapeHtml(item.name)}</h3>
+                            <span style="font-size: 0.75rem; color: var(--gray-600);">Produto</span>
+                        </div>
+                        <div class="item-details">
+                            <p><i class="fas fa-sticky-note"></i> <strong>Nota:</strong> ${this.escapeHtml(item.notes)}</p>
+                        </div>
+                    </div>
+                `;
+            });
+        }
+
+        // Clientes
+        if (results.clients.length > 0) {
+            html += `<div style="grid-column: 1/-1; margin-top: 1rem; margin-bottom: 0.5rem;">
+                <h4 style="margin: 0 0 0.75rem 0; color: var(--dark-gray); font-size: 1rem;">
+                    <i class="fas fa-user"></i> Clientes (${results.clients.length})
+                </h4>
+            </div>`;
+            results.clients.forEach(client => {
+                html += `
+                    <div class="item-card">
+                        <div class="item-header">
+                            <h3>${this.escapeHtml(client.name)}</h3>
+                            <span style="font-size: 0.75rem; color: var(--gray-600);">Cliente</span>
+                        </div>
+                        <div class="item-details">
+                            <p><i class="fas fa-sticky-note"></i> <strong>Nota:</strong> ${this.escapeHtml(client.notes)}</p>
+                        </div>
+                    </div>
+                `;
+            });
+        }
+
+        // Fornecedores
+        if (results.suppliers.length > 0) {
+            html += `<div style="grid-column: 1/-1; margin-top: 1rem; margin-bottom: 0.5rem;">
+                <h4 style="margin: 0 0 0.75rem 0; color: var(--dark-gray); font-size: 1rem;">
+                    <i class="fas fa-truck"></i> Fornecedores (${results.suppliers.length})
+                </h4>
+            </div>`;
+            results.suppliers.forEach(supplier => {
+                html += `
+                    <div class="item-card">
+                        <div class="item-header">
+                            <h3>${this.escapeHtml(supplier.name)}</h3>
+                            <span style="font-size: 0.75rem; color: var(--gray-600);">Fornecedor</span>
+                        </div>
+                        <div class="item-details">
+                            <p><i class="fas fa-sticky-note"></i> <strong>Nota:</strong> ${this.escapeHtml(supplier.notes)}</p>
+                        </div>
+                    </div>
+                `;
+            });
+        }
+
+        // Vendas
+        if (results.sales.length > 0) {
+            html += `<div style="grid-column: 1/-1; margin-top: 1rem; margin-bottom: 0.5rem;">
+                <h4 style="margin: 0 0 0.75rem 0; color: var(--dark-gray); font-size: 1rem;">
+                    <i class="fas fa-shopping-cart"></i> Vendas (${results.sales.length})
+                </h4>
+            </div>`;
+            results.sales.forEach(sale => {
+                const saleDate = sale.date ? new Date(sale.date).toLocaleDateString('pt-BR') : 'N/A';
+                html += `
+                    <div class="item-card">
+                        <div class="item-header">
+                            <h3>${this.escapeHtml(sale.name)}</h3>
+                            <span style="font-size: 0.75rem; color: var(--gray-600);">Venda - ${saleDate}</span>
+                        </div>
+                        <div class="item-details">
+                            <p><i class="fas fa-sticky-note"></i> <strong>Nota:</strong> ${this.escapeHtml(sale.notes)}</p>
+                        </div>
+                    </div>
+                `;
+            });
+        }
+
+        // Agendamentos
+        if (results.appointments.length > 0) {
+            html += `<div style="grid-column: 1/-1; margin-top: 1rem; margin-bottom: 0.5rem;">
+                <h4 style="margin: 0 0 0.75rem 0; color: var(--dark-gray); font-size: 1rem;">
+                    <i class="fas fa-calendar-check"></i> Agendamentos (${results.appointments.length})
+                </h4>
+            </div>`;
+            results.appointments.forEach(appointment => {
+                const appointmentDate = appointment.date ? new Date(appointment.date).toLocaleDateString('pt-BR') : 'N/A';
+                html += `
+                    <div class="item-card">
+                        <div class="item-header">
+                            <h3>${this.escapeHtml(appointment.name)}</h3>
+                            <span style="font-size: 0.75rem; color: var(--gray-600);">Agendamento - ${appointmentDate}</span>
+                        </div>
+                        <div class="item-details">
+                            <p><i class="fas fa-sticky-note"></i> <strong>Nota:</strong> ${this.escapeHtml(appointment.notes)}</p>
+                        </div>
+                    </div>
+                `;
+            });
+        }
+
+        resultsContainer.innerHTML = html;
+    }
+
+    // ========== BUSCA AVANÇADA ==========
+
+    // Abrir modal de busca avançada
+    openAdvancedSearchModal() {
+        const modal = document.getElementById('advancedSearchModal');
+        if (!modal) {
+            console.error('Modal de busca avançada não encontrado');
+            return;
+        }
+        
+        const searchInput = document.getElementById('advancedSearchTerm');
+        if (searchInput) {
+            searchInput.value = '';
+            searchInput.focus();
+        }
+        
+        const resultsContainer = document.getElementById('advancedSearchResults');
+        if (resultsContainer) {
+            resultsContainer.innerHTML = '<p style="text-align: center; color: var(--gray-600); padding: 2rem;">Digite um termo e selecione onde buscar...</p>';
+        }
+        
+        modal.classList.add('active');
+    }
+
+    // Fechar modal de busca avançada
+    closeAdvancedSearchModal() {
+        const modal = document.getElementById('advancedSearchModal');
+        if (modal) {
+            modal.classList.remove('active');
+        }
+    }
+
+    // Limpar busca avançada
+    clearAdvancedSearch() {
+        const searchInput = document.getElementById('advancedSearchTerm');
+        const categorySelect = document.getElementById('advancedSearchCategory');
+        const dateRangeSelect = document.getElementById('advancedSearchDateRange');
+        const resultsContainer = document.getElementById('advancedSearchResults');
+        
+        if (searchInput) searchInput.value = '';
+        if (categorySelect) categorySelect.value = '';
+        if (dateRangeSelect) dateRangeSelect.value = '';
+        if (resultsContainer) {
+            resultsContainer.innerHTML = '<p style="text-align: center; color: var(--gray-600); padding: 2rem;">Digite um termo e selecione onde buscar...</p>';
+        }
+    }
+
+    // Executar busca avançada
+    executeAdvancedSearch() {
+        const searchTerm = document.getElementById('advancedSearchTerm')?.value.trim();
+        const resultsContainer = document.getElementById('advancedSearchResults');
+        
+        if (!resultsContainer) return;
+        
+        if (!searchTerm) {
+            resultsContainer.innerHTML = '<p style="text-align: center; color: var(--gray-600); padding: 2rem;">Digite um termo para buscar...</p>';
+            return;
+        }
+        
+        const search = searchTerm.toLowerCase();
+        const results = {
+            items: [],
+            clients: [],
+            suppliers: [],
+            sales: [],
+            appointments: []
+        };
+        
+        // Verificar quais entidades buscar
+        const searchInProducts = document.getElementById('searchInProducts')?.checked || false;
+        const searchInClients = document.getElementById('searchInClients')?.checked || false;
+        const searchInSuppliers = document.getElementById('searchInSuppliers')?.checked || false;
+        const searchInSales = document.getElementById('searchInSales')?.checked || false;
+        const searchInAppointments = document.getElementById('searchInAppointments')?.checked || false;
+        const searchInNotes = document.getElementById('searchInNotes')?.checked || false;
+        const categoryFilter = document.getElementById('advancedSearchCategory')?.value || '';
+        const dateRangeFilter = document.getElementById('advancedSearchDateRange')?.value || '';
+        
+        // Calcular range de datas se necessário
+        let dateStart = null;
+        let dateEnd = null;
+        if (dateRangeFilter) {
+            const now = new Date();
+            switch (dateRangeFilter) {
+                case 'today':
+                    dateStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+                    dateEnd = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1);
+                    break;
+                case 'week':
+                    const dayOfWeek = now.getDay();
+                    dateStart = new Date(now);
+                    dateStart.setDate(now.getDate() - dayOfWeek);
+                    dateStart.setHours(0, 0, 0, 0);
+                    dateEnd = new Date(dateStart);
+                    dateEnd.setDate(dateStart.getDate() + 7);
+                    break;
+                case 'month':
+                    dateStart = new Date(now.getFullYear(), now.getMonth(), 1);
+                    dateEnd = new Date(now.getFullYear(), now.getMonth() + 1, 1);
+                    break;
+                case 'quarter':
+                    const quarter = Math.floor(now.getMonth() / 3);
+                    dateStart = new Date(now.getFullYear(), quarter * 3, 1);
+                    dateEnd = new Date(now.getFullYear(), (quarter + 1) * 3, 1);
+                    break;
+                case 'year':
+                    dateStart = new Date(now.getFullYear(), 0, 1);
+                    dateEnd = new Date(now.getFullYear() + 1, 0, 1);
+                    break;
+            }
+        }
+        
+        // Buscar em produtos
+        if (searchInProducts) {
+            this.items.forEach(item => {
+                if (categoryFilter && item.category !== categoryFilter) return;
+                
+                const itemName = item.name || item.brand || item.model || '';
+                const itemBrand = item.brand || '';
+                const itemModel = item.model || '';
+                const itemStyle = item.style || '';
+                
+                const matches = 
+                    itemName.toLowerCase().includes(search) ||
+                    itemBrand.toLowerCase().includes(search) ||
+                    itemModel.toLowerCase().includes(search) ||
+                    itemStyle.toLowerCase().includes(search) ||
+                    (searchInNotes && item.notes && item.notes.toLowerCase().includes(search));
+                
+                if (matches) {
+                    results.items.push({
+                        id: item.id,
+                        name: itemName || itemBrand || itemModel || `Produto ${item.id}`,
+                        category: item.category,
+                        price: item.price,
+                        type: 'item'
+                    });
+                }
+            });
+        }
+        
+        // Buscar em clientes
+        if (searchInClients) {
+            this.clients.forEach(client => {
+                const matches = 
+                    client.name.toLowerCase().includes(search) ||
+                    (client.cpf && client.cpf.toLowerCase().includes(search)) ||
+                    (client.email && client.email.toLowerCase().includes(search)) ||
+                    (client.phone && client.phone.toLowerCase().includes(search)) ||
+                    (searchInNotes && client.notes && client.notes.toLowerCase().includes(search));
+                
+                if (matches) {
+                    results.clients.push({
+                        id: client.id,
+                        name: client.name,
+                        cpf: client.cpf,
+                        email: client.email,
+                        type: 'client'
+                    });
+                }
+            });
+        }
+        
+        // Buscar em fornecedores
+        if (searchInSuppliers) {
+            this.suppliers.forEach(supplier => {
+                const matches = 
+                    supplier.name.toLowerCase().includes(search) ||
+                    (supplier.cnpj && supplier.cnpj.toLowerCase().includes(search)) ||
+                    (supplier.email && supplier.email.toLowerCase().includes(search)) ||
+                    (supplier.phone && supplier.phone.toLowerCase().includes(search)) ||
+                    (searchInNotes && supplier.notes && supplier.notes.toLowerCase().includes(search));
+                
+                if (matches) {
+                    results.suppliers.push({
+                        id: supplier.id,
+                        name: supplier.name,
+                        cnpj: supplier.cnpj,
+                        type: 'supplier'
+                    });
+                }
+            });
+        }
+        
+        // Buscar em vendas
+        if (searchInSales) {
+            this.completedSales.forEach(sale => {
+                // Filtrar por data se necessário
+                if (dateStart && dateEnd) {
+                    const saleDate = new Date(sale.date);
+                    if (saleDate < dateStart || saleDate >= dateEnd) return;
+                }
+                
+                const matches = 
+                    sale.customerName.toLowerCase().includes(search) ||
+                    (sale.orderCode && sale.orderCode.toLowerCase().includes(search)) ||
+                    (sale.items && sale.items.some(item => item.name && item.name.toLowerCase().includes(search))) ||
+                    (searchInNotes && sale.notes && sale.notes.toLowerCase().includes(search));
+                
+                if (matches) {
+                    results.sales.push({
+                        id: sale.id,
+                        name: sale.customerName,
+                        orderCode: sale.orderCode,
+                        totalValue: sale.totalValue,
+                        date: sale.date,
+                        type: 'sale'
+                    });
+                }
+            });
+        }
+        
+        // Buscar em agendamentos
+        if (searchInAppointments) {
+            this.serviceAppointments.forEach(appointment => {
+                // Filtrar por data se necessário
+                if (dateStart && dateEnd) {
+                    const appointmentDate = new Date(appointment.date);
+                    if (appointmentDate < dateStart || appointmentDate >= dateEnd) return;
+                }
+                
+                const service = this.items.find(item => item.id === appointment.serviceTypeId);
+                const serviceName = service ? (service.name || service.brand || service.model) : '';
+                
+                const matches = 
+                    appointment.customerName.toLowerCase().includes(search) ||
+                    (appointment.customerContact && appointment.customerContact.toLowerCase().includes(search)) ||
+                    (serviceName && serviceName.toLowerCase().includes(search)) ||
+                    (searchInNotes && appointment.notes && appointment.notes.toLowerCase().includes(search));
+                
+                if (matches) {
+                    results.appointments.push({
+                        id: appointment.id,
+                        name: appointment.customerName,
+                        serviceName: serviceName,
+                        date: appointment.date,
+                        time: appointment.time,
+                        status: appointment.status,
+                        type: 'appointment'
+                    });
+                }
+            });
+        }
+        
+        // Renderizar resultados
+        this.renderAdvancedSearchResults(results, searchTerm);
+    }
+
+    // Renderizar resultados da busca avançada
+    renderAdvancedSearchResults(results, searchTerm) {
+        const resultsContainer = document.getElementById('advancedSearchResults');
+        if (!resultsContainer) return;
+        
+        const totalResults = results.items.length + results.clients.length + 
+                           results.suppliers.length + results.sales.length + 
+                           results.appointments.length;
+
+        if (totalResults === 0) {
+            resultsContainer.innerHTML = `
+                <div class="empty-state" style="grid-column: 1/-1;">
+                    <div class="empty-state-icon">
+                        <i class="fas fa-search"></i>
+                    </div>
+                    <h3 class="empty-state-title">Nenhum resultado encontrado</h3>
+                    <p class="empty-state-message">
+                        Não foram encontrados resultados para "${this.escapeHtml(searchTerm)}"
+                    </p>
+                </div>
+            `;
+            return;
+        }
+
+        let html = `<div style="grid-column: 1/-1; margin-bottom: 1rem; padding: 1rem; background: var(--light-gray); border-radius: var(--radius-md);">
+            <h3 style="margin: 0 0 0.5rem 0; color: var(--primary-color);">
+                <i class="fas fa-search"></i> Resultados da busca: "${this.escapeHtml(searchTerm)}"
+            </h3>
+            <p style="margin: 0; color: var(--gray-600); font-size: 0.9rem;">
+                Encontrados ${totalResults} resultado(s)
+            </p>
+        </div>`;
+
+        // Produtos
+        if (results.items.length > 0) {
+            html += `<div style="grid-column: 1/-1; margin-bottom: 0.5rem;">
+                <h4 style="margin: 0 0 0.75rem 0; color: var(--dark-gray); font-size: 1rem;">
+                    <i class="fas fa-box"></i> Produtos (${results.items.length})
+                </h4>
+            </div>`;
+            results.items.forEach(item => {
+                html += `
+                    <div class="item-card">
+                        <div class="item-header">
+                            <h3>${this.escapeHtml(item.name)}</h3>
+                            <span style="font-size: 0.75rem; color: var(--gray-600);">${item.category || 'Produto'}</span>
+                        </div>
+                        <div class="item-details">
+                            <p><i class="fas fa-dollar-sign"></i> Preço: R$ ${(item.price || 0).toFixed(2).replace('.', ',')}</p>
+                        </div>
+                    </div>
+                `;
+            });
+        }
+
+        // Clientes
+        if (results.clients.length > 0) {
+            html += `<div style="grid-column: 1/-1; margin-top: 1rem; margin-bottom: 0.5rem;">
+                <h4 style="margin: 0 0 0.75rem 0; color: var(--dark-gray); font-size: 1rem;">
+                    <i class="fas fa-user"></i> Clientes (${results.clients.length})
+                </h4>
+            </div>`;
+            results.clients.forEach(client => {
+                html += `
+                    <div class="item-card">
+                        <div class="item-header">
+                            <h3>${this.escapeHtml(client.name)}</h3>
+                            <span style="font-size: 0.75rem; color: var(--gray-600);">Cliente</span>
+                        </div>
+                        <div class="item-details">
+                            ${client.cpf ? `<p><i class="fas fa-id-card"></i> CPF: ${this.escapeHtml(client.cpf)}</p>` : ''}
+                            ${client.email ? `<p><i class="fas fa-envelope"></i> ${this.escapeHtml(client.email)}</p>` : ''}
+                        </div>
+                    </div>
+                `;
+            });
+        }
+
+        // Fornecedores
+        if (results.suppliers.length > 0) {
+            html += `<div style="grid-column: 1/-1; margin-top: 1rem; margin-bottom: 0.5rem;">
+                <h4 style="margin: 0 0 0.75rem 0; color: var(--dark-gray); font-size: 1rem;">
+                    <i class="fas fa-truck"></i> Fornecedores (${results.suppliers.length})
+                </h4>
+            </div>`;
+            results.suppliers.forEach(supplier => {
+                html += `
+                    <div class="item-card">
+                        <div class="item-header">
+                            <h3>${this.escapeHtml(supplier.name)}</h3>
+                            <span style="font-size: 0.75rem; color: var(--gray-600);">Fornecedor</span>
+                        </div>
+                        <div class="item-details">
+                            ${supplier.cnpj ? `<p><i class="fas fa-building"></i> CNPJ: ${this.escapeHtml(supplier.cnpj)}</p>` : ''}
+                        </div>
+                    </div>
+                `;
+            });
+        }
+
+        // Vendas
+        if (results.sales.length > 0) {
+            html += `<div style="grid-column: 1/-1; margin-top: 1rem; margin-bottom: 0.5rem;">
+                <h4 style="margin: 0 0 0.75rem 0; color: var(--dark-gray); font-size: 1rem;">
+                    <i class="fas fa-shopping-cart"></i> Vendas (${results.sales.length})
+                </h4>
+            </div>`;
+            results.sales.forEach(sale => {
+                const saleDate = sale.date ? new Date(sale.date).toLocaleDateString('pt-BR') : 'N/A';
+                html += `
+                    <div class="item-card">
+                        <div class="item-header">
+                            <h3>${this.escapeHtml(sale.name)}</h3>
+                            <span style="font-size: 0.75rem; color: var(--gray-600);">Venda - ${saleDate}</span>
+                        </div>
+                        <div class="item-details">
+                            ${sale.orderCode ? `<p><i class="fas fa-barcode"></i> Código: ${this.escapeHtml(sale.orderCode)}</p>` : ''}
+                            <p><i class="fas fa-dollar-sign"></i> Total: R$ ${(sale.totalValue || 0).toFixed(2).replace('.', ',')}</p>
+                        </div>
+                    </div>
+                `;
+            });
+        }
+
+        // Agendamentos
+        if (results.appointments.length > 0) {
+            html += `<div style="grid-column: 1/-1; margin-top: 1rem; margin-bottom: 0.5rem;">
+                <h4 style="margin: 0 0 0.75rem 0; color: var(--dark-gray); font-size: 1rem;">
+                    <i class="fas fa-calendar-check"></i> Agendamentos (${results.appointments.length})
+                </h4>
+            </div>`;
+            results.appointments.forEach(appointment => {
+                const appointmentDate = appointment.date ? new Date(appointment.date).toLocaleDateString('pt-BR') : 'N/A';
+                const statusNames = {
+                    pending: 'Pendente',
+                    confirmed: 'Confirmado',
+                    completed: 'Concluído',
+                    cancelled: 'Cancelado'
+                };
+                html += `
+                    <div class="item-card">
+                        <div class="item-header">
+                            <h3>${this.escapeHtml(appointment.name)}</h3>
+                            <span style="font-size: 0.75rem; color: var(--gray-600);">Agendamento - ${appointmentDate}</span>
+                        </div>
+                        <div class="item-details">
+                            ${appointment.serviceName ? `<p><i class="fas fa-tools"></i> Serviço: ${this.escapeHtml(appointment.serviceName)}</p>` : ''}
+                            ${appointment.time ? `<p><i class="fas fa-clock"></i> Horário: ${this.escapeHtml(appointment.time)}</p>` : ''}
+                            <p><i class="fas fa-info-circle"></i> Status: ${statusNames[appointment.status] || appointment.status}</p>
+                        </div>
+                    </div>
+                `;
+            });
+        }
+
+        resultsContainer.innerHTML = html;
+    }
+
+    // ========== HISTÓRICO DE PROMOÇÕES ==========
+
+    // Abrir modal de histórico de promoções
+    openPromotionHistoryModal() {
+        const modal = document.getElementById('promotionHistoryModal');
+        if (!modal) {
+            console.error('Modal de histórico de promoções não encontrado');
+            return;
+        }
+        
+        this.populatePromotionHistoryFilter();
+        this.renderPromotionHistory();
+        modal.classList.add('active');
+    }
+
+    // Fechar modal de histórico de promoções
+    closePromotionHistoryModal() {
+        const modal = document.getElementById('promotionHistoryModal');
+        if (modal) {
+            modal.classList.remove('active');
+        }
+    }
+
+    // Popular filtro de cupons no histórico
+    populatePromotionHistoryFilter() {
+        const filter = document.getElementById('promotionHistoryFilter');
+        if (!filter) return;
+        
+        // Limpar opções existentes (exceto a primeira)
+        while (filter.options.length > 1) {
+            filter.remove(1);
+        }
+        
+        // Adicionar cupons
+        this.coupons.forEach(coupon => {
+            const option = document.createElement('option');
+            option.value = coupon.code;
+            option.textContent = `${coupon.code} - ${coupon.description || 'Sem descrição'}`;
+            filter.appendChild(option);
+        });
+    }
+
+    // Renderizar histórico de promoções
+    renderPromotionHistory() {
+        const container = document.getElementById('promotionHistoryList');
+        const filter = document.getElementById('promotionHistoryFilter');
+        
+        if (!container) return;
+        
+        const selectedCouponCode = filter ? filter.value : '';
+        
+        // Buscar vendas que usaram cupons
+        const salesWithCoupons = this.completedSales.filter(sale => 
+            sale.discount && sale.discount.couponCode &&
+            (!selectedCouponCode || sale.discount.couponCode === selectedCouponCode)
+        );
+        
+        if (salesWithCoupons.length === 0) {
+            container.innerHTML = `
+                <div class="empty-state" style="grid-column: 1/-1;">
+                    <div class="empty-state-icon">
+                        <i class="fas fa-history"></i>
+                    </div>
+                    <h3 class="empty-state-title">Nenhum uso de cupom encontrado</h3>
+                    <p class="empty-state-message">
+                        ${selectedCouponCode ? 'Este cupom ainda não foi usado em nenhuma venda.' : 'Ainda não há vendas que utilizaram cupons de desconto.'}
+                    </p>
+                </div>
+            `;
+            return;
+        }
+        
+        // Agrupar por cupom
+        const historyByCoupon = {};
+        salesWithCoupons.forEach(sale => {
+            const couponCode = sale.discount.couponCode;
+            if (!historyByCoupon[couponCode]) {
+                const coupon = this.coupons.find(c => c.code === couponCode);
+                historyByCoupon[couponCode] = {
+                    coupon: coupon,
+                    sales: [],
+                    totalDiscount: 0,
+                    totalValue: 0
+                };
+            }
+            historyByCoupon[couponCode].sales.push(sale);
+            historyByCoupon[couponCode].totalDiscount += sale.discount.amount || 0;
+            historyByCoupon[couponCode].totalValue += sale.totalValue || 0;
+        });
+        
+        let html = '';
+        
+        // Renderizar por cupom
+        Object.keys(historyByCoupon).forEach(couponCode => {
+            const history = historyByCoupon[couponCode];
+            const coupon = history.coupon;
+            
+            html += `
+                <div style="margin-bottom: 2rem; padding: 1.5rem; background: var(--white); border: 1px solid var(--border-color); border-radius: var(--radius-md);">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; padding-bottom: 1rem; border-bottom: 2px solid var(--border-color);">
+                        <div>
+                            <h3 style="margin: 0; color: var(--primary-color);">
+                                <i class="fas fa-tag"></i> ${this.escapeHtml(couponCode)}
+                            </h3>
+                            ${coupon ? `
+                                <p style="margin: 0.5rem 0 0 0; color: var(--gray-600); font-size: 0.9rem;">
+                                    ${coupon.type === 'percent' ? `${coupon.value}%` : `R$ ${coupon.value.toFixed(2).replace('.', ',')}`} de desconto
+                                    ${coupon.description ? ` - ${this.escapeHtml(coupon.description)}` : ''}
+                                </p>
+                            ` : ''}
+                        </div>
+                        <div style="text-align: right;">
+                            <p style="margin: 0; font-size: 0.85rem; color: var(--gray-600);">Total de usos</p>
+                            <p style="margin: 0.25rem 0 0 0; font-size: 1.5rem; font-weight: 700; color: var(--primary-color);">
+                                ${history.sales.length}
+                            </p>
+                        </div>
+                    </div>
+                    
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 1.5rem;">
+                        <div style="padding: 1rem; background: var(--light-gray); border-radius: var(--radius-sm);">
+                            <p style="margin: 0; font-size: 0.85rem; color: var(--gray-600);">Total em Descontos</p>
+                            <p style="margin: 0.25rem 0 0 0; font-size: 1.2rem; font-weight: 600; color: #28a745;">
+                                R$ ${history.totalDiscount.toFixed(2).replace('.', ',')}
+                            </p>
+                        </div>
+                        <div style="padding: 1rem; background: var(--light-gray); border-radius: var(--radius-sm);">
+                            <p style="margin: 0; font-size: 0.85rem; color: var(--gray-600);">Valor Total das Vendas</p>
+                            <p style="margin: 0.25rem 0 0 0; font-size: 1.2rem; font-weight: 600; color: var(--primary-color);">
+                                R$ ${history.totalValue.toFixed(2).replace('.', ',')}
+                            </p>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <h4 style="margin: 0 0 1rem 0; color: var(--dark-gray); font-size: 1rem;">
+                            <i class="fas fa-shopping-cart"></i> Vendas que usaram este cupom (${history.sales.length})
+                        </h4>
+                        <div style="display: flex; flex-direction: column; gap: 0.75rem;">
+                            ${history.sales.map(sale => {
+                                const saleDate = sale.date ? new Date(sale.date).toLocaleDateString('pt-BR') : 'N/A';
+                                const saleTime = sale.date ? new Date(sale.date).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }) : '';
+                                return `
+                                    <div style="padding: 1rem; background: var(--light-gray); border-radius: var(--radius-sm); border-left: 3px solid var(--primary-color);">
+                                        <div style="display: flex; justify-content: space-between; align-items: start; flex-wrap: wrap; gap: 0.5rem;">
+                                            <div style="flex: 1;">
+                                                <p style="margin: 0; font-weight: 600; color: var(--dark-gray);">
+                                                    ${this.escapeHtml(sale.customerName || 'Cliente não informado')}
+                                                </p>
+                                                <p style="margin: 0.25rem 0 0 0; font-size: 0.85rem; color: var(--gray-600);">
+                                                    <i class="fas fa-calendar"></i> ${saleDate} ${saleTime ? `às ${saleTime}` : ''}
+                                                    ${sale.orderCode ? ` | <i class="fas fa-barcode"></i> ${this.escapeHtml(sale.orderCode)}` : ''}
+                                                </p>
+                                            </div>
+                                            <div style="text-align: right;">
+                                                <p style="margin: 0; font-size: 0.85rem; color: var(--gray-600);">Desconto aplicado</p>
+                                                <p style="margin: 0.25rem 0 0 0; font-weight: 600; color: #28a745;">
+                                                    - R$ ${(sale.discount.amount || 0).toFixed(2).replace('.', ',')}
+                                                </p>
+                                                <p style="margin: 0.25rem 0 0 0; font-size: 0.85rem; color: var(--gray-600);">
+                                                    Total: R$ ${(sale.totalValue || 0).toFixed(2).replace('.', ',')}
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                `;
+                            }).join('')}
+                        </div>
+                    </div>
+                </div>
+            `;
+        });
+        
+        container.innerHTML = html;
+    }
+
+    // ========== SISTEMA DE ALERTAS ==========
+
+    // Verificar alertas de metas próximas
+    checkGoalsAlerts() {
+        const now = new Date();
+        const currentMonth = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+        const currentGoal = this.goals.find((g) => g.month === currentMonth);
+        
+        if (!currentGoal) return;
+        
+        const currentSales = this.getMonthSales(currentMonth);
+        const progress = (currentSales / currentGoal.amount) * 100;
+        const daysInMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
+        const daysRemaining = daysInMonth - now.getDate();
+        
+        // Alerta se está entre 75-95% e faltam menos de 7 dias
+        if (progress >= 75 && progress < 100 && daysRemaining <= 7) {
+            const remaining = currentGoal.amount - currentSales;
+            if (typeof toast !== 'undefined' && toast) {
+                toast.warning(
+                    `Meta do mês: ${progress.toFixed(1)}% concluída. Faltam R$ ${remaining.toFixed(2).replace('.', ',')} e ${daysRemaining} dia(s) restante(s)!`,
+                    5000
+                );
+            }
+        }
+    }
+
+    // Verificar lembretes de agendamentos
+    checkAppointmentsReminders() {
+        const now = new Date();
+        const tomorrow = new Date(now);
+        tomorrow.setDate(tomorrow.getDate() + 1);
+        tomorrow.setHours(0, 0, 0, 0);
+        
+        const todayEnd = new Date(now);
+        todayEnd.setHours(23, 59, 59, 999);
+        
+        // Agendamentos hoje
+        const todayAppointments = this.serviceAppointments.filter(apt => {
+            if (apt.status === 'completed' || apt.status === 'cancelled') return false;
+            const aptDate = new Date(`${apt.date}T${apt.time}`);
+            return aptDate >= now && aptDate <= todayEnd;
+        });
+        
+        // Agendamentos amanhã
+        const tomorrowEnd = new Date(tomorrow);
+        tomorrowEnd.setHours(23, 59, 59, 999);
+        const tomorrowAppointments = this.serviceAppointments.filter(apt => {
+            if (apt.status === 'completed' || apt.status === 'cancelled') return false;
+            const aptDate = new Date(`${apt.date}T${apt.time}`);
+            return aptDate >= tomorrow && aptDate <= tomorrowEnd;
+        });
+        
+        // Mostrar alertas (apenas uma vez por sessão)
+        if (todayAppointments.length > 0 && !sessionStorage.getItem('todayAppointmentsAlerted')) {
+            if (typeof toast !== 'undefined' && toast) {
+                toast.info(
+                    `Você tem ${todayAppointments.length} agendamento(s) hoje!`,
+                    4000
+                );
+                sessionStorage.setItem('todayAppointmentsAlerted', 'true');
+            }
+        }
+        
+        if (tomorrowAppointments.length > 0 && !sessionStorage.getItem('tomorrowAppointmentsAlerted')) {
+            if (typeof toast !== 'undefined' && toast) {
+                toast.info(
+                    `Você tem ${tomorrowAppointments.length} agendamento(s) amanhã!`,
+                    4000
+                );
+                sessionStorage.setItem('tomorrowAppointmentsAlerted', 'true');
+            }
+        }
+    }
+
+    // Verificar pedidos vencidos ou próximos do vencimento
+    checkPendingOrdersAlerts() {
+        const now = new Date();
+        now.setHours(0, 0, 0, 0);
+        
+        const expiredOrders = this.pendingOrders.filter(order => {
+            if (!order.dueDate || order.status === 'cancelled' || order.status === 'completed') return false;
+            const dueDate = new Date(order.dueDate);
+            dueDate.setHours(0, 0, 0, 0);
+            return dueDate < now;
+        });
+        
+        const expiringSoonOrders = this.pendingOrders.filter(order => {
+            if (!order.dueDate || order.status === 'cancelled' || order.status === 'completed') return false;
+            const dueDate = new Date(order.dueDate);
+            dueDate.setHours(0, 0, 0, 0);
+            const daysUntilDue = Math.ceil((dueDate - now) / (1000 * 60 * 60 * 24));
+            return daysUntilDue >= 0 && daysUntilDue <= 3;
+        });
+        
+        if (expiredOrders.length > 0 && !sessionStorage.getItem('expiredOrdersAlerted')) {
+            if (typeof toast !== 'undefined' && toast) {
+                toast.error(
+                    `Atenção! ${expiredOrders.length} pedido(s) vencido(s) precisam de atenção.`,
+                    5000
+                );
+                sessionStorage.setItem('expiredOrdersAlerted', 'true');
+            }
+        }
+        
+        if (expiringSoonOrders.length > 0 && !sessionStorage.getItem('expiringSoonOrdersAlerted')) {
+            if (typeof toast !== 'undefined' && toast) {
+                toast.warning(
+                    `${expiringSoonOrders.length} pedido(s) vence(m) em até 3 dias!`,
+                    4000
+                );
+                sessionStorage.setItem('expiringSoonOrdersAlerted', 'true');
+            }
+        }
+    }
+
+    // ========== CONSTRUTOR DE RELATÓRIOS PERSONALIZADOS ==========
+
+    // Abrir modal de construtor de relatórios
+    openReportBuilderModal() {
+        const modal = document.getElementById('reportBuilderModal');
+        if (!modal) {
+            console.error('Modal de construtor de relatórios não encontrado');
+            return;
+        }
+        
+        // Limpar formulário
+        const form = document.getElementById('reportBuilderForm');
+        if (form) form.reset();
+        
+        // Definir datas padrão (mês atual)
+        const now = new Date();
+        const firstDay = new Date(now.getFullYear(), now.getMonth(), 1);
+        const lastDay = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+        
+        const startDateInput = document.getElementById('reportBuilderStartDate');
+        const endDateInput = document.getElementById('reportBuilderEndDate');
+        if (startDateInput) {
+            startDateInput.value = firstDay.toISOString().split('T')[0];
+        }
+        if (endDateInput) {
+            endDateInput.value = lastDay.toISOString().split('T')[0];
+        }
+        
+        modal.classList.add('active');
+    }
+
+    // Fechar modal de construtor de relatórios
+    closeReportBuilderModal() {
+        const modal = document.getElementById('reportBuilderModal');
+        if (modal) {
+            modal.classList.remove('active');
+        }
+    }
+
+    // Atualizar campos do construtor baseado no tipo
+    updateReportBuilderFields() {
+        const type = document.getElementById('reportBuilderType')?.value;
+        const filtersDiv = document.getElementById('reportBuilderFilters');
+        
+        if (!filtersDiv) return;
+        
+        // Mostrar/ocultar filtros específicos baseado no tipo
+        const categoryFilter = document.getElementById('reportBuilderCategory')?.parentElement;
+        const statusFilter = document.getElementById('reportBuilderStatus')?.parentElement;
+        
+        if (categoryFilter) {
+            categoryFilter.style.display = (type === 'products' || type === 'sales') ? 'block' : 'none';
+        }
+        if (statusFilter) {
+            statusFilter.style.display = (type === 'sales' || type === 'services') ? 'block' : 'none';
+        }
+    }
+
+    // Definir período pré-definido
+    setReportBuilderPeriod() {
+        const period = document.getElementById('reportBuilderPeriod')?.value;
+        if (!period || period === '') return;
+        
+        const now = new Date();
+        let startDate, endDate;
+        
+        switch (period) {
+            case 'today':
+                startDate = new Date(now);
+                endDate = new Date(now);
+                break;
+            case 'week':
+                const dayOfWeek = now.getDay();
+                startDate = new Date(now);
+                startDate.setDate(now.getDate() - dayOfWeek);
+                endDate = new Date(now);
+                endDate.setDate(now.getDate() + (6 - dayOfWeek));
+                break;
+            case 'month':
+                startDate = new Date(now.getFullYear(), now.getMonth(), 1);
+                endDate = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+                break;
+            case 'quarter':
+                const quarter = Math.floor(now.getMonth() / 3);
+                startDate = new Date(now.getFullYear(), quarter * 3, 1);
+                endDate = new Date(now.getFullYear(), (quarter + 1) * 3, 0);
+                break;
+            case 'year':
+                startDate = new Date(now.getFullYear(), 0, 1);
+                endDate = new Date(now.getFullYear(), 11, 31);
+                break;
+            case 'lastMonth':
+                startDate = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+                endDate = new Date(now.getFullYear(), now.getMonth(), 0);
+                break;
+            case 'lastQuarter':
+                const lastQuarter = Math.floor(now.getMonth() / 3) - 1;
+                const lastQuarterYear = lastQuarter < 0 ? now.getFullYear() - 1 : now.getFullYear();
+                const lastQuarterMonth = lastQuarter < 0 ? 9 : lastQuarter * 3;
+                startDate = new Date(lastQuarterYear, lastQuarterMonth, 1);
+                endDate = new Date(lastQuarterYear, lastQuarterMonth + 3, 0);
+                break;
+            case 'lastYear':
+                startDate = new Date(now.getFullYear() - 1, 0, 1);
+                endDate = new Date(now.getFullYear() - 1, 11, 31);
+                break;
+            default:
+                return;
+        }
+        
+        const startDateInput = document.getElementById('reportBuilderStartDate');
+        const endDateInput = document.getElementById('reportBuilderEndDate');
+        if (startDateInput) startDateInput.value = startDate.toISOString().split('T')[0];
+        if (endDateInput) endDateInput.value = endDate.toISOString().split('T')[0];
+    }
+
+    // Gerar relatório personalizado
+    generateCustomReport(e) {
+        if (e) e.preventDefault();
+        
+        const type = document.getElementById('reportBuilderType')?.value;
+        const startDate = document.getElementById('reportBuilderStartDate')?.value;
+        const endDate = document.getElementById('reportBuilderEndDate')?.value;
+        const format = document.getElementById('reportBuilderFormat')?.value;
+        const includeCharts = document.getElementById('reportBuilderIncludeCharts')?.checked || false;
+        const includeSummary = document.getElementById('reportBuilderIncludeSummary')?.checked || false;
+        const category = document.getElementById('reportBuilderCategory')?.value || '';
+        const status = document.getElementById('reportBuilderStatus')?.value || '';
+        
+        if (!type || !format) {
+            if (typeof toast !== 'undefined' && toast) {
+                toast.warning('Por favor, preencha todos os campos obrigatórios.', 3000);
+            }
+            return;
+        }
+        
+        if (!startDate || !endDate) {
+            if (typeof toast !== 'undefined' && toast) {
+                toast.warning('Por favor, selecione o período do relatório.', 3000);
+            }
+            return;
+        }
+        
+        // Coletar dados baseado no tipo
+        let reportData = {};
+        let reportTitle = '';
+        
+        const start = new Date(startDate);
+        const end = new Date(endDate);
+        end.setHours(23, 59, 59, 999);
+        
+        switch (type) {
+            case 'sales':
+                reportTitle = 'Relatório de Vendas';
+                reportData = this.generateSalesReport(start, end, category, status);
+                break;
+            case 'services':
+                reportTitle = 'Relatório de Serviços';
+                reportData = this.generateServicesReport(start, end, status);
+                break;
+            case 'products':
+                reportTitle = 'Relatório de Produtos';
+                reportData = this.generateProductsReport(start, end, category);
+                break;
+            case 'clients':
+                reportTitle = 'Relatório de Clientes';
+                reportData = this.generateClientsReport(start, end);
+                break;
+            case 'financial':
+                reportTitle = 'Relatório Financeiro';
+                reportData = this.generateFinancialReport(start, end);
+                break;
+            case 'custom':
+                reportTitle = 'Relatório Personalizado';
+                reportData = this.generateCustomCombinedReport(start, end, category, status);
+                break;
+        }
+        
+        // Exportar no formato selecionado
+        this.exportReport(reportData, reportTitle, format, includeCharts, includeSummary);
+        
+        // Fechar modal
+        this.closeReportBuilderModal();
+        
+        if (typeof toast !== 'undefined' && toast) {
+            toast.success('Relatório gerado com sucesso!', 3000);
+        }
+    }
+
+    // Gerar relatório de vendas
+    generateSalesReport(startDate, endDate, category, status) {
+        const sales = this.completedSales.filter(sale => {
+            const saleDate = sale.date ? new Date(sale.date) : new Date(sale.createdAt);
+            const matchesDate = saleDate >= startDate && saleDate <= endDate;
+            const matchesCategory = !category || sale.items?.some(item => {
+                const product = this.items.find(i => i.id === item.itemId);
+                return product && product.category === category;
+            });
+            const matchesStatus = !status || sale.status === status;
+            return matchesDate && matchesCategory && matchesStatus;
+        });
+        
+        const totalValue = sales.reduce((sum, sale) => sum + (sale.totalValue || 0), 0);
+        const totalDiscount = sales.reduce((sum, sale) => sum + (sale.discount?.amount || 0), 0);
+        const totalItems = sales.reduce((sum, sale) => sum + (sale.items?.reduce((s, i) => s + (i.quantity || 0), 0) || 0), 0);
+        
+        return {
+            type: 'sales',
+            period: { start: startDate, end: endDate },
+            summary: {
+                totalSales: sales.length,
+                totalValue: totalValue,
+                totalDiscount: totalDiscount,
+                totalItems: totalItems,
+                averageTicket: sales.length > 0 ? totalValue / sales.length : 0
+            },
+            data: sales,
+            generatedAt: new Date().toISOString()
+        };
+    }
+
+    // Gerar relatório de serviços
+    generateServicesReport(startDate, endDate, status) {
+        const services = this.serviceAppointments.filter(apt => {
+            const aptDate = new Date(`${apt.date}T${apt.time || '00:00'}`);
+            const matchesDate = aptDate >= startDate && aptDate <= endDate;
+            const matchesStatus = !status || apt.status === status;
+            return matchesDate && matchesStatus;
+        });
+        
+        const totalValue = services.reduce((sum, apt) => sum + (apt.price || 0), 0);
+        const totalHours = services.reduce((sum, apt) => {
+            const service = this.items.find(i => i.id === apt.serviceTypeId);
+            if (service && service.duration) {
+                const [hours, minutes] = service.duration.split(':').map(Number);
+                return sum + hours + (minutes / 60);
+            }
+            return sum;
+        }, 0);
+        
+        return {
+            type: 'services',
+            period: { start: startDate, end: endDate },
+            summary: {
+                totalServices: services.length,
+                totalValue: totalValue,
+                totalHours: totalHours,
+                averageValue: services.length > 0 ? totalValue / services.length : 0
+            },
+            data: services,
+            generatedAt: new Date().toISOString()
+        };
+    }
+
+    // Gerar relatório de produtos
+    generateProductsReport(startDate, endDate, category) {
+        const filteredItems = this.items.filter(item => {
+            if (item.category === 'Serviços') return false;
+            const matchesCategory = !category || item.category === category;
+            return matchesCategory;
+        });
+        
+        // Calcular estatísticas de vendas por produto
+        const productStats = filteredItems.map(item => {
+            const sales = this.completedSales.filter(sale => {
+                const saleDate = sale.date ? new Date(sale.date) : new Date(sale.createdAt);
+                return saleDate >= startDate && saleDate <= endDate &&
+                       sale.items?.some(i => i.itemId === item.id);
+            });
+            
+            const quantitySold = sales.reduce((sum, sale) => {
+                const saleItem = sale.items?.find(i => i.itemId === item.id);
+                return sum + (saleItem?.quantity || 0);
+            }, 0);
+            
+            const revenue = sales.reduce((sum, sale) => {
+                const saleItem = sale.items?.find(i => i.itemId === item.id);
+                return sum + ((saleItem?.price || 0) * (saleItem?.quantity || 0));
+            }, 0);
+            
+            return {
+                item: item,
+                quantitySold: quantitySold,
+                revenue: revenue,
+                salesCount: sales.length
+            };
+        });
+        
+        return {
+            type: 'products',
+            period: { start: startDate, end: endDate },
+            summary: {
+                totalProducts: filteredItems.length,
+                totalRevenue: productStats.reduce((sum, p) => sum + p.revenue, 0),
+                totalQuantitySold: productStats.reduce((sum, p) => sum + p.quantitySold, 0)
+            },
+            data: productStats,
+            generatedAt: new Date().toISOString()
+        };
+    }
+
+    // Gerar relatório de clientes
+    generateClientsReport(startDate, endDate) {
+        const clientStats = this.clients.map(client => {
+            const sales = this.completedSales.filter(sale => {
+                const saleDate = sale.date ? new Date(sale.date) : new Date(sale.createdAt);
+                return sale.customerName === client.name &&
+                       saleDate >= startDate && saleDate <= endDate;
+            });
+            
+            const totalSpent = sales.reduce((sum, sale) => sum + (sale.totalValue || 0), 0);
+            
+            return {
+                client: client,
+                salesCount: sales.length,
+                totalSpent: totalSpent,
+                averageTicket: sales.length > 0 ? totalSpent / sales.length : 0
+            };
+        });
+        
+        return {
+            type: 'clients',
+            period: { start: startDate, end: endDate },
+            summary: {
+                totalClients: this.clients.length,
+                activeClients: clientStats.filter(c => c.salesCount > 0).length,
+                totalRevenue: clientStats.reduce((sum, c) => sum + c.totalSpent, 0)
+            },
+            data: clientStats,
+            generatedAt: new Date().toISOString()
+        };
+    }
+
+    // Gerar relatório financeiro
+    generateFinancialReport(startDate, endDate) {
+        const sales = this.completedSales.filter(sale => {
+            const saleDate = sale.date ? new Date(sale.date) : new Date(sale.createdAt);
+            return saleDate >= startDate && saleDate <= endDate;
+        });
+        
+        const costs = this.costs.filter(cost => {
+            const costDate = cost.date ? new Date(cost.date) : new Date(cost.createdAt);
+            return costDate >= startDate && costDate <= endDate;
+        });
+        
+        const revenue = sales.reduce((sum, sale) => sum + (sale.totalValue || 0), 0);
+        const totalCosts = costs.reduce((sum, cost) => sum + (cost.amount || 0), 0);
+        const profit = revenue - totalCosts;
+        const margin = revenue > 0 ? (profit / revenue) * 100 : 0;
+        
+        return {
+            type: 'financial',
+            period: { start: startDate, end: endDate },
+            summary: {
+                revenue: revenue,
+                costs: totalCosts,
+                profit: profit,
+                margin: margin,
+                salesCount: sales.length,
+                costsCount: costs.length
+            },
+            sales: sales,
+            costs: costs,
+            generatedAt: new Date().toISOString()
+        };
+    }
+
+    // Gerar relatório personalizado combinado
+    generateCustomCombinedReport(startDate, endDate, category, status) {
+        return {
+            type: 'custom',
+            period: { start: startDate, end: endDate },
+            sales: this.generateSalesReport(startDate, endDate, category, status),
+            services: this.generateServicesReport(startDate, endDate, status),
+            products: this.generateProductsReport(startDate, endDate, category),
+            clients: this.generateClientsReport(startDate, endDate),
+            financial: this.generateFinancialReport(startDate, endDate),
+            generatedAt: new Date().toISOString()
+        };
+    }
+
+    // Exportar relatório no formato selecionado
+    exportReport(reportData, title, format, includeCharts, includeSummary) {
+        const filename = `${title.replace(/\s+/g, '_')}_${new Date().toISOString().split('T')[0]}`;
+        
+        switch (format) {
+            case 'html':
+                this.exportReportHTML(reportData, title, filename, includeCharts, includeSummary);
+                break;
+            case 'json':
+                this.exportReportJSON(reportData, filename);
+                break;
+            case 'csv':
+                this.exportReportCSV(reportData, filename);
+                break;
+            case 'txt':
+                this.exportReportTXT(reportData, title, filename, includeSummary);
+                break;
+        }
+    }
+
+    // Exportar relatório em HTML
+    exportReportHTML(reportData, title, filename, includeCharts, includeSummary) {
+        let html = `<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>${title}</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; color: #333; }
+        h1 { color: #dc3545; border-bottom: 2px solid #dc3545; padding-bottom: 10px; }
+        h2 { color: #666; margin-top: 30px; }
+        table { width: 100%; border-collapse: collapse; margin: 20px 0; }
+        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+        th { background-color: #dc3545; color: white; }
+        .summary { background: #f8f9fa; padding: 15px; border-radius: 5px; margin: 20px 0; }
+        .summary-item { margin: 10px 0; }
+        .summary-label { font-weight: bold; color: #666; }
+    </style>
+</head>
+<body>
+    <h1>${title}</h1>
+    <p><strong>Período:</strong> ${new Date(reportData.period.start).toLocaleDateString('pt-BR')} a ${new Date(reportData.period.end).toLocaleDateString('pt-BR')}</p>
+    <p><strong>Gerado em:</strong> ${new Date(reportData.generatedAt).toLocaleString('pt-BR')}</p>
+`;
+        
+        if (includeSummary && reportData.summary) {
+            html += '<div class="summary"><h2>Resumo Executivo</h2>';
+            Object.entries(reportData.summary).forEach(([key, value]) => {
+                const label = key.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase());
+                const formattedValue = typeof value === 'number' && value % 1 !== 0 
+                    ? value.toFixed(2).replace('.', ',') 
+                    : value;
+                html += `<div class="summary-item"><span class="summary-label">${label}:</span> ${formattedValue}</div>`;
+            });
+            html += '</div>';
+        }
+        
+        // Adicionar dados específicos do tipo de relatório
+        html += this.formatReportDataHTML(reportData);
+        
+        html += `</body></html>`;
+        
+        const blob = new Blob([html], { type: 'text/html;charset=utf-8' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `${filename}.html`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+    }
+
+    // Formatar dados do relatório para HTML
+    formatReportDataHTML(reportData) {
+        // Implementação básica - pode ser expandida
+        return '<h2>Dados Detalhados</h2><p>Dados completos disponíveis no formato JSON.</p>';
+    }
+
+    // Exportar relatório em JSON
+    exportReportJSON(reportData, filename) {
+        const json = JSON.stringify(reportData, null, 2);
+        const blob = new Blob([json], { type: 'application/json;charset=utf-8' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `${filename}.json`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+    }
+
+    // Exportar relatório em CSV
+    exportReportCSV(reportData, filename) {
+        // Implementação básica - pode ser expandida
+        let csv = 'Tipo,Valor\n';
+        if (reportData.summary) {
+            Object.entries(reportData.summary).forEach(([key, value]) => {
+                csv += `${key},${value}\n`;
+            });
+        }
+        
+        const BOM = '\uFEFF';
+        const blob = new Blob([BOM + csv], { type: 'text/csv;charset=utf-8;' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `${filename}.csv`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+    }
+
+    // Exportar relatório em TXT
+    exportReportTXT(reportData, title, filename, includeSummary) {
+        let txt = `${title}\n`;
+        txt += `${'='.repeat(title.length)}\n\n`;
+        txt += `Período: ${new Date(reportData.period.start).toLocaleDateString('pt-BR')} a ${new Date(reportData.period.end).toLocaleDateString('pt-BR')}\n`;
+        txt += `Gerado em: ${new Date(reportData.generatedAt).toLocaleString('pt-BR')}\n\n`;
+        
+        if (includeSummary && reportData.summary) {
+            txt += 'RESUMO EXECUTIVO\n';
+            txt += '-'.repeat(20) + '\n';
+            Object.entries(reportData.summary).forEach(([key, value]) => {
+                const label = key.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase());
+                txt += `${label}: ${value}\n`;
+            });
+            txt += '\n';
+        }
+        
+        const blob = new Blob([txt], { type: 'text/plain;charset=utf-8' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `${filename}.txt`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+    }
+
+    // ========== EXPORTAÇÃO AVANÇADA ==========
+    
+    // Abrir modal de exportação
+    openExportModal() {
+        // Verificar permissão de exportação
+        if (!this.checkPermission('export')) {
+            if (typeof toast !== 'undefined' && toast) {
+                toast.error('Você não tem permissão para exportar dados.', 3000);
+            } else {
+                alert('Você não tem permissão para exportar dados.');
+            }
+            return;
+        }
+        
+        const modal = document.getElementById('exportModal');
+        if (!modal) {
+            console.error('Modal de exportação não encontrado');
+            return;
+        }
+        
+        // Limpar formulário
+        const form = document.getElementById('exportForm');
+        if (form) form.reset();
+        
+        modal.classList.add('active');
+    }
+
+    // Fechar modal de exportação
+    closeExportModal() {
+        const modal = document.getElementById('exportModal');
+        if (modal) {
+            modal.classList.remove('active');
+        }
+    }
+
+    // Exportar dados (função principal)
+    exportData(e) {
+        if (e) e.preventDefault();
+        
+        const format = document.getElementById('exportFormat')?.value;
+        const dataType = document.getElementById('exportDataType')?.value;
+        const includeCharts = document.getElementById('exportIncludeCharts')?.checked || false;
+        const includeSummary = document.getElementById('exportIncludeSummary')?.checked || false;
+        
+        if (!format || !dataType) {
+            if (typeof toast !== 'undefined' && toast) {
+                toast.warning('Por favor, preencha todos os campos obrigatórios.', 3000);
+            }
+            return;
+        }
+        
+        // Preparar dados baseado no tipo
+        let exportDataObj = {};
+        switch (dataType) {
+            case 'all':
+                exportDataObj = {
+                    items: this.items,
+                    groups: this.groups,
+                    costs: this.costs,
+                    goals: this.goals,
+                    clients: this.clients,
+                    suppliers: this.suppliers,
+                    completedSales: this.completedSales,
+                    serviceAppointments: this.serviceAppointments,
+                    coupons: this.coupons,
+                    version: '1.0',
+                    exportDate: new Date().toISOString(),
+                };
+                break;
+            case 'items':
+                exportDataObj = {
+                    items: this.items,
+                    version: '1.0',
+                    exportDate: new Date().toISOString(),
+                };
+                break;
+            case 'sales':
+                exportDataObj = {
+                    completedSales: this.completedSales,
+                    groups: this.groups,
+                    version: '1.0',
+                    exportDate: new Date().toISOString(),
+                };
+                break;
+            case 'clients':
+                exportDataObj = {
+                    clients: this.clients,
+                    version: '1.0',
+                    exportDate: new Date().toISOString(),
+                };
+                break;
+            case 'financial':
+                exportDataObj = {
+                    groups: this.groups,
+                    costs: this.costs,
+                    goals: this.goals,
+                    completedSales: this.completedSales,
+                    version: '1.0',
+                    exportDate: new Date().toISOString(),
+                };
+                break;
+        }
+        
+        // Exportar no formato selecionado
+        const filename = `loja_export_${dataType}_${new Date().toISOString().split('T')[0]}`;
+        
+        switch (format) {
+            case 'json':
+                this.exportAsJSON(exportDataObj, filename);
+                break;
+            case 'pdf':
+                this.exportAsPDF(exportDataObj, dataType, filename, includeCharts, includeSummary);
+                break;
+            case 'excel':
+                this.exportAsExcel(exportDataObj, dataType, filename);
+                break;
+            case 'csv':
+                this.exportAsCSV(exportDataObj, dataType, filename);
+                break;
+        }
+        
+        // Fechar modal
+        this.closeExportModal();
+        
+        if (typeof toast !== 'undefined' && toast) {
+            toast.success('Dados exportados com sucesso!', 3000);
+        }
+    }
+
+    // Exportar como JSON
+    exportAsJSON(data, filename) {
+        const blob = new Blob([JSON.stringify(data, null, 2)], {
+            type: 'application/json',
+        });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `${filename}.json`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+    }
+
+    // Exportar como PDF
+    exportAsPDF(data, dataType, filename, includeCharts, includeSummary) {
+        if (typeof window.jspdf === 'undefined' || !window.jspdf.jsPDF) {
+            if (typeof toast !== 'undefined' && toast) {
+                toast.error('Biblioteca jsPDF não está disponível. Tente outro formato.', 3000);
+            } else {
+                alert('Biblioteca jsPDF não está disponível. Tente outro formato.');
+            }
+            return;
+        }
+        
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF();
+        
+        // Título
+        doc.setFontSize(18);
+        doc.text('Relatório de Exportação', 14, 20);
+        
+        // Data de exportação
+        doc.setFontSize(10);
+        doc.text(`Exportado em: ${new Date().toLocaleString('pt-BR')}`, 14, 30);
+        doc.text(`Tipo de dados: ${this.getDataTypeLabel(dataType)}`, 14, 35);
+        
+        let yPos = 45;
+        
+        // Resumo executivo
+        if (includeSummary) {
+            doc.setFontSize(14);
+            doc.text('Resumo Executivo', 14, yPos);
+            yPos += 10;
+            
+            doc.setFontSize(10);
+            if (data.items) {
+                doc.text(`Total de Produtos: ${data.items.length}`, 14, yPos);
+                yPos += 7;
+            }
+            if (data.completedSales) {
+                const totalSales = data.completedSales.reduce((sum, sale) => sum + (sale.totalValue || 0), 0);
+                doc.text(`Total de Vendas: ${data.completedSales.length}`, 14, yPos);
+                yPos += 7;
+                doc.text(`Valor Total: R$ ${totalSales.toFixed(2).replace('.', ',')}`, 14, yPos);
+                yPos += 7;
+            }
+            if (data.clients) {
+                doc.text(`Total de Clientes: ${data.clients.length}`, 14, yPos);
+                yPos += 7;
+            }
+            if (data.costs) {
+                const totalCosts = data.costs.reduce((sum, cost) => sum + (cost.amount || 0), 0);
+                doc.text(`Total de Custos: R$ ${totalCosts.toFixed(2).replace('.', ',')}`, 14, yPos);
+                yPos += 7;
+            }
+            yPos += 5;
+        }
+        
+        // Tabela de dados
+        if (data.items && data.items.length > 0) {
+            if (yPos > 250) {
+                doc.addPage();
+                yPos = 20;
+            }
+            
+            doc.setFontSize(12);
+            doc.text('Produtos', 14, yPos);
+            yPos += 10;
+            
+            const tableData = data.items.map(item => [
+                item.name || '',
+                item.category || '',
+                `R$ ${(item.price || 0).toFixed(2).replace('.', ',')}`,
+                (item.stock || 0).toString()
+            ]);
+            
+            doc.autoTable({
+                startY: yPos,
+                head: [['Nome', 'Categoria', 'Preço', 'Estoque']],
+                body: tableData,
+                theme: 'striped',
+                headStyles: { fillColor: [220, 53, 69] },
+            });
+            
+            yPos = doc.lastAutoTable.finalY + 10;
+        }
+        
+        // Salvar PDF
+        doc.save(`${filename}.pdf`);
+    }
+
+    // Exportar como Excel (CSV formatado)
+    exportAsExcel(data, dataType, filename) {
+        let csv = '';
+        
+        // Adicionar BOM para Excel reconhecer UTF-8
+        csv = '\uFEFF';
+        
+        if (data.items && data.items.length > 0) {
+            csv += 'Produtos\n';
+            csv += 'Nome,Categoria,Preço,Estoque,Descrição\n';
+            data.items.forEach(item => {
+                csv += `"${(item.name || '').replace(/"/g, '""')}","${(item.category || '').replace(/"/g, '""')}",${(item.price || 0).toFixed(2)},${item.stock || 0},"${(item.description || '').replace(/"/g, '""')}"\n`;
+            });
+            csv += '\n';
+        }
+        
+        if (data.completedSales && data.completedSales.length > 0) {
+            csv += 'Vendas\n';
+            csv += 'Data,Cliente,Valor Total,Itens\n';
+            data.completedSales.forEach(sale => {
+                const date = sale.date ? new Date(sale.date).toLocaleDateString('pt-BR') : '';
+                csv += `"${date}","${(sale.customerName || '').replace(/"/g, '""')}",${(sale.totalValue || 0).toFixed(2)},${(sale.items || []).length}\n`;
+            });
+            csv += '\n';
+        }
+        
+        if (data.clients && data.clients.length > 0) {
+            csv += 'Clientes\n';
+            csv += 'Nome,CPF,Telefone,Email,Pontos\n';
+            data.clients.forEach(client => {
+                csv += `"${(client.name || '').replace(/"/g, '""')}","${(client.cpf || '').replace(/"/g, '""')}","${(client.phone || '').replace(/"/g, '""')}","${(client.email || '').replace(/"/g, '""')}",${client.loyaltyPoints || 0}\n`;
+            });
+            csv += '\n';
+        }
+        
+        const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `${filename}.csv`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+    }
+
+    // Exportar como CSV simples
+    exportAsCSV(data, dataType, filename) {
+        this.exportAsExcel(data, dataType, filename);
+    }
+
+    // Obter label do tipo de dados
+    getDataTypeLabel(dataType) {
+        const labels = {
+            'all': 'Todos os Dados',
+            'items': 'Produtos',
+            'sales': 'Vendas',
+            'clients': 'Clientes',
+            'financial': 'Dados Financeiros'
+        };
+        return labels[dataType] || dataType;
+    }
+
+    // ========== ANÁLISE PREDITIVA ==========
+
+    // Abrir modal de análise preditiva
+    openPredictiveAnalysisModal() {
+        const modal = document.getElementById('predictiveAnalysisModal');
+        if (!modal) {
+            console.error('Modal de análise preditiva não encontrado');
+            return;
+        }
+        
+        modal.classList.add('active');
+        this.updatePredictiveAnalysis();
+    }
+
+    // Fechar modal de análise preditiva
+    closePredictiveAnalysisModal() {
+        const modal = document.getElementById('predictiveAnalysisModal');
+        if (modal) {
+            modal.classList.remove('active');
+        }
+    }
+
+    // Atualizar análise preditiva
+    updatePredictiveAnalysis() {
+        const period = parseInt(document.getElementById('predictivePeriod')?.value || 6);
+        
+        // Calcular previsão de vendas
+        const forecast = this.calculateSalesForecast(period);
+        const forecastEl = document.getElementById('salesForecast');
+        if (forecastEl) {
+            forecastEl.textContent = `R$ ${forecast.value.toFixed(2).replace('.', ',')}`;
+        }
+        
+        // Calcular tendência
+        const trend = this.calculateSalesTrend(period);
+        const trendEl = document.getElementById('salesTrend');
+        if (trendEl) {
+            const trendIcon = trend.direction === 'up' ? '📈' : trend.direction === 'down' ? '📉' : '➡️';
+            const trendColor = trend.direction === 'up' ? '#28a745' : trend.direction === 'down' ? '#dc3545' : '#6c757d';
+            trendEl.innerHTML = `${trendIcon} <span style="color: ${trendColor};">${trend.percentage > 0 ? '+' : ''}${trend.percentage.toFixed(1)}%</span>`;
+        }
+        
+        // Calcular crescimento esperado
+        const growth = this.calculateExpectedGrowth(period);
+        const growthEl = document.getElementById('expectedGrowth');
+        if (growthEl) {
+            const growthColor = growth > 0 ? '#28a745' : growth < 0 ? '#dc3545' : '#6c757d';
+            growthEl.innerHTML = `<span style="color: ${growthColor};">${growth > 0 ? '+' : ''}${growth.toFixed(1)}%</span>`;
+        }
+        
+        // Gerar insights
+        this.generatePredictiveInsights(period, forecast, trend, growth);
+        
+        // Gerar recomendações
+        this.generateRecommendations(period, forecast, trend);
+    }
+
+    // Calcular previsão de vendas
+    calculateSalesForecast(months = 6) {
+        const now = new Date();
+        const salesByMonth = [];
+        
+        // Coletar vendas dos últimos N meses
+        for (let i = months - 1; i >= 0; i--) {
+            const date = new Date(now.getFullYear(), now.getMonth() - i, 1);
+            const monthKey = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
+            const sales = this.getMonthSales(monthKey);
+            salesByMonth.push(sales);
+        }
+        
+        if (salesByMonth.length === 0) {
+            return { value: 0, confidence: 0 };
+        }
+        
+        // Calcular média móvel simples (últimos 3 meses)
+        const recentMonths = salesByMonth.slice(-3);
+        const average = recentMonths.reduce((sum, val) => sum + val, 0) / recentMonths.length;
+        
+        // Calcular tendência linear simples
+        let trend = 0;
+        if (salesByMonth.length >= 2) {
+            const firstHalf = salesByMonth.slice(0, Math.floor(salesByMonth.length / 2));
+            const secondHalf = salesByMonth.slice(Math.floor(salesByMonth.length / 2));
+            const firstAvg = firstHalf.reduce((sum, val) => sum + val, 0) / firstHalf.length;
+            const secondAvg = secondHalf.reduce((sum, val) => sum + val, 0) / secondHalf.length;
+            trend = (secondAvg - firstAvg) / firstHalf.length;
+        }
+        
+        // Previsão = média recente + tendência
+        const forecast = average + trend;
+        
+        // Calcular confiança baseada na variância
+        const variance = salesByMonth.reduce((sum, val) => sum + Math.pow(val - average, 2), 0) / salesByMonth.length;
+        const stdDev = Math.sqrt(variance);
+        const confidence = Math.max(0, Math.min(100, 100 - (stdDev / average * 100)));
+        
+        return {
+            value: Math.max(0, forecast),
+            confidence: confidence
+        };
+    }
+
+    // Calcular tendência de vendas
+    calculateSalesTrend(months = 6) {
+        const now = new Date();
+        const salesByMonth = [];
+        
+        for (let i = months - 1; i >= 0; i--) {
+            const date = new Date(now.getFullYear(), now.getMonth() - i, 1);
+            const monthKey = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
+            const sales = this.getMonthSales(monthKey);
+            salesByMonth.push(sales);
+        }
+        
+        if (salesByMonth.length < 2) {
+            return { direction: 'stable', percentage: 0 };
+        }
+        
+        const firstHalf = salesByMonth.slice(0, Math.floor(salesByMonth.length / 2));
+        const secondHalf = salesByMonth.slice(Math.floor(salesByMonth.length / 2));
+        const firstAvg = firstHalf.reduce((sum, val) => sum + val, 0) / firstHalf.length;
+        const secondAvg = secondHalf.reduce((sum, val) => sum + val, 0) / secondHalf.length;
+        
+        if (firstAvg === 0) {
+            return { direction: secondAvg > 0 ? 'up' : 'stable', percentage: 0 };
+        }
+        
+        const percentage = ((secondAvg - firstAvg) / firstAvg) * 100;
+        const direction = percentage > 5 ? 'up' : percentage < -5 ? 'down' : 'stable';
+        
+        return { direction, percentage };
+    }
+
+    // Calcular crescimento esperado
+    calculateExpectedGrowth(months = 6) {
+        const trend = this.calculateSalesTrend(months);
+        return trend.percentage;
+    }
+
+    // Gerar insights preditivos
+    generatePredictiveInsights(period, forecast, trend, growth) {
+        const container = document.getElementById('predictiveInsights');
+        if (!container) return;
+        
+        let insights = [];
+        
+        // Insight sobre previsão
+        if (forecast.value > 0) {
+            insights.push({
+                type: 'info',
+                icon: '📊',
+                title: 'Previsão de Vendas',
+                message: `Baseado nos últimos ${period} meses, a previsão para o próximo mês é de R$ ${forecast.value.toFixed(2).replace('.', ',')} (confiança: ${forecast.confidence.toFixed(0)}%)`
+            });
+        }
+        
+        // Insight sobre tendência
+        if (trend.direction === 'up') {
+            insights.push({
+                type: 'success',
+                icon: '📈',
+                title: 'Tendência Positiva',
+                message: `Vendas estão em crescimento de ${trend.percentage.toFixed(1)}% comparado ao período anterior`
+            });
+        } else if (trend.direction === 'down') {
+            insights.push({
+                type: 'warning',
+                icon: '📉',
+                title: 'Tendência Negativa',
+                message: `Vendas estão em declínio de ${Math.abs(trend.percentage).toFixed(1)}% comparado ao período anterior`
+            });
+        }
+        
+        // Insight sobre produtos mais vendidos
+        const topProducts = this.getTopSellingProducts(period);
+        if (topProducts.length > 0) {
+            insights.push({
+                type: 'info',
+                icon: '⭐',
+                title: 'Produtos em Destaque',
+                message: `${topProducts[0].name} é o produto mais vendido com ${topProducts[0].quantity} unidades nos últimos ${period} meses`
+            });
+        }
+        
+        // Renderizar insights
+        container.innerHTML = insights.map(insight => `
+            <div style="padding: 1rem; background: ${insight.type === 'success' ? '#d4edda' : insight.type === 'warning' ? '#fff3cd' : '#d1ecf1'}; border-left: 4px solid ${insight.type === 'success' ? '#28a745' : insight.type === 'warning' ? '#ffc107' : '#17a2b8'}; border-radius: var(--radius-sm); margin-bottom: 0.75rem;">
+                <div style="display: flex; align-items: start; gap: 0.75rem;">
+                    <span style="font-size: 1.5rem;">${insight.icon}</span>
+                    <div style="flex: 1;">
+                        <h4 style="margin: 0 0 0.25rem 0; color: var(--dark-gray); font-size: 0.95rem; font-weight: 600;">${insight.title}</h4>
+                        <p style="margin: 0; color: var(--gray-700); font-size: 0.9rem;">${insight.message}</p>
+                    </div>
+                </div>
+            </div>
+        `).join('');
+    }
+
+    // Gerar recomendações
+    generateRecommendations(period, forecast, trend) {
+        const container = document.getElementById('recommendationsList');
+        if (!container) return;
+        
+        let recommendations = [];
+        
+        // Recomendação baseada em tendência
+        if (trend.direction === 'down') {
+            recommendations.push({
+                priority: 'high',
+                title: 'Ação Necessária: Vendas em Declínio',
+                message: 'Considere criar promoções ou campanhas de marketing para reverter a tendência de queda nas vendas.'
+            });
+        }
+        
+        // Recomendação baseada em produtos
+        const lowStockItems = this.items.filter(item => {
+            if (item.category === 'Serviços') return false;
+            return item.stock && item.minStock && item.stock < item.minStock;
+        });
+        
+        if (lowStockItems.length > 0) {
+            recommendations.push({
+                priority: 'medium',
+                title: 'Reposição de Estoque',
+                message: `${lowStockItems.length} produto(s) estão com estoque abaixo do mínimo. Considere fazer reposição.`
+            });
+        }
+        
+        // Recomendação baseada em metas
+        const now = new Date();
+        const currentMonth = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+        const currentGoal = this.goals.find(g => g.month === currentMonth);
+        if (currentGoal) {
+            const currentSales = this.getMonthSales(currentMonth);
+            const progress = (currentSales / currentGoal.amount) * 100;
+            const daysRemaining = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate() - now.getDate();
+            
+            if (progress < 75 && daysRemaining <= 7) {
+                recommendations.push({
+                    priority: 'high',
+                    title: 'Meta em Risco',
+                    message: `A meta do mês está em ${progress.toFixed(1)}% com apenas ${daysRemaining} dia(s) restante(s). Ação imediata recomendada.`
+                });
+            }
+        }
+        
+        // Recomendação baseada em previsão
+        if (forecast.value > 0 && forecast.confidence > 70) {
+            recommendations.push({
+                priority: 'low',
+                title: 'Oportunidade de Crescimento',
+                message: `A previsão indica vendas de R$ ${forecast.value.toFixed(2).replace('.', ',')} no próximo mês. Prepare-se para atender essa demanda.`
+            });
+        }
+        
+        // Renderizar recomendações
+        if (recommendations.length === 0) {
+            container.innerHTML = '<p style="color: var(--gray-600); font-style: italic;">Nenhuma recomendação no momento.</p>';
+        } else {
+            container.innerHTML = recommendations.map(rec => `
+                <div style="padding: 1rem; background: ${rec.priority === 'high' ? '#fee' : rec.priority === 'medium' ? '#fff3cd' : '#f8f9fa'}; border-left: 4px solid ${rec.priority === 'high' ? '#dc3545' : rec.priority === 'medium' ? '#ffc107' : '#6c757d'}; border-radius: var(--radius-sm); margin-bottom: 0.75rem;">
+                    <h4 style="margin: 0 0 0.5rem 0; color: var(--dark-gray); font-size: 0.95rem; font-weight: 600;">${rec.title}</h4>
+                    <p style="margin: 0; color: var(--gray-700); font-size: 0.9rem;">${rec.message}</p>
+                </div>
+            `).join('');
+        }
+    }
+
+    // Obter produtos mais vendidos
+    getTopSellingProducts(months = 6) {
+        const now = new Date();
+        const productSales = {};
+        
+        // Coletar vendas dos últimos N meses
+        for (let i = months - 1; i >= 0; i--) {
+            const date = new Date(now.getFullYear(), now.getMonth() - i, 1);
+            const monthKey = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
+            const group = this.groups.find(g => g.month === monthKey);
+            
+            if (group) {
+                group.days.forEach(day => {
+                    day.sales.forEach(sale => {
+                        sale.items.forEach(item => {
+                            if (!productSales[item.itemId]) {
+                                productSales[item.itemId] = {
+                                    itemId: item.itemId,
+                                    quantity: 0,
+                                    revenue: 0
+                                };
+                            }
+                            productSales[item.itemId].quantity += item.quantity || 0;
+                            productSales[item.itemId].revenue += (item.price || 0) * (item.quantity || 0);
+                        });
+                    });
+                });
+            }
+        }
+        
+        // Converter para array e ordenar
+        return Object.values(productSales)
+            .map(ps => ({
+                ...ps,
+                name: this.getItemName(ps.itemId)
+            }))
+            .sort((a, b) => b.quantity - a.quantity)
+            .slice(0, 5);
+    }
+
+    // ========== LGPD COMPLIANCE ==========
+
+    // Verificar e solicitar consentimento de cookies
+    checkCookieConsent() {
+        const consent = localStorage.getItem('cookieConsent');
+        if (!consent) {
+            // Mostrar banner de consentimento
+            this.showCookieConsentBanner();
+        } else {
+            this.cookieConsent = JSON.parse(consent);
+            this.updateCookieConsentStatus();
+        }
+    }
+
+    // Mostrar banner de consentimento de cookies
+    showCookieConsentBanner() {
+        // Remover banner existente se houver
+        const existingBanner = document.getElementById('cookieConsentBanner');
+        if (existingBanner) {
+            existingBanner.remove();
+        }
+
+        const banner = document.createElement('div');
+        banner.id = 'cookieConsentBanner';
+        banner.style.cssText = `
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: var(--dark-gray);
+            color: var(--white);
+            padding: 1rem 1.5rem;
+            z-index: 10000;
+            box-shadow: 0 -2px 10px rgba(0,0,0,0.2);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 1rem;
+            flex-wrap: wrap;
+        `;
+        
+        banner.innerHTML = `
+            <div style="flex: 1; min-width: 250px;">
+                <p style="margin: 0; font-size: 0.9rem;">
+                    <i class="fas fa-cookie-bite"></i> Este site utiliza cookies e armazenamento local para melhorar sua experiência. 
+                    <a href="#" onclick="app.openPrivacyPolicyModal(); return false;" style="color: var(--primary-color); text-decoration: underline;">Saiba mais</a>
+                </p>
+            </div>
+            <div style="display: flex; gap: 0.5rem;">
+                <button onclick="app.acceptCookieConsent()" style="padding: 0.5rem 1rem; background: var(--primary-color); color: var(--white); border: none; border-radius: var(--radius-sm); cursor: pointer; font-weight: 600;">
+                    Aceitar
+                </button>
+                <button onclick="app.rejectCookieConsent()" style="padding: 0.5rem 1rem; background: transparent; color: var(--white); border: 1px solid var(--white); border-radius: var(--radius-sm); cursor: pointer;">
+                    Recusar
+                </button>
+            </div>
+        `;
+        
+        document.body.appendChild(banner);
+    }
+
+    // Aceitar consentimento de cookies
+    acceptCookieConsent() {
+        const consent = {
+            accepted: true,
+            timestamp: new Date().toISOString(),
+            version: '1.0'
+        };
+        localStorage.setItem('cookieConsent', JSON.stringify(consent));
+        this.cookieConsent = consent;
+        this.updateCookieConsentStatus();
+        this.hideCookieConsentBanner();
+        
+        if (typeof toast !== 'undefined' && toast) {
+            toast.success('Consentimento de cookies aceito.', 3000);
+        }
+    }
+
+    // Recusar consentimento de cookies
+    rejectCookieConsent() {
+        const consent = {
+            accepted: false,
+            timestamp: new Date().toISOString(),
+            version: '1.0'
+        };
+        localStorage.setItem('cookieConsent', JSON.stringify(consent));
+        this.cookieConsent = consent;
+        this.updateCookieConsentStatus();
+        this.hideCookieConsentBanner();
+        
+        // Limpar dados não essenciais
+        localStorage.removeItem('appTheme');
+        localStorage.removeItem('searchHistory');
+        
+        if (typeof toast !== 'undefined' && toast) {
+            toast.info('Consentimento recusado. Alguns recursos podem não funcionar corretamente.', 4000);
+        }
+    }
+
+    // Ocultar banner de consentimento
+    hideCookieConsentBanner() {
+        const banner = document.getElementById('cookieConsentBanner');
+        if (banner) {
+            banner.remove();
+        }
+    }
+
+    // Atualizar status de consentimento
+    updateCookieConsentStatus() {
+        const statusEl = document.getElementById('cookieConsentStatus');
+        if (!statusEl) return;
+        
+        if (this.cookieConsent) {
+            const date = new Date(this.cookieConsent.timestamp);
+            const status = this.cookieConsent.accepted ? 'Aceito' : 'Recusado';
+            const color = this.cookieConsent.accepted ? '#28a745' : '#dc3545';
+            statusEl.innerHTML = `
+                <span style="color: ${color}; font-weight: 600;">${status}</span> em ${date.toLocaleDateString('pt-BR')} às ${date.toLocaleTimeString('pt-BR')}
+            `;
+        } else {
+            statusEl.textContent = 'Não definido';
+        }
+    }
+
+    // Abrir modal de política de privacidade
+    openPrivacyPolicyModal() {
+        const modal = document.getElementById('privacyPolicyModal');
+        if (!modal) {
+            console.error('Modal de política de privacidade não encontrado');
+            return;
+        }
+        
+        // Atualizar data
+        const dateEl = document.getElementById('privacyPolicyDate');
+        if (dateEl) {
+            dateEl.textContent = new Date().toLocaleDateString('pt-BR');
+        }
+        
+        modal.classList.add('active');
+        this.logDataAccess('view', 'privacy_policy', null, 'Visualização da política de privacidade');
+    }
+
+    // Fechar modal de política de privacidade
+    closePrivacyPolicyModal() {
+        const modal = document.getElementById('privacyPolicyModal');
+        if (modal) {
+            modal.classList.remove('active');
+        }
+    }
+
+    // Exportar política de privacidade
+    exportPrivacyPolicy() {
+        const content = document.getElementById('privacyPolicyContent')?.innerText || '';
+        const blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `politica_privacidade_${new Date().toISOString().split('T')[0]}.txt`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+        
+        if (typeof toast !== 'undefined' && toast) {
+            toast.success('Política de privacidade exportada com sucesso!', 3000);
+        }
+    }
+
+    // Exportar dados pessoais (LGPD)
+    exportPersonalData() {
+        const username = sessionStorage.getItem('username');
+        if (!username) {
+            if (typeof toast !== 'undefined' && toast) {
+                toast.error('Usuário não identificado.', 3000);
+            }
+            return;
+        }
+
+        // Coletar todos os dados pessoais do usuário
+        const personalData = {
+            username: username,
+            exportedAt: new Date().toISOString(),
+            clients: this.clients || [],
+            suppliers: this.suppliers || [],
+            userData: {
+                items: this.items || [],
+                groups: this.groups || [],
+                costs: this.costs || [],
+                goals: this.goals || [],
+                completedSales: this.completedSales || [],
+                pendingOrders: this.pendingOrders || [],
+                serviceAppointments: this.serviceAppointments || [],
+            },
+            preferences: {
+                theme: localStorage.getItem(`appTheme_${username}`) || 'red',
+            },
+            auditLog: (this.auditLog || []).filter(log => 
+                log.username === username
+            ),
+            dataAccessLogs: (this.dataAccessLogs || []).filter(log => 
+                log.username === username
+            ),
+        };
+
+        // Exportar como JSON
+        const blob = new Blob([JSON.stringify(personalData, null, 2)], {
+            type: 'application/json',
+        });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `meus_dados_${username}_${new Date().toISOString().split('T')[0]}.json`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+
+        // Registrar acesso
+        this.logDataAccess('export', 'personal_data', username, 'Exportação de dados pessoais');
+        
+        if (typeof toast !== 'undefined' && toast) {
+            toast.success('Dados pessoais exportados com sucesso!', 3000);
+        }
+    }
+
+    // Solicitar exclusão de dados (direito ao esquecimento)
+    requestDataDeletion() {
+        const username = sessionStorage.getItem('username');
+        if (!username) {
+            if (typeof toast !== 'undefined' && toast) {
+                toast.error('Usuário não identificado.', 3000);
+            }
+            return;
+        }
+
+        const confirmMessage = `Tem certeza que deseja solicitar a exclusão de todos os seus dados pessoais?\n\nEsta ação irá:\n- Excluir todos os clientes cadastrados\n- Excluir todos os fornecedores cadastrados\n- Excluir todos os dados de vendas associados\n- Excluir preferências e configurações\n\nEsta ação NÃO PODE ser desfeita!`;
+
+        if (typeof confirmDialog !== 'undefined' && confirmDialog) {
+            confirmDialog.danger(
+                confirmMessage,
+                'Solicitar Exclusão de Dados'
+            ).then((confirmed) => {
+                if (confirmed) {
+                    this.performDataDeletion(username);
+                }
+            });
+        } else {
+            if (confirm(confirmMessage)) {
+                this.performDataDeletion(username);
+            }
+        }
+    }
+
+    // Realizar exclusão de dados
+    performDataDeletion(username) {
+        try {
+            // Registrar solicitação
+            this.logDataAccess('delete_request', 'personal_data', username, 'Solicitação de exclusão de dados (LGPD)');
+
+            // Excluir dados pessoais
+            this.clients = [];
+            this.suppliers = [];
+            
+            // Excluir dados do localStorage
+            const localStorageKey = `lojaData_${username}`;
+            localStorage.removeItem(localStorageKey);
+            
+            // Excluir preferências
+            localStorage.removeItem(`appTheme_${username}`);
+            
+            // Limpar dados relacionados
+            this.completedSales = this.completedSales.filter(sale => {
+                // Manter apenas vendas sem dados pessoais identificáveis
+                return !sale.clientName || sale.clientName === 'Cliente não cadastrado';
+            });
+
+            // Salvar alterações
+            this.saveData();
+
+            // Registrar exclusão
+            this.logDataAccess('delete', 'personal_data', username, 'Exclusão de dados pessoais realizada');
+
+            if (typeof toast !== 'undefined' && toast) {
+                toast.success('Dados pessoais excluídos com sucesso!', 3000);
+            }
+
+            // Recarregar página após 2 segundos
+            setTimeout(() => {
+                window.location.reload();
+            }, 2000);
+        } catch (error) {
+            console.error('Erro ao excluir dados:', error);
+            if (typeof toast !== 'undefined' && toast) {
+                toast.error('Erro ao excluir dados. Verifique o console.', 4000);
+            }
+        }
+    }
+
+    // Visualizar logs de acesso a dados pessoais
+    viewDataAccessLogs() {
+        const modal = document.getElementById('dataAccessLogsModal');
+        if (!modal) {
+            console.error('Modal de logs de acesso não encontrado');
+            return;
+        }
+        
+        modal.classList.add('active');
+        this.renderDataAccessLogs();
+    }
+
+    // Fechar modal de logs de acesso
+    closeDataAccessLogsModal() {
+        const modal = document.getElementById('dataAccessLogsModal');
+        if (modal) {
+            modal.classList.remove('active');
+        }
+    }
+
+    // Renderizar logs de acesso
+    renderDataAccessLogs(filter = 'all') {
+        const container = document.getElementById('dataAccessLogsList');
+        if (!container) return;
+
+        let logs = this.dataAccessLogs || [];
+        
+        // Filtrar logs
+        if (filter !== 'all') {
+            logs = logs.filter(log => {
+                if (filter === 'client') return log.entityType === 'client';
+                if (filter === 'supplier') return log.entityType === 'supplier';
+                if (filter === 'export') return log.action === 'export';
+                if (filter === 'delete') return log.action === 'delete' || log.action === 'delete_request';
+                return true;
+            });
+        }
+
+        // Ordenar por data (mais recente primeiro)
+        logs.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+
+        if (logs.length === 0) {
+            container.innerHTML = '<p style="text-align: center; color: var(--gray-600); padding: 2rem;">Nenhum log de acesso encontrado.</p>';
+            return;
+        }
+
+        container.innerHTML = logs.map(log => {
+            const date = new Date(log.timestamp);
+            const actionIcon = {
+                'view': '👁️',
+                'export': '📥',
+                'delete': '🗑️',
+                'delete_request': '⚠️',
+                'update': '✏️',
+                'create': '➕'
+            }[log.action] || '📋';
+            
+            const actionColor = {
+                'view': '#17a2b8',
+                'export': '#28a745',
+                'delete': '#dc3545',
+                'delete_request': '#ffc107',
+                'update': '#007bff',
+                'create': '#6c757d'
+            }[log.action] || '#6c757d';
+
+            return `
+                <div style="padding: 1rem; background: var(--white); border-left: 4px solid ${actionColor}; border-radius: var(--radius-sm); margin-bottom: 0.75rem; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
+                    <div style="display: flex; align-items: start; gap: 0.75rem;">
+                        <span style="font-size: 1.5rem;">${actionIcon}</span>
+                        <div style="flex: 1;">
+                            <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 0.25rem;">
+                                <h4 style="margin: 0; color: var(--dark-gray); font-size: 0.95rem; font-weight: 600;">
+                                    ${log.action === 'view' ? 'Visualização' : 
+                                      log.action === 'export' ? 'Exportação' : 
+                                      log.action === 'delete' ? 'Exclusão' : 
+                                      log.action === 'delete_request' ? 'Solicitação de Exclusão' : 
+                                      log.action === 'update' ? 'Atualização' : 
+                                      log.action === 'create' ? 'Criação' : log.action}
+                                </h4>
+                                <span style="font-size: 0.85rem; color: var(--gray-600);">
+                                    ${date.toLocaleDateString('pt-BR')} ${date.toLocaleTimeString('pt-BR')}
+                                </span>
+                            </div>
+                            <p style="margin: 0 0 0.25rem 0; color: var(--gray-700); font-size: 0.9rem;">
+                                <strong>Tipo:</strong> ${log.entityType === 'client' ? 'Cliente' : 
+                                                       log.entityType === 'supplier' ? 'Fornecedor' : 
+                                                       log.entityType === 'personal_data' ? 'Dados Pessoais' : 
+                                                       log.entityType || 'N/A'}
+                            </p>
+                            <p style="margin: 0 0 0.25rem 0; color: var(--gray-700); font-size: 0.9rem;">
+                                <strong>Usuário:</strong> ${log.username || 'N/A'}
+                            </p>
+                            ${log.description ? `<p style="margin: 0; color: var(--gray-600); font-size: 0.85rem; font-style: italic;">${log.description}</p>` : ''}
+                        </div>
+                    </div>
+                </div>
+            `;
+        }).join('');
+    }
+
+    // Filtrar logs de acesso
+    filterDataAccessLogs() {
+        const filter = document.getElementById('dataAccessLogsFilter')?.value || 'all';
+        this.renderDataAccessLogs(filter);
+    }
+
+    // Exportar logs de acesso
+    exportDataAccessLogs() {
+        const logs = this.dataAccessLogs || [];
+        const blob = new Blob([JSON.stringify(logs, null, 2)], {
+            type: 'application/json',
+        });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `logs_acesso_dados_${new Date().toISOString().split('T')[0]}.json`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+        
+        if (typeof toast !== 'undefined' && toast) {
+            toast.success('Logs de acesso exportados com sucesso!', 3000);
+        }
+    }
+
+    // Registrar acesso a dados pessoais (LGPD)
+    logDataAccess(action, entityType, entityId, description) {
+        const username = sessionStorage.getItem('username') || 'unknown';
+        const timestamp = new Date().toISOString();
+        
+        const logEntry = {
+            id: 'DATA_ACCESS_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9),
+            action: action, // 'view', 'export', 'delete', 'delete_request', etc.
+            entityType: entityType, // 'client', 'supplier', 'personal_data', etc.
+            entityId: entityId,
+            username: username,
+            timestamp: timestamp,
+            description: description,
+        };
+
+        this.dataAccessLogs.unshift(logEntry);
+
+        // Limitar tamanho do log (manter apenas os últimos 500 registros)
+        if (this.dataAccessLogs.length > 500) {
+            this.dataAccessLogs = this.dataAccessLogs.slice(0, 500);
+        }
+
+        // Salvar automaticamente
+        setTimeout(() => {
+            this.saveData();
+        }, 100);
+    }
+
+    // ========== CRIPTOGRAFIA DE DADOS SENSÍVEIS ==========
+
+    // Gerar chave de criptografia para o usuário
+    async generateEncryptionKey(username, password) {
+        try {
+            // Usar senha do usuário + username como material para derivar chave
+            const keyMaterial = await crypto.subtle.importKey(
+                'raw',
+                new TextEncoder().encode(username + password + 'loja-secret-salt'),
+                { name: 'PBKDF2' },
+                false,
+                ['deriveBits', 'deriveKey']
+            );
+
+            // Derivar chave usando PBKDF2
+            const key = await crypto.subtle.deriveKey(
+                {
+                    name: 'PBKDF2',
+                    salt: new TextEncoder().encode('loja-encryption-salt'),
+                    iterations: 100000,
+                    hash: 'SHA-256',
+                },
+                keyMaterial,
+                { name: 'AES-GCM', length: 256 },
+                true,
+                ['encrypt', 'decrypt']
+            );
+
+            this.encryptionKeys[username] = key;
+            return key;
+        } catch (error) {
+            console.error('Erro ao gerar chave de criptografia:', error);
+            return null;
+        }
+    }
+
+    // Obter chave de criptografia do usuário
+    async getEncryptionKey(username) {
+        if (this.encryptionKeys[username]) {
+            return this.encryptionKeys[username];
+        }
+
+        // Tentar gerar chave baseada na senha (se disponível)
+        // Nota: Em produção, isso deveria ser feito no login
+        const password = sessionStorage.getItem('userPasswordHash');
+        if (password) {
+            return await this.generateEncryptionKey(username, password);
+        }
+
+        return null;
+    }
+
+    // Criptografar dados sensíveis
+    async encryptSensitiveData(data, username) {
+        if (!this.encryptionEnabled) {
+            return data;
+        }
+
+        try {
+            const key = await this.getEncryptionKey(username);
+            if (!key) {
+                console.warn('⚠️ [ENCRYPT] Chave de criptografia não disponível, dados não serão criptografados');
+                return data;
+            }
+
+            // Converter dados para string JSON
+            const dataString = JSON.stringify(data);
+            const dataBuffer = new TextEncoder().encode(dataString);
+
+            // Gerar IV (Initialization Vector) aleatório
+            const iv = crypto.getRandomValues(new Uint8Array(12));
+
+            // Criptografar usando AES-GCM
+            const encryptedData = await crypto.subtle.encrypt(
+                {
+                    name: 'AES-GCM',
+                    iv: iv,
+                },
+                key,
+                dataBuffer
+            );
+
+            // Combinar IV + dados criptografados
+            const combined = new Uint8Array(iv.length + encryptedData.byteLength);
+            combined.set(iv, 0);
+            combined.set(new Uint8Array(encryptedData), iv.length);
+
+            // Converter para base64 para armazenamento
+            const base64 = btoa(String.fromCharCode(...combined));
+            
+            return {
+                encrypted: true,
+                data: base64,
+                algorithm: 'AES-GCM',
+                timestamp: new Date().toISOString(),
+            };
+        } catch (error) {
+            console.error('Erro ao criptografar dados:', error);
+            return data; // Retornar dados não criptografados em caso de erro
+        }
+    }
+
+    // Descriptografar dados sensíveis
+    async decryptSensitiveData(encryptedData, username) {
+        if (!encryptedData || !encryptedData.encrypted) {
+            return encryptedData; // Dados não estão criptografados
+        }
+
+        try {
+            const key = await this.getEncryptionKey(username);
+            if (!key) {
+                console.warn('⚠️ [DECRYPT] Chave de criptografia não disponível, dados não podem ser descriptografados');
+                return encryptedData;
+            }
+
+            // Converter de base64 para Uint8Array
+            const combined = Uint8Array.from(atob(encryptedData.data), c => c.charCodeAt(0));
+
+            // Extrair IV (primeiros 12 bytes)
+            const iv = combined.slice(0, 12);
+            const encrypted = combined.slice(12);
+
+            // Descriptografar
+            const decryptedBuffer = await crypto.subtle.decrypt(
+                {
+                    name: 'AES-GCM',
+                    iv: iv,
+                },
+                key,
+                encrypted
+            );
+
+            // Converter de volta para objeto
+            const decryptedString = new TextDecoder().decode(decryptedBuffer);
+            return JSON.parse(decryptedString);
+        } catch (error) {
+            console.error('Erro ao descriptografar dados:', error);
+            return encryptedData; // Retornar dados criptografados em caso de erro
+        }
+    }
+
+    // Criptografar dados de clientes (dados pessoais sensíveis)
+    async encryptClientData(clients, username) {
+        if (!this.encryptionEnabled || !clients || clients.length === 0) {
+            return clients;
+        }
+
+        try {
+            const encryptedClients = [];
+            for (const client of clients) {
+                // Criptografar apenas campos sensíveis
+                const sensitiveFields = {
+                    cpf: client.cpf,
+                    phone: client.phone,
+                    email: client.email,
+                    address: client.address,
+                };
+
+                const encryptedFields = await this.encryptSensitiveData(sensitiveFields, username);
+                
+                encryptedClients.push({
+                    ...client,
+                    sensitiveData: encryptedFields,
+                    cpf: null, // Remover campos sensíveis do objeto principal
+                    phone: null,
+                    email: null,
+                    address: null,
+                });
+            }
+
+            return encryptedClients;
+        } catch (error) {
+            console.error('Erro ao criptografar dados de clientes:', error);
+            return clients;
+        }
+    }
+
+    // Descriptografar dados de clientes
+    async decryptClientData(clients, username) {
+        if (!clients || clients.length === 0) {
+            return clients;
+        }
+
+        try {
+            const decryptedClients = [];
+            for (const client of clients) {
+                if (client.sensitiveData && client.sensitiveData.encrypted) {
+                    // Descriptografar campos sensíveis
+                    const decryptedFields = await this.decryptSensitiveData(client.sensitiveData, username);
+                    
+                    decryptedClients.push({
+                        ...client,
+                        ...decryptedFields,
+                        sensitiveData: undefined, // Remover campo criptografado
+                    });
+                } else {
+                    decryptedClients.push(client);
+                }
+            }
+
+            return decryptedClients;
+        } catch (error) {
+            console.error('Erro ao descriptografar dados de clientes:', error);
+            return clients;
+        }
+    }
+
+    // Criptografar backup
+    async encryptBackup(backupData, username) {
+        if (!this.encryptionEnabled) {
+            return backupData;
+        }
+
+        try {
+            // Criptografar dados sensíveis do backup (clientes, fornecedores)
+            const encryptedBackup = {
+                ...backupData,
+                clients: await this.encryptClientData(backupData.clients || [], username),
+                suppliers: await this.encryptClientData(backupData.suppliers || [], username),
+            };
+
+            return encryptedBackup;
+        } catch (error) {
+            console.error('Erro ao criptografar backup:', error);
+            return backupData;
+        }
+    }
+
+    // Descriptografar backup
+    async decryptBackup(backupData, username) {
+        try {
+            // Descriptografar dados sensíveis do backup
+            const decryptedBackup = {
+                ...backupData,
+                clients: await this.decryptClientData(backupData.clients || [], username),
+                suppliers: await this.decryptClientData(backupData.suppliers || [], username),
+            };
+
+            return decryptedBackup;
+        } catch (error) {
+            console.error('Erro ao descriptografar backup:', error);
+            return backupData;
+        }
+    }
+
+    // ========== RATE LIMITING ==========
+
+    // Verificar se pode fazer requisição (rate limiting)
+    canMakeRequest() {
+        const now = Date.now();
+        const windowMs = 60 * 1000; // Janela de 1 minuto
+        const maxRequests = 30; // Máximo de 30 requisições por minuto
+
+        // Resetar janela se passou 1 minuto
+        if (now - this.requestWindowStart >= windowMs) {
+            this.requestWindowStart = now;
+            this.requestCount = 0;
+        }
+
+        // Verificar se excedeu o limite
+        if (this.requestCount >= maxRequests) {
+            const remainingSeconds = Math.ceil(
+                (windowMs - (now - this.requestWindowStart)) / 1000
+            );
+            return {
+                allowed: false,
+                remainingSeconds: remainingSeconds,
+            };
+        }
+
+        return { allowed: true };
+    }
+
+    // Fazer requisição com rate limiting
+    async makeRequestWithRateLimit(url, options = {}) {
+        // Verificar rate limit
+        const rateLimitCheck = this.canMakeRequest();
+        if (!rateLimitCheck.allowed) {
+            throw new Error(
+                `Rate limit atingido. Aguarde ${rateLimitCheck.remainingSeconds} segundos.`
+            );
+        }
+
+        // Incrementar contador
+        this.requestCount++;
+
+        // Garantir delay mínimo entre requisições (200ms)
+        const now = Date.now();
+        const timeSinceLastRequest = now - this.lastRequestTime;
+        if (timeSinceLastRequest < 200) {
+            await new Promise((resolve) =>
+                setTimeout(resolve, 200 - timeSinceLastRequest)
+            );
+        }
+
+        this.lastRequestTime = Date.now();
+
+        // Fazer requisição
+        return fetch(url, options);
+    }
+
+    // ========== MONITORAMENTO DE INATIVIDADE ==========
+
+    // Iniciar monitoramento de inatividade
+    startInactivityMonitoring() {
+        // Resetar timer ao detectar atividade
+        this.resetInactivityTimer();
+
+        // Eventos que indicam atividade do usuário
+        const activityEvents = ['mousedown', 'mousemove', 'keypress', 'scroll', 'touchstart', 'click'];
+        
+        activityEvents.forEach((event) => {
+            document.addEventListener(event, () => {
+                this.resetInactivityTimer();
+            }, { passive: true });
+        });
+
+        console.log('✅ [INACTIVITY] Monitoramento de inatividade iniciado');
+    }
+
+    // Resetar timer de inatividade
+    resetInactivityTimer() {
+        // Limpar timer anterior
+        if (this.inactivityTimer) {
+            clearTimeout(this.inactivityTimer);
+        }
+
+        // Atualizar última atividade
+        this.lastActivityTime = Date.now();
+
+        // Configurar novo timer
+        this.inactivityTimer = setTimeout(() => {
+            this.logoutUser();
+        }, this.inactivityTimeout);
+
+        // Avisar 5 minutos antes do logout
+        const warningTime = this.inactivityTimeout - (5 * 60 * 1000); // 5 minutos antes
+        setTimeout(() => {
+            if (this.inactivityTimer) {
+                if (typeof toast !== 'undefined' && toast) {
+                    toast.warning('Você será desconectado em 5 minutos por inatividade. Mova o mouse ou pressione uma tecla para continuar.', 10000);
+                }
+            }
+        }, warningTime);
+    }
+
+    // Fazer logout do usuário
+    logoutUser() {
+        console.log('⚠️ [INACTIVITY] Logout automático por inatividade');
+        
+        // Limpar timer
+        if (this.inactivityTimer) {
+            clearTimeout(this.inactivityTimer);
+            this.inactivityTimer = null;
+        }
+
+        // Limpar sessionStorage
+        sessionStorage.removeItem('loggedIn');
+        sessionStorage.removeItem('username');
+        sessionStorage.removeItem('userRole');
+
+        // Mostrar mensagem
+        if (typeof toast !== 'undefined' && toast) {
+            toast.error('Você foi desconectado por inatividade. Faça login novamente.', 5000);
+        }
+
+        // Redirecionar para login após 2 segundos
+        setTimeout(() => {
+            window.location.href = '/index.html';
+        }, 2000);
+    }
+
+    // ========== PWA E NOTIFICAÇÕES PUSH ==========
+
+    // Solicitar permissão para notificações
+    async requestNotificationPermission() {
+        if (!('Notification' in window)) {
+            console.warn('⚠️ [PWA] Notificações não suportadas neste navegador');
+            return false;
+        }
+
+        if (Notification.permission === 'granted') {
+            return true;
+        }
+
+        if (Notification.permission !== 'denied') {
+            const permission = await Notification.requestPermission();
+            return permission === 'granted';
+        }
+
+        return false;
+    }
+
+    // Enviar notificação local
+    async showNotification(title, options = {}) {
+        const hasPermission = await this.requestNotificationPermission();
+        if (!hasPermission) {
+            console.warn('⚠️ [PWA] Permissão de notificações negada');
+            return;
+        }
+
+        const defaultOptions = {
+            body: options.body || '',
+            icon: '/images/icone-e-transicao.jpg',
+            badge: '/images/icone-e-transicao.jpg',
+            tag: options.tag || 'loja-notification',
+            requireInteraction: options.requireInteraction || false,
+            data: options.data || {},
+            actions: options.actions || [],
+        };
+
+        try {
+            // Tentar usar Service Worker para notificação
+            if ('serviceWorker' in navigator) {
+                const registration = await navigator.serviceWorker.ready;
+                await registration.showNotification(title, defaultOptions);
+            } else {
+                // Fallback para notificação do navegador
+                new Notification(title, defaultOptions);
+            }
+        } catch (error) {
+            console.error('Erro ao exibir notificação:', error);
+        }
+    }
+
+    // Enviar notificação push (requer Service Worker)
+    async sendPushNotification(title, body, data = {}) {
+        if (!('serviceWorker' in navigator)) {
+            console.warn('⚠️ [PWA] Service Worker não disponível');
+            return;
+        }
+
+        try {
+            const registration = await navigator.serviceWorker.ready;
+            await registration.showNotification(title, {
+                body: body,
+                icon: '/images/icone-e-transicao.jpg',
+                badge: '/images/icone-e-transicao.jpg',
+                tag: 'loja-push',
+                data: data,
+                requireInteraction: false,
+            });
+        } catch (error) {
+            console.error('Erro ao enviar notificação push:', error);
+        }
+    }
+
+    // Verificar se está online
+    isOnline() {
+        return navigator.onLine;
+    }
+
+    // Sincronizar dados quando voltar online
+    async syncWhenOnline() {
+        if (!this.isOnline()) {
+            return;
+        }
+
+        try {
+            // Registrar sincronização em background
+            if ('serviceWorker' in navigator && 'sync' in window.ServiceWorkerRegistration.prototype) {
+                const registration = await navigator.serviceWorker.ready;
+                await registration.sync.register('sync-data');
+            } else {
+                // Fallback: sincronizar imediatamente
+                await this.saveData();
+            }
+        } catch (error) {
+            console.error('Erro ao sincronizar dados:', error);
+        }
+    }
+
+    // Verificar instalação do PWA
+    async checkPWAInstallation() {
+        // Verificar se já está instalado
+        if (window.matchMedia('(display-mode: standalone)').matches) {
+            return true;
+        }
+
+        // Verificar se pode ser instalado
+        if ('BeforeInstallPromptEvent' in window) {
+            return false; // Pode ser instalado
+        }
+
+        return null; // Não suportado
+    }
+
+    // Solicitar instalação do PWA
+    async promptPWAInstallation() {
+        if (!('BeforeInstallPromptEvent' in window)) {
+            console.warn('⚠️ [PWA] Instalação não suportada');
+            return false;
+        }
+
+        // O evento beforeinstallprompt será capturado quando disponível
+        return false;
+    }
+
+    // Inicializar PWA
+    async initPWA() {
+        // Verificar se está instalado
+        const isInstalled = await this.checkPWAInstallation();
+        if (isInstalled) {
+            console.log('✅ [PWA] Aplicativo instalado');
+        }
+
+        // Configurar listener para instalação
+        let deferredPrompt;
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            
+            // Mostrar botão de instalação se necessário
+            const installButton = document.getElementById('installPWAButton');
+            if (installButton) {
+                installButton.style.display = 'block';
+                installButton.addEventListener('click', async () => {
+                    if (deferredPrompt) {
+                        deferredPrompt.prompt();
+                        const { outcome } = await deferredPrompt.userChoice;
+                        console.log(`[PWA] Instalação: ${outcome}`);
+                        deferredPrompt = null;
+                        installButton.style.display = 'none';
+                    }
+                });
+            }
+        });
+
+        // Listener para quando o app é instalado
+        window.addEventListener('appinstalled', () => {
+            console.log('✅ [PWA] Aplicativo instalado com sucesso!');
+            if (typeof toast !== 'undefined' && toast) {
+                toast.success('Aplicativo instalado com sucesso!', 3000);
+            }
+        });
+
+        // Monitorar status de conexão
+        window.addEventListener('online', () => {
+            console.log('✅ [PWA] Conexão restaurada');
+            this.syncWhenOnline();
+            if (typeof toast !== 'undefined' && toast) {
+                toast.info('Conexão restaurada. Sincronizando dados...', 3000);
+            }
+        });
+
+        window.addEventListener('offline', () => {
+            console.warn('⚠️ [PWA] Conexão perdida');
+            if (typeof toast !== 'undefined' && toast) {
+                toast.warning('Você está offline. Algumas funcionalidades podem estar limitadas.', 4000);
+            }
+        });
+    }
+
+    // ========== INTEGRAÇÕES COM APIs EXTERNAS ==========
+
+    // Buscar endereço por CEP (API ViaCEP)
+    async buscarCEP(cep) {
+        try {
+            // Remover caracteres não numéricos
+            const cepLimpo = cep.replace(/\D/g, '');
+            
+            if (cepLimpo.length !== 8) {
+                throw new Error('CEP deve conter 8 dígitos');
+            }
+
+            const response = await fetch(`https://viacep.com.br/ws/${cepLimpo}/json/`);
+            
+            if (!response.ok) {
+                throw new Error('Erro ao buscar CEP');
+            }
+
+            const data = await response.json();
+            
+            if (data.erro) {
+                throw new Error('CEP não encontrado');
+            }
+
+            return {
+                cep: data.cep,
+                logradouro: data.logradouro || '',
+                complemento: data.complemento || '',
+                bairro: data.bairro || '',
+                cidade: data.localidade || '',
+                estado: data.uf || '',
+                enderecoCompleto: `${data.logradouro || ''}, ${data.bairro || ''}, ${data.localidade || ''} - ${data.uf || ''}`.replace(/^,\s*|,\s*$/g, ''),
+            };
+        } catch (error) {
+            console.error('Erro ao buscar CEP:', error);
+            throw error;
+        }
+    }
+
+    // Preencher endereço automaticamente ao digitar CEP
+    async preencherEnderecoPorCEP(cepInput, enderecoInput, cidadeInput, estadoInput) {
+        const cep = cepInput.value;
+        
+        if (cep.replace(/\D/g, '').length === 8) {
+            try {
+                const endereco = await this.buscarCEP(cep);
+                
+                if (enderecoInput) {
+                    enderecoInput.value = endereco.logradouro || '';
+                }
+                if (cidadeInput) {
+                    cidadeInput.value = endereco.cidade || '';
+                }
+                if (estadoInput) {
+                    estadoInput.value = endereco.estado || '';
+                }
+                
+                if (typeof toast !== 'undefined' && toast) {
+                    toast.success('Endereço preenchido automaticamente!', 2000);
+                }
+            } catch (error) {
+                console.error('Erro ao preencher endereço:', error);
+                if (typeof toast !== 'undefined' && toast) {
+                    toast.error('CEP não encontrado ou inválido', 3000);
+                }
+            }
+        }
+    }
+
+    // Validar CPF (algoritmo)
+    validarCPF(cpf) {
+        const cpfLimpo = cpf.replace(/\D/g, '');
+        
+        if (cpfLimpo.length !== 11) {
+            return false;
+        }
+
+        // Verificar se todos os dígitos são iguais
+        if (/^(\d)\1{10}$/.test(cpfLimpo)) {
+            return false;
+        }
+
+        // Validar dígitos verificadores
+        let soma = 0;
+        for (let i = 0; i < 9; i++) {
+            soma += parseInt(cpfLimpo.charAt(i)) * (10 - i);
+        }
+        let digito = 11 - (soma % 11);
+        if (digito >= 10) digito = 0;
+        if (digito !== parseInt(cpfLimpo.charAt(9))) {
+            return false;
+        }
+
+        soma = 0;
+        for (let i = 0; i < 10; i++) {
+            soma += parseInt(cpfLimpo.charAt(i)) * (11 - i);
+        }
+        digito = 11 - (soma % 11);
+        if (digito >= 10) digito = 0;
+        if (digito !== parseInt(cpfLimpo.charAt(10))) {
+            return false;
+        }
+
+        return true;
+    }
+
+    // Validar CNPJ (algoritmo)
+    validarCNPJ(cnpj) {
+        const cnpjLimpo = cnpj.replace(/\D/g, '');
+        
+        if (cnpjLimpo.length !== 14) {
+            return false;
+        }
+
+        // Verificar se todos os dígitos são iguais
+        if (/^(\d)\1{13}$/.test(cnpjLimpo)) {
+            return false;
+        }
+
+        // Validar dígitos verificadores
+        let tamanho = cnpjLimpo.length - 2;
+        let numeros = cnpjLimpo.substring(0, tamanho);
+        let digitos = cnpjLimpo.substring(tamanho);
+        let soma = 0;
+        let pos = tamanho - 7;
+
+        for (let i = tamanho; i >= 1; i--) {
+            soma += numeros.charAt(tamanho - i) * pos--;
+            if (pos < 2) pos = 9;
+        }
+
+        let resultado = soma % 11 < 2 ? 0 : 11 - (soma % 11);
+        if (resultado !== parseInt(digitos.charAt(0))) {
+            return false;
+        }
+
+        tamanho = tamanho + 1;
+        numeros = cnpjLimpo.substring(0, tamanho);
+        soma = 0;
+        pos = tamanho - 7;
+
+        for (let i = tamanho; i >= 1; i--) {
+            soma += numeros.charAt(tamanho - i) * pos--;
+            if (pos < 2) pos = 9;
+        }
+
+        resultado = soma % 11 < 2 ? 0 : 11 - (soma % 11);
+        if (resultado !== parseInt(digitos.charAt(1))) {
+            return false;
+        }
+
+        return true;
+    }
+
+    // Buscar cotação de moedas (API ExchangeRate-API)
+    async buscarCotacaoMoedas(baseCurrency = 'BRL', targetCurrency = 'USD') {
+        try {
+            // Usar API gratuita (sem chave necessária)
+            const response = await fetch(`https://api.exchangerate-api.com/v4/latest/${baseCurrency}`);
+            
+            if (!response.ok) {
+                throw new Error('Erro ao buscar cotação');
+            }
+
+            const data = await response.json();
+            
+            return {
+                base: data.base,
+                date: data.date,
+                rates: data.rates,
+                targetRate: data.rates[targetCurrency] || null,
+            };
+        } catch (error) {
+            console.error('Erro ao buscar cotação:', error);
+            throw error;
+        }
+    }
+
+    // Converter valor entre moedas
+    async converterMoeda(valor, deMoeda, paraMoeda) {
+        try {
+            const cotacao = await this.buscarCotacaoMoedas(deMoeda, paraMoeda);
+            
+            if (!cotacao.targetRate) {
+                throw new Error(`Taxa de câmbio não encontrada para ${paraMoeda}`);
+            }
+
+            return valor * cotacao.targetRate;
+        } catch (error) {
+            console.error('Erro ao converter moeda:', error);
+            throw error;
+        }
+    }
+
+    // Buscar informações de geolocalização (via API do navegador)
+    async obterGeolocalizacao() {
+        return new Promise((resolve, reject) => {
+            if (!navigator.geolocation) {
+                reject(new Error('Geolocalização não suportada'));
+                return;
+            }
+
+            navigator.geolocation.getCurrentPosition(
+                (position) => {
+                    resolve({
+                        latitude: position.coords.latitude,
+                        longitude: position.coords.longitude,
+                        accuracy: position.coords.accuracy,
+                    });
+                },
+                (error) => {
+                    reject(error);
+                },
+                {
+                    enableHighAccuracy: true,
+                    timeout: 10000,
+                    maximumAge: 0,
+                }
+            );
+        });
+    }
+
+    // Buscar endereço por coordenadas (reverse geocoding - usando API Nominatim)
+    async buscarEnderecoPorCoordenadas(latitude, longitude) {
+        try {
+            const response = await fetch(
+                `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}`,
+                {
+                    headers: {
+                        'User-Agent': 'LojaGestaoApp/1.0',
+                    },
+                }
+            );
+
+            if (!response.ok) {
+                throw new Error('Erro ao buscar endereço');
+            }
+
+            const data = await response.json();
+            
+            return {
+                endereco: data.display_name || '',
+                cidade: data.address?.city || data.address?.town || '',
+                estado: data.address?.state || '',
+                cep: data.address?.postcode || '',
+            };
+        } catch (error) {
+            console.error('Erro ao buscar endereço por coordenadas:', error);
+            throw error;
+        }
+    }
+
+    // Calcular distância entre duas coordenadas (Haversine)
+    calcularDistancia(lat1, lon1, lat2, lon2) {
+        const R = 6371; // Raio da Terra em km
+        const dLat = this.toRad(lat2 - lat1);
+        const dLon = this.toRad(lon2 - lon1);
+        const a =
+            Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+            Math.cos(this.toRad(lat1)) *
+                Math.cos(this.toRad(lat2)) *
+                Math.sin(dLon / 2) *
+                Math.sin(dLon / 2);
+        const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+        return R * c; // Distância em km
+    }
+
+    toRad(degrees) {
+        return (degrees * Math.PI) / 180;
+    }
+
+    // Buscar informações de um CNPJ (API ReceitaWS)
+    async buscarInfoCNPJ(cnpj) {
+        try {
+            const cnpjLimpo = cnpj.replace(/\D/g, '');
+            
+            if (cnpjLimpo.length !== 14) {
+                throw new Error('CNPJ deve conter 14 dígitos');
+            }
+
+            const response = await fetch(`https://www.receitaws.com.br/v1/${cnpjLimpo}`);
+            
+            if (!response.ok) {
+                throw new Error('Erro ao buscar CNPJ');
+            }
+
+            const data = await response.json();
+            
+            if (data.status === 'ERROR') {
+                throw new Error(data.message || 'CNPJ não encontrado');
+            }
+
+            return {
+                cnpj: data.cnpj,
+                nome: data.nome || '',
+                fantasia: data.fantasia || '',
+                situacao: data.situacao || '',
+                abertura: data.abertura || '',
+                tipo: data.tipo || '',
+                logradouro: data.logradouro || '',
+                numero: data.numero || '',
+                complemento: data.complemento || '',
+                bairro: data.bairro || '',
+                municipio: data.municipio || '',
+                uf: data.uf || '',
+                cep: data.cep || '',
+                telefone: data.telefone || '',
+                email: data.email || '',
+            };
+        } catch (error) {
+            console.error('Erro ao buscar CNPJ:', error);
+            throw error;
+        }
+    }
+
+    // ========== INDEXEDDB ==========
+
+    // Inicializar IndexedDB
+    initIndexedDB() {
+        if (!window.indexedDB) {
+            console.warn('⚠️ [INDEXEDDB] IndexedDB não suportado neste navegador');
+            this.useIndexedDB = false;
+            return;
+        }
+
+        const request = indexedDB.open(this.dbName, this.dbVersion);
+
+        request.onerror = (event) => {
+            console.error('❌ [INDEXEDDB] Erro ao abrir banco de dados:', event);
+            this.useIndexedDB = false;
+        };
+
+        request.onsuccess = (event) => {
+            this.indexedDB = event.target.result;
+            this.useIndexedDB = true;
+            console.log('✅ [INDEXEDDB] Banco de dados aberto com sucesso');
+        };
+
+        request.onupgradeneeded = (event) => {
+            const db = event.target.result;
+            
+            // Criar object stores se não existirem
+            if (!db.objectStoreNames.contains('data')) {
+                const dataStore = db.createObjectStore('data', { keyPath: 'username' });
+                dataStore.createIndex('username', 'username', { unique: true });
+            }
+
+            if (!db.objectStoreNames.contains('backups')) {
+                const backupStore = db.createObjectStore('backups', { keyPath: 'id', autoIncrement: true });
+                backupStore.createIndex('username', 'username', { unique: false });
+                backupStore.createIndex('timestamp', 'timestamp', { unique: false });
+            }
+
+            console.log('✅ [INDEXEDDB] Estrutura do banco de dados criada/atualizada');
+        };
+    }
+
+    // ========== VOICE NAVIGATION ==========
+
+    // Inicializar navegação por voz
+    initVoiceNavigation() {
+        // Verificar se Web Speech API está disponível
+        if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
+            console.warn('⚠️ [VOICE] Web Speech API não suportada neste navegador');
+            return;
+        }
+
+        // Configurar comandos de voz
+        this.setupVoiceCommands();
+
+        console.log('✅ [VOICE] Navegação por voz inicializada');
+    }
+
+    // Configurar comandos de voz
+    setupVoiceCommands() {
+        this.voiceCommands = {
+            'abrir produtos': () => this.switchTab('itemsPanel'),
+            'abrir clientes': () => this.switchTab('clientsPanel'),
+            'abrir vendas': () => this.switchTab('salesPanel'),
+            'abrir fornecedores': () => this.switchTab('suppliersPanel'),
+            'abrir admin': () => this.switchTab('adminPanel'),
+            'novo produto': () => this.openItemModal(),
+            'novo cliente': () => this.openClientModal(),
+            'nova venda': () => this.openSaleModal(),
+            'salvar': () => this.saveData(),
+            'fechar': () => this.closeAllModals(),
+            'ajuda': () => {
+                const helpBtn = document.getElementById('helpBtn');
+                if (helpBtn) helpBtn.click();
+            }
+        };
+    }
+
+    // Iniciar reconhecimento de voz
+    startVoiceRecognition() {
+        if (this.voiceRecognitionActive) {
+            console.log('ℹ️ [VOICE] Reconhecimento de voz já está ativo');
+            return;
+        }
+
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        if (!SpeechRecognition) {
+            console.error('❌ [VOICE] SpeechRecognition não disponível');
+            return;
+        }
+
+        this.voiceRecognition = new SpeechRecognition();
+        this.voiceRecognition.lang = 'pt-BR';
+        this.voiceRecognition.continuous = false;
+        this.voiceRecognition.interimResults = false;
+
+        this.voiceRecognition.onstart = () => {
+            this.voiceRecognitionActive = true;
+            console.log('🎤 [VOICE] Reconhecimento de voz iniciado');
+            if (typeof toast !== 'undefined' && toast) {
+                toast.info('Ouvindo...', 2000);
+            }
+        };
+
+        this.voiceRecognition.onresult = (event) => {
+            const command = event.results[0][0].transcript.toLowerCase().trim();
+            console.log('🎤 [VOICE] Comando reconhecido:', command);
+            this.processVoiceCommand(command);
+        };
+
+        this.voiceRecognition.onerror = (event) => {
+            console.error('❌ [VOICE] Erro no reconhecimento:', event.error);
+            this.voiceRecognitionActive = false;
+        };
+
+        this.voiceRecognition.onend = () => {
+            this.voiceRecognitionActive = false;
+            console.log('🛑 [VOICE] Reconhecimento de voz finalizado');
+        };
+
+        try {
+            this.voiceRecognition.start();
+        } catch (error) {
+            console.error('❌ [VOICE] Erro ao iniciar reconhecimento:', error);
+        }
+    }
+
+    // Parar reconhecimento de voz
+    stopVoiceRecognition() {
+        if (this.voiceRecognition && this.voiceRecognitionActive) {
+            this.voiceRecognition.stop();
+            this.voiceRecognitionActive = false;
+            console.log('🛑 [VOICE] Reconhecimento de voz parado');
+        }
+    }
+
+    // Processar comando de voz
+    processVoiceCommand(command) {
+        // Buscar comando correspondente
+        for (const [key, action] of Object.entries(this.voiceCommands)) {
+            if (command.includes(key)) {
+                console.log(`✅ [VOICE] Executando comando: ${key}`);
+                action();
+                if (typeof toast !== 'undefined' && toast) {
+                    toast.success(`Comando executado: ${key}`, 2000);
+                }
+                return;
+            }
+        }
+
+        console.log('⚠️ [VOICE] Comando não reconhecido:', command);
+        if (typeof toast !== 'undefined' && toast) {
+            toast.warning('Comando não reconhecido', 2000);
+        }
+    }
+
+    // Alternar reconhecimento de voz
+    toggleVoiceRecognition() {
+        if (this.voiceRecognitionActive) {
+            this.stopVoiceRecognition();
+        } else {
+            this.startVoiceRecognition();
+        }
+    }
+
+    // Anunciar mudanças para leitores de tela (ARIA live regions)
+    announceLiveRegion(message, politeness = 'polite') {
+        let liveRegion = document.getElementById('aria-live-region');
+        
+        if (!liveRegion) {
+            liveRegion = document.createElement('div');
+            liveRegion.id = 'aria-live-region';
+            liveRegion.setAttribute('role', 'status');
+            liveRegion.setAttribute('aria-live', politeness);
+            liveRegion.setAttribute('aria-atomic', 'true');
+            liveRegion.className = 'sr-only';
+            liveRegion.style.cssText = 'position: absolute; left: -10000px; width: 1px; height: 1px; overflow: hidden;';
+            document.body.appendChild(liveRegion);
+        }
+        
+        liveRegion.textContent = message;
+        
+        // Limpar após um tempo para permitir novas mensagens
+        setTimeout(() => {
+            if (liveRegion) {
+                liveRegion.textContent = '';
+            }
+        }, 1000);
+    }
+
+    // ========== PULL-TO-REFRESH ==========
+
+    // Inicializar pull-to-refresh
+    initPullToRefresh() {
+        // Apenas em dispositivos móveis
+        if (!this.isMobileDevice()) {
+            return;
+        }
+
+        const mainContent = document.querySelector('.main-content') || document.body;
+        let pullIndicator = document.getElementById('pullToRefreshIndicator');
+
+        // Criar indicador visual se não existir
+        if (!pullIndicator) {
+            pullIndicator = document.createElement('div');
+            pullIndicator.id = 'pullToRefreshIndicator';
+            pullIndicator.style.cssText = `
+                position: fixed;
+                top: -60px;
+                left: 50%;
+                transform: translateX(-50%);
+                width: 40px;
+                height: 40px;
+                border-radius: 50%;
+                background: var(--primary-color);
+                color: white;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                z-index: 10000;
+                transition: top 0.3s ease;
+                box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+            `;
+            pullIndicator.innerHTML = '<i class="fas fa-sync-alt"></i>';
+            document.body.appendChild(pullIndicator);
+        }
+
+        let touchStartY = 0;
+        let touchCurrentY = 0;
+        let isPulling = false;
+        let isRefreshing = false;
+
+        // Touch start
+        mainContent.addEventListener('touchstart', (e) => {
+            if (isRefreshing) return;
+            
+            // Verificar se está no topo da página
+            if (window.scrollY === 0 || (mainContent.scrollTop === 0 && mainContent === document.querySelector('.main-content'))) {
+                touchStartY = e.touches[0].clientY;
+                isPulling = false;
+            }
+        }, { passive: true });
+
+        // Touch move
+        mainContent.addEventListener('touchmove', (e) => {
+            if (isRefreshing) return;
+
+            if (touchStartY > 0) {
+                touchCurrentY = e.touches[0].clientY;
+                const pullDistance = touchCurrentY - touchStartY;
+
+                // Só permitir pull para baixo
+                if (pullDistance > 0 && (window.scrollY === 0 || (mainContent.scrollTop === 0 && mainContent === document.querySelector('.main-content')))) {
+                    isPulling = true;
+                    e.preventDefault(); // Prevenir scroll padrão
+
+                    const maxPull = 120;
+                    const threshold = 80;
+                    const pullAmount = Math.min(pullDistance, maxPull);
+                    const progress = Math.min(pullAmount / threshold, 1);
+
+                    // Atualizar posição do indicador
+                    pullIndicator.style.top = `${Math.min(pullAmount - 20, 60)}px`;
+                    
+                    // Rotacionar ícone baseado no progresso
+                    const rotation = progress * 360;
+                    pullIndicator.querySelector('i').style.transform = `rotate(${rotation}deg)`;
+
+                    // Mudar cor quando passar do threshold
+                    if (pullAmount >= threshold) {
+                        pullIndicator.style.background = 'var(--primary-color)';
+                        pullIndicator.style.transform = 'translateX(-50%) scale(1.1)';
+                    } else {
+                        pullIndicator.style.background = 'var(--gray-500)';
+                        pullIndicator.style.transform = 'translateX(-50%) scale(1)';
+                    }
+                }
+            }
+        }, { passive: false });
+
+        // Touch end
+        mainContent.addEventListener('touchend', () => {
+            if (isRefreshing) return;
+
+            if (isPulling && touchStartY > 0) {
+                const pullDistance = touchCurrentY - touchStartY;
+
+                if (pullDistance >= this.pullToRefresh.threshold) {
+                    // Ativar refresh
+                    this.triggerPullToRefresh(pullIndicator);
+                } else {
+                    // Resetar indicador
+                    this.resetPullToRefreshIndicator(pullIndicator);
+                }
+            }
+
+            touchStartY = 0;
+            touchCurrentY = 0;
+            isPulling = false;
+        }, { passive: true });
+
+        console.log('✅ [PULL-TO-REFRESH] Inicializado');
+    }
+
+    // Ativar pull-to-refresh
+    async triggerPullToRefresh(indicator) {
+        if (this.pullToRefresh.isRefreshing) return;
+
+        this.pullToRefresh.isRefreshing = true;
+        const indicatorElement = indicator || document.getElementById('pullToRefreshIndicator');
+
+        // Mostrar indicador
+        if (indicatorElement) {
+            indicatorElement.style.top = '20px';
+            indicatorElement.querySelector('i').classList.add('fa-spin');
+        }
+
+        // Anunciar para leitores de tela
+        this.announceLiveRegion('Atualizando dados...');
+
+        try {
+            // Recarregar dados
+            await this.loadData();
+
+            // Feedback visual
+            if (typeof toast !== 'undefined' && toast) {
+                toast.success('Dados atualizados!', 2000);
+            }
+
+            this.announceLiveRegion('Dados atualizados com sucesso');
+        } catch (error) {
+            console.error('❌ [PULL-TO-REFRESH] Erro ao atualizar:', error);
+            if (typeof toast !== 'undefined' && toast) {
+                toast.error('Erro ao atualizar dados', 3000);
+            }
+            this.announceLiveRegion('Erro ao atualizar dados');
+        } finally {
+            // Resetar indicador após um delay
+            setTimeout(() => {
+                this.resetPullToRefreshIndicator(indicatorElement);
+                this.pullToRefresh.isRefreshing = false;
+            }, 500);
+        }
+    }
+
+    // Resetar indicador de pull-to-refresh
+    resetPullToRefreshIndicator(indicator) {
+        const indicatorElement = indicator || document.getElementById('pullToRefreshIndicator');
+        if (indicatorElement) {
+            indicatorElement.style.top = '-60px';
+            indicatorElement.querySelector('i').classList.remove('fa-spin');
+            indicatorElement.querySelector('i').style.transform = 'rotate(0deg)';
+            indicatorElement.style.background = 'var(--gray-500)';
+            indicatorElement.style.transform = 'translateX(-50%) scale(1)';
+        }
+    }
+
+    // ========== ANÁLISE DE CONCORRÊNCIA ==========
+
+    // Analisar concorrência (preços, produtos, tendências)
+    analyzeCompetition(period = 6) {
+        const analysis = {
+            priceComparison: this.comparePrices(period),
+            productComparison: this.compareProducts(period),
+            marketTrends: this.analyzeMarketTrends(period),
+            competitiveAdvantages: this.identifyCompetitiveAdvantages(period),
+            recommendations: []
+        };
+
+        // Gerar recomendações baseadas na análise
+        analysis.recommendations = this.generateCompetitiveRecommendations(analysis);
+
+        return analysis;
+    }
+
+    // Comparar preços com mercado
+    comparePrices(period = 6) {
+        const now = new Date();
+        const startDate = new Date(now.getFullYear(), now.getMonth() - period, 1);
+        
+        // Calcular preço médio dos produtos vendidos
+        const soldItems = this.completedSales
+            .filter(sale => new Date(sale.date) >= startDate)
+            .flatMap(sale => sale.items || [])
+            .map(item => {
+                const product = this.items.find(i => i.id === item.id || i.name === item.name);
+                return product ? { price: item.price || product.price, cost: product.cost || 0 } : null;
+            })
+            .filter(item => item !== null);
+
+        const avgPrice = soldItems.length > 0
+            ? soldItems.reduce((sum, item) => sum + (item.price || 0), 0) / soldItems.length
+            : 0;
+
+        const avgMargin = soldItems.length > 0
+            ? soldItems.reduce((sum, item) => {
+                const margin = item.cost > 0 ? ((item.price - item.cost) / item.price) * 100 : 0;
+                return sum + margin;
+            }, 0) / soldItems.length
+            : 0;
+
+        // Comparar com benchmarks do mercado (valores simulados - em produção, usar dados reais)
+        const marketAvgPrice = avgPrice * 1.1; // Assumir que mercado é 10% mais caro
+        const marketAvgMargin = 35; // Margem média do mercado: 35%
+
+        return {
+            ourAvgPrice: avgPrice,
+            marketAvgPrice: marketAvgPrice,
+            priceDifference: ((avgPrice - marketAvgPrice) / marketAvgPrice) * 100,
+            ourAvgMargin: avgMargin,
+            marketAvgMargin: marketAvgMargin,
+            marginDifference: avgMargin - marketAvgMargin,
+            competitiveness: avgPrice < marketAvgPrice ? 'competitivo' : avgPrice > marketAvgPrice ? 'acima' : 'similar'
+        };
+    }
+
+    // Comparar produtos com mercado
+    compareProducts(period = 6) {
+        const now = new Date();
+        const startDate = new Date(now.getFullYear(), now.getMonth() - period, 1);
+        
+        // Analisar categorias mais vendidas
+        const categorySales = {};
+        this.completedSales
+            .filter(sale => new Date(sale.date) >= startDate)
+            .forEach(sale => {
+                (sale.items || []).forEach(item => {
+                    const product = this.items.find(i => i.id === item.id || i.name === item.name);
+                    if (product && product.category) {
+                        categorySales[product.category] = (categorySales[product.category] || 0) + 1;
+                    }
+                });
+            });
+
+        const topCategories = Object.entries(categorySales)
+            .sort((a, b) => b[1] - a[1])
+            .slice(0, 5)
+            .map(([category, count]) => ({ category, sales: count }));
+
+        // Analisar diversidade de produtos
+        const uniqueProducts = new Set();
+        this.completedSales
+            .filter(sale => new Date(sale.date) >= startDate)
+            .forEach(sale => {
+                (sale.items || []).forEach(item => {
+                    uniqueProducts.add(item.id || item.name);
+                });
+            });
+
+        return {
+            topCategories: topCategories,
+            productDiversity: uniqueProducts.size,
+            totalProducts: this.items.length,
+            diversityScore: (uniqueProducts.size / this.items.length) * 100,
+            marketShare: this.calculateMarketShare(period)
+        };
+    }
+
+    // Analisar tendências de mercado
+    analyzeMarketTrends(period = 6) {
+        const now = new Date();
+        const monthlyData = [];
+
+        for (let i = period - 1; i >= 0; i--) {
+            const monthDate = new Date(now.getFullYear(), now.getMonth() - i, 1);
+            const monthEnd = new Date(now.getFullYear(), now.getMonth() - i + 1, 0);
+            
+            const monthSales = this.completedSales.filter(sale => {
+                const saleDate = new Date(sale.date);
+                return saleDate >= monthDate && saleDate <= monthEnd;
+            });
+
+            const monthTotal = monthSales.reduce((sum, sale) => sum + (sale.totalValue || 0), 0);
+            const monthCount = monthSales.length;
+
+            monthlyData.push({
+                month: `${monthDate.getFullYear()}-${String(monthDate.getMonth() + 1).padStart(2, '0')}`,
+                total: monthTotal,
+                count: monthCount,
+                avgTicket: monthCount > 0 ? monthTotal / monthCount : 0
+            });
+        }
+
+        // Calcular tendência
+        const firstHalf = monthlyData.slice(0, Math.floor(monthlyData.length / 2));
+        const secondHalf = monthlyData.slice(Math.floor(monthlyData.length / 2));
+        
+        const firstAvg = firstHalf.reduce((sum, m) => sum + m.total, 0) / firstHalf.length;
+        const secondAvg = secondHalf.reduce((sum, m) => sum + m.total, 0) / secondHalf.length;
+        
+        const trend = secondAvg > firstAvg ? 'crescimento' : secondAvg < firstAvg ? 'declínio' : 'estável';
+        const trendPercentage = firstAvg > 0 ? ((secondAvg - firstAvg) / firstAvg) * 100 : 0;
+
+        return {
+            monthlyData: monthlyData,
+            trend: trend,
+            trendPercentage: trendPercentage,
+            avgMonthlyGrowth: this.calculateAverageGrowth(monthlyData),
+            seasonality: this.detectSeasonality(monthlyData)
+        };
+    }
+
+    // Identificar vantagens competitivas
+    identifyCompetitiveAdvantages(period = 6) {
+        const advantages = [];
+        
+        // Verificar preços competitivos
+        const priceComparison = this.comparePrices(period);
+        if (priceComparison.competitiveness === 'competitivo') {
+            advantages.push({
+                type: 'preço',
+                description: 'Preços abaixo da média do mercado',
+                impact: 'alto',
+                value: Math.abs(priceComparison.priceDifference)
+            });
+        }
+
+        // Verificar margem de lucro
+        if (priceComparison.ourAvgMargin > priceComparison.marketAvgMargin) {
+            advantages.push({
+                type: 'margem',
+                description: 'Margem de lucro acima da média',
+                impact: 'alto',
+                value: priceComparison.marginDifference
+            });
+        }
+
+        // Verificar diversidade de produtos
+        const productComparison = this.compareProducts(period);
+        if (productComparison.diversityScore > 70) {
+            advantages.push({
+                type: 'diversidade',
+                description: 'Boa diversidade de produtos',
+                impact: 'médio',
+                value: productComparison.diversityScore
+            });
+        }
+
+        // Verificar tendência de crescimento
+        const trends = this.analyzeMarketTrends(period);
+        if (trends.trend === 'crescimento' && trends.trendPercentage > 5) {
+            advantages.push({
+                type: 'crescimento',
+                description: 'Crescimento consistente',
+                impact: 'alto',
+                value: trends.trendPercentage
+            });
+        }
+
+        return advantages;
+    }
+
+    // Calcular participação de mercado (simulado)
+    calculateMarketShare(period = 6) {
+        // Em produção, isso usaria dados reais do mercado
+        // Por enquanto, simula baseado em vendas próprias
+        const now = new Date();
+        const startDate = new Date(now.getFullYear(), now.getMonth() - period, 1);
+        
+        const ourSales = this.completedSales
+            .filter(sale => new Date(sale.date) >= startDate)
+            .reduce((sum, sale) => sum + (sale.totalValue || 0), 0);
+
+        // Simular mercado total (assumir que representamos 5% do mercado)
+        const estimatedMarketTotal = ourSales * 20;
+        
+        return {
+            ourSales: ourSales,
+            estimatedMarketTotal: estimatedMarketTotal,
+            marketShare: estimatedMarketTotal > 0 ? (ourSales / estimatedMarketTotal) * 100 : 0
+        };
+    }
+
+    // Calcular crescimento médio
+    calculateAverageGrowth(monthlyData) {
+        if (monthlyData.length < 2) return 0;
+
+        const growthRates = [];
+        for (let i = 1; i < monthlyData.length; i++) {
+            const prev = monthlyData[i - 1].total;
+            const curr = monthlyData[i].total;
+            if (prev > 0) {
+                growthRates.push(((curr - prev) / prev) * 100);
+            }
+        }
+
+        return growthRates.length > 0
+            ? growthRates.reduce((sum, rate) => sum + rate, 0) / growthRates.length
+            : 0;
+    }
+
+    // Detectar sazonalidade
+    detectSeasonality(monthlyData) {
+        // Análise básica de sazonalidade
+        const monthTotals = {};
+        monthlyData.forEach(data => {
+            const month = parseInt(data.month.split('-')[1]);
+            if (!monthTotals[month]) {
+                monthTotals[month] = [];
+            }
+            monthTotals[month].push(data.total);
+        });
+
+        const monthAverages = {};
+        Object.keys(monthTotals).forEach(month => {
+            const totals = monthTotals[month];
+            monthAverages[month] = totals.reduce((sum, val) => sum + val, 0) / totals.length;
+        });
+
+        const overallAvg = Object.values(monthAverages).reduce((sum, val) => sum + val, 0) / Object.keys(monthAverages).length;
+        
+        const seasonality = {};
+        Object.keys(monthAverages).forEach(month => {
+            seasonality[month] = ((monthAverages[month] - overallAvg) / overallAvg) * 100;
+        });
+
+        return {
+            hasSeasonality: Math.max(...Object.values(seasonality)) - Math.min(...Object.values(seasonality)) > 20,
+            monthVariations: seasonality,
+            peakMonth: Object.keys(monthAverages).reduce((a, b) => monthAverages[a] > monthAverages[b] ? a : b),
+            lowMonth: Object.keys(monthAverages).reduce((a, b) => monthAverages[a] < monthAverages[b] ? a : b)
+        };
+    }
+
+    // Gerar recomendações competitivas
+    generateCompetitiveRecommendations(analysis) {
+        const recommendations = [];
+
+        // Recomendações baseadas em preços
+        if (analysis.priceComparison.competitiveness === 'acima') {
+            recommendations.push({
+                type: 'preço',
+                priority: 'alta',
+                title: 'Ajustar Preços',
+                description: `Seus preços estão ${analysis.priceComparison.priceDifference.toFixed(1)}% acima da média do mercado. Considere revisar preços para aumentar competitividade.`,
+                action: 'Revisar estratégia de precificação'
+            });
+        }
+
+        // Recomendações baseadas em margem
+        if (analysis.priceComparison.marginDifference < -5) {
+            recommendations.push({
+                type: 'margem',
+                priority: 'alta',
+                title: 'Melhorar Margem de Lucro',
+                description: `Sua margem está ${Math.abs(analysis.priceComparison.marginDifference).toFixed(1)}% abaixo da média. Considere negociar melhores condições com fornecedores ou ajustar preços.`,
+                action: 'Negociar com fornecedores'
+            });
+        }
+
+        // Recomendações baseadas em diversidade
+        if (analysis.productComparison.diversityScore < 50) {
+            recommendations.push({
+                type: 'produto',
+                priority: 'média',
+                title: 'Aumentar Diversidade de Produtos',
+                description: `Sua diversidade de produtos está baixa (${analysis.productComparison.diversityScore.toFixed(1)}%). Considere expandir o catálogo.`,
+                action: 'Adicionar novos produtos'
+            });
+        }
+
+        // Recomendações baseadas em tendências
+        if (analysis.marketTrends.trend === 'declínio' && analysis.marketTrends.trendPercentage < -10) {
+            recommendations.push({
+                type: 'tendência',
+                priority: 'alta',
+                title: 'Reversão de Tendência',
+                description: `Vendas em declínio de ${Math.abs(analysis.marketTrends.trendPercentage).toFixed(1)}%. Considere campanhas promocionais ou ajustes estratégicos.`,
+                action: 'Criar campanha promocional'
+            });
+        }
+
+        // Recomendações baseadas em vantagens competitivas
+        if (analysis.competitiveAdvantages.length === 0) {
+            recommendations.push({
+                type: 'geral',
+                priority: 'média',
+                title: 'Desenvolver Vantagens Competitivas',
+                description: 'Identifique e desenvolva diferenciais competitivos para se destacar no mercado.',
+                action: 'Análise estratégica'
+            });
+        }
+
+        return recommendations;
+    }
+
+    // Abrir modal de análise de concorrência
+    openCompetitiveAnalysisModal() {
+        const modal = document.getElementById('competitiveAnalysisModal');
+        if (!modal) {
+            console.error('Modal de análise de concorrência não encontrado');
+            return;
+        }
+        
+        modal.classList.add('active');
+        this.updateCompetitiveAnalysis();
+    }
+
+    // Fechar modal de análise de concorrência
+    closeCompetitiveAnalysisModal() {
+        const modal = document.getElementById('competitiveAnalysisModal');
+        if (modal) {
+            modal.classList.remove('active');
+        }
+    }
+
+    // Atualizar análise de concorrência
+    updateCompetitiveAnalysis() {
+        const period = parseInt(document.getElementById('competitivePeriod')?.value || 6);
+        this.renderCompetitiveAnalysis(period);
+    }
+
+    // Exportar análise de concorrência
+    exportCompetitiveAnalysis() {
+        const period = parseInt(document.getElementById('competitivePeriod')?.value || 6);
+        const analysis = this.analyzeCompetition(period);
+        
+        const exportData = {
+            period: period,
+            analysis: analysis,
+            generatedAt: new Date().toISOString()
+        };
+        
+        const blob = new Blob([JSON.stringify(exportData, null, 2)], {
+            type: 'application/json',
+        });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `analise_concorrencia_${new Date().toISOString().split('T')[0]}.json`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+        
+        if (typeof toast !== 'undefined' && toast) {
+            toast.success('Análise de concorrência exportada com sucesso!', 3000);
+        }
+    }
+
+    // Renderizar análise de concorrência
+    renderCompetitiveAnalysis(period = 6) {
+        const analysis = this.analyzeCompetition(period);
+        const container = document.getElementById('competitiveAnalysisContainer');
+        
+        if (!container) return;
+
+        let html = `
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1rem; margin-bottom: 1.5rem;">
+                <div style="padding: 1rem; background: var(--light-gray); border-radius: var(--radius-sm);">
+                    <h3 style="margin: 0 0 0.5rem 0; font-size: 0.9rem; color: var(--gray-600);">Competitividade de Preços</h3>
+                    <p style="margin: 0; font-size: 1.2rem; font-weight: 600; color: ${analysis.priceComparison.competitiveness === 'competitivo' ? '#28a745' : analysis.priceComparison.competitiveness === 'acima' ? '#dc3545' : '#6c757d'};">
+                        ${analysis.priceComparison.competitiveness === 'competitivo' ? '✓ Competitivo' : analysis.priceComparison.competitiveness === 'acima' ? '↑ Acima' : '→ Similar'}
+                    </p>
+                    <p style="margin: 0.25rem 0 0 0; font-size: 0.85rem; color: var(--gray-600);">
+                        ${analysis.priceComparison.priceDifference > 0 ? '+' : ''}${analysis.priceComparison.priceDifference.toFixed(1)}% vs mercado
+                    </p>
+                </div>
+                <div style="padding: 1rem; background: var(--light-gray); border-radius: var(--radius-sm);">
+                    <h3 style="margin: 0 0 0.5rem 0; font-size: 0.9rem; color: var(--gray-600);">Margem de Lucro</h3>
+                    <p style="margin: 0; font-size: 1.2rem; font-weight: 600; color: ${analysis.priceComparison.ourAvgMargin > analysis.priceComparison.marketAvgMargin ? '#28a745' : '#dc3545'};">
+                        ${analysis.priceComparison.ourAvgMargin.toFixed(1)}%
+                    </p>
+                    <p style="margin: 0.25rem 0 0 0; font-size: 0.85rem; color: var(--gray-600);">
+                        ${analysis.priceComparison.marginDifference > 0 ? '+' : ''}${analysis.priceComparison.marginDifference.toFixed(1)}% vs mercado
+                    </p>
+                </div>
+                <div style="padding: 1rem; background: var(--light-gray); border-radius: var(--radius-sm);">
+                    <h3 style="margin: 0 0 0.5rem 0; font-size: 0.9rem; color: var(--gray-600);">Diversidade de Produtos</h3>
+                    <p style="margin: 0; font-size: 1.2rem; font-weight: 600; color: ${analysis.productComparison.diversityScore > 70 ? '#28a745' : analysis.productComparison.diversityScore > 50 ? '#ffc107' : '#dc3545'};">
+                        ${analysis.productComparison.diversityScore.toFixed(1)}%
+                    </p>
+                    <p style="margin: 0.25rem 0 0 0; font-size: 0.85rem; color: var(--gray-600);">
+                        ${analysis.productComparison.productDiversity} produtos únicos
+                    </p>
+                </div>
+                <div style="padding: 1rem; background: var(--light-gray); border-radius: var(--radius-sm);">
+                    <h3 style="margin: 0 0 0.5rem 0; font-size: 0.9rem; color: var(--gray-600);">Tendência de Mercado</h3>
+                    <p style="margin: 0; font-size: 1.2rem; font-weight: 600; color: ${analysis.marketTrends.trend === 'crescimento' ? '#28a745' : analysis.marketTrends.trend === 'declínio' ? '#dc3545' : '#6c757d'};">
+                        ${analysis.marketTrends.trend === 'crescimento' ? '📈 Crescimento' : analysis.marketTrends.trend === 'declínio' ? '📉 Declínio' : '➡️ Estável'}
+                    </p>
+                    <p style="margin: 0.25rem 0 0 0; font-size: 0.85rem; color: var(--gray-600);">
+                        ${analysis.marketTrends.trendPercentage > 0 ? '+' : ''}${analysis.marketTrends.trendPercentage.toFixed(1)}%
+                    </p>
+                </div>
+            </div>
+
+            <div style="margin-bottom: 1.5rem;">
+                <h3 style="margin: 0 0 1rem 0; color: var(--dark-gray); font-size: 1rem;">
+                    <i class="fas fa-trophy"></i> Vantagens Competitivas
+                </h3>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 0.75rem;">
+                    ${analysis.competitiveAdvantages.length > 0
+                        ? analysis.competitiveAdvantages.map(adv => `
+                            <div style="padding: 0.75rem; background: ${adv.impact === 'alto' ? '#d4edda' : '#fff3cd'}; border-left: 3px solid ${adv.impact === 'alto' ? '#28a745' : '#ffc107'}; border-radius: var(--radius-sm);">
+                                <strong style="display: block; margin-bottom: 0.25rem; color: var(--dark-gray);">${adv.type.charAt(0).toUpperCase() + adv.type.slice(1)}</strong>
+                                <p style="margin: 0; font-size: 0.85rem; color: var(--gray-700);">${adv.description}</p>
+                            </div>
+                        `).join('')
+                        : '<p style="color: var(--gray-600);">Nenhuma vantagem competitiva identificada no período.</p>'
+                    }
+                </div>
+            </div>
+
+            <div style="margin-bottom: 1.5rem;">
+                <h3 style="margin: 0 0 1rem 0; color: var(--dark-gray); font-size: 1rem;">
+                    <i class="fas fa-lightbulb"></i> Recomendações
+                </h3>
+                <div style="display: flex; flex-direction: column; gap: 0.75rem;">
+                    ${analysis.recommendations.map(rec => `
+                        <div style="padding: 1rem; background: ${rec.priority === 'alta' ? '#f8d7da' : '#fff3cd'}; border-left: 4px solid ${rec.priority === 'alta' ? '#dc3545' : '#ffc107'}; border-radius: var(--radius-sm);">
+                            <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 0.5rem;">
+                                <strong style="color: var(--dark-gray);">${rec.title}</strong>
+                                <span style="padding: 0.25rem 0.5rem; background: ${rec.priority === 'alta' ? '#dc3545' : '#ffc107'}; color: white; border-radius: var(--radius-sm); font-size: 0.75rem;">
+                                    ${rec.priority === 'alta' ? 'Alta' : 'Média'}
+                                </span>
+                            </div>
+                            <p style="margin: 0 0 0.5rem 0; color: var(--gray-700); font-size: 0.9rem;">${rec.description}</p>
+                            <p style="margin: 0; font-size: 0.85rem; color: var(--gray-600);"><strong>Ação:</strong> ${rec.action}</p>
+                        </div>
+                    `).join('')}
+                </div>
+            </div>
+        `;
+
+        container.innerHTML = html;
+    }
+
+    // ========== CACHE CLEANUP ==========
+
+    // Inicializar limpeza automática de cache
+    initCacheCleanup() {
+        // Limpar cache de gráficos expirados periodicamente
+        setInterval(() => {
+            const now = Date.now();
+            Object.keys(this.chartCache).forEach(chartId => {
+                const cacheEntry = this.chartCache[chartId];
+                if (cacheEntry && cacheEntry.timestamp) {
+                    const age = now - cacheEntry.timestamp;
+                    const ttl = this.cacheStrategies.charts.ttl || (5 * 60 * 1000);
+                    
+                    if (age > ttl) {
+                        delete this.chartCache[chartId];
+                        console.log(`🗑️ [CACHE] Cache expirado removido: ${chartId}`);
+                    }
+                }
+            });
+        }, 60000); // Verificar a cada minuto
+
+        console.log('✅ [CACHE] Limpeza automática de cache inicializada');
+    }
+
+    // Configurar throttle de scroll
+    setupScrollThrottle() {
+        // Função throttle genérica
+        const throttle = (func, limit) => {
+            let inThrottle;
+            return function() {
+                const args = arguments;
+                const context = this;
+                if (!inThrottle) {
+                    func.apply(context, args);
+                    inThrottle = true;
+                    setTimeout(() => inThrottle = false, limit);
+                }
+            };
+        };
+
+        // Aplicar throttle em eventos de scroll
+        const scrollableElements = document.querySelectorAll('.items-list, .clients-list, .suppliers-list, .main-content');
+        scrollableElements.forEach(element => {
+            if (element) {
+                element.addEventListener('scroll', throttle(() => {
+                    // Scroll throttled - pode adicionar lógica aqui se necessário
+                }, 100), { passive: true });
+            }
+        });
+
+        console.log('✅ [SCROLL] Throttle de scroll configurado');
+    }
+
+    // ========== LAZY LOADING ==========
+
+    // Inicializar lazy loading de imagens
+    initLazyLoading() {
+        // Usar Intersection Observer para lazy loading de imagens
+        if ('IntersectionObserver' in window) {
+            const imageObserver = new IntersectionObserver((entries, observer) => {
+                entries.forEach((entry) => {
+                    if (entry.isIntersecting) {
+                        const img = entry.target;
+                        if (img.dataset.src) {
+                            img.src = img.dataset.src;
+                            img.removeAttribute('data-src');
+                            img.classList.add('loaded');
+                            observer.unobserve(img);
+                        }
+                    }
+                });
+            }, {
+                rootMargin: '50px', // Carregar 50px antes de entrar na viewport
+            });
+
+            // Observar todas as imagens com data-src
+            document.querySelectorAll('img[data-src]').forEach((img) => {
+                imageObserver.observe(img);
+            });
+
+            console.log('✅ [LAZY LOADING] Lazy loading de imagens inicializado');
+        } else {
+            // Fallback para navegadores sem Intersection Observer
+            document.querySelectorAll('img[data-src]').forEach((img) => {
+                img.src = img.dataset.src;
+                img.removeAttribute('data-src');
+            });
+        }
+    }
+
+    // Renderizar lista com virtual scrolling (paginção)
+    renderListWithVirtualScrolling(containerId, items, renderItem, itemsPerPage = 20) {
+        const container = document.getElementById(containerId);
+        if (!container) return;
+
+        let currentPage = 1;
+        const totalPages = Math.ceil(items.length / itemsPerPage);
+
+        // Renderizar primeira página
+        const renderPage = (page) => {
+            const start = (page - 1) * itemsPerPage;
+            const end = start + itemsPerPage;
+            const pageItems = items.slice(start, end);
+
+            // Limpar container
+            container.innerHTML = '';
+
+            // Renderizar itens da página
+            pageItems.forEach((item, index) => {
+                const itemElement = renderItem(item, start + index);
+                if (itemElement) {
+                    container.appendChild(itemElement);
+                }
+            });
+
+            // Adicionar botões de paginação se necessário
+            if (totalPages > 1) {
+                const pagination = document.createElement('div');
+                pagination.className = 'pagination';
+                pagination.style.cssText = 'display: flex; justify-content: center; align-items: center; gap: 0.5rem; margin-top: 1rem; padding: 1rem;';
+
+                // Botão anterior
+                const prevBtn = document.createElement('button');
+                prevBtn.className = 'btn-small btn-secondary';
+                prevBtn.innerHTML = '<i class="fas fa-chevron-left"></i> Anterior';
+                prevBtn.disabled = currentPage === 1;
+                prevBtn.addEventListener('click', () => {
+                    if (currentPage > 1) {
+                        currentPage--;
+                        renderPage(currentPage);
+                    }
+                });
+                pagination.appendChild(prevBtn);
+
+                // Informação de página
+                const pageInfo = document.createElement('span');
+                pageInfo.textContent = `Página ${currentPage} de ${totalPages} (${items.length} itens)`;
+                pageInfo.style.cssText = 'padding: 0 1rem; color: var(--gray-600);';
+                pagination.appendChild(pageInfo);
+
+                // Botão próximo
+                const nextBtn = document.createElement('button');
+                nextBtn.className = 'btn-small btn-secondary';
+                nextBtn.innerHTML = 'Próximo <i class="fas fa-chevron-right"></i>';
+                nextBtn.disabled = currentPage === totalPages;
+                nextBtn.addEventListener('click', () => {
+                    if (currentPage < totalPages) {
+                        currentPage++;
+                        renderPage(currentPage);
+                    }
+                });
+                pagination.appendChild(nextBtn);
+
+                container.appendChild(pagination);
+            }
+        };
+
+        renderPage(1);
+        return { renderPage, currentPage, totalPages };
+    }
+
+    // Carregar dados sob demanda (infinite scroll)
+    initInfiniteScroll(containerId, loadMoreCallback, threshold = 200) {
+        const container = document.getElementById(containerId);
+        if (!container) return;
+
+        let isLoading = false;
+        let hasMore = true;
+
+        const checkScroll = () => {
+            if (isLoading || !hasMore) return;
+
+            const scrollTop = container.scrollTop;
+            const scrollHeight = container.scrollHeight;
+            const clientHeight = container.clientHeight;
+
+            // Verificar se está próximo do fim
+            if (scrollTop + clientHeight >= scrollHeight - threshold) {
+                isLoading = true;
+                loadMoreCallback().then((result) => {
+                    isLoading = false;
+                    if (result && result.hasMore !== undefined) {
+                        hasMore = result.hasMore;
+                    }
+                }).catch((error) => {
+                    console.error('Erro ao carregar mais itens:', error);
+                    isLoading = false;
+                });
+            }
+        };
+
+        container.addEventListener('scroll', checkScroll, { passive: true });
+        
+        // Verificar inicialmente
+        checkScroll();
+
+        return {
+            reset: () => {
+                hasMore = true;
+                isLoading = false;
+            },
+            setHasMore: (value) => {
+                hasMore = value;
+            },
+        };
+    }
+
+    // Carregar componente sob demanda (code splitting simulado)
+    async loadComponent(componentName) {
+        // Em um sistema real, isso carregaria um módulo separado
+        // Por enquanto, apenas retorna uma Promise resolvida
+        return new Promise((resolve) => {
+            setTimeout(() => {
+                console.log(`✅ [LAZY LOADING] Componente ${componentName} carregado`);
+                resolve(true);
+            }, 100);
+        });
+    }
+
+    // Renderizar imagem com lazy loading
+    createLazyImage(src, alt = '', className = '') {
+        const img = document.createElement('img');
+        img.className = className;
+        img.alt = alt;
+        img.dataset.src = src; // Usar data-src para lazy loading
+        img.src = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="1" height="1"%3E%3C/svg%3E'; // Placeholder 1x1
+        img.style.cssText = 'opacity: 0; transition: opacity 0.3s;';
+        
+        img.addEventListener('load', () => {
+            img.style.opacity = '1';
+        });
+
+        // Observar quando entrar na viewport
+        if ('IntersectionObserver' in window) {
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach((entry) => {
+                    if (entry.isIntersecting) {
+                        img.src = img.dataset.src;
+                        img.removeAttribute('data-src');
+                        observer.unobserve(img);
+                    }
+                });
+            }, { rootMargin: '50px' });
+            
+            observer.observe(img);
+        } else {
+            // Fallback: carregar imediatamente
+            img.src = src;
+        }
+
+        return img;
+    }
+
+    // ========== FUNCIONALIDADES MOBILE-SPECIFIC ==========
+
+    // Solicitar acesso à câmera
+    async requestCameraAccess() {
+        try {
+            const stream = await navigator.mediaDevices.getUserMedia({ 
+                video: { facingMode: 'environment' } // Câmera traseira
+            });
+            return stream;
+        } catch (error) {
+            console.error('Erro ao acessar câmera:', error);
+            throw error;
+        }
+    }
+
+    // Capturar foto da câmera
+    async capturePhoto(videoElement) {
+        return new Promise((resolve, reject) => {
+            const canvas = document.createElement('canvas');
+            canvas.width = videoElement.videoWidth;
+            canvas.height = videoElement.videoHeight;
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(videoElement, 0, 0);
+            
+            canvas.toBlob((blob) => {
+                if (blob) {
+                    const url = URL.createObjectURL(blob);
+                    resolve({ blob, url, dataUrl: canvas.toDataURL('image/jpeg', 0.8) });
+                } else {
+                    reject(new Error('Erro ao capturar foto'));
+                }
+            }, 'image/jpeg', 0.8);
+        });
+    }
+
+    // Solicitar geolocalização
+    async requestGeolocation() {
+        return new Promise((resolve, reject) => {
+            if (!navigator.geolocation) {
+                reject(new Error('Geolocalização não suportada'));
+                return;
+            }
+
+            navigator.geolocation.getCurrentPosition(
+                (position) => {
+                    resolve({
+                        latitude: position.coords.latitude,
+                        longitude: position.coords.longitude,
+                        accuracy: position.coords.accuracy,
+                    });
+                },
+                (error) => {
+                    reject(error);
+                },
+                {
+                    enableHighAccuracy: true,
+                    timeout: 10000,
+                    maximumAge: 0,
+                }
+            );
+        });
+    }
+
+    // Compartilhar conteúdo (Web Share API)
+    async shareContent(data) {
+        if (!navigator.share) {
+            // Fallback: copiar para área de transferência
+            if (data.text) {
+                await navigator.clipboard.writeText(data.text);
+                if (typeof toast !== 'undefined' && toast) {
+                    toast.success('Conteúdo copiado para área de transferência!', 3000);
+                }
+            }
+            return false;
+        }
+
+        try {
+            await navigator.share(data);
+            return true;
+        } catch (error) {
+            if (error.name !== 'AbortError') {
+                console.error('Erro ao compartilhar:', error);
+            }
+            return false;
+        }
+    }
+
+    // Abrir calendário nativo (para agendamentos)
+    openNativeCalendar(event) {
+        const startDate = event.startDate || new Date().toISOString().split('T')[0];
+        const endDate = event.endDate || startDate;
+        const title = event.title || 'Agendamento';
+        const description = event.description || '';
+        const location = event.location || '';
+
+        // Formato para Google Calendar
+        const googleCalendarUrl = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(title)}&dates=${startDate.replace(/-/g, '')}/${endDate.replace(/-/g, '')}&details=${encodeURIComponent(description)}&location=${encodeURIComponent(location)}`;
+        
+        window.open(googleCalendarUrl, '_blank');
+    }
+
+    // Adicionar contato aos contatos do dispositivo
+    async addToContacts(contact) {
+        // Usar Web Share API se disponível
+        const vcard = `BEGIN:VCARD
+VERSION:3.0
+FN:${contact.name || ''}
+TEL:${contact.phone || ''}
+EMAIL:${contact.email || ''}
+ADR:${contact.address || ''}
+END:VCARD`;
+
+        const blob = new Blob([vcard], { type: 'text/vcard' });
+        const url = URL.createObjectURL(blob);
+        
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `${contact.name || 'contato'}.vcf`;
+        a.click();
+        
+        URL.revokeObjectURL(url);
+        
+        if (typeof toast !== 'undefined' && toast) {
+            toast.success('Contato salvo! Abra o arquivo .vcf para adicionar aos seus contatos.', 4000);
+        }
+    }
+
+    // Detectar se está em dispositivo móvel
+    isMobileDevice() {
+        return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) ||
+               (window.innerWidth <= 768);
+    }
+
+    // Detectar orientação do dispositivo
+    getDeviceOrientation() {
+        return window.innerHeight > window.innerWidth ? 'portrait' : 'landscape';
+    }
+
+    // ========== NAVEGAÇÃO POR TECLADO ==========
+
+    // Inicializar navegação por teclado
+    initKeyboardNavigation() {
+        // Atalhos globais
+        document.addEventListener('keydown', (e) => {
+            // Ctrl/Cmd + K: Busca rápida
+            if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+                e.preventDefault();
+                const searchInput = document.getElementById('searchInput');
+                if (searchInput) {
+                    searchInput.focus();
+                }
+            }
+
+            // Esc: Fechar modais
+            if (e.key === 'Escape') {
+                this.closeAllModals();
+            }
+
+            // Ctrl/Cmd + S: Salvar (prevenir comportamento padrão e salvar dados)
+            if ((e.ctrlKey || e.metaKey) && e.key === 's') {
+                e.preventDefault();
+                this.saveData();
+                if (typeof toast !== 'undefined' && toast) {
+                    toast.info('Dados salvos!', 2000);
+                }
+            }
+
+            // Navegação por tabs com setas
+            if (e.key === 'ArrowRight' || e.key === 'ArrowLeft') {
+                const activeTab = document.querySelector('.tab-btn.active');
+                if (activeTab) {
+                    const tabs = Array.from(document.querySelectorAll('.tab-btn'));
+                    const currentIndex = tabs.indexOf(activeTab);
+                    let nextIndex;
+
+                    if (e.key === 'ArrowRight') {
+                        nextIndex = (currentIndex + 1) % tabs.length;
+                    } else {
+                        nextIndex = (currentIndex - 1 + tabs.length) % tabs.length;
+                    }
+
+                    if (tabs[nextIndex]) {
+                        tabs[nextIndex].click();
+                    }
+                }
+            }
+        });
+
+        // Navegação por teclado em listas
+        this.setupListKeyboardNavigation();
+
+        // Navegação por teclado em modais
+        this.setupModalKeyboardNavigation();
+
+        console.log('✅ [KEYBOARD] Navegação por teclado inicializada');
+    }
+
+    // Configurar navegação por teclado em listas
+    setupListKeyboardNavigation() {
+        const lists = document.querySelectorAll('.items-list, .clients-list, .suppliers-list');
+        
+        lists.forEach((list) => {
+            list.setAttribute('tabindex', '0');
+            list.setAttribute('role', 'listbox');
+            
+            list.addEventListener('keydown', (e) => {
+                const items = Array.from(list.querySelectorAll('[role="listitem"], .item-card, .client-card, .supplier-card'));
+                const currentIndex = items.findIndex(item => item === document.activeElement || item.contains(document.activeElement));
+                
+                let nextIndex = currentIndex;
+                
+                switch (e.key) {
+                    case 'ArrowDown':
+                        e.preventDefault();
+                        nextIndex = (currentIndex + 1) % items.length;
+                        break;
+                    case 'ArrowUp':
+                        e.preventDefault();
+                        nextIndex = (currentIndex - 1 + items.length) % items.length;
+                        break;
+                    case 'Home':
+                        e.preventDefault();
+                        nextIndex = 0;
+                        break;
+                    case 'End':
+                        e.preventDefault();
+                        nextIndex = items.length - 1;
+                        break;
+                    case 'Enter':
+                    case ' ':
+                        e.preventDefault();
+                        if (items[currentIndex]) {
+                            const button = items[currentIndex].querySelector('button, a');
+                            if (button) button.click();
+                        }
+                        return;
+                }
+                
+                if (items[nextIndex]) {
+                    items[nextIndex].focus();
+                    items[nextIndex].scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                }
+            });
+        });
+    }
+
+    // Configurar navegação por teclado em modais
+    setupModalKeyboardNavigation() {
+        const modals = document.querySelectorAll('.modal');
+        
+        modals.forEach((modal) => {
+            modal.addEventListener('keydown', (e) => {
+                // Tab: Navegar entre campos
+                if (e.key === 'Tab') {
+                    const focusableElements = modal.querySelectorAll(
+                        'input, textarea, select, button, [href], [tabindex]:not([tabindex="-1"])'
+                    );
+                    const firstElement = focusableElements[0];
+                    const lastElement = focusableElements[focusableElements.length - 1];
+                    
+                    if (e.shiftKey) {
+                        // Shift + Tab
+                        if (document.activeElement === firstElement) {
+                            e.preventDefault();
+                            lastElement.focus();
+                        }
+                    } else {
+                        // Tab
+                        if (document.activeElement === lastElement) {
+                            e.preventDefault();
+                            firstElement.focus();
+                        }
+                    }
+                }
+            });
+        });
+    }
+
+    // Fechar todos os modais
+    closeAllModals() {
+        document.querySelectorAll('.modal.active').forEach((modal) => {
+            modal.classList.remove('active');
+        });
+    }
+
+    // Exportar análise preditiva
+    exportPredictiveAnalysis() {
+        const period = parseInt(document.getElementById('predictivePeriod')?.value || 6);
+        const forecast = this.calculateSalesForecast(period);
+        const trend = this.calculateSalesTrend(period);
+        const growth = this.calculateExpectedGrowth(period);
+        
+        const analysis = {
+            period: period,
+            forecast: forecast,
+            trend: trend,
+            growth: growth,
+            topProducts: this.getTopSellingProducts(period),
+            generatedAt: new Date().toISOString()
+        };
+        
+        const blob = new Blob([JSON.stringify(analysis, null, 2)], {
+            type: 'application/json',
+        });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `analise_preditiva_${new Date().toISOString().split('T')[0]}.json`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+        
+        if (typeof toast !== 'undefined' && toast) {
+            toast.success('Análise preditiva exportada com sucesso!', 3000);
+        }
     }
 }
 

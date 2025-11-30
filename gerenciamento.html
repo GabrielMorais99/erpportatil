@@ -27,15 +27,127 @@
         <link rel="stylesheet" href="/css/style.css" />
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
         <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js" onload="window.chartJsLoaded = true;" onerror="console.error('Erro ao carregar Chart.js');"></script>
-        <!-- QR Code Libraries - Versão local primeiro, fallback para CDN -->
-        <script src="/lib/qrcode.min.js" 
-                onload="window.qrcodeLoaded = true; console.log('✅ Biblioteca QRCode carregada localmente com sucesso');" 
-                onerror="console.warn('⚠️ Erro ao carregar biblioteca QRCode local, tentando CDN...'); window.qrcodeLoaded = false; 
-                         var fallbackScript = document.createElement('script');
-                         fallbackScript.src = 'https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js';
-                         fallbackScript.onload = function() { window.qrcodeLoaded = true; console.log('✅ Biblioteca QRCode carregada do CDN'); };
-                         fallbackScript.onerror = function() { console.error('❌ Erro ao carregar biblioteca QRCode do CDN'); window.qrcodeLoaded = false; };
-                         document.head.appendChild(fallbackScript);"></script>
+        <!-- Bibliotecas para exportação avançada -->
+        <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/jspdf-autotable@3.8.2/dist/jspdf.plugin.autotable.min.js"></script>
+        <!-- QR Code Libraries - Usar local no localhost, CDN no Vercel -->
+        <script>
+            // Função auxiliar para expor QRCode globalmente
+            window.setupQRCode = function() {
+                setTimeout(function() {
+                    // A biblioteca QRCode expõe como QRCode no escopo global
+                    // Verificar múltiplas formas de acesso
+                    var QRCodeLib = null;
+                    
+                    // Tentar diferentes formas de acesso
+                    if (typeof QRCode !== 'undefined') {
+                        QRCodeLib = QRCode;
+                    } else if (typeof window.QRCode !== 'undefined') {
+                        QRCodeLib = window.QRCode;
+                    } else if (typeof require !== 'undefined') {
+                        try {
+                            QRCodeLib = require('qrcode');
+                        } catch(e) {}
+                    }
+                    
+                    if (QRCodeLib) {
+                        window.QRCode = QRCodeLib;
+                        window.qrcode = QRCodeLib;
+                        window.qrcodeLoaded = true;
+                        console.log('✅ Biblioteca QRCode configurada e disponível');
+                    } else {
+                        console.warn('⚠️ QRCode não encontrado após carregamento');
+                        window.qrcodeLoaded = false;
+                    }
+                }, 100);
+            };
+            
+            // Detectar se está rodando localmente ou no Vercel
+            var isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+            
+            // Carregar QRCode
+            (function() {
+                // Verificar se já foi carregado
+                if (window.qrcodeLoaded || (window.QRCode || window.qrcode)) {
+                    console.log('✅ Biblioteca QRCode já está disponível');
+                    return;
+                }
+                
+                var qrScript = document.createElement('script');
+                
+                // No localhost, usar arquivo local; no Vercel, usar CDN
+                if (isLocalhost) {
+                    qrScript.src = '/lib/qrcode.min.js';
+                    console.log('📥 Carregando QRCode do arquivo local...');
+                } else {
+                    // Usar CDN com caminho correto (sem /build/)
+                    qrScript.src = 'https://cdn.jsdelivr.net/npm/qrcode@1.5.3/lib/browser.js';
+                    console.log('📥 Carregando QRCode do CDN...');
+                }
+                
+                qrScript.async = true;
+                qrScript.onload = function() {
+                    if (window.setupQRCode) {
+                        window.setupQRCode();
+                    } else {
+                        setTimeout(function() {
+                            if (window.setupQRCode) {
+                                window.setupQRCode();
+                            } else if (typeof QRCode !== 'undefined') {
+                                window.QRCode = QRCode;
+                                window.qrcode = QRCode;
+                                window.qrcodeLoaded = true;
+                                console.log('✅ Biblioteca QRCode configurada');
+                            }
+                        }, 100);
+                    }
+                };
+                qrScript.onerror = function() {
+                    if (isLocalhost) {
+                        // Se local falhar, tentar CDN
+                        console.warn('⚠️ Arquivo local não encontrado, tentando CDN...');
+                        var cdnScript = document.createElement('script');
+                        cdnScript.src = 'https://cdn.jsdelivr.net/npm/qrcode@1.5.3/lib/browser.js';
+                        cdnScript.async = true;
+                        cdnScript.onload = function() {
+                            if (window.setupQRCode) {
+                                window.setupQRCode();
+                            } else if (typeof QRCode !== 'undefined') {
+                                window.QRCode = QRCode;
+                                window.qrcode = QRCode;
+                                window.qrcodeLoaded = true;
+                            }
+                        };
+                        cdnScript.onerror = function() {
+                            console.warn('⚠️ Funcionalidade de QRCode não estará disponível');
+                            window.qrcodeLoaded = false;
+                        };
+                        document.head.appendChild(cdnScript);
+                    } else {
+                        // Se CDN falhar, tentar alternativas
+                        console.warn('⚠️ CDN principal falhou, tentando alternativas...');
+                        var altScript = document.createElement('script');
+                        altScript.src = 'https://unpkg.com/qrcode@1.5.3/lib/browser.js';
+                        altScript.async = true;
+                        altScript.onload = function() {
+                            if (window.setupQRCode) {
+                                window.setupQRCode();
+                            } else if (typeof QRCode !== 'undefined') {
+                                window.QRCode = QRCode;
+                                window.qrcode = QRCode;
+                                window.qrcodeLoaded = true;
+                            }
+                        };
+                        altScript.onerror = function() {
+                            console.warn('⚠️ Funcionalidade de QRCode não estará disponível');
+                            window.qrcodeLoaded = false;
+                        };
+                        document.head.appendChild(altScript);
+                    }
+                };
+                document.head.appendChild(qrScript);
+            })();
+        </script>
         <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
         <link rel="manifest" href="/manifest.json" />
         <link
@@ -79,11 +191,21 @@
                     <button id="themeToggleBtn" class="theme-toggle-btn" title="Alternar tema" aria-label="Alternar entre tema vermelho e azul">
                         <i class="fas fa-palette"></i>
                     </button>
+                    <button id="voiceToggleBtn" class="btn-secondary" title="Ativar/Desativar Navegação por Voz" aria-label="Alternar navegação por voz" onclick="app.toggleVoiceRecognition()" style="display: none;">
+                        <i class="fas fa-microphone"></i> <span class="btn-text">Voz</span>
+                    </button>
+                    <button id="darkModeToggle" class="dark-mode-toggle" title="Alternar modo escuro" aria-label="Alternar entre modo claro e escuro">
+                        <i class="fas fa-sun icon-sun"></i>
+                        <i class="fas fa-moon icon-moon"></i>
+                    </button>
                     <button id="importBtn" class="btn-secondary" title="Importar Dados" aria-label="Importar dados do sistema">
                         <i class="fas fa-upload"></i> <span class="btn-text">Importar Dados</span>
                     </button>
-                    <button id="exportBtn" class="btn-secondary" title="Exportar Dados" aria-label="Exportar dados do sistema">
+                    <button id="exportBtn" class="btn-secondary" title="Exportar Dados" aria-label="Exportar dados do sistema" onclick="app.openExportModal()">
                         <i class="fas fa-download"></i> <span class="btn-text">Exportar Dados</span>
+                    </button>
+                    <button id="backupBtn" class="btn-secondary" title="Gerenciar Backups" aria-label="Gerenciar backups do sistema" onclick="app.openBackupModal()">
+                        <i class="fas fa-database"></i> <span class="btn-text">Backups</span>
                     </button>
                     <input
                         type="file"
@@ -112,6 +234,9 @@
                         <select id="monthFilter">
                             <option value="">Todos os meses</option>
                         </select>
+                        <button class="btn-secondary" onclick="app.openAdvancedSearchModal()" title="Busca Avançada" style="white-space: nowrap;">
+                            <i class="fas fa-filter"></i> <span class="btn-text">Busca Avançada</span>
+                        </button>
                     </div>
                 </div>
 
@@ -167,6 +292,25 @@
                                     <i class="fas fa-plus"></i> Novo Produto
                                 </button>
                             </div>
+                            <div class="panel-filters" style="margin-bottom: 1rem; display: flex; gap: 1rem; align-items: center; flex-wrap: wrap;">
+                                <div class="filter-group" style="display: flex; align-items: center; gap: 0.5rem; flex: 1; min-width: 250px;">
+                                    <i class="fas fa-search" style="color: var(--gray-400);"></i>
+                                    <input type="text" id="searchInput" class="search-input-with-icon" placeholder="Buscar produtos (inclui notas)..." style="flex: 1;">
+                                </div>
+                                <div class="filter-group" style="display: flex; align-items: center; gap: 0.5rem;">
+                                    <label for="tagFilter" style="font-size: 0.875rem; color: var(--gray-600); white-space: nowrap;">
+                                        <i class="fas fa-tags"></i> Filtrar por tag:
+                                    </label>
+                                    <select id="tagFilter" class="search-input-with-icon" style="min-width: 150px;">
+                                        <option value="">Todas as tags</option>
+                                    </select>
+                                </div>
+                                <div class="filter-group" style="display: flex; align-items: center; gap: 0.5rem;">
+                                    <button class="btn-secondary" onclick="app.openNotesSearchModal()" title="Buscar por Notas">
+                                        <i class="fas fa-sticky-note"></i> <span class="btn-text">Buscar Notas</span>
+                                    </button>
+                                </div>
+                            </div>
                             <div id="itemsGrid" class="items-grid">
                                 <!-- Produtos serão inseridos aqui via JavaScript -->
                             </div>
@@ -176,9 +320,14 @@
                         <div class="panel-section">
                             <div class="panel-header">
                                 <h2><i class="fas fa-users"></i> Clientes</h2>
-                                <button class="btn-primary" onclick="app.openClientModal()">
-                                    <i class="fas fa-plus"></i> Novo Cliente
-                                </button>
+                                <div style="display: flex; gap: 0.5rem;">
+                                    <button class="btn-secondary" onclick="app.exportClients()" title="Exportar Lista de Clientes">
+                                        <i class="fas fa-download"></i> <span class="btn-text">Exportar</span>
+                                    </button>
+                                    <button class="btn-primary" onclick="app.openClientModal()">
+                                        <i class="fas fa-plus"></i> Novo Cliente
+                                    </button>
+                                </div>
                             </div>
                             <div class="panel-filters" style="margin-bottom: 1rem; display: flex; gap: 1rem; align-items: center; flex-wrap: wrap;">
                                 <div class="filter-group" style="display: flex; align-items: center; gap: 0.5rem; flex: 1; min-width: 250px;">
@@ -188,6 +337,65 @@
                             </div>
                             <div id="clientsList" class="items-grid">
                                 <!-- Clientes serão inseridos aqui via JavaScript -->
+                            </div>
+                        </div>
+                        
+                        <!-- Seção de Fornecedores -->
+                        <div class="panel-section">
+                            <div class="panel-header">
+                                <h2><i class="fas fa-truck"></i> Fornecedores</h2>
+                                <button class="btn-primary" onclick="app.openSupplierModal()">
+                                    <i class="fas fa-plus"></i> Novo Fornecedor
+                                </button>
+                            </div>
+                            <div class="panel-filters" style="margin-bottom: 1rem; display: flex; gap: 1rem; align-items: center; flex-wrap: wrap;">
+                                <div class="filter-group" style="display: flex; align-items: center; gap: 0.5rem; flex: 1; min-width: 250px;">
+                                    <i class="fas fa-search" style="color: var(--gray-400);"></i>
+                                    <input type="text" id="supplierSearch" class="search-input-with-icon" placeholder="Buscar fornecedor por nome, CNPJ ou telefone..." style="flex: 1;">
+                                </div>
+                            </div>
+                            <div id="suppliersList" class="items-grid">
+                                <!-- Fornecedores serão inseridos aqui via JavaScript -->
+                            </div>
+                        </div>
+                        
+                        <!-- Seção de Templates -->
+                        <div class="panel-section">
+                            <div class="panel-header">
+                                <h2><i class="fas fa-file-alt"></i> Templates</h2>
+                                <div style="display: flex; gap: 0.5rem;">
+                                    <button class="btn-secondary" onclick="app.exportTemplates()" title="Exportar Templates">
+                                        <i class="fas fa-download"></i> <span class="btn-text">Exportar</span>
+                                    </button>
+                                    <button class="btn-secondary" onclick="document.getElementById('importTemplatesFile').click()" title="Importar Templates">
+                                        <i class="fas fa-upload"></i> <span class="btn-text">Importar</span>
+                                    </button>
+                                    <input type="file" id="importTemplatesFile" accept=".json,.txt" style="display: none;" onchange="app.importTemplates(event)" />
+                                    <button class="btn-primary" onclick="app.openTemplateModal()">
+                                        <i class="fas fa-plus"></i> Novo Template
+                                    </button>
+                                </div>
+                            </div>
+                            <div id="templatesList" class="items-grid">
+                                <!-- Templates serão inseridos aqui via JavaScript -->
+                            </div>
+                        </div>
+                        
+                        <!-- Seção de Cupons de Desconto -->
+                        <div class="panel-section">
+                            <div class="panel-header">
+                                <h2><i class="fas fa-tag"></i> Cupons de Desconto</h2>
+                                <div style="display: flex; gap: 0.5rem;">
+                                    <button class="btn-secondary" onclick="app.openPromotionHistoryModal()" title="Histórico de Promoções">
+                                        <i class="fas fa-history"></i> <span class="btn-text">Histórico</span>
+                                    </button>
+                                    <button class="btn-primary" onclick="app.openCouponModal()">
+                                        <i class="fas fa-plus"></i> Novo Cupom
+                                    </button>
+                                </div>
+                            </div>
+                            <div id="couponsList" class="items-grid">
+                                <!-- Cupons serão inseridos aqui via JavaScript -->
                             </div>
                         </div>
                         
@@ -274,6 +482,15 @@
                                     <option value="year">Último ano</option>
                                 </select>
                             </div>
+                            <button type="button" class="btn-secondary" onclick="app.openReportBuilderModal()" title="Gerar Relatório Personalizado">
+                                <i class="fas fa-file-alt"></i> <span class="btn-text">Gerar Relatório</span>
+                            </button>
+                            <button type="button" class="btn-secondary" onclick="app.openPredictiveAnalysisModal()" title="Análise Preditiva">
+                                <i class="fas fa-chart-line"></i> <span class="btn-text">Análise Preditiva</span>
+                            </button>
+                            <button type="button" class="btn-secondary" onclick="app.openCompetitiveAnalysisModal()" title="Análise de Concorrência">
+                                <i class="fas fa-chart-bar"></i> <span class="btn-text">Análise de Concorrência</span>
+                            </button>
                             <button type="button" class="btn-secondary" id="refreshDashboard">
                                 <i class="fas fa-sync-alt"></i> Atualizar Gráficos
                             </button>
@@ -594,6 +811,159 @@
                                 <!-- Dashboard será preenchido via JavaScript -->
                             </div>
                         </div>
+
+                        <!-- Seção LGPD Compliance -->
+                        <div class="panel-section">
+                            <div class="panel-header">
+                                <h2><i class="fas fa-shield-alt"></i> LGPD Compliance</h2>
+                            </div>
+                            <div style="padding: 1.5rem;">
+                                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1rem; margin-bottom: 1.5rem;">
+                                    <button class="btn-secondary" onclick="app.openPrivacyPolicyModal()" style="width: 100%;">
+                                        <i class="fas fa-file-contract"></i> Política de Privacidade
+                                    </button>
+                                    <button class="btn-secondary" onclick="app.exportPersonalData()" style="width: 100%;">
+                                        <i class="fas fa-download"></i> Exportar Meus Dados
+                                    </button>
+                                    <button class="btn-secondary" onclick="app.viewDataAccessLogs()" style="width: 100%;">
+                                        <i class="fas fa-history"></i> Logs de Acesso
+                                    </button>
+                                    <button class="btn-danger" onclick="app.requestDataDeletion()" style="width: 100%;">
+                                        <i class="fas fa-trash-alt"></i> Solicitar Exclusão de Dados
+                                    </button>
+                                </div>
+                                
+                                <div id="lgpdStatus" style="padding: 1rem; background: var(--light-gray); border-radius: var(--radius-sm); margin-bottom: 1rem;">
+                                    <h3 style="margin: 0 0 0.5rem 0; font-size: 1rem; color: var(--dark-gray);">Status de Consentimento</h3>
+                                    <p id="cookieConsentStatus" style="margin: 0; color: var(--gray-700); font-size: 0.9rem;">-</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Seção Acessibilidade -->
+                        <div class="panel-section">
+                            <div class="panel-header">
+                                <h2><i class="fas fa-universal-access"></i> Acessibilidade</h2>
+                            </div>
+                            <div style="padding: 1.5rem;">
+                                <div style="display: flex; flex-direction: column; gap: 0.75rem;">
+                                    <button class="btn-secondary" onclick="app.openAccessibilityModal()" style="width: 100%;">
+                                        <i class="fas fa-cog"></i> Configurações de Acessibilidade
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Calculadora Financeira -->
+                        <div class="panel-section">
+                            <div class="panel-header">
+                                <h2><i class="fas fa-calculator"></i> Calculadora Financeira</h2>
+                            </div>
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; margin-top: 1rem;">
+                                <!-- ROI por Produto -->
+                                <div style="border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 1.5rem;">
+                                    <h3 style="margin: 0 0 1rem 0; color: var(--primary-color); font-size: 1.1rem;">
+                                        <i class="fas fa-chart-line"></i> ROI por Produto
+                                    </h3>
+                                    <div class="form-group">
+                                        <label for="roiProductSelect">Selecione o Produto</label>
+                                        <select id="roiProductSelect" class="search-input-with-icon" onchange="app.calculateProductROI()">
+                                            <option value="">Selecione um produto...</option>
+                                        </select>
+                                    </div>
+                                    <div id="roiResults" style="margin-top: 1rem; padding: 1rem; background: var(--light-gray); border-radius: var(--radius-sm); display: none;">
+                                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem;">
+                                            <div>
+                                                <p style="margin: 0; font-size: 0.85rem; color: var(--gray-600);">Preço de Venda</p>
+                                                <p style="margin: 0.25rem 0 0 0; font-size: 1.2rem; font-weight: 600; color: var(--primary-color);" id="roiSalePrice">R$ 0,00</p>
+                                            </div>
+                                            <div>
+                                                <p style="margin: 0; font-size: 0.85rem; color: var(--gray-600);">Custo</p>
+                                                <p style="margin: 0.25rem 0 0 0; font-size: 1.2rem; font-weight: 600; color: var(--gray-700);" id="roiCost">R$ 0,00</p>
+                                            </div>
+                                        </div>
+                                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem;">
+                                            <div>
+                                                <p style="margin: 0; font-size: 0.85rem; color: var(--gray-600);">Lucro Unitário</p>
+                                                <p style="margin: 0.25rem 0 0 0; font-size: 1.2rem; font-weight: 600; color: #28a745;" id="roiProfit">R$ 0,00</p>
+                                            </div>
+                                            <div>
+                                                <p style="margin: 0; font-size: 0.85rem; color: var(--gray-600);">Margem de Lucro</p>
+                                                <p style="margin: 0.25rem 0 0 0; font-size: 1.2rem; font-weight: 600; color: #28a745;" id="roiMargin">0%</p>
+                                            </div>
+                                        </div>
+                                        <div style="padding-top: 1rem; border-top: 1px solid var(--border-color);">
+                                            <p style="margin: 0; font-size: 0.85rem; color: var(--gray-600);">ROI (Return on Investment)</p>
+                                            <p style="margin: 0.25rem 0 0 0; font-size: 1.5rem; font-weight: 700; color: var(--primary-color);" id="roiValue">0%</p>
+                                            <small style="color: var(--gray-600); font-size: 0.75rem; display: block; margin-top: 0.25rem;">
+                                                Retorno sobre o investimento
+                                            </small>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <!-- Simulador de Preços -->
+                                <div style="border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 1.5rem;">
+                                    <h3 style="margin: 0 0 1rem 0; color: var(--primary-color); font-size: 1.1rem;">
+                                        <i class="fas fa-sliders-h"></i> Simulador de Preços
+                                    </h3>
+                                    <div class="form-group">
+                                        <label for="simulatorCost">Custo de Compra (R$)</label>
+                                        <input type="number" id="simulatorCost" step="0.01" min="0" placeholder="0.00" oninput="app.simulatePrice()" />
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="simulatorMargin">Margem de Lucro Desejada (%)</label>
+                                        <input type="number" id="simulatorMargin" step="0.1" min="0" max="100" value="30" oninput="app.simulatePrice()" />
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="simulatorDiscount">Desconto a Aplicar (%)</label>
+                                        <input type="number" id="simulatorDiscount" step="0.1" min="0" max="100" value="0" oninput="app.simulatePrice()" />
+                                    </div>
+                                    <div id="simulatorResults" style="margin-top: 1rem; padding: 1rem; background: var(--light-gray); border-radius: var(--radius-sm);">
+                                        <div style="margin-bottom: 1rem;">
+                                            <p style="margin: 0; font-size: 0.85rem; color: var(--gray-600);">Preço de Venda Sugerido</p>
+                                            <p style="margin: 0.25rem 0 0 0; font-size: 1.5rem; font-weight: 700; color: var(--primary-color);" id="simulatorPrice">R$ 0,00</p>
+                                        </div>
+                                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; padding-top: 1rem; border-top: 1px solid var(--border-color);">
+                                            <div>
+                                                <p style="margin: 0; font-size: 0.85rem; color: var(--gray-600);">Lucro Esperado</p>
+                                                <p style="margin: 0.25rem 0 0 0; font-size: 1.1rem; font-weight: 600; color: #28a745;" id="simulatorProfit">R$ 0,00</p>
+                                            </div>
+                                            <div>
+                                                <p style="margin: 0; font-size: 0.85rem; color: var(--gray-600);">Preço com Desconto</p>
+                                                <p style="margin: 0.25rem 0 0 0; font-size: 1.1rem; font-weight: 600; color: var(--gray-700);" id="simulatorFinalPrice">R$ 0,00</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Histórico de Atividades (Audit Log) -->
+                        <div class="panel-section">
+                            <div class="panel-header">
+                                <h2><i class="fas fa-history"></i> Histórico de Atividades</h2>
+                                <div style="display: flex; gap: 0.5rem;">
+                                    <select id="auditLogFilter" class="search-input-with-icon" style="min-width: 150px;">
+                                        <option value="all">Todas as ações</option>
+                                        <option value="create">Criar</option>
+                                        <option value="update">Atualizar</option>
+                                        <option value="delete">Excluir</option>
+                                        <option value="export">Exportar</option>
+                                    </select>
+                                    <select id="auditLogEntityFilter" class="search-input-with-icon" style="min-width: 150px;">
+                                        <option value="all">Todas as entidades</option>
+                                        <option value="item">Produtos</option>
+                                        <option value="client">Clientes</option>
+                                        <option value="supplier">Fornecedores</option>
+                                        <option value="coupon">Cupons</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div id="auditLogList" class="items-grid" style="max-height: 600px; overflow-y: auto;">
+                                <!-- Histórico será inserido aqui via JavaScript -->
+                            </div>
+                        </div>
                     </div>
                 </div>
             </main>
@@ -669,7 +1039,7 @@
                     </div>
                     
                     <div class="form-group">
-                        <label for="itemPrice">Preço *</label>
+                        <label for="itemPrice">Preço de Venda *</label>
                         <input
                             type="number"
                             id="itemPrice"
@@ -677,6 +1047,31 @@
                             min="0.01"
                             required
                         />
+                    </div>
+                    <div class="form-group">
+                        <label for="itemCost">Custo de Compra (opcional)</label>
+                        <input
+                            type="number"
+                            id="itemCost"
+                            step="0.01"
+                            min="0"
+                            placeholder="0.00"
+                        />
+                        <small style="color: var(--gray-600); font-size: 0.85rem; display: block; margin-top: 0.25rem;">
+                            Custo de aquisição do produto para cálculo de ROI e margem de lucro
+                        </small>
+                    </div>
+                    <div class="form-group">
+                        <label for="itemMinStock">Estoque Mínimo (opcional)</label>
+                        <input
+                            type="number"
+                            id="itemMinStock"
+                            min="0"
+                            placeholder="Padrão: 5 unidades"
+                        />
+                        <small style="color: var(--gray-600); font-size: 0.85rem; display: block; margin-top: 0.25rem;">
+                            Quantidade mínima antes de gerar alerta. Deixe em branco para usar o padrão (5 unidades).
+                        </small>
                     </div>
                     <!-- QR Code Section -->
                     <div class="form-group" id="qrcodeSection" style="display: none; background: var(--light-gray); padding: 1rem; border-radius: 5px; margin-top: 1rem;">
@@ -742,12 +1137,161 @@
                         <label for="clientNotes">Observações</label>
                         <textarea id="clientNotes" rows="2" placeholder="Informações adicionais sobre o cliente"></textarea>
                     </div>
+                    <div class="form-group">
+                        <label for="clientLoyaltyPoints">Pontos de Fidelidade</label>
+                        <input type="number" id="clientLoyaltyPoints" min="0" value="0" placeholder="0" />
+                        <small style="color: var(--gray-600); font-size: 0.85rem; display: block; margin-top: 0.25rem;">
+                            Pontos acumulados pelo cliente. Descontos automáticos podem ser aplicados baseados nos pontos.
+                        </small>
+                    </div>
+                    <div class="form-group">
+                        <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+                            <input type="checkbox" id="clientReceiveNotifications" />
+                            <span>Cliente deseja receber notificações</span>
+                        </label>
+                    </div>
                     <div class="modal-actions">
                         <button type="button" class="btn-secondary" onclick="app.closeClientModal()">
                             Cancelar
                         </button>
                         <button type="submit" class="btn-primary">
                             <i class="fas fa-save"></i> Salvar Cliente
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Modal: Cadastro/Edição de Fornecedor -->
+        <div id="supplierModal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2 id="supplierModalTitle">Novo Fornecedor</h2>
+                    <span class="close" aria-label="Fechar modal" role="button" tabindex="0">&times;</span>
+                </div>
+                <form id="supplierForm">
+                    <div class="form-group">
+                        <label for="supplierName">Nome/Razão Social *</label>
+                        <input type="text" id="supplierName" required placeholder="Ex: Fornecedor ABC Ltda" />
+                    </div>
+                    <div class="form-group">
+                        <label for="supplierCNPJ">CNPJ</label>
+                        <input type="text" id="supplierCNPJ" placeholder="00.000.000/0000-00" maxlength="18" />
+                    </div>
+                    <div class="form-group">
+                        <label for="supplierContactName">Nome do Contato</label>
+                        <input type="text" id="supplierContactName" placeholder="Ex: João Silva" />
+                    </div>
+                    <div class="form-group">
+                        <label for="supplierPhone">Telefone</label>
+                        <input type="text" id="supplierPhone" placeholder="(00) 00000-0000" maxlength="15" />
+                    </div>
+                    <div class="form-group">
+                        <label for="supplierEmail">E-mail</label>
+                        <input type="email" id="supplierEmail" placeholder="fornecedor@email.com" />
+                    </div>
+                    <div class="form-group">
+                        <label for="supplierAddress">Endereço</label>
+                        <textarea id="supplierAddress" rows="3" placeholder="Rua, número, bairro, cidade - CEP"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="supplierRating">Avaliação (1-5 estrelas)</label>
+                        <div style="display: flex; gap: 0.5rem; align-items: center;">
+                            <input type="range" id="supplierRating" min="1" max="5" value="3" step="1" style="flex: 1;" />
+                            <span id="supplierRatingDisplay" style="font-weight: 600; color: var(--primary-color); min-width: 60px;">3 ⭐</span>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="supplierNotes">Observações</label>
+                        <textarea id="supplierNotes" rows="2" placeholder="Informações adicionais sobre o fornecedor"></textarea>
+                    </div>
+                    <div class="modal-actions">
+                        <button type="button" class="btn-secondary" onclick="app.closeSupplierModal()">
+                            Cancelar
+                        </button>
+                        <button type="submit" class="btn-primary">
+                            <i class="fas fa-save"></i> Salvar Fornecedor
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Modal: Cadastro/Edição de Cupom -->
+        <div id="couponModal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2 id="couponModalTitle">Novo Cupom</h2>
+                    <span class="close" aria-label="Fechar modal" role="button" tabindex="0">&times;</span>
+                </div>
+                <form id="couponForm">
+                    <div class="form-group">
+                        <label for="couponCode">Código do Cupom *</label>
+                        <input type="text" id="couponCode" required placeholder="Ex: DESCONTO10" maxlength="20" style="text-transform: uppercase;" />
+                        <small style="color: var(--gray-600); font-size: 0.85rem; display: block; margin-top: 0.25rem;">
+                            Código único que será usado para aplicar o desconto
+                        </small>
+                    </div>
+                    <div class="form-group">
+                        <label for="couponType">Tipo de Desconto *</label>
+                        <select id="couponType" required>
+                            <option value="">Selecione o tipo</option>
+                            <option value="percent">Percentual (%)</option>
+                            <option value="fixed">Valor Fixo (R$)</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="couponValue">Valor do Desconto *</label>
+                        <input type="number" id="couponValue" step="0.01" min="0.01" required placeholder="Ex: 10 ou 50.00" />
+                        <small style="color: var(--gray-600); font-size: 0.85rem; display: block; margin-top: 0.25rem;">
+                            Se percentual: valor entre 0 e 100. Se fixo: valor em reais.
+                        </small>
+                    </div>
+                    <div class="form-group">
+                        <label for="couponDescription">Descrição</label>
+                        <textarea id="couponDescription" rows="2" placeholder="Descrição do cupom (opcional)"></textarea>
+                    </div>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                        <div class="form-group">
+                            <label for="couponStartsAt">Data de Início</label>
+                            <input type="date" id="couponStartsAt" />
+                            <small style="color: var(--gray-600); font-size: 0.85rem; display: block; margin-top: 0.25rem;">
+                                Data em que a promoção começa a valer
+                            </small>
+                        </div>
+                        <div class="form-group">
+                            <label for="couponExpiresAt">Data de Expiração</label>
+                            <input type="date" id="couponExpiresAt" />
+                            <small style="color: var(--gray-600); font-size: 0.85rem; display: block; margin-top: 0.25rem;">
+                                Data em que a promoção expira
+                            </small>
+                        </div>
+                    </div>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                        <div class="form-group">
+                            <label for="couponMaxUses">Limite de Uso</label>
+                            <input type="number" id="couponMaxUses" min="1" placeholder="Ilimitado se vazio" />
+                        </div>
+                        <div class="form-group">
+                            <label for="couponMinQuantity">Quantidade Mínima (Desconto por Quantidade)</label>
+                            <input type="number" id="couponMinQuantity" min="1" placeholder="Ex: 5 unidades" />
+                            <small style="color: var(--gray-600); font-size: 0.85rem; display: block; margin-top: 0.25rem;">
+                                Desconto aplicado apenas se comprar esta quantidade mínima
+                            </small>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+                            <input type="checkbox" id="couponActive" checked />
+                            <span>Cupom ativo</span>
+                        </label>
+                    </div>
+                    <div class="modal-actions">
+                        <button type="button" class="btn-secondary" onclick="app.closeCouponModal()">
+                            Cancelar
+                        </button>
+                        <button type="submit" class="btn-primary">
+                            <i class="fas fa-save"></i> Salvar Cupom
                         </button>
                     </div>
                 </form>
@@ -848,7 +1392,7 @@
                         />
                     </div>
                     <div class="form-group">
-                        <label for="salePrice">Preço Aplicado *</label>
+                        <label for="salePrice">Preço Unitário *</label>
                         <input
                             type="number"
                             id="salePrice"
@@ -857,6 +1401,72 @@
                             required
                         />
                     </div>
+                    
+                    <!-- Sistema de Descontos -->
+                    <div class="form-group" style="background: var(--gray-50); padding: 1rem; border-radius: var(--radius-md); border: 1px solid var(--gray-200);">
+                        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.75rem;">
+                            <label for="saleDiscountType" style="margin: 0; font-weight: 600; color: var(--primary-color);">
+                                <i class="fas fa-tag"></i> Desconto
+                            </label>
+                            <button type="button" class="btn-secondary" id="toggleDiscountBtn" onclick="app.toggleDiscountFields()" style="padding: 0.375rem 0.75rem; font-size: 0.875rem;">
+                                <i class="fas fa-plus"></i> Aplicar Desconto
+                            </button>
+                        </div>
+                        <div id="discountFields" style="display: none;">
+                            <div style="display: flex; gap: 0.5rem; margin-bottom: 0.75rem;">
+                                <select id="saleDiscountType" style="flex: 1;">
+                                    <option value="">Tipo de desconto</option>
+                                    <option value="percent">Percentual (%)</option>
+                                    <option value="fixed">Valor fixo (R$)</option>
+                                </select>
+                                <input
+                                    type="number"
+                                    id="saleDiscountValue"
+                                    step="0.01"
+                                    min="0"
+                                    placeholder="0.00"
+                                    style="flex: 1;"
+                                />
+                            </div>
+                            <div class="form-group" style="margin-bottom: 0;">
+                                <label for="saleCouponCode" style="font-size: 0.875rem;">Cupom de Desconto (opcional)</label>
+                                <div style="display: flex; gap: 0.5rem;">
+                                    <input
+                                        type="text"
+                                        id="saleCouponCode"
+                                        placeholder="Digite o código do cupom"
+                                        style="flex: 1;"
+                                    />
+                                    <button type="button" class="btn-secondary" onclick="app.applyCoupon()" style="white-space: nowrap;">
+                                        <i class="fas fa-check"></i> Aplicar
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        <div id="discountSummary" style="display: none; margin-top: 0.75rem; padding: 0.75rem; background: var(--white); border-radius: var(--radius-sm); border: 1px solid var(--gray-200);">
+                            <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+                                <span style="color: var(--gray-600);">Subtotal:</span>
+                                <span id="discountSubtotal" style="font-weight: 600;">R$ 0,00</span>
+                            </div>
+                            <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem; color: var(--primary-color);">
+                                <span>Desconto:</span>
+                                <span id="discountAmount" style="font-weight: 600;">- R$ 0,00</span>
+                            </div>
+                            <div style="display: flex; justify-content: space-between; padding-top: 0.5rem; border-top: 2px solid var(--gray-200); font-size: 1.1rem; font-weight: 700; color: var(--primary-color);">
+                                <span>Total:</span>
+                                <span id="discountTotal">R$ 0,00</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="saleNotes">Notas/Observações (opcional)</label>
+                        <textarea id="saleNotes" rows="3" placeholder="Adicione observações sobre esta venda..." maxlength="500"></textarea>
+                        <small style="color: var(--gray-600); font-size: 0.85rem; display: block; margin-top: 0.25rem;">
+                            Informações adicionais sobre a venda (máximo 500 caracteres)
+                        </small>
+                    </div>
+                    
                     <div class="modal-actions">
                         <button
                             type="button"
@@ -1244,6 +1854,17 @@
                         </select>
                     </div>
                     <div class="form-group">
+                        <label for="costSupplier">Fornecedor (opcional)</label>
+                        <div style="display: flex; gap: 0.5rem; align-items: flex-start;">
+                            <select id="costSupplier" style="flex: 1;">
+                                <option value="">Selecione um fornecedor ou deixe em branco...</option>
+                            </select>
+                            <button type="button" class="btn-secondary" onclick="app.openSupplierModal()" title="Novo Fornecedor" style="white-space: nowrap;">
+                                <i class="fas fa-truck"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="form-group">
                         <label for="costDate">Data da Compra *</label>
                         <input type="date" id="costDate" required />
                     </div>
@@ -1490,6 +2111,413 @@
             </div>
         </div>
 
+        <!-- Modal: Construtor de Relatórios -->
+        <div id="reportBuilderModal" class="modal">
+            <div class="modal-content large">
+                <div class="modal-header">
+                    <h2><i class="fas fa-file-alt"></i> Gerar Relatório Personalizado</h2>
+                    <span class="close" aria-label="Fechar modal" role="button" tabindex="0" onclick="app.closeReportBuilderModal()">&times;</span>
+                </div>
+                <div style="padding: 1.5rem;">
+                    <form id="reportBuilderForm">
+                        <div class="form-group">
+                            <label for="reportBuilderType">Tipo de Relatório *</label>
+                            <select id="reportBuilderType" required onchange="app.updateReportBuilderFields()">
+                                <option value="">Selecione o tipo...</option>
+                                <option value="sales">Vendas</option>
+                                <option value="services">Serviços</option>
+                                <option value="products">Produtos</option>
+                                <option value="clients">Clientes</option>
+                                <option value="financial">Financeiro</option>
+                                <option value="custom">Personalizado</option>
+                            </select>
+                        </div>
+                        
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin: 1.5rem 0;">
+                            <div class="form-group">
+                                <label for="reportBuilderStartDate">Data Inicial</label>
+                                <input type="date" id="reportBuilderStartDate" />
+                            </div>
+                            <div class="form-group">
+                                <label for="reportBuilderEndDate">Data Final</label>
+                                <input type="date" id="reportBuilderEndDate" />
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="reportBuilderPeriod">Ou selecione um período pré-definido</label>
+                            <select id="reportBuilderPeriod" onchange="app.setReportBuilderPeriod()">
+                                <option value="">Personalizado</option>
+                                <option value="today">Hoje</option>
+                                <option value="week">Esta Semana</option>
+                                <option value="month">Este Mês</option>
+                                <option value="quarter">Este Trimestre</option>
+                                <option value="year">Este Ano</option>
+                                <option value="lastMonth">Mês Anterior</option>
+                                <option value="lastQuarter">Trimestre Anterior</option>
+                                <option value="lastYear">Ano Anterior</option>
+                            </select>
+                        </div>
+                        
+                        <div id="reportBuilderFilters" style="margin: 1.5rem 0;">
+                            <h3 style="margin: 0 0 1rem 0; color: var(--dark-gray); font-size: 1rem;">
+                                <i class="fas fa-filter"></i> Filtros Adicionais
+                            </h3>
+                            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;">
+                                <div class="form-group">
+                                    <label for="reportBuilderCategory">Categoria (Produtos)</label>
+                                    <select id="reportBuilderCategory">
+                                        <option value="">Todas</option>
+                                        <option value="Roupas">Roupas</option>
+                                        <option value="Eletrônicos">Eletrônicos</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label for="reportBuilderStatus">Status (Vendas/Agendamentos)</label>
+                                    <select id="reportBuilderStatus">
+                                        <option value="">Todos</option>
+                                        <option value="completed">Concluído</option>
+                                        <option value="pending">Pendente</option>
+                                        <option value="cancelled">Cancelado</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="reportBuilderFormat">Formato de Exportação *</label>
+                            <select id="reportBuilderFormat" required>
+                                <option value="html">HTML (Visualização)</option>
+                                <option value="json">JSON</option>
+                                <option value="csv">CSV</option>
+                                <option value="txt">TXT</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+                                <input type="checkbox" id="reportBuilderIncludeCharts" />
+                                <span>Incluir gráficos no relatório</span>
+                            </label>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+                                <input type="checkbox" id="reportBuilderIncludeSummary" checked />
+                                <span>Incluir resumo executivo</span>
+                            </label>
+                        </div>
+                        
+                        <div style="display: flex; gap: 0.5rem; margin-top: 1.5rem;">
+                            <button type="button" class="btn-secondary" onclick="app.closeReportBuilderModal()">
+                                Cancelar
+                            </button>
+                            <button type="submit" class="btn-primary">
+                                <i class="fas fa-file-download"></i> Gerar Relatório
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal: Exportação Avançada -->
+        <div id="exportModal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2><i class="fas fa-download"></i> Exportar Dados</h2>
+                    <span class="close" aria-label="Fechar modal" role="button" tabindex="0" onclick="app.closeExportModal()">&times;</span>
+                </div>
+                <div style="padding: 1.5rem;">
+                    <form id="exportForm">
+                        <div class="form-group">
+                            <label for="exportFormat">Formato de Exportação *</label>
+                            <select id="exportFormat" required>
+                                <option value="json">JSON (Backup Completo)</option>
+                                <option value="pdf">PDF (Relatório Formatado)</option>
+                                <option value="excel">Excel (Planilha)</option>
+                                <option value="csv">CSV (Dados Simples)</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="exportDataType">Dados para Exportar *</label>
+                            <select id="exportDataType" required>
+                                <option value="all">Todos os Dados</option>
+                                <option value="items">Apenas Produtos</option>
+                                <option value="sales">Apenas Vendas</option>
+                                <option value="clients">Apenas Clientes</option>
+                                <option value="financial">Dados Financeiros (Vendas + Custos)</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+                                <input type="checkbox" id="exportIncludeCharts" />
+                                <span>Incluir gráficos (apenas PDF)</span>
+                            </label>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+                                <input type="checkbox" id="exportIncludeSummary" checked />
+                                <span>Incluir resumo executivo</span>
+                            </label>
+                        </div>
+                        
+                        <div style="display: flex; gap: 0.5rem; margin-top: 1.5rem;">
+                            <button type="button" class="btn-secondary" onclick="app.closeExportModal()">
+                                Cancelar
+                            </button>
+                            <button type="submit" class="btn-primary">
+                                <i class="fas fa-file-download"></i> Exportar
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal: Análise Preditiva -->
+        <div id="predictiveAnalysisModal" class="modal">
+            <div class="modal-content large">
+                <div class="modal-header">
+                    <h2><i class="fas fa-chart-line"></i> Análise Preditiva</h2>
+                    <span class="close" aria-label="Fechar modal" role="button" tabindex="0" onclick="app.closePredictiveAnalysisModal()">&times;</span>
+                </div>
+                <div style="padding: 1.5rem;">
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1rem; margin-bottom: 1.5rem;">
+                        <div style="padding: 1rem; background: var(--light-gray); border-radius: var(--radius-sm);">
+                            <h3 style="margin: 0 0 0.5rem 0; font-size: 0.9rem; color: var(--gray-600);">Previsão de Vendas (Próximo Mês)</h3>
+                            <p id="salesForecast" style="margin: 0; font-size: 1.5rem; font-weight: 700; color: var(--primary-color);">R$ 0,00</p>
+                        </div>
+                        <div style="padding: 1rem; background: var(--light-gray); border-radius: var(--radius-sm);">
+                            <h3 style="margin: 0 0 0.5rem 0; font-size: 0.9rem; color: var(--gray-600);">Tendência</h3>
+                            <p id="salesTrend" style="margin: 0; font-size: 1.2rem; font-weight: 600;">-</p>
+                        </div>
+                        <div style="padding: 1rem; background: var(--light-gray); border-radius: var(--radius-sm);">
+                            <h3 style="margin: 0 0 0.5rem 0; font-size: 0.9rem; color: var(--gray-600);">Crescimento Esperado</h3>
+                            <p id="expectedGrowth" style="margin: 0; font-size: 1.2rem; font-weight: 600;">-</p>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group" style="margin-bottom: 1.5rem;">
+                        <label for="predictivePeriod">Período para Análise</label>
+                        <select id="predictivePeriod" onchange="app.updatePredictiveAnalysis()">
+                            <option value="3">Últimos 3 meses</option>
+                            <option value="6" selected>Últimos 6 meses</option>
+                            <option value="12">Últimos 12 meses</option>
+                        </select>
+                    </div>
+                    
+                    <div id="predictiveInsights" style="margin-bottom: 1.5rem;">
+                        <!-- Insights serão inseridos aqui -->
+                    </div>
+                    
+                    <div id="predictiveRecommendations" style="margin-bottom: 1.5rem;">
+                        <h3 style="margin: 0 0 1rem 0; color: var(--dark-gray); font-size: 1rem;">
+                            <i class="fas fa-lightbulb"></i> Recomendações
+                        </h3>
+                        <div id="recommendationsList">
+                            <!-- Recomendações serão inseridas aqui -->
+                        </div>
+                    </div>
+                    
+                    <div style="display: flex; gap: 0.5rem; margin-top: 1.5rem;">
+                        <button type="button" class="btn-secondary" onclick="app.closePredictiveAnalysisModal()">
+                            Fechar
+                        </button>
+                        <button type="button" class="btn-primary" onclick="app.exportPredictiveAnalysis()">
+                            <i class="fas fa-download"></i> Exportar Análise
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal: Análise de Concorrência -->
+        <div id="competitiveAnalysisModal" class="modal">
+            <div class="modal-content large">
+                <div class="modal-header">
+                    <h2><i class="fas fa-chart-bar"></i> Análise de Concorrência</h2>
+                    <span class="close" aria-label="Fechar modal" role="button" tabindex="0" onclick="app.closeCompetitiveAnalysisModal()">&times;</span>
+                </div>
+                <div style="padding: 1.5rem;">
+                    <div class="form-group" style="margin-bottom: 1.5rem;">
+                        <label for="competitivePeriod">Período de Análise:</label>
+                        <select id="competitivePeriod" onchange="app.updateCompetitiveAnalysis()">
+                            <option value="3">Últimos 3 meses</option>
+                            <option value="6" selected>Últimos 6 meses</option>
+                            <option value="12">Últimos 12 meses</option>
+                        </select>
+                    </div>
+                    
+                    <div id="competitiveAnalysisContainer">
+                        <!-- Análise será renderizada aqui -->
+                    </div>
+                    
+                    <div style="display: flex; gap: 0.5rem; margin-top: 1.5rem;">
+                        <button type="button" class="btn-secondary" onclick="app.closeCompetitiveAnalysisModal()">
+                            Fechar
+                        </button>
+                        <button type="button" class="btn-primary" onclick="app.exportCompetitiveAnalysis()">
+                            <i class="fas fa-download"></i> Exportar Análise
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal: Histórico de Promoções -->
+        <div id="promotionHistoryModal" class="modal">
+            <div class="modal-content large">
+                <div class="modal-header">
+                    <h2><i class="fas fa-history"></i> Histórico de Promoções</h2>
+                    <span class="close" aria-label="Fechar modal" role="button" tabindex="0" onclick="app.closePromotionHistoryModal()">&times;</span>
+                </div>
+                <div style="padding: 1.5rem;">
+                    <div class="form-group" style="margin-bottom: 1.5rem;">
+                        <label for="promotionHistoryFilter">Filtrar por Cupom</label>
+                        <select id="promotionHistoryFilter" onchange="app.renderPromotionHistory()" style="width: 100%;">
+                            <option value="">Todos os cupons</option>
+                        </select>
+                    </div>
+                    <div id="promotionHistoryList" style="max-height: 600px; overflow-y: auto;">
+                        <!-- Histórico será inserido aqui via JavaScript -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal: Busca Avançada -->
+        <div id="advancedSearchModal" class="modal">
+            <div class="modal-content large">
+                <div class="modal-header">
+                    <h2><i class="fas fa-search"></i> Busca Avançada</h2>
+                    <span class="close" aria-label="Fechar modal" role="button" tabindex="0" onclick="app.closeAdvancedSearchModal()">&times;</span>
+                </div>
+                <div style="padding: 1.5rem;">
+                    <div class="form-group">
+                        <label for="advancedSearchTerm">Termo de Busca</label>
+                        <input 
+                            type="text" 
+                            id="advancedSearchTerm" 
+                            class="search-input-with-icon" 
+                            placeholder="Digite o termo para buscar..."
+                            onkeyup="if(event.key==='Enter') app.executeAdvancedSearch()"
+                            style="width: 100%;"
+                        />
+                    </div>
+                    
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin: 1.5rem 0;">
+                        <div class="form-group">
+                            <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+                                <input type="checkbox" id="searchInProducts" checked />
+                                <span><i class="fas fa-box"></i> Produtos</span>
+                            </label>
+                        </div>
+                        <div class="form-group">
+                            <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+                                <input type="checkbox" id="searchInClients" checked />
+                                <span><i class="fas fa-user"></i> Clientes</span>
+                            </label>
+                        </div>
+                        <div class="form-group">
+                            <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+                                <input type="checkbox" id="searchInSuppliers" />
+                                <span><i class="fas fa-truck"></i> Fornecedores</span>
+                            </label>
+                        </div>
+                        <div class="form-group">
+                            <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+                                <input type="checkbox" id="searchInSales" />
+                                <span><i class="fas fa-shopping-cart"></i> Vendas</span>
+                            </label>
+                        </div>
+                        <div class="form-group">
+                            <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+                                <input type="checkbox" id="searchInAppointments" />
+                                <span><i class="fas fa-calendar-check"></i> Agendamentos</span>
+                            </label>
+                        </div>
+                        <div class="form-group">
+                            <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+                                <input type="checkbox" id="searchInNotes" />
+                                <span><i class="fas fa-sticky-note"></i> Notas</span>
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin: 1.5rem 0;">
+                        <div class="form-group">
+                            <label for="advancedSearchCategory">Categoria (Produtos)</label>
+                            <select id="advancedSearchCategory">
+                                <option value="">Todas as categorias</option>
+                                <option value="Roupas">Roupas</option>
+                                <option value="Eletrônicos">Eletrônicos</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="advancedSearchDateRange">Período (Vendas/Agendamentos)</label>
+                            <select id="advancedSearchDateRange">
+                                <option value="">Todos os períodos</option>
+                                <option value="today">Hoje</option>
+                                <option value="week">Esta Semana</option>
+                                <option value="month">Este Mês</option>
+                                <option value="quarter">Este Trimestre</option>
+                                <option value="year">Este Ano</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div style="display: flex; gap: 0.5rem; margin-bottom: 1.5rem;">
+                        <button class="btn-primary" onclick="app.executeAdvancedSearch()" style="flex: 1;">
+                            <i class="fas fa-search"></i> Buscar
+                        </button>
+                        <button class="btn-secondary" onclick="app.clearAdvancedSearch()">
+                            <i class="fas fa-times"></i> Limpar
+                        </button>
+                    </div>
+                    
+                    <div id="advancedSearchResults" class="items-grid" style="max-height: 600px; overflow-y: auto;">
+                        <p style="text-align: center; color: var(--gray-600); padding: 2rem;">Digite um termo e selecione onde buscar...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal: Busca por Notas -->
+        <div id="notesSearchModal" class="modal">
+            <div class="modal-content large">
+                <div class="modal-header">
+                    <h2><i class="fas fa-sticky-note"></i> Buscar por Notas</h2>
+                    <span class="close" aria-label="Fechar modal" role="button" tabindex="0" onclick="app.closeNotesSearchModal()">&times;</span>
+                </div>
+                <div style="padding: 1.5rem;">
+                    <div class="form-group">
+                        <label for="notesSearchInput">Digite o termo para buscar nas notas</label>
+                        <div style="display: flex; gap: 0.5rem;">
+                            <input 
+                                type="text" 
+                                id="notesSearchInput" 
+                                class="search-input-with-icon" 
+                                placeholder="Buscar em produtos, clientes, fornecedores, vendas e agendamentos..."
+                                onkeyup="if(event.key==='Enter') app.executeNotesSearch()"
+                                oninput="app.executeNotesSearch()"
+                                style="flex: 1;"
+                            />
+                            <button class="btn-primary" onclick="app.executeNotesSearch()">
+                                <i class="fas fa-search"></i> Buscar
+                            </button>
+                        </div>
+                    </div>
+                    <div id="notesSearchResults" class="items-grid" style="margin-top: 1.5rem; max-height: 600px; overflow-y: auto;">
+                        <p style="text-align: center; color: var(--gray-600); padding: 2rem;">Digite um termo para buscar nas notas...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <!-- Modal: Visualizar QR Code -->
         <div id="qrcodeModal" class="modal">
             <div class="modal-content">
@@ -1506,6 +2534,181 @@
                         </button>
                         <button type="button" class="btn-secondary" id="printQRModalBtn">
                             <i class="fas fa-print"></i> Imprimir
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal: Cadastro/Edição de Template -->
+        <div id="templateModal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2 id="templateModalTitle">Novo Template</h2>
+                    <span class="close" aria-label="Fechar modal" role="button" tabindex="0" onclick="app.closeTemplateModal()">&times;</span>
+                </div>
+                <form id="templateForm" onsubmit="app.saveTemplate(event)">
+                    <div class="form-group">
+                        <label for="templateName">Nome do Template *</label>
+                        <input type="text" id="templateName" required placeholder="Ex: Produto Padrão, Venda Rápida" />
+                    </div>
+                    <div class="form-group">
+                        <label for="templateType">Tipo de Template *</label>
+                        <select id="templateType" required onchange="app.toggleTemplateFields(this.value)">
+                            <option value="">Selecione o tipo...</option>
+                            <option value="product">Produto</option>
+                            <option value="sale">Venda</option>
+                            <option value="service">Serviço</option>
+                            <option value="report">Relatório</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="templateDescription">Descrição</label>
+                        <textarea id="templateDescription" rows="2" placeholder="Descrição do template (opcional)"></textarea>
+                    </div>
+                    
+                    <!-- Campos específicos para Produto -->
+                    <div id="templateProductFields" style="display: none;">
+                        <div class="form-group">
+                            <label for="templateCategory">Categoria</label>
+                            <input type="text" id="templateCategory" placeholder="Ex: Roupas, Eletrônicos" />
+                        </div>
+                        <div class="form-group">
+                            <label for="templatePrice">Preço Padrão (R$)</label>
+                            <input type="number" id="templatePrice" step="0.01" min="0" placeholder="0.00" />
+                        </div>
+                    </div>
+                    
+                    <!-- Campos específicos para Venda -->
+                    <div id="templateSaleFields" style="display: none;">
+                        <div class="form-group">
+                            <label for="templateSaleQuantity">Quantidade Padrão</label>
+                            <input type="number" id="templateSaleQuantity" min="1" value="1" />
+                        </div>
+                        <div class="form-group">
+                            <label for="templateSaleDiscount">Desconto Padrão (%)</label>
+                            <input type="number" id="templateSaleDiscount" step="0.1" min="0" max="100" value="0" />
+                        </div>
+                    </div>
+                    
+                    <!-- Campos específicos para Serviço -->
+                    <div id="templateServiceFields" style="display: none;">
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                            <div class="form-group">
+                                <label for="templateServiceHours">Horas</label>
+                                <input type="number" id="templateServiceHours" min="0" value="0" />
+                            </div>
+                            <div class="form-group">
+                                <label for="templateServiceMinutes">Minutos</label>
+                                <input type="number" id="templateServiceMinutes" min="0" max="59" value="0" />
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Campos específicos para Relatório -->
+                    <div id="templateReportFields" style="display: none;">
+                        <div class="form-group">
+                            <label for="templateReportType">Tipo de Relatório *</label>
+                            <select id="templateReportType">
+                                <option value="">Selecione...</option>
+                                <option value="sales">Vendas</option>
+                                <option value="services">Serviços</option>
+                                <option value="products">Produtos</option>
+                                <option value="clients">Clientes</option>
+                                <option value="financial">Financeiro</option>
+                                <option value="custom">Personalizado</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="templateReportPeriod">Período Padrão</label>
+                            <select id="templateReportPeriod">
+                                <option value="today">Hoje</option>
+                                <option value="week">Esta Semana</option>
+                                <option value="month">Este Mês</option>
+                                <option value="quarter">Este Trimestre</option>
+                                <option value="year">Este Ano</option>
+                                <option value="custom">Personalizado</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="templateReportFormat">Formato de Exportação</label>
+                            <select id="templateReportFormat">
+                                <option value="pdf">PDF</option>
+                                <option value="excel">Excel</option>
+                                <option value="csv">CSV</option>
+                                <option value="json">JSON</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="templateReportColumns">Colunas a Incluir (separadas por vírgula)</label>
+                            <input type="text" id="templateReportColumns" placeholder="Ex: data, cliente, produto, valor, quantidade" />
+                            <small style="color: var(--gray-600); font-size: 0.85rem; display: block; margin-top: 0.25rem;">
+                                Deixe em branco para incluir todas as colunas padrão
+                            </small>
+                        </div>
+                        <div class="form-group">
+                            <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+                                <input type="checkbox" id="templateReportIncludeCharts" />
+                                <span>Incluir gráficos no relatório</span>
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <div class="modal-actions">
+                        <button type="button" class="btn-secondary" onclick="app.closeTemplateModal()">
+                            Cancelar
+                        </button>
+                        <button type="submit" class="btn-primary">
+                            <i class="fas fa-save"></i> Salvar Template
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Modal: Configurações de Acessibilidade -->
+        <div id="accessibilityModal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2><i class="fas fa-universal-access"></i> Configurações de Acessibilidade</h2>
+                    <span class="close" aria-label="Fechar modal" role="button" tabindex="0" onclick="app.closeAccessibilityModal()">&times;</span>
+                </div>
+                <div style="padding: 1.5rem;">
+                    <div class="form-group">
+                        <label>
+                            <input type="checkbox" id="highContrastToggle" onchange="app.toggleHighContrast()" />
+                            Modo Alto Contraste
+                        </label>
+                        <small style="display: block; color: var(--gray-600); margin-top: 0.25rem;">
+                            Aumenta o contraste entre texto e fundo para melhor legibilidade
+                        </small>
+                    </div>
+
+                    <div class="form-group" style="margin-top: 1.5rem;">
+                        <label for="fontSizeSelect">Tamanho da Fonte</label>
+                        <select id="fontSizeSelect" onchange="app.setFontSize(this.value)">
+                            <option value="small">Pequeno</option>
+                            <option value="normal" selected>Normal</option>
+                            <option value="large">Grande</option>
+                            <option value="extra-large">Extra Grande</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group" style="margin-top: 1.5rem;">
+                        <label for="spacingSelect">Espaçamento</label>
+                        <select id="spacingSelect" onchange="app.setSpacing(this.value)">
+                            <option value="compact">Compacto</option>
+                            <option value="normal" selected>Normal</option>
+                            <option value="comfortable">Confortável</option>
+                        </select>
+                    </div>
+
+                    <div class="modal-actions" style="margin-top: 2rem;">
+                        <button type="button" class="btn-secondary" onclick="app.closeAccessibilityModal()">
+                            <i class="fas fa-times"></i> Fechar
+                        </button>
+                        <button type="button" class="btn-primary" onclick="app.resetAccessibilitySettings()">
+                            <i class="fas fa-undo"></i> Restaurar Padrões
                         </button>
                     </div>
                 </div>
@@ -1678,32 +2881,32 @@
             });
         </script>
         <script>
-            // Service Worker DESABILITADO temporariamente para evitar cache
-            // TODO: Reabilitar quando cache estiver funcionando corretamente
-            /*
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                navigator.serviceWorker.register('/sw.js')
-                    .then((registration) => {
-                        console.log('Service Worker registrado:', registration);
-                    })
-                    .catch((error) => {
-                        console.log('Erro ao registrar Service Worker:', error);
-                    });
-            });
-        }
-        */
-
-            // Desregistrar qualquer Service Worker existente
+            // Registrar Service Worker para PWA
             if ('serviceWorker' in navigator) {
-                navigator.serviceWorker
-                    .getRegistrations()
-                    .then(function (registrations) {
-                        for (let registration of registrations) {
-                            registration.unregister();
-                            console.log('Service Worker desregistrado');
-                        }
-                    });
+                window.addEventListener('load', () => {
+                    navigator.serviceWorker.register('/sw.js')
+                        .then((registration) => {
+                            console.log('✅ [PWA] Service Worker registrado:', registration.scope);
+                            
+                            // Verificar atualizações
+                            registration.addEventListener('updatefound', () => {
+                                const newWorker = registration.installing;
+                                newWorker.addEventListener('statechange', () => {
+                                    if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                                        // Nova versão disponível
+                                        console.log('🔄 [PWA] Nova versão disponível!');
+                                        if (confirm('Uma nova versão está disponível. Deseja atualizar?')) {
+                                            newWorker.postMessage({ type: 'SKIP_WAITING' });
+                                            window.location.reload();
+                                        }
+                                    }
+                                });
+                            });
+                        })
+                        .catch((error) => {
+                            console.error('❌ [PWA] Erro ao registrar Service Worker:', error);
+                        });
+                });
             }
         </script>
 
@@ -1712,7 +2915,7 @@
             <div class="modal-content large">
                 <div class="modal-header">
                     <h2>Como usar o sistema</h2>
-                    <span class="close" aria-label="Fechar modal" role="button" tabindex="0">&times;</span>
+                    <span class="close" aria-label="Fechar modal" role="button" tabindex="0" onclick="if(window.app){window.app.closeTutorialModal();}else{const m=document.getElementById('tutorialModal');if(m){m.classList.remove('active');m.style.display='none';localStorage.setItem('hasSeenTutorial','true');}}">&times;</span>
                 </div>
                 <div class="modal-body" style="max-height: 70vh; overflow-y: auto;">
                     <div id="tutorialContent">
@@ -1720,7 +2923,7 @@
                     </div>
                 </div>
                 <div class="modal-actions">
-                    <button type="button" class="btn-secondary" id="closeTutorialBtn">Fechar</button>
+                    <button type="button" class="btn-secondary" id="closeTutorialBtn" onclick="if(window.app){window.app.closeTutorialModal();}else{const m=document.getElementById('tutorialModal');if(m){m.classList.remove('active');m.style.display='none';localStorage.setItem('hasSeenTutorial','true');}}">Fechar</button>
                     <button type="button" class="btn-primary" id="startTutorialBtn">Iniciar Tutorial Interativo</button>
                 </div>
             </div>
@@ -1740,6 +2943,44 @@
             </div>
             <div style="margin-top: 0.5rem; text-align: center;">
                 <button id="tutorialSkipBtn" class="btn-secondary" style="font-size: 0.85rem; padding: 0.4rem 0.8rem;">Pular Tutorial</button>
+            </div>
+        </div>
+
+        <!-- Modal: Gerenciamento de Backups -->
+        <div id="backupModal" class="modal">
+            <div class="modal-content" style="max-width: 800px;">
+                <div class="modal-header">
+                    <h2><i class="fas fa-database"></i> Gerenciamento de Backups</h2>
+                    <span class="close" aria-label="Fechar modal" role="button" tabindex="0" onclick="app.closeBackupModal()">&times;</span>
+                </div>
+                <div style="padding: 1.5rem;">
+                    <div style="display: flex; gap: 1rem; margin-bottom: 1.5rem; flex-wrap: wrap;">
+                        <button class="btn-primary" onclick="app.createManualBackup()">
+                            <i class="fas fa-save"></i> Criar Backup Agora
+                        </button>
+                        <button class="btn-secondary" onclick="app.configureAutoBackup()">
+                            <i class="fas fa-cog"></i> Configurar Backup Automático
+                        </button>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+                            <input type="checkbox" id="autoBackupEnabled" onchange="app.toggleAutoBackup()" />
+                            <span>Backup automático ativado</span>
+                        </label>
+                        <select id="autoBackupFrequency" style="margin-top: 0.5rem; width: 100%;" onchange="app.updateAutoBackupFrequency()">
+                            <option value="daily">Diário (1x por dia)</option>
+                            <option value="weekly">Semanal (1x por semana)</option>
+                        </select>
+                    </div>
+
+                    <h3 style="margin: 1.5rem 0 1rem 0; font-size: 1.1rem; color: var(--primary-color);">
+                        <i class="fas fa-history"></i> Histórico de Backups
+                    </h3>
+                    <div id="backupHistoryList" style="max-height: 400px; overflow-y: auto; border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 1rem;">
+                        <!-- Histórico será inserido aqui via JavaScript -->
+                    </div>
+                </div>
             </div>
         </div>
     </body>

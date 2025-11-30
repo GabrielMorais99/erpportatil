@@ -1,6 +1,7 @@
-// Service Worker para PWA
-// IMPORTANTE: Versão atualizada para forçar atualização do cache
-const CACHE_NAME = 'loja-vendas-v2';
+// Service Worker para PWA - Versão 3.0
+// Suporte a cache, notificações push e sincronização em background
+const CACHE_NAME = 'loja-vendas-v3';
+const RUNTIME_CACHE = 'loja-vendas-runtime-v3';
 const urlsToCache = [
   '/',
   '/index.html',
@@ -9,64 +10,319 @@ const urlsToCache = [
   '/js/login.js',
   '/js/app.js',
   '/manifest.json',
-  '/icon-192.png',
-  '/icon-512.png'
+  '/images/icone-e-transicao.jpg'
 ];
 
 // Instalar Service Worker
 self.addEventListener('install', (event) => {
+  console.log('[SW] Instalando Service Worker...');
   event.waitUntil(
     caches.open(CACHE_NAME)
       .then((cache) => {
-        console.log('Cache aberto');
-        return cache.addAll(urlsToCache);
+        console.log('[SW] Cache aberto:', CACHE_NAME);
+        // Cachear recursos críticos
+        return cache.addAll(urlsToCache.map(url => new Request(url, { cache: 'reload' })))
+          .catch((error) => {
+            console.warn('[SW] Erro ao cachear alguns recursos:', error);
+            // Continuar mesmo se alguns recursos falharem
+          });
+      })
+      .then(() => {
+        // Forçar ativação imediata
+        return self.skipWaiting();
       })
   );
 });
 
 // Ativar Service Worker
 self.addEventListener('activate', (event) => {
+  console.log('[SW] Ativando Service Worker...');
   event.waitUntil(
     caches.keys().then((cacheNames) => {
       return Promise.all(
         cacheNames.map((cacheName) => {
-          if (cacheName !== CACHE_NAME) {
-            console.log('Removendo cache antigo:', cacheName);
+          if (cacheName !== CACHE_NAME && cacheName !== RUNTIME_CACHE) {
+            console.log('[SW] Removendo cache antigo:', cacheName);
             return caches.delete(cacheName);
           }
         })
       );
     })
+    .then(() => {
+      // Assumir controle de todas as páginas
+      return self.clients.claim();
+    })
   );
 });
 
-// Interceptar requisições
+// Estratégia de cache: Network First com fallback para cache
 self.addEventListener('fetch', (event) => {
   const url = new URL(event.request.url);
   
-  // Para CSS e JS, sempre buscar da rede primeiro (evitar cache)
-  if (url.pathname.endsWith('.css') || url.pathname.endsWith('.js')) {
+  // Ignorar requisições de API e externas
+  if (url.origin !== self.location.origin && !url.pathname.startsWith('/api/')) {
+    return; // Deixar o navegador lidar com requisições externas
+  }
+  
+  // Para arquivos estáticos (HTML, CSS, JS), usar cache primeiro
+  if (url.pathname.endsWith('.html') || 
+      url.pathname.endsWith('.css') || 
+      url.pathname.endsWith('.js') ||
+      url.pathname.endsWith('.json') ||
+      url.pathname.endsWith('.jpg') ||
+      url.pathname.endsWith('.png')) {
+    
     event.respondWith(
-      fetch(event.request)
-        .then((response) => {
-          // Buscar da rede primeiro, não usar cache
-          return response;
-        })
-        .catch(() => {
-          // Se falhar, tentar do cache como fallback
-          return caches.match(event.request);
+      caches.match(event.request)
+        .then((cachedResponse) => {
+          if (cachedResponse) {
+            // Buscar atualização em background
+            fetch(event.request)
+              .then((response) => {
+                if (response && response.status === 200) {
+                  const responseClone = response.clone();
+                  caches.open(RUNTIME_CACHE)
+                    .then((cache) => {
+                      cache.put(event.request, responseClone);
+                    });
+                }
+              })
+              .catch(() => {
+                // Ignorar erros de rede
+              });
+            return cachedResponse;
+          }
+          
+          // Se não estiver em cache, buscar da rede
+          return fetch(event.request)
+            .then((response) => {
+              // Verificar se a resposta é válida
+              if (!response || response.status !== 200 || response.type !== 'basic') {
+                return response;
+              }
+              
+              // Clonar a resposta para cache
+              const responseToCache = response.clone();
+              caches.open(RUNTIME_CACHE)
+                .then((cache) => {
+                  cache.put(event.request, responseToCache);
+                });
+              
+              return response;
+            })
+            .catch(() => {
+              // Se falhar, retornar página offline se for HTML
+              if (event.request.destination === 'document') {
+                return caches.match('/index.html');
+              }
+            });
         })
     );
     return;
   }
   
-  // Para outros arquivos, usar cache primeiro
+  // Para requisições de API, sempre buscar da rede primeiro
+  if (url.pathname.startsWith('/api/')) {
+    event.respondWith(
+      fetch(event.request)
+        .then((response) => {
+          // Se estiver offline, retornar resposta em cache se disponível
+          if (!response || response.status !== 200) {
+            return caches.match(event.request);
+          }
+          return response;
+        })
+        .catch(() => {
+          // Se falhar, tentar cache como último recurso
+          return caches.match(event.request)
+            .then((cachedResponse) => {
+              if (cachedResponse) {
+                return cachedResponse;
+              }
+              // Retornar resposta offline padrão
+              return new Response(
+                JSON.stringify({ 
+                  success: false, 
+                  error: 'Offline - dados não disponíveis',
+                  offline: true 
+                }),
+                {
+                  status: 503,
+                  statusText: 'Service Unavailable',
+                  headers: { 'Content-Type': 'application/json' }
+                }
+              );
+            });
+        })
+    );
+    return;
+  }
+  
+  // Para outras requisições, usar estratégia Network First
   event.respondWith(
-    caches.match(event.request)
+    fetch(event.request)
       .then((response) => {
-        // Retornar do cache se disponível, senão buscar da rede
-        return response || fetch(event.request);
+        if (response && response.status === 200) {
+          const responseClone = response.clone();
+          caches.open(RUNTIME_CACHE)
+            .then((cache) => {
+              cache.put(event.request, responseClone);
+            });
+        }
+        return response;
+      })
+      .catch(() => {
+        return caches.match(event.request);
       })
   );
 });
 
+// ========== NOTIFICAÇÕES PUSH ==========
+
+// Receber mensagem push
+self.addEventListener('push', (event) => {
+  console.log('[SW] Push recebido:', event);
+  
+  let notificationData = {
+    title: 'Gerenciamento de Loja',
+    body: 'Você tem uma nova notificação',
+    icon: '/images/icone-e-transicao.jpg',
+    badge: '/images/icone-e-transicao.jpg',
+    tag: 'loja-notification',
+    requireInteraction: false,
+    data: {}
+  };
+  
+  if (event.data) {
+    try {
+      const data = event.data.json();
+      notificationData = {
+        ...notificationData,
+        ...data,
+        data: data
+      };
+    } catch (e) {
+      notificationData.body = event.data.text() || notificationData.body;
+    }
+  }
+  
+  event.waitUntil(
+    self.registration.showNotification(notificationData.title, notificationData)
+  );
+});
+
+// Clique em notificação
+self.addEventListener('notificationclick', (event) => {
+  console.log('[SW] Notificação clicada:', event);
+  
+  event.notification.close();
+  
+  const notificationData = event.notification.data || {};
+  const urlToOpen = notificationData.url || '/gerenciamento.html';
+  
+  event.waitUntil(
+    clients.matchAll({ type: 'window', includeUncontrolled: true })
+      .then((clientList) => {
+        // Verificar se já existe uma janela aberta
+        for (let i = 0; i < clientList.length; i++) {
+          const client = clientList[i];
+          if (client.url === urlToOpen && 'focus' in client) {
+            return client.focus();
+          }
+        }
+        
+        // Se não houver janela aberta, abrir uma nova
+        if (clients.openWindow) {
+          return clients.openWindow(urlToOpen);
+        }
+      })
+  );
+});
+
+// Fechar notificação
+self.addEventListener('notificationclose', (event) => {
+  console.log('[SW] Notificação fechada:', event);
+});
+
+// ========== SINCRONIZAÇÃO EM BACKGROUND ==========
+
+// Sincronização em background (quando conexão voltar)
+self.addEventListener('sync', (event) => {
+  console.log('[SW] Sincronização em background:', event.tag);
+  
+  if (event.tag === 'sync-data') {
+    event.waitUntil(
+      syncData()
+        .then(() => {
+          console.log('[SW] Sincronização concluída');
+          return self.registration.showNotification('Gerenciamento de Loja', {
+            body: 'Dados sincronizados com sucesso!',
+            icon: '/images/icone-e-transicao.jpg',
+            tag: 'sync-success'
+          });
+        })
+        .catch((error) => {
+          console.error('[SW] Erro na sincronização:', error);
+        })
+    );
+  }
+});
+
+// Função de sincronização de dados
+async function syncData() {
+  try {
+    // Buscar dados pendentes do IndexedDB ou localStorage
+    // e enviar para o servidor
+    const response = await fetch('/api/save', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        // Dados a serem sincronizados
+        // Isso será implementado no app.js
+      })
+    });
+    
+    if (response.ok) {
+      console.log('[SW] Dados sincronizados com sucesso');
+    } else {
+      throw new Error('Erro ao sincronizar dados');
+    }
+  } catch (error) {
+    console.error('[SW] Erro na sincronização:', error);
+    throw error;
+  }
+}
+
+// ========== MENSAGENS DO CLIENTE ==========
+
+// Receber mensagens do cliente
+self.addEventListener('message', (event) => {
+  console.log('[SW] Mensagem recebida:', event.data);
+  
+  if (event.data && event.data.type === 'SKIP_WAITING') {
+    self.skipWaiting();
+  }
+  
+  if (event.data && event.data.type === 'CACHE_URLS') {
+    event.waitUntil(
+      caches.open(RUNTIME_CACHE)
+        .then((cache) => {
+          return cache.addAll(event.data.urls);
+        })
+    );
+  }
+  
+  if (event.data && event.data.type === 'CLEAR_CACHE') {
+    event.waitUntil(
+      caches.keys().then((cacheNames) => {
+        return Promise.all(
+          cacheNames.map((cacheName) => {
+            return caches.delete(cacheName);
+          })
+        );
+      })
+    );
+  }
+});

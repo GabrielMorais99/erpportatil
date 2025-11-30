@@ -276,32 +276,32 @@
             document.head.appendChild(script);
         </script>
         <script>
-            // Service Worker DESABILITADO temporariamente para evitar cache
-            // TODO: Reabilitar quando cache estiver funcionando corretamente
-            /*
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                navigator.serviceWorker.register('/sw.js')
-                    .then((registration) => {
-                        console.log('Service Worker registrado:', registration);
-                    })
-                    .catch((error) => {
-                        console.log('Erro ao registrar Service Worker:', error);
-                    });
-            });
-        }
-        */
-
-            // Desregistrar qualquer Service Worker existente
+            // Registrar Service Worker para PWA
             if ('serviceWorker' in navigator) {
-                navigator.serviceWorker
-                    .getRegistrations()
-                    .then(function (registrations) {
-                        for (let registration of registrations) {
-                            registration.unregister();
-                            console.log('Service Worker desregistrado');
-                        }
-                    });
+                window.addEventListener('load', () => {
+                    navigator.serviceWorker.register('/sw.js')
+                        .then((registration) => {
+                            console.log('✅ [PWA] Service Worker registrado:', registration.scope);
+                            
+                            // Verificar atualizações
+                            registration.addEventListener('updatefound', () => {
+                                const newWorker = registration.installing;
+                                newWorker.addEventListener('statechange', () => {
+                                    if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                                        // Nova versão disponível
+                                        console.log('🔄 [PWA] Nova versão disponível!');
+                                        if (confirm('Uma nova versão está disponível. Deseja atualizar?')) {
+                                            newWorker.postMessage({ type: 'SKIP_WAITING' });
+                                            window.location.reload();
+                                        }
+                                    }
+                                });
+                            });
+                        })
+                        .catch((error) => {
+                            console.error('❌ [PWA] Erro ao registrar Service Worker:', error);
+                        });
+                });
             }
         </script>
     </body>

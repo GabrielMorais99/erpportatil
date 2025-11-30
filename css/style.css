@@ -701,6 +701,116 @@ body.theme-blue .login-container #entrarBtn:focus {
     padding-left: 2.5rem !important;
 }
 
+/* ========================================
+   SISTEMA DE BUSCA AVANÇADA
+   Padrões Emergente.sh
+   ======================================== */
+
+.search-filter-wrapper {
+    position: relative;
+}
+
+.search-history-container {
+    position: absolute;
+    top: calc(100% + 0.5rem);
+    left: 0;
+    right: 0;
+    background: var(--white);
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-lg);
+    border: 1px solid var(--gray-200);
+    z-index: 1000;
+    max-height: 300px;
+    overflow-y: auto;
+    display: none;
+}
+
+.search-history-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.75rem 1rem;
+    border-bottom: 1px solid var(--gray-200);
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--gray-700);
+}
+
+.search-history-clear {
+    background: none;
+    border: none;
+    color: var(--gray-500);
+    cursor: pointer;
+    padding: 0.25rem 0.5rem;
+    border-radius: var(--radius-sm);
+    transition: all var(--transition-base);
+    font-size: 0.875rem;
+}
+
+.search-history-clear:hover {
+    background: var(--gray-100);
+    color: var(--primary-color);
+}
+
+.search-history-list {
+    padding: 0.5rem;
+}
+
+.search-history-item {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.75rem 1rem;
+    background: none;
+    border: none;
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    transition: all var(--transition-base);
+    text-align: left;
+    color: var(--gray-700);
+    font-size: 0.9375rem;
+}
+
+.search-history-item i {
+    color: var(--gray-400);
+    font-size: 0.875rem;
+}
+
+.search-history-item:hover {
+    background: var(--gray-50);
+    color: var(--primary-color);
+}
+
+.search-history-item:hover i {
+    color: var(--primary-color);
+}
+
+.search-history-item span {
+    flex: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* Indicador de resultados da busca */
+.search-results-indicator {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem;
+    background: var(--gray-50);
+    border-radius: var(--radius-md);
+    font-size: 0.875rem;
+    color: var(--gray-700);
+    margin-left: 0.5rem;
+}
+
+.search-results-indicator strong {
+    color: var(--primary-color);
+    font-weight: 600;
+}
+
 /* Padrões do Emergente - Inputs de Estoque */
 .stock-variation-item {
     display: flex;
@@ -1964,6 +2074,34 @@ body.theme-blue .login-container #entrarBtn:focus {
     background-color: rgba(0, 0, 0, 0.5);
     backdrop-filter: blur(8px);
     animation: modalFadeIn 0.2s ease-out;
+}
+
+/* Modal de tutorial com z-index maior e garantia de cliques */
+#tutorialModal {
+    z-index: 10001 !important;
+}
+
+#tutorialModal.active {
+    z-index: 10001 !important;
+    pointer-events: auto !important;
+}
+
+#tutorialModal .modal-content {
+    pointer-events: auto !important;
+    position: relative;
+    z-index: 10002 !important;
+}
+
+#tutorialModal .close {
+    pointer-events: auto !important;
+    z-index: 10003 !important;
+    position: relative;
+    cursor: pointer !important;
+}
+
+#tutorialModal .modal-actions button {
+    pointer-events: auto !important;
+    cursor: pointer !important;
 }
 
 @keyframes modalFadeIn {
@@ -4475,6 +4613,153 @@ a:focus-visible {
     color: var(--gray-600); /* Contraste adequado */
 }
 
+/* ========================================
+   MODO ALTO CONTRASTE
+   ======================================== */
+
+body.high-contrast {
+    --primary-color: #000000;
+    --primary-color-dark: #000000;
+    --primary-color-light: #333333;
+    --white: #ffffff;
+    --black: #000000;
+    --background: #ffffff;
+    --text-color: #000000;
+    --border-color: #000000;
+    --gray-50: #ffffff;
+    --gray-100: #f0f0f0;
+    --gray-200: #e0e0e0;
+    --gray-300: #d0d0d0;
+    --gray-400: #a0a0a0;
+    --gray-500: #808080;
+    --gray-600: #606060;
+    --gray-700: #404040;
+    --gray-800: #202020;
+    --gray-900: #000000;
+}
+
+body.high-contrast {
+    background: var(--white);
+    color: var(--black);
+}
+
+body.high-contrast .header,
+body.high-contrast .item-card,
+body.high-contrast .group-card,
+body.high-contrast .cost-card,
+body.high-contrast .goal-card,
+body.high-contrast .day-card,
+body.high-contrast .summary-card,
+body.high-contrast .chart-card,
+body.high-contrast .stat-card,
+body.high-contrast .modal-content {
+    background: var(--white);
+    border: 2px solid var(--black);
+    color: var(--black);
+}
+
+body.high-contrast .btn-primary {
+    background: var(--black);
+    color: var(--white);
+    border: 2px solid var(--black);
+}
+
+body.high-contrast .btn-primary:hover {
+    background: var(--gray-800);
+    border-color: var(--gray-800);
+}
+
+body.high-contrast .btn-secondary {
+    background: var(--white);
+    color: var(--black);
+    border: 2px solid var(--black);
+}
+
+body.high-contrast .btn-secondary:hover {
+    background: var(--gray-100);
+    border-color: var(--black);
+}
+
+body.high-contrast input,
+body.high-contrast select,
+body.high-contrast textarea {
+    background: var(--white);
+    border: 2px solid var(--black);
+    color: var(--black);
+}
+
+body.high-contrast input:focus,
+body.high-contrast select:focus,
+body.high-contrast textarea:focus {
+    outline: 3px solid var(--black);
+    outline-offset: 2px;
+    border-color: var(--black);
+}
+
+body.high-contrast a {
+    color: var(--black);
+    text-decoration: underline;
+}
+
+body.high-contrast a:hover {
+    color: var(--gray-800);
+    text-decoration: underline;
+}
+
+body.high-contrast .toast {
+    background: var(--white);
+    border: 2px solid var(--black);
+    color: var(--black);
+}
+
+/* ========================================
+   TAMANHO DE FONTE AJUSTÁVEL
+   ======================================== */
+
+body.font-small {
+    font-size: 0.875rem;
+}
+
+body.font-normal {
+    font-size: 1rem;
+}
+
+body.font-large {
+    font-size: 1.125rem;
+}
+
+body.font-extra-large {
+    font-size: 1.25rem;
+}
+
+/* ========================================
+   ESPAÇAMENTO CONFIGURÁVEL
+   ======================================== */
+
+body.spacing-compact * {
+    --spacing-base: 0.5rem;
+    --spacing-sm: 0.25rem;
+    --spacing-md: 0.75rem;
+    --spacing-lg: 1rem;
+    --spacing-xl: 1.5rem;
+}
+
+body.spacing-normal * {
+    --spacing-base: 1rem;
+    --spacing-sm: 0.5rem;
+    --spacing-md: 1rem;
+    --spacing-lg: 1.5rem;
+    --spacing-xl: 2rem;
+}
+
+body.spacing-comfortable * {
+    --spacing-base: 1.5rem;
+    --spacing-sm: 0.75rem;
+    --spacing-md: 1.5rem;
+    --spacing-lg: 2rem;
+    --spacing-xl: 3rem;
+}
+
 /* Navegação por teclado - Skip link */
 .skip-link {
     position: absolute;
@@ -4883,4 +5168,520 @@ a:focus-visible {
         width: 100%;
         justify-content: center;
     }
+}
+
+/* ========================================
+   FEEDBACK VISUAL EM TEMPO REAL
+   Padrões Emergente.sh
+   ======================================== */
+
+.form-group {
+    position: relative;
+}
+
+/* Indicadores de status em campos */
+.form-group input,
+.form-group select,
+.form-group textarea {
+    transition: all var(--transition-base);
+}
+
+.form-group input.valid,
+.form-group select.valid,
+.form-group textarea.valid {
+    border-color: #28a745;
+    box-shadow: 0 0 0 4px rgba(40, 167, 69, 0.12);
+}
+
+.form-group input.invalid,
+.form-group select.invalid,
+.form-group textarea.invalid {
+    border-color: #dc3545;
+    box-shadow: 0 0 0 4px rgba(220, 53, 69, 0.12);
+}
+
+/* Ícones de validação */
+.form-group .field-status {
+    position: absolute;
+    right: 0.875rem;
+    top: 50%;
+    transform: translateY(-50%);
+    pointer-events: none;
+    font-size: 0.875rem;
+    transition: all var(--transition-base);
+    opacity: 0;
+}
+
+.form-group input:not(:placeholder-shown) + .field-status,
+.form-group textarea:not(:placeholder-shown) + .field-status {
+    opacity: 1;
+}
+
+.form-group .field-status.valid {
+    color: #28a745;
+}
+
+.form-group .field-status.invalid {
+    color: #dc3545;
+}
+
+/* Mensagens de validação */
+.field-message {
+    font-size: 0.75rem;
+    margin-top: 0.375rem;
+    padding-left: 0.25rem;
+    transition: all var(--transition-base);
+    opacity: 0;
+    max-height: 0;
+    overflow: hidden;
+}
+
+.field-message.show {
+    opacity: 1;
+    max-height: 2rem;
+}
+
+.field-message.success {
+    color: #28a745;
+}
+
+.field-message.error {
+    color: #dc3545;
+}
+
+.field-message.info {
+    color: var(--primary-color);
+}
+
+/* Contador de caracteres */
+.char-counter {
+    font-size: 0.75rem;
+    color: var(--gray-500);
+    text-align: right;
+    margin-top: 0.25rem;
+    padding-right: 0.25rem;
+}
+
+.char-counter.warning {
+    color: #ffc107;
+}
+
+.char-counter.error {
+    color: #dc3545;
+}
+
+/* Wrapper para campos com validação */
+.field-wrapper {
+    position: relative;
+}
+
+.field-wrapper input,
+.field-wrapper select,
+.field-wrapper textarea {
+    padding-right: 2.5rem; /* Espaço para ícone de status */
+}
+
+.field-wrapper .field-status {
+    position: absolute;
+    right: 0.875rem;
+    top: 50%;
+    transform: translateY(-50%);
+    pointer-events: none;
+    font-size: 0.875rem;
+    z-index: 1;
+}
+
+/* ========================================
+   LOADING STATES MELHORADOS
+   Padrões Emergente.sh
+   ======================================== */
+
+/* Progress Bar */
+.progress-bar {
+    width: 100%;
+    height: 4px;
+    background: var(--gray-200);
+    border-radius: var(--radius-md);
+    overflow: hidden;
+    position: relative;
+}
+
+.progress-bar-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--primary-color) 0%, var(--primary-color-light) 100%);
+    border-radius: var(--radius-md);
+    transition: width var(--transition-base);
+    position: relative;
+    overflow: hidden;
+}
+
+.progress-bar-fill::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    right: 0;
+    background: linear-gradient(
+        90deg,
+        transparent 0%,
+        rgba(255, 255, 255, 0.3) 50%,
+        transparent 100%
+    );
+    animation: progress-shimmer 1.5s infinite;
+}
+
+@keyframes progress-shimmer {
+    0% {
+        transform: translateX(-100%);
+    }
+    100% {
+        transform: translateX(100%);
+    }
+}
+
+/* Loading Overlay */
+.loading-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(4px);
+    z-index: 10002;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: opacity var(--transition-base);
+    pointer-events: none;
+}
+
+.loading-overlay.active {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+/* Garantir que loading overlay não bloqueie o tutorial modal */
+#tutorialModal {
+    z-index: 10003 !important;
+}
+
+#tutorialModal.active {
+    z-index: 10003 !important;
+}
+
+.loading-overlay-content {
+    background: var(--white);
+    padding: 2rem;
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-xl);
+    text-align: center;
+    min-width: 200px;
+}
+
+.loading-overlay-spinner {
+    width: 48px;
+    height: 48px;
+    border: 4px solid var(--gray-200);
+    border-top-color: var(--primary-color);
+    border-radius: 50%;
+    animation: btn-spin 0.8s linear infinite;
+    margin: 0 auto 1rem;
+}
+
+.loading-overlay-message {
+    color: var(--gray-700);
+    font-size: 0.9375rem;
+    margin-top: 0.5rem;
+}
+
+/* Shimmer Effect (padrão emergente.sh) */
+.shimmer {
+    background: linear-gradient(
+        90deg,
+        var(--gray-200) 0%,
+        var(--gray-100) 50%,
+        var(--gray-200) 100%
+    );
+    background-size: 200% 100%;
+    animation: shimmer 1.5s ease-in-out infinite;
+    border-radius: var(--radius-md);
+}
+
+@keyframes shimmer {
+    0% {
+        background-position: 200% 0;
+    }
+    100% {
+        background-position: -200% 0;
+    }
+}
+
+.shimmer-text {
+    display: inline-block;
+    height: 1rem;
+    width: 100%;
+    background: linear-gradient(
+        90deg,
+        var(--gray-200) 0%,
+        var(--gray-100) 50%,
+        var(--gray-200) 100%
+    );
+    background-size: 200% 100%;
+    animation: shimmer 1.5s ease-in-out infinite;
+    border-radius: var(--radius-sm);
+}
+
+/* ========================================
+   EMPTY STATES MELHORADOS
+   Padrões Emergente.sh
+   ======================================== */
+
+.empty-state {
+    text-align: center;
+    padding: 3rem 1.5rem;
+    color: var(--gray-600);
+}
+
+.empty-state-icon {
+    font-size: 4rem;
+    color: var(--gray-300);
+    margin-bottom: 1rem;
+    opacity: 0.6;
+}
+
+.empty-state-title {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: var(--gray-700);
+    margin-bottom: 0.5rem;
+}
+
+.empty-state-message {
+    font-size: 0.9375rem;
+    color: var(--gray-600);
+    margin-bottom: 1.5rem;
+    line-height: 1.6;
+}
+
+.empty-state-action {
+    margin-top: 1.5rem;
+}
+
+.empty-state-example {
+    margin-top: 1.5rem;
+    padding: 1rem;
+    background: var(--gray-50);
+    border-radius: var(--radius-md);
+    border: 1px dashed var(--gray-300);
+    font-size: 0.875rem;
+    color: var(--gray-600);
+}
+
+/* ========================================
+   DARK MODE
+   Padrões Emergente.sh
+   ======================================== */
+
+body.dark-mode {
+    --white: #1a1a1a;
+    --gray-50: #2a2a2a;
+    --gray-100: #333333;
+    --gray-200: #404040;
+    --gray-300: #4d4d4d;
+    --gray-400: #666666;
+    --gray-500: #808080;
+    --gray-600: #999999;
+    --gray-700: #b3b3b3;
+    --gray-800: #cccccc;
+    --gray-900: #e6e6e6;
+    --light-gray: #2a2a2a;
+    --cinza-back: #2a2a2a;
+    --border-color: #404040;
+    --dark-gray: #e6e6e6;
+    background: #1a1a1a;
+    color: var(--gray-800);
+}
+
+body.dark-mode .header {
+    background: linear-gradient(135deg, #2a2a2a 0%, #1a1a1a 100%);
+    border-bottom: 1px solid var(--gray-200);
+}
+
+body.dark-mode .header h1 {
+    color: var(--gray-800);
+}
+
+body.dark-mode .item-card,
+body.dark-mode .group-card,
+body.dark-mode .cost-card,
+body.dark-mode .goal-card,
+body.dark-mode .day-card,
+body.dark-mode .summary-card,
+body.dark-mode .chart-card,
+body.dark-mode .stat-card {
+    background: var(--gray-100);
+    border-color: var(--gray-200);
+    color: var(--gray-800);
+}
+
+body.dark-mode .item-card:hover,
+body.dark-mode .group-card:hover,
+body.dark-mode .cost-card:hover,
+body.dark-mode .goal-card:hover,
+body.dark-mode .day-card:hover,
+body.dark-mode .summary-card:hover,
+body.dark-mode .chart-card:hover,
+body.dark-mode .stat-card:hover {
+    background: linear-gradient(135deg, var(--gray-100) 0%, var(--gray-50) 100%);
+}
+
+body.dark-mode .modal {
+    background: rgba(0, 0, 0, 0.7);
+}
+
+body.dark-mode .modal-content {
+    background: var(--gray-100);
+    color: var(--gray-800);
+}
+
+body.dark-mode .form-group input,
+body.dark-mode .form-group select,
+body.dark-mode .form-group textarea {
+    background: var(--gray-50);
+    border-color: var(--gray-200);
+    color: var(--gray-800);
+}
+
+body.dark-mode .form-group input:focus,
+body.dark-mode .form-group select:focus,
+body.dark-mode .form-group textarea:focus {
+    background: var(--gray-50);
+    border-color: var(--primary-color);
+}
+
+body.dark-mode .btn-secondary {
+    background: var(--gray-200);
+    color: var(--gray-800);
+    border-color: var(--gray-300);
+}
+
+body.dark-mode .btn-secondary:hover {
+    background: var(--gray-300);
+}
+
+body.dark-mode .toast {
+    background: var(--gray-100);
+    border-left-color: var(--gray-400);
+    color: var(--gray-800);
+}
+
+body.dark-mode .toast-success {
+    background: linear-gradient(135deg, var(--gray-100) 0%, #1a3a1a 100%);
+}
+
+body.dark-mode .toast-error {
+    background: linear-gradient(135deg, var(--gray-100) 0%, #3a1a1a 100%);
+}
+
+body.dark-mode .toast-warning {
+    background: linear-gradient(135deg, var(--gray-100) 0%, #3a3a1a 100%);
+}
+
+body.dark-mode .toast-info {
+    background: linear-gradient(135deg, var(--gray-100) 0%, var(--gray-50) 100%);
+}
+
+body.dark-mode .confirm-modal-content {
+    background: var(--gray-100);
+    color: var(--gray-800);
+}
+
+body.dark-mode .empty-state {
+    color: var(--gray-600);
+}
+
+body.dark-mode .empty-state-icon {
+    color: var(--gray-400);
+}
+
+body.dark-mode .empty-state-title {
+    color: var(--gray-700);
+}
+
+body.dark-mode .skeleton-card {
+    background: var(--gray-100);
+    border-color: var(--gray-200);
+}
+
+body.dark-mode .skeleton-line {
+    background: linear-gradient(
+        90deg,
+        var(--gray-200) 0%,
+        var(--gray-100) 50%,
+        var(--gray-200) 100%
+    );
+}
+
+/* Toggle de Dark Mode no header */
+.dark-mode-toggle {
+    position: relative;
+    width: 48px;
+    height: 24px;
+    background: var(--gray-300);
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all var(--transition-base);
+    border: none;
+    padding: 0;
+}
+
+.dark-mode-toggle.active {
+    background: var(--primary-color);
+}
+
+.dark-mode-toggle::after {
+    content: '';
+    position: absolute;
+    width: 20px;
+    height: 20px;
+    background: var(--white);
+    border-radius: 50%;
+    top: 2px;
+    left: 2px;
+    transition: all var(--transition-base);
+    box-shadow: var(--shadow-sm);
+}
+
+.dark-mode-toggle.active::after {
+    left: calc(100% - 22px);
+}
+
+.dark-mode-toggle i {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 0.75rem;
+    transition: all var(--transition-base);
+    color: var(--white);
+}
+
+.dark-mode-toggle .icon-sun {
+    left: 6px;
+    opacity: 1;
+}
+
+.dark-mode-toggle .icon-moon {
+    right: 6px;
+    opacity: 0;
+}
+
+.dark-mode-toggle.active .icon-sun {
+    opacity: 0;
+}
+
+.dark-mode-toggle.active .icon-moon {
+    opacity: 1;
 }
