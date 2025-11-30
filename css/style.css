@@ -5636,7 +5636,7 @@ body.dark-mode .day-card,
 body.dark-mode .summary-card,
 body.dark-mode .chart-card,
 body.dark-mode .stat-card {
-    background: var(--gray-100);
+    background: #ffffff;
     border-color: var(--gray-200);
     color: var(--gray-800);
 }
@@ -5649,7 +5649,7 @@ body.dark-mode .day-card:hover,
 body.dark-mode .summary-card:hover,
 body.dark-mode .chart-card:hover,
 body.dark-mode .stat-card:hover {
-    background: linear-gradient(135deg, var(--gray-100) 0%, var(--gray-50) 100%);
+    background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
 }
 
 body.dark-mode .modal {
