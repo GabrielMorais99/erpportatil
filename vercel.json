@@ -46,6 +46,13 @@
             }
         },
         {
+            "src": "/public/(.*)",
+            "dest": "/api/index.js",
+            "headers": {
+                "Cache-Control": "public, max-age=31536000, immutable"
+            }
+        },
+        {
             "src": "/lib/(.*)",
             "dest": "/api/index.js",
             "headers": {

@@ -37,12 +37,12 @@
                 
                 // ========== CONFIGURAÇÃO ==========
                 const QRCODE_VERSION = '1.5.3';
-                // Tentar múltiplos caminhos locais possíveis
+                // Tentar múltiplos caminhos locais possíveis (ordem: mais provável primeiro)
                 const QRCODE_LOCAL_PATHS = [
-                    '/lib/qrcode.min.js',
-                    '/public/lib/qrcode.min.js',
-                    '/static/lib/qrcode.min.js',
-                    '/js/lib/qrcode.min.js'
+                    '/public/lib/qrcode.min.js',  // Vercel serve arquivos de public/ automaticamente
+                    '/lib/qrcode.min.js',         // Caminho padrão
+                    '/static/lib/qrcode.min.js',  // Alternativa
+                    '/js/lib/qrcode.min.js'       // Última alternativa
                 ];
                 const QRCODE_LOCAL = QRCODE_LOCAL_PATHS[0]; // Usar o primeiro como padrão
                 const QRCODE_CDNS = [
