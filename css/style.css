@@ -5809,6 +5809,7 @@ body.dark-mode .skeleton-line {
 /* Breakpoint principal: tablets e mobile (até 768px) */
 @media (max-width: 768px) {
     /* Garantir que todos os botões mostrem apenas ícones - ESPECIFICIDADE MÁXIMA */
+    /* Esconder spans e elementos com classe btn-text */
     .btn-primary .btn-text,
     .btn-primary span.btn-text,
     button.btn-primary .btn-text,
@@ -5831,6 +5832,23 @@ body.dark-mode .skeleton-line {
         height: 0 !important;
         overflow: hidden !important;
         opacity: 0 !important;
+    }
+
+    /* Esconder texto direto em botões (não dentro de span) - pegar texto que não seja ícone */
+    .btn-primary:not(.dark-mode-toggle):not(.theme-toggle-btn),
+    button.btn-primary:not(.dark-mode-toggle):not(.theme-toggle-btn) {
+        font-size: 0 !important;
+        line-height: 0 !important;
+    }
+
+    /* Mostrar apenas ícones - sobrescrever font-size apenas para ícones */
+    .btn-primary i,
+    button.btn-primary i,
+    .btn-primary > i,
+    button.btn-primary > i {
+        font-size: 1rem !important;
+        line-height: 1 !important;
+        display: inline-block !important;
     }
 
     /* Ajustar padding e tamanho dos botões para ícones apenas - FORÇAR SOBRESCRITA */
