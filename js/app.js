@@ -16,7 +16,25 @@ class ToastSystem {
             container = document.createElement('div');
             container.id = 'toast-container';
             container.className = 'toast-container';
-            document.body.appendChild(container);
+            
+            // Aguardar DOM estar pronto
+            if (document.body) {
+                document.body.appendChild(container);
+            } else {
+                // Se body não existe ainda, aguardar
+                const initContainer = () => {
+                    if (document.body) {
+                        document.body.appendChild(container);
+                    } else {
+                        setTimeout(initContainer, 10);
+                    }
+                };
+                if (document.readyState === 'loading') {
+                    document.addEventListener('DOMContentLoaded', initContainer);
+                } else {
+                    initContainer();
+                }
+            }
         }
         return container;
     }
@@ -145,7 +163,20 @@ class ConfirmSystem {
                     </div>
                 </div>
             `;
-            document.body.appendChild(modal);
+            
+            // Aguardar DOM estar pronto
+            const appendModal = () => {
+                if (document.body) {
+                    document.body.appendChild(modal);
+                } else {
+                    if (document.readyState === 'loading') {
+                        document.addEventListener('DOMContentLoaded', appendModal);
+                    } else {
+                        setTimeout(appendModal, 10);
+                    }
+                }
+            };
+            appendModal();
 
             // Fechar ao clicar fora
             modal.addEventListener('click', (e) => {
@@ -251,9 +282,27 @@ class ConfirmSystem {
     }
 }
 
-// Instâncias globais
-const toast = new ToastSystem();
-const confirmDialog = new ConfirmSystem();
+// Instâncias globais (serão inicializadas quando o DOM estiver pronto)
+let toast;
+let confirmDialog;
+
+// Inicializar instâncias quando DOM estiver pronto
+const initToastAndConfirm = () => {
+    if (!toast) {
+        toast = new ToastSystem();
+    }
+    if (!confirmDialog) {
+        confirmDialog = new ConfirmSystem();
+    }
+};
+
+// Tentar inicializar imediatamente se DOM já estiver pronto
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initToastAndConfirm);
+} else {
+    // DOM já está pronto
+    initToastAndConfirm();
+}
 
 // Sistema de Gestão de Loja
 class LojaApp {
@@ -1993,22 +2042,40 @@ class LojaApp {
     // Funções auxiliares para feedback visual
     showError(message) {
         // Usar sistema de Toast para erros
-        toast.error(message, 5000);
+        if (typeof toast !== 'undefined' && toast) {
+            toast.error(message, 5000);
+        } else {
+            // Fallback para alert se toast não estiver disponível
+            alert(message);
+        }
     }
 
     showSuccess(message) {
         // Usar sistema de Toast para sucessos
-        toast.success(message, 3000);
+        if (typeof toast !== 'undefined' && toast) {
+            toast.success(message, 3000);
+        } else {
+            // Fallback silencioso (não usar alert para sucesso)
+            console.log('✅', message);
+        }
     }
 
     // Método auxiliar para mostrar warning
     showWarning(message) {
-        toast.warning(message, 4000);
+        if (typeof toast !== 'undefined' && toast) {
+            toast.warning(message, 4000);
+        } else {
+            alert(message);
+        }
     }
 
     // Método auxiliar para mostrar info
     showInfo(message) {
-        toast.info(message, 3000);
+        if (typeof toast !== 'undefined' && toast) {
+            toast.info(message, 3000);
+        } else {
+            console.log('ℹ️', message);
+        }
     }
 
     // Método auxiliar antigo (manter compatibilidade)
@@ -3507,7 +3574,8 @@ class LojaApp {
                 this.updateOverallSummary();
 
                 this.openSaleModal(group.id, day);
-            }
+                toast.success('Venda excluída com sucesso!', 3000);
+            });
         }
     }
 
