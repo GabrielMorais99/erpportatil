@@ -1595,15 +1595,31 @@ class LojaApp {
             const tryLoadScript = (urlIndex) => {
                 if (urlIndex >= cdnUrls.length) {
                     console.error('❌ Todas as URLs do CDN falharam ao carregar');
-                    reject(new Error('Erro ao carregar script QRCode de todos os CDNs. Verifique sua conexão com a internet.'));
+                    console.error('💡 Possíveis causas:');
+                    console.error('   1. Problema de conexão com a internet');
+                    console.error('   2. Firewall ou proxy bloqueando CDNs');
+                    console.error('   3. Problema de CORS no servidor local');
+                    console.error('   4. CDNs temporariamente indisponíveis');
+                    console.error('💡 Soluções:');
+                    console.error('   - Verifique sua conexão com a internet');
+                    console.error('   - Verifique configurações de firewall/proxy');
+                    console.error('   - Tente acessar os CDNs diretamente no navegador');
+                    console.error('   - Considere usar uma versão local da biblioteca QRCode');
+                    
+                    const errorMsg = 'Não foi possível carregar a biblioteca QRCode. Verifique sua conexão com a internet ou configurações de firewall.';
+                    alert(errorMsg);
+                    reject(new Error(errorMsg));
                     return;
                 }
                 
                 const url = cdnUrls[urlIndex];
                 console.log(`📥 Tentando carregar de: ${url}`);
-                script.src = url;
                 
-                script.onload = () => {
+                // Criar novo script para cada tentativa (evitar reutilizar script com erro)
+                const newScript = document.createElement('script');
+                newScript.src = url;
+                
+                newScript.onload = () => {
                     console.log('✅ Script QRCode carregado, verificando disponibilidade...');
                     window.qrcodeLoaded = true;
                     
@@ -1632,16 +1648,35 @@ class LojaApp {
                     }, 300);
                 };
                 
-                script.onerror = (error) => {
-                    console.error(`❌ Erro ao carregar de ${url}:`, error);
+                newScript.onerror = (error) => {
+                    console.error(`❌ Erro ao carregar de ${url}`);
+                    console.error('🔍 Detalhes do erro:', error);
                     window.qrcodeLoaded = false;
+                    
+                    // Verificar se é problema de rede
+                    if (urlIndex === 0) {
+                        console.warn('⚠️ Primeira tentativa falhou. Verificando conectividade...');
+                        // Tentar fazer uma requisição simples para verificar conectividade
+                        fetch('https://www.google.com/favicon.ico', { 
+                            method: 'HEAD', 
+                            mode: 'no-cors',
+                            cache: 'no-cache'
+                        }).then(() => {
+                            console.log('✅ Conectividade com internet OK');
+                        }).catch(() => {
+                            console.error('❌ Problema de conectividade detectado');
+                        });
+                    }
+                    
                     // Tentar próxima URL
                     tryLoadScript(urlIndex + 1);
                 };
+                
+                // Adicionar script ao DOM
+                document.head.appendChild(newScript);
             };
             
             tryLoadScript(0);
-            document.head.appendChild(script);
         });
     }
 
