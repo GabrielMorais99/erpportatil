@@ -698,7 +698,22 @@ body.theme-blue .login-container #entrarBtn:focus {
 }
 
 .search-input-with-icon {
-    padding-left: 2.5rem !important;
+    padding: 0.875rem 1.125rem 0.875rem 2.5rem !important; /* Padrão Emergente - padding com espaço para ícone */
+    border: 2px solid var(--gray-200);
+    border-radius: var(--radius-md);
+    font-size: 1rem;
+    font-weight: normal;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: var(--white);
+    color: var(--dark-gray);
+    transition: all var(--transition-base);
+    width: 100%;
+}
+
+.search-input-with-icon:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(220, 53, 69, 0.1); /* Padrão Emergente */
 }
 
 /* ========================================
