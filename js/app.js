@@ -1362,12 +1362,26 @@ class LojaApp {
         }
 
         // Gerar código QR numérico exclusivo para produtos físicos
+        // IMPORTANTE: Cada produto físico DEVE ter um QR code único para identificação nas vendas
         if (this.currentEditingItem && this.currentEditingItem.qrCodeNumber) {
-            // Manter código existente ao editar
+            // Manter código existente ao editar (preservar identificação única)
             item.qrCodeNumber = this.currentEditingItem.qrCodeNumber;
+            console.log(`✅ Mantendo QR Code existente: ${item.qrCodeNumber} para produto ${item.name || item.id}`);
         } else {
-            // Gerar novo código ao criar
+            // Gerar novo código único ao criar produto
             item.qrCodeNumber = this.generateQRCodeNumber();
+            console.log(`✅ Novo QR Code gerado: ${item.qrCodeNumber} para produto ${item.name || 'novo'}`);
+        }
+
+        // Validação de segurança: garantir que o QR code é único
+        const duplicateItem = this.items.find(
+            (i) => i.id !== item.id && i.qrCodeNumber === item.qrCodeNumber
+        );
+        if (duplicateItem) {
+            console.error(`❌ ERRO: QR Code duplicado detectado! Produto ${item.name} tem o mesmo QR Code que ${this.getItemName(duplicateItem.id)}`);
+            // Gerar novo código único
+            item.qrCodeNumber = this.generateQRCodeNumber();
+            console.log(`✅ Novo QR Code único gerado após detecção de duplicata: ${item.qrCodeNumber}`);
         }
 
         if (this.currentEditingItem) {
@@ -1802,24 +1816,53 @@ class LojaApp {
 
     // Gerar código numérico único (9 dígitos usando apenas 1-9)
     generateQRCodeNumber() {
+        // Gerar código único de 9 dígitos para identificar o produto
+        // Formato: 9 dígitos numéricos (1-9, excluindo 0 para evitar confusão)
         let code = '';
         const digits = '123456789';
+        const maxAttempts = 100; // Limite de tentativas para evitar loop infinito
+        let attempts = 0;
 
-        // Gerar código de 9 dígitos
-        for (let i = 0; i < 9; i++) {
-            code += digits.charAt(Math.floor(Math.random() * digits.length));
-        }
+        do {
+            code = '';
+            // Gerar código de 9 dígitos
+            for (let i = 0; i < 9; i++) {
+                code += digits.charAt(Math.floor(Math.random() * digits.length));
+            }
+            attempts++;
 
-        // Verificar se o código já existe (muito improvável, mas por segurança)
-        const existingItem = this.items.find(
-            (item) => item.qrCodeNumber === code
-        );
-        if (existingItem) {
-            // Se existir, gerar novamente (recursão com limite)
-            return this.generateQRCodeNumber();
-        }
+            // Verificar se o código já existe
+            const existingItem = this.items.find(
+                (item) => item.qrCodeNumber === code
+            );
+            
+            if (!existingItem) {
+                // Código único encontrado
+                console.log(`✅ QR Code único gerado: ${code} (tentativa ${attempts})`);
+                return code;
+            }
+            
+            // Se chegou ao limite de tentativas, adicionar timestamp para garantir unicidade
+            if (attempts >= maxAttempts) {
+                console.warn(`⚠️ Muitas tentativas para gerar QR code único. Adicionando timestamp...`);
+                // Adicionar últimos 4 dígitos do timestamp para garantir unicidade
+                const timestamp = Date.now().toString().slice(-4);
+                code = code.slice(0, 5) + timestamp;
+                // Verificar novamente
+                const stillExists = this.items.find(
+                    (item) => item.qrCodeNumber === code
+                );
+                if (!stillExists) {
+                    console.log(`✅ QR Code único gerado com timestamp: ${code}`);
+                    return code;
+                }
+            }
+        } while (attempts < maxAttempts * 2); // Limite máximo de segurança
 
-        return code;
+        // Último recurso: usar timestamp completo (menos legível, mas garantido único)
+        const fallbackCode = Date.now().toString().slice(-9);
+        console.warn(`⚠️ Usando código de fallback baseado em timestamp: ${fallbackCode}`);
+        return fallbackCode;
     }
 
     generateQRCode(itemId) {
@@ -2272,26 +2315,41 @@ class LojaApp {
     handleQRScanned(qrData) {
         // Limpar espaços e caracteres especiais
         const cleanData = qrData.trim();
+        console.log(`📱 QR Code escaneado: "${cleanData}"`);
 
-        // Buscar item pelo código numérico QR (prioridade)
+        // Buscar item pelo código numérico QR (prioridade - método atual)
         let item = this.items.find((i) => i.qrCodeNumber === cleanData);
 
-        // Se não encontrar pelo código numérico, tentar compatibilidade com formato antigo
-        if (!item) {
+        if (item) {
+            console.log(`✅ Produto encontrado pelo QR Code: ${this.getItemName(item.id)} (ID: ${item.id})`);
+        } else {
+            console.log(`⚠️ Produto não encontrado pelo QR Code "${cleanData}". Tentando compatibilidade com formato antigo...`);
+            
+            // Se não encontrar pelo código numérico, tentar compatibilidade com formato antigo
             let itemId = null;
 
             if (cleanData.startsWith('ITEM:')) {
                 itemId = cleanData.replace('ITEM:', '');
+                console.log(`🔍 Tentando buscar por ID (formato ITEM:): ${itemId}`);
             } else {
                 // Tentar como ID direto (compatibilidade com QR codes antigos)
                 itemId = cleanData;
+                console.log(`🔍 Tentando buscar por ID direto: ${itemId}`);
             }
 
             item = this.items.find((i) => i.id === itemId);
+            
+            if (item) {
+                console.log(`✅ Produto encontrado por ID (formato antigo): ${this.getItemName(item.id)}`);
+            } else {
+                console.error(`❌ Produto não encontrado. QR Code: "${cleanData}"`);
+            }
         }
 
         if (item) {
             const itemId = item.id;
+            const itemName = this.getItemName(itemId);
+            
             // Preencher campo de item
             const saleItemSelect = document.getElementById('saleItem');
             if (saleItemSelect) {
@@ -2310,23 +2368,28 @@ class LojaApp {
             // Atualizar informações de estoque
             this.updateStockInfo();
 
-            // Feedback visual
+            // Feedback visual melhorado
             const saleDayInfo = document.getElementById('saleDayInfo');
             if (saleDayInfo) {
                 const originalBg = saleDayInfo.style.background;
                 saleDayInfo.style.background = '#28a745';
-                saleDayInfo.innerHTML = `<strong style="color: white;">✓ Produto selecionado: ${this.getItemName(
-                    itemId
-                )}</strong>`;
+                saleDayInfo.innerHTML = `<strong style="color: white;">✓ Produto identificado: ${itemName}</strong>`;
                 setTimeout(() => {
                     saleDayInfo.style.background = originalBg;
                     saleDayInfo.innerHTML = `<strong>Dia: <span id="saleDayDisplay">${
                         this.currentSaleDay || '-'
                     }</span></strong>`;
-                }, 2000);
+                }, 3000);
             }
+
+            // Mostrar notificação de sucesso
+            this.showSuccess(`Produto "${itemName}" identificado pelo QR Code!`);
         } else {
-            alert('Produto não encontrado! Verifique se o QR code é válido.');
+            // Mensagem de erro mais informativa
+            const errorMsg = `Produto não encontrado!\n\nQR Code escaneado: "${cleanData}"\n\nVerifique se:\n- O QR code pertence a um produto cadastrado\n- O produto não foi excluído\n- O QR code está correto`;
+            alert(errorMsg);
+            console.error('❌ Produto não encontrado pelo QR Code:', cleanData);
+            console.log('📋 Produtos disponíveis:', this.items.map(i => ({ id: i.id, name: this.getItemName(i.id), qrCode: i.qrCodeNumber })));
         }
     }
 
