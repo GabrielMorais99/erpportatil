@@ -2850,8 +2850,9 @@ body.theme-blue .login-container #entrarBtn:focus {
 
     .header .btn-secondary {
         font-size: 0.75rem;
-        padding: 0.35rem 0.6rem;
-        min-width: 36px;
+        padding: 0.7rem !important; /* Padding adequado para toque */
+        min-width: 44px !important; /* Tamanho mínimo para toque */
+        height: 44px !important; /* Altura fixa para toque */
     }
 
     .header .btn-secondary .btn-text {
@@ -2860,7 +2861,7 @@ body.theme-blue .login-container #entrarBtn:focus {
 
     .header .btn-secondary i {
         margin: 0;
-        font-size: 1rem;
+        font-size: 1.2rem !important; /* Tamanho maior para melhor visibilidade */
     }
 
     .main-content {
