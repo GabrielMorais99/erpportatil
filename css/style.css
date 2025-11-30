@@ -5787,3 +5787,142 @@ body.dark-mode .skeleton-line {
 .dark-mode-toggle.active .icon-moon {
     opacity: 1;
 }
+
+/* ========================================
+   RESPONSIVIDADE MOBILE - PADRÃO EMERGENTE.SH
+   Esconder textos em botões, mostrar apenas ícones
+   Garantir que layout não quebre em telas pequenas
+   ======================================== */
+
+/* Breakpoint principal: tablets e mobile (até 768px) */
+@media (max-width: 768px) {
+    /* Garantir que todos os botões mostrem apenas ícones */
+    .btn-primary .btn-text,
+    .btn-secondary .btn-text,
+    .btn-small .btn-text,
+    .tab-btn .btn-text,
+    button:not(.dark-mode-toggle):not(.theme-toggle-btn) .btn-text,
+    .btn:not(.dark-mode-toggle):not(.theme-toggle-btn) .btn-text,
+    [class*="btn"] .btn-text {
+        display: none !important;
+    }
+
+    /* Ajustar padding e tamanho dos botões para ícones apenas */
+    .btn-primary:not(.dark-mode-toggle):not(.theme-toggle-btn),
+    .btn-secondary:not(.dark-mode-toggle):not(.theme-toggle-btn),
+    .btn-small:not(.dark-mode-toggle):not(.theme-toggle-btn) {
+        padding: 0.5rem !important;
+        min-width: auto !important;
+        max-width: none !important;
+        width: auto !important;
+        justify-content: center !important;
+        gap: 0 !important;
+    }
+
+    /* Ajustar ícones nos botões */
+    .btn-primary i,
+    .btn-secondary i,
+    .btn-small i,
+    .tab-btn i,
+    button:not(.dark-mode-toggle):not(.theme-toggle-btn) i,
+    .btn:not(.dark-mode-toggle):not(.theme-toggle-btn) i {
+        margin: 0 !important;
+        font-size: 1rem !important;
+    }
+
+    /* Garantir que modais e formulários sejam responsivos */
+    .modal-content {
+        width: 95% !important;
+        max-width: 95% !important;
+        margin: 1rem auto !important;
+        padding: 1rem !important;
+    }
+
+    /* Ajustar inputs e selects para não quebrar */
+    input[type="text"],
+    input[type="number"],
+    input[type="email"],
+    input[type="tel"],
+    select,
+    textarea {
+        width: 100% !important;
+        max-width: 100% !important;
+        box-sizing: border-box !important;
+    }
+
+    /* Garantir que grids sejam responsivos */
+    .items-grid,
+    .clients-grid,
+    .sales-grid {
+        grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)) !important;
+        gap: 0.75rem !important;
+    }
+
+    /* Ajustar cards para mobile */
+    .item-card,
+    .client-card,
+    .sale-card {
+        min-width: 0 !important;
+        max-width: 100% !important;
+    }
+
+    /* Ajustar botões em painéis */
+    .panel-header .btn-primary,
+    .panel-section .btn-primary,
+    .panel-actions .btn-primary {
+        padding: 0.5rem !important;
+        min-width: auto !important;
+        max-width: none !important;
+        width: auto !important;
+    }
+
+    .panel-header .btn-primary .btn-text,
+    .panel-section .btn-primary .btn-text,
+    .panel-actions .btn-primary .btn-text {
+        display: none !important;
+    }
+
+    .panel-header .btn-primary i,
+    .panel-section .btn-primary i,
+    .panel-actions .btn-primary i {
+        margin: 0 !important;
+        font-size: 1rem !important;
+    }
+}
+
+/* Breakpoint para telas muito pequenas (até 480px) */
+@media (max-width: 480px) {
+    /* Ajustes adicionais para telas muito pequenas */
+    .btn-primary:not(.dark-mode-toggle):not(.theme-toggle-btn),
+    .btn-secondary:not(.dark-mode-toggle):not(.theme-toggle-btn),
+    .btn-small:not(.dark-mode-toggle):not(.theme-toggle-btn) {
+        padding: 0.4rem !important;
+    }
+
+    .btn-primary i,
+    .btn-secondary i,
+    .btn-small i,
+    .tab-btn i {
+        font-size: 0.9rem !important;
+    }
+
+    /* Reduzir padding em cards */
+    .item-card,
+    .client-card,
+    .sale-card {
+        padding: 0.75rem !important;
+    }
+
+    /* Ajustar fontes para telas muito pequenas */
+    h1 {
+        font-size: clamp(1rem, 4vw, 1.3rem) !important;
+    }
+
+    h2 {
+        font-size: clamp(0.9rem, 3.5vw, 1.1rem) !important;
+    }
+
+    h3 {
+        font-size: clamp(0.85rem, 3vw, 1rem) !important;
+    }
+}
