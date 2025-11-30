@@ -71,6 +71,15 @@ module.exports = async (req, res) => {
             if (fs.existsSync(projectRoot)) {
                 const rootFiles = fs.readdirSync(projectRoot);
                 console.log('Arquivos na raiz do projeto:', rootFiles.slice(0, 20));
+                
+                // Verificar se pasta lib/ existe
+                const libPath = path.join(projectRoot, 'lib');
+                if (fs.existsSync(libPath)) {
+                    const libFiles = fs.readdirSync(libPath);
+                    console.log('✅ Pasta lib/ encontrada! Arquivos:', libFiles);
+                } else {
+                    console.log('❌ Pasta lib/ NÃO encontrada em:', libPath);
+                }
             }
             if (fs.existsSync(path.join(projectRoot, 'images'))) {
                 const imageFiles = fs.readdirSync(path.join(projectRoot, 'images'));
@@ -400,10 +409,24 @@ module.exports = async (req, res) => {
             }
             console.error('❌ [LIB] Arquivo não encontrado em nenhum caminho:', normalizedPath);
             console.error('❌ [LIB] Todos os caminhos tentados:', libAltPaths);
+            
+            // Tentar listar o que existe na pasta lib/ para debug
+            try {
+                const libDir = path.join(projectRoot, 'lib');
+                if (fs.existsSync(libDir)) {
+                    const libFiles = fs.readdirSync(libDir);
+                    console.error('❌ [LIB] Arquivos que existem em lib/:', libFiles);
+                } else {
+                    console.error('❌ [LIB] Pasta lib/ não existe em:', libDir);
+                }
+            } catch (err) {
+                console.error('❌ [LIB] Erro ao listar lib/:', err.message);
+            }
+            
             return res.status(404).json({ 
                 error: 'Library file not found', 
                 path: normalizedPath,
-                triedPaths: libAltPaths,
+                triedPaths: libAltPaths.slice(0, 3), // Limitar para não exceder tamanho
                 projectRoot: projectRoot,
                 __dirname: __dirname
             });
