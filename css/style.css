@@ -5796,38 +5796,64 @@ body.dark-mode .skeleton-line {
 
 /* Breakpoint principal: tablets e mobile (até 768px) */
 @media (max-width: 768px) {
-    /* Garantir que todos os botões mostrem apenas ícones */
+    /* Garantir que todos os botões mostrem apenas ícones - ESPECIFICIDADE MÁXIMA */
     .btn-primary .btn-text,
+    .btn-primary span.btn-text,
+    button.btn-primary .btn-text,
+    button.btn-primary span.btn-text,
     .btn-secondary .btn-text,
+    .btn-secondary span.btn-text,
     .btn-small .btn-text,
+    .btn-small span.btn-text,
     .tab-btn .btn-text,
+    .tab-btn span.btn-text,
     button:not(.dark-mode-toggle):not(.theme-toggle-btn) .btn-text,
+    button:not(.dark-mode-toggle):not(.theme-toggle-btn) span.btn-text,
     .btn:not(.dark-mode-toggle):not(.theme-toggle-btn) .btn-text,
-    [class*="btn"] .btn-text {
+    .btn:not(.dark-mode-toggle):not(.theme-toggle-btn) span.btn-text,
+    [class*="btn"] .btn-text,
+    [class*="btn"] span.btn-text {
         display: none !important;
+        visibility: hidden !important;
+        width: 0 !important;
+        height: 0 !important;
+        overflow: hidden !important;
+        opacity: 0 !important;
     }
 
-    /* Ajustar padding e tamanho dos botões para ícones apenas */
+    /* Ajustar padding e tamanho dos botões para ícones apenas - FORÇAR SOBRESCRITA */
     .btn-primary:not(.dark-mode-toggle):not(.theme-toggle-btn),
+    button.btn-primary:not(.dark-mode-toggle):not(.theme-toggle-btn),
     .btn-secondary:not(.dark-mode-toggle):not(.theme-toggle-btn),
-    .btn-small:not(.dark-mode-toggle):not(.theme-toggle-btn) {
+    button.btn-secondary:not(.dark-mode-toggle):not(.theme-toggle-btn),
+    .btn-small:not(.dark-mode-toggle):not(.theme-toggle-btn),
+    button.btn-small:not(.dark-mode-toggle):not(.theme-toggle-btn) {
         padding: 0.5rem !important;
         min-width: auto !important;
         max-width: none !important;
         width: auto !important;
         justify-content: center !important;
         gap: 0 !important;
+        white-space: nowrap !important;
     }
 
-    /* Ajustar ícones nos botões */
+    /* Ajustar ícones nos botões - GARANTIR QUE APARECEM */
     .btn-primary i,
+    button.btn-primary i,
+    .btn-primary > i,
+    button.btn-primary > i,
     .btn-secondary i,
+    button.btn-secondary i,
     .btn-small i,
+    button.btn-small i,
     .tab-btn i,
     button:not(.dark-mode-toggle):not(.theme-toggle-btn) i,
     .btn:not(.dark-mode-toggle):not(.theme-toggle-btn) i {
         margin: 0 !important;
         font-size: 1rem !important;
+        display: inline-block !important;
+        visibility: visible !important;
+        opacity: 1 !important;
     }
 
     /* Garantir que modais e formulários sejam responsivos */
