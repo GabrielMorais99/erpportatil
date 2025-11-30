@@ -5661,6 +5661,90 @@ body.dark-mode .modal-content {
     color: var(--gray-800);
 }
 
+/* Dark mode - Texto branco em botões do header-actions */
+body.dark-mode .header-actions .btn-secondary,
+body.dark-mode .header-actions button.btn-secondary {
+    color: #ffffff !important;
+}
+
+body.dark-mode .header-actions .btn-secondary i,
+body.dark-mode .header-actions button.btn-secondary i {
+    color: #ffffff !important;
+}
+
+body.dark-mode .header-actions .btn-secondary .btn-text,
+body.dark-mode .header-actions button.btn-secondary .btn-text,
+body.dark-mode .header-actions .btn-secondary span.btn-text,
+body.dark-mode .header-actions button.btn-secondary span.btn-text {
+    color: #ffffff !important;
+}
+
+body.dark-mode .header-actions .btn-secondary:hover,
+body.dark-mode .header-actions button.btn-secondary:hover {
+    color: #ffffff !important;
+}
+
+body.dark-mode .header-actions .btn-secondary:hover i,
+body.dark-mode .header-actions button.btn-secondary:hover i {
+    color: #ffffff !important;
+}
+
+body.dark-mode .header-actions .btn-secondary:hover .btn-text,
+body.dark-mode .header-actions button.btn-secondary:hover .btn-text {
+    color: #ffffff !important;
+}
+
+/* Dark mode - Texto branco em botões do content-tabs */
+body.dark-mode .content-tabs {
+    background: var(--gray-100);
+    border-color: var(--gray-200);
+}
+
+body.dark-mode .tab-btn {
+    color: #ffffff !important;
+}
+
+body.dark-mode .tab-btn i {
+    color: #ffffff !important;
+}
+
+body.dark-mode .tab-btn .btn-text,
+body.dark-mode .tab-btn span.btn-text {
+    color: #ffffff !important;
+}
+
+body.dark-mode .tab-btn:hover {
+    color: #ffffff !important;
+    background: rgba(255, 255, 255, 0.1);
+}
+
+body.dark-mode .tab-btn:hover i {
+    color: #ffffff !important;
+}
+
+body.dark-mode .tab-btn:hover .btn-text,
+body.dark-mode .tab-btn:hover span.btn-text {
+    color: #ffffff !important;
+}
+
+body.dark-mode .tab-btn.active {
+    color: #ffffff !important;
+    background: rgba(255, 255, 255, 0.15);
+}
+
+body.dark-mode .tab-btn.active i {
+    color: #ffffff !important;
+}
+
+body.dark-mode .tab-btn.active .btn-text,
+body.dark-mode .tab-btn.active span.btn-text {
+    color: #ffffff !important;
+}
+
+body.dark-mode .tab-btn.active::after {
+    background: #ffffff;
+}
+
 body.dark-mode .form-group input,
 body.dark-mode .form-group select,
 body.dark-mode .form-group textarea {
