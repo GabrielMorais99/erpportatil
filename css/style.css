@@ -2554,21 +2554,33 @@ body.theme-blue .login-container #entrarBtn:focus {
         gap: 0.75rem;
     }
 
-    .toolbar .btn-primary {
-        min-width: auto;
-        max-width: none;
-        width: auto;
+    .toolbar .btn-primary,
+    .toolbar button.btn-primary {
+        min-width: auto !important;
+        max-width: none !important;
+        width: auto !important;
         font-size: 0.9rem;
-        padding: 0.5rem;
+        padding: 0.5rem !important;
+        gap: 0 !important;
+        white-space: nowrap !important;
     }
 
-    .toolbar .btn-primary .btn-text {
+    .toolbar .btn-primary .btn-text,
+    .toolbar .btn-primary span.btn-text,
+    .toolbar button.btn-primary .btn-text,
+    .toolbar button.btn-primary span.btn-text {
         display: none !important;
+        visibility: hidden !important;
+        width: 0 !important;
+        height: 0 !important;
+        overflow: hidden !important;
     }
 
-    .toolbar .btn-primary i {
+    .toolbar .btn-primary i,
+    .toolbar button.btn-primary i {
         margin: 0 !important;
-        font-size: 1rem;
+        font-size: 1rem !important;
+        display: inline-block !important;
     }
 
     /* Ajustar botões em painéis para mobile */
