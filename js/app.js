@@ -28,15 +28,11 @@
  * - Sistema de loading: LoadingOverlay
  * - Validação de campos: FieldValidator
  * 
- * PARA IAs (GitHub Copilot / Continue.dev):
- * - Use comentários descritivos para gerar código
- * - Funções seguem padrão: nomeDescritivo(parametros)
- * - Validações sempre verificam permissões
- * - Regras de negócio documentadas nos comentários
+ 
  * 
- * @author Sistema ERP
+ * @author Sistema ERP - Gabriel Dev
  * @version 2.0
- * @since 2024
+ * @since 2025
  */
 
 // ========== APP.JS CARREGADO ==========
@@ -57,7 +53,7 @@ class ToastSystem {
             container = document.createElement('div');
             container.id = 'toast-container';
             container.className = 'toast-container';
-            
+
             // Aguardar DOM estar pronto
             if (document.body) {
                 document.body.appendChild(container);
@@ -71,7 +67,10 @@ class ToastSystem {
                     }
                 };
                 if (document.readyState === 'loading') {
-                    document.addEventListener('DOMContentLoaded', initContainer);
+                    document.addEventListener(
+                        'DOMContentLoaded',
+                        initContainer
+                    );
                 } else {
                     initContainer();
                 }
@@ -101,7 +100,7 @@ class ToastSystem {
     createToast(message, type) {
         const toast = document.createElement('div');
         toast.className = `toast toast-${type}`;
-        
+
         const icon = this.getIcon(type);
         toast.innerHTML = `
             <div class="toast-icon">
@@ -115,7 +114,10 @@ class ToastSystem {
 
         // Adicionar evento de clique no toast para fechar
         toast.addEventListener('click', (e) => {
-            if (e.target.classList.contains('toast-close') || e.target.closest('.toast-close')) {
+            if (
+                e.target.classList.contains('toast-close') ||
+                e.target.closest('.toast-close')
+            ) {
                 this.hide(toast);
             }
         });
@@ -125,13 +127,13 @@ class ToastSystem {
 
     hide(toast) {
         if (!toast || !toast.parentElement) return;
-        
+
         toast.classList.add('hiding');
         setTimeout(() => {
             if (toast.parentElement) {
                 toast.remove();
             }
-            this.toasts = this.toasts.filter(t => t !== toast);
+            this.toasts = this.toasts.filter((t) => t !== toast);
         }, 200);
     }
 
@@ -140,7 +142,7 @@ class ToastSystem {
             success: 'check-circle',
             error: 'exclamation-circle',
             warning: 'exclamation-triangle',
-            info: 'info-circle'
+            info: 'info-circle',
         };
         return icons[type] || 'info-circle';
     }
@@ -204,14 +206,17 @@ class ConfirmSystem {
                     </div>
                 </div>
             `;
-            
+
             // Aguardar DOM estar pronto
             const appendModal = () => {
                 if (document.body) {
                     document.body.appendChild(modal);
                 } else {
                     if (document.readyState === 'loading') {
-                        document.addEventListener('DOMContentLoaded', appendModal);
+                        document.addEventListener(
+                            'DOMContentLoaded',
+                            appendModal
+                        );
                     } else {
                         setTimeout(appendModal, 10);
                     }
@@ -245,13 +250,15 @@ class ConfirmSystem {
                 confirmText = 'Confirmar',
                 cancelText = 'Cancelar',
                 confirmButtonClass = 'confirm-modal-btn-confirm',
-                icon = null
+                icon = null,
             } = options;
 
             const iconEl = this.modal.querySelector('#confirm-modal-icon');
             const titleEl = this.modal.querySelector('#confirm-modal-title');
             const bodyEl = this.modal.querySelector('#confirm-modal-body');
-            const confirmBtn = this.modal.querySelector('#confirm-modal-confirm');
+            const confirmBtn = this.modal.querySelector(
+                '#confirm-modal-confirm'
+            );
             const cancelBtn = this.modal.querySelector('#confirm-modal-cancel');
 
             // Configurar ícone
@@ -262,9 +269,11 @@ class ConfirmSystem {
                 const defaultIcons = {
                     warning: 'exclamation-triangle',
                     danger: 'exclamation-circle',
-                    info: 'info-circle'
+                    info: 'info-circle',
                 };
-                iconEl.innerHTML = `<i class="fas fa-${defaultIcons[type] || 'exclamation-triangle'}"></i>`;
+                iconEl.innerHTML = `<i class="fas fa-${
+                    defaultIcons[type] || 'exclamation-triangle'
+                }"></i>`;
             }
 
             // Configurar conteúdo
@@ -293,7 +302,7 @@ class ConfirmSystem {
 
             // Mostrar modal
             this.modal.classList.add('active');
-            
+
             // Focar no botão de cancelar por padrão (mais seguro)
             setTimeout(() => newCancelBtn.focus(), 100);
         });
@@ -309,12 +318,12 @@ class ConfirmSystem {
     }
 
     danger(message, title = 'Atenção!') {
-        return this.show({ 
-            message, 
-            title, 
+        return this.show({
+            message,
+            title,
             type: 'danger',
             confirmButtonClass: 'confirm-modal-btn-danger',
-            confirmText: 'Excluir'
+            confirmText: 'Excluir',
         });
     }
 
@@ -371,7 +380,9 @@ class LoadingOverlay {
     }
 
     show(message = 'Carregando...') {
-        const messageEl = this.overlay.querySelector('#loading-overlay-message');
+        const messageEl = this.overlay.querySelector(
+            '#loading-overlay-message'
+        );
         if (messageEl) {
             messageEl.textContent = message;
         }
@@ -439,13 +450,21 @@ class FieldValidator {
         }
 
         // Validação minLength
-        if (rules.minLength && value && !this.validators.minLength(value, rules.minLength)) {
+        if (
+            rules.minLength &&
+            value &&
+            !this.validators.minLength(value, rules.minLength)
+        ) {
             errors.push(`Mínimo de ${rules.minLength} caracteres`);
             isValid = false;
         }
 
         // Validação maxLength
-        if (rules.maxLength && value && !this.validators.maxLength(value, rules.maxLength)) {
+        if (
+            rules.maxLength &&
+            value &&
+            !this.validators.maxLength(value, rules.maxLength)
+        ) {
             errors.push(`Máximo de ${rules.maxLength} caracteres`);
             isValid = false;
         }
@@ -527,9 +546,17 @@ class FieldValidator {
             // Atualizar ícone
             statusIcon.className = 'field-status fas';
             if (field.value.trim() !== '') {
-                statusIcon.classList.add(isValid ? 'fa-check-circle' : 'fa-exclamation-circle', isValid ? 'valid' : 'invalid');
+                statusIcon.classList.add(
+                    isValid ? 'fa-check-circle' : 'fa-exclamation-circle',
+                    isValid ? 'valid' : 'invalid'
+                );
             } else {
-                statusIcon.classList.remove('fa-check-circle', 'fa-exclamation-circle', 'valid', 'invalid');
+                statusIcon.classList.remove(
+                    'fa-check-circle',
+                    'fa-exclamation-circle',
+                    'valid',
+                    'invalid'
+                );
             }
 
             // Atualizar mensagem
@@ -578,17 +605,17 @@ const fieldValidator = new FieldValidator();
  * ========================================
  * CLASSE PRINCIPAL: LojaApp
  * ========================================
- * 
+ *
  * @class LojaApp
  * @description Classe principal do sistema ERP de gestão financeira
- * 
+ *
  * RESPONSABILIDADES:
  * - Gerenciar estado da aplicação (produtos, vendas, clientes, etc.)
  * - Coordenar operações entre módulos
  * - Gerenciar persistência de dados
  * - Controlar UI e interações do usuário
  * - Validar permissões e regras de negócio
- * 
+ *
  * ESTRUTURA DE DADOS:
  * - items: Array de produtos
  * - clients: Array de clientes
@@ -597,7 +624,7 @@ const fieldValidator = new FieldValidator();
  * - pendingOrders: Array de pedidos pendentes
  * - costs: Array de custos
  * - goals: Array de metas
- * 
+ *
  * PARA IAs:
  * - Ao criar novas funções, seguir padrão de nomenclatura
  * - Sempre validar permissões antes de operações críticas
@@ -608,7 +635,7 @@ class LojaApp {
     /**
      * @constructor
      * @description Inicializa todas as propriedades e estruturas de dados do sistema
-     * 
+     *
      * INICIALIZA:
      * - Arrays de dados (items, clients, sales, etc.)
      * - Configurações (payment, ecommerce, erp, email, sms, whatsapp)
@@ -682,36 +709,69 @@ class LojaApp {
         this.entityLocks = {}; // Locks de entidades: { entityType_entityId: { username, timestamp } }
         this.maxAuditLogSize = 1000; // Limitar tamanho do log para performance
         this.indexedDB = null; // Instância do IndexedDB
-        this.paymentConfig = { // Configurações de pagamento
+        this.paymentConfig = {
+            // Configurações de pagamento
             pagseguro: { enabled: false, email: '', token: '' },
             mercadoPago: { enabled: false, accessToken: '', publicKey: '' },
             stripe: { enabled: false, publishableKey: '', secretKey: '' },
-            pix: { enabled: true, key: '', merchantName: '', merchantCity: '' }
+            pix: { enabled: true, key: '', merchantName: '', merchantCity: '' },
         };
-        this.ecommerceConfig = { // Configurações de e-commerce
-            woocommerce: { enabled: false, url: '', consumerKey: '', consumerSecret: '' },
+        this.ecommerceConfig = {
+            // Configurações de e-commerce
+            woocommerce: {
+                enabled: false,
+                url: '',
+                consumerKey: '',
+                consumerSecret: '',
+            },
             shopify: { enabled: false, shop: '', apiKey: '', apiSecret: '' },
-            mercadoLivre: { enabled: false, clientId: '', clientSecret: '', accessToken: '' }
+            mercadoLivre: {
+                enabled: false,
+                clientId: '',
+                clientSecret: '',
+                accessToken: '',
+            },
         };
-        this.erpConfig = { // Configurações de ERPs
-            totvs: { enabled: false, url: '', username: '', password: '', database: '' },
-            sap: { enabled: false, url: '', username: '', password: '', client: '' },
-            outros: []
+        this.erpConfig = {
+            // Configurações de ERPs
+            totvs: {
+                enabled: false,
+                url: '',
+                username: '',
+                password: '',
+                database: '',
+            },
+            sap: {
+                enabled: false,
+                url: '',
+                username: '',
+                password: '',
+                client: '',
+            },
+            outros: [],
         };
-        this.emailConfig = { // Configurações de email
+        this.emailConfig = {
+            // Configurações de email
             enabled: false,
             provider: 'smtp',
-            smtp: { host: '', port: 587, secure: false, username: '', password: '' },
+            smtp: {
+                host: '',
+                port: 587,
+                secure: false,
+                username: '',
+                password: '',
+            },
             sendgrid: { apiKey: '' },
             ses: { accessKeyId: '', secretAccessKey: '', region: 'us-east-1' },
-            mailgun: { apiKey: '', domain: '' }
+            mailgun: { apiKey: '', domain: '' },
         };
-        this.smsConfig = { // Configurações de SMS
+        this.smsConfig = {
+            // Configurações de SMS
             enabled: false,
             provider: 'twilio',
             twilio: { accountSid: '', authToken: '', fromNumber: '' },
             zenvia: { apiKey: '', fromNumber: '' },
-            totalvoice: { accessToken: '', fromNumber: '' }
+            totalvoice: { accessToken: '', fromNumber: '' },
         };
         this.useIndexedDB = false; // Flag para usar IndexedDB quando disponível
         this.dbName = 'LojaGestaoDB';
@@ -732,18 +792,113 @@ class LojaApp {
         this.scheduleCheckInterval = null; // Intervalo para verificar agendamentos
         this.exportScheduleCheckInterval = null; // Intervalo para verificar agendamentos de exportações
         this.emailTracking = {}; // Tracking de abertura de emails: { emailId: { sentAt, openedAt, openedCount, recipients } }
-        this.whatsappConfig = { // Configurações de WhatsApp
+        this.whatsappConfig = {
+            // Configurações de WhatsApp
             enabled: false,
             provider: 'whatsapp_business',
             apiKey: '',
             phoneNumberId: '',
             businessAccountId: '',
-            webhookUrl: ''
+            webhookUrl: '',
         };
         this.whatsappChats = []; // Chats com clientes: [{ id, clientId, messages, lastMessageAt, unreadCount }]
         this.whatsappAutomations = []; // Automações de mensagens: [{ id, trigger, message, enabled }]
+        this.messageTemplates = []; // Templates de mensagens: [{ id, name, type, subject, content, variables, createdAt, updatedAt }]
+        this.messageHistory = []; // Histórico de envios: [{ id, type, to, subject, content, status, sentAt, error }]
+        this.scheduledMessages = []; // Mensagens agendadas: [{ id, type, to, subject, content, scheduledAt, sent, error }]
 
         this.init();
+    }
+
+    // ========== SISTEMA DE PERMISSÕES ==========
+
+    /**
+     * Obtém o nível de acesso do usuário atual
+     * @returns {string} - Nível de acesso ('admin', 'manager', 'user')
+     */
+    getUserLevel() {
+        const username = sessionStorage.getItem('username');
+        if (!username) return 'user';
+
+        // Admin sempre tem nível admin
+        if (username === 'admin') return 'admin';
+
+        // Verificar se há permissões salvas para o usuário
+        if (this.userPermissions[username]) {
+            return this.userPermissions[username].level || 'user';
+        }
+
+        // Padrão: user
+        return 'user';
+    }
+
+    /**
+     * Obtém permissões do usuário baseadas no nível
+     * @param {string} level - Nível de acesso
+     * @returns {Object} - Objeto com permissões
+     */
+    getUserPermissions(level) {
+        const permissions = {
+            admin: {
+                read: true,
+                write: true,
+                delete: true,
+                export: true,
+                import: true,
+                manageUsers: true,
+                viewAdmin: true,
+            },
+            manager: {
+                read: true,
+                write: true,
+                delete: true,
+                export: true,
+                import: false,
+                manageUsers: false,
+                viewAdmin: false,
+            },
+            user: {
+                read: true,
+                write: true,
+                delete: false,
+                export: false,
+                import: false,
+                manageUsers: false,
+                viewAdmin: false,
+            },
+        };
+
+        return permissions[level] || permissions.user;
+    }
+
+    /**
+     * Verifica se o usuário atual tem uma permissão específica
+     * @param {string} permission - Nome da permissão (ex: 'write', 'delete', 'viewAdmin')
+     * @param {string} entityType - Tipo de entidade (opcional, ex: 'item', 'client')
+     * @returns {boolean} - true se tiver permissão, false caso contrário
+     */
+    checkPermission(permission, entityType = null) {
+        const username = sessionStorage.getItem('username');
+        if (!username) return false;
+
+        // Admin sempre tem todas as permissões
+        if (username === 'admin') return true;
+
+        // Obter nível do usuário
+        const level = this.getUserLevel();
+
+        // Obter permissões do nível
+        const userPerms = this.getUserPermissions(level);
+
+        // Verificar permissão específica
+        if (entityType) {
+            // Para permissões específicas de entidade (ex: 'write', 'item')
+            // Verificar se tem a permissão geral
+            return userPerms[permission] === true;
+        } else {
+            // Para permissões gerais (ex: 'viewAdmin', 'export', 'import')
+            return userPerms[permission] === true;
+        }
     }
 
     // ========== AUDIT LOG (Histórico de Alterações) ==========
@@ -755,28 +910,35 @@ class LojaApp {
      * @param {string} entityId - ID da entidade
      * @param {string} entityName - Nome da entidade
      * @param {Object} details - Detalhes adicionais (pode incluir previousData para reversão)
-     * 
+     *
      * NOTA: Para ações de 'update', é recomendado passar previousData em details ANTES de fazer a atualização
      * Exemplo: logAction('update', 'item', itemId, itemName, { previousData: dadosAntigos })
      */
     logAction(action, entityType, entityId, entityName, details = {}) {
         const username = sessionStorage.getItem('username') || 'unknown';
         const timestamp = new Date().toISOString();
-        
+
         // Se previousData já foi fornecido em details, usar ele
         // Caso contrário, tentar buscar (pode não funcionar se já foi atualizado)
         let previousData = details.previousData || null;
         if (action === 'update' && !previousData && entityId) {
             // Tentar buscar do histórico de logs (última versão antes desta atualização)
-            previousData = this.getPreviousDataFromAuditLog(entityType, entityId);
+            previousData = this.getPreviousDataFromAuditLog(
+                entityType,
+                entityId
+            );
         }
-        
+
         if (previousData) {
             details.previousData = previousData;
         }
-        
+
         const logEntry = {
-            id: 'AUDIT_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9),
+            id:
+                'AUDIT_' +
+                Date.now() +
+                '_' +
+                Math.random().toString(36).substr(2, 9),
             action: action, // 'create', 'update', 'delete', 'view', 'export', etc.
             entityType: entityType, // 'item', 'client', 'supplier', 'coupon', 'sale', 'cost', 'goal', etc.
             entityId: entityId,
@@ -784,7 +946,9 @@ class LojaApp {
             username: username,
             timestamp: timestamp,
             details: details, // Informações adicionais sobre a alteração (pode incluir previousData)
-            reversible: (action === 'update' && previousData !== null) || (action === 'create' && entityId !== null), // Flag para indicar se pode ser revertido
+            reversible:
+                (action === 'update' && previousData !== null) ||
+                (action === 'create' && entityId !== null), // Flag para indicar se pode ser revertido
         };
 
         this.auditLog.unshift(logEntry); // Adicionar no início
@@ -811,13 +975,14 @@ class LojaApp {
             // Buscar no audit log a última entrada de update ou create para esta entidade
             // (excluindo a entrada atual que está sendo criada)
             const relevantLogs = this.auditLog
-                .filter(log => 
-                    log.entityType === entityType && 
-                    log.entityId === entityId && 
-                    (log.action === 'update' || log.action === 'create')
+                .filter(
+                    (log) =>
+                        log.entityType === entityType &&
+                        log.entityId === entityId &&
+                        (log.action === 'update' || log.action === 'create')
                 )
                 .slice(1); // Pular a primeira (que é a atual sendo criada)
-            
+
             if (relevantLogs.length > 0) {
                 const lastLog = relevantLogs[0];
                 // Se o último log tinha previousData, podemos tentar reconstruir
@@ -826,7 +991,10 @@ class LojaApp {
             }
             return null;
         } catch (error) {
-            console.error('Erro ao buscar dados anteriores do audit log:', error);
+            console.error(
+                'Erro ao buscar dados anteriores do audit log:',
+                error
+            );
             return null;
         }
     }
@@ -836,17 +1004,23 @@ class LojaApp {
         if (!container) return;
 
         // Aplicar filtros
-        const actionFilter = document.getElementById('auditLogFilter')?.value || 'all';
-        const entityFilter = document.getElementById('auditLogEntityFilter')?.value || 'all';
-        
+        const actionFilter =
+            document.getElementById('auditLogFilter')?.value || 'all';
+        const entityFilter =
+            document.getElementById('auditLogEntityFilter')?.value || 'all';
+
         let filteredLogs = this.auditLog;
-        
+
         if (actionFilter !== 'all') {
-            filteredLogs = filteredLogs.filter(log => log.action === actionFilter);
+            filteredLogs = filteredLogs.filter(
+                (log) => log.action === actionFilter
+            );
         }
-        
+
         if (entityFilter !== 'all') {
-            filteredLogs = filteredLogs.filter(log => log.entityType === entityFilter);
+            filteredLogs = filteredLogs.filter(
+                (log) => log.entityType === entityFilter
+            );
         }
 
         const logs = filteredLogs.slice(0, limit);
@@ -903,20 +1077,22 @@ class LojaApp {
 
         container.innerHTML = logs
             .map((log) => {
-                const actionName = {
-                    create: 'Criou',
-                    update: 'Atualizou',
-                    delete: 'Excluiu',
-                    view: 'Visualizou',
-                    export: 'Exportou',
-                    import: 'Importou',
-                    login: 'Entrou',
-                    logout: 'Saiu',
-                }[log.action] || log.action;
+                const actionName =
+                    {
+                        create: 'Criou',
+                        update: 'Atualizou',
+                        delete: 'Excluiu',
+                        view: 'Visualizou',
+                        export: 'Exportou',
+                        import: 'Importou',
+                        login: 'Entrou',
+                        logout: 'Saiu',
+                    }[log.action] || log.action;
 
                 const icon = actionIcons[log.action] || 'fa-circle';
                 const color = actionColors[log.action] || '#6c757d';
-                const entityName = entityTypeNames[log.entityType] || log.entityType;
+                const entityName =
+                    entityTypeNames[log.entityType] || log.entityType;
                 const date = new Date(log.timestamp);
                 const dateStr = date.toLocaleDateString('pt-BR', {
                     day: '2-digit',
@@ -932,11 +1108,16 @@ class LojaApp {
                 // - update: pode reverter se tiver previousData ou flag reversible
                 // - create: pode reverter (deletar)
                 // - delete: não pode reverter automaticamente (precisa backup)
-                const canRevert = (
-                    (log.action === 'update' && (log.reversible || (log.details && log.details.previousData))) ||
-                    (log.action === 'create' && log.entityId && log.entityType)
-                ) && log.entityId && log.entityType;
-                
+                const canRevert =
+                    ((log.action === 'update' &&
+                        (log.reversible ||
+                            (log.details && log.details.previousData))) ||
+                        (log.action === 'create' &&
+                            log.entityId &&
+                            log.entityType)) &&
+                    log.entityId &&
+                    log.entityType;
+
                 return `
                 <div class="item-card" style="border-left: 4px solid ${color}; position: relative;">
                     <div class="item-header">
@@ -944,7 +1125,13 @@ class LojaApp {
                             <i class="fas ${icon}" style="color: ${color}; font-size: 1.1rem;"></i>
                             <div style="flex: 1;">
                                 <h3 style="margin: 0; font-size: 0.95rem; font-weight: 600;">${actionName} ${entityName}</h3>
-                                ${log.entityName ? `<p style="margin: 0.25rem 0 0 0; font-size: 0.85rem; color: var(--gray-600);"><i class="fas fa-tag"></i> ${this.escapeHtml(log.entityName)}</p>` : ''}
+                                ${
+                                    log.entityName
+                                        ? `<p style="margin: 0.25rem 0 0 0; font-size: 0.85rem; color: var(--gray-600);"><i class="fas fa-tag"></i> ${this.escapeHtml(
+                                              log.entityName
+                                          )}</p>`
+                                        : ''
+                                }
                             </div>
                         </div>
                         <div style="display: flex; flex-direction: column; align-items: flex-end; gap: 0.25rem;">
@@ -957,26 +1144,43 @@ class LojaApp {
                         </div>
                     </div>
                     <div class="item-details" style="padding-top: 0.75rem; border-top: 1px solid var(--border-color); margin-top: 0.75rem;">
-                        <p style="margin: 0.5rem 0;"><i class="fas fa-user" style="color: var(--primary-color);"></i> <strong>Usuário:</strong> ${this.escapeHtml(log.username)}</p>
-                        ${log.details && Object.keys(log.details).length > 0 ? `
+                        <p style="margin: 0.5rem 0;"><i class="fas fa-user" style="color: var(--primary-color);"></i> <strong>Usuário:</strong> ${this.escapeHtml(
+                            log.username
+                        )}</p>
+                        ${
+                            log.details && Object.keys(log.details).length > 0
+                                ? `
                             <details style="margin-top: 0.5rem;">
                                 <summary style="cursor: pointer; color: var(--primary-color); font-size: 0.85rem; font-weight: 500;">
                                     <i class="fas fa-info-circle"></i> Ver Detalhes
                                 </summary>
                                 <div style="margin-top: 0.5rem; padding: 0.75rem; background: var(--light-gray); border-radius: var(--radius-sm); font-size: 0.85rem;">
-                                    ${Object.entries(log.details).map(([key, value]) => 
-                                        `<p style="margin: 0.25rem 0;"><strong>${this.escapeHtml(key)}:</strong> ${this.escapeHtml(String(value))}</p>`
-                                    ).join('')}
+                                    ${Object.entries(log.details)
+                                        .map(
+                                            ([key, value]) =>
+                                                `<p style="margin: 0.25rem 0;"><strong>${this.escapeHtml(
+                                                    key
+                                                )}:</strong> ${this.escapeHtml(
+                                                    String(value)
+                                                )}</p>`
+                                        )
+                                        .join('')}
                                 </div>
                             </details>
-                        ` : ''}
-                        ${canRevert ? `
+                        `
+                                : ''
+                        }
+                        ${
+                            canRevert
+                                ? `
                             <div style="margin-top: 0.75rem; padding-top: 0.75rem; border-top: 1px solid var(--border-color);">
                                 <button class="btn-small btn-secondary" onclick="app.revertAuditLogAction('${log.id}')" style="font-size: 0.8rem;">
                                     <i class="fas fa-undo"></i> Reverter Ação
                                 </button>
                             </div>
-                        ` : ''}
+                        `
+                                : ''
+                        }
                     </div>
                 </div>
             `;
@@ -990,7 +1194,7 @@ class LojaApp {
      * @param {string} logId - ID do log a ser revertido
      */
     revertAuditLogAction(logId) {
-        const log = this.auditLog.find(l => l.id === logId);
+        const log = this.auditLog.find((l) => l.id === logId);
         if (!log) {
             if (typeof toast !== 'undefined' && toast) {
                 toast.error('Registro de log não encontrado.', 3000);
@@ -1000,7 +1204,10 @@ class LojaApp {
 
         if (!log.entityId || !log.entityType) {
             if (typeof toast !== 'undefined' && toast) {
-                toast.warning('Esta ação não pode ser revertida (dados insuficientes).', 3000);
+                toast.warning(
+                    'Esta ação não pode ser revertida (dados insuficientes).',
+                    3000
+                );
             }
             return;
         }
@@ -1012,80 +1219,132 @@ class LojaApp {
                 if (log.action === 'delete') {
                     // Reverter exclusão - não é possível restaurar dados deletados sem backup
                     if (typeof toast !== 'undefined' && toast) {
-                        toast.warning('Não é possível reverter exclusões automaticamente. Use o backup para restaurar dados.', 4000);
+                        toast.warning(
+                            'Não é possível reverter exclusões automaticamente. Use o backup para restaurar dados.',
+                            4000
+                        );
                     }
                     return;
                 } else if (log.action === 'update') {
                     // Reverter atualização - restaurar dados anteriores
                     if (log.details && log.details.previousData) {
                         const previousData = log.details.previousData;
-                        const success = this.restoreEntityData(log.entityType, log.entityId, previousData);
-                        
+                        const success = this.restoreEntityData(
+                            log.entityType,
+                            log.entityId,
+                            previousData
+                        );
+
                         if (success) {
                             // Salvar alterações
                             this.saveData();
-                            
+
                             // Atualizar UI
                             this.updateUIAfterRevert(log.entityType);
-                            
+
                             // Registrar reversão no audit log
-                            this.logAction('revert', log.entityType, log.entityId, log.entityName, {
-                                revertedFrom: log.id,
-                                revertedAction: log.action,
-                                revertedAt: log.timestamp
-                            });
-                            
+                            this.logAction(
+                                'revert',
+                                log.entityType,
+                                log.entityId,
+                                log.entityName,
+                                {
+                                    revertedFrom: log.id,
+                                    revertedAction: log.action,
+                                    revertedAt: log.timestamp,
+                                }
+                            );
+
                             if (typeof toast !== 'undefined' && toast) {
-                                toast.success(`Ação revertida com sucesso! ${log.entityName || log.entityType} restaurado.`, 3000);
+                                toast.success(
+                                    `Ação revertida com sucesso! ${
+                                        log.entityName || log.entityType
+                                    } restaurado.`,
+                                    3000
+                                );
                             }
                         } else {
                             if (typeof toast !== 'undefined' && toast) {
-                                toast.error('Erro ao restaurar dados. A entidade pode não existir mais.', 4000);
+                                toast.error(
+                                    'Erro ao restaurar dados. A entidade pode não existir mais.',
+                                    4000
+                                );
                             }
                         }
                     } else {
                         if (typeof toast !== 'undefined' && toast) {
-                            toast.warning('Dados anteriores não disponíveis para reversão. Esta ação foi registrada antes da implementação de reversão.', 4000);
+                            toast.warning(
+                                'Dados anteriores não disponíveis para reversão. Esta ação foi registrada antes da implementação de reversão.',
+                                4000
+                            );
                         }
                     }
                 } else if (log.action === 'create') {
                     // Reverter criação = deletar
-                    const success = this.deleteEntityForRevert(log.entityType, log.entityId);
-                    
+                    const success = this.deleteEntityForRevert(
+                        log.entityType,
+                        log.entityId
+                    );
+
                     if (success) {
                         this.saveData();
                         this.updateUIAfterRevert(log.entityType);
-                        
-                        this.logAction('revert', log.entityType, log.entityId, log.entityName, {
-                            revertedFrom: log.id,
-                            revertedAction: log.action
-                        });
-                        
+
+                        this.logAction(
+                            'revert',
+                            log.entityType,
+                            log.entityId,
+                            log.entityName,
+                            {
+                                revertedFrom: log.id,
+                                revertedAction: log.action,
+                            }
+                        );
+
                         if (typeof toast !== 'undefined' && toast) {
-                            toast.success(`Criação revertida. ${log.entityName || log.entityType} removido.`, 3000);
+                            toast.success(
+                                `Criação revertida. ${
+                                    log.entityName || log.entityType
+                                } removido.`,
+                                3000
+                            );
                         }
                     } else {
                         if (typeof toast !== 'undefined' && toast) {
-                            toast.error('Erro ao reverter criação. A entidade pode não existir mais.', 4000);
+                            toast.error(
+                                'Erro ao reverter criação. A entidade pode não existir mais.',
+                                4000
+                            );
                         }
                     }
                 }
             } catch (error) {
                 console.error('Erro ao reverter ação:', error);
                 if (typeof toast !== 'undefined' && toast) {
-                    toast.error('Erro ao reverter ação. Verifique o console para mais detalhes.', 4000);
+                    toast.error(
+                        'Erro ao reverter ação. Verifique o console para mais detalhes.',
+                        4000
+                    );
                 }
             }
         };
 
         if (typeof confirmDialog !== 'undefined' && confirmDialog) {
-            confirmDialog.confirm(
-                `Tem certeza que deseja reverter a ação "${log.action}" em "${log.entityName || log.entityType}"?`,
-                'Reverter Ação',
-                { type: 'warning' }
-            ).then(performRevert);
+            confirmDialog
+                .confirm(
+                    `Tem certeza que deseja reverter a ação "${
+                        log.action
+                    }" em "${log.entityName || log.entityType}"?`,
+                    'Reverter Ação',
+                    { type: 'warning' }
+                )
+                .then(performRevert);
         } else {
-            if (confirm(`Tem certeza que deseja reverter a ação "${log.action}"?`)) {
+            if (
+                confirm(
+                    `Tem certeza que deseja reverter a ação "${log.action}"?`
+                )
+            ) {
                 performRevert(true);
             }
         }
@@ -1102,37 +1361,57 @@ class LojaApp {
         try {
             switch (entityType) {
                 case 'item':
-                    const itemIndex = this.items.findIndex(i => i.id === entityId);
+                    const itemIndex = this.items.findIndex(
+                        (i) => i.id === entityId
+                    );
                     if (itemIndex !== -1) {
-                        this.items[itemIndex] = JSON.parse(JSON.stringify(previousData));
+                        this.items[itemIndex] = JSON.parse(
+                            JSON.stringify(previousData)
+                        );
                         return true;
                     }
                     break;
                 case 'client':
-                    const clientIndex = this.clients.findIndex(c => c.id === entityId);
+                    const clientIndex = this.clients.findIndex(
+                        (c) => c.id === entityId
+                    );
                     if (clientIndex !== -1) {
-                        this.clients[clientIndex] = JSON.parse(JSON.stringify(previousData));
+                        this.clients[clientIndex] = JSON.parse(
+                            JSON.stringify(previousData)
+                        );
                         return true;
                     }
                     break;
                 case 'supplier':
-                    const supplierIndex = this.suppliers.findIndex(s => s.id === entityId);
+                    const supplierIndex = this.suppliers.findIndex(
+                        (s) => s.id === entityId
+                    );
                     if (supplierIndex !== -1) {
-                        this.suppliers[supplierIndex] = JSON.parse(JSON.stringify(previousData));
+                        this.suppliers[supplierIndex] = JSON.parse(
+                            JSON.stringify(previousData)
+                        );
                         return true;
                     }
                     break;
                 case 'cost':
-                    const costIndex = this.costs.findIndex(c => c.id === entityId);
+                    const costIndex = this.costs.findIndex(
+                        (c) => c.id === entityId
+                    );
                     if (costIndex !== -1) {
-                        this.costs[costIndex] = JSON.parse(JSON.stringify(previousData));
+                        this.costs[costIndex] = JSON.parse(
+                            JSON.stringify(previousData)
+                        );
                         return true;
                     }
                     break;
                 case 'goal':
-                    const goalIndex = this.goals.findIndex(g => g.id === entityId);
+                    const goalIndex = this.goals.findIndex(
+                        (g) => g.id === entityId
+                    );
                     if (goalIndex !== -1) {
-                        this.goals[goalIndex] = JSON.parse(JSON.stringify(previousData));
+                        this.goals[goalIndex] = JSON.parse(
+                            JSON.stringify(previousData)
+                        );
                         return true;
                     }
                     break;
@@ -1154,35 +1433,45 @@ class LojaApp {
         try {
             switch (entityType) {
                 case 'item':
-                    const itemIndex = this.items.findIndex(i => i.id === entityId);
+                    const itemIndex = this.items.findIndex(
+                        (i) => i.id === entityId
+                    );
                     if (itemIndex !== -1) {
                         this.items.splice(itemIndex, 1);
                         return true;
                     }
                     break;
                 case 'client':
-                    const clientIndex = this.clients.findIndex(c => c.id === entityId);
+                    const clientIndex = this.clients.findIndex(
+                        (c) => c.id === entityId
+                    );
                     if (clientIndex !== -1) {
                         this.clients.splice(clientIndex, 1);
                         return true;
                     }
                     break;
                 case 'supplier':
-                    const supplierIndex = this.suppliers.findIndex(s => s.id === entityId);
+                    const supplierIndex = this.suppliers.findIndex(
+                        (s) => s.id === entityId
+                    );
                     if (supplierIndex !== -1) {
                         this.suppliers.splice(supplierIndex, 1);
                         return true;
                     }
                     break;
                 case 'cost':
-                    const costIndex = this.costs.findIndex(c => c.id === entityId);
+                    const costIndex = this.costs.findIndex(
+                        (c) => c.id === entityId
+                    );
                     if (costIndex !== -1) {
                         this.costs.splice(costIndex, 1);
                         return true;
                     }
                     break;
                 case 'goal':
-                    const goalIndex = this.goals.findIndex(g => g.id === entityId);
+                    const goalIndex = this.goals.findIndex(
+                        (g) => g.id === entityId
+                    );
                     if (goalIndex !== -1) {
                         this.goals.splice(goalIndex, 1);
                         return true;
@@ -1218,7 +1507,7 @@ class LojaApp {
                 this.renderGoals();
                 break;
         }
-        
+
         // Atualizar audit log também
         this.renderAuditLog();
     }
@@ -1226,7 +1515,7 @@ class LojaApp {
     init() {
         // Verificar se está em modo de teste
         const isTestMode = window.TEST_MODE === true;
-        
+
         console.log(
             '🟣 [APP.JS] ========== INICIALIZANDO APLICAÇÃO =========='
         );
@@ -1247,7 +1536,9 @@ class LojaApp {
         if (!isLoggedIn) {
             // Em modo de teste, não redirecionar, apenas avisar
             if (isTestMode) {
-                console.log('ℹ️ [APP.JS] Modo de teste: pulando redirecionamento de autenticação');
+                console.log(
+                    'ℹ️ [APP.JS] Modo de teste: pulando redirecionamento de autenticação'
+                );
             } else {
                 console.warn('⚠️ [APP.JS] Usuário NÃO autenticado!');
                 console.log('🟡 [APP.JS] Redirecionando para /index.html...');
@@ -1318,7 +1609,8 @@ class LojaApp {
                 }
 
                 // Esconder todas as outras seções de conteúdo
-                const allTabContents = document.querySelectorAll('.tab-content');
+                const allTabContents =
+                    document.querySelectorAll('.tab-content');
                 allTabContents.forEach((content) => {
                     if (content.id !== 'adminPanelTab') {
                         content.style.display = 'none';
@@ -1368,6 +1660,9 @@ class LojaApp {
             // Configurar throttle de scroll
             this.setupScrollThrottle();
 
+            // Inicializar monitoramento de performance
+            this.initPerformanceMonitoring();
+
             // Inicializar IndexedDB
             this.initIndexedDB();
 
@@ -1381,7 +1676,7 @@ class LojaApp {
             if (this.scheduledReports && this.scheduledReports.length > 0) {
                 this.initScheduleChecker();
             }
-            
+
             // Inicializar verificador de agendamentos de exportações
             if (this.scheduledExports && this.scheduledExports.length > 0) {
                 this.initExportScheduleChecker();
@@ -1410,7 +1705,7 @@ class LojaApp {
 
             // Carregar histórico de buscas
             this.loadSearchHistory();
-            
+
             // Carregar dados apenas para usuários normais (não admin)
             if (username !== 'admin') {
                 // Carregar dados (assíncrono)
@@ -1424,27 +1719,34 @@ class LojaApp {
                     this.renderTemplates();
                     this.renderCoupons();
                     this.renderPendingOrders();
-                    
+
                     // Verificar alertas após carregar dados
                     setTimeout(() => {
                         this.checkPendingOrdersAlerts();
                         this.checkGoalsAlerts();
                         this.checkAppointmentsReminders();
                     }, 1000);
-                    
+
                     // Carregar e iniciar backup automático se configurado
                     this.loadBackupHistory();
                     const username = sessionStorage.getItem('username');
                     if (username) {
-                        const configStr = localStorage.getItem(`autoBackupConfig_${username}`);
+                        const configStr = localStorage.getItem(
+                            `autoBackupConfig_${username}`
+                        );
                         if (configStr) {
                             try {
                                 const config = JSON.parse(configStr);
                                 if (config.enabled) {
-                                    this.startAutoBackup(config.frequency || 'daily');
+                                    this.startAutoBackup(
+                                        config.frequency || 'daily'
+                                    );
                                 }
                             } catch (e) {
-                                console.error('Erro ao carregar configuração de backup:', e);
+                                console.error(
+                                    'Erro ao carregar configuração de backup:',
+                                    e
+                                );
                             }
                         }
                     }
@@ -1459,11 +1761,11 @@ class LojaApp {
                     this.renderServiceGroups();
                     this.renderCosts();
                     this.renderGoals();
-                this.updateMonthFilter();
-                this.updateYearFilter();
-                this.updateGoalsYearFilter();
-                this.updateServicesYearFilter();
-                this.updateOverallSummary();
+                    this.updateMonthFilter();
+                    this.updateYearFilter();
+                    this.updateGoalsYearFilter();
+                    this.updateServicesYearFilter();
+                    this.updateOverallSummary();
                 });
             }
         }, 100);
@@ -1473,12 +1775,12 @@ class LojaApp {
         // Verificar se está em modo de teste
         const isTestMode = window.TEST_MODE === true;
         const suppressWarnings = window.SUPPRESS_UI_WARNINGS === true;
-        
+
         // Em modo de teste, pular configuração de event listeners
         if (isTestMode) {
             return;
         }
-        
+
         // Função para adicionar log (apenas no console)
         function addDebugLog(msg) {
             if (window.console && console.log) {
@@ -1567,7 +1869,7 @@ class LojaApp {
         const importBtn = document.getElementById('importBtn');
         const importFile = document.getElementById('importFile');
         const exportBtn = document.getElementById('exportBtn');
-        
+
         // Verificar se é admin e esconder botão "Como usar" e modal de tutorial
         const currentUsername = sessionStorage.getItem('username');
         if (currentUsername === 'admin') {
@@ -1669,24 +1971,43 @@ class LojaApp {
         // Fechar modal ao clicar no overlay (fora do conteúdo)
         const tutorialModal = document.getElementById('tutorialModal');
         if (tutorialModal) {
-            tutorialModal.addEventListener('click', (e) => {
-                console.log('🟢 [TUTORIAL] Overlay clicado, target:', e.target, 'currentTarget:', e.currentTarget);
-                // Se clicou diretamente no modal (overlay), fechar
-                if (e.target === tutorialModal || e.target.id === 'tutorialModal') {
-                    console.log('🟢 [TUTORIAL] Fechando modal via overlay');
-                    this.closeTutorialModal();
-                }
-            }, true); // Usar capture phase para garantir que o evento seja capturado
+            tutorialModal.addEventListener(
+                'click',
+                (e) => {
+                    console.log(
+                        '🟢 [TUTORIAL] Overlay clicado, target:',
+                        e.target,
+                        'currentTarget:',
+                        e.currentTarget
+                    );
+                    // Se clicou diretamente no modal (overlay), fechar
+                    if (
+                        e.target === tutorialModal ||
+                        e.target.id === 'tutorialModal'
+                    ) {
+                        console.log('🟢 [TUTORIAL] Fechando modal via overlay');
+                        this.closeTutorialModal();
+                    }
+                },
+                true
+            ); // Usar capture phase para garantir que o evento seja capturado
 
             // Fechar modal com tecla ESC (usar capture no document)
-            document.addEventListener('keydown', (e) => {
-                if (e.key === 'Escape' && tutorialModal.classList.contains('active')) {
-                    console.log('🟢 [TUTORIAL] Tecla ESC pressionada');
-                    e.preventDefault();
-                    e.stopPropagation();
-                    this.closeTutorialModal();
-                }
-            }, true);
+            document.addEventListener(
+                'keydown',
+                (e) => {
+                    if (
+                        e.key === 'Escape' &&
+                        tutorialModal.classList.contains('active')
+                    ) {
+                        console.log('🟢 [TUTORIAL] Tecla ESC pressionada');
+                        e.preventDefault();
+                        e.stopPropagation();
+                        this.closeTutorialModal();
+                    }
+                },
+                true
+            );
         } else {
             console.error('❌ [TUTORIAL] tutorialModal não encontrado!');
         }
@@ -1794,36 +2115,44 @@ class LojaApp {
                 if (this.searchDebounceTimer) {
                     clearTimeout(this.searchDebounceTimer);
                 }
-                
+
                 // Novo timer com delay de 300ms (padrão emergente.sh)
                 this.searchDebounceTimer = setTimeout(() => {
                     this.handleSearch(e.target.value);
                 }, 300);
             });
-            
+
             // Salvar busca no histórico ao pressionar Enter
             searchInput.addEventListener('keydown', (e) => {
                 if (e.key === 'Enter' && searchInput.value.trim()) {
                     this.addToSearchHistory(searchInput.value.trim());
                 }
             });
-            
+
             // Mostrar histórico ao focar
             searchInput.addEventListener('focus', () => {
                 if (searchInput.value.trim() === '') {
                     this.showSearchHistory();
                 }
             });
-            
+
             // Esconder histórico ao clicar fora
             document.addEventListener('click', (e) => {
-                const historyContainer = document.getElementById('searchHistoryContainer');
-                if (historyContainer && !historyContainer.contains(e.target) && e.target !== searchInput) {
+                const historyContainer = document.getElementById(
+                    'searchHistoryContainer'
+                );
+                if (
+                    historyContainer &&
+                    !historyContainer.contains(e.target) &&
+                    e.target !== searchInput
+                ) {
                     this.hideSearchHistory();
                 }
             });
-            
-            console.log('✅ [APP.JS] Listener anexado ao searchInput (com debounce)');
+
+            console.log(
+                '✅ [APP.JS] Listener anexado ao searchInput (com debounce)'
+            );
         } else {
             console.error('❌ [APP.JS] searchInput não encontrado!');
         }
@@ -1856,7 +2185,8 @@ class LojaApp {
         }
 
         // Filtro de ano para serviços
-        const servicesYearFilter = document.getElementById('servicesYearFilter');
+        const servicesYearFilter =
+            document.getElementById('servicesYearFilter');
         if (servicesYearFilter) {
             servicesYearFilter.addEventListener('change', () => {
                 this.renderServiceGroups();
@@ -1870,7 +2200,9 @@ class LojaApp {
         // Formulário de construtor de relatórios
         const reportBuilderForm = document.getElementById('reportBuilderForm');
         if (reportBuilderForm) {
-            reportBuilderForm.addEventListener('submit', (e) => this.generateCustomReport(e));
+            reportBuilderForm.addEventListener('submit', (e) =>
+                this.generateCustomReport(e)
+            );
             console.log('✅ [APP.JS] Listener anexado ao reportBuilderForm');
         } else {
             console.error('❌ [APP.JS] reportBuilderForm não encontrado!');
@@ -1907,7 +2239,9 @@ class LojaApp {
         }
 
         if (clientModalClose) {
-            clientModalClose.addEventListener('click', () => this.closeClientModal());
+            clientModalClose.addEventListener('click', () =>
+                this.closeClientModal()
+            );
         }
 
         if (clientSearch) {
@@ -1917,32 +2251,42 @@ class LojaApp {
                 if (this.clientSearchDebounceTimer) {
                     clearTimeout(this.clientSearchDebounceTimer);
                 }
-                
+
                 // Novo timer com delay de 300ms
                 this.clientSearchDebounceTimer = setTimeout(() => {
                     this.renderClients();
                 }, 300);
             });
-            console.log('✅ [APP.JS] Listener anexado ao clientSearch (com debounce)');
+            console.log(
+                '✅ [APP.JS] Listener anexado ao clientSearch (com debounce)'
+            );
         }
 
         // Modal de fornecedor
         const supplierForm = document.getElementById('supplierForm');
-        const supplierModalClose = document.querySelector('#supplierModal .close');
+        const supplierModalClose = document.querySelector(
+            '#supplierModal .close'
+        );
         const supplierRating = document.getElementById('supplierRating');
-        
+
         if (supplierForm) {
-            supplierForm.addEventListener('submit', (e) => this.saveSupplier(e));
+            supplierForm.addEventListener('submit', (e) =>
+                this.saveSupplier(e)
+            );
             console.log('✅ [APP.JS] Listener anexado ao supplierForm');
         }
-        
+
         if (supplierModalClose) {
-            supplierModalClose.addEventListener('click', () => this.closeSupplierModal());
+            supplierModalClose.addEventListener('click', () =>
+                this.closeSupplierModal()
+            );
             console.log('✅ [APP.JS] Listener anexado ao supplierModal .close');
         }
-        
+
         if (supplierRating) {
-            supplierRating.addEventListener('input', () => this.updateSupplierRatingDisplay());
+            supplierRating.addEventListener('input', () =>
+                this.updateSupplierRatingDisplay()
+            );
             console.log('✅ [APP.JS] Listener anexado ao supplierRating');
         }
 
@@ -1956,20 +2300,24 @@ class LojaApp {
                     this.renderSuppliers();
                 }, 300);
             });
-            console.log('✅ [APP.JS] Listener anexado ao supplierSearch (com debounce)');
+            console.log(
+                '✅ [APP.JS] Listener anexado ao supplierSearch (com debounce)'
+            );
         }
 
         // Modal de cupom
         const couponForm = document.getElementById('couponForm');
         const couponModalClose = document.querySelector('#couponModal .close');
-        
+
         if (couponForm) {
             couponForm.addEventListener('submit', (e) => this.saveCoupon(e));
             console.log('✅ [APP.JS] Listener anexado ao couponForm');
         }
-        
+
         if (couponModalClose) {
-            couponModalClose.addEventListener('click', () => this.closeCouponModal());
+            couponModalClose.addEventListener('click', () =>
+                this.closeCouponModal()
+            );
             console.log('✅ [APP.JS] Listener anexado ao couponModal .close');
         }
 
@@ -2500,24 +2848,24 @@ class LojaApp {
                 this.updateDiscountCalculation();
             });
         }
-        
+
         // Event listeners para desconto
         const saleQuantity = document.getElementById('saleQuantity');
         const saleDiscountType = document.getElementById('saleDiscountType');
         const saleDiscountValue = document.getElementById('saleDiscountValue');
-        
+
         if (saleQuantity) {
             saleQuantity.addEventListener('input', () => {
                 this.updateDiscountCalculation();
             });
         }
-        
+
         if (saleDiscountType) {
             saleDiscountType.addEventListener('change', () => {
                 this.updateDiscountCalculation();
             });
         }
-        
+
         if (saleDiscountValue) {
             saleDiscountValue.addEventListener('input', () => {
                 this.updateDiscountCalculation();
@@ -2622,7 +2970,9 @@ class LojaApp {
             saleSize.addEventListener('input', () => {
                 this.updateStockInfo();
             });
-            console.log('✅ [APP.JS] Listener anexado ao saleSize para atualizar estoque');
+            console.log(
+                '✅ [APP.JS] Listener anexado ao saleSize para atualizar estoque'
+            );
         }
 
         // Listener para campo de cor (atualizar estoque quando cor mudar)
@@ -2631,7 +2981,9 @@ class LojaApp {
             saleColor.addEventListener('input', () => {
                 this.updateStockInfo();
             });
-            console.log('✅ [APP.JS] Listener anexado ao saleColor para atualizar estoque');
+            console.log(
+                '✅ [APP.JS] Listener anexado ao saleColor para atualizar estoque'
+            );
         }
 
         // Fechar modais ao clicar fora
@@ -2646,9 +2998,9 @@ class LojaApp {
      * ========================================
      * MÓDULO: GESTÃO DE PRODUTOS/ITENS
      * ========================================
-     * 
+     *
      * @description Gerencia produtos, estoque, categorias e tags
-     * 
+     *
      * FUNCIONALIDADES:
      * - CRUD de produtos (criar, ler, atualizar, deletar)
      * - Controle de estoque (entrada, saída, mínimo)
@@ -2656,18 +3008,18 @@ class LojaApp {
      * - Sistema de tags para organização
      * - QR Code para produtos
      * - Templates de produtos
-     * 
+     *
      * REGRAS DE NEGÓCIO:
      * - Estoque não pode ser negativo
      * - Estoque mínimo deve ser >= 0
      * - Preço deve ser > 0
      * - Produto precisa de nome e categoria
-     * 
+     *
      * PERMISSÕES:
      * - Criar: user, manager, admin
      * - Editar: user, manager, admin
      * - Deletar: manager, admin
-     * 
+     *
      * PARA IAs:
      * - Ao criar funções de estoque, validar regras acima
      * - Sempre verificar permissões antes de operações
@@ -2825,13 +3177,22 @@ class LojaApp {
             const itemEmail = document.getElementById('itemEmail');
 
             if (itemName) {
-                fieldValidator.setupFieldValidation(itemName, { required: true, minLength: 2 });
+                fieldValidator.setupFieldValidation(itemName, {
+                    required: true,
+                    minLength: 2,
+                });
             }
             if (itemPrice) {
-                fieldValidator.setupFieldValidation(itemPrice, { required: true, number: true, positive: true });
+                fieldValidator.setupFieldValidation(itemPrice, {
+                    required: true,
+                    number: true,
+                    positive: true,
+                });
             }
             if (itemModel) {
-                fieldValidator.setupFieldValidation(itemModel, { minLength: 2 });
+                fieldValidator.setupFieldValidation(itemModel, {
+                    minLength: 2,
+                });
             }
         }
     }
@@ -2862,33 +3223,47 @@ class LojaApp {
 
     saveItem(e) {
         e.preventDefault();
-        
+
         // Verificar permissão de escrita
         if (!this.checkPermission('write', 'item')) {
             if (typeof toast !== 'undefined' && toast) {
-                toast.error('Você não tem permissão para criar/editar produtos.', 3000);
+                toast.error(
+                    'Você não tem permissão para criar/editar produtos.',
+                    3000
+                );
             } else {
                 alert('Você não tem permissão para criar/editar produtos.');
             }
             return;
         }
-        
+
         // Verificar e bloquear entidade se estiver editando
         if (this.currentEditingItem) {
-            const lockResult = this.checkEntityLock('item', this.currentEditingItem.id);
+            const lockResult = this.checkEntityLock(
+                'item',
+                this.currentEditingItem.id
+            );
             if (lockResult.locked && !lockResult.isOwner) {
                 if (typeof toast !== 'undefined' && toast) {
-                    toast.warning(`Este item está sendo editado por ${lockResult.lockedBy}. Aguarde alguns minutos.`, 4000);
+                    toast.warning(
+                        `Este item está sendo editado por ${lockResult.lockedBy}. Aguarde alguns minutos.`,
+                        4000
+                    );
                 } else {
-                    alert(`Este item está sendo editado por ${lockResult.lockedBy}. Aguarde alguns minutos.`);
+                    alert(
+                        `Este item está sendo editado por ${lockResult.lockedBy}. Aguarde alguns minutos.`
+                    );
                 }
                 return;
             }
-            
+
             // Bloquear entidade
             if (!this.lockEntity('item', this.currentEditingItem.id)) {
                 if (typeof toast !== 'undefined' && toast) {
-                    toast.error('Não foi possível bloquear o item para edição.', 3000);
+                    toast.error(
+                        'Não foi possível bloquear o item para edição.',
+                        3000
+                    );
                 }
                 return;
             }
@@ -2905,15 +3280,28 @@ class LojaApp {
         const category = document.getElementById('itemCategory').value;
 
         const minStockInput = document.getElementById('itemMinStock');
-        const minStock = minStockInput && minStockInput.value ? parseInt(minStockInput.value) : null;
+        const minStock =
+            minStockInput && minStockInput.value
+                ? parseInt(minStockInput.value)
+                : null;
         const tagsInput = document.getElementById('itemTags');
-        const tags = tagsInput && tagsInput.value ? tagsInput.value.split(',').map(t => t.trim()).filter(t => t) : [];
+        const tags =
+            tagsInput && tagsInput.value
+                ? tagsInput.value
+                      .split(',')
+                      .map((t) => t.trim())
+                      .filter((t) => t)
+                : [];
         const notesInput = document.getElementById('itemNotes');
-        const notes = notesInput && notesInput.value ? notesInput.value.trim() : '';
-        
+        const notes =
+            notesInput && notesInput.value ? notesInput.value.trim() : '';
+
         const itemCostInput = document.getElementById('itemCost');
-        const itemCost = itemCostInput && itemCostInput.value ? this.parsePrice(itemCostInput.value) : undefined;
-        
+        const itemCost =
+            itemCostInput && itemCostInput.value
+                ? this.parsePrice(itemCostInput.value)
+                : undefined;
+
         const item = {
             id: this.currentEditingItem
                 ? this.currentEditingItem.id
@@ -2924,7 +3312,7 @@ class LojaApp {
             minStock: minStock || undefined, // Estoque mínimo configurável
             notes: notes || undefined, // Notas/comentários
         };
-        
+
         // Salvar tags separadamente
         if (tags.length > 0) {
             this.itemTags[item.id] = tags;
@@ -2935,16 +3323,28 @@ class LojaApp {
         // Adicionar campos baseado na categoria
         if (category === 'Roupas') {
             // Formatar nome, marca e estilo automaticamente
-            item.name = this.formatText(document.getElementById('itemName').value) || '';
-            item.brand = this.formatText(document.getElementById('itemBrand').value);
-            item.style = this.formatText(document.getElementById('itemStyle').value) || '';
+            item.name =
+                this.formatText(document.getElementById('itemName').value) ||
+                '';
+            item.brand = this.formatText(
+                document.getElementById('itemBrand').value
+            );
+            item.style =
+                this.formatText(document.getElementById('itemStyle').value) ||
+                '';
             item.size = document.getElementById('itemSize').value.trim() || '';
             item.gender = document.getElementById('itemGender').value || '';
         } else if (category === 'Eletrônicos') {
             // Para eletrônicos, usar modelo como nome (ou modelo + capacidade + cor)
-            const model = this.formatText(document.getElementById('itemModel').value);
-            const capacity = this.formatText(document.getElementById('itemCapacity').value);
-            const color = this.formatText(document.getElementById('itemColor').value);
+            const model = this.formatText(
+                document.getElementById('itemModel').value
+            );
+            const capacity = this.formatText(
+                document.getElementById('itemCapacity').value
+            );
+            const color = this.formatText(
+                document.getElementById('itemColor').value
+            );
 
             // Criar nome composto para eletrônicos
             let nameParts = [];
@@ -3006,11 +3406,19 @@ class LojaApp {
         if (this.currentEditingItem && this.currentEditingItem.qrCodeNumber) {
             // Manter código existente ao editar (preservar identificação única)
             item.qrCodeNumber = this.currentEditingItem.qrCodeNumber;
-            console.log(`✅ Mantendo QR Code existente: ${item.qrCodeNumber} para produto ${item.name || item.id}`);
+            console.log(
+                `✅ Mantendo QR Code existente: ${
+                    item.qrCodeNumber
+                } para produto ${item.name || item.id}`
+            );
         } else {
             // Gerar novo código único ao criar produto
             item.qrCodeNumber = this.generateQRCodeNumber();
-            console.log(`✅ Novo QR Code gerado: ${item.qrCodeNumber} para produto ${item.name || 'novo'}`);
+            console.log(
+                `✅ Novo QR Code gerado: ${item.qrCodeNumber} para produto ${
+                    item.name || 'novo'
+                }`
+            );
         }
 
         // Validação de segurança: garantir que o QR code é único
@@ -3018,10 +3426,16 @@ class LojaApp {
             (i) => i.id !== item.id && i.qrCodeNumber === item.qrCodeNumber
         );
         if (duplicateItem) {
-            console.error(`❌ ERRO: QR Code duplicado detectado! Produto ${item.name} tem o mesmo QR Code que ${this.getItemName(duplicateItem.id)}`);
+            console.error(
+                `❌ ERRO: QR Code duplicado detectado! Produto ${
+                    item.name
+                } tem o mesmo QR Code que ${this.getItemName(duplicateItem.id)}`
+            );
             // Gerar novo código único
             item.qrCodeNumber = this.generateQRCodeNumber();
-            console.log(`✅ Novo QR Code único gerado após detecção de duplicata: ${item.qrCodeNumber}`);
+            console.log(
+                `✅ Novo QR Code único gerado após detecção de duplicata: ${item.qrCodeNumber}`
+            );
         }
 
         // Salvar dados anteriores antes de atualizar (para reversão)
@@ -3049,7 +3463,7 @@ class LojaApp {
         if (this.currentEditingItem) {
             this.unlockEntity('item', this.currentEditingItem.id);
         }
-        
+
         this.saveData();
         this.updateTagFilter(); // Atualizar lista de tags após salvar
         this.renderItems();
@@ -3153,12 +3567,15 @@ class LojaApp {
     }
 
     // ========== QR CODE LIBRARY LOADER ==========
-    
+
     // Carregar biblioteca QRCode dinamicamente se não estiver carregada
     loadQRCodeLibrary() {
         return new Promise((resolve, reject) => {
             // Verificar se já está carregada (múltiplas formas de acesso)
-            const QRCodeLib = window.QRCode || window.qrcode || (window.QRCodeLib && window.QRCodeLib.default);
+            const QRCodeLib =
+                window.QRCode ||
+                window.qrcode ||
+                (window.QRCodeLib && window.QRCodeLib.default);
             if (QRCodeLib) {
                 console.log('✅ Biblioteca QRCode já está carregada');
                 resolve();
@@ -3166,35 +3583,56 @@ class LojaApp {
             }
 
             // Verificar se já existe um script carregando
-            const existingScript = document.querySelector('script[src*="qrcode"]');
+            const existingScript = document.querySelector(
+                'script[src*="qrcode"]'
+            );
             if (existingScript) {
-                console.log('📦 Script QRCode já existe no DOM, aguardando carregamento...');
-                console.log('🔍 Verificando window.QRCode:', typeof window.QRCode);
-                console.log('🔍 Verificando window.qrcode:', typeof window.qrcode);
-                console.log('🔍 Verificando window.qrcodeLoaded:', window.qrcodeLoaded);
-                
+                console.log(
+                    '📦 Script QRCode já existe no DOM, aguardando carregamento...'
+                );
+                console.log(
+                    '🔍 Verificando window.QRCode:',
+                    typeof window.QRCode
+                );
+                console.log(
+                    '🔍 Verificando window.qrcode:',
+                    typeof window.qrcode
+                );
+                console.log(
+                    '🔍 Verificando window.qrcodeLoaded:',
+                    window.qrcodeLoaded
+                );
+
                 // Se o script falhou ao carregar (qrcodeLoaded é false), tentar recarregar
                 if (window.qrcodeLoaded === false) {
-                    console.warn('⚠️ Script QRCode falhou ao carregar anteriormente. Tentando recarregar...');
+                    console.warn(
+                        '⚠️ Script QRCode falhou ao carregar anteriormente. Tentando recarregar...'
+                    );
                     // Remover script antigo
                     existingScript.remove();
                     // Continuar para carregar dinamicamente abaixo (não retornar)
                 } else if (window.qrcodeLoaded === true) {
                     // Script marcado como carregado, mas biblioteca não encontrada
-                    console.log('📦 Script marcado como carregado, mas biblioteca não encontrada. Verificando formas alternativas...');
+                    console.log(
+                        '📦 Script marcado como carregado, mas biblioteca não encontrada. Verificando formas alternativas...'
+                    );
                     // Tentar acessar diretamente (pode estar em escopo global sem window)
                     try {
                         if (typeof QRCode !== 'undefined') {
                             window.QRCode = QRCode;
-                            console.log('✅ Biblioteca QRCode encontrada como QRCode global!');
+                            console.log(
+                                '✅ Biblioteca QRCode encontrada como QRCode global!'
+                            );
                             resolve();
                             return;
                         }
                     } catch (e) {
-                        console.log('⚠️ QRCode não encontrado como variável global');
+                        console.log(
+                            '⚠️ QRCode não encontrado como variável global'
+                        );
                     }
                 }
-                
+
                 // Se qrcodeLoaded é undefined, o script ainda está carregando
                 let attempts = 0;
                 let shouldContinue = false; // Flag para indicar se deve continuar para carregar dinamicamente
@@ -3202,54 +3640,86 @@ class LojaApp {
                 const checkInterval = setInterval(() => {
                     attempts++;
                     // Verificar múltiplas formas de acesso
-                    let QRCodeLib = window.QRCode || window.qrcode || (window.QRCodeLib && window.QRCodeLib.default);
-                    
+                    let QRCodeLib =
+                        window.QRCode ||
+                        window.qrcode ||
+                        (window.QRCodeLib && window.QRCodeLib.default);
+
                     // Tentar acessar diretamente se ainda não encontrado
                     if (!QRCodeLib && typeof QRCode !== 'undefined') {
                         window.QRCode = QRCode;
                         QRCodeLib = QRCode;
-                        console.log('✅ Biblioteca QRCode encontrada como QRCode global!');
+                        console.log(
+                            '✅ Biblioteca QRCode encontrada como QRCode global!'
+                        );
                     }
-                    
+
                     if (QRCodeLib) {
                         clearInterval(checkInterval);
-                        console.log('✅ Biblioteca QRCode carregada após', attempts, 'tentativas!');
+                        console.log(
+                            '✅ Biblioteca QRCode carregada após',
+                            attempts,
+                            'tentativas!'
+                        );
                         resolve();
                         return;
                     }
-                    
+
                     // Se o script foi marcado como falhou, parar de esperar
                     if (window.qrcodeLoaded === false) {
                         clearInterval(checkInterval);
-                        console.error('❌ Script QRCode falhou ao carregar. Tentando recarregar...');
+                        console.error(
+                            '❌ Script QRCode falhou ao carregar. Tentando recarregar...'
+                        );
                         existingScript.remove();
                         shouldContinue = true; // Marcar para continuar
                         return;
                     }
-                    
+
                     // Log a cada 10 tentativas
                     if (attempts % 10 === 0) {
-                        console.log(`⏳ Aguardando biblioteca QRCode... (${attempts}/${maxAttempts})`);
+                        console.log(
+                            `⏳ Aguardando biblioteca QRCode... (${attempts}/${maxAttempts})`
+                        );
                         console.log('🔍 window.QRCode:', typeof window.QRCode);
                         console.log('🔍 window.qrcode:', typeof window.qrcode);
                         console.log('🔍 typeof QRCode:', typeof QRCode);
-                        console.log('🔍 window.qrcodeLoaded:', window.qrcodeLoaded);
+                        console.log(
+                            '🔍 window.qrcodeLoaded:',
+                            window.qrcodeLoaded
+                        );
                     }
-                    
+
                     if (attempts >= maxAttempts) {
                         clearInterval(checkInterval);
-                        console.error('❌ Timeout: Biblioteca QRCode não foi carregada após', maxAttempts, 'tentativas');
-                        console.error('🔍 Estado final - window.QRCode:', typeof window.QRCode);
-                        console.error('🔍 Estado final - window.qrcode:', typeof window.qrcode);
-                        console.error('🔍 Estado final - typeof QRCode:', typeof QRCode);
-                        console.error('🔍 Estado final - window.qrcodeLoaded:', window.qrcodeLoaded);
+                        console.error(
+                            '❌ Timeout: Biblioteca QRCode não foi carregada após',
+                            maxAttempts,
+                            'tentativas'
+                        );
+                        console.error(
+                            '🔍 Estado final - window.QRCode:',
+                            typeof window.QRCode
+                        );
+                        console.error(
+                            '🔍 Estado final - window.qrcode:',
+                            typeof window.qrcode
+                        );
+                        console.error(
+                            '🔍 Estado final - typeof QRCode:',
+                            typeof QRCode
+                        );
+                        console.error(
+                            '🔍 Estado final - window.qrcodeLoaded:',
+                            window.qrcodeLoaded
+                        );
                         console.warn('🔄 Tentando recarregar script QRCode...');
                         // Remover script antigo e tentar recarregar
                         existingScript.remove();
                         shouldContinue = true; // Marcar para continuar
                     }
                 }, 100);
-                
+
                 // Se o script ainda está carregando normalmente, aguardar
                 if (!shouldContinue && window.qrcodeLoaded !== false) {
                     return; // Ainda está aguardando
@@ -3260,19 +3730,21 @@ class LojaApp {
             // Carregar script dinamicamente
             console.log('📥 Carregando biblioteca QRCode dinamicamente...');
             const script = document.createElement('script');
-            
+
             // Tentar múltiplas URLs do CDN (não tentar local - sempre usar CDN)
             const cdnUrls = [
                 'https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js',
                 'https://unpkg.com/qrcode@1.5.3/build/qrcode.min.js',
-                'https://cdnjs.cloudflare.com/ajax/libs/qrcode/1.5.3/qrcode.min.js'
+                'https://cdnjs.cloudflare.com/ajax/libs/qrcode/1.5.3/qrcode.min.js',
             ];
-            
+
             let currentUrlIndex = 0;
-            
+
             const tryLoadScript = (urlIndex) => {
                 if (urlIndex >= cdnUrls.length) {
-                    console.error('❌ Todas as URLs do CDN falharam ao carregar');
+                    console.error(
+                        '❌ Todas as URLs do CDN falharam ao carregar'
+                    );
                     console.error('💡 Possíveis causas:');
                     console.error('   1. Problema de conexão com a internet');
                     console.error('   2. Firewall ou proxy bloqueando CDNs');
@@ -3280,86 +3752,112 @@ class LojaApp {
                     console.error('   4. CDNs temporariamente indisponíveis');
                     console.error('💡 Soluções:');
                     console.error('   - Verifique sua conexão com a internet');
-                    console.error('   - Verifique configurações de firewall/proxy');
-                    console.error('   - Tente acessar os CDNs diretamente no navegador');
-                    console.error('   - Considere usar uma versão local da biblioteca QRCode');
-                    
-                    const errorMsg = 'Não foi possível carregar a biblioteca QRCode. Verifique sua conexão com a internet ou configurações de firewall.';
+                    console.error(
+                        '   - Verifique configurações de firewall/proxy'
+                    );
+                    console.error(
+                        '   - Tente acessar os CDNs diretamente no navegador'
+                    );
+                    console.error(
+                        '   - Considere usar uma versão local da biblioteca QRCode'
+                    );
+
+                    const errorMsg =
+                        'Não foi possível carregar a biblioteca QRCode. Verifique sua conexão com a internet ou configurações de firewall.';
                     alert(errorMsg);
                     reject(new Error(errorMsg));
                     return;
                 }
-                
+
                 const url = cdnUrls[urlIndex];
                 console.log(`📥 Tentando carregar de: ${url}`);
-                
+
                 // Criar novo script para cada tentativa (evitar reutilizar script com erro)
                 const newScript = document.createElement('script');
                 newScript.src = url;
-                
+
                 newScript.onload = () => {
-                    console.log('✅ Script QRCode carregado, verificando disponibilidade...');
+                    console.log(
+                        '✅ Script QRCode carregado, verificando disponibilidade...'
+                    );
                     window.qrcodeLoaded = true;
-                    
+
                     // Aguardar um pouco para garantir que a biblioteca está disponível
                     setTimeout(() => {
                         // Verificar múltiplas formas de acesso
-                        let QRCodeLib = window.QRCode || window.qrcode || (window.QRCodeLib && window.QRCodeLib.default);
-                        
+                        let QRCodeLib =
+                            window.QRCode ||
+                            window.qrcode ||
+                            (window.QRCodeLib && window.QRCodeLib.default);
+
                         // Tentar acessar diretamente
                         if (!QRCodeLib && typeof QRCode !== 'undefined') {
                             window.QRCode = QRCode;
                             QRCodeLib = QRCode;
                         }
-                        
+
                         if (QRCodeLib) {
                             console.log('✅ Biblioteca QRCode disponível!');
                             resolve();
                         } else {
-                            console.error('❌ Biblioteca QRCode não encontrada após carregamento do script');
-                            console.error('🔍 window.QRCode:', typeof window.QRCode);
-                            console.error('🔍 window.qrcode:', typeof window.qrcode);
+                            console.error(
+                                '❌ Biblioteca QRCode não encontrada após carregamento do script'
+                            );
+                            console.error(
+                                '🔍 window.QRCode:',
+                                typeof window.QRCode
+                            );
+                            console.error(
+                                '🔍 window.qrcode:',
+                                typeof window.qrcode
+                            );
                             console.error('🔍 typeof QRCode:', typeof QRCode);
                             // Tentar próxima URL
                             tryLoadScript(urlIndex + 1);
                         }
                     }, 300);
                 };
-                
+
                 newScript.onerror = (error) => {
                     console.error(`❌ Erro ao carregar de ${url}`);
                     console.error('🔍 Detalhes do erro:', error);
                     window.qrcodeLoaded = false;
-                    
+
                     // Verificar se é problema de rede
                     if (urlIndex === 0) {
-                        console.warn('⚠️ Primeira tentativa falhou. Verificando conectividade...');
+                        console.warn(
+                            '⚠️ Primeira tentativa falhou. Verificando conectividade...'
+                        );
                         // Tentar fazer uma requisição simples para verificar conectividade
-                        fetch('https://www.google.com/favicon.ico', { 
-                            method: 'HEAD', 
+                        fetch('https://www.google.com/favicon.ico', {
+                            method: 'HEAD',
                             mode: 'no-cors',
-                            cache: 'no-cache'
-                        }).then(() => {
-                            console.log('✅ Conectividade com internet OK');
-                        }).catch(() => {
-                            console.error('❌ Problema de conectividade detectado');
-                        });
+                            cache: 'no-cache',
+                        })
+                            .then(() => {
+                                console.log('✅ Conectividade com internet OK');
+                            })
+                            .catch(() => {
+                                console.error(
+                                    '❌ Problema de conectividade detectado'
+                                );
+                            });
                     }
-                    
+
                     // Tentar próxima URL
                     tryLoadScript(urlIndex + 1);
                 };
-                
+
                 // Adicionar script ao DOM
                 document.head.appendChild(newScript);
             };
-            
+
             tryLoadScript(0);
         });
     }
 
     // ========== SKELETON LOADING ==========
-    
+
     // Criar HTML do skeleton
     createSkeletonHTML(count = 6, isSmall = false) {
         const skeletonClass = isSmall ? 'skeleton-card-small' : 'skeleton-card';
@@ -3376,21 +3874,23 @@ class LojaApp {
         }
         return html;
     }
-    
+
     // Mostrar skeleton em um container
     showSkeleton(containerId, count = 6, isSmall = false) {
         const container = document.getElementById(containerId);
         if (!container) return;
-        
+
         const skeletonContainer = document.createElement('div');
-        skeletonContainer.className = isSmall ? 'skeleton-list' : 'skeleton-container';
+        skeletonContainer.className = isSmall
+            ? 'skeleton-list'
+            : 'skeleton-container';
         skeletonContainer.id = `${containerId}-skeleton`;
         skeletonContainer.innerHTML = this.createSkeletonHTML(count, isSmall);
-        
+
         container.innerHTML = '';
         container.appendChild(skeletonContainer);
     }
-    
+
     // Ocultar skeleton
     hideSkeleton(containerId) {
         const skeleton = document.getElementById(`${containerId}-skeleton`);
@@ -3497,7 +3997,9 @@ class LojaApp {
             code = '';
             // Gerar código de 9 dígitos
             for (let i = 0; i < 9; i++) {
-                code += digits.charAt(Math.floor(Math.random() * digits.length));
+                code += digits.charAt(
+                    Math.floor(Math.random() * digits.length)
+                );
             }
             attempts++;
 
@@ -3505,16 +4007,20 @@ class LojaApp {
             const existingItem = this.items.find(
                 (item) => item.qrCodeNumber === code
             );
-            
+
             if (!existingItem) {
                 // Código único encontrado
-                console.log(`✅ QR Code único gerado: ${code} (tentativa ${attempts})`);
+                console.log(
+                    `✅ QR Code único gerado: ${code} (tentativa ${attempts})`
+                );
                 return code;
             }
-            
+
             // Se chegou ao limite de tentativas, adicionar timestamp para garantir unicidade
             if (attempts >= maxAttempts) {
-                console.warn(`⚠️ Muitas tentativas para gerar QR code único. Adicionando timestamp...`);
+                console.warn(
+                    `⚠️ Muitas tentativas para gerar QR code único. Adicionando timestamp...`
+                );
                 // Adicionar últimos 4 dígitos do timestamp para garantir unicidade
                 const timestamp = Date.now().toString().slice(-4);
                 code = code.slice(0, 5) + timestamp;
@@ -3523,7 +4029,9 @@ class LojaApp {
                     (item) => item.qrCodeNumber === code
                 );
                 if (!stillExists) {
-                    console.log(`✅ QR Code único gerado com timestamp: ${code}`);
+                    console.log(
+                        `✅ QR Code único gerado com timestamp: ${code}`
+                    );
                     return code;
                 }
             }
@@ -3531,24 +4039,36 @@ class LojaApp {
 
         // Último recurso: usar timestamp completo (menos legível, mas garantido único)
         const fallbackCode = Date.now().toString().slice(-9);
-        console.warn(`⚠️ Usando código de fallback baseado em timestamp: ${fallbackCode}`);
+        console.warn(
+            `⚠️ Usando código de fallback baseado em timestamp: ${fallbackCode}`
+        );
         return fallbackCode;
     }
 
     generateQRCode(itemId) {
         // Verificar se a biblioteca está carregada (múltiplas formas de acesso)
-        const QRCodeLib = window.QRCode || window.qrcode || (window.QRCodeLib && window.QRCodeLib.default);
-        
+        const QRCodeLib =
+            window.QRCode ||
+            window.qrcode ||
+            (window.QRCodeLib && window.QRCodeLib.default);
+
         if (!QRCodeLib) {
             console.warn('⚠️ Biblioteca QRCode não encontrada imediatamente');
             console.log('🔄 Tentando carregar biblioteca QRCode...');
             // Tentar carregar a biblioteca dinamicamente
-            this.loadQRCodeLibrary().then(() => {
-                console.log('✅ Biblioteca QRCode carregada, tentando gerar novamente...');
-                this.generateQRCode(itemId);
-            }).catch((error) => {
-                console.error('❌ Erro ao carregar biblioteca QRCode:', error);
-            });
+            this.loadQRCodeLibrary()
+                .then(() => {
+                    console.log(
+                        '✅ Biblioteca QRCode carregada, tentando gerar novamente...'
+                    );
+                    this.generateQRCode(itemId);
+                })
+                .catch((error) => {
+                    console.error(
+                        '❌ Erro ao carregar biblioteca QRCode:',
+                        error
+                    );
+                });
             return;
         }
 
@@ -3593,7 +4113,12 @@ class LojaApp {
                     console.log('QR code gerado com sucesso para:', qrData);
                     // Verificar se o QR code foi realmente desenhado
                     setTimeout(() => {
-                        const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+                        const imageData = ctx.getImageData(
+                            0,
+                            0,
+                            canvas.width,
+                            canvas.height
+                        );
                         // Um QR code válido terá pixels pretos (0,0,0) e brancos (255,255,255)
                         // Verificar se há pixels pretos (que indicam que o QR code foi desenhado)
                         let blackPixels = 0;
@@ -3611,20 +4136,32 @@ class LojaApp {
                                 whitePixels++;
                             }
                         }
-                        const totalPixels = (canvas.width * canvas.height);
-                        const blackPercentage = (blackPixels / totalPixels) * 100;
-                        const whitePercentage = (whitePixels / totalPixels) * 100;
-                        
+                        const totalPixels = canvas.width * canvas.height;
+                        const blackPercentage =
+                            (blackPixels / totalPixels) * 100;
+                        const whitePercentage =
+                            (whitePixels / totalPixels) * 100;
+
                         // Um QR code válido deve ter pelo menos alguns pixels pretos e brancos
                         if (blackPixels === 0 && whitePixels === 0) {
-                            console.warn('⚠️ Canvas está completamente vazio após geração');
+                            console.warn(
+                                '⚠️ Canvas está completamente vazio após geração'
+                            );
                         } else if (blackPixels === 0) {
-                            console.warn('⚠️ Canvas não contém pixels pretos (QR code pode estar incorreto)');
+                            console.warn(
+                                '⚠️ Canvas não contém pixels pretos (QR code pode estar incorreto)'
+                            );
                         } else {
-                            console.log(`✅ QR code verificado: ${blackPixels} pixels pretos (${blackPercentage.toFixed(2)}%), ${whitePixels} pixels brancos (${whitePercentage.toFixed(2)}%)`);
+                            console.log(
+                                `✅ QR code verificado: ${blackPixels} pixels pretos (${blackPercentage.toFixed(
+                                    2
+                                )}%), ${whitePixels} pixels brancos (${whitePercentage.toFixed(
+                                    2
+                                )}%)`
+                            );
                         }
                     }, 200);
-                    
+
                     if (section) {
                         section.style.display = 'block';
                     }
@@ -3635,26 +4172,44 @@ class LojaApp {
 
     generateQRCodeForModal(itemId, canvasId) {
         // Verificar se a biblioteca está carregada (múltiplas formas de acesso)
-        const QRCodeLib = window.QRCode || window.qrcode || (window.QRCodeLib && window.QRCodeLib.default);
-        
+        const QRCodeLib =
+            window.QRCode ||
+            window.qrcode ||
+            (window.QRCodeLib && window.QRCodeLib.default);
+
         if (!QRCodeLib) {
             console.warn('⚠️ Biblioteca QRCode não encontrada imediatamente');
             console.log('📦 Verificando se script está no DOM...');
-            const existingScript = document.querySelector('script[src*="qrcode"]');
+            const existingScript = document.querySelector(
+                'script[src*="qrcode"]'
+            );
             if (existingScript) {
-                console.log('📦 Script encontrado no DOM, aguardando carregamento...');
+                console.log(
+                    '📦 Script encontrado no DOM, aguardando carregamento...'
+                );
             }
             console.log('🔄 Tentando carregar biblioteca QRCode...');
-            
+
             // Tentar carregar a biblioteca dinamicamente
-            this.loadQRCodeLibrary().then(() => {
-                console.log('✅ Biblioteca QRCode carregada, tentando gerar novamente...');
-                this.generateQRCodeForModal(itemId, canvasId);
-            }).catch((error) => {
-                console.error('❌ Erro ao carregar biblioteca QRCode:', error);
-                console.error('💡 Dica: Recarregue a página ou verifique sua conexão com a internet.');
-                alert('Erro ao carregar biblioteca QRCode. Verifique sua conexão e recarregue a página.');
-            });
+            this.loadQRCodeLibrary()
+                .then(() => {
+                    console.log(
+                        '✅ Biblioteca QRCode carregada, tentando gerar novamente...'
+                    );
+                    this.generateQRCodeForModal(itemId, canvasId);
+                })
+                .catch((error) => {
+                    console.error(
+                        '❌ Erro ao carregar biblioteca QRCode:',
+                        error
+                    );
+                    console.error(
+                        '💡 Dica: Recarregue a página ou verifique sua conexão com a internet.'
+                    );
+                    alert(
+                        'Erro ao carregar biblioteca QRCode. Verifique sua conexão e recarregue a página.'
+                    );
+                });
             return;
         }
 
@@ -3680,7 +4235,12 @@ class LojaApp {
 
         // Usar o código numérico no QR Code
         const qrData = item.qrCodeNumber;
-        console.log('Gerando QR code no canvas:', canvasId, 'com dados:', qrData);
+        console.log(
+            'Gerando QR code no canvas:',
+            canvasId,
+            'com dados:',
+            qrData
+        );
 
         // Limpar canvas antes de gerar novo QR code
         const ctx = canvas.getContext('2d');
@@ -3710,11 +4270,19 @@ class LojaApp {
                     console.error('Erro ao gerar QR code:', error);
                     alert('Erro ao gerar QR code: ' + error.message);
                 } else {
-                    console.log('✅ QR code gerado com sucesso no modal:', qrData);
+                    console.log(
+                        '✅ QR code gerado com sucesso no modal:',
+                        qrData
+                    );
                     // Verificar se o QR code foi realmente desenhado
                     // Aguardar um pouco para garantir que o canvas foi renderizado
                     setTimeout(() => {
-                        const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+                        const imageData = ctx.getImageData(
+                            0,
+                            0,
+                            canvas.width,
+                            canvas.height
+                        );
                         // Um QR code válido terá pixels pretos (0,0,0) e brancos (255,255,255)
                         // Verificar se há pixels pretos (que indicam que o QR code foi desenhado)
                         let blackPixels = 0;
@@ -3732,17 +4300,29 @@ class LojaApp {
                                 whitePixels++;
                             }
                         }
-                        const totalPixels = (canvas.width * canvas.height);
-                        const blackPercentage = (blackPixels / totalPixels) * 100;
-                        const whitePercentage = (whitePixels / totalPixels) * 100;
-                        
+                        const totalPixels = canvas.width * canvas.height;
+                        const blackPercentage =
+                            (blackPixels / totalPixels) * 100;
+                        const whitePercentage =
+                            (whitePixels / totalPixels) * 100;
+
                         // Um QR code válido deve ter pelo menos alguns pixels pretos e brancos
                         if (blackPixels === 0 && whitePixels === 0) {
-                            console.warn('⚠️ Canvas está completamente vazio após geração');
+                            console.warn(
+                                '⚠️ Canvas está completamente vazio após geração'
+                            );
                         } else if (blackPixels === 0) {
-                            console.warn('⚠️ Canvas não contém pixels pretos (QR code pode estar incorreto)');
+                            console.warn(
+                                '⚠️ Canvas não contém pixels pretos (QR code pode estar incorreto)'
+                            );
                         } else {
-                            console.log(`✅ QR code verificado: ${blackPixels} pixels pretos (${blackPercentage.toFixed(2)}%), ${whitePixels} pixels brancos (${whitePercentage.toFixed(2)}%)`);
+                            console.log(
+                                `✅ QR code verificado: ${blackPixels} pixels pretos (${blackPercentage.toFixed(
+                                    2
+                                )}%), ${whitePixels} pixels brancos (${whitePercentage.toFixed(
+                                    2
+                                )}%)`
+                            );
                         }
                     }, 200);
                 }
@@ -3798,19 +4378,25 @@ class LojaApp {
 
         // Verificar se o canvas tem conteúdo
         const context = canvas.getContext('2d');
-        const imageData = context.getImageData(0, 0, canvas.width, canvas.height);
-        const hasContent = imageData.data.some(channel => channel !== 0);
+        const imageData = context.getImageData(
+            0,
+            0,
+            canvas.width,
+            canvas.height
+        );
+        const hasContent = imageData.data.some((channel) => channel !== 0);
 
         // Se o canvas estiver vazio, tentar gerar o QR code primeiro
         if (!hasContent || canvas.width === 0 || canvas.height === 0) {
             console.warn('Canvas vazio, tentando gerar QR code...');
-            
+
             // Tentar obter o itemId do contexto
             let itemId = null;
             if (canvasId === 'qrcodeCanvas' && this.currentEditingItem) {
                 itemId = this.currentEditingItem.id;
             } else if (canvasId === 'qrcodeModalCanvas') {
-                const downloadBtn = document.getElementById('downloadQRModalBtn');
+                const downloadBtn =
+                    document.getElementById('downloadQRModalBtn');
                 if (downloadBtn && downloadBtn.dataset.itemId) {
                     itemId = downloadBtn.dataset.itemId;
                 }
@@ -3823,14 +4409,17 @@ class LojaApp {
                 } else if (canvasId === 'qrcodeModalCanvas') {
                     this.generateQRCodeForModal(itemId, canvasId);
                 }
-                
+
                 // Aguardar um pouco para o QR code ser gerado
                 setTimeout(() => {
                     this.downloadQRCode(canvasId, filename);
                 }, 500);
                 return;
             } else {
-                toast.error('Erro: Não foi possível identificar o item para gerar o QR code.', 4000);
+                toast.error(
+                    'Erro: Não foi possível identificar o item para gerar o QR code.',
+                    4000
+                );
                 return;
             }
         }
@@ -3991,16 +4580,24 @@ class LojaApp {
         let item = this.items.find((i) => i.qrCodeNumber === cleanData);
 
         if (item) {
-            console.log(`✅ Produto encontrado pelo QR Code: ${this.getItemName(item.id)} (ID: ${item.id})`);
+            console.log(
+                `✅ Produto encontrado pelo QR Code: ${this.getItemName(
+                    item.id
+                )} (ID: ${item.id})`
+            );
         } else {
-            console.log(`⚠️ Produto não encontrado pelo QR Code "${cleanData}". Tentando compatibilidade com formato antigo...`);
-            
+            console.log(
+                `⚠️ Produto não encontrado pelo QR Code "${cleanData}". Tentando compatibilidade com formato antigo...`
+            );
+
             // Se não encontrar pelo código numérico, tentar compatibilidade com formato antigo
             let itemId = null;
 
             if (cleanData.startsWith('ITEM:')) {
                 itemId = cleanData.replace('ITEM:', '');
-                console.log(`🔍 Tentando buscar por ID (formato ITEM:): ${itemId}`);
+                console.log(
+                    `🔍 Tentando buscar por ID (formato ITEM:): ${itemId}`
+                );
             } else {
                 // Tentar como ID direto (compatibilidade com QR codes antigos)
                 itemId = cleanData;
@@ -4008,18 +4605,24 @@ class LojaApp {
             }
 
             item = this.items.find((i) => i.id === itemId);
-            
+
             if (item) {
-                console.log(`✅ Produto encontrado por ID (formato antigo): ${this.getItemName(item.id)}`);
+                console.log(
+                    `✅ Produto encontrado por ID (formato antigo): ${this.getItemName(
+                        item.id
+                    )}`
+                );
             } else {
-                console.error(`❌ Produto não encontrado. QR Code: "${cleanData}"`);
+                console.error(
+                    `❌ Produto não encontrado. QR Code: "${cleanData}"`
+                );
             }
         }
 
         if (item) {
             const itemId = item.id;
             const itemName = this.getItemName(itemId);
-            
+
             // Preencher campo de item
             const saleItemSelect = document.getElementById('saleItem');
             if (saleItemSelect) {
@@ -4053,13 +4656,22 @@ class LojaApp {
             }
 
             // Mostrar notificação de sucesso
-            this.showSuccess(`Produto "${itemName}" identificado pelo QR Code!`);
+            this.showSuccess(
+                `Produto "${itemName}" identificado pelo QR Code!`
+            );
         } else {
             // Mensagem de erro mais informativa
             const errorMsg = `Produto não encontrado!\n\nQR Code escaneado: "${cleanData}"\n\nVerifique se:\n- O QR code pertence a um produto cadastrado\n- O produto não foi excluído\n- O QR code está correto`;
             alert(errorMsg);
             console.error('❌ Produto não encontrado pelo QR Code:', cleanData);
-            console.log('📋 Produtos disponíveis:', this.items.map(i => ({ id: i.id, name: this.getItemName(i.id), qrCode: i.qrCodeNumber })));
+            console.log(
+                '📋 Produtos disponíveis:',
+                this.items.map((i) => ({
+                    id: i.id,
+                    name: this.getItemName(i.id),
+                    qrCode: i.qrCodeNumber,
+                }))
+            );
         }
     }
 
@@ -4067,19 +4679,22 @@ class LojaApp {
         // Verificar permissão de exclusão
         if (!this.checkPermission('delete', 'item')) {
             if (typeof toast !== 'undefined' && toast) {
-                toast.error('Você não tem permissão para excluir produtos.', 3000);
+                toast.error(
+                    'Você não tem permissão para excluir produtos.',
+                    3000
+                );
             } else {
                 alert('Você não tem permissão para excluir produtos.');
             }
             return;
         }
-        
-        const item = this.items.find(i => i.id === id);
+
+        const item = this.items.find((i) => i.id === id);
         const itemName = item ? this.getItemName(id) : 'este item';
-        
+
         const performDelete = (confirmed) => {
             if (!confirmed) return;
-            
+
             this.items = this.items.filter((item) => item.id !== id);
             // Remover tags relacionadas
             if (this.itemTags[id]) {
@@ -4095,19 +4710,24 @@ class LojaApp {
             this.updateTagFilter(); // Atualizar lista de tags após deletar
             this.renderItems();
             this.renderGroups();
-            
+
             // Registrar no audit log
             this.logAction('delete', 'item', id, itemName);
             if (typeof toast !== 'undefined' && toast) {
-                toast.success(`Produto "${itemName}" excluído com sucesso!`, 3000);
+                toast.success(
+                    `Produto "${itemName}" excluído com sucesso!`,
+                    3000
+                );
             }
         };
-        
+
         if (typeof confirmDialog !== 'undefined' && confirmDialog) {
-            confirmDialog.danger(
-                `Tem certeza que deseja excluir "${itemName}"? Esta ação não pode ser desfeita.`,
-                'Excluir Produto'
-            ).then(performDelete);
+            confirmDialog
+                .danger(
+                    `Tem certeza que deseja excluir "${itemName}"? Esta ação não pode ser desfeita.`,
+                    'Excluir Produto'
+                )
+                .then(performDelete);
         } else {
             // Fallback para confirm nativo
             if (confirm(`Tem certeza que deseja excluir "${itemName}"?`)) {
@@ -4120,7 +4740,7 @@ class LojaApp {
     // SISTEMA DE BUSCA AVANÇADA
     // Padrões Emergente.sh
     // ========================================
-    
+
     handleSearch(searchTerm) {
         if (!searchTerm || !searchTerm.trim()) {
             // Se busca vazia, renderizar normalmente
@@ -4129,37 +4749,40 @@ class LojaApp {
             this.hideSearchHistory();
             return;
         }
-        
+
         const term = searchTerm.trim().toLowerCase();
-        
+
         // Renderizar itens e clientes com busca
         this.renderItems();
         this.renderClients();
-        
+
         // Mostrar contador de resultados
         this.showSearchResults(term);
     }
-    
+
     addToSearchHistory(searchTerm) {
         if (!searchTerm || !searchTerm.trim()) return;
-        
+
         const term = searchTerm.trim();
-        
+
         // Remover se já existe
-        this.searchHistory = this.searchHistory.filter(h => h !== term);
-        
+        this.searchHistory = this.searchHistory.filter((h) => h !== term);
+
         // Adicionar no início
         this.searchHistory.unshift(term);
-        
+
         // Limitar a 10 itens
         if (this.searchHistory.length > 10) {
             this.searchHistory = this.searchHistory.slice(0, 10);
         }
-        
+
         // Salvar no localStorage
-        localStorage.setItem('searchHistory', JSON.stringify(this.searchHistory));
+        localStorage.setItem(
+            'searchHistory',
+            JSON.stringify(this.searchHistory)
+        );
     }
-    
+
     loadSearchHistory() {
         const saved = localStorage.getItem('searchHistory');
         if (saved) {
@@ -4170,11 +4793,13 @@ class LojaApp {
             }
         }
     }
-    
+
     showSearchHistory() {
         if (this.searchHistory.length === 0) return;
-        
-        let historyContainer = document.getElementById('searchHistoryContainer');
+
+        let historyContainer = document.getElementById(
+            'searchHistoryContainer'
+        );
         if (!historyContainer) {
             historyContainer = document.createElement('div');
             historyContainer.id = 'searchHistoryContainer';
@@ -4184,7 +4809,7 @@ class LojaApp {
                 searchInput.parentElement.appendChild(historyContainer);
             }
         }
-        
+
         historyContainer.innerHTML = `
             <div class="search-history-header">
                 <span>Buscas recentes</span>
@@ -4193,25 +4818,34 @@ class LojaApp {
                 </button>
             </div>
             <div class="search-history-list">
-                ${this.searchHistory.map(term => `
-                    <button class="search-history-item" onclick="app.selectSearchHistory('${term.replace(/'/g, "\\'")}')">
+                ${this.searchHistory
+                    .map(
+                        (term) => `
+                    <button class="search-history-item" onclick="app.selectSearchHistory('${term.replace(
+                        /'/g,
+                        "\\'"
+                    )}')">
                         <i class="fas fa-history"></i>
                         <span>${this.escapeHtml(term)}</span>
                     </button>
-                `).join('')}
+                `
+                    )
+                    .join('')}
             </div>
         `;
-        
+
         historyContainer.style.display = 'block';
     }
-    
+
     hideSearchHistory() {
-        const historyContainer = document.getElementById('searchHistoryContainer');
+        const historyContainer = document.getElementById(
+            'searchHistoryContainer'
+        );
         if (historyContainer) {
             historyContainer.style.display = 'none';
         }
     }
-    
+
     selectSearchHistory(term) {
         const searchInput = document.getElementById('searchInput');
         if (searchInput) {
@@ -4220,7 +4854,7 @@ class LojaApp {
             this.hideSearchHistory();
         }
     }
-    
+
     clearSearchHistory() {
         this.searchHistory = [];
         localStorage.removeItem('searchHistory');
@@ -4229,25 +4863,27 @@ class LojaApp {
             toast.info('Histórico de buscas limpo', 2000);
         }
     }
-    
+
     showSearchResults(searchTerm) {
         // Contar resultados
         const itemsGrid = document.getElementById('itemsGrid');
         const clientsList = document.getElementById('clientsList');
-        
+
         let itemsCount = 0;
         let clientsCount = 0;
-        
+
         if (itemsGrid) {
             itemsCount = itemsGrid.querySelectorAll('.item-card').length;
         }
-        
+
         if (clientsList) {
-            clientsCount = clientsList.querySelectorAll('.client-card, .item-card').length;
+            clientsCount = clientsList.querySelectorAll(
+                '.client-card, .item-card'
+            ).length;
         }
-        
+
         const totalResults = itemsCount + clientsCount;
-        
+
         // Mostrar toast com resultados (se houver)
         if (totalResults > 0 && typeof toast !== 'undefined' && toast) {
             // Não mostrar toast a cada busca, apenas se for uma busca nova
@@ -4262,8 +4898,16 @@ class LojaApp {
 
         // Cores predefinidas para tags (paleta consistente)
         const tagColors = [
-            '#dc3545', '#28a745', '#007bff', '#ffc107', '#17a2b8',
-            '#6f42c1', '#e83e8c', '#fd7e14', '#20c997', '#6610f2'
+            '#dc3545',
+            '#28a745',
+            '#007bff',
+            '#ffc107',
+            '#17a2b8',
+            '#6f42c1',
+            '#e83e8c',
+            '#fd7e14',
+            '#20c997',
+            '#6610f2',
         ];
 
         const getTagColor = (tag) => {
@@ -4277,19 +4921,24 @@ class LojaApp {
 
         return `
             <div class="item-tags" style="display: flex; flex-wrap: wrap; gap: 0.5rem; margin: 0.75rem 0;">
-                ${tags.map(tag => {
-                    const color = getTagColor(tag);
-                    const textColor = this.getContrastColor(color);
-                    return `
+                ${tags
+                    .map((tag) => {
+                        const color = getTagColor(tag);
+                        const textColor = this.getContrastColor(color);
+                        return `
                         <span class="item-tag" 
                               style="background-color: ${color}; color: ${textColor}; padding: 0.25rem 0.5rem; border-radius: 12px; font-size: 0.75rem; font-weight: 500; display: inline-flex; align-items: center; gap: 0.25rem; cursor: pointer; transition: all 0.2s;"
-                              onclick="app.filterByTag('${tag.replace(/'/g, "\\'")}')"
+                              onclick="app.filterByTag('${tag.replace(
+                                  /'/g,
+                                  "\\'"
+                              )}')"
                               title="Clique para filtrar por esta tag">
                             <i class="fas fa-tag" style="font-size: 0.65rem;"></i>
                             ${this.escapeHtml(tag)}
                         </span>
                     `;
-                }).join('')}
+                    })
+                    .join('')}
             </div>
         `;
     }
@@ -4311,19 +4960,21 @@ class LojaApp {
 
         // Coletar todas as tags únicas
         const allTags = new Set();
-        Object.values(this.itemTags || {}).forEach(tags => {
-            tags.forEach(tag => allTags.add(tag));
+        Object.values(this.itemTags || {}).forEach((tags) => {
+            tags.forEach((tag) => allTags.add(tag));
         });
 
         const currentValue = tagFilter.value;
         tagFilter.innerHTML = '<option value="">Todas as tags</option>';
-        
-        Array.from(allTags).sort().forEach(tag => {
-            const option = document.createElement('option');
-            option.value = tag;
-            option.textContent = tag;
-            tagFilter.appendChild(option);
-        });
+
+        Array.from(allTags)
+            .sort()
+            .forEach((tag) => {
+                const option = document.createElement('option');
+                option.value = tag;
+                option.textContent = tag;
+                tagFilter.appendChild(option);
+            });
 
         // Restaurar valor anterior se existir
         if (currentValue && allTags.has(currentValue)) {
@@ -4337,10 +4988,10 @@ class LojaApp {
         const r = parseInt(hexColor.substr(1, 2), 16);
         const g = parseInt(hexColor.substr(3, 2), 16);
         const b = parseInt(hexColor.substr(5, 2), 16);
-        
+
         // Calcular luminosidade relativa
         const luminance = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
-        
+
         // Retornar branco ou preto baseado na luminosidade
         return luminance > 0.5 ? '#000000' : '#ffffff';
     }
@@ -4349,16 +5000,16 @@ class LojaApp {
         const grid = document.getElementById('itemsGrid');
         // Se a seção de produtos não existe, não renderizar
         if (!grid) return;
-        
+
         // Mostrar skeleton enquanto carrega (apenas se não houver dados ainda)
         if (this.items.length === 0 && !grid.querySelector('.item-card')) {
             this.showSkeleton('itemsGrid', 6, false);
             return;
         }
-        
+
         const searchInput = document.getElementById('searchInput');
         const monthFilterEl = document.getElementById('monthFilter');
-        
+
         const searchTerm = searchInput ? searchInput.value.toLowerCase() : '';
         const monthFilter = monthFilterEl ? monthFilterEl.value : '';
 
@@ -4423,24 +5074,33 @@ class LojaApp {
         }
 
         if (filteredItems.length === 0) {
-            grid.innerHTML =
-                `<div class="empty-state" style="grid-column: 1/-1;">
+            grid.innerHTML = `<div class="empty-state" style="grid-column: 1/-1;">
                     <div class="empty-state-icon">
                         <i class="fas fa-box-open"></i>
                     </div>
-                    <h3 class="empty-state-title">${searchTerm ? 'Nenhum item encontrado' : 'Nenhum produto cadastrado'}</h3>
+                    <h3 class="empty-state-title">${
+                        searchTerm
+                            ? 'Nenhum item encontrado'
+                            : 'Nenhum produto cadastrado'
+                    }</h3>
                     <p class="empty-state-message">
-                        ${searchTerm 
-                            ? 'Tente ajustar os filtros de pesquisa ou adicionar um novo produto.' 
-                            : 'Comece adicionando seu primeiro produto ao sistema. Clique no botão abaixo para começar!'}
+                        ${
+                            searchTerm
+                                ? 'Tente ajustar os filtros de pesquisa ou adicionar um novo produto.'
+                                : 'Comece adicionando seu primeiro produto ao sistema. Clique no botão abaixo para começar!'
+                        }
                     </p>
-                    ${!searchTerm ? `
+                    ${
+                        !searchTerm
+                            ? `
                         <div class="empty-state-action">
                             <button class="btn-primary" onclick="app.openItemModal()">
                                 <i class="fas fa-plus"></i> Adicionar Primeiro Produto
                             </button>
                         </div>
-                    ` : ''}
+                    `
+                            : ''
+                    }
                 </div>`;
             return;
         }
@@ -4597,8 +5257,10 @@ class LojaApp {
             form.clientEmail.value = this.currentEditingClient.email || '';
             form.clientAddress.value = this.currentEditingClient.address || '';
             form.clientNotes.value = this.currentEditingClient.notes || '';
-            form.clientLoyaltyPoints.value = this.currentEditingClient.loyaltyPoints || 0;
-            form.clientReceiveNotifications.checked = this.currentEditingClient.receiveNotifications !== false;
+            form.clientLoyaltyPoints.value =
+                this.currentEditingClient.loyaltyPoints || 0;
+            form.clientReceiveNotifications.checked =
+                this.currentEditingClient.receiveNotifications !== false;
         } else {
             title.textContent = 'Novo Cliente';
             form.reset();
@@ -4615,19 +5277,29 @@ class LojaApp {
             const clientNotes = form.clientNotes;
 
             if (clientName) {
-                fieldValidator.setupFieldValidation(clientName, { required: true, minLength: 2, maxLength: 100 });
+                fieldValidator.setupFieldValidation(clientName, {
+                    required: true,
+                    minLength: 2,
+                    maxLength: 100,
+                });
             }
             if (clientCPF) {
                 fieldValidator.setupFieldValidation(clientCPF, { cpf: true });
             }
             if (clientPhone) {
-                fieldValidator.setupFieldValidation(clientPhone, { phone: true });
+                fieldValidator.setupFieldValidation(clientPhone, {
+                    phone: true,
+                });
             }
             if (clientEmail) {
-                fieldValidator.setupFieldValidation(clientEmail, { email: true });
+                fieldValidator.setupFieldValidation(clientEmail, {
+                    email: true,
+                });
             }
             if (clientNotes) {
-                fieldValidator.setupFieldValidation(clientNotes, { maxLength: 500 });
+                fieldValidator.setupFieldValidation(clientNotes, {
+                    maxLength: 500,
+                });
             }
         }
     }
@@ -4646,11 +5318,14 @@ class LojaApp {
 
     saveClient(e) {
         if (e) e.preventDefault();
-        
+
         // Verificar permissão de escrita
         if (!this.checkPermission('write', 'client')) {
             if (typeof toast !== 'undefined' && toast) {
-                toast.error('Você não tem permissão para criar/editar clientes.', 3000);
+                toast.error(
+                    'Você não tem permissão para criar/editar clientes.',
+                    3000
+                );
             }
             return;
         }
@@ -4670,7 +5345,7 @@ class LojaApp {
 
         const loyaltyPoints = parseInt(form.clientLoyaltyPoints.value) || 0;
         const receiveNotifications = form.clientReceiveNotifications.checked;
-        
+
         const client = {
             id: this.currentEditingClient
                 ? this.currentEditingClient.id
@@ -4726,7 +5401,9 @@ class LojaApp {
             this.currentEditingClient ? 'update' : 'create',
             'client',
             client.id,
-            `${this.currentEditingClient ? 'Atualização' : 'Criação'} de cliente: ${client.name}`
+            `${
+                this.currentEditingClient ? 'Atualização' : 'Criação'
+            } de cliente: ${client.name}`
         );
 
         if (typeof toast !== 'undefined' && toast) {
@@ -4743,11 +5420,14 @@ class LojaApp {
         // Verificar permissão de exclusão
         if (!this.checkPermission('delete', 'client')) {
             if (typeof toast !== 'undefined' && toast) {
-                toast.error('Você não tem permissão para excluir clientes.', 3000);
+                toast.error(
+                    'Você não tem permissão para excluir clientes.',
+                    3000
+                );
             }
             return;
         }
-        
+
         const client = this.clients.find((c) => c.id === clientId);
         const clientName = client ? client.name : 'este cliente';
 
@@ -4755,23 +5435,33 @@ class LojaApp {
             if (!confirmed) return;
 
             this.clients = this.clients.filter((c) => c.id !== clientId);
-            
+
             // Registrar acesso a dados pessoais (LGPD)
-            this.logDataAccess('delete', 'client', clientId, `Exclusão de cliente: ${clientName}`);
-            
+            this.logDataAccess(
+                'delete',
+                'client',
+                clientId,
+                `Exclusão de cliente: ${clientName}`
+            );
+
             this.saveData();
             this.renderClients();
 
             if (typeof toast !== 'undefined' && toast) {
-                toast.success(`Cliente "${clientName}" excluído com sucesso!`, 3000);
+                toast.success(
+                    `Cliente "${clientName}" excluído com sucesso!`,
+                    3000
+                );
             }
         };
 
         if (typeof confirmDialog !== 'undefined' && confirmDialog) {
-            confirmDialog.danger(
-                `Tem certeza que deseja excluir "${clientName}"? Esta ação não pode ser desfeita.`,
-                'Excluir Cliente'
-            ).then(performDelete);
+            confirmDialog
+                .danger(
+                    `Tem certeza que deseja excluir "${clientName}"? Esta ação não pode ser desfeita.`,
+                    'Excluir Cliente'
+                )
+                .then(performDelete);
         } else {
             if (confirm(`Tem certeza que deseja excluir "${clientName}"?`)) {
                 performDelete(true);
@@ -4797,7 +5487,10 @@ class LojaApp {
             );
         }
 
-        if (filteredClients.length === 0 && !container.querySelector('.item-card')) {
+        if (
+            filteredClients.length === 0 &&
+            !container.querySelector('.item-card')
+        ) {
             this.showSkeleton('clientsList', 6, false);
             return;
         }
@@ -4810,19 +5503,29 @@ class LojaApp {
                     <div class="empty-state-icon">
                         <i class="fas fa-users"></i>
                     </div>
-                    <h3 class="empty-state-title">${searchTerm ? 'Nenhum cliente encontrado' : 'Nenhum cliente cadastrado'}</h3>
+                    <h3 class="empty-state-title">${
+                        searchTerm
+                            ? 'Nenhum cliente encontrado'
+                            : 'Nenhum cliente cadastrado'
+                    }</h3>
                     <p class="empty-state-message">
-                        ${searchTerm 
-                            ? 'Tente ajustar os termos de busca ou cadastrar um novo cliente.' 
-                            : 'Comece cadastrando seus clientes para facilitar o controle de vendas e histórico de compras.'}
+                        ${
+                            searchTerm
+                                ? 'Tente ajustar os termos de busca ou cadastrar um novo cliente.'
+                                : 'Comece cadastrando seus clientes para facilitar o controle de vendas e histórico de compras.'
+                        }
                     </p>
-                    ${!searchTerm ? `
+                    ${
+                        !searchTerm
+                            ? `
                         <div class="empty-state-action">
                             <button class="btn-primary" onclick="app.openClientModal()">
                                 <i class="fas fa-user-plus"></i> Cadastrar Primeiro Cliente
                             </button>
                         </div>
-                    ` : ''}
+                    `
+                            : ''
+                    }
                 </div>`;
             return;
         }
@@ -4841,22 +5544,64 @@ class LojaApp {
                     <div class="item-header">
                         <h3>${this.escapeHtml(client.name)}</h3>
                         <div class="item-actions">
-                            <button class="btn-small btn-edit" onclick="app.openClientModal('${client.id}')" title="Editar">
+                            <button class="btn-small btn-edit" onclick="app.openClientModal('${
+                                client.id
+                            }')" title="Editar">
                                 <i class="fas fa-edit"></i>
                             </button>
-                            <button class="btn-small btn-delete" onclick="app.deleteClient('${client.id}')" title="Excluir">
+                            <button class="btn-small btn-delete" onclick="app.deleteClient('${
+                                client.id
+                            }')" title="Excluir">
                                 <i class="fas fa-times"></i>
                             </button>
                         </div>
                     </div>
                     <div class="item-details">
-                        ${client.cpf ? `<p><i class="fas fa-id-card"></i> CPF: ${this.escapeHtml(client.cpf)}</p>` : ''}
-                        ${client.phone ? `<p><i class="fas fa-phone"></i> ${this.escapeHtml(client.phone)}</p>` : ''}
-                        ${client.email ? `<p><i class="fas fa-envelope"></i> ${this.escapeHtml(client.email)}</p>` : ''}
-                        ${purchaseCount > 0 ? `<p><i class="fas fa-shopping-cart"></i> ${purchaseCount} compra${purchaseCount > 1 ? 's' : ''}</p>` : ''}
-                        ${totalSpent > 0 ? `<p><i class="fas fa-dollar-sign"></i> Total: R$ ${totalSpent.toFixed(2).replace('.', ',')}</p>` : ''}
-                        ${client.loyaltyPoints > 0 ? `<p><i class="fas fa-star" style="color: #ffc107;"></i> ${client.loyaltyPoints} pontos de fidelidade</p>` : ''}
-                        ${client.receiveNotifications ? `<p><i class="fas fa-bell" style="color: #28a745;"></i> Recebe notificações</p>` : ''}
+                        ${
+                            client.cpf
+                                ? `<p><i class="fas fa-id-card"></i> CPF: ${this.escapeHtml(
+                                      client.cpf
+                                  )}</p>`
+                                : ''
+                        }
+                        ${
+                            client.phone
+                                ? `<p><i class="fas fa-phone"></i> ${this.escapeHtml(
+                                      client.phone
+                                  )}</p>`
+                                : ''
+                        }
+                        ${
+                            client.email
+                                ? `<p><i class="fas fa-envelope"></i> ${this.escapeHtml(
+                                      client.email
+                                  )}</p>`
+                                : ''
+                        }
+                        ${
+                            purchaseCount > 0
+                                ? `<p><i class="fas fa-shopping-cart"></i> ${purchaseCount} compra${
+                                      purchaseCount > 1 ? 's' : ''
+                                  }</p>`
+                                : ''
+                        }
+                        ${
+                            totalSpent > 0
+                                ? `<p><i class="fas fa-dollar-sign"></i> Total: R$ ${totalSpent
+                                      .toFixed(2)
+                                      .replace('.', ',')}</p>`
+                                : ''
+                        }
+                        ${
+                            client.loyaltyPoints > 0
+                                ? `<p><i class="fas fa-star" style="color: #ffc107;"></i> ${client.loyaltyPoints} pontos de fidelidade</p>`
+                                : ''
+                        }
+                        ${
+                            client.receiveNotifications
+                                ? `<p><i class="fas fa-bell" style="color: #28a745;"></i> Recebe notificações</p>`
+                                : ''
+                        }
                     </div>
                 </div>
             `;
@@ -4884,10 +5629,12 @@ class LojaApp {
             title.textContent = 'Editar Fornecedor';
             form.supplierName.value = this.currentEditingSupplier.name || '';
             form.supplierCNPJ.value = this.currentEditingSupplier.cnpj || '';
-            form.supplierContactName.value = this.currentEditingSupplier.contactName || '';
+            form.supplierContactName.value =
+                this.currentEditingSupplier.contactName || '';
             form.supplierPhone.value = this.currentEditingSupplier.phone || '';
             form.supplierEmail.value = this.currentEditingSupplier.email || '';
-            form.supplierAddress.value = this.currentEditingSupplier.address || '';
+            form.supplierAddress.value =
+                this.currentEditingSupplier.address || '';
             form.supplierRating.value = this.currentEditingSupplier.rating || 3;
             form.supplierNotes.value = this.currentEditingSupplier.notes || '';
             this.updateSupplierRatingDisplay();
@@ -4924,11 +5671,14 @@ class LojaApp {
 
     saveSupplier(e) {
         if (e) e.preventDefault();
-        
+
         // Verificar permissão de escrita
         if (!this.checkPermission('write', 'supplier')) {
             if (typeof toast !== 'undefined' && toast) {
-                toast.error('Você não tem permissão para criar/editar fornecedores.', 3000);
+                toast.error(
+                    'Você não tem permissão para criar/editar fornecedores.',
+                    3000
+                );
             }
             return;
         }
@@ -4970,7 +5720,9 @@ class LojaApp {
             );
             if (index !== -1) {
                 // Salvar cópia dos dados anteriores antes de atualizar
-                previousData = JSON.parse(JSON.stringify(this.suppliers[index]));
+                previousData = JSON.parse(
+                    JSON.stringify(this.suppliers[index])
+                );
                 this.suppliers[index] = supplier;
             }
         } else {
@@ -4999,7 +5751,9 @@ class LojaApp {
             this.currentEditingSupplier ? 'update' : 'create',
             'supplier',
             supplier.id,
-            `${this.currentEditingSupplier ? 'Atualização' : 'Criação'} de fornecedor: ${supplier.name}`
+            `${
+                this.currentEditingSupplier ? 'Atualização' : 'Criação'
+            } de fornecedor: ${supplier.name}`
         );
 
         if (typeof toast !== 'undefined' && toast) {
@@ -5016,40 +5770,57 @@ class LojaApp {
         // Verificar permissão de exclusão
         if (!this.checkPermission('delete', 'supplier')) {
             if (typeof toast !== 'undefined' && toast) {
-                toast.error('Você não tem permissão para excluir fornecedores.', 3000);
+                toast.error(
+                    'Você não tem permissão para excluir fornecedores.',
+                    3000
+                );
             }
             return;
         }
-        
-        const supplier = this.suppliers.find(s => s.id === supplierId);
+
+        const supplier = this.suppliers.find((s) => s.id === supplierId);
         const supplierName = supplier ? supplier.name : 'este fornecedor';
-        
+
         const performDelete = (confirmed) => {
             if (!confirmed) return;
-            
+
             this.suppliers = this.suppliers.filter((s) => s.id !== supplierId);
-            
+
             // Registrar acesso a dados pessoais (LGPD)
-            this.logDataAccess('delete', 'supplier', supplierId, `Exclusão de fornecedor: ${supplierName}`);
-            
+            this.logDataAccess(
+                'delete',
+                'supplier',
+                supplierId,
+                `Exclusão de fornecedor: ${supplierName}`
+            );
+
             this.saveData();
             this.renderSuppliers();
-            
+
             // Registrar no audit log
             this.logAction('delete', 'supplier', supplierId, supplierName);
-            
+
             if (typeof toast !== 'undefined' && toast) {
-                toast.success(`Fornecedor "${supplierName}" excluído com sucesso!`, 3000);
+                toast.success(
+                    `Fornecedor "${supplierName}" excluído com sucesso!`,
+                    3000
+                );
             }
         };
-        
+
         if (typeof confirmDialog !== 'undefined' && confirmDialog) {
-            confirmDialog.danger(
-                `Tem certeza que deseja excluir o fornecedor "${supplierName}"? Esta ação não pode ser desfeita.`,
-                'Excluir Fornecedor'
-            ).then(performDelete);
+            confirmDialog
+                .danger(
+                    `Tem certeza que deseja excluir o fornecedor "${supplierName}"? Esta ação não pode ser desfeita.`,
+                    'Excluir Fornecedor'
+                )
+                .then(performDelete);
         } else {
-            if (confirm(`Tem certeza que deseja excluir o fornecedor "${supplierName}"?`)) {
+            if (
+                confirm(
+                    `Tem certeza que deseja excluir o fornecedor "${supplierName}"?`
+                )
+            ) {
                 performDelete(true);
             }
         }
@@ -5073,7 +5844,10 @@ class LojaApp {
             );
         }
 
-        if (filteredSuppliers.length === 0 && !container.querySelector('.item-card')) {
+        if (
+            filteredSuppliers.length === 0 &&
+            !container.querySelector('.item-card')
+        ) {
             this.showSkeleton('suppliersList', 6, false);
             return;
         }
@@ -5086,19 +5860,29 @@ class LojaApp {
                     <div class="empty-state-icon">
                         <i class="fas fa-truck"></i>
                     </div>
-                    <h3 class="empty-state-title">${searchTerm ? 'Nenhum fornecedor encontrado' : 'Nenhum fornecedor cadastrado'}</h3>
+                    <h3 class="empty-state-title">${
+                        searchTerm
+                            ? 'Nenhum fornecedor encontrado'
+                            : 'Nenhum fornecedor cadastrado'
+                    }</h3>
                     <p class="empty-state-message">
-                        ${searchTerm 
-                            ? 'Tente ajustar os termos de busca ou cadastrar um novo fornecedor.' 
-                            : 'Comece cadastrando seus fornecedores para facilitar o controle de compras e custos.'}
+                        ${
+                            searchTerm
+                                ? 'Tente ajustar os termos de busca ou cadastrar um novo fornecedor.'
+                                : 'Comece cadastrando seus fornecedores para facilitar o controle de compras e custos.'
+                        }
                     </p>
-                    ${!searchTerm ? `
+                    ${
+                        !searchTerm
+                            ? `
                         <div class="empty-state-action">
                             <button class="btn-primary" onclick="app.openSupplierModal()">
                                 <i class="fas fa-truck"></i> Cadastrar Primeiro Fornecedor
                             </button>
                         </div>
-                    ` : ''}
+                    `
+                            : ''
+                    }
                 </div>`;
             return;
         }
@@ -5118,22 +5902,64 @@ class LojaApp {
                     <div class="item-header">
                         <h3>${this.escapeHtml(supplier.name)}</h3>
                         <div class="item-actions">
-                            <button class="btn-small btn-edit" onclick="app.openSupplierModal('${supplier.id}')" title="Editar">
+                            <button class="btn-small btn-edit" onclick="app.openSupplierModal('${
+                                supplier.id
+                            }')" title="Editar">
                                 <i class="fas fa-edit"></i>
                             </button>
-                            <button class="btn-small btn-delete" onclick="app.deleteSupplier('${supplier.id}')" title="Excluir">
+                            <button class="btn-small btn-delete" onclick="app.deleteSupplier('${
+                                supplier.id
+                            }')" title="Excluir">
                                 <i class="fas fa-times"></i>
                             </button>
                         </div>
                     </div>
                     <div class="item-details">
-                        ${supplier.cnpj ? `<p><i class="fas fa-id-card"></i> CNPJ: ${this.escapeHtml(supplier.cnpj)}</p>` : ''}
-                        ${supplier.contactName ? `<p><i class="fas fa-user"></i> Contato: ${this.escapeHtml(supplier.contactName)}</p>` : ''}
-                        ${supplier.phone ? `<p><i class="fas fa-phone"></i> ${this.escapeHtml(supplier.phone)}</p>` : ''}
-                        ${supplier.email ? `<p><i class="fas fa-envelope"></i> ${this.escapeHtml(supplier.email)}</p>` : ''}
-                        <p><i class="fas fa-star" style="color: #ffc107;"></i> Avaliação: ${'⭐'.repeat(supplier.rating || 3)} (${supplier.rating || 3}/5)</p>
-                        ${purchaseCount > 0 ? `<p><i class="fas fa-shopping-cart"></i> ${purchaseCount} compra${purchaseCount > 1 ? 's' : ''}</p>` : ''}
-                        ${totalPurchases > 0 ? `<p><i class="fas fa-dollar-sign"></i> Total: R$ ${totalPurchases.toFixed(2).replace('.', ',')}</p>` : ''}
+                        ${
+                            supplier.cnpj
+                                ? `<p><i class="fas fa-id-card"></i> CNPJ: ${this.escapeHtml(
+                                      supplier.cnpj
+                                  )}</p>`
+                                : ''
+                        }
+                        ${
+                            supplier.contactName
+                                ? `<p><i class="fas fa-user"></i> Contato: ${this.escapeHtml(
+                                      supplier.contactName
+                                  )}</p>`
+                                : ''
+                        }
+                        ${
+                            supplier.phone
+                                ? `<p><i class="fas fa-phone"></i> ${this.escapeHtml(
+                                      supplier.phone
+                                  )}</p>`
+                                : ''
+                        }
+                        ${
+                            supplier.email
+                                ? `<p><i class="fas fa-envelope"></i> ${this.escapeHtml(
+                                      supplier.email
+                                  )}</p>`
+                                : ''
+                        }
+                        <p><i class="fas fa-star" style="color: #ffc107;"></i> Avaliação: ${'⭐'.repeat(
+                            supplier.rating || 3
+                        )} (${supplier.rating || 3}/5)</p>
+                        ${
+                            purchaseCount > 0
+                                ? `<p><i class="fas fa-shopping-cart"></i> ${purchaseCount} compra${
+                                      purchaseCount > 1 ? 's' : ''
+                                  }</p>`
+                                : ''
+                        }
+                        ${
+                            totalPurchases > 0
+                                ? `<p><i class="fas fa-dollar-sign"></i> Total: R$ ${totalPurchases
+                                      .toFixed(2)
+                                      .replace('.', ',')}</p>`
+                                : ''
+                        }
                     </div>
                 </div>
             `;
@@ -5145,16 +5971,27 @@ class LojaApp {
         let id;
         let attempts = 0;
         const maxAttempts = 10;
-        
+
         do {
-            id = 'SUPPLIER_' + Date.now() + '_' + Math.random().toString(36).substr(2, 5).toUpperCase();
+            id =
+                'SUPPLIER_' +
+                Date.now() +
+                '_' +
+                Math.random().toString(36).substr(2, 5).toUpperCase();
             attempts++;
-        } while (this.suppliers.find(s => s.id === id) && attempts < maxAttempts);
-        
+        } while (
+            this.suppliers.find((s) => s.id === id) &&
+            attempts < maxAttempts
+        );
+
         if (attempts >= maxAttempts) {
-            id = 'SUPPLIER_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9).toUpperCase();
+            id =
+                'SUPPLIER_' +
+                Date.now() +
+                '_' +
+                Math.random().toString(36).substr(2, 9).toUpperCase();
         }
-        
+
         return id;
     }
 
@@ -5179,12 +6016,17 @@ class LojaApp {
             form.couponCode.value = this.currentEditingCoupon.code || '';
             form.couponType.value = this.currentEditingCoupon.type || '';
             form.couponValue.value = this.currentEditingCoupon.value || '';
-            form.couponDescription.value = this.currentEditingCoupon.description || '';
-            form.couponStartsAt.value = this.currentEditingCoupon.startsAt || '';
-            form.couponExpiresAt.value = this.currentEditingCoupon.expiresAt || '';
+            form.couponDescription.value =
+                this.currentEditingCoupon.description || '';
+            form.couponStartsAt.value =
+                this.currentEditingCoupon.startsAt || '';
+            form.couponExpiresAt.value =
+                this.currentEditingCoupon.expiresAt || '';
             form.couponMaxUses.value = this.currentEditingCoupon.maxUses || '';
-            form.couponMinQuantity.value = this.currentEditingCoupon.minQuantity || '';
-            form.couponActive.checked = this.currentEditingCoupon.active !== false;
+            form.couponMinQuantity.value =
+                this.currentEditingCoupon.minQuantity || '';
+            form.couponActive.checked =
+                this.currentEditingCoupon.active !== false;
         } else {
             title.textContent = 'Novo Cupom';
             form.reset();
@@ -5217,7 +6059,9 @@ class LojaApp {
         const value = parseFloat(form.couponValue.value);
         const description = form.couponDescription.value.trim();
         const expiresAt = form.couponExpiresAt.value || null;
-        const maxUses = form.couponMaxUses.value ? parseInt(form.couponMaxUses.value) : null;
+        const maxUses = form.couponMaxUses.value
+            ? parseInt(form.couponMaxUses.value)
+            : null;
         const active = form.couponActive.checked;
 
         if (!code) {
@@ -5236,21 +6080,30 @@ class LojaApp {
 
         if (!value || value <= 0) {
             if (typeof toast !== 'undefined' && toast) {
-                toast.warning('Por favor, informe um valor válido para o desconto.', 3000);
+                toast.warning(
+                    'Por favor, informe um valor válido para o desconto.',
+                    3000
+                );
             }
             return;
         }
 
         if (type === 'percent' && value > 100) {
             if (typeof toast !== 'undefined' && toast) {
-                toast.warning('O desconto percentual não pode ser maior que 100%.', 3000);
+                toast.warning(
+                    'O desconto percentual não pode ser maior que 100%.',
+                    3000
+                );
             }
             return;
         }
 
         // Verificar se código já existe (exceto se estiver editando o mesmo cupom)
         const existingCoupon = this.coupons.find(
-            (c) => c.code === code && (!this.currentEditingCoupon || c.id !== this.currentEditingCoupon.id)
+            (c) =>
+                c.code === code &&
+                (!this.currentEditingCoupon ||
+                    c.id !== this.currentEditingCoupon.id)
         );
         if (existingCoupon) {
             if (typeof toast !== 'undefined' && toast) {
@@ -5272,7 +6125,9 @@ class LojaApp {
             maxUses: maxUses,
             minQuantity: minQuantity, // Quantidade mínima para aplicar desconto
             active: active,
-            uses: this.currentEditingCoupon ? (this.currentEditingCoupon.uses || 0) : 0,
+            uses: this.currentEditingCoupon
+                ? this.currentEditingCoupon.uses || 0
+                : 0,
             createdAt: this.currentEditingCoupon
                 ? this.currentEditingCoupon.createdAt
                 : new Date().toISOString(),
@@ -5297,7 +6152,7 @@ class LojaApp {
         this.saveData();
         this.renderCoupons();
         this.closeCouponModal();
-        
+
         // Registrar no audit log (incluir dados anteriores para reversão)
         this.logAction(
             this.currentEditingCoupon ? 'update' : 'create',
@@ -5322,27 +6177,36 @@ class LojaApp {
     }
 
     deleteCoupon(couponId) {
-        const coupon = this.coupons.find(c => c.id === couponId);
+        const coupon = this.coupons.find((c) => c.id === couponId);
         const couponCode = coupon ? coupon.code : 'este cupom';
-        
+
         const performDelete = (confirmed) => {
             if (!confirmed) return;
-            
+
             this.coupons = this.coupons.filter((c) => c.id !== couponId);
             this.saveData();
             this.renderCoupons();
             if (typeof toast !== 'undefined' && toast) {
-                toast.success(`Cupom "${couponCode}" excluído com sucesso!`, 3000);
+                toast.success(
+                    `Cupom "${couponCode}" excluído com sucesso!`,
+                    3000
+                );
             }
         };
-        
+
         if (typeof confirmDialog !== 'undefined' && confirmDialog) {
-            confirmDialog.danger(
-                `Tem certeza que deseja excluir o cupom "${couponCode}"? Esta ação não pode ser desfeita.`,
-                'Excluir Cupom'
-            ).then(performDelete);
+            confirmDialog
+                .danger(
+                    `Tem certeza que deseja excluir o cupom "${couponCode}"? Esta ação não pode ser desfeita.`,
+                    'Excluir Cupom'
+                )
+                .then(performDelete);
         } else {
-            if (confirm(`Tem certeza que deseja excluir o cupom "${couponCode}"?`)) {
+            if (
+                confirm(
+                    `Tem certeza que deseja excluir o cupom "${couponCode}"?`
+                )
+            ) {
                 performDelete(true);
             }
         }
@@ -5352,7 +6216,10 @@ class LojaApp {
         const container = document.getElementById('couponsList');
         if (!container) return;
 
-        if (this.coupons.length === 0 && !container.querySelector('.item-card')) {
+        if (
+            this.coupons.length === 0 &&
+            !container.querySelector('.item-card')
+        ) {
             this.showSkeleton('couponsList', 6, false);
             return;
         }
@@ -5380,33 +6247,92 @@ class LojaApp {
 
         container.innerHTML = this.coupons
             .map((coupon) => {
-                const isExpired = coupon.expiresAt && new Date(coupon.expiresAt) < new Date();
-                const isMaxUsesReached = coupon.maxUses && coupon.uses >= coupon.maxUses;
-                const isActive = coupon.active && !isExpired && !isMaxUsesReached;
+                const isExpired =
+                    coupon.expiresAt && new Date(coupon.expiresAt) < new Date();
+                const isMaxUsesReached =
+                    coupon.maxUses && coupon.uses >= coupon.maxUses;
+                const isActive =
+                    coupon.active && !isExpired && !isMaxUsesReached;
 
                 return `
                 <div class="item-card ${!isActive ? 'opacity-50' : ''}">
                     <div class="item-header">
                         <h3>${this.escapeHtml(coupon.code)}</h3>
                         <div class="item-actions">
-                            <button class="btn-small btn-edit" onclick="app.openCouponModal('${coupon.id}')" title="Editar">
+                            <button class="btn-small btn-edit" onclick="app.openCouponModal('${
+                                coupon.id
+                            }')" title="Editar">
                                 <i class="fas fa-edit"></i>
                             </button>
-                            <button class="btn-small btn-delete" onclick="app.deleteCoupon('${coupon.id}')" title="Excluir">
+                            <button class="btn-small btn-delete" onclick="app.deleteCoupon('${
+                                coupon.id
+                            }')" title="Excluir">
                                 <i class="fas fa-times"></i>
                             </button>
                         </div>
                     </div>
                     <div class="item-details">
-                        <p><i class="fas fa-percent"></i> Tipo: ${coupon.type === 'percent' ? 'Percentual' : 'Valor Fixo'}</p>
-                        <p><i class="fas fa-dollar-sign"></i> Desconto: ${coupon.type === 'percent' ? `${coupon.value}%` : `R$ ${coupon.value.toFixed(2).replace('.', ',')}`}</p>
-                        ${coupon.description ? `<p><i class="fas fa-info-circle"></i> ${this.escapeHtml(coupon.description)}</p>` : ''}
-                        ${coupon.startsAt ? `<p><i class="fas fa-calendar-check"></i> Início: ${new Date(coupon.startsAt).toLocaleDateString('pt-BR')}</p>` : ''}
-                        ${coupon.expiresAt ? `<p><i class="fas fa-calendar-times"></i> Expira em: ${new Date(coupon.expiresAt).toLocaleDateString('pt-BR')}</p>` : ''}
-                        ${coupon.minQuantity ? `<p><i class="fas fa-shopping-bag"></i> Qtd. mínima: ${coupon.minQuantity} unidade(s)</p>` : ''}
-                        ${coupon.maxUses ? `<p><i class="fas fa-times-circle"></i> Limite: ${coupon.maxUses} uso${coupon.maxUses > 1 ? 's' : ''}</p>` : ''}
-                        <p><i class="fas fa-chart-line"></i> Usado: ${coupon.uses || 0} vez${(coupon.uses || 0) !== 1 ? 'es' : ''}</p>
-                        <p><i class="fas fa-${isActive ? 'check-circle' : 'times-circle'}" style="color: ${isActive ? '#28a745' : '#dc3545'};"></i> Status: ${isActive ? 'Ativo' : isExpired ? 'Expirado' : isMaxUsesReached ? 'Limite atingido' : 'Inativo'}</p>
+                        <p><i class="fas fa-percent"></i> Tipo: ${
+                            coupon.type === 'percent'
+                                ? 'Percentual'
+                                : 'Valor Fixo'
+                        }</p>
+                        <p><i class="fas fa-dollar-sign"></i> Desconto: ${
+                            coupon.type === 'percent'
+                                ? `${coupon.value}%`
+                                : `R$ ${coupon.value
+                                      .toFixed(2)
+                                      .replace('.', ',')}`
+                        }</p>
+                        ${
+                            coupon.description
+                                ? `<p><i class="fas fa-info-circle"></i> ${this.escapeHtml(
+                                      coupon.description
+                                  )}</p>`
+                                : ''
+                        }
+                        ${
+                            coupon.startsAt
+                                ? `<p><i class="fas fa-calendar-check"></i> Início: ${new Date(
+                                      coupon.startsAt
+                                  ).toLocaleDateString('pt-BR')}</p>`
+                                : ''
+                        }
+                        ${
+                            coupon.expiresAt
+                                ? `<p><i class="fas fa-calendar-times"></i> Expira em: ${new Date(
+                                      coupon.expiresAt
+                                  ).toLocaleDateString('pt-BR')}</p>`
+                                : ''
+                        }
+                        ${
+                            coupon.minQuantity
+                                ? `<p><i class="fas fa-shopping-bag"></i> Qtd. mínima: ${coupon.minQuantity} unidade(s)</p>`
+                                : ''
+                        }
+                        ${
+                            coupon.maxUses
+                                ? `<p><i class="fas fa-times-circle"></i> Limite: ${
+                                      coupon.maxUses
+                                  } uso${coupon.maxUses > 1 ? 's' : ''}</p>`
+                                : ''
+                        }
+                        <p><i class="fas fa-chart-line"></i> Usado: ${
+                            coupon.uses || 0
+                        } vez${(coupon.uses || 0) !== 1 ? 'es' : ''}</p>
+                        <p><i class="fas fa-${
+                            isActive ? 'check-circle' : 'times-circle'
+                        }" style="color: ${
+                    isActive ? '#28a745' : '#dc3545'
+                };"></i> Status: ${
+                    isActive
+                        ? 'Ativo'
+                        : isExpired
+                        ? 'Expirado'
+                        : isMaxUsesReached
+                        ? 'Limite atingido'
+                        : 'Inativo'
+                }</p>
                     </div>
                 </div>
             `;
@@ -5418,16 +6344,27 @@ class LojaApp {
         let id;
         let attempts = 0;
         const maxAttempts = 10;
-        
+
         do {
-            id = 'COUPON_' + Date.now() + '_' + Math.random().toString(36).substr(2, 5).toUpperCase();
+            id =
+                'COUPON_' +
+                Date.now() +
+                '_' +
+                Math.random().toString(36).substr(2, 5).toUpperCase();
             attempts++;
-        } while (this.coupons.find(c => c.id === id) && attempts < maxAttempts);
-        
+        } while (
+            this.coupons.find((c) => c.id === id) &&
+            attempts < maxAttempts
+        );
+
         if (attempts >= maxAttempts) {
-            id = 'COUPON_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9).toUpperCase();
+            id =
+                'COUPON_' +
+                Date.now() +
+                '_' +
+                Math.random().toString(36).substr(2, 9).toUpperCase();
         }
-        
+
         return id;
     }
 
@@ -5443,9 +6380,7 @@ class LojaApp {
             return;
         }
 
-        const coupon = this.coupons.find(
-            (c) => c.code === code && c.active
-        );
+        const coupon = this.coupons.find((c) => c.code === code && c.active);
 
         if (!coupon) {
             if (typeof toast !== 'undefined' && toast) {
@@ -5458,11 +6393,16 @@ class LojaApp {
         const now = new Date();
         if (coupon.startsAt && new Date(coupon.startsAt) > now) {
             if (typeof toast !== 'undefined' && toast) {
-                toast.error(`Este cupom ainda não está ativo. Válido a partir de ${new Date(coupon.startsAt).toLocaleDateString('pt-BR')}.`, 4000);
+                toast.error(
+                    `Este cupom ainda não está ativo. Válido a partir de ${new Date(
+                        coupon.startsAt
+                    ).toLocaleDateString('pt-BR')}.`,
+                    4000
+                );
             }
             return;
         }
-        
+
         if (coupon.expiresAt && new Date(coupon.expiresAt) < now) {
             if (typeof toast !== 'undefined' && toast) {
                 toast.error('Este cupom está expirado.', 3000);
@@ -5479,10 +6419,15 @@ class LojaApp {
         }
 
         // Verificar quantidade mínima (desconto por quantidade)
-        const saleQuantity = parseInt(document.getElementById('saleQuantity')?.value || 0);
+        const saleQuantity = parseInt(
+            document.getElementById('saleQuantity')?.value || 0
+        );
         if (coupon.minQuantity && saleQuantity < coupon.minQuantity) {
             if (typeof toast !== 'undefined' && toast) {
-                toast.warning(`Este cupom requer compra mínima de ${coupon.minQuantity} unidade(s). Quantidade atual: ${saleQuantity}.`, 4000);
+                toast.warning(
+                    `Este cupom requer compra mínima de ${coupon.minQuantity} unidade(s). Quantidade atual: ${saleQuantity}.`,
+                    4000
+                );
             }
             return;
         }
@@ -5490,24 +6435,27 @@ class LojaApp {
         // Aplicar desconto
         const discountType = document.getElementById('saleDiscountType');
         const discountValue = document.getElementById('saleDiscountValue');
-        
+
         if (discountType && discountValue) {
             discountType.value = coupon.type;
             discountValue.value = coupon.value;
-            
+
             // Armazenar código do cupom para salvar na venda
             if (!window.currentSaleCouponCode) {
                 window.currentSaleCouponCode = coupon.code;
             }
-            
+
             if (typeof this.updateSaleTotals === 'function') {
                 this.updateSaleTotals();
             } else if (typeof this.updateDiscountCalculation === 'function') {
                 this.updateDiscountCalculation();
             }
-            
+
             if (typeof toast !== 'undefined' && toast) {
-                toast.success(`Cupom "${coupon.code}" aplicado com sucesso!`, 3000);
+                toast.success(
+                    `Cupom "${coupon.code}" aplicado com sucesso!`,
+                    3000
+                );
             }
         }
     }
@@ -5537,26 +6485,38 @@ class LojaApp {
             title.textContent = 'Editar Template';
             form.templateName.value = this.currentEditingTemplate.name || '';
             form.templateType.value = this.currentEditingTemplate.type || '';
-            form.templateDescription.value = this.currentEditingTemplate.description || '';
-            
+            form.templateDescription.value =
+                this.currentEditingTemplate.description || '';
+
             // Preencher campos específicos do tipo
             if (this.currentEditingTemplate.type === 'product') {
-                form.templateCategory.value = this.currentEditingTemplate.data?.category || '';
-                form.templatePrice.value = this.currentEditingTemplate.data?.price || '';
+                form.templateCategory.value =
+                    this.currentEditingTemplate.data?.category || '';
+                form.templatePrice.value =
+                    this.currentEditingTemplate.data?.price || '';
             } else if (this.currentEditingTemplate.type === 'sale') {
-                form.templateSaleQuantity.value = this.currentEditingTemplate.data?.quantity || '';
-                form.templateSaleDiscount.value = this.currentEditingTemplate.data?.discount || '';
+                form.templateSaleQuantity.value =
+                    this.currentEditingTemplate.data?.quantity || '';
+                form.templateSaleDiscount.value =
+                    this.currentEditingTemplate.data?.discount || '';
             } else if (this.currentEditingTemplate.type === 'service') {
-                form.templateServiceHours.value = this.currentEditingTemplate.data?.hours || '';
-                form.templateServiceMinutes.value = this.currentEditingTemplate.data?.minutes || '';
+                form.templateServiceHours.value =
+                    this.currentEditingTemplate.data?.hours || '';
+                form.templateServiceMinutes.value =
+                    this.currentEditingTemplate.data?.minutes || '';
             } else if (this.currentEditingTemplate.type === 'report') {
-                form.templateReportType.value = this.currentEditingTemplate.data?.reportType || '';
-                form.templateReportPeriod.value = this.currentEditingTemplate.data?.period || 'month';
-                form.templateReportFormat.value = this.currentEditingTemplate.data?.format || 'pdf';
-                form.templateReportColumns.value = this.currentEditingTemplate.data?.columns || '';
-                form.templateReportIncludeCharts.checked = this.currentEditingTemplate.data?.includeCharts || false;
+                form.templateReportType.value =
+                    this.currentEditingTemplate.data?.reportType || '';
+                form.templateReportPeriod.value =
+                    this.currentEditingTemplate.data?.period || 'month';
+                form.templateReportFormat.value =
+                    this.currentEditingTemplate.data?.format || 'pdf';
+                form.templateReportColumns.value =
+                    this.currentEditingTemplate.data?.columns || '';
+                form.templateReportIncludeCharts.checked =
+                    this.currentEditingTemplate.data?.includeCharts || false;
             }
-            
+
             this.toggleTemplateFields(this.currentEditingTemplate.type);
         } else {
             title.textContent = 'Novo Template';
@@ -5571,11 +6531,15 @@ class LojaApp {
         const saleFields = document.getElementById('templateSaleFields');
         const serviceFields = document.getElementById('templateServiceFields');
         const reportFields = document.getElementById('templateReportFields');
-        
-        if (productFields) productFields.style.display = type === 'product' ? 'block' : 'none';
-        if (saleFields) saleFields.style.display = type === 'sale' ? 'block' : 'none';
-        if (serviceFields) serviceFields.style.display = type === 'service' ? 'block' : 'none';
-        if (reportFields) reportFields.style.display = type === 'report' ? 'block' : 'none';
+
+        if (productFields)
+            productFields.style.display = type === 'product' ? 'block' : 'none';
+        if (saleFields)
+            saleFields.style.display = type === 'sale' ? 'block' : 'none';
+        if (serviceFields)
+            serviceFields.style.display = type === 'service' ? 'block' : 'none';
+        if (reportFields)
+            reportFields.style.display = type === 'report' ? 'block' : 'none';
     }
 
     closeTemplateModal() {
@@ -5635,7 +6599,10 @@ class LojaApp {
             const reportType = form.templateReportType.value;
             if (!reportType) {
                 if (typeof toast !== 'undefined' && toast) {
-                    toast.warning('Por favor, selecione o tipo de relatório.', 3000);
+                    toast.warning(
+                        'Por favor, selecione o tipo de relatório.',
+                        3000
+                    );
                 }
                 return;
             }
@@ -5643,8 +6610,13 @@ class LojaApp {
                 reportType: reportType,
                 period: form.templateReportPeriod.value || 'month',
                 format: form.templateReportFormat.value || 'pdf',
-                columns: form.templateReportColumns.value.split(',').map(c => c.trim()).filter(c => c) || [],
-                includeCharts: form.templateReportIncludeCharts.checked || false,
+                columns:
+                    form.templateReportColumns.value
+                        .split(',')
+                        .map((c) => c.trim())
+                        .filter((c) => c) || [],
+                includeCharts:
+                    form.templateReportIncludeCharts.checked || false,
             };
         }
 
@@ -5697,31 +6669,40 @@ class LojaApp {
     }
 
     deleteTemplate(templateId) {
-        const template = this.templates.find(t => t.id === templateId);
+        const template = this.templates.find((t) => t.id === templateId);
         const templateName = template ? template.name : 'este template';
-        
+
         const performDelete = (confirmed) => {
             if (!confirmed) return;
-            
+
             this.templates = this.templates.filter((t) => t.id !== templateId);
             this.saveData();
             this.renderTemplates();
-            
+
             // Registrar no audit log
             this.logAction('delete', 'template', templateId, templateName);
-            
+
             if (typeof toast !== 'undefined' && toast) {
-                toast.success(`Template "${templateName}" excluído com sucesso!`, 3000);
+                toast.success(
+                    `Template "${templateName}" excluído com sucesso!`,
+                    3000
+                );
             }
         };
-        
+
         if (typeof confirmDialog !== 'undefined' && confirmDialog) {
-            confirmDialog.danger(
-                `Tem certeza que deseja excluir o template "${templateName}"? Esta ação não pode ser desfeita.`,
-                'Excluir Template'
-            ).then(performDelete);
+            confirmDialog
+                .danger(
+                    `Tem certeza que deseja excluir o template "${templateName}"? Esta ação não pode ser desfeita.`,
+                    'Excluir Template'
+                )
+                .then(performDelete);
         } else {
-            if (confirm(`Tem certeza que deseja excluir o template "${templateName}"?`)) {
+            if (
+                confirm(
+                    `Tem certeza que deseja excluir o template "${templateName}"?`
+                )
+            ) {
                 performDelete(true);
             }
         }
@@ -5731,7 +6712,10 @@ class LojaApp {
         const container = document.getElementById('templatesList');
         if (!container) return;
 
-        if (this.templates.length === 0 && !container.querySelector('.item-card')) {
+        if (
+            this.templates.length === 0 &&
+            !container.querySelector('.item-card')
+        ) {
             this.showSkeleton('templatesList', 6, false);
             return;
         }
@@ -5775,13 +6759,25 @@ class LojaApp {
             .map((template) => {
                 let details = '';
                 if (template.type === 'product' && template.data) {
-                    details = `<p><i class="fas fa-tag"></i> Categoria: ${template.data.category || 'N/A'}</p>
-                               <p><i class="fas fa-dollar-sign"></i> Preço: R$ ${(template.data.price || 0).toFixed(2).replace('.', ',')}</p>`;
+                    details = `<p><i class="fas fa-tag"></i> Categoria: ${
+                        template.data.category || 'N/A'
+                    }</p>
+                               <p><i class="fas fa-dollar-sign"></i> Preço: R$ ${(
+                                   template.data.price || 0
+                               )
+                                   .toFixed(2)
+                                   .replace('.', ',')}</p>`;
                 } else if (template.type === 'sale' && template.data) {
-                    details = `<p><i class="fas fa-shopping-bag"></i> Qtd. padrão: ${template.data.quantity || 1}</p>
-                               <p><i class="fas fa-percent"></i> Desconto: ${(template.data.discount || 0).toFixed(1)}%</p>`;
+                    details = `<p><i class="fas fa-shopping-bag"></i> Qtd. padrão: ${
+                        template.data.quantity || 1
+                    }</p>
+                               <p><i class="fas fa-percent"></i> Desconto: ${(
+                                   template.data.discount || 0
+                               ).toFixed(1)}%</p>`;
                 } else if (template.type === 'service' && template.data) {
-                    details = `<p><i class="fas fa-clock"></i> Duração: ${template.data.hours || 0}h ${template.data.minutes || 0}min</p>`;
+                    details = `<p><i class="fas fa-clock"></i> Duração: ${
+                        template.data.hours || 0
+                    }h ${template.data.minutes || 0}min</p>`;
                 } else if (template.type === 'report' && template.data) {
                     const reportTypeNames = {
                         sales: 'Vendas',
@@ -5789,35 +6785,58 @@ class LojaApp {
                         products: 'Produtos',
                         clients: 'Clientes',
                         financial: 'Financeiro',
-                        custom: 'Personalizado'
+                        custom: 'Personalizado',
                     };
-                    details = `<p><i class="fas fa-chart-line"></i> Tipo: ${reportTypeNames[template.data.reportType] || template.data.reportType}</p>
-                               <p><i class="fas fa-calendar"></i> Período: ${template.data.period || 'Este Mês'}</p>
-                               <p><i class="fas fa-file"></i> Formato: ${template.data.format?.toUpperCase() || 'PDF'}</p>`;
+                    details = `<p><i class="fas fa-chart-line"></i> Tipo: ${
+                        reportTypeNames[template.data.reportType] ||
+                        template.data.reportType
+                    }</p>
+                               <p><i class="fas fa-calendar"></i> Período: ${
+                                   template.data.period || 'Este Mês'
+                               }</p>
+                               <p><i class="fas fa-file"></i> Formato: ${
+                                   template.data.format?.toUpperCase() || 'PDF'
+                               }</p>`;
                 }
 
                 return `
                 <div class="item-card">
                     <div class="item-header">
                         <div style="display: flex; align-items: center; gap: 0.5rem;">
-                            <i class="fas ${typeIcons[template.type] || 'fa-file'}" style="color: var(--primary-color);"></i>
+                            <i class="fas ${
+                                typeIcons[template.type] || 'fa-file'
+                            }" style="color: var(--primary-color);"></i>
                             <h3>${this.escapeHtml(template.name)}</h3>
                         </div>
                         <div class="item-actions">
-                            <button class="btn-small btn-secondary" onclick="app.useTemplate('${template.id}')" title="Usar Template">
+                            <button class="btn-small btn-secondary" onclick="app.useTemplate('${
+                                template.id
+                            }')" title="Usar Template">
                                 <i class="fas fa-check"></i>
                             </button>
-                            <button class="btn-small btn-edit" onclick="app.openTemplateModal('${template.id}')" title="Editar">
+                            <button class="btn-small btn-edit" onclick="app.openTemplateModal('${
+                                template.id
+                            }')" title="Editar">
                                 <i class="fas fa-edit"></i>
                             </button>
-                            <button class="btn-small btn-delete" onclick="app.deleteTemplate('${template.id}')" title="Excluir">
+                            <button class="btn-small btn-delete" onclick="app.deleteTemplate('${
+                                template.id
+                            }')" title="Excluir">
                                 <i class="fas fa-times"></i>
                             </button>
                         </div>
                     </div>
                     <div class="item-details">
-                        <p><i class="fas fa-file-alt"></i> Tipo: ${typeNames[template.type] || template.type}</p>
-                        ${template.description ? `<p><i class="fas fa-info-circle"></i> ${this.escapeHtml(template.description)}</p>` : ''}
+                        <p><i class="fas fa-file-alt"></i> Tipo: ${
+                            typeNames[template.type] || template.type
+                        }</p>
+                        ${
+                            template.description
+                                ? `<p><i class="fas fa-info-circle"></i> ${this.escapeHtml(
+                                      template.description
+                                  )}</p>`
+                                : ''
+                        }
                         ${details}
                     </div>
                 </div>
@@ -5827,7 +6846,7 @@ class LojaApp {
     }
 
     useTemplate(templateId) {
-        const template = this.templates.find(t => t.id === templateId);
+        const template = this.templates.find((t) => t.id === templateId);
         if (!template) return;
 
         if (template.type === 'product') {
@@ -5835,22 +6854,29 @@ class LojaApp {
             this.openItemModal();
             setTimeout(() => {
                 if (template.data.category) {
-                    document.getElementById('itemCategory').value = template.data.category;
+                    document.getElementById('itemCategory').value =
+                        template.data.category;
                     this.toggleCategoryFields();
                 }
                 if (template.data.price) {
-                    document.getElementById('itemPrice').value = template.data.price;
+                    document.getElementById('itemPrice').value =
+                        template.data.price;
                 }
                 if (typeof toast !== 'undefined' && toast) {
-                    toast.success(`Template "${template.name}" aplicado! Preencha os campos restantes.`, 3000);
+                    toast.success(
+                        `Template "${template.name}" aplicado! Preencha os campos restantes.`,
+                        3000
+                    );
                 }
             }, 100);
         } else if (template.type === 'sale') {
             // Aplicar template na venda atual (se modal estiver aberto)
             const saleQuantity = document.getElementById('saleQuantity');
-            const saleDiscountValue = document.getElementById('saleDiscountValue');
-            const saleDiscountType = document.getElementById('saleDiscountType');
-            
+            const saleDiscountValue =
+                document.getElementById('saleDiscountValue');
+            const saleDiscountType =
+                document.getElementById('saleDiscountType');
+
             if (saleQuantity && template.data.quantity) {
                 saleQuantity.value = template.data.quantity;
             }
@@ -5867,8 +6893,10 @@ class LojaApp {
         } else if (template.type === 'service') {
             // Aplicar template em serviço (se modal estiver aberto)
             const serviceHours = document.getElementById('serviceRecordHours');
-            const serviceMinutes = document.getElementById('serviceRecordMinutes');
-            
+            const serviceMinutes = document.getElementById(
+                'serviceRecordMinutes'
+            );
+
             if (serviceHours && template.data.hours !== undefined) {
                 serviceHours.value = template.data.hours;
             }
@@ -5881,25 +6909,35 @@ class LojaApp {
         } else if (template.type === 'report') {
             // Aplicar template de relatório - gerar relatório com configurações do template
             if (typeof toast !== 'undefined' && toast) {
-                toast.info(`Gerando relatório com template "${template.name}"...`, 3000);
+                toast.info(
+                    `Gerando relatório com template "${template.name}"...`,
+                    3000
+                );
             }
-            
+
             // Armazenar configurações do template para uso posterior
-            sessionStorage.setItem('reportTemplate', JSON.stringify(template.data));
-            
+            sessionStorage.setItem(
+                'reportTemplate',
+                JSON.stringify(template.data)
+            );
+
             // Navegar para a aba de relatórios ou abrir modal de relatórios se existir
-            const reportTab = document.querySelector('[data-tab="reports"]') || 
-                             document.querySelector('button[onclick*="report"]') ||
-                             document.querySelector('a[href*="report"]');
-            
+            const reportTab =
+                document.querySelector('[data-tab="reports"]') ||
+                document.querySelector('button[onclick*="report"]') ||
+                document.querySelector('a[href*="report"]');
+
             if (reportTab) {
                 reportTab.click();
             }
-            
+
             // Notificar que o template foi aplicado
             setTimeout(() => {
                 if (typeof toast !== 'undefined' && toast) {
-                    toast.success(`Template de relatório "${template.name}" aplicado! Configure o período e gere o relatório.`, 4000);
+                    toast.success(
+                        `Template de relatório "${template.name}" aplicado! Configure o período e gere o relatório.`,
+                        4000
+                    );
                 }
             }, 500);
         }
@@ -5909,16 +6947,27 @@ class LojaApp {
         let id;
         let attempts = 0;
         const maxAttempts = 10;
-        
+
         do {
-            id = 'TEMPLATE_' + Date.now() + '_' + Math.random().toString(36).substr(2, 5).toUpperCase();
+            id =
+                'TEMPLATE_' +
+                Date.now() +
+                '_' +
+                Math.random().toString(36).substr(2, 5).toUpperCase();
             attempts++;
-        } while (this.templates.find(t => t.id === id) && attempts < maxAttempts);
-        
+        } while (
+            this.templates.find((t) => t.id === id) &&
+            attempts < maxAttempts
+        );
+
         if (attempts >= maxAttempts) {
-            id = 'TEMPLATE_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9).toUpperCase();
+            id =
+                'TEMPLATE_' +
+                Date.now() +
+                '_' +
+                Math.random().toString(36).substr(2, 9).toUpperCase();
         }
-        
+
         return id;
     }
 
@@ -5926,7 +6975,10 @@ class LojaApp {
     exportTemplates() {
         if (!this.checkPermission('export')) {
             if (typeof toast !== 'undefined' && toast) {
-                toast.error('Você não tem permissão para exportar templates.', 3000);
+                toast.error(
+                    'Você não tem permissão para exportar templates.',
+                    3000
+                );
             } else {
                 alert('Você não tem permissão para exportar templates.');
             }
@@ -5955,19 +7007,31 @@ class LojaApp {
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
-        a.download = `templates_export_${new Date().toISOString().split('T')[0]}.json`;
+        a.download = `templates_export_${
+            new Date().toISOString().split('T')[0]
+        }.json`;
         document.body.appendChild(a);
         a.click();
         document.body.removeChild(a);
         URL.revokeObjectURL(url);
 
         // Registrar no audit log
-        this.logAction('export', 'template', null, `Exportação de ${this.templates.length} template(s)`);
+        this.logAction(
+            'export',
+            'template',
+            null,
+            `Exportação de ${this.templates.length} template(s)`
+        );
 
         if (typeof toast !== 'undefined' && toast) {
-            toast.success(`${this.templates.length} template(s) exportado(s) com sucesso!`, 3000);
+            toast.success(
+                `${this.templates.length} template(s) exportado(s) com sucesso!`,
+                3000
+            );
         } else {
-            alert(`${this.templates.length} template(s) exportado(s) com sucesso!`);
+            alert(
+                `${this.templates.length} template(s) exportado(s) com sucesso!`
+            );
         }
     }
 
@@ -5975,7 +7039,10 @@ class LojaApp {
     importTemplates(event) {
         if (!this.checkPermission('import')) {
             if (typeof toast !== 'undefined' && toast) {
-                toast.error('Você não tem permissão para importar templates.', 3000);
+                toast.error(
+                    'Você não tem permissão para importar templates.',
+                    3000
+                );
             } else {
                 alert('Você não tem permissão para importar templates.');
             }
@@ -5992,9 +7059,14 @@ class LojaApp {
 
                 if (!data.templates || !Array.isArray(data.templates)) {
                     if (typeof toast !== 'undefined' && toast) {
-                        toast.error('Arquivo inválido. O arquivo deve conter um array de templates.', 3000);
+                        toast.error(
+                            'Arquivo inválido. O arquivo deve conter um array de templates.',
+                            3000
+                        );
                     } else {
-                        alert('Arquivo inválido. O arquivo deve conter um array de templates.');
+                        alert(
+                            'Arquivo inválido. O arquivo deve conter um array de templates.'
+                        );
                     }
                     return;
                 }
@@ -6012,13 +7084,20 @@ class LojaApp {
 
                     // Verificar se já existe template com mesmo nome e tipo
                     const existing = this.templates.find(
-                        (t) => t.name === template.name && t.type === template.type
+                        (t) =>
+                            t.name === template.name && t.type === template.type
                     );
 
                     if (existing) {
                         // Perguntar se deseja substituir
-                        if (confirm(`Template "${template.name}" (${template.type}) já existe. Deseja substituir?`)) {
-                            const index = this.templates.findIndex((t) => t.id === existing.id);
+                        if (
+                            confirm(
+                                `Template "${template.name}" (${template.type}) já existe. Deseja substituir?`
+                            )
+                        ) {
+                            const index = this.templates.findIndex(
+                                (t) => t.id === existing.id
+                            );
                             if (index !== -1) {
                                 // Manter ID original, atualizar dados
                                 template.id = existing.id;
@@ -6032,7 +7111,8 @@ class LojaApp {
                     } else {
                         // Gerar novo ID para evitar conflitos
                         template.id = this.generateTemplateId();
-                        template.createdAt = template.createdAt || new Date().toISOString();
+                        template.createdAt =
+                            template.createdAt || new Date().toISOString();
                         template.updatedAt = new Date().toISOString();
                         this.templates.push(template);
                         importedCount++;
@@ -6043,16 +7123,33 @@ class LojaApp {
                 this.renderTemplates();
 
                 // Registrar no audit log
-                this.logAction('import', 'template', null, `Importação de ${importedCount} template(s)`);
+                this.logAction(
+                    'import',
+                    'template',
+                    null,
+                    `Importação de ${importedCount} template(s)`
+                );
 
                 if (typeof toast !== 'undefined' && toast) {
                     if (skippedCount > 0) {
-                        toast.success(`${importedCount} template(s) importado(s), ${skippedCount} ignorado(s).`, 4000);
+                        toast.success(
+                            `${importedCount} template(s) importado(s), ${skippedCount} ignorado(s).`,
+                            4000
+                        );
                     } else {
-                        toast.success(`${importedCount} template(s) importado(s) com sucesso!`, 3000);
+                        toast.success(
+                            `${importedCount} template(s) importado(s) com sucesso!`,
+                            3000
+                        );
                     }
                 } else {
-                    alert(`${importedCount} template(s) importado(s)${skippedCount > 0 ? `, ${skippedCount} ignorado(s)` : ''}.`);
+                    alert(
+                        `${importedCount} template(s) importado(s)${
+                            skippedCount > 0
+                                ? `, ${skippedCount} ignorado(s)`
+                                : ''
+                        }.`
+                    );
                 }
 
                 // Limpar input
@@ -6060,9 +7157,14 @@ class LojaApp {
             } catch (error) {
                 console.error('Erro ao importar templates:', error);
                 if (typeof toast !== 'undefined' && toast) {
-                    toast.error('Erro ao importar templates. Verifique se o arquivo está no formato correto.', 4000);
+                    toast.error(
+                        'Erro ao importar templates. Verifique se o arquivo está no formato correto.',
+                        4000
+                    );
                 } else {
-                    alert('Erro ao importar templates. Verifique se o arquivo está no formato correto.');
+                    alert(
+                        'Erro ao importar templates. Verifique se o arquivo está no formato correto.'
+                    );
                 }
                 event.target.value = '';
             }
@@ -6082,25 +7184,38 @@ class LojaApp {
 
     // Função para quando cliente é selecionado no select
     onClientSelectChange(type) {
-        const selectId = type === 'sale' ? 'saleCustomerSelect' : 
-                         type === 'pending' ? 'pendingOrderCustomerSelect' : 
-                         'appointmentCustomerSelect';
-        const inputId = type === 'sale' ? 'saleCustomerName' : 
-                       type === 'pending' ? 'pendingOrderCustomerName' : 
-                       'appointmentCustomerName';
-        
+        const selectId =
+            type === 'sale'
+                ? 'saleCustomerSelect'
+                : type === 'pending'
+                ? 'pendingOrderCustomerSelect'
+                : 'appointmentCustomerSelect';
+        const inputId =
+            type === 'sale'
+                ? 'saleCustomerName'
+                : type === 'pending'
+                ? 'pendingOrderCustomerName'
+                : 'appointmentCustomerName';
+
         const select = document.getElementById(selectId);
         const input = document.getElementById(inputId);
-        
+
         if (select && input) {
             if (select.value) {
                 // Cliente selecionado - preencher input e buscar dados do cliente
                 input.value = select.value;
-                const client = this.clients.find(c => c.name === select.value);
+                const client = this.clients.find(
+                    (c) => c.name === select.value
+                );
                 if (client) {
                     // Preencher CPF se existir campo
-                    const cpfField = document.getElementById(type === 'sale' ? 'saleCustomerCPF' : 
-                                                           type === 'pending' ? 'pendingOrderCustomerCPF' : null);
+                    const cpfField = document.getElementById(
+                        type === 'sale'
+                            ? 'saleCustomerCPF'
+                            : type === 'pending'
+                            ? 'pendingOrderCustomerCPF'
+                            : null
+                    );
                     if (cpfField && client.cpf) {
                         cpfField.value = client.cpf;
                     }
@@ -6201,14 +7316,14 @@ class LojaApp {
         } ${year}`;
 
         this.renderGroupView(group);
-        
+
         // Restaurar opacidade e z-index do viewGroupModal se foi reduzida
         console.log('🔧 [VIEW GROUP] Restaurando z-index do viewGroupModal');
         modal.style.opacity = '1';
         modal.style.display = 'flex';
         modal.style.setProperty('z-index', '1000', 'important');
         modal.style.pointerEvents = 'auto';
-        
+
         // Garantir que o botão de fechar esteja clicável
         const closeBtn = modal.querySelector('.close');
         if (closeBtn) {
@@ -6217,20 +7332,20 @@ class LojaApp {
             closeBtn.style.zIndex = '1001';
             closeBtn.style.position = 'relative';
         }
-        
+
         const modalContent = modal.querySelector('.modal-content');
         if (modalContent) {
             modalContent.style.zIndex = '';
             modalContent.style.pointerEvents = 'auto';
         }
-        
+
         // Garantir que todos os botões estejam clicáveis
         const buttons = modal.querySelectorAll('button');
-        buttons.forEach(btn => {
+        buttons.forEach((btn) => {
             btn.style.pointerEvents = 'auto';
             btn.style.opacity = '1';
         });
-        
+
         requestAnimationFrame(() => {
             modal.classList.add('active');
             modal.style.display = 'flex';
@@ -6349,8 +7464,7 @@ class LojaApp {
         const itemsArray = Object.values(itemsSummary);
 
         if (itemsArray.length === 0) {
-            itemsSummaryList.innerHTML =
-                `<div class="empty-state">
+            itemsSummaryList.innerHTML = `<div class="empty-state">
                     <div class="empty-state-icon">
                         <i class="fas fa-shopping-cart"></i>
                     </div>
@@ -6394,9 +7508,11 @@ class LojaApp {
         // Verificar se o viewGroupModal está aberto e aumentar z-index do saleModal
         const viewGroupModal = document.getElementById('viewGroupModal');
         const saleModal = document.getElementById('saleModal');
-        
+
         if (!saleModal) {
-            console.error('❌ [SALE MODAL] Modal de venda não encontrado no DOM');
+            console.error(
+                '❌ [SALE MODAL] Modal de venda não encontrado no DOM'
+            );
             return;
         }
 
@@ -6416,13 +7532,20 @@ class LojaApp {
         }
 
         // Popular select de clientes
-        const saleCustomerSelect = document.getElementById('saleCustomerSelect');
+        const saleCustomerSelect =
+            document.getElementById('saleCustomerSelect');
         if (saleCustomerSelect) {
             saleCustomerSelect.innerHTML =
                 '<option value="">Selecione um cliente ou digite novo nome...</option>' +
                 this.clients
                     .map((client) => {
-                        return `<option value="${this.escapeHtml(client.name)}">${this.escapeHtml(client.name)}${client.phone ? ` - ${this.escapeHtml(client.phone)}` : ''}</option>`;
+                        return `<option value="${this.escapeHtml(
+                            client.name
+                        )}">${this.escapeHtml(client.name)}${
+                            client.phone
+                                ? ` - ${this.escapeHtml(client.phone)}`
+                                : ''
+                        }</option>`;
                     })
                     .join('');
         }
@@ -6497,43 +7620,46 @@ class LojaApp {
             if (saleModal.classList.contains('modal-overlay')) {
                 saleModal.style.zIndex = '1001';
             }
-            
+
             // Pequeno delay para garantir que o DOM esteja pronto e evitar conflitos
             requestAnimationFrame(() => {
                 saleModal.classList.add('active');
                 // Garantir novamente o z-index após adicionar active
                 if (saleModal.classList.contains('modal-overlay')) {
                     saleModal.style.zIndex = '1001';
-                    const modalContent = saleModal.querySelector('.modal-content');
+                    const modalContent =
+                        saleModal.querySelector('.modal-content');
                     if (modalContent) {
                         modalContent.style.zIndex = '1002';
                     }
                 }
             });
         } else {
-            console.error('❌ [SALE MODAL] Não foi possível abrir o modal - elemento não encontrado');
+            console.error(
+                '❌ [SALE MODAL] Não foi possível abrir o modal - elemento não encontrado'
+            );
         }
     }
 
     // Função auxiliar para gerar chave de estoque
     getStockKey(itemId, size, color) {
         const parts = [itemId];
-        
+
         // Adicionar tamanho se existir
         if (size && size.trim()) {
             parts.push(size.trim());
         }
-        
+
         // Adicionar cor se existir
         if (color && color.trim()) {
             parts.push(color.trim());
         }
-        
+
         // Se tiver tamanho ou cor, retornar chave composta
         if (parts.length > 1) {
             return parts.join('_');
         }
-        
+
         // Para produtos sem tamanho nem cor, usar apenas itemId
         return itemId;
     }
@@ -6588,8 +7714,10 @@ class LojaApp {
         }
 
         // Mostrar/esconder campos de tamanho e cor para roupas e eletrônicos
-        const needsSize = item.category === 'Roupas' || item.category === 'Eletrônicos';
-        const needsColor = item.category === 'Roupas' || item.category === 'Eletrônicos';
+        const needsSize =
+            item.category === 'Roupas' || item.category === 'Eletrônicos';
+        const needsColor =
+            item.category === 'Roupas' || item.category === 'Eletrônicos';
 
         if (saleSizeGroup && saleSize) {
             if (needsSize) {
@@ -6654,18 +7782,27 @@ class LojaApp {
         }
 
         // Obter tamanho e cor
-        const size = (saleSize && saleSize.value) ? saleSize.value.trim() : '';
-        const color = (saleColor && saleColor.value) ? saleColor.value.trim() : '';
+        const size = saleSize && saleSize.value ? saleSize.value.trim() : '';
+        const color =
+            saleColor && saleColor.value ? saleColor.value.trim() : '';
         const stockKey = this.getStockKey(itemId, size, color);
 
         const stockQuantity = dayData.stock[stockKey] || 0;
         const soldQuantity = dayData.sales
             .filter((sale) => {
                 // Para roupas e eletrônicos, considerar tamanho e cor na venda
-                if (item && (item.category === 'Roupas' || item.category === 'Eletrônicos')) {
+                if (
+                    item &&
+                    (item.category === 'Roupas' ||
+                        item.category === 'Eletrônicos')
+                ) {
                     const saleSize = sale.size || '';
                     const saleColor = sale.color || '';
-                    const saleStockKey = this.getStockKey(sale.itemId, saleSize, saleColor);
+                    const saleStockKey = this.getStockKey(
+                        sale.itemId,
+                        saleSize,
+                        saleColor
+                    );
                     return saleStockKey === stockKey;
                 }
                 // Para outros produtos, apenas itemId
@@ -6676,13 +7813,17 @@ class LojaApp {
 
         // Montar mensagem de estoque
         let stockMessage = '';
-        const needsSize = item && (item.category === 'Roupas' || item.category === 'Eletrônicos');
+        const needsSize =
+            item &&
+            (item.category === 'Roupas' || item.category === 'Eletrônicos');
         if (needsSize) {
             let details = [];
             if (size) details.push(`Tamanho: ${size}`);
             if (color) details.push(`Cor: ${color}`);
             if (details.length > 0) {
-                stockMessage = `Estoque disponível (${details.join(', ')}): ${availableStock} un. (Total: ${stockQuantity} un. - Vendido: ${soldQuantity} un.)`;
+                stockMessage = `Estoque disponível (${details.join(
+                    ', '
+                )}): ${availableStock} un. (Total: ${stockQuantity} un. - Vendido: ${soldQuantity} un.)`;
             } else {
                 stockMessage = `Estoque disponível: ${availableStock} un. (Total: ${stockQuantity} un. - Vendido: ${soldQuantity} un.)`;
             }
@@ -6735,7 +7876,19 @@ class LojaApp {
                         <div>
                             <strong>${this.escapeHtml(
                                 item ? item.name : 'Item não encontrado'
-                            )}</strong>${sale.size || sale.color ? ` <span style="color: var(--primary-color); font-weight: 600;">(${sale.size ? `Tamanho: ${this.escapeHtml(sale.size)}` : ''}${sale.size && sale.color ? ', ' : ''}${sale.color ? `Cor: ${this.escapeHtml(sale.color)}` : ''})</span>` : ''}<br>
+                            )}</strong>${
+                        sale.size || sale.color
+                            ? ` <span style="color: var(--primary-color); font-weight: 600;">(${
+                                  sale.size
+                                      ? `Tamanho: ${this.escapeHtml(sale.size)}`
+                                      : ''
+                              }${sale.size && sale.color ? ', ' : ''}${
+                                  sale.color
+                                      ? `Cor: ${this.escapeHtml(sale.color)}`
+                                      : ''
+                              })</span>`
+                            : ''
+                    }<br>
                             <small style="color: var(--gray);">${
                                 sale.quantity
                             } un. × R$ ${sale.price
@@ -6793,9 +7946,11 @@ class LojaApp {
                     toast.success('Venda excluída com sucesso!', 3000);
                 }
             };
-            
+
             if (typeof confirmDialog !== 'undefined' && confirmDialog) {
-                confirmDialog.danger('Deseja excluir esta venda?', 'Excluir Venda').then(performDelete);
+                confirmDialog
+                    .danger('Deseja excluir esta venda?', 'Excluir Venda')
+                    .then(performDelete);
             } else {
                 if (confirm('Deseja excluir esta venda?')) {
                     performDelete(true);
@@ -6830,8 +7985,9 @@ class LojaApp {
         const toggleDiscountBtn = document.getElementById('toggleDiscountBtn');
         if (discountFields) discountFields.style.display = 'none';
         if (discountSummary) discountSummary.style.display = 'none';
-        if (toggleDiscountBtn) toggleDiscountBtn.innerHTML = '<i class="fas fa-plus"></i> Aplicar';
-        
+        if (toggleDiscountBtn)
+            toggleDiscountBtn.innerHTML = '<i class="fas fa-plus"></i> Aplicar';
+
         const discountType = document.getElementById('saleDiscountType');
         const discountValue = document.getElementById('saleDiscountValue');
         const couponCode = document.getElementById('saleCouponCode');
@@ -6871,8 +8027,9 @@ class LojaApp {
         if (!this.currentGroup || !this.currentSaleDay) return;
 
         // Adicionar loading no botão de salvar
-        const saveBtn = e.target.querySelector('button[type="submit"]') || 
-                       document.querySelector('#saleForm button[type="submit"]');
+        const saveBtn =
+            e.target.querySelector('button[type="submit"]') ||
+            document.querySelector('#saleForm button[type="submit"]');
         if (saveBtn) {
             saveBtn.classList.add('loading');
             saveBtn.disabled = true;
@@ -6883,8 +8040,13 @@ class LojaApp {
         const salePrice = document.getElementById('salePrice');
 
         if (!saleItem || !saleQuantity || !salePrice) {
-            console.error('❌ [SAVE SALE] Elementos do formulário não encontrados!');
-            toast.error('Erro: Formulário incompleto. Por favor, recarregue a página.', 5000);
+            console.error(
+                '❌ [SAVE SALE] Elementos do formulário não encontrados!'
+            );
+            toast.error(
+                'Erro: Formulário incompleto. Por favor, recarregue a página.',
+                5000
+            );
             // Remover loading se houver
             if (saveBtn) {
                 saveBtn.classList.remove('loading');
@@ -6898,9 +8060,15 @@ class LojaApp {
         const basePrice = this.parsePrice(salePrice.value);
         const saleSizeInput = document.getElementById('saleSize');
         const saleColorInput = document.getElementById('saleColor');
-        const size = (saleSizeInput && saleSizeInput.value) ? saleSizeInput.value.trim() : '';
-        const color = (saleColorInput && saleColorInput.value) ? saleColorInput.value.trim() : '';
-        
+        const size =
+            saleSizeInput && saleSizeInput.value
+                ? saleSizeInput.value.trim()
+                : '';
+        const color =
+            saleColorInput && saleColorInput.value
+                ? saleColorInput.value.trim()
+                : '';
+
         // Calcular desconto (o desconto é aplicado ao total, não ao preço unitário)
         // Calcular desconto (a função já verifica o cupom do campo)
         const discountInfo = this.calculateDiscount(basePrice, quantity);
@@ -6923,7 +8091,10 @@ class LojaApp {
 
         if (price <= 0 || quantity <= 0) {
             if (typeof toast !== 'undefined' && toast) {
-                toast.warning('Preço e quantidade devem ser maiores que zero.', 3000);
+                toast.warning(
+                    'Preço e quantidade devem ser maiores que zero.',
+                    3000
+                );
             } else {
                 alert('Preço e quantidade devem ser maiores que zero.');
             }
@@ -6961,8 +8132,17 @@ class LojaApp {
         const isService = item && item.category === 'Serviços';
 
         // Verificar se é roupa ou eletrônico e se tamanho foi informado
-        if (item && (item.category === 'Roupas' || item.category === 'Eletrônicos') && !size) {
-            toast.warning(`Por favor, informe o tamanho do ${item.category === 'Roupas' ? 'roupa' : 'eletrônico'}.`, 3000);
+        if (
+            item &&
+            (item.category === 'Roupas' || item.category === 'Eletrônicos') &&
+            !size
+        ) {
+            toast.warning(
+                `Por favor, informe o tamanho do ${
+                    item.category === 'Roupas' ? 'roupa' : 'eletrônico'
+                }.`,
+                3000
+            );
             // Remover loading se houver
             if (saveBtn) {
                 saveBtn.classList.remove('loading');
@@ -6983,10 +8163,18 @@ class LojaApp {
             const soldQuantity = dayData.sales
                 .filter((sale) => {
                     // Para roupas e eletrônicos, considerar tamanho e cor na venda
-                    if (item && (item.category === 'Roupas' || item.category === 'Eletrônicos')) {
+                    if (
+                        item &&
+                        (item.category === 'Roupas' ||
+                            item.category === 'Eletrônicos')
+                    ) {
                         const saleSize = sale.size || '';
                         const saleColor = sale.color || '';
-                        const saleStockKey = this.getStockKey(sale.itemId, saleSize, saleColor);
+                        const saleStockKey = this.getStockKey(
+                            sale.itemId,
+                            saleSize,
+                            saleColor
+                        );
                         return saleStockKey === stockKey;
                     }
                     // Para outros produtos, apenas itemId
@@ -7033,13 +8221,16 @@ class LojaApp {
 
         // Calcular base total antes de descontos
         const baseTotal = basePrice * quantity;
-        
+
         // Verificar e aplicar desconto automático de fidelidade
         let loyaltyDiscount = 0;
         let loyaltyPointsUsed = 0;
-        const client = this.clients.find(c => c.name === customerName);
+        const client = this.clients.find((c) => c.name === customerName);
         if (client && client.loyaltyPoints > 0) {
-            const loyaltyDiscountInfo = this.calculateLoyaltyDiscount(customerName, baseTotal);
+            const loyaltyDiscountInfo = this.calculateLoyaltyDiscount(
+                customerName,
+                baseTotal
+            );
             loyaltyDiscount = loyaltyDiscountInfo.discount;
             loyaltyPointsUsed = loyaltyDiscountInfo.pointsUsed;
         }
@@ -7060,18 +8251,24 @@ class LojaApp {
             quantity: quantity,
             price: basePrice, // Preço unitário original (sem desconto)
             basePrice: basePrice, // Preço original antes do desconto
-            discount: totalDiscount > 0 ? {
-                type: discountInfo.discountType || 'loyalty',
-                value: discountInfo.discountValue || loyaltyDiscount,
-                amount: totalDiscount,
-                couponCode: discountInfo.couponCode || null,
-                loyaltyDiscount: loyaltyDiscount,
-                loyaltyPointsUsed: loyaltyPointsUsed,
-            } : null
+            discount:
+                totalDiscount > 0
+                    ? {
+                          type: discountInfo.discountType || 'loyalty',
+                          value: discountInfo.discountValue || loyaltyDiscount,
+                          amount: totalDiscount,
+                          couponCode: discountInfo.couponCode || null,
+                          loyaltyDiscount: loyaltyDiscount,
+                          loyaltyPointsUsed: loyaltyPointsUsed,
+                      }
+                    : null,
         };
-        
+
         // Incluir tamanho e cor se for roupa ou eletrônico
-        if (item && (item.category === 'Roupas' || item.category === 'Eletrônicos')) {
+        if (
+            item &&
+            (item.category === 'Roupas' || item.category === 'Eletrônicos')
+        ) {
             if (size) {
                 sale.size = size;
             }
@@ -7079,7 +8276,7 @@ class LojaApp {
                 sale.color = color;
             }
         }
-        
+
         dayData.sales.push(sale);
 
         // Criar venda completa para histórico
@@ -7089,14 +8286,16 @@ class LojaApp {
             ? this.getItemName(itemId)
             : 'Item não encontrado';
         // Calcular totalValue considerando desconto (já calculado acima)
-        const totalValue = totalDiscount > 0 
-            ? baseTotal - totalDiscount 
-            : baseTotal;
+        const totalValue =
+            totalDiscount > 0 ? baseTotal - totalDiscount : baseTotal;
         const now = new Date();
 
         // Coletar notas da venda
         const saleNotesInput = document.getElementById('saleNotes');
-        const saleNotes = saleNotesInput && saleNotesInput.value ? saleNotesInput.value.trim() : null;
+        const saleNotes =
+            saleNotesInput && saleNotesInput.value
+                ? saleNotesInput.value.trim()
+                : null;
 
         const completedSale = {
             id: Date.now().toString() + Math.random().toString(36).substr(2, 9),
@@ -7109,8 +8308,20 @@ class LojaApp {
                     name: itemName,
                     quantity: quantity,
                     price: basePrice, // Preço unitário original
-                    size: (item && (item.category === 'Roupas' || item.category === 'Eletrônicos') && size) ? size : undefined,
-                    color: (item && (item.category === 'Roupas' || item.category === 'Eletrônicos') && color) ? color : undefined,
+                    size:
+                        item &&
+                        (item.category === 'Roupas' ||
+                            item.category === 'Eletrônicos') &&
+                        size
+                            ? size
+                            : undefined,
+                    color:
+                        item &&
+                        (item.category === 'Roupas' ||
+                            item.category === 'Eletrônicos') &&
+                        color
+                            ? color
+                            : undefined,
                 },
             ],
             totalValue: totalValue, // Total final com desconto aplicado
@@ -7128,14 +8339,16 @@ class LojaApp {
 
         // Incrementar uso do cupom se foi aplicado
         if (completedSale.discount && completedSale.discount.couponCode) {
-            const coupon = this.coupons.find(c => c.code === completedSale.discount.couponCode);
+            const coupon = this.coupons.find(
+                (c) => c.code === completedSale.discount.couponCode
+            );
             if (coupon) {
                 coupon.uses = (coupon.uses || 0) + 1;
                 this.saveData();
                 this.renderCoupons();
             }
         }
-        
+
         // Limpar código do cupom da venda atual
         if (window.currentSaleCouponCode) {
             delete window.currentSaleCouponCode;
@@ -7144,18 +8357,27 @@ class LojaApp {
         // Adicionar pontos de fidelidade após a venda
         if (client) {
             // Descontar pontos usados
-            if (loyaltyPointsUsed > 0 && client.loyaltyPoints >= loyaltyPointsUsed) {
+            if (
+                loyaltyPointsUsed > 0 &&
+                client.loyaltyPoints >= loyaltyPointsUsed
+            ) {
                 client.loyaltyPoints -= loyaltyPointsUsed;
             }
             // Adicionar novos pontos (1 ponto para cada R$ 10,00 gastos)
             this.addLoyaltyPoints(customerName, totalValue);
-            
+
             // Criar notificação se o cliente optou por receber
             if (client.receiveNotifications) {
                 this.createClientNotification(
                     client.id,
                     'Nova Compra Registrada',
-                    `Sua compra de R$ ${totalValue.toFixed(2).replace('.', ',')} foi registrada com sucesso!${loyaltyPointsUsed > 0 ? ` Você usou ${loyaltyPointsUsed} ponto(s) de fidelidade.` : ''}`,
+                    `Sua compra de R$ ${totalValue
+                        .toFixed(2)
+                        .replace('.', ',')} foi registrada com sucesso!${
+                        loyaltyPointsUsed > 0
+                            ? ` Você usou ${loyaltyPointsUsed} ponto(s) de fidelidade.`
+                            : ''
+                    }`,
                     'success'
                 );
             }
@@ -7172,7 +8394,10 @@ class LojaApp {
             };
             this.clients.push(newClient);
             if (typeof toast !== 'undefined' && toast) {
-                toast.info(`Cliente "${customerName}" foi cadastrado automaticamente e ganhou ${newClient.loyaltyPoints} ponto(s)!`, 4000);
+                toast.info(
+                    `Cliente "${customerName}" foi cadastrado automaticamente e ganhou ${newClient.loyaltyPoints} ponto(s)!`,
+                    4000
+                );
             }
         }
 
@@ -7187,13 +8412,20 @@ class LojaApp {
         // Verificar e reduzir z-index do viewGroupModal ANTES de fechar o modal de venda
         const viewGroupModal = document.getElementById('viewGroupModal');
         if (viewGroupModal && viewGroupModal.classList.contains('active')) {
-            console.log('🔧 [SAVE SALE] viewGroupModal está ativo, reduzindo z-index antes de mostrar recibo');
+            console.log(
+                '🔧 [SAVE SALE] viewGroupModal está ativo, reduzindo z-index antes de mostrar recibo'
+            );
             viewGroupModal.style.setProperty('z-index', '999', 'important');
             viewGroupModal.style.pointerEvents = 'none';
             viewGroupModal.style.opacity = '0.3';
-            const viewGroupContent = viewGroupModal.querySelector('.modal-content');
+            const viewGroupContent =
+                viewGroupModal.querySelector('.modal-content');
             if (viewGroupContent) {
-                viewGroupContent.style.setProperty('z-index', '999', 'important');
+                viewGroupContent.style.setProperty(
+                    'z-index',
+                    '999',
+                    'important'
+                );
             }
         }
 
@@ -7331,7 +8563,7 @@ class LojaApp {
         if (modalElement.parentNode !== document.body) {
             document.body.appendChild(modalElement);
         }
-        
+
         // Desabilitar cliques e reduzir z-index do viewGroupModal quando o recibo estiver aberto
         const viewGroupModal = document.getElementById('viewGroupModal');
         if (viewGroupModal && viewGroupModal.classList.contains('active')) {
@@ -7342,12 +8574,17 @@ class LojaApp {
             // Reduzir opacidade visual para deixar claro que está atrás
             viewGroupModal.style.opacity = '0.3';
             // Também reduzir z-index do conteúdo do modal
-            const viewGroupContent = viewGroupModal.querySelector('.modal-content');
+            const viewGroupContent =
+                viewGroupModal.querySelector('.modal-content');
             if (viewGroupContent) {
-                viewGroupContent.style.setProperty('z-index', '999', 'important');
+                viewGroupContent.style.setProperty(
+                    'z-index',
+                    '999',
+                    'important'
+                );
             }
         }
-        
+
         // Primeiro, garantir que o modal esteja visível e com z-index correto
         console.log('🔧 [RECEIPT] Configurando z-index do receiptPreviewModal');
         modalElement.style.setProperty('z-index', '10000', 'important');
@@ -7355,28 +8592,41 @@ class LojaApp {
         modalElement.style.pointerEvents = 'auto';
         modalElement.style.opacity = '1';
         modalElement.style.position = 'fixed';
-        
+
         requestAnimationFrame(() => {
             modalElement.classList.add('active');
-            
+
             const modalContent = modalElement.querySelector('.modal-content');
             if (modalContent) {
                 modalContent.style.setProperty('z-index', '10001', 'important');
                 modalContent.style.pointerEvents = 'auto';
                 modalContent.style.position = 'relative';
             }
-            
+
             // Forçar z-index novamente após animação para garantir
             setTimeout(() => {
-                console.log('🔧 [RECEIPT] Forçando z-index novamente após animação');
+                console.log(
+                    '🔧 [RECEIPT] Forçando z-index novamente após animação'
+                );
                 modalElement.style.setProperty('z-index', '10000', 'important');
                 modalElement.style.position = 'fixed';
                 if (modalContent) {
-                    modalContent.style.setProperty('z-index', '10001', 'important');
+                    modalContent.style.setProperty(
+                        'z-index',
+                        '10001',
+                        'important'
+                    );
                 }
                 // Verificar se viewGroupModal ainda está ativo e reduzir novamente
-                if (viewGroupModal && viewGroupModal.classList.contains('active')) {
-                    viewGroupModal.style.setProperty('z-index', '999', 'important');
+                if (
+                    viewGroupModal &&
+                    viewGroupModal.classList.contains('active')
+                ) {
+                    viewGroupModal.style.setProperty(
+                        'z-index',
+                        '999',
+                        'important'
+                    );
                 }
             }, 100);
         });
@@ -7436,45 +8686,56 @@ class LojaApp {
             // Animação ao fechar modal
             modal.style.opacity = '0';
             modal.style.pointerEvents = 'none'; // Desabilitar cliques durante animação
-            
+
             // Reabilitar cliques e opacidade no viewGroupModal IMEDIATAMENTE
             const viewGroupModal = document.getElementById('viewGroupModal');
             if (viewGroupModal) {
-                console.log('🔧 [CLOSE RECEIPT] Restaurando viewGroupModal completamente');
+                console.log(
+                    '🔧 [CLOSE RECEIPT] Restaurando viewGroupModal completamente'
+                );
                 // Restaurar todos os estilos do viewGroupModal
-                viewGroupModal.style.setProperty('z-index', '1000', 'important');
+                viewGroupModal.style.setProperty(
+                    'z-index',
+                    '1000',
+                    'important'
+                );
                 viewGroupModal.style.pointerEvents = 'auto';
                 viewGroupModal.style.opacity = '1';
                 viewGroupModal.style.display = 'flex';
-                
+
                 // Garantir que o modal esteja ativo
                 if (!viewGroupModal.classList.contains('active')) {
                     viewGroupModal.classList.add('active');
                 }
-                
-                const viewGroupContent = viewGroupModal.querySelector('.modal-content');
+
+                const viewGroupContent =
+                    viewGroupModal.querySelector('.modal-content');
                 if (viewGroupContent) {
                     viewGroupContent.style.zIndex = '';
                     viewGroupContent.style.pointerEvents = 'auto';
                 }
-                
+
                 // Garantir que todos os botões dentro do modal sejam clicáveis
                 const buttons = viewGroupModal.querySelectorAll('button');
-                buttons.forEach(btn => {
+                buttons.forEach((btn) => {
                     btn.style.pointerEvents = 'auto';
                     btn.style.opacity = '1';
                     btn.disabled = false; // Garantir que não esteja desabilitado
                 });
-                
+
                 // Re-renderizar a view do grupo para garantir que os event listeners estejam ativos
                 if (this.currentGroup) {
-                    console.log('🔧 [CLOSE RECEIPT] Re-renderizando viewGroup para restaurar event listeners');
+                    console.log(
+                        '🔧 [CLOSE RECEIPT] Re-renderizando viewGroup para restaurar event listeners'
+                    );
                     this.renderGroupView(this.currentGroup);
                 }
-                
-                console.log('✅ [CLOSE RECEIPT] viewGroupModal totalmente restaurado');
+
+                console.log(
+                    '✅ [CLOSE RECEIPT] viewGroupModal totalmente restaurado'
+                );
             }
-            
+
             setTimeout(() => {
                 modal.classList.remove('active');
                 modal.style.display = 'none';
@@ -7561,27 +8822,34 @@ class LojaApp {
         // Verificar se está em modo de teste
         const isTestMode = window.TEST_MODE === true;
         const suppressWarnings = window.SUPPRESS_UI_WARNINGS === true;
-        
+
         // Em modo de teste, não tentar renderizar
         if (isTestMode) {
             return;
         }
-        
+
         // Usar container fornecido ou buscar o carrossel fixo
-        const carousel = container || document.getElementById('lastReceiptsCarousel');
+        const carousel =
+            container || document.getElementById('lastReceiptsCarousel');
         if (!carousel) {
             // Em modo de teste ou com warnings suprimidos, não gerar warnings
             if (!suppressWarnings) {
-                console.warn('⚠️ [CARROSSEL] Container do carrossel não encontrado. Tentando novamente em 500ms...');
+                console.warn(
+                    '⚠️ [CARROSSEL] Container do carrossel não encontrado. Tentando novamente em 500ms...'
+                );
             }
             // Tentar novamente após um delay caso o elemento ainda não esteja no DOM
             setTimeout(() => {
-                const retryCarousel = document.getElementById('lastReceiptsCarousel');
+                const retryCarousel = document.getElementById(
+                    'lastReceiptsCarousel'
+                );
                 if (retryCarousel) {
                     this.renderLastReceiptsCarousel(retryCarousel);
                 } else {
                     if (!suppressWarnings) {
-                        console.error('❌ [CARROSSEL] Container não encontrado após retry');
+                        console.error(
+                            '❌ [CARROSSEL] Container não encontrado após retry'
+                        );
                     }
                 }
             }, 500);
@@ -7589,33 +8857,43 @@ class LojaApp {
         }
 
         // Debug: verificar se há comprovantes
-        console.log(`📊 [CARROSSEL] Total de comprovantes: ${this.completedSales.length}`);
-        console.log(`📊 [CARROSSEL] Array completedSales:`, this.completedSales);
+        console.log(
+            `📊 [CARROSSEL] Total de comprovantes: ${this.completedSales.length}`
+        );
+        console.log(
+            `📊 [CARROSSEL] Array completedSales:`,
+            this.completedSales
+        );
         if (this.completedSales.length > 0) {
-            console.log('📋 [CARROSSEL] Primeiros 3 comprovantes:', this.completedSales.slice(0, 3).map(s => ({
-                id: s.id,
-                name: s.customerName,
-                date: s.date,
-                total: s.totalValue
-            })));
+            console.log(
+                '📋 [CARROSSEL] Primeiros 3 comprovantes:',
+                this.completedSales.slice(0, 3).map((s) => ({
+                    id: s.id,
+                    name: s.customerName,
+                    date: s.date,
+                    total: s.totalValue,
+                }))
+            );
         } else {
-            console.warn('⚠️ [CARROSSEL] Nenhum comprovante encontrado no array completedSales');
+            console.warn(
+                '⚠️ [CARROSSEL] Nenhum comprovante encontrado no array completedSales'
+            );
         }
 
         // Ordenar comprovantes por data (mais recentes primeiro)
-        const sortedSales = [...this.completedSales].sort(
-            (a, b) => {
-                // Usar timestamp se disponível, senão usar date
-                const timeA = a.timestamp || new Date(a.date).getTime();
-                const timeB = b.timestamp || new Date(b.date).getTime();
-                return timeB - timeA;
-            }
-        );
+        const sortedSales = [...this.completedSales].sort((a, b) => {
+            // Usar timestamp se disponível, senão usar date
+            const timeA = a.timestamp || new Date(a.date).getTime();
+            const timeB = b.timestamp || new Date(b.date).getTime();
+            return timeB - timeA;
+        });
 
         // Pegar sempre os 3 últimos (se houver mais de 3, remover automaticamente o mais antigo)
         const lastThree = sortedSales.slice(0, 3);
 
-        console.log(`🎯 [CARROSSEL] Renderizando ${lastThree.length} comprovantes`);
+        console.log(
+            `🎯 [CARROSSEL] Renderizando ${lastThree.length} comprovantes`
+        );
 
         if (lastThree.length === 0) {
             carousel.innerHTML =
@@ -7638,12 +8916,19 @@ class LojaApp {
                             });
                         }
                     } catch (e) {
-                        console.error('❌ [CARROSSEL] Erro ao formatar data:', e, sale);
+                        console.error(
+                            '❌ [CARROSSEL] Erro ao formatar data:',
+                            e,
+                            sale
+                        );
                     }
 
                     // Verificar se os dados necessários existem
                     if (!sale.customerName || !sale.totalValue) {
-                        console.error('❌ [CARROSSEL] Dados incompletos no comprovante:', sale);
+                        console.error(
+                            '❌ [CARROSSEL] Dados incompletos no comprovante:',
+                            sale
+                        );
                         return '';
                     }
 
@@ -7689,14 +8974,14 @@ class LojaApp {
                         </p>
                         <p style="margin: 0.25rem 0 0 0; color: var(--gray-500); font-size: 0.75rem;">
                             ${sale.items.length} ${
-                    sale.items.length === 1 ? 'item' : 'itens'
-                }
+                        sale.items.length === 1 ? 'item' : 'itens'
+                    }
                         </p>
                     </div>
                 </div>
             `;
                 })
-                .filter(html => html !== '') // Remover strings vazias
+                .filter((html) => html !== '') // Remover strings vazias
                 .join('');
 
             // Configurar drag após renderizar (para ambos os carrosséis)
@@ -7704,7 +8989,10 @@ class LojaApp {
                 this.setupReceiptCarouselDrag(carousel);
             }, 100);
         } catch (error) {
-            console.error('❌ [CARROSSEL] Erro ao renderizar carrossel:', error);
+            console.error(
+                '❌ [CARROSSEL] Erro ao renderizar carrossel:',
+                error
+            );
             carousel.innerHTML =
                 '<p style="text-align: center; color: var(--gray-600); padding: 2rem; width: 100%;">Erro ao carregar comprovantes.</p>';
         }
@@ -7848,7 +9136,8 @@ class LojaApp {
 
     setupReceiptCarouselDrag(container = null) {
         // Usar container fornecido ou buscar o carrossel fixo
-        const carousel = container || document.getElementById('lastReceiptsCarousel');
+        const carousel =
+            container || document.getElementById('lastReceiptsCarousel');
         if (!carousel) return;
 
         // Remover listeners antigos se existirem (evitar duplicação)
@@ -7889,7 +9178,7 @@ class LojaApp {
                         const clickEvent = new MouseEvent('click', {
                             bubbles: true,
                             cancelable: true,
-                            view: window
+                            view: window,
                         });
                         card.dispatchEvent(clickEvent);
                     }, 10);
@@ -7918,29 +9207,40 @@ class LojaApp {
         let touchStartTime = 0;
         let touchMoved = false;
 
-        carousel.addEventListener('touchstart', (e) => {
-            touchStartX = e.touches[0].pageX - carousel.offsetLeft;
-            touchScrollLeft = carousel.scrollLeft;
-            touchStartTime = Date.now();
-            touchMoved = false;
-        }, { passive: true });
+        carousel.addEventListener(
+            'touchstart',
+            (e) => {
+                touchStartX = e.touches[0].pageX - carousel.offsetLeft;
+                touchScrollLeft = carousel.scrollLeft;
+                touchStartTime = Date.now();
+                touchMoved = false;
+            },
+            { passive: true }
+        );
 
-        carousel.addEventListener('touchmove', (e) => {
-            if (!touchStartX) return;
-            const x = e.touches[0].pageX - carousel.offsetLeft;
-            const walk = (x - touchStartX) * 2;
-            if (Math.abs(walk) > 5) {
-                touchMoved = true;
-            }
-            carousel.scrollLeft = touchScrollLeft - walk;
-        }, { passive: true });
+        carousel.addEventListener(
+            'touchmove',
+            (e) => {
+                if (!touchStartX) return;
+                const x = e.touches[0].pageX - carousel.offsetLeft;
+                const walk = (x - touchStartX) * 2;
+                if (Math.abs(walk) > 5) {
+                    touchMoved = true;
+                }
+                carousel.scrollLeft = touchScrollLeft - walk;
+            },
+            { passive: true }
+        );
 
         carousel.addEventListener('touchend', (e) => {
             // Se foi um toque rápido sem movimento, pode ser um click no card
             const touchDuration = Date.now() - touchStartTime;
             if (!touchMoved && touchDuration < 300) {
                 const touch = e.changedTouches[0];
-                const element = document.elementFromPoint(touch.clientX, touch.clientY);
+                const element = document.elementFromPoint(
+                    touch.clientX,
+                    touch.clientY
+                );
                 const card = element?.closest('.receipt-mini-card');
                 if (card && card.onclick) {
                     // Executar click no card
@@ -8258,18 +9558,26 @@ class LojaApp {
                 // Verificar vencimento
                 let dueDateAlert = '';
                 let cardBorderColor = 'var(--border-color)';
-                if (order.dueDate && order.status !== 'cancelled' && order.status !== 'completed') {
+                if (
+                    order.dueDate &&
+                    order.status !== 'cancelled' &&
+                    order.status !== 'completed'
+                ) {
                     const dueDate = new Date(order.dueDate);
                     const today = new Date();
                     today.setHours(0, 0, 0, 0);
                     dueDate.setHours(0, 0, 0, 0);
-                    const daysUntilDue = Math.ceil((dueDate - today) / (1000 * 60 * 60 * 24));
-                    
+                    const daysUntilDue = Math.ceil(
+                        (dueDate - today) / (1000 * 60 * 60 * 24)
+                    );
+
                     if (daysUntilDue < 0) {
                         // Vencido
                         dueDateAlert = `<div style="padding: 0.75rem; background: #fee; border: 2px solid #dc3545; border-radius: var(--radius-sm); margin-bottom: 0.75rem;">
                             <p style="margin: 0; color: #721c24; font-weight: 600;">
-                                <i class="fas fa-exclamation-triangle"></i> VENCIDO há ${Math.abs(daysUntilDue)} dia(s)
+                                <i class="fas fa-exclamation-triangle"></i> VENCIDO há ${Math.abs(
+                                    daysUntilDue
+                                )} dia(s)
                             </p>
                         </div>`;
                         cardBorderColor = '#dc3545';
@@ -8608,7 +9916,9 @@ class LojaApp {
             parseFloat(document.getElementById('appointmentPrice').value) || 0;
         const status = document.getElementById('appointmentStatus').value;
         // Formatar observações automaticamente
-        const notes = this.formatText(document.getElementById('appointmentNotes').value);
+        const notes = this.formatText(
+            document.getElementById('appointmentNotes').value
+        );
 
         if (!serviceTypeId) {
             alert('Por favor, selecione um tipo de serviço.');
@@ -8840,11 +10150,15 @@ class LojaApp {
                 // Se for string ISO, pegar apenas a parte da data (YYYY-MM-DD)
                 const datePart = appointment.date.split('T')[0].split(' ')[0];
                 const [yearStr, monthStr, dayStr] = datePart.split('-');
-                appointmentDate = new Date(parseInt(yearStr), parseInt(monthStr) - 1, parseInt(dayStr));
+                appointmentDate = new Date(
+                    parseInt(yearStr),
+                    parseInt(monthStr) - 1,
+                    parseInt(dayStr)
+                );
             } else {
                 appointmentDate = new Date(appointment.date);
             }
-            
+
             // Comparar apenas ano, mês e dia (ignorar hora/timezone)
             if (
                 appointmentDate.getFullYear() === year &&
@@ -9026,11 +10340,15 @@ class LojaApp {
                 // Se for string ISO, pegar apenas a parte da data (YYYY-MM-DD)
                 const datePart = appointment.date.split('T')[0].split(' ')[0];
                 const [yearStr, monthStr, dayStr] = datePart.split('-');
-                appointmentDate = new Date(parseInt(yearStr), parseInt(monthStr) - 1, parseInt(dayStr));
+                appointmentDate = new Date(
+                    parseInt(yearStr),
+                    parseInt(monthStr) - 1,
+                    parseInt(dayStr)
+                );
             } else {
                 appointmentDate = new Date(appointment.date);
             }
-            
+
             // Comparar apenas ano, mês e dia (ignorar hora/timezone)
             if (
                 appointmentDate.getFullYear() === year &&
@@ -9090,7 +10408,7 @@ class LojaApp {
         const detailStyle = isPast
             ? `margin: 0 0 0.2rem 0; color: var(--dark-gray); font-size: 0.85rem;`
             : `margin: 0 0 0.25rem 0; color: var(--dark-gray);`;
-        
+
         // Verificar se é hoje ou amanhã para exibir alerta
         const now = new Date();
         const tomorrow = new Date(now);
@@ -9100,10 +10418,14 @@ class LojaApp {
         todayEnd.setHours(23, 59, 59, 999);
         const tomorrowEnd = new Date(tomorrow);
         tomorrowEnd.setHours(23, 59, 59, 999);
-        
+
         let reminderAlert = '';
         let cardBorderColor = 'var(--border-color)';
-        if (!isPast && appointment.status !== 'completed' && appointment.status !== 'cancelled') {
+        if (
+            !isPast &&
+            appointment.status !== 'completed' &&
+            appointment.status !== 'cancelled'
+        ) {
             if (appointmentDate >= now && appointmentDate <= todayEnd) {
                 reminderAlert = `<div style="padding: 0.75rem; background: #d1ecf1; border: 2px solid #17a2b8; border-radius: var(--radius-sm); margin-bottom: 0.75rem;">
                     <p style="margin: 0; color: #0c5460; font-weight: 600;">
@@ -9111,7 +10433,10 @@ class LojaApp {
                     </p>
                 </div>`;
                 cardBorderColor = '#17a2b8';
-            } else if (appointmentDate >= tomorrow && appointmentDate <= tomorrowEnd) {
+            } else if (
+                appointmentDate >= tomorrow &&
+                appointmentDate <= tomorrowEnd
+            ) {
                 reminderAlert = `<div style="padding: 0.75rem; background: #fff3cd; border: 2px solid #ffc107; border-radius: var(--radius-sm); margin-bottom: 0.75rem;">
                     <p style="margin: 0; color: #856404; font-weight: 600;">
                         <i class="fas fa-clock"></i> Agendamento AMANHÃ às ${formattedTime}
@@ -9216,43 +10541,43 @@ class LojaApp {
     // Função para corrigir acentos automaticamente
     fixAccents(text) {
         if (!text || typeof text !== 'string') return text;
-        
+
         // Mapa de correções comuns de acentos
         const accentMap = {
             // Palavras comuns sem acento -> com acento
-            'acao': 'ação',
-            'aviao': 'avião',
-            'cao': 'cão',
-            'coracao': 'coração',
-            'edicao': 'edição',
-            'eleicao': 'eleição',
-            'funcao': 'função',
-            'informacao': 'informação',
-            'nacao': 'nação',
-            'opcao': 'opção',
-            'previsao': 'previsão',
-            'sessao': 'sessão',
-            'situacao': 'situação',
-            'televisao': 'televisão',
-            'transacao': 'transação',
-            'camisa': 'camisa',
-            'calca': 'calça',
-            'blusa': 'blusa',
-            'vestido': 'vestido',
-            'sapato': 'sapato',
-            'tenis': 'tênis',
-            'bone': 'boné',
-            'oculos': 'óculos',
-            'relogio': 'relógio',
-            'celular': 'celular',
-            'tablet': 'tablet',
-            'notebook': 'notebook',
-            'computador': 'computador',
-            'televisao': 'televisão',
-            'som': 'som',
-            'fone': 'fone',
-            'mouse': 'mouse',
-            'teclado': 'teclado',
+            acao: 'ação',
+            aviao: 'avião',
+            cao: 'cão',
+            coracao: 'coração',
+            edicao: 'edição',
+            eleicao: 'eleição',
+            funcao: 'função',
+            informacao: 'informação',
+            nacao: 'nação',
+            opcao: 'opção',
+            previsao: 'previsão',
+            sessao: 'sessão',
+            situacao: 'situação',
+            televisao: 'televisão',
+            transacao: 'transação',
+            camisa: 'camisa',
+            calca: 'calça',
+            blusa: 'blusa',
+            vestido: 'vestido',
+            sapato: 'sapato',
+            tenis: 'tênis',
+            bone: 'boné',
+            oculos: 'óculos',
+            relogio: 'relógio',
+            celular: 'celular',
+            tablet: 'tablet',
+            notebook: 'notebook',
+            computador: 'computador',
+            televisao: 'televisão',
+            som: 'som',
+            fone: 'fone',
+            mouse: 'mouse',
+            teclado: 'teclado',
         };
 
         // Primeiro, tentar corrigir palavras completas
@@ -9277,16 +10602,42 @@ class LojaApp {
     // Função para capitalizar palavras (primeira letra maiúscula)
     capitalizeWords(text) {
         if (!text || typeof text !== 'string') return text;
-        
+
         // Lista de palavras que não devem ser capitalizadas (artigos, preposições, etc.)
-        const lowercaseWords = ['de', 'da', 'do', 'das', 'dos', 'e', 'em', 'na', 'no', 'nas', 'nos', 'para', 'por', 'com', 'sem', 'a', 'o', 'as', 'os'];
-        
+        const lowercaseWords = [
+            'de',
+            'da',
+            'do',
+            'das',
+            'dos',
+            'e',
+            'em',
+            'na',
+            'no',
+            'nas',
+            'nos',
+            'para',
+            'por',
+            'com',
+            'sem',
+            'a',
+            'o',
+            'as',
+            'os',
+        ];
+
         return text
             .split(' ')
             .map((word, index) => {
                 // Se for a primeira palavra ou não estiver na lista de exceções, capitalizar
-                if (index === 0 || !lowercaseWords.includes(word.toLowerCase())) {
-                    return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
+                if (
+                    index === 0 ||
+                    !lowercaseWords.includes(word.toLowerCase())
+                ) {
+                    return (
+                        word.charAt(0).toUpperCase() +
+                        word.slice(1).toLowerCase()
+                    );
                 }
                 return word.toLowerCase();
             })
@@ -9296,11 +10647,11 @@ class LojaApp {
     // Função para formatar texto (corrigir acentos e capitalizar)
     formatText(text) {
         if (!text || typeof text !== 'string') return text;
-        
+
         // Primeiro corrigir acentos, depois capitalizar
         let formatted = this.fixAccents(text.trim());
         formatted = this.capitalizeWords(formatted);
-        
+
         return formatted;
     }
 
@@ -9364,7 +10715,7 @@ class LojaApp {
     renderGroups() {
         const list = document.getElementById('groupsList');
         if (!list) return;
-        
+
         // Mostrar skeleton enquanto carrega (apenas se não houver dados ainda)
         if (this.groups.length === 0 && !list.querySelector('.group-card')) {
             this.showSkeleton('groupsList', 6, true);
@@ -9431,18 +10782,21 @@ class LojaApp {
         }
 
         if (filteredGroups.length === 0) {
-            list.innerHTML =
-                `<div class="empty-state" style="grid-column: 1/-1;">
+            list.innerHTML = `<div class="empty-state" style="grid-column: 1/-1;">
                     <div class="empty-state-icon">
                         <i class="fas fa-calendar-alt"></i>
                     </div>
-                    <h3 class="empty-state-title">${yearFilter
-                        ? `Nenhum grupo encontrado para ${yearFilter}`
-                        : 'Nenhum grupo mensal criado ainda'}</h3>
+                    <h3 class="empty-state-title">${
+                        yearFilter
+                            ? `Nenhum grupo encontrado para ${yearFilter}`
+                            : 'Nenhum grupo mensal criado ainda'
+                    }</h3>
                     <p class="empty-state-message">
-                        ${yearFilter
-                            ? 'Tente selecionar outro ano ou criar um novo grupo mensal.'
-                            : 'Comece criando um grupo mensal para organizar suas vendas por mês.'}
+                        ${
+                            yearFilter
+                                ? 'Tente selecionar outro ano ou criar um novo grupo mensal.'
+                                : 'Comece criando um grupo mensal para organizar suas vendas por mês.'
+                        }
                     </p>
                 </div>`;
             return;
@@ -10149,7 +11503,8 @@ class LojaApp {
         if (!list) return;
 
         // Obter filtro de ano
-        const servicesYearFilterEl = document.getElementById('servicesYearFilter');
+        const servicesYearFilterEl =
+            document.getElementById('servicesYearFilter');
         const servicesYearFilter = servicesYearFilterEl
             ? servicesYearFilterEl.value
             : '';
@@ -10157,11 +11512,13 @@ class LojaApp {
         // Filtrar grupos de serviços por ano se houver filtro
         let filteredServiceGroups = this.serviceGroups;
         if (servicesYearFilter && servicesYearFilter !== '') {
-            filteredServiceGroups = this.serviceGroups.filter((serviceGroup) => {
-                if (!serviceGroup.month) return false;
-                const [year] = serviceGroup.month.split('-');
-                return year === servicesYearFilter;
-            });
+            filteredServiceGroups = this.serviceGroups.filter(
+                (serviceGroup) => {
+                    if (!serviceGroup.month) return false;
+                    const [year] = serviceGroup.month.split('-');
+                    return year === servicesYearFilter;
+                }
+            );
         }
 
         if (filteredServiceGroups.length === 0) {
@@ -10371,10 +11728,16 @@ class LojaApp {
         // Popular select de fornecedores
         const costSupplier = document.getElementById('costSupplier');
         if (costSupplier) {
-            costSupplier.innerHTML = '<option value="">Selecione um fornecedor ou deixe em branco...</option>' +
-                this.suppliers.map(supplier => 
-                    `<option value="${supplier.id}">${this.escapeHtml(supplier.name)}</option>`
-                ).join('');
+            costSupplier.innerHTML =
+                '<option value="">Selecione um fornecedor ou deixe em branco...</option>' +
+                this.suppliers
+                    .map(
+                        (supplier) =>
+                            `<option value="${supplier.id}">${this.escapeHtml(
+                                supplier.name
+                            )}</option>`
+                    )
+                    .join('');
         }
 
         if (cost) {
@@ -10435,8 +11798,9 @@ class LojaApp {
             return;
         }
 
-        const supplierId = document.getElementById('costSupplier')?.value || null;
-        
+        const supplierId =
+            document.getElementById('costSupplier')?.value || null;
+
         const cost = {
             id: this.currentEditingCost
                 ? this.currentEditingCost.id
@@ -10479,13 +11843,13 @@ class LojaApp {
         const list = document.getElementById('costsList');
         // Se a seção de custos foi removida, não renderizar
         if (!list) return;
-        
+
         // Mostrar skeleton enquanto carrega (apenas se não houver dados ainda)
         if (this.costs.length === 0 && !list.querySelector('.cost-card')) {
             this.showSkeleton('costsList', 4, true);
             return;
         }
-        
+
         const countEl = document.getElementById('totalCostsCount');
         const valueEl = document.getElementById('totalCostsValue');
 
@@ -10509,8 +11873,7 @@ class LojaApp {
         this.updateCostsChart();
 
         if (this.costs.length === 0) {
-            list.innerHTML =
-                `<div class="empty-state" style="grid-column: 1/-1;">
+            list.innerHTML = `<div class="empty-state" style="grid-column: 1/-1;">
                     <div class="empty-state-icon">
                         <i class="fas fa-receipt"></i>
                     </div>
@@ -10684,13 +12047,13 @@ class LojaApp {
     renderGoals() {
         const list = document.getElementById('goalsList');
         if (!list) return;
-        
+
         // Mostrar skeleton enquanto carrega (apenas se não houver dados ainda)
         if (this.goals.length === 0 && !list.querySelector('.goal-card')) {
             this.showSkeleton('goalsList', 4, true);
             return;
         }
-        
+
         const currentMonthGoalEl = document.getElementById('currentMonthGoal');
         const currentMonthSalesEl =
             document.getElementById('currentMonthSales');
@@ -10775,28 +12138,35 @@ class LojaApp {
         }
 
         if (filteredGoals.length === 0) {
-            list.innerHTML =
-                `<div class="empty-state" style="grid-column: 1/-1;">
+            list.innerHTML = `<div class="empty-state" style="grid-column: 1/-1;">
                     <div class="empty-state-icon">
                         <i class="fas fa-bullseye"></i>
                     </div>
-                    <h3 class="empty-state-title">${goalsYearFilter
-                        ? `Nenhuma meta encontrada para ${goalsYearFilter}`
-                        : 'Nenhuma meta cadastrada ainda'}</h3>
+                    <h3 class="empty-state-title">${
+                        goalsYearFilter
+                            ? `Nenhuma meta encontrada para ${goalsYearFilter}`
+                            : 'Nenhuma meta cadastrada ainda'
+                    }</h3>
                     <p class="empty-state-message">
-                        ${goalsYearFilter
-                            ? 'Tente selecionar outro ano ou criar uma nova meta.'
-                            : 'Comece definindo suas metas financeiras para acompanhar o desempenho do negócio.'}
+                        ${
+                            goalsYearFilter
+                                ? 'Tente selecionar outro ano ou criar uma nova meta.'
+                                : 'Comece definindo suas metas financeiras para acompanhar o desempenho do negócio.'
+                        }
                     </p>
-                    ${!goalsYearFilter ? `
+                    ${
+                        !goalsYearFilter
+                            ? `
                         <div class="empty-state-action">
                             <button class="btn-primary" onclick="app.openGoalModal()">
                                 <i class="fas fa-bullseye"></i> Criar Primeira Meta
                             </button>
                         </div>
-                    ` : ''}
+                    `
+                            : ''
+                    }
                 </div>`;
-                '</p>';
+            ('</p>');
             return;
         }
 
@@ -10834,31 +12204,61 @@ class LojaApp {
                         : progress >= 75
                         ? 'warning'
                         : 'danger';
-                
+
                 // Verificar se está próximo de atingir (75-95%)
                 const isNearGoal = progress >= 75 && progress < 100;
-                const daysInMonth = new Date(parseInt(year), parseInt(month), 0).getDate();
+                const daysInMonth = new Date(
+                    parseInt(year),
+                    parseInt(month),
+                    0
+                ).getDate();
                 const now = new Date();
-                const isCurrentMonth = goal.month === `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
-                const daysRemaining = isCurrentMonth ? daysInMonth - now.getDate() : null;
-                const isNearEndOfMonth = isCurrentMonth && daysRemaining !== null && daysRemaining <= 7;
+                const isCurrentMonth =
+                    goal.month ===
+                    `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(
+                        2,
+                        '0'
+                    )}`;
+                const daysRemaining = isCurrentMonth
+                    ? daysInMonth - now.getDate()
+                    : null;
+                const isNearEndOfMonth =
+                    isCurrentMonth &&
+                    daysRemaining !== null &&
+                    daysRemaining <= 7;
 
                 return `
-                <div class="goal-card" ${isNearGoal || isNearEndOfMonth ? 'style="border: 2px solid #ffc107;"' : ''}>
-                    ${isNearGoal ? `
+                <div class="goal-card" ${
+                    isNearGoal || isNearEndOfMonth
+                        ? 'style="border: 2px solid #ffc107;"'
+                        : ''
+                }>
+                    ${
+                        isNearGoal
+                            ? `
                         <div style="padding: 0.75rem; background: #fff3cd; border: 2px solid #ffc107; border-radius: var(--radius-sm); margin-bottom: 1rem;">
                             <p style="margin: 0; color: #856404; font-weight: 600;">
-                                <i class="fas fa-bullseye"></i> Meta quase atingida! ${progress.toFixed(1)}% concluído
+                                <i class="fas fa-bullseye"></i> Meta quase atingida! ${progress.toFixed(
+                                    1
+                                )}% concluído
                             </p>
                         </div>
-                    ` : ''}
-                    ${isNearEndOfMonth && progress < 100 ? `
+                    `
+                            : ''
+                    }
+                    ${
+                        isNearEndOfMonth && progress < 100
+                            ? `
                         <div style="padding: 0.75rem; background: #fff3cd; border: 2px solid #ffc107; border-radius: var(--radius-sm); margin-bottom: 1rem;">
                             <p style="margin: 0; color: #856404; font-weight: 600;">
-                                <i class="fas fa-clock"></i> Faltam ${daysRemaining} dia(s) para o fim do mês! Progresso: ${progress.toFixed(1)}%
+                                <i class="fas fa-clock"></i> Faltam ${daysRemaining} dia(s) para o fim do mês! Progresso: ${progress.toFixed(
+                                  1
+                              )}%
                             </p>
                         </div>
-                    ` : ''}
+                    `
+                            : ''
+                    }
                     <h3>${monthName}/${year}</h3>
                     ${
                         goal.description
@@ -10952,8 +12352,10 @@ class LojaApp {
                 const monthKey = `${year}-${String(month).padStart(2, '0')}`;
                 const goal = filteredGoals.find((g) => g.month === monthKey);
                 const sales = this.getMonthSales(monthKey);
-                
-                months.push(`${monthNames[month - 1]}/${String(year).slice(-2)}`);
+
+                months.push(
+                    `${monthNames[month - 1]}/${String(year).slice(-2)}`
+                );
                 goalsData.push(goal ? goal.amount : 0);
                 salesData.push(sales);
             }
@@ -11318,7 +12720,8 @@ class LojaApp {
         }
 
         // Obter filtro de ano
-        const servicesYearFilterEl = document.getElementById('servicesYearFilter');
+        const servicesYearFilterEl =
+            document.getElementById('servicesYearFilter');
         const servicesYearFilter = servicesYearFilterEl
             ? servicesYearFilterEl.value
             : '';
@@ -11326,11 +12729,13 @@ class LojaApp {
         // Filtrar grupos de serviços por ano se houver filtro
         let filteredServiceGroups = this.serviceGroups;
         if (servicesYearFilter && servicesYearFilter !== '') {
-            filteredServiceGroups = this.serviceGroups.filter((serviceGroup) => {
-                if (!serviceGroup.month) return false;
-                const [year] = serviceGroup.month.split('-');
-                return year === servicesYearFilter;
-            });
+            filteredServiceGroups = this.serviceGroups.filter(
+                (serviceGroup) => {
+                    if (!serviceGroup.month) return false;
+                    const [year] = serviceGroup.month.split('-');
+                    return year === servicesYearFilter;
+                }
+            );
         }
 
         // Agrupar serviços por mês
@@ -11385,8 +12790,10 @@ class LojaApp {
                     minutes: 0,
                     count: 0,
                 };
-                
-                months.push(`${monthNames[month - 1]}/${String(year).slice(-2)}`);
+
+                months.push(
+                    `${monthNames[month - 1]}/${String(year).slice(-2)}`
+                );
                 revenueData.push(monthData.revenue);
                 const totalHours = monthData.hours + monthData.minutes / 60;
                 hoursData.push(totalHours);
@@ -11933,9 +13340,13 @@ class LojaApp {
             'servicesDashboardTab'
         );
         const isSalesActive =
-            salesDashboard && (salesDashboard.classList.contains('active') || salesDashboard.style.display === 'block');
+            salesDashboard &&
+            (salesDashboard.classList.contains('active') ||
+                salesDashboard.style.display === 'block');
         const isServicesActive =
-            servicesDashboard && (servicesDashboard.classList.contains('active') || servicesDashboard.style.display === 'block');
+            servicesDashboard &&
+            (servicesDashboard.classList.contains('active') ||
+                servicesDashboard.style.display === 'block');
 
         // Alternar entre dashboard de vendas e serviços
         if (isServicesActive) {
@@ -11978,7 +13389,7 @@ class LojaApp {
         // Verificar se está em modo de teste
         const isTestMode = window.TEST_MODE === true;
         const suppressWarnings = window.SUPPRESS_UI_WARNINGS === true;
-        
+
         // Se mudar para a aba de vendas, renderizar o carrossel novamente
         // Em modo de teste, pular renderizações de UI
         if (!isTestMode && tab === 'salesPanel') {
@@ -11997,9 +13408,15 @@ class LojaApp {
                 // Aguardar um pouco para garantir que o DOM está pronto
                 setTimeout(() => {
                     this.loadAdminData();
+                    this.renderEcommerceSyncStatus();
+                    this.renderMessageTemplates();
+                    this.renderScheduledMessages();
+                    this.renderMessageHistory();
                 }, 200);
             } else {
-                console.warn('⚠️ [ADMIN] Acesso negado - apenas administradores');
+                console.warn(
+                    '⚠️ [ADMIN] Acesso negado - apenas administradores'
+                );
                 return;
             }
         }
@@ -12012,12 +13429,10 @@ class LojaApp {
         document
             .querySelectorAll('.tab-btn')
             .forEach((btn) => btn.classList.remove('active'));
-        document
-            .querySelectorAll('.tab-content')
-            .forEach((content) => {
-                content.classList.remove('active');
-                content.style.display = 'none';
-            });
+        document.querySelectorAll('.tab-content').forEach((content) => {
+            content.classList.remove('active');
+            content.style.display = 'none';
+        });
 
         // Adicionar active ao botão da aba selecionada
         const tabBtn = document.querySelector(`[data-tab="${tab}"]`);
@@ -12052,12 +13467,19 @@ class LojaApp {
         // Se não encontrar, pode ser que o tab seja 'adminPanel' mas o ID seja diferente
         if (!tabContent && tab === 'adminPanel') {
             tabContent = document.getElementById('adminPanelTab');
+            // Renderizar status das integrações quando abrir painel admin
+            if (tab === 'adminPanel') {
+                setTimeout(() => {
+                    this.renderIntegrationsStatus();
+                    this.renderPerformancePanel();
+                }, 100);
+            }
         }
 
         if (tabContent) {
             // Mostrar o conteúdo antes de animar
             tabContent.style.display = 'block';
-            
+
             // Animação rápida ao trocar de tab
             tabContent.style.opacity = '0';
             tabContent.style.transform = 'translateX(10px)';
@@ -12161,7 +13583,7 @@ class LojaApp {
         if (username === 'admin') {
             return;
         }
-        
+
         const hasSeenTutorial = localStorage.getItem('hasSeenTutorial');
         if (!hasSeenTutorial) {
             // Aguardar um pouco para a página carregar completamente
@@ -12183,13 +13605,13 @@ class LojaApp {
             }
             return;
         }
-        
+
         const modal = document.getElementById('tutorialModal');
         if (!modal) return;
 
         // Garantir que o modal está visível
         modal.style.display = 'flex';
-        
+
         const content = document.getElementById('tutorialContent');
         if (content) {
             content.innerHTML = `
@@ -12366,25 +13788,26 @@ class LojaApp {
             loadingOverlay.classList.remove('active');
             loadingOverlay.style.display = 'none';
         }
-        
+
         // Garantir que o modal está visível e ativo
         modal.style.display = 'flex';
         modal.classList.add('active');
-        
+
         // Garantir que o app está disponível globalmente para onclick inline
         if (typeof window !== 'undefined') {
             window.app = this;
         }
-        
+
         // Garantir que o modal está acima de tudo
         modal.style.zIndex = '10003';
         modal.style.pointerEvents = 'auto';
-        
+
         // Re-anexar event listeners quando o modal é aberto (garantir que funcionem)
         setTimeout(() => {
             const closeBtn = modal.querySelector('.close');
-            const closeTutorialBtn = document.getElementById('closeTutorialBtn');
-            
+            const closeTutorialBtn =
+                document.getElementById('closeTutorialBtn');
+
             if (closeBtn) {
                 // Remover listeners antigos e adicionar novos
                 const newCloseBtn = closeBtn.cloneNode(true);
@@ -12396,31 +13819,40 @@ class LojaApp {
                     this.closeTutorialModal();
                 });
                 newCloseBtn.onclick = (e) => {
-                    console.log('🟢 [TUTORIAL] Botão X (onclick) clicado (re-anexado)');
+                    console.log(
+                        '🟢 [TUTORIAL] Botão X (onclick) clicado (re-anexado)'
+                    );
                     e.preventDefault();
                     e.stopPropagation();
                     this.closeTutorialModal();
                 };
             }
-            
+
             if (closeTutorialBtn) {
                 // Remover listeners antigos e adicionar novos
                 const newCloseTutorialBtn = closeTutorialBtn.cloneNode(true);
-                closeTutorialBtn.parentNode.replaceChild(newCloseTutorialBtn, closeTutorialBtn);
+                closeTutorialBtn.parentNode.replaceChild(
+                    newCloseTutorialBtn,
+                    closeTutorialBtn
+                );
                 newCloseTutorialBtn.addEventListener('click', (e) => {
-                    console.log('🟢 [TUTORIAL] Botão Fechar clicado (re-anexado)');
+                    console.log(
+                        '🟢 [TUTORIAL] Botão Fechar clicado (re-anexado)'
+                    );
                     e.preventDefault();
                     e.stopPropagation();
                     this.closeTutorialModal();
                 });
                 newCloseTutorialBtn.onclick = (e) => {
-                    console.log('🟢 [TUTORIAL] Botão Fechar (onclick) clicado (re-anexado)');
+                    console.log(
+                        '🟢 [TUTORIAL] Botão Fechar (onclick) clicado (re-anexado)'
+                    );
                     e.preventDefault();
                     e.stopPropagation();
                     this.closeTutorialModal();
                 };
             }
-            
+
             // Focar no botão de fechar para acessibilidade
             const finalCloseBtn = modal.querySelector('.close');
             if (finalCloseBtn) {
@@ -12434,7 +13866,7 @@ class LojaApp {
         const modal = document.getElementById('tutorialModal');
         if (modal) {
             console.log('🔴 [TUTORIAL] Modal encontrado, fechando...');
-            
+
             // Forçar fechamento de múltiplas formas
             modal.classList.remove('active');
             modal.style.display = 'none';
@@ -12442,16 +13874,16 @@ class LojaApp {
             modal.style.visibility = 'hidden';
             modal.style.pointerEvents = 'none';
             modal.style.zIndex = '-1';
-            
+
             // Garantir que o modal-content também está escondido
             const modalContent = modal.querySelector('.modal-content');
             if (modalContent) {
                 modalContent.style.display = 'none';
             }
-            
+
             // Salvar que o usuário viu o tutorial
             localStorage.setItem('hasSeenTutorial', 'true');
-            
+
             console.log('✅ [TUTORIAL] Modal fechado com sucesso');
         } else {
             console.error('❌ [TUTORIAL] Modal não encontrado!');
@@ -12794,8 +14226,14 @@ class LojaApp {
         }
 
         // Separar roupas e eletrônicos de outros produtos
-        const itemsWithVariations = physicalItems.filter(item => item.category === 'Roupas' || item.category === 'Eletrônicos');
-        const otherItems = physicalItems.filter(item => item.category !== 'Roupas' && item.category !== 'Eletrônicos');
+        const itemsWithVariations = physicalItems.filter(
+            (item) =>
+                item.category === 'Roupas' || item.category === 'Eletrônicos'
+        );
+        const otherItems = physicalItems.filter(
+            (item) =>
+                item.category !== 'Roupas' && item.category !== 'Eletrônicos'
+        );
 
         let html = '';
 
@@ -12804,12 +14242,14 @@ class LojaApp {
             itemsWithVariations.forEach((item) => {
                 // Coletar todas as combinações únicas de tamanho e cor que têm estoque ou vendas
                 const variations = new Map(); // Map<"size_color", {size, color}>
-                
+
                 // Adicionar variações do estoque
-                Object.keys(dayData.stock).forEach(key => {
+                Object.keys(dayData.stock).forEach((key) => {
                     if (key.startsWith(item.id + '_')) {
                         // Extrair tamanho e cor da chave
-                        const parts = key.substring(item.id.length + 1).split('_');
+                        const parts = key
+                            .substring(item.id.length + 1)
+                            .split('_');
                         const size = parts[0] || '';
                         const color = parts[1] || '';
                         const variationKey = `${size}|||${color}`;
@@ -12821,11 +14261,11 @@ class LojaApp {
                         variations.set('|||', { size: '', color: '' });
                     }
                 });
-                
+
                 // Adicionar variações das vendas
                 dayData.sales
-                    .filter(sale => sale.itemId === item.id)
-                    .forEach(sale => {
+                    .filter((sale) => sale.itemId === item.id)
+                    .forEach((sale) => {
                         const size = sale.size || '';
                         const color = sale.color || '';
                         const variationKey = `${size}|||${color}`;
@@ -12848,7 +14288,11 @@ class LojaApp {
                         .filter((sale) => {
                             const saleSize = sale.size || '';
                             const saleColor = sale.color || '';
-                            const saleStockKey = this.getStockKey(sale.itemId, saleSize, saleColor);
+                            const saleStockKey = this.getStockKey(
+                                sale.itemId,
+                                saleSize,
+                                saleColor
+                            );
                             return saleStockKey === stockKey;
                         })
                         .reduce((sum, sale) => sum + sale.quantity, 0);
@@ -12859,9 +14303,15 @@ class LojaApp {
                     html += `
                     <div class="stock-variation-item">
                         <div class="stock-variation-info">
-                            <div class="stock-variation-name">${this.escapeHtml(item.name || item.model || item.brand)}${item.brand ? ' - ' + this.escapeHtml(item.brand) : ''}</div>
+                            <div class="stock-variation-name">${this.escapeHtml(
+                                item.name || item.model || item.brand
+                            )}${
+                        item.brand ? ' - ' + this.escapeHtml(item.brand) : ''
+                    }</div>
                             <div class="stock-variation-details">
-                                Tamanho: ${this.escapeHtml(sizeLabel)}${color ? ` | Cor: ${this.escapeHtml(colorLabel)}` : ''}
+                                Tamanho: ${this.escapeHtml(sizeLabel)}${
+                        color ? ` | Cor: ${this.escapeHtml(colorLabel)}` : ''
+                    }
                             </div>
                             <div class="stock-variation-stats">
                                 Estoque: ${stockQuantity} un. | Vendido: ${soldQuantity} un. | Disponível: ${availableStock} un.
@@ -12912,7 +14362,9 @@ class LojaApp {
                 <div style="flex: 1;">
                     <strong>${this.escapeHtml(
                         item.name || item.model || 'Item'
-                    )}</strong>${item.brand ? ' - ' + this.escapeHtml(item.brand) : ''}
+                    )}</strong>${
+                item.brand ? ' - ' + this.escapeHtml(item.brand) : ''
+            }
                     <div style="font-size: 0.85rem; color: var(--gray); margin-top: 0.25rem;">
                         Estoque: ${stockQuantity} un. | Vendido: ${soldQuantity} un. | Disponível: ${availableStock} un.
                     </div>
@@ -12956,8 +14408,10 @@ class LojaApp {
         }
 
         // Salvar estoque - percorrer todos os inputs de estoque (excluir inputs de tamanho e cor)
-        const stockInputs = document.querySelectorAll('input[id^="stock_"]:not([id^="stock_size_"]):not([id^="stock_color_"])');
-        stockInputs.forEach(input => {
+        const stockInputs = document.querySelectorAll(
+            'input[id^="stock_"]:not([id^="stock_size_"]):not([id^="stock_color_"])'
+        );
+        stockInputs.forEach((input) => {
             const stockKey = input.id.replace('stock_', '');
             const quantity = parseInt(input.value) || 0;
             if (quantity >= 0) {
@@ -12985,7 +14439,7 @@ class LojaApp {
             viewGroupModal.style.pointerEvents = '';
             viewGroupModal.style.zIndex = '';
             viewGroupModal.style.display = '';
-            
+
             // Garantir que o botão de fechar esteja clicável
             const closeBtn = viewGroupModal.querySelector('.close');
             if (closeBtn) {
@@ -12993,21 +14447,21 @@ class LojaApp {
                 closeBtn.style.opacity = '1';
                 closeBtn.style.zIndex = '1001';
             }
-            
+
             // Garantir que todos os botões dentro do modal estejam clicáveis
             const buttons = viewGroupModal.querySelectorAll('button');
-            buttons.forEach(btn => {
+            buttons.forEach((btn) => {
                 btn.style.pointerEvents = 'auto';
                 btn.style.opacity = '1';
             });
-            
+
             // Restaurar estilos do modal-content
             const modalContent = viewGroupModal.querySelector('.modal-content');
             if (modalContent) {
                 modalContent.style.zIndex = '';
                 modalContent.style.pointerEvents = '';
             }
-            
+
             // Fechar modal com animação
             viewGroupModal.style.opacity = '0';
             setTimeout(() => {
@@ -14084,37 +15538,51 @@ class LojaApp {
     // Carregar configurações de acessibilidade
     loadAccessibilitySettings() {
         const username = sessionStorage.getItem('username');
-        const settingsKey = username ? `accessibilitySettings_${username}` : 'accessibilitySettings';
+        const settingsKey = username
+            ? `accessibilitySettings_${username}`
+            : 'accessibilitySettings';
         const settingsStr = localStorage.getItem(settingsKey);
-        
+
         if (settingsStr) {
             try {
                 const settings = JSON.parse(settingsStr);
-                
+
                 // Aplicar alto contraste
                 if (settings.highContrast) {
                     document.body.classList.add('high-contrast');
                 } else {
                     document.body.classList.remove('high-contrast');
                 }
-                
+
                 // Aplicar tamanho de fonte
-                document.body.classList.remove('font-small', 'font-normal', 'font-large', 'font-extra-large');
+                document.body.classList.remove(
+                    'font-small',
+                    'font-normal',
+                    'font-large',
+                    'font-extra-large'
+                );
                 if (settings.fontSize) {
                     document.body.classList.add(`font-${settings.fontSize}`);
                 } else {
                     document.body.classList.add('font-normal');
                 }
-                
+
                 // Aplicar espaçamento
-                document.body.classList.remove('spacing-compact', 'spacing-normal', 'spacing-comfortable');
+                document.body.classList.remove(
+                    'spacing-compact',
+                    'spacing-normal',
+                    'spacing-comfortable'
+                );
                 if (settings.spacing) {
                     document.body.classList.add(`spacing-${settings.spacing}`);
                 } else {
                     document.body.classList.add('spacing-normal');
                 }
             } catch (error) {
-                console.error('Erro ao carregar configurações de acessibilidade:', error);
+                console.error(
+                    'Erro ao carregar configurações de acessibilidade:',
+                    error
+                );
             }
         }
     }
@@ -14122,14 +15590,16 @@ class LojaApp {
     // Salvar configurações de acessibilidade
     saveAccessibilitySettings() {
         const username = sessionStorage.getItem('username');
-        const settingsKey = username ? `accessibilitySettings_${username}` : 'accessibilitySettings';
-        
+        const settingsKey = username
+            ? `accessibilitySettings_${username}`
+            : 'accessibilitySettings';
+
         const settings = {
             highContrast: document.body.classList.contains('high-contrast'),
             fontSize: this.getCurrentFontSize(),
             spacing: this.getCurrentSpacing(),
         };
-        
+
         localStorage.setItem(settingsKey, JSON.stringify(settings));
     }
 
@@ -14137,14 +15607,17 @@ class LojaApp {
     getCurrentFontSize() {
         if (document.body.classList.contains('font-small')) return 'small';
         if (document.body.classList.contains('font-large')) return 'large';
-        if (document.body.classList.contains('font-extra-large')) return 'extra-large';
+        if (document.body.classList.contains('font-extra-large'))
+            return 'extra-large';
         return 'normal';
     }
 
     // Obter espaçamento atual
     getCurrentSpacing() {
-        if (document.body.classList.contains('spacing-compact')) return 'compact';
-        if (document.body.classList.contains('spacing-comfortable')) return 'comfortable';
+        if (document.body.classList.contains('spacing-compact'))
+            return 'compact';
+        if (document.body.classList.contains('spacing-comfortable'))
+            return 'comfortable';
         return 'normal';
     }
 
@@ -14152,16 +15625,26 @@ class LojaApp {
     toggleHighContrast() {
         document.body.classList.toggle('high-contrast');
         this.saveAccessibilitySettings();
-        
+
         if (typeof toast !== 'undefined' && toast) {
             const isEnabled = document.body.classList.contains('high-contrast');
-            toast.info(isEnabled ? 'Modo alto contraste ativado' : 'Modo alto contraste desativado', 2000);
+            toast.info(
+                isEnabled
+                    ? 'Modo alto contraste ativado'
+                    : 'Modo alto contraste desativado',
+                2000
+            );
         }
     }
 
     // Definir tamanho de fonte
     setFontSize(size) {
-        document.body.classList.remove('font-small', 'font-normal', 'font-large', 'font-extra-large');
+        document.body.classList.remove(
+            'font-small',
+            'font-normal',
+            'font-large',
+            'font-extra-large'
+        );
         if (size && size !== 'normal') {
             document.body.classList.add(`font-${size}`);
         } else {
@@ -14172,7 +15655,11 @@ class LojaApp {
 
     // Definir espaçamento
     setSpacing(spacing) {
-        document.body.classList.remove('spacing-compact', 'spacing-normal', 'spacing-comfortable');
+        document.body.classList.remove(
+            'spacing-compact',
+            'spacing-normal',
+            'spacing-comfortable'
+        );
         if (spacing && spacing !== 'normal') {
             document.body.classList.add(`spacing-${spacing}`);
         } else {
@@ -14187,12 +15674,14 @@ class LojaApp {
         if (!modal) return;
 
         // Carregar configurações atuais
-        const highContrastToggle = document.getElementById('highContrastToggle');
+        const highContrastToggle =
+            document.getElementById('highContrastToggle');
         const fontSizeSelect = document.getElementById('fontSizeSelect');
         const spacingSelect = document.getElementById('spacingSelect');
 
         if (highContrastToggle) {
-            highContrastToggle.checked = document.body.classList.contains('high-contrast');
+            highContrastToggle.checked =
+                document.body.classList.contains('high-contrast');
         }
         if (fontSizeSelect) {
             fontSizeSelect.value = this.getCurrentFontSize();
@@ -14215,12 +15704,22 @@ class LojaApp {
     // Restaurar configurações padrão de acessibilidade
     resetAccessibilitySettings() {
         document.body.classList.remove('high-contrast');
-        document.body.classList.remove('font-small', 'font-normal', 'font-large', 'font-extra-large');
-        document.body.classList.remove('spacing-compact', 'spacing-normal', 'spacing-comfortable');
+        document.body.classList.remove(
+            'font-small',
+            'font-normal',
+            'font-large',
+            'font-extra-large'
+        );
+        document.body.classList.remove(
+            'spacing-compact',
+            'spacing-normal',
+            'spacing-comfortable'
+        );
         document.body.classList.add('font-normal', 'spacing-normal');
 
         // Atualizar controles
-        const highContrastToggle = document.getElementById('highContrastToggle');
+        const highContrastToggle =
+            document.getElementById('highContrastToggle');
         const fontSizeSelect = document.getElementById('fontSizeSelect');
         const spacingSelect = document.getElementById('spacingSelect');
 
@@ -14231,7 +15730,10 @@ class LojaApp {
         this.saveAccessibilitySettings();
 
         if (typeof toast !== 'undefined' && toast) {
-            toast.success('Configurações de acessibilidade restauradas para os padrões', 3000);
+            toast.success(
+                'Configurações de acessibilidade restauradas para os padrões',
+                3000
+            );
         }
     }
 
@@ -14981,13 +16483,22 @@ class LojaApp {
         // Preparar dados (criptografar campos sensíveis se habilitado)
         let clientsData = this.clients || [];
         let suppliersData = this.suppliers || [];
-        
+
         if (this.encryptionEnabled && username) {
             try {
-                clientsData = await this.encryptClientData(clientsData, username);
-                suppliersData = await this.encryptClientData(suppliersData, username);
+                clientsData = await this.encryptClientData(
+                    clientsData,
+                    username
+                );
+                suppliersData = await this.encryptClientData(
+                    suppliersData,
+                    username
+                );
             } catch (error) {
-                console.error('Erro ao criptografar dados antes de salvar:', error);
+                console.error(
+                    'Erro ao criptografar dados antes de salvar:',
+                    error
+                );
                 // Continuar sem criptografia em caso de erro
             }
         }
@@ -15053,18 +16564,23 @@ class LojaApp {
             console.log(
                 `☁️ [SAVE DATA] Tentando salvar na nuvem (API: /api/save) para usuário: ${username}...`
             );
-            
+
             // Verificar rate limiting antes de fazer requisição
             const rateLimitCheck = this.canMakeRequest();
             if (!rateLimitCheck.allowed) {
-                console.warn(`⚠️ [SAVE DATA] Rate limit atingido. Aguardando ${rateLimitCheck.remainingSeconds} segundos...`);
+                console.warn(
+                    `⚠️ [SAVE DATA] Rate limit atingido. Aguardando ${rateLimitCheck.remainingSeconds} segundos...`
+                );
                 if (typeof toast !== 'undefined' && toast) {
-                    toast.warning(`Muitas requisições. Aguarde ${rateLimitCheck.remainingSeconds} segundos.`, 3000);
+                    toast.warning(
+                        `Muitas requisições. Aguarde ${rateLimitCheck.remainingSeconds} segundos.`,
+                        3000
+                    );
                 }
                 // Salvar localmente mesmo assim
                 return;
             }
-            
+
             const response = await this.makeRequestWithRateLimit('/api/save', {
                 method: 'POST',
                 headers: {
@@ -15083,9 +16599,15 @@ class LojaApp {
             // Tratar erro 504 (Gateway Timeout) especificamente
             if (response.status === 504) {
                 const text = await response.text();
-                console.warn('⚠️ [SAVE DATA] Erro 504 (Gateway Timeout) - A API demorou muito para responder');
-                console.warn('💾 [SAVE DATA] Dados foram salvos localmente, mas não na nuvem');
-                console.warn('💡 [SAVE DATA] Isso pode acontecer se o servidor estiver sobrecarregado');
+                console.warn(
+                    '⚠️ [SAVE DATA] Erro 504 (Gateway Timeout) - A API demorou muito para responder'
+                );
+                console.warn(
+                    '💾 [SAVE DATA] Dados foram salvos localmente, mas não na nuvem'
+                );
+                console.warn(
+                    '💡 [SAVE DATA] Isso pode acontecer se o servidor estiver sobrecarregado'
+                );
                 // Não lançar erro para não bloquear a interface
                 return;
             }
@@ -15112,7 +16634,9 @@ class LojaApp {
 
                 // Para outros erros, não bloquear a interface
                 if (response.status >= 500) {
-                    console.warn('⚠️ [SAVE DATA] Erro do servidor - dados salvos apenas localmente');
+                    console.warn(
+                        '⚠️ [SAVE DATA] Erro do servidor - dados salvos apenas localmente'
+                    );
                     return;
                 }
 
@@ -15193,11 +16717,13 @@ class LojaApp {
                 console.log(
                     `☁️ [LOAD DATA] Tentando carregar da nuvem (API: /api/load) para usuário: ${username}...`
                 );
-                
+
                 // Verificar rate limiting antes de fazer requisição
                 const rateLimitCheck = this.canMakeRequest();
                 if (!rateLimitCheck.allowed) {
-                    console.warn(`⚠️ [LOAD DATA] Rate limit atingido. Aguardando ${rateLimitCheck.remainingSeconds} segundos...`);
+                    console.warn(
+                        `⚠️ [LOAD DATA] Rate limit atingido. Aguardando ${rateLimitCheck.remainingSeconds} segundos...`
+                    );
                     // Continuar com localStorage como fallback
                 } else {
                     const response = await this.makeRequestWithRateLimit(
@@ -15222,25 +16748,34 @@ class LojaApp {
                         }`
                     );
 
-                    if (!contentType || !contentType.includes('application/json')) {
-                    const text = await response.text();
-                    console.error('❌ [LOAD DATA] Resposta da API não é JSON!');
-                    console.error(`❌ [LOAD DATA] Status: ${response.status}`);
-                    console.error(
-                        `❌ [LOAD DATA] Resposta (primeiros 200 chars):`,
-                        text.substring(0, 200)
-                    );
+                    if (
+                        !contentType ||
+                        !contentType.includes('application/json')
+                    ) {
+                        const text = await response.text();
+                        console.error(
+                            '❌ [LOAD DATA] Resposta da API não é JSON!'
+                        );
+                        console.error(
+                            `❌ [LOAD DATA] Status: ${response.status}`
+                        );
+                        console.error(
+                            `❌ [LOAD DATA] Resposta (primeiros 200 chars):`,
+                            text.substring(0, 200)
+                        );
 
-                    if (response.status === 404) {
-                        console.error(
-                            '❌ [LOAD DATA] Erro 404: Rota /api/load não encontrada'
-                        );
-                        console.error(
-                            '💡 [LOAD DATA] Verifique se a API está configurada corretamente na Vercel'
-                        );
-                    } else if (response.status >= 500) {
-                        console.error('❌ [LOAD DATA] Erro do servidor (5xx)');
-                    }
+                        if (response.status === 404) {
+                            console.error(
+                                '❌ [LOAD DATA] Erro 404: Rota /api/load não encontrada'
+                            );
+                            console.error(
+                                '💡 [LOAD DATA] Verifique se a API está configurada corretamente na Vercel'
+                            );
+                        } else if (response.status >= 500) {
+                            console.error(
+                                '❌ [LOAD DATA] Erro do servidor (5xx)'
+                            );
+                        }
 
                         throw new Error(
                             `Resposta da API não é JSON (Status: ${response.status}). Possível erro 404 ou rota não encontrada.`
@@ -15249,213 +16784,241 @@ class LojaApp {
 
                     const result = await response.json();
                     console.log('📦 [LOAD DATA] Resposta JSON recebida:', {
-                    success: result.success,
-                    hasData: !!result.data,
-                    hasError: !!result.error,
+                        success: result.success,
+                        hasData: !!result.data,
+                        hasError: !!result.error,
                         hasMessage: !!result.message,
                     });
 
                     if (response.ok && result.success && result.data) {
-                    const cloudData = result.data;
+                        const cloudData = result.data;
 
-                    // Verificar se há dados ou se é apenas estrutura vazia
-                    const hasData =
-                        (cloudData.items && cloudData.items.length > 0) ||
-                        (cloudData.groups && cloudData.groups.length > 0) ||
-                        (cloudData.serviceGroups &&
-                            cloudData.serviceGroups.length > 0) ||
-                        (cloudData.costs && cloudData.costs.length > 0) ||
-                        (cloudData.goals && cloudData.goals.length > 0) ||
-                        (cloudData.clients && cloudData.clients.length > 0);
+                        // Verificar se há dados ou se é apenas estrutura vazia
+                        const hasData =
+                            (cloudData.items && cloudData.items.length > 0) ||
+                            (cloudData.groups && cloudData.groups.length > 0) ||
+                            (cloudData.serviceGroups &&
+                                cloudData.serviceGroups.length > 0) ||
+                            (cloudData.costs && cloudData.costs.length > 0) ||
+                            (cloudData.goals && cloudData.goals.length > 0) ||
+                            (cloudData.clients && cloudData.clients.length > 0);
 
-                    if (hasData) {
-                        // Dados da nuvem encontrados
-                        this.items = cloudData.items || [];
-                        this.groups = cloudData.groups || [];
-                        this.serviceGroups = cloudData.serviceGroups || [];
-                        this.costs = cloudData.costs || [];
-                        this.goals = cloudData.goals || [];
-                        
-                        // Descriptografar dados sensíveis se necessário
-                        let clientsData = cloudData.clients || [];
-                        let suppliersData = cloudData.suppliers || [];
-                        
-                        if (cloudData.encryptionEnabled && username) {
-                            try {
-                                clientsData = await this.decryptClientData(clientsData, username);
-                                suppliersData = await this.decryptClientData(suppliersData, username);
-                            } catch (error) {
-                                console.error('Erro ao descriptografar dados ao carregar:', error);
-                                // Continuar com dados criptografados em caso de erro
-                            }
-                        }
-                        
-                        this.clients = clientsData;
-                        this.clientNotifications = cloudData.clientNotifications || [];
-                        this.suppliers = suppliersData;
-                        
-                        // Atualizar flag de criptografia
-                        if (cloudData.encryptionEnabled !== undefined) {
-                            this.encryptionEnabled = cloudData.encryptionEnabled;
-                        }
-                        this.completedSales = cloudData.completedSales || [];
-                        this.pendingOrders = cloudData.pendingOrders || [];
-                        this.serviceAppointments =
-                            cloudData.serviceAppointments || [];
-                        this.coupons = cloudData.coupons || [];
-                        this.auditLog = cloudData.auditLog || [];
-                        this.templates = cloudData.templates || [];
-                        this.itemTags = cloudData.itemTags || {};
-                        this.categoryHierarchy = cloudData.categoryHierarchy || {};
-                        this.paymentConfig = cloudData.paymentConfig || this.paymentConfig;
-                        this.ecommerceConfig = cloudData.ecommerceConfig || this.ecommerceConfig;
-                        this.erpConfig = cloudData.erpConfig || this.erpConfig;
-                        this.emailConfig = cloudData.emailConfig || this.emailConfig;
-                        this.smsConfig = cloudData.smsConfig || this.smsConfig;
-                        this.scheduledReports = cloudData.scheduledReports || [];
-                        this.sharedReports = cloudData.sharedReports || [];
-                        this.scheduledExports = cloudData.scheduledExports || [];
-                        this.emailTracking = cloudData.emailTracking || {};
-                        this.whatsappConfig = cloudData.whatsappConfig || this.whatsappConfig;
-                        this.whatsappChats = cloudData.whatsappChats || [];
-                        this.whatsappAutomations = cloudData.whatsappAutomations || [];
-                        
-                        // Gerar tags automáticas se habilitado
-                        if (this.autoTagsEnabled) {
-                            setTimeout(() => {
-                                this.generateAutoTagsFromSales();
-                            }, 2000); // Aguardar 2 segundos após carregar dados
-                        }
-                        
-                        // Gerar tags automáticas se habilitado
-                        if (this.autoTagsEnabled) {
-                            setTimeout(() => {
-                                this.generateAutoTagsFromSales();
-                            }, 2000); // Aguardar 2 segundos após carregar dados
-                        }
+                        if (hasData) {
+                            // Dados da nuvem encontrados
+                            this.items = cloudData.items || [];
+                            this.groups = cloudData.groups || [];
+                            this.serviceGroups = cloudData.serviceGroups || [];
+                            this.costs = cloudData.costs || [];
+                            this.goals = cloudData.goals || [];
 
-                        console.log(
-                            `📋 [LOAD DATA] Comprovantes carregados: ${this.completedSales.length}`
-                        );
-                        if (this.completedSales.length > 0) {
-                            console.log(
-                                '📋 [LOAD DATA] Primeiro comprovante:',
-                                {
-                                    id: this.completedSales[0].id,
-                                    name: this.completedSales[0].customerName,
-                                    date: this.completedSales[0].date,
-                                    total: this.completedSales[0].totalValue
+                            // Descriptografar dados sensíveis se necessário
+                            let clientsData = cloudData.clients || [];
+                            let suppliersData = cloudData.suppliers || [];
+
+                            if (cloudData.encryptionEnabled && username) {
+                                try {
+                                    clientsData = await this.decryptClientData(
+                                        clientsData,
+                                        username
+                                    );
+                                    suppliersData =
+                                        await this.decryptClientData(
+                                            suppliersData,
+                                            username
+                                        );
+                                } catch (error) {
+                                    console.error(
+                                        'Erro ao descriptografar dados ao carregar:',
+                                        error
+                                    );
+                                    // Continuar com dados criptografados em caso de erro
                                 }
+                            }
+
+                            this.clients = clientsData;
+                            this.clientNotifications =
+                                cloudData.clientNotifications || [];
+                            this.suppliers = suppliersData;
+
+                            // Atualizar flag de criptografia
+                            if (cloudData.encryptionEnabled !== undefined) {
+                                this.encryptionEnabled =
+                                    cloudData.encryptionEnabled;
+                            }
+                            this.completedSales =
+                                cloudData.completedSales || [];
+                            this.pendingOrders = cloudData.pendingOrders || [];
+                            this.serviceAppointments =
+                                cloudData.serviceAppointments || [];
+                            this.coupons = cloudData.coupons || [];
+                            this.auditLog = cloudData.auditLog || [];
+                            this.templates = cloudData.templates || [];
+                            this.itemTags = cloudData.itemTags || {};
+                            this.categoryHierarchy =
+                                cloudData.categoryHierarchy || {};
+                            this.paymentConfig =
+                                cloudData.paymentConfig || this.paymentConfig;
+                            this.ecommerceConfig =
+                                cloudData.ecommerceConfig ||
+                                this.ecommerceConfig;
+                            this.erpConfig =
+                                cloudData.erpConfig || this.erpConfig;
+                            this.emailConfig =
+                                cloudData.emailConfig || this.emailConfig;
+                            this.smsConfig =
+                                cloudData.smsConfig || this.smsConfig;
+                            this.scheduledReports =
+                                cloudData.scheduledReports || [];
+                            this.sharedReports = cloudData.sharedReports || [];
+                            this.scheduledExports =
+                                cloudData.scheduledExports || [];
+                            this.emailTracking = cloudData.emailTracking || {};
+                            this.whatsappConfig =
+                                cloudData.whatsappConfig || this.whatsappConfig;
+                            this.whatsappChats = cloudData.whatsappChats || [];
+                            this.whatsappAutomations =
+                                cloudData.whatsappAutomations || [];
+
+                            // Gerar tags automáticas se habilitado
+                            if (this.autoTagsEnabled) {
+                                setTimeout(() => {
+                                    this.generateAutoTagsFromSales();
+                                }, 2000); // Aguardar 2 segundos após carregar dados
+                            }
+
+                            // Gerar tags automáticas se habilitado
+                            if (this.autoTagsEnabled) {
+                                setTimeout(() => {
+                                    this.generateAutoTagsFromSales();
+                                }, 2000); // Aguardar 2 segundos após carregar dados
+                            }
+
+                            console.log(
+                                `📋 [LOAD DATA] Comprovantes carregados: ${this.completedSales.length}`
                             );
-                        }
-
-                        // Carregar tema do JSONBin se existir
-                        if (cloudData.theme) {
-                            const themeKey = username
-                                ? `appTheme_${username}`
-                                : 'appTheme';
-                            localStorage.setItem(themeKey, cloudData.theme);
-                            // Aplicar tema imediatamente
-                            if (cloudData.theme === 'blue') {
-                                document.body.classList.add('theme-blue');
-                                this.updateThemeColor('#007bff');
-                            } else {
-                                document.body.classList.remove('theme-blue');
-                                this.updateThemeColor('#dc3545');
+                            if (this.completedSales.length > 0) {
+                                console.log(
+                                    '📋 [LOAD DATA] Primeiro comprovante:',
+                                    {
+                                        id: this.completedSales[0].id,
+                                        name: this.completedSales[0]
+                                            .customerName,
+                                        date: this.completedSales[0].date,
+                                        total: this.completedSales[0]
+                                            .totalValue,
+                                    }
+                                );
                             }
-                        }
 
-                        // Migração: adicionar categoria "Roupas" para itens antigos sem categoria
-                        let needsSave = false;
-                        this.items = this.items.map((item) => {
-                            if (!item.category) {
-                                item.category = 'Roupas';
-                                needsSave = true;
+                            // Carregar tema do JSONBin se existir
+                            if (cloudData.theme) {
+                                const themeKey = username
+                                    ? `appTheme_${username}`
+                                    : 'appTheme';
+                                localStorage.setItem(themeKey, cloudData.theme);
+                                // Aplicar tema imediatamente
+                                if (cloudData.theme === 'blue') {
+                                    document.body.classList.add('theme-blue');
+                                    this.updateThemeColor('#007bff');
+                                } else {
+                                    document.body.classList.remove(
+                                        'theme-blue'
+                                    );
+                                    this.updateThemeColor('#dc3545');
+                                }
                             }
-                            return item;
-                        });
 
-                        // Migração: adicionar stock: {} para dias antigos sem estoque
-                        this.groups.forEach((group) => {
-                            group.days.forEach((day) => {
-                                if (!day.stock) {
-                                    day.stock = {};
+                            // Migração: adicionar categoria "Roupas" para itens antigos sem categoria
+                            let needsSave = false;
+                            this.items = this.items.map((item) => {
+                                if (!item.category) {
+                                    item.category = 'Roupas';
                                     needsSave = true;
                                 }
+                                return item;
                             });
-                        });
 
-                        // Se houve migração, salvar novamente
-                        if (needsSave) {
-                            const updatedData = {
-                                items: this.items,
-                                groups: this.groups,
-                                serviceGroups: this.serviceGroups || [],
-                                costs: this.costs,
-                                goals: this.goals,
-                            };
-                            localStorage.setItem(
-                                'lojaData',
-                                JSON.stringify(updatedData)
+                            // Migração: adicionar stock: {} para dias antigos sem estoque
+                            this.groups.forEach((group) => {
+                                group.days.forEach((day) => {
+                                    if (!day.stock) {
+                                        day.stock = {};
+                                        needsSave = true;
+                                    }
+                                });
+                            });
+
+                            // Se houve migração, salvar novamente
+                            if (needsSave) {
+                                const updatedData = {
+                                    items: this.items,
+                                    groups: this.groups,
+                                    serviceGroups: this.serviceGroups || [],
+                                    costs: this.costs,
+                                    goals: this.goals,
+                                };
+                                localStorage.setItem(
+                                    'lojaData',
+                                    JSON.stringify(updatedData)
+                                );
+                                this.saveData(); // Salvar na nuvem também
+                            } else {
+                                // Sincronizar com localStorage
+                                localStorage.setItem(
+                                    'lojaData',
+                                    JSON.stringify(cloudData)
+                                );
+                            }
+
+                            console.log(
+                                '✅ [LOAD DATA] Dados carregados da nuvem com sucesso!'
                             );
-                            this.saveData(); // Salvar na nuvem também
+                            console.log(
+                                `📊 [LOAD DATA] Items: ${this.items.length} | Grupos: ${this.groups.length} | Custos: ${this.costs.length} | Metas: ${this.goals.length} | Comprovantes: ${this.completedSales.length}`
+                            );
+                            return Promise.resolve();
                         } else {
-                            // Sincronizar com localStorage
-                            localStorage.setItem(
-                                'lojaData',
-                                JSON.stringify(cloudData)
+                            console.log(
+                                'ℹ️ [LOAD DATA] Nenhum dado encontrado na nuvem (bin vazio ou apenas estrutura vazia)'
+                            );
+                            console.log(
+                                `📊 [LOAD DATA] Estrutura: Items: ${
+                                    cloudData.items?.length || 0
+                                } | Grupos: ${
+                                    cloudData.groups?.length || 0
+                                } | Custos: ${
+                                    cloudData.costs?.length || 0
+                                } | Metas: ${cloudData.goals?.length || 0}`
                             );
                         }
-
-                        console.log(
-                            '✅ [LOAD DATA] Dados carregados da nuvem com sucesso!'
-                        );
-                        console.log(
-                            `📊 [LOAD DATA] Items: ${this.items.length} | Grupos: ${this.groups.length} | Custos: ${this.costs.length} | Metas: ${this.goals.length} | Comprovantes: ${this.completedSales.length}`
-                        );
-                        return Promise.resolve();
                     } else {
-                        console.log(
-                            'ℹ️ [LOAD DATA] Nenhum dado encontrado na nuvem (bin vazio ou apenas estrutura vazia)'
-                        );
-                        console.log(
-                            `📊 [LOAD DATA] Estrutura: Items: ${
-                                cloudData.items?.length || 0
-                            } | Grupos: ${
-                                cloudData.groups?.length || 0
-                            } | Custos: ${
-                                cloudData.costs?.length || 0
-                            } | Metas: ${cloudData.goals?.length || 0}`
-                        );
-                    }
-                } else {
-                    // Resposta não OK ou sem sucesso
-                    if (result.error) {
-                        console.error(
-                            '❌ [LOAD DATA] Erro na resposta da API:',
-                            result.error
-                        );
-                        if (result.error.includes('não estão definidas')) {
-                            console.warn(
-                                '⚠️ [LOAD DATA] Variáveis de ambiente não configuradas na Vercel'
+                        // Resposta não OK ou sem sucesso
+                        if (result.error) {
+                            console.error(
+                                '❌ [LOAD DATA] Erro na resposta da API:',
+                                result.error
                             );
+                            if (result.error.includes('não estão definidas')) {
+                                console.warn(
+                                    '⚠️ [LOAD DATA] Variáveis de ambiente não configuradas na Vercel'
+                                );
+                                console.warn(
+                                    '💡 [LOAD DATA] Configure JSONBIN_API_KEY e JSONBIN_BIN_ID no painel da Vercel'
+                                );
+                            }
+                        }
+                        if (result.message) {
                             console.warn(
-                                '💡 [LOAD DATA] Configure JSONBIN_API_KEY e JSONBIN_BIN_ID no painel da Vercel'
+                                '⚠️ [LOAD DATA] Mensagem da API:',
+                                result.message
+                            );
+                        }
+                        if (!response.ok) {
+                            console.error(
+                                `❌ [LOAD DATA] HTTP ${response.status}: ${response.statusText}`
                             );
                         }
                     }
-                    if (result.message) {
-                        console.warn(
-                            '⚠️ [LOAD DATA] Mensagem da API:',
-                            result.message
-                        );
-                    }
-                    if (!response.ok) {
-                        console.error(
-                            `❌ [LOAD DATA] HTTP ${response.status}: ${response.statusText}`
-                        );
-                    }
-                }
                 }
             } catch (error) {
                 console.error(
@@ -15524,7 +17087,8 @@ class LojaApp {
                 this.itemTags = data.itemTags || {};
                 this.categoryHierarchy = data.categoryHierarchy || {};
                 this.paymentConfig = data.paymentConfig || this.paymentConfig;
-                this.ecommerceConfig = data.ecommerceConfig || this.ecommerceConfig;
+                this.ecommerceConfig =
+                    data.ecommerceConfig || this.ecommerceConfig;
                 this.erpConfig = data.erpConfig || this.erpConfig;
                 this.emailConfig = data.emailConfig || this.emailConfig;
                 this.smsConfig = data.smsConfig || this.smsConfig;
@@ -15533,7 +17097,8 @@ class LojaApp {
                 this.sharedReports = data.sharedReports || [];
                 this.scheduledExports = data.scheduledExports || [];
                 this.emailTracking = data.emailTracking || {};
-                this.whatsappConfig = data.whatsappConfig || this.whatsappConfig;
+                this.whatsappConfig =
+                    data.whatsappConfig || this.whatsappConfig;
                 this.whatsappChats = data.whatsappChats || [];
                 this.whatsappAutomations = data.whatsappAutomations || [];
 
@@ -15541,15 +17106,12 @@ class LojaApp {
                     `📋 [LOAD DATA] Comprovantes carregados do localStorage: ${this.completedSales.length}`
                 );
                 if (this.completedSales.length > 0) {
-                    console.log(
-                        '📋 [LOAD DATA] Primeiro comprovante:',
-                        {
-                            id: this.completedSales[0].id,
-                            name: this.completedSales[0].customerName,
-                            date: this.completedSales[0].date,
-                            total: this.completedSales[0].totalValue
-                        }
-                    );
+                    console.log('📋 [LOAD DATA] Primeiro comprovante:', {
+                        id: this.completedSales[0].id,
+                        name: this.completedSales[0].customerName,
+                        date: this.completedSales[0].date,
+                        total: this.completedSales[0].totalValue,
+                    });
                 }
 
                 // Carregar tema do localStorage se existir
@@ -15651,13 +17213,16 @@ class LojaApp {
         // Verificar permissão de exportação
         if (!this.checkPermission('export')) {
             if (typeof toast !== 'undefined' && toast) {
-                toast.error('Você não tem permissão para exportar dados.', 3000);
+                toast.error(
+                    'Você não tem permissão para exportar dados.',
+                    3000
+                );
             } else {
                 alert('Você não tem permissão para exportar dados.');
             }
             return;
         }
-        
+
         const data = {
             items: this.items,
             groups: this.groups,
@@ -15690,7 +17255,7 @@ class LojaApp {
         let hash = 0;
         for (let i = 0; i < str.length; i++) {
             const char = str.charCodeAt(i);
-            hash = ((hash << 5) - hash) + char;
+            hash = (hash << 5) - hash + char;
             hash = hash & hash; // Convert to 32bit integer
         }
         return Math.abs(hash).toString(16);
@@ -15701,7 +17266,10 @@ class LojaApp {
         const username = sessionStorage.getItem('username');
         if (!username) {
             if (typeof toast !== 'undefined' && toast) {
-                toast.error('Usuário não autenticado. Faça login novamente.', 3000);
+                toast.error(
+                    'Usuário não autenticado. Faça login novamente.',
+                    3000
+                );
             }
             return;
         }
@@ -15741,7 +17309,11 @@ class LojaApp {
 
             const checksum = this.generateChecksum(backupData);
             const backup = {
-                id: 'BACKUP_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9),
+                id:
+                    'BACKUP_' +
+                    Date.now() +
+                    '_' +
+                    Math.random().toString(36).substr(2, 9),
                 timestamp: new Date().toISOString(),
                 data: backupData,
                 checksum: checksum,
@@ -15757,7 +17329,10 @@ class LojaApp {
 
             // Salvar histórico no localStorage
             const backupHistoryKey = `backupHistory_${username}`;
-            localStorage.setItem(backupHistoryKey, JSON.stringify(this.backupHistory));
+            localStorage.setItem(
+                backupHistoryKey,
+                JSON.stringify(this.backupHistory)
+            );
 
             this.lastBackupTime = new Date();
             this.saveData();
@@ -15776,15 +17351,20 @@ class LojaApp {
         } catch (error) {
             console.error('Erro ao criar backup:', error);
             if (typeof toast !== 'undefined' && toast) {
-                toast.error('Erro ao criar backup. Verifique o console para mais detalhes.', 4000);
+                toast.error(
+                    'Erro ao criar backup. Verifique o console para mais detalhes.',
+                    4000
+                );
             }
         }
     }
 
     // Configurar backup automático
     configureAutoBackup() {
-        const enabled = document.getElementById('autoBackupEnabled')?.checked || false;
-        const frequency = document.getElementById('autoBackupFrequency')?.value || 'daily';
+        const enabled =
+            document.getElementById('autoBackupEnabled')?.checked || false;
+        const frequency =
+            document.getElementById('autoBackupFrequency')?.value || 'daily';
 
         if (enabled) {
             this.startAutoBackup(frequency);
@@ -15799,7 +17379,10 @@ class LojaApp {
                 enabled: enabled,
                 frequency: frequency,
             };
-            localStorage.setItem(`autoBackupConfig_${username}`, JSON.stringify(config));
+            localStorage.setItem(
+                `autoBackupConfig_${username}`,
+                JSON.stringify(config)
+            );
         }
     }
 
@@ -15807,9 +17390,10 @@ class LojaApp {
     startAutoBackup(frequency = 'daily') {
         this.stopAutoBackup(); // Parar qualquer backup automático existente
 
-        const intervalMs = frequency === 'daily' 
-            ? 24 * 60 * 60 * 1000 // 24 horas
-            : 7 * 24 * 60 * 60 * 1000; // 7 dias
+        const intervalMs =
+            frequency === 'daily'
+                ? 24 * 60 * 60 * 1000 // 24 horas
+                : 7 * 24 * 60 * 60 * 1000; // 7 dias
 
         this.backupInterval = setInterval(() => {
             this.createAutoBackup();
@@ -15821,7 +17405,12 @@ class LojaApp {
         }
 
         if (typeof toast !== 'undefined' && toast) {
-            toast.info(`Backup automático ${frequency === 'daily' ? 'diário' : 'semanal'} ativado!`, 3000);
+            toast.info(
+                `Backup automático ${
+                    frequency === 'daily' ? 'diário' : 'semanal'
+                } ativado!`,
+                3000
+            );
         }
     }
 
@@ -15885,14 +17474,21 @@ class LojaApp {
                     backupData = await this.encryptBackup(backupData, username);
                     backupData.encrypted = true;
                 } catch (error) {
-                    console.error('Erro ao criptografar backup automático:', error);
+                    console.error(
+                        'Erro ao criptografar backup automático:',
+                        error
+                    );
                     // Continuar sem criptografia em caso de erro
                 }
             }
 
             const checksum = this.generateChecksum(backupData);
             const backup = {
-                id: 'BACKUP_AUTO_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9),
+                id:
+                    'BACKUP_AUTO_' +
+                    Date.now() +
+                    '_' +
+                    Math.random().toString(36).substr(2, 9),
                 timestamp: new Date().toISOString(),
                 data: backupData,
                 checksum: checksum,
@@ -15908,11 +17504,17 @@ class LojaApp {
                 if (this.backupHistory.length > 50) {
                     this.backupHistory = this.backupHistory.slice(0, 50);
                 }
-                localStorage.setItem(backupHistoryKey, JSON.stringify(this.backupHistory));
+                localStorage.setItem(
+                    backupHistoryKey,
+                    JSON.stringify(this.backupHistory)
+                );
                 backup.storagePoints.push('localStorage');
                 console.log('✅ [BACKUP] Backup salvo em localStorage');
             } catch (error) {
-                console.error('❌ [BACKUP] Erro ao salvar em localStorage:', error);
+                console.error(
+                    '❌ [BACKUP] Erro ao salvar em localStorage:',
+                    error
+                );
             }
 
             // PONTO 2: IndexedDB (quando disponível)
@@ -15922,7 +17524,10 @@ class LojaApp {
                     backup.storagePoints.push('indexedDB');
                     console.log('✅ [BACKUP] Backup salvo em IndexedDB');
                 } catch (error) {
-                    console.error('❌ [BACKUP] Erro ao salvar em IndexedDB:', error);
+                    console.error(
+                        '❌ [BACKUP] Erro ao salvar em IndexedDB:',
+                        error
+                    );
                 }
             }
 
@@ -15932,11 +17537,16 @@ class LojaApp {
                 backup.storagePoints.push('cloud');
                 console.log('✅ [BACKUP] Backup salvo na nuvem (JSONBin)');
             } catch (error) {
-                console.warn('⚠️ [BACKUP] Erro ao salvar na nuvem (pode não estar configurado):', error.message);
+                console.warn(
+                    '⚠️ [BACKUP] Erro ao salvar na nuvem (pode não estar configurado):',
+                    error.message
+                );
             }
 
             // PONTO 4: Download automático (opcional - apenas se configurado)
-            const autoDownloadEnabled = localStorage.getItem(`autoBackupDownload_${username}`) === 'true';
+            const autoDownloadEnabled =
+                localStorage.getItem(`autoBackupDownload_${username}`) ===
+                'true';
             if (autoDownloadEnabled) {
                 try {
                     this.downloadBackupFile(backupData, backup.id);
@@ -15953,9 +17563,13 @@ class LojaApp {
 
             // Notificação de backup automático com informações de pontos
             const pointsCount = backup.storagePoints.length;
-            const pointsText = pointsCount > 1 ? `salvo em ${pointsCount} locais` : 'salvo';
+            const pointsText =
+                pointsCount > 1 ? `salvo em ${pointsCount} locais` : 'salvo';
             if (typeof toast !== 'undefined' && toast) {
-                toast.success(`Backup automático criado com sucesso! (${pointsText})`, 3000);
+                toast.success(
+                    `Backup automático criado com sucesso! (${pointsText})`,
+                    3000
+                );
             }
 
             // Registrar no audit log
@@ -15967,7 +17581,10 @@ class LojaApp {
         } catch (error) {
             console.error('Erro ao criar backup automático:', error);
             if (typeof toast !== 'undefined' && toast) {
-                toast.error('Erro ao criar backup automático. Verifique o console.', 4000);
+                toast.error(
+                    'Erro ao criar backup automático. Verifique o console.',
+                    4000
+                );
             }
         }
     }
@@ -15984,7 +17601,10 @@ class LojaApp {
                 return;
             }
 
-            const transaction = this.indexedDB.transaction(['backups'], 'readwrite');
+            const transaction = this.indexedDB.transaction(
+                ['backups'],
+                'readwrite'
+            );
             const store = transaction.objectStore('backups');
             const request = store.add(backup);
 
@@ -16008,7 +17628,9 @@ class LojaApp {
         // Usar a mesma lógica de saveData mas com identificador de backup
         try {
             await this.saveData();
-            console.log('✅ [BACKUP] Backup sincronizado na nuvem via saveData');
+            console.log(
+                '✅ [BACKUP] Backup sincronizado na nuvem via saveData'
+            );
         } catch (error) {
             throw new Error('Erro ao salvar backup na nuvem: ' + error.message);
         }
@@ -16026,7 +17648,9 @@ class LojaApp {
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
-        a.download = `backup_${backupId}_${new Date().toISOString().split('T')[0]}.json`;
+        a.download = `backup_${backupId}_${
+            new Date().toISOString().split('T')[0]
+        }.json`;
         document.body.appendChild(a);
         a.click();
         document.body.removeChild(a);
@@ -16035,8 +17659,10 @@ class LojaApp {
 
     // Toggle backup automático
     toggleAutoBackup() {
-        const enabled = document.getElementById('autoBackupEnabled')?.checked || false;
-        const frequency = document.getElementById('autoBackupFrequency')?.value || 'daily';
+        const enabled =
+            document.getElementById('autoBackupEnabled')?.checked || false;
+        const frequency =
+            document.getElementById('autoBackupFrequency')?.value || 'daily';
 
         if (enabled) {
             this.startAutoBackup(frequency);
@@ -16049,9 +17675,12 @@ class LojaApp {
 
     // Atualizar frequência do backup automático
     updateAutoBackupFrequency() {
-        const enabled = document.getElementById('autoBackupEnabled')?.checked || false;
+        const enabled =
+            document.getElementById('autoBackupEnabled')?.checked || false;
         if (enabled) {
-            const frequency = document.getElementById('autoBackupFrequency')?.value || 'daily';
+            const frequency =
+                document.getElementById('autoBackupFrequency')?.value ||
+                'daily';
             this.startAutoBackup(frequency);
         }
         this.configureAutoBackup();
@@ -16069,16 +17698,26 @@ class LojaApp {
         // Carregar configuração de backup automático
         const username = sessionStorage.getItem('username');
         if (username) {
-            const configStr = localStorage.getItem(`autoBackupConfig_${username}`);
+            const configStr = localStorage.getItem(
+                `autoBackupConfig_${username}`
+            );
             if (configStr) {
                 try {
                     const config = JSON.parse(configStr);
-                    const enabledCheckbox = document.getElementById('autoBackupEnabled');
-                    const frequencySelect = document.getElementById('autoBackupFrequency');
-                    if (enabledCheckbox) enabledCheckbox.checked = config.enabled || false;
-                    if (frequencySelect) frequencySelect.value = config.frequency || 'daily';
+                    const enabledCheckbox =
+                        document.getElementById('autoBackupEnabled');
+                    const frequencySelect = document.getElementById(
+                        'autoBackupFrequency'
+                    );
+                    if (enabledCheckbox)
+                        enabledCheckbox.checked = config.enabled || false;
+                    if (frequencySelect)
+                        frequencySelect.value = config.frequency || 'daily';
                 } catch (e) {
-                    console.error('Erro ao carregar configuração de backup:', e);
+                    console.error(
+                        'Erro ao carregar configuração de backup:',
+                        e
+                    );
                 }
             }
         }
@@ -16156,58 +17795,96 @@ class LojaApp {
                     localStorage: 'Local',
                     indexedDB: 'IndexedDB',
                     cloud: 'Nuvem',
-                    download: 'Download'
+                    download: 'Download',
                 };
-                const pointsText = storagePoints.length > 0 
-                    ? storagePoints.map(p => pointsLabels[p] || p).join(', ')
-                    : 'Local';
+                const pointsText =
+                    storagePoints.length > 0
+                        ? storagePoints
+                              .map((p) => pointsLabels[p] || p)
+                              .join(', ')
+                        : 'Local';
                 const pointsCount = storagePoints.length || 1;
 
                 return `
-                    <div class="item-card" style="margin-bottom: 1rem; border-left: 4px solid ${backup.type === 'auto' ? '#28a745' : '#007bff'};">
+                    <div class="item-card" style="margin-bottom: 1rem; border-left: 4px solid ${
+                        backup.type === 'auto' ? '#28a745' : '#007bff'
+                    };">
                         <div class="item-header">
                             <div style="display: flex; align-items: center; gap: 0.5rem; flex: 1;">
-                                <i class="fas ${backup.type === 'auto' ? 'fa-clock' : 'fa-save'}" style="color: ${backup.type === 'auto' ? '#28a745' : '#007bff'};"></i>
+                                <i class="fas ${
+                                    backup.type === 'auto'
+                                        ? 'fa-clock'
+                                        : 'fa-save'
+                                }" style="color: ${
+                    backup.type === 'auto' ? '#28a745' : '#007bff'
+                };"></i>
                                 <div style="flex: 1;">
                                     <h3 style="margin: 0; font-size: 0.95rem; font-weight: 600;">
-                                        ${backup.type === 'auto' ? 'Backup Automático' : 'Backup Manual'}
+                                        ${
+                                            backup.type === 'auto'
+                                                ? 'Backup Automático'
+                                                : 'Backup Manual'
+                                        }
                                     </h3>
                                     <p style="margin: 0.25rem 0 0 0; font-size: 0.85rem; color: var(--gray-600);">
                                         <i class="fas fa-calendar"></i> ${dateStr}
                                     </p>
-                                    ${pointsCount > 1 ? `
+                                    ${
+                                        pointsCount > 1
+                                            ? `
                                         <p style="margin: 0.25rem 0 0 0; font-size: 0.8rem; color: var(--primary-color);">
                                             <i class="fas fa-database"></i> Armazenado em ${pointsCount} locais: ${pointsText}
                                         </p>
-                                    ` : ''}
+                                    `
+                                            : ''
+                                    }
                                 </div>
                             </div>
                             <div style="display: flex; gap: 0.5rem; flex-direction: column; align-items: flex-end;">
-                                ${isIntegrityOk ? 
-                                    '<span style="color: #28a745; font-size: 0.75rem;"><i class="fas fa-check-circle"></i> Íntegro</span>' : 
-                                    '<span style="color: #dc3545; font-size: 0.75rem;"><i class="fas fa-exclamation-circle"></i> Corrompido</span>'
+                                ${
+                                    isIntegrityOk
+                                        ? '<span style="color: #28a745; font-size: 0.75rem;"><i class="fas fa-check-circle"></i> Íntegro</span>'
+                                        : '<span style="color: #dc3545; font-size: 0.75rem;"><i class="fas fa-exclamation-circle"></i> Corrompido</span>'
                                 }
-                                ${pointsCount > 1 ? `
+                                ${
+                                    pointsCount > 1
+                                        ? `
                                     <span style="color: var(--primary-color); font-size: 0.7rem;" title="Múltiplos pontos de backup">
                                         <i class="fas fa-shield-alt"></i> ${pointsCount}x
                                     </span>
-                                ` : ''}
+                                `
+                                        : ''
+                                }
                             </div>
                         </div>
                         <div class="item-details" style="padding-top: 0.75rem; border-top: 1px solid var(--border-color); margin-top: 0.75rem;">
                             <p style="margin: 0.5rem 0; font-size: 0.85rem;">
-                                <i class="fas fa-box"></i> <strong>Itens:</strong> ${backup.data.items?.length || 0} | 
-                                <i class="fas fa-users"></i> <strong>Clientes:</strong> ${backup.data.clients?.length || 0} | 
-                                <i class="fas fa-shopping-cart"></i> <strong>Vendas:</strong> ${backup.data.completedSales?.length || 0}
+                                <i class="fas fa-box"></i> <strong>Itens:</strong> ${
+                                    backup.data.items?.length || 0
+                                } | 
+                                <i class="fas fa-users"></i> <strong>Clientes:</strong> ${
+                                    backup.data.clients?.length || 0
+                                } | 
+                                <i class="fas fa-shopping-cart"></i> <strong>Vendas:</strong> ${
+                                    backup.data.completedSales?.length || 0
+                                }
                             </p>
                             <div style="display: flex; gap: 0.5rem; margin-top: 0.75rem;">
-                                <button class="btn-small btn-secondary" onclick="app.restoreBackup('${backup.id}')" ${!isIntegrityOk ? 'disabled title="Backup corrompido"' : ''}>
+                                <button class="btn-small btn-secondary" onclick="app.restoreBackup('${
+                                    backup.id
+                                }')" ${
+                    !isIntegrityOk ? 'disabled title="Backup corrompido"' : ''
+                }>
                                     <i class="fas fa-undo"></i> Restaurar
                                 </button>
-                                <button class="btn-small btn-secondary" onclick="app.downloadBackup('${backup.id}')">
+                                <button class="btn-small btn-secondary" onclick="app.downloadBackup('${
+                                    backup.id
+                                }')">
                                     <i class="fas fa-download"></i> Baixar
                                 </button>
-                                <button class="btn-small btn-delete" onclick="app.deleteBackup('${backup.id}')">
+                                <button class="btn-small btn-delete" onclick="app.deleteBackup('${
+                                    backup.id
+                                }')">
                                     <i class="fas fa-times"></i> Excluir
                                 </button>
                             </div>
@@ -16220,7 +17897,7 @@ class LojaApp {
 
     // Restaurar backup
     async restoreBackup(backupId) {
-        const backup = this.backupHistory.find(b => b.id === backupId);
+        const backup = this.backupHistory.find((b) => b.id === backupId);
         if (!backup) {
             if (typeof toast !== 'undefined' && toast) {
                 toast.error('Backup não encontrado.', 3000);
@@ -16229,7 +17906,7 @@ class LojaApp {
         }
 
         const username = sessionStorage.getItem('username');
-        
+
         // Descriptografar backup se necessário
         let backupData = backup.data;
         if (backupData.encrypted && username) {
@@ -16238,7 +17915,10 @@ class LojaApp {
             } catch (error) {
                 console.error('Erro ao descriptografar backup:', error);
                 if (typeof toast !== 'undefined' && toast) {
-                    toast.error('Erro ao descriptografar backup. Verifique se você está usando a mesma conta.', 4000);
+                    toast.error(
+                        'Erro ao descriptografar backup. Verifique se você está usando a mesma conta.',
+                        4000
+                    );
                 }
                 return;
             }
@@ -16248,7 +17928,10 @@ class LojaApp {
         const currentChecksum = this.generateChecksum(backupData);
         if (currentChecksum !== backup.checksum) {
             if (typeof toast !== 'undefined' && toast) {
-                toast.warning('Backup pode estar corrompido. Continuar mesmo assim?', 5000);
+                toast.warning(
+                    'Backup pode estar corrompido. Continuar mesmo assim?',
+                    5000
+                );
             }
         }
 
@@ -16283,9 +17966,15 @@ class LojaApp {
                 this.updateTagFilter();
 
                 // Registrar no audit log
-                this.logAction('import', 'backup', backupId, 'Restauração de Backup', {
-                    backupTimestamp: backup.timestamp,
-                });
+                this.logAction(
+                    'import',
+                    'backup',
+                    backupId,
+                    'Restauração de Backup',
+                    {
+                        backupTimestamp: backup.timestamp,
+                    }
+                );
 
                 if (typeof toast !== 'undefined' && toast) {
                     toast.success('Backup restaurado com sucesso!', 3000);
@@ -16295,16 +17984,21 @@ class LojaApp {
             } catch (error) {
                 console.error('Erro ao restaurar backup:', error);
                 if (typeof toast !== 'undefined' && toast) {
-                    toast.error('Erro ao restaurar backup. Verifique o console para mais detalhes.', 4000);
+                    toast.error(
+                        'Erro ao restaurar backup. Verifique o console para mais detalhes.',
+                        4000
+                    );
                 }
             }
         };
 
         if (typeof confirmDialog !== 'undefined' && confirmDialog) {
-            confirmDialog.danger(
-                'Tem certeza que deseja restaurar este backup? Todos os dados atuais serão substituídos pelos dados do backup.',
-                'Restaurar Backup'
-            ).then(performRestore);
+            confirmDialog
+                .danger(
+                    'Tem certeza que deseja restaurar este backup? Todos os dados atuais serão substituídos pelos dados do backup.',
+                    'Restaurar Backup'
+                )
+                .then(performRestore);
         } else {
             if (confirm('Tem certeza que deseja restaurar este backup?')) {
                 performRestore(true);
@@ -16314,7 +18008,7 @@ class LojaApp {
 
     // Baixar backup
     downloadBackup(backupId) {
-        const backup = this.backupHistory.find(b => b.id === backupId);
+        const backup = this.backupHistory.find((b) => b.id === backupId);
         if (!backup) {
             if (typeof toast !== 'undefined' && toast) {
                 toast.error('Backup não encontrado.', 3000);
@@ -16328,7 +18022,9 @@ class LojaApp {
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
-        a.download = `backup_${backupId}_${new Date(backup.timestamp).toISOString().split('T')[0]}.json`;
+        a.download = `backup_${backupId}_${
+            new Date(backup.timestamp).toISOString().split('T')[0]
+        }.json`;
         document.body.appendChild(a);
         a.click();
         document.body.removeChild(a);
@@ -16341,31 +18037,45 @@ class LojaApp {
 
     // Excluir backup
     deleteBackup(backupId) {
-        const backup = this.backupHistory.find(b => b.id === backupId);
-        const backupName = backup ? (backup.type === 'auto' ? 'Backup Automático' : 'Backup Manual') : 'este backup';
+        const backup = this.backupHistory.find((b) => b.id === backupId);
+        const backupName = backup
+            ? backup.type === 'auto'
+                ? 'Backup Automático'
+                : 'Backup Manual'
+            : 'este backup';
 
         const performDelete = (confirmed) => {
             if (!confirmed) return;
 
-            this.backupHistory = this.backupHistory.filter(b => b.id !== backupId);
+            this.backupHistory = this.backupHistory.filter(
+                (b) => b.id !== backupId
+            );
             const username = sessionStorage.getItem('username');
             if (username) {
                 const backupHistoryKey = `backupHistory_${username}`;
-                localStorage.setItem(backupHistoryKey, JSON.stringify(this.backupHistory));
+                localStorage.setItem(
+                    backupHistoryKey,
+                    JSON.stringify(this.backupHistory)
+                );
             }
 
             this.renderBackupHistory();
 
             if (typeof toast !== 'undefined' && toast) {
-                toast.success(`Backup "${backupName}" excluído com sucesso!`, 3000);
+                toast.success(
+                    `Backup "${backupName}" excluído com sucesso!`,
+                    3000
+                );
             }
         };
 
         if (typeof confirmDialog !== 'undefined' && confirmDialog) {
-            confirmDialog.danger(
-                `Tem certeza que deseja excluir o ${backupName}?`,
-                'Excluir Backup'
-            ).then(performDelete);
+            confirmDialog
+                .danger(
+                    `Tem certeza que deseja excluir o ${backupName}?`,
+                    'Excluir Backup'
+                )
+                .then(performDelete);
         } else {
             if (confirm(`Tem certeza que deseja excluir o ${backupName}?`)) {
                 performDelete(true);
@@ -16377,7 +18087,10 @@ class LojaApp {
     exportClients() {
         if (this.clients.length === 0) {
             if (typeof toast !== 'undefined' && toast) {
-                toast.warning('Não há clientes cadastrados para exportar.', 3000);
+                toast.warning(
+                    'Não há clientes cadastrados para exportar.',
+                    3000
+                );
             } else {
                 alert('Não há clientes cadastrados para exportar.');
             }
@@ -16385,13 +18098,25 @@ class LojaApp {
         }
 
         // Criar CSV
-        const headers = ['Nome', 'CPF', 'Telefone', 'E-mail', 'Endereço', 'Pontos de Fidelidade', 'Total Gasto', 'Número de Compras', 'Observações'];
-        const rows = this.clients.map(client => {
-            const purchaseCount = this.completedSales.filter(sale => sale.customerName === client.name).length;
+        const headers = [
+            'Nome',
+            'CPF',
+            'Telefone',
+            'E-mail',
+            'Endereço',
+            'Pontos de Fidelidade',
+            'Total Gasto',
+            'Número de Compras',
+            'Observações',
+        ];
+        const rows = this.clients.map((client) => {
+            const purchaseCount = this.completedSales.filter(
+                (sale) => sale.customerName === client.name
+            ).length;
             const totalSpent = this.completedSales
-                .filter(sale => sale.customerName === client.name)
+                .filter((sale) => sale.customerName === client.name)
                 .reduce((sum, sale) => sum + (sale.totalValue || 0), 0);
-            
+
             return [
                 client.name || '',
                 client.cpf || '',
@@ -16401,18 +18126,20 @@ class LojaApp {
                 (client.loyaltyPoints || 0).toString(),
                 totalSpent.toFixed(2).replace('.', ','),
                 purchaseCount.toString(),
-                (client.notes || '').replace(/"/g, '""') // Escapar aspas no CSV
+                (client.notes || '').replace(/"/g, '""'), // Escapar aspas no CSV
             ];
         });
 
         const csvContent = [
             headers.join(','),
-            ...rows.map(row => row.map(cell => `"${cell}"`).join(','))
+            ...rows.map((row) => row.map((cell) => `"${cell}"`).join(',')),
         ].join('\n');
 
         // Adicionar BOM para Excel reconhecer UTF-8
         const BOM = '\uFEFF';
-        const blob = new Blob([BOM + csvContent], { type: 'text/csv;charset=utf-8;' });
+        const blob = new Blob([BOM + csvContent], {
+            type: 'text/csv;charset=utf-8;',
+        });
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
@@ -16424,60 +18151,70 @@ class LojaApp {
 
         // Registrar no audit log
         this.logAction('export', 'client', null, 'Lista de Clientes', {
-            totalClients: this.clients.length
+            totalClients: this.clients.length,
         });
 
         if (typeof toast !== 'undefined' && toast) {
-            toast.success(`Lista de ${this.clients.length} cliente(s) exportada com sucesso!`, 3000);
+            toast.success(
+                `Lista de ${this.clients.length} cliente(s) exportada com sucesso!`,
+                3000
+            );
         }
     }
 
     // Calcular desconto automático baseado em pontos de fidelidade
     calculateLoyaltyDiscount(clientName, totalValue) {
-        const client = this.clients.find(c => c.name === clientName);
+        const client = this.clients.find((c) => c.name === clientName);
         if (!client || !client.loyaltyPoints) {
             return { discount: 0, pointsUsed: 0 };
         }
 
         // Regra: 1 ponto = R$ 0,10 de desconto
         // Máximo de 50% do valor total
-        const maxDiscountFromPoints = client.loyaltyPoints * 0.10;
-        const maxDiscountPercent = totalValue * 0.50;
+        const maxDiscountFromPoints = client.loyaltyPoints * 0.1;
+        const maxDiscountPercent = totalValue * 0.5;
         const discount = Math.min(maxDiscountFromPoints, maxDiscountPercent);
-        const pointsUsed = Math.ceil(discount / 0.10);
+        const pointsUsed = Math.ceil(discount / 0.1);
 
         return {
             discount: Math.round(discount * 100) / 100, // Arredondar para 2 casas decimais
-            pointsUsed: pointsUsed
+            pointsUsed: pointsUsed,
         };
     }
 
     // Adicionar pontos de fidelidade após uma venda
     addLoyaltyPoints(clientName, saleValue) {
-        const client = this.clients.find(c => c.name === clientName);
+        const client = this.clients.find((c) => c.name === clientName);
         if (!client) return;
 
         // Regra: 1 ponto para cada R$ 10,00 gastos
         const pointsEarned = Math.floor(saleValue / 10);
-        
+
         if (!client.loyaltyPoints) {
             client.loyaltyPoints = 0;
         }
-        
+
         client.loyaltyPoints += pointsEarned;
         client.updatedAt = new Date().toISOString();
-        
+
         this.saveData();
-        
+
         if (pointsEarned > 0 && typeof toast !== 'undefined' && toast) {
-            toast.info(`Cliente "${clientName}" ganhou ${pointsEarned} ponto(s) de fidelidade!`, 3000);
+            toast.info(
+                `Cliente "${clientName}" ganhou ${pointsEarned} ponto(s) de fidelidade!`,
+                3000
+            );
         }
     }
 
     // Criar notificação para cliente
     createClientNotification(clientId, title, message, type = 'info') {
         const notification = {
-            id: 'NOTIF_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9),
+            id:
+                'NOTIF_' +
+                Date.now() +
+                '_' +
+                Math.random().toString(36).substr(2, 9),
             clientId: clientId,
             title: title,
             message: message,
@@ -16494,7 +18231,9 @@ class LojaApp {
 
     // Marcar notificação como lida
     markNotificationAsRead(notificationId) {
-        const notification = this.clientNotifications.find(n => n.id === notificationId);
+        const notification = this.clientNotifications.find(
+            (n) => n.id === notificationId
+        );
         if (notification) {
             notification.read = true;
             notification.readAt = new Date().toISOString();
@@ -16505,34 +18244,46 @@ class LojaApp {
     // Obter notificações de um cliente
     getClientNotifications(clientId) {
         return this.clientNotifications
-            .filter(n => n.clientId === clientId)
+            .filter((n) => n.clientId === clientId)
             .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
     }
 
     // Calcular desconto baseado em campos do formulário
     calculateDiscount(basePrice, quantity) {
-        const discountType = document.getElementById('saleDiscountType')?.value || '';
-        const discountValue = parseFloat(document.getElementById('saleDiscountValue')?.value || 0);
-        const couponCode = document.getElementById('saleCouponCode')?.value.trim().toUpperCase() || '';
-        
+        const discountType =
+            document.getElementById('saleDiscountType')?.value || '';
+        const discountValue = parseFloat(
+            document.getElementById('saleDiscountValue')?.value || 0
+        );
+        const couponCode =
+            document
+                .getElementById('saleCouponCode')
+                ?.value.trim()
+                .toUpperCase() || '';
+
         let discount = 0;
         let appliedCoupon = null;
-        
+
         // Verificar se há cupom aplicado
         if (couponCode) {
-            const coupon = this.coupons.find(c => c.code === couponCode && c.active);
+            const coupon = this.coupons.find(
+                (c) => c.code === couponCode && c.active
+            );
             if (coupon) {
                 // Verificar período
                 const now = new Date();
-                const isValidPeriod = (!coupon.startsAt || new Date(coupon.startsAt) <= now) &&
-                                     (!coupon.expiresAt || new Date(coupon.expiresAt) >= now);
-                
+                const isValidPeriod =
+                    (!coupon.startsAt || new Date(coupon.startsAt) <= now) &&
+                    (!coupon.expiresAt || new Date(coupon.expiresAt) >= now);
+
                 // Verificar quantidade mínima
-                const hasMinQuantity = !coupon.minQuantity || quantity >= coupon.minQuantity;
-                
+                const hasMinQuantity =
+                    !coupon.minQuantity || quantity >= coupon.minQuantity;
+
                 // Verificar limite de uso
-                const hasUsesLeft = !coupon.maxUses || (coupon.uses || 0) < coupon.maxUses;
-                
+                const hasUsesLeft =
+                    !coupon.maxUses || (coupon.uses || 0) < coupon.maxUses;
+
                 if (isValidPeriod && hasMinQuantity && hasUsesLeft) {
                     appliedCoupon = coupon;
                     if (coupon.type === 'percent') {
@@ -16543,7 +18294,7 @@ class LojaApp {
                 }
             }
         }
-        
+
         // Se não houver cupom ou cupom não aplicável, verificar desconto manual
         if (!appliedCoupon && discountType && discountValue > 0) {
             if (discountType === 'percent') {
@@ -16552,15 +18303,17 @@ class LojaApp {
                 discount = discountValue;
             }
         }
-        
+
         // Limitar desconto ao valor total
         const total = basePrice * quantity;
         discount = Math.min(discount, total);
-        
+
         return {
             discount: Math.round(discount * 100) / 100,
-            discountType: discountType || (appliedCoupon ? appliedCoupon.type : ''),
-            discountValue: discountValue || (appliedCoupon ? appliedCoupon.value : 0),
+            discountType:
+                discountType || (appliedCoupon ? appliedCoupon.type : ''),
+            discountValue:
+                discountValue || (appliedCoupon ? appliedCoupon.value : 0),
             couponCode: appliedCoupon ? appliedCoupon.code : null,
         };
     }
@@ -16572,43 +18325,54 @@ class LojaApp {
         const discountType = document.getElementById('saleDiscountType');
         const discountValue = document.getElementById('saleDiscountValue');
         const discountSummary = document.getElementById('discountSummary');
-        
+
         if (!salePrice || !saleQuantity || !discountSummary) return;
-        
+
         const basePrice = this.parsePrice(salePrice.value) || 0;
         const quantity = parseInt(saleQuantity.value) || 0;
         const baseTotal = basePrice * quantity;
-        
+
         let discount = 0;
-        
-        if (discountType && discountValue && discountType.value && discountValue.value) {
+
+        if (
+            discountType &&
+            discountValue &&
+            discountType.value &&
+            discountValue.value
+        ) {
             const type = discountType.value;
             const value = parseFloat(discountValue.value);
-            
+
             if (type === 'percent') {
                 discount = (baseTotal * value) / 100;
             } else {
                 discount = value;
             }
-            
+
             discount = Math.min(discount, baseTotal);
         }
-        
+
         const total = baseTotal - discount;
-        
+
         discountSummary.innerHTML = `
             <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 0.75rem; text-align: center;">
                 <div>
                     <div style="font-size: 0.75rem; color: var(--gray-600); margin-bottom: 0.25rem;">Subtotal</div>
-                    <div style="font-weight: 600; color: var(--gray-800);">R$ ${baseTotal.toFixed(2).replace('.', ',')}</div>
+                    <div style="font-weight: 600; color: var(--gray-800);">R$ ${baseTotal
+                        .toFixed(2)
+                        .replace('.', ',')}</div>
                 </div>
                 <div>
                     <div style="font-size: 0.75rem; color: var(--gray-600); margin-bottom: 0.25rem;">Desconto</div>
-                    <div style="font-weight: 600; color: ${discount > 0 ? '#28a745' : 'var(--gray-800)'};">R$ ${discount.toFixed(2).replace('.', ',')}</div>
+                    <div style="font-weight: 600; color: ${
+                        discount > 0 ? '#28a745' : 'var(--gray-800)'
+                    };">R$ ${discount.toFixed(2).replace('.', ',')}</div>
                 </div>
                 <div>
                     <div style="font-size: 0.75rem; color: var(--gray-600); margin-bottom: 0.25rem;">Total</div>
-                    <div style="font-weight: 700; font-size: 1.1rem; color: var(--primary-color);">R$ ${total.toFixed(2).replace('.', ',')}</div>
+                    <div style="font-weight: 700; font-size: 1.1rem; color: var(--primary-color);">R$ ${total
+                        .toFixed(2)
+                        .replace('.', ',')}</div>
                 </div>
             </div>
         `;
@@ -16625,18 +18389,20 @@ class LojaApp {
         const discountFields = document.getElementById('discountFields');
         const discountSummary = document.getElementById('discountSummary');
         const toggleBtn = document.getElementById('toggleDiscountBtn');
-        
+
         if (discountFields && discountSummary && toggleBtn) {
             const isVisible = discountFields.style.display !== 'none';
-            
+
             if (isVisible) {
                 discountFields.style.display = 'none';
                 discountSummary.style.display = 'none';
                 toggleBtn.innerHTML = '<i class="fas fa-plus"></i> Aplicar';
-                
+
                 // Limpar campos
-                const discountType = document.getElementById('saleDiscountType');
-                const discountValue = document.getElementById('saleDiscountValue');
+                const discountType =
+                    document.getElementById('saleDiscountType');
+                const discountValue =
+                    document.getElementById('saleDiscountValue');
                 const couponCode = document.getElementById('saleCouponCode');
                 if (discountType) discountType.value = '';
                 if (discountValue) discountValue.value = '';
@@ -16654,7 +18420,7 @@ class LojaApp {
     async loadAdminData() {
         const username = sessionStorage.getItem('username');
         console.log('🟢 [ADMIN] loadAdminData chamado, username:', username);
-        
+
         if (username !== 'admin') {
             console.warn('⚠️ [ADMIN] Acesso negado - apenas administradores');
             return;
@@ -16662,22 +18428,104 @@ class LojaApp {
 
         try {
             console.log('🟢 [ADMIN] Carregando dados do admin...');
-            console.log('🟢 [ADMIN] Fazendo fetch para /api/admin?username=' + username);
-            
-            const response = await fetch(
-                `/api/admin?username=${username}`
+            console.log(
+                '🟢 [ADMIN] Fazendo fetch para /api/admin?username=' + username
             );
-            
+
+            const response = await fetch(`/api/admin?username=${username}`);
+
             console.log('🟢 [ADMIN] Response status:', response.status);
             console.log('🟢 [ADMIN] Response ok:', response.ok);
-            
-            if (!response.ok) {
-                const errorText = await response.text();
-                console.error('❌ [ADMIN] Erro HTTP:', response.status, errorText);
-                throw new Error(`Erro HTTP: ${response.status} - ${errorText}`);
+
+            // Sempre ler como texto primeiro para verificar o conteúdo
+            const responseText = await response.text();
+
+            // Verificar se é código JavaScript (servidor local retornando arquivo .js)
+            const trimmedText = responseText.trim();
+            if (
+                trimmedText.startsWith('//') ||
+                trimmedText.startsWith('module.exports') ||
+                trimmedText.startsWith('export') ||
+                trimmedText.includes('// API Route') ||
+                trimmedText.includes('module.exports =')
+            ) {
+                console.error(
+                    '❌ [ADMIN] API retornou código JavaScript em vez de JSON.'
+                );
+                console.error(
+                    '❌ [ADMIN] Servidor local não suporta funções serverless.'
+                );
+
+                // Retornar dados vazios para não quebrar a interface
+                const result = {
+                    success: true,
+                    totalUsage: {
+                        binSize: 0,
+                        binSizeKB: '0.00',
+                        binSizeMB: '0.00',
+                        freePlanLimitMB: 10,
+                        freePlanLimitBytes: 10485760,
+                        usagePercent: 0,
+                        remainingMB: '10.00',
+                        remainingKB: '10240.00',
+                        isNearLimit: false,
+                    },
+                    usersUsage: [],
+                    timestamp: new Date().toISOString(),
+                    message:
+                        'API não disponível - servidor local não suporta funções serverless. Use Vercel ou configure um servidor Node.js.',
+                };
+
+                console.log(
+                    '🟢 [ADMIN] Dados vazios retornados (API não disponível)'
+                );
+                this.renderAdminTotalUsageDashboard(result.totalUsage);
+                this.renderAdminUsersUsageDashboard(result.usersUsage);
+                return;
             }
-            
-            const result = await response.json();
+
+            if (!response.ok) {
+                console.error(
+                    '❌ [ADMIN] Erro HTTP:',
+                    response.status,
+                    responseText.substring(0, 200)
+                );
+                throw new Error(`Erro HTTP: ${response.status}`);
+            }
+
+            // Tentar fazer parse do JSON
+            let result;
+            try {
+                result = JSON.parse(responseText);
+            } catch (parseError) {
+                console.error(
+                    '❌ [ADMIN] Erro ao fazer parse do JSON:',
+                    parseError
+                );
+                console.error(
+                    '❌ [ADMIN] Resposta (primeiros 200 chars):',
+                    responseText.substring(0, 200)
+                );
+
+                // Retornar dados vazios
+                result = {
+                    success: true,
+                    totalUsage: {
+                        binSize: 0,
+                        binSizeKB: '0.00',
+                        binSizeMB: '0.00',
+                        freePlanLimitMB: 10,
+                        freePlanLimitBytes: 10485760,
+                        usagePercent: 0,
+                        remainingMB: '10.00',
+                        remainingKB: '10240.00',
+                        isNearLimit: false,
+                    },
+                    usersUsage: [],
+                    timestamp: new Date().toISOString(),
+                    error: 'Erro ao processar resposta da API',
+                };
+            }
             console.log('🟢 [ADMIN] Dados recebidos:', result);
             console.log('🟢 [ADMIN] Result.success:', result.success);
 
@@ -16685,34 +18533,50 @@ class LojaApp {
                 console.log('🟢 [ADMIN] Renderizando dashboards...');
                 console.log('🟢 [ADMIN] totalUsage:', result.totalUsage);
                 console.log('🟢 [ADMIN] usersUsage:', result.usersUsage);
-                
+
                 if (result.totalUsage) {
                     this.renderAdminTotalUsageDashboard(result.totalUsage);
                 } else {
-                    console.error('❌ [ADMIN] totalUsage não encontrado no resultado');
+                    console.error(
+                        '❌ [ADMIN] totalUsage não encontrado no resultado'
+                    );
                 }
-                
+
                 if (result.usersUsage) {
-                    this.renderAdminUsersUsageDashboard(result.usersUsage, result.totalUsage);
+                    this.renderAdminUsersUsageDashboard(
+                        result.usersUsage,
+                        result.totalUsage
+                    );
                 } else {
-                    console.error('❌ [ADMIN] usersUsage não encontrado no resultado');
+                    console.error(
+                        '❌ [ADMIN] usersUsage não encontrado no resultado'
+                    );
                 }
-                
+
                 console.log('✅ [ADMIN] Dashboards renderizados com sucesso!');
             } else {
-                console.error('❌ [ADMIN] Erro ao carregar dados:', result.error);
-                const errorMsg = result.error || result.message || 'Erro desconhecido';
-                this.showError(`Erro ao carregar dados de administração: ${errorMsg}`);
+                console.error(
+                    '❌ [ADMIN] Erro ao carregar dados:',
+                    result.error
+                );
+                const errorMsg =
+                    result.error || result.message || 'Erro desconhecido';
+                this.showError(
+                    `Erro ao carregar dados de administração: ${errorMsg}`
+                );
             }
         } catch (error) {
             console.error('❌ [ADMIN] Erro ao carregar dados:', error);
             console.error('❌ [ADMIN] Stack:', error.stack);
-            this.showError(`Erro ao carregar dados de administração: ${error.message}`);
+            this.showError(
+                `Erro ao carregar dados de administração: ${error.message}`
+            );
         }
     }
 
     refreshAdminData() {
         this.loadAdminData();
+        this.renderIntegrationsStatus();
         this.showSuccess('Dados atualizados com sucesso!');
     }
 
@@ -16734,23 +18598,33 @@ class LojaApp {
                         <h3 style="margin: 0; color: var(--gray-600); font-size: 0.9rem; font-weight: 600;">Espaço Utilizado</h3>
                         <i class="fas fa-database" style="color: ${usageColor}; font-size: 1.5rem;"></i>
                     </div>
-                    <p style="margin: 0; font-size: 2rem; font-weight: 700; color: var(--dark-gray);">${totalUsage.binSizeMB} MB</p>
-                    <p style="margin: 0.25rem 0 0 0; font-size: 0.75rem; color: var(--gray-500);">${totalUsage.binSizeKB} KB</p>
+                    <p style="margin: 0; font-size: 2rem; font-weight: 700; color: var(--dark-gray);">${
+                        totalUsage.binSizeMB
+                    } MB</p>
+                    <p style="margin: 0.25rem 0 0 0; font-size: 0.75rem; color: var(--gray-500);">${
+                        totalUsage.binSizeKB
+                    } KB</p>
                 </div>
                 <div class="admin-stat-card" style="background: var(--white); padding: 1.5rem; border-radius: var(--radius-md); box-shadow: var(--shadow-sm); border-left: 4px solid #28a745;">
                     <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.5rem;">
                         <h3 style="margin: 0; color: var(--gray-600); font-size: 0.9rem; font-weight: 600;">Espaço Restante</h3>
                         <i class="fas fa-hdd" style="color: #28a745; font-size: 1.5rem;"></i>
                     </div>
-                    <p style="margin: 0; font-size: 2rem; font-weight: 700; color: var(--dark-gray);">${totalUsage.remainingMB} MB</p>
-                    <p style="margin: 0.25rem 0 0 0; font-size: 0.75rem; color: var(--gray-500);">${totalUsage.remainingKB} KB</p>
+                    <p style="margin: 0; font-size: 2rem; font-weight: 700; color: var(--dark-gray);">${
+                        totalUsage.remainingMB
+                    } MB</p>
+                    <p style="margin: 0.25rem 0 0 0; font-size: 0.75rem; color: var(--gray-500);">${
+                        totalUsage.remainingKB
+                    } KB</p>
                 </div>
                 <div class="admin-stat-card" style="background: var(--white); padding: 1.5rem; border-radius: var(--radius-md); box-shadow: var(--shadow-sm); border-left: 4px solid #007bff;">
                     <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.5rem;">
                         <h3 style="margin: 0; color: var(--gray-600); font-size: 0.9rem; font-weight: 600;">Limite do Plano</h3>
                         <i class="fas fa-chart-pie" style="color: #007bff; font-size: 1.5rem;"></i>
                     </div>
-                    <p style="margin: 0; font-size: 2rem; font-weight: 700; color: var(--dark-gray);">${totalUsage.freePlanLimitMB} MB</p>
+                    <p style="margin: 0; font-size: 2rem; font-weight: 700; color: var(--dark-gray);">${
+                        totalUsage.freePlanLimitMB
+                    } MB</p>
                     <p style="margin: 0.25rem 0 0 0; font-size: 0.75rem; color: var(--gray-500);">Plano gratuito JSONBin</p>
                 </div>
                 <div class="admin-stat-card" style="background: var(--white); padding: 1.5rem; border-radius: var(--radius-md); box-shadow: var(--shadow-sm); border-left: 4px solid ${usageColor};">
@@ -16758,9 +18632,17 @@ class LojaApp {
                         <h3 style="margin: 0; color: var(--gray-600); font-size: 0.9rem; font-weight: 600;">Percentual de Uso</h3>
                         <i class="fas fa-percentage" style="color: ${usageColor}; font-size: 1.5rem;"></i>
                     </div>
-                    <p style="margin: 0; font-size: 2rem; font-weight: 700; color: var(--dark-gray);">${totalUsage.usagePercent}%</p>
-                    <p style="margin: 0.25rem 0 0 0; font-size: 0.75rem; color: ${totalUsage.isNearLimit ? '#dc3545' : 'var(--gray-500)'};">
-                        ${totalUsage.isNearLimit ? '⚠️ Próximo do limite!' : 'Disponível'}
+                    <p style="margin: 0; font-size: 2rem; font-weight: 700; color: var(--dark-gray);">${
+                        totalUsage.usagePercent
+                    }%</p>
+                    <p style="margin: 0.25rem 0 0 0; font-size: 0.75rem; color: ${
+                        totalUsage.isNearLimit ? '#dc3545' : 'var(--gray-500)'
+                    };">
+                        ${
+                            totalUsage.isNearLimit
+                                ? '⚠️ Próximo do limite!'
+                                : 'Disponível'
+                        }
                     </p>
                 </div>
             </div>
@@ -16828,7 +18710,10 @@ class LojaApp {
                             label: function (context) {
                                 const label = context.label || '';
                                 const value = context.parsed || 0;
-                                return `${label}: ${value.toFixed(2)} MB (${((value / totalUsage.freePlanLimitMB) * 100).toFixed(2)}%)`;
+                                return `${label}: ${value.toFixed(2)} MB (${(
+                                    (value / totalUsage.freePlanLimitMB) *
+                                    100
+                                ).toFixed(2)}%)`;
                             },
                         },
                     },
@@ -16873,33 +18758,51 @@ class LojaApp {
                         </thead>
                         <tbody>
                             ${sortedUsers
-                                .map(
-                                    (user) => {
-                                        const usagePercent = parseFloat(user.usagePercent);
-                                        const rowColor =
-                                            usagePercent > 30
-                                                ? '#fff5f5'
-                                                : usagePercent > 15
-                                                ? '#fffbf0'
-                                                : 'transparent';
-                                        return `
+                                .map((user) => {
+                                    const usagePercent = parseFloat(
+                                        user.usagePercent
+                                    );
+                                    const rowColor =
+                                        usagePercent > 30
+                                            ? '#fff5f5'
+                                            : usagePercent > 15
+                                            ? '#fffbf0'
+                                            : 'transparent';
+                                    return `
                                 <tr style="border-bottom: 1px solid var(--gray-200); background: ${rowColor};">
                                     <td style="padding: 0.75rem; font-weight: 600; color: var(--dark-gray);">
                                         <i class="fas fa-user" style="margin-right: 0.5rem; color: var(--primary-color);"></i>
                                         ${this.escapeHtml(user.username)}
                                     </td>
-                                    <td style="padding: 0.75rem; text-align: center; color: var(--gray-700); font-weight: 600;">${user.dataSizeKB} KB</td>
-                                    <td style="padding: 0.75rem; text-align: center; color: var(--gray-700); font-weight: 600;">${user.dataSizeMB} MB</td>
+                                    <td style="padding: 0.75rem; text-align: center; color: var(--gray-700); font-weight: 600;">${
+                                        user.dataSizeKB
+                                    } KB</td>
+                                    <td style="padding: 0.75rem; text-align: center; color: var(--gray-700); font-weight: 600;">${
+                                        user.dataSizeMB
+                                    } MB</td>
                                     <td style="padding: 0.75rem; text-align: center; color: var(--gray-700); font-weight: 600;">
-                                        <span style="padding: 0.25rem 0.5rem; border-radius: var(--radius-sm); background: ${usagePercent > 30 ? '#fee' : usagePercent > 15 ? '#fff3cd' : '#d4edda'}; color: ${usagePercent > 30 ? '#721c24' : usagePercent > 15 ? '#856404' : '#155724'};">
+                                        <span style="padding: 0.25rem 0.5rem; border-radius: var(--radius-sm); background: ${
+                                            usagePercent > 30
+                                                ? '#fee'
+                                                : usagePercent > 15
+                                                ? '#fff3cd'
+                                                : '#d4edda'
+                                        }; color: ${
+                                        usagePercent > 30
+                                            ? '#721c24'
+                                            : usagePercent > 15
+                                            ? '#856404'
+                                            : '#155724'
+                                    };">
                                             ${usagePercent}%
                                         </span>
                                     </td>
-                                    <td style="padding: 0.75rem; text-align: center; color: var(--gray-600); font-size: 0.85rem;">${user.lastUpdateFormatted}</td>
+                                    <td style="padding: 0.75rem; text-align: center; color: var(--gray-600); font-size: 0.85rem;">${
+                                        user.lastUpdateFormatted
+                                    }</td>
                                 </tr>
                             `;
-                                    }
-                                )
+                                })
                                 .join('')}
                         </tbody>
                     </table>
@@ -16991,24 +18894,24 @@ class LojaApp {
     calculateProductROI() {
         const productSelect = document.getElementById('roiProductSelect');
         const resultsDiv = document.getElementById('roiResults');
-        
+
         if (!productSelect || !resultsDiv) return;
-        
+
         const productId = productSelect.value;
         if (!productId) {
             resultsDiv.style.display = 'none';
             return;
         }
-        
-        const product = this.items.find(item => item.id === productId);
+
+        const product = this.items.find((item) => item.id === productId);
         if (!product) {
             resultsDiv.style.display = 'none';
             return;
         }
-        
+
         const salePrice = product.price || 0;
         const cost = product.cost || 0;
-        
+
         if (cost <= 0) {
             resultsDiv.innerHTML = `
                 <div style="text-align: center; padding: 1rem; color: var(--gray-600);">
@@ -17019,17 +18922,25 @@ class LojaApp {
             resultsDiv.style.display = 'block';
             return;
         }
-        
+
         const profit = salePrice - cost;
-        const margin = salePrice > 0 ? ((profit / salePrice) * 100) : 0;
-        const roi = cost > 0 ? ((profit / cost) * 100) : 0;
-        
-        document.getElementById('roiSalePrice').textContent = `R$ ${salePrice.toFixed(2).replace('.', ',')}`;
-        document.getElementById('roiCost').textContent = `R$ ${cost.toFixed(2).replace('.', ',')}`;
-        document.getElementById('roiProfit').textContent = `R$ ${profit.toFixed(2).replace('.', ',')}`;
-        document.getElementById('roiMargin').textContent = `${margin.toFixed(2)}%`;
+        const margin = salePrice > 0 ? (profit / salePrice) * 100 : 0;
+        const roi = cost > 0 ? (profit / cost) * 100 : 0;
+
+        document.getElementById('roiSalePrice').textContent = `R$ ${salePrice
+            .toFixed(2)
+            .replace('.', ',')}`;
+        document.getElementById('roiCost').textContent = `R$ ${cost
+            .toFixed(2)
+            .replace('.', ',')}`;
+        document.getElementById('roiProfit').textContent = `R$ ${profit
+            .toFixed(2)
+            .replace('.', ',')}`;
+        document.getElementById('roiMargin').textContent = `${margin.toFixed(
+            2
+        )}%`;
         document.getElementById('roiValue').textContent = `${roi.toFixed(2)}%`;
-        
+
         resultsDiv.style.display = 'block';
     }
 
@@ -17038,58 +18949,77 @@ class LojaApp {
         const costInput = document.getElementById('simulatorCost');
         const marginInput = document.getElementById('simulatorMargin');
         const discountInput = document.getElementById('simulatorDiscount');
-        
+
         if (!costInput || !marginInput || !discountInput) return;
-        
+
         const cost = parseFloat(costInput.value) || 0;
         const margin = parseFloat(marginInput.value) || 0;
         const discount = parseFloat(discountInput.value) || 0;
-        
+
         if (cost <= 0) {
             document.getElementById('simulatorPrice').textContent = 'R$ 0,00';
             document.getElementById('simulatorProfit').textContent = 'R$ 0,00';
-            document.getElementById('simulatorFinalPrice').textContent = 'R$ 0,00';
+            document.getElementById('simulatorFinalPrice').textContent =
+                'R$ 0,00';
             return;
         }
-        
+
         // Calcular preço de venda: custo / (1 - margem/100)
-        const suggestedPrice = cost / (1 - (margin / 100));
+        const suggestedPrice = cost / (1 - margin / 100);
         const profit = suggestedPrice - cost;
-        const finalPrice = suggestedPrice * (1 - (discount / 100));
-        
-        document.getElementById('simulatorPrice').textContent = `R$ ${suggestedPrice.toFixed(2).replace('.', ',')}`;
-        document.getElementById('simulatorProfit').textContent = `R$ ${profit.toFixed(2).replace('.', ',')}`;
-        document.getElementById('simulatorFinalPrice').textContent = `R$ ${finalPrice.toFixed(2).replace('.', ',')}`;
+        const finalPrice = suggestedPrice * (1 - discount / 100);
+
+        document.getElementById(
+            'simulatorPrice'
+        ).textContent = `R$ ${suggestedPrice.toFixed(2).replace('.', ',')}`;
+        document.getElementById('simulatorProfit').textContent = `R$ ${profit
+            .toFixed(2)
+            .replace('.', ',')}`;
+        document.getElementById(
+            'simulatorFinalPrice'
+        ).textContent = `R$ ${finalPrice.toFixed(2).replace('.', ',')}`;
     }
 
     // Popular select de produtos para ROI
     populateROIProductSelect() {
         const select = document.getElementById('roiProductSelect');
         if (!select) return;
-        
+
         // Limpar opções existentes (exceto a primeira)
         while (select.options.length > 1) {
             select.remove(1);
         }
-        
+
         // Adicionar produtos que tenham custo cadastrado
-        this.items.forEach(item => {
+        this.items.forEach((item) => {
             if (item.cost && item.cost > 0) {
                 const option = document.createElement('option');
                 option.value = item.id;
-                const itemName = item.name || item.brand || item.model || `Produto ${item.id}`;
-                option.textContent = `${itemName} - R$ ${(item.price || 0).toFixed(2).replace('.', ',')}`;
+                const itemName =
+                    item.name ||
+                    item.brand ||
+                    item.model ||
+                    `Produto ${item.id}`;
+                option.textContent = `${itemName} - R$ ${(item.price || 0)
+                    .toFixed(2)
+                    .replace('.', ',')}`;
                 select.appendChild(option);
             }
         });
-        
+
         // Se não houver produtos com custo, adicionar todos os produtos
         if (select.options.length === 1) {
-            this.items.forEach(item => {
+            this.items.forEach((item) => {
                 const option = document.createElement('option');
                 option.value = item.id;
-                const itemName = item.name || item.brand || item.model || `Produto ${item.id}`;
-                option.textContent = `${itemName} - R$ ${(item.price || 0).toFixed(2).replace('.', ',')}`;
+                const itemName =
+                    item.name ||
+                    item.brand ||
+                    item.model ||
+                    `Produto ${item.id}`;
+                option.textContent = `${itemName} - R$ ${(item.price || 0)
+                    .toFixed(2)
+                    .replace('.', ',')}`;
                 select.appendChild(option);
             });
         }
@@ -17154,18 +19084,19 @@ class LojaApp {
             console.error('Modal de busca por notas não encontrado');
             return;
         }
-        
+
         const searchInput = document.getElementById('notesSearchInput');
         if (searchInput) {
             searchInput.value = '';
             searchInput.focus();
         }
-        
+
         const resultsContainer = document.getElementById('notesSearchResults');
         if (resultsContainer) {
-            resultsContainer.innerHTML = '<p style="text-align: center; color: var(--gray-600); padding: 2rem;">Digite um termo para buscar nas notas...</p>';
+            resultsContainer.innerHTML =
+                '<p style="text-align: center; color: var(--gray-600); padding: 2rem;">Digite um termo para buscar nas notas...</p>';
         }
-        
+
         modal.classList.add('active');
     }
 
@@ -17185,7 +19116,7 @@ class LojaApp {
                 clients: [],
                 suppliers: [],
                 sales: [],
-                appointments: []
+                appointments: [],
             };
         }
 
@@ -17195,67 +19126,77 @@ class LojaApp {
             clients: [],
             suppliers: [],
             sales: [],
-            appointments: []
+            appointments: [],
         };
 
         // Buscar em produtos
-        this.items.forEach(item => {
+        this.items.forEach((item) => {
             if (item.notes && item.notes.toLowerCase().includes(search)) {
                 results.items.push({
                     id: item.id,
-                    name: item.name || item.brand || item.model || `Produto ${item.id}`,
+                    name:
+                        item.name ||
+                        item.brand ||
+                        item.model ||
+                        `Produto ${item.id}`,
                     notes: item.notes,
-                    type: 'item'
+                    type: 'item',
                 });
             }
         });
 
         // Buscar em clientes
-        this.clients.forEach(client => {
+        this.clients.forEach((client) => {
             if (client.notes && client.notes.toLowerCase().includes(search)) {
                 results.clients.push({
                     id: client.id,
                     name: client.name,
                     notes: client.notes,
-                    type: 'client'
+                    type: 'client',
                 });
             }
         });
 
         // Buscar em fornecedores
-        this.suppliers.forEach(supplier => {
-            if (supplier.notes && supplier.notes.toLowerCase().includes(search)) {
+        this.suppliers.forEach((supplier) => {
+            if (
+                supplier.notes &&
+                supplier.notes.toLowerCase().includes(search)
+            ) {
                 results.suppliers.push({
                     id: supplier.id,
                     name: supplier.name,
                     notes: supplier.notes,
-                    type: 'supplier'
+                    type: 'supplier',
                 });
             }
         });
 
         // Buscar em vendas
-        this.completedSales.forEach(sale => {
+        this.completedSales.forEach((sale) => {
             if (sale.notes && sale.notes.toLowerCase().includes(search)) {
                 results.sales.push({
                     id: sale.id,
                     name: sale.customerName,
                     notes: sale.notes,
                     date: sale.date,
-                    type: 'sale'
+                    type: 'sale',
                 });
             }
         });
 
         // Buscar em agendamentos
-        this.serviceAppointments.forEach(appointment => {
-            if (appointment.notes && appointment.notes.toLowerCase().includes(search)) {
+        this.serviceAppointments.forEach((appointment) => {
+            if (
+                appointment.notes &&
+                appointment.notes.toLowerCase().includes(search)
+            ) {
                 results.appointments.push({
                     id: appointment.id,
                     name: appointment.customerName,
                     notes: appointment.notes,
                     date: appointment.date,
-                    type: 'appointment'
+                    type: 'appointment',
                 });
             }
         });
@@ -17267,20 +19208,24 @@ class LojaApp {
     executeNotesSearch() {
         const searchInput = document.getElementById('notesSearchInput');
         const resultsContainer = document.getElementById('notesSearchResults');
-        
+
         if (!searchInput || !resultsContainer) return;
-        
+
         const searchTerm = searchInput.value.trim();
-        
+
         if (!searchTerm) {
-            resultsContainer.innerHTML = '<p style="text-align: center; color: var(--gray-600); padding: 2rem;">Digite um termo para buscar nas notas...</p>';
+            resultsContainer.innerHTML =
+                '<p style="text-align: center; color: var(--gray-600); padding: 2rem;">Digite um termo para buscar nas notas...</p>';
             return;
         }
-        
+
         const results = this.searchNotes(searchTerm);
-        const totalResults = results.items.length + results.clients.length + 
-                           results.suppliers.length + results.sales.length + 
-                           results.appointments.length;
+        const totalResults =
+            results.items.length +
+            results.clients.length +
+            results.suppliers.length +
+            results.sales.length +
+            results.appointments.length;
 
         if (totalResults === 0) {
             resultsContainer.innerHTML = `
@@ -17290,7 +19235,9 @@ class LojaApp {
                     </div>
                     <h3 class="empty-state-title">Nenhum resultado encontrado</h3>
                     <p class="empty-state-message">
-                        Não foram encontradas notas contendo "${this.escapeHtml(searchTerm)}"
+                        Não foram encontradas notas contendo "${this.escapeHtml(
+                            searchTerm
+                        )}"
                     </p>
                 </div>
             `;
@@ -17299,7 +19246,9 @@ class LojaApp {
 
         let html = `<div style="grid-column: 1/-1; margin-bottom: 1rem; padding: 1rem; background: var(--light-gray); border-radius: var(--radius-md);">
             <h3 style="margin: 0 0 0.5rem 0; color: var(--primary-color);">
-                <i class="fas fa-search"></i> Resultados da busca: "${this.escapeHtml(searchTerm)}"
+                <i class="fas fa-search"></i> Resultados da busca: "${this.escapeHtml(
+                    searchTerm
+                )}"
             </h3>
             <p style="margin: 0; color: var(--gray-600); font-size: 0.9rem;">
                 Encontrados ${totalResults} resultado(s)
@@ -17313,7 +19262,7 @@ class LojaApp {
                     <i class="fas fa-box"></i> Produtos (${results.items.length})
                 </h4>
             </div>`;
-            results.items.forEach(item => {
+            results.items.forEach((item) => {
                 html += `
                     <div class="item-card">
                         <div class="item-header">
@@ -17321,7 +19270,9 @@ class LojaApp {
                             <span style="font-size: 0.75rem; color: var(--gray-600);">Produto</span>
                         </div>
                         <div class="item-details">
-                            <p><i class="fas fa-sticky-note"></i> <strong>Nota:</strong> ${this.escapeHtml(item.notes)}</p>
+                            <p><i class="fas fa-sticky-note"></i> <strong>Nota:</strong> ${this.escapeHtml(
+                                item.notes
+                            )}</p>
                         </div>
                     </div>
                 `;
@@ -17335,7 +19286,7 @@ class LojaApp {
                     <i class="fas fa-user"></i> Clientes (${results.clients.length})
                 </h4>
             </div>`;
-            results.clients.forEach(client => {
+            results.clients.forEach((client) => {
                 html += `
                     <div class="item-card">
                         <div class="item-header">
@@ -17343,7 +19294,9 @@ class LojaApp {
                             <span style="font-size: 0.75rem; color: var(--gray-600);">Cliente</span>
                         </div>
                         <div class="item-details">
-                            <p><i class="fas fa-sticky-note"></i> <strong>Nota:</strong> ${this.escapeHtml(client.notes)}</p>
+                            <p><i class="fas fa-sticky-note"></i> <strong>Nota:</strong> ${this.escapeHtml(
+                                client.notes
+                            )}</p>
                         </div>
                     </div>
                 `;
@@ -17357,7 +19310,7 @@ class LojaApp {
                     <i class="fas fa-truck"></i> Fornecedores (${results.suppliers.length})
                 </h4>
             </div>`;
-            results.suppliers.forEach(supplier => {
+            results.suppliers.forEach((supplier) => {
                 html += `
                     <div class="item-card">
                         <div class="item-header">
@@ -17365,7 +19318,9 @@ class LojaApp {
                             <span style="font-size: 0.75rem; color: var(--gray-600);">Fornecedor</span>
                         </div>
                         <div class="item-details">
-                            <p><i class="fas fa-sticky-note"></i> <strong>Nota:</strong> ${this.escapeHtml(supplier.notes)}</p>
+                            <p><i class="fas fa-sticky-note"></i> <strong>Nota:</strong> ${this.escapeHtml(
+                                supplier.notes
+                            )}</p>
                         </div>
                     </div>
                 `;
@@ -17379,8 +19334,10 @@ class LojaApp {
                     <i class="fas fa-shopping-cart"></i> Vendas (${results.sales.length})
                 </h4>
             </div>`;
-            results.sales.forEach(sale => {
-                const saleDate = sale.date ? new Date(sale.date).toLocaleDateString('pt-BR') : 'N/A';
+            results.sales.forEach((sale) => {
+                const saleDate = sale.date
+                    ? new Date(sale.date).toLocaleDateString('pt-BR')
+                    : 'N/A';
                 html += `
                     <div class="item-card">
                         <div class="item-header">
@@ -17388,7 +19345,9 @@ class LojaApp {
                             <span style="font-size: 0.75rem; color: var(--gray-600);">Venda - ${saleDate}</span>
                         </div>
                         <div class="item-details">
-                            <p><i class="fas fa-sticky-note"></i> <strong>Nota:</strong> ${this.escapeHtml(sale.notes)}</p>
+                            <p><i class="fas fa-sticky-note"></i> <strong>Nota:</strong> ${this.escapeHtml(
+                                sale.notes
+                            )}</p>
                         </div>
                     </div>
                 `;
@@ -17402,8 +19361,10 @@ class LojaApp {
                     <i class="fas fa-calendar-check"></i> Agendamentos (${results.appointments.length})
                 </h4>
             </div>`;
-            results.appointments.forEach(appointment => {
-                const appointmentDate = appointment.date ? new Date(appointment.date).toLocaleDateString('pt-BR') : 'N/A';
+            results.appointments.forEach((appointment) => {
+                const appointmentDate = appointment.date
+                    ? new Date(appointment.date).toLocaleDateString('pt-BR')
+                    : 'N/A';
                 html += `
                     <div class="item-card">
                         <div class="item-header">
@@ -17411,7 +19372,9 @@ class LojaApp {
                             <span style="font-size: 0.75rem; color: var(--gray-600);">Agendamento - ${appointmentDate}</span>
                         </div>
                         <div class="item-details">
-                            <p><i class="fas fa-sticky-note"></i> <strong>Nota:</strong> ${this.escapeHtml(appointment.notes)}</p>
+                            <p><i class="fas fa-sticky-note"></i> <strong>Nota:</strong> ${this.escapeHtml(
+                                appointment.notes
+                            )}</p>
                         </div>
                     </div>
                 `;
@@ -17430,18 +19393,21 @@ class LojaApp {
             console.error('Modal de busca avançada não encontrado');
             return;
         }
-        
+
         const searchInput = document.getElementById('advancedSearchTerm');
         if (searchInput) {
             searchInput.value = '';
             searchInput.focus();
         }
-        
-        const resultsContainer = document.getElementById('advancedSearchResults');
+
+        const resultsContainer = document.getElementById(
+            'advancedSearchResults'
+        );
         if (resultsContainer) {
-            resultsContainer.innerHTML = '<p style="text-align: center; color: var(--gray-600); padding: 2rem;">Digite um termo e selecione onde buscar...</p>';
+            resultsContainer.innerHTML =
+                '<p style="text-align: center; color: var(--gray-600); padding: 2rem;">Digite um termo e selecione onde buscar...</p>';
         }
-        
+
         modal.classList.add('active');
     }
 
@@ -17456,15 +19422,22 @@ class LojaApp {
     // Limpar busca avançada
     clearAdvancedSearch() {
         const searchInput = document.getElementById('advancedSearchTerm');
-        const categorySelect = document.getElementById('advancedSearchCategory');
-        const dateRangeSelect = document.getElementById('advancedSearchDateRange');
-        const resultsContainer = document.getElementById('advancedSearchResults');
-        
+        const categorySelect = document.getElementById(
+            'advancedSearchCategory'
+        );
+        const dateRangeSelect = document.getElementById(
+            'advancedSearchDateRange'
+        );
+        const resultsContainer = document.getElementById(
+            'advancedSearchResults'
+        );
+
         if (searchInput) searchInput.value = '';
         if (categorySelect) categorySelect.value = '';
         if (dateRangeSelect) dateRangeSelect.value = '';
         if (resultsContainer) {
-            resultsContainer.innerHTML = '<p style="text-align: center; color: var(--gray-600); padding: 2rem;">Digite um termo e selecione onde buscar...</p>';
+            resultsContainer.innerHTML =
+                '<p style="text-align: center; color: var(--gray-600); padding: 2rem;">Digite um termo e selecione onde buscar...</p>';
         }
     }
 
@@ -17472,9 +19445,14 @@ class LojaApp {
     startAdvancedSearchQRScanner() {
         if (!window.Html5Qrcode) {
             if (typeof toast !== 'undefined' && toast) {
-                toast.error('Biblioteca de scanner não carregada. Verifique sua conexão.', 3000);
+                toast.error(
+                    'Biblioteca de scanner não carregada. Verifique sua conexão.',
+                    3000
+                );
             } else {
-                alert('Biblioteca de scanner não carregada. Verifique sua conexão.');
+                alert(
+                    'Biblioteca de scanner não carregada. Verifique sua conexão.'
+                );
             }
             return;
         }
@@ -17505,13 +19483,14 @@ class LojaApp {
                 },
                 (decodedText) => {
                     // QR code lido - preencher campo de busca e executar
-                    const searchInput = document.getElementById('advancedSearchTerm');
+                    const searchInput =
+                        document.getElementById('advancedSearchTerm');
                     if (searchInput) {
                         searchInput.value = decodedText.trim();
                     }
                     this.stopAdvancedSearchQRScanner();
                     this.executeAdvancedSearch();
-                    
+
                     if (typeof toast !== 'undefined' && toast) {
                         toast.success('QR Code escaneado! Buscando...', 2000);
                     }
@@ -17523,7 +19502,10 @@ class LojaApp {
             .catch((err) => {
                 console.error('Erro ao iniciar scanner:', err);
                 if (typeof toast !== 'undefined' && toast) {
-                    toast.error('Erro ao acessar a câmera. Verifique as permissões.', 3000);
+                    toast.error(
+                        'Erro ao acessar a câmera. Verifique as permissões.',
+                        3000
+                    );
                 }
                 container.style.display = 'none';
                 this.advancedSearchQRScanner = null;
@@ -17559,7 +19541,7 @@ class LojaApp {
     toggleAdvancedSearchVoice() {
         const voiceBtn = document.getElementById('advancedSearchVoiceBtn');
         const searchInput = document.getElementById('advancedSearchTerm');
-        
+
         if (!voiceBtn || !searchInput) return;
 
         if (this.voiceRecognitionActive) {
@@ -17584,9 +19566,15 @@ class LojaApp {
 
     // Iniciar busca por voz na busca avançada
     startAdvancedSearchVoice() {
-        if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
+        if (
+            !('webkitSpeechRecognition' in window) &&
+            !('SpeechRecognition' in window)
+        ) {
             if (typeof toast !== 'undefined' && toast) {
-                toast.error('Reconhecimento de voz não suportado neste navegador', 3000);
+                toast.error(
+                    'Reconhecimento de voz não suportado neste navegador',
+                    3000
+                );
             }
             return;
         }
@@ -17595,50 +19583,59 @@ class LojaApp {
             return;
         }
 
-        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        const SpeechRecognition =
+            window.SpeechRecognition || window.webkitSpeechRecognition;
         const recognition = new SpeechRecognition();
-        
+
         recognition.lang = 'pt-BR';
         recognition.continuous = false;
         recognition.interimResults = false;
 
         recognition.onstart = () => {
             this.voiceRecognitionActive = true;
-            console.log('🎤 [VOICE SEARCH] Reconhecimento de voz iniciado para busca');
+            console.log(
+                '🎤 [VOICE SEARCH] Reconhecimento de voz iniciado para busca'
+            );
         };
 
         recognition.onresult = (event) => {
             const transcript = event.results[0][0].transcript;
             console.log('🎤 [VOICE SEARCH] Texto reconhecido:', transcript);
-            
+
             // Preencher campo de busca
             const searchInput = document.getElementById('advancedSearchTerm');
             if (searchInput) {
                 searchInput.value = transcript.trim();
             }
-            
+
             // Executar busca automaticamente
             setTimeout(() => {
                 this.executeAdvancedSearch();
             }, 500);
-            
+
             if (typeof toast !== 'undefined' && toast) {
                 toast.success(`Buscando: "${transcript}"`, 2000);
             }
         };
 
         recognition.onerror = (event) => {
-            console.error('❌ [VOICE SEARCH] Erro no reconhecimento:', event.error);
+            console.error(
+                '❌ [VOICE SEARCH] Erro no reconhecimento:',
+                event.error
+            );
             this.voiceRecognitionActive = false;
             const voiceBtn = document.getElementById('advancedSearchVoiceBtn');
             if (voiceBtn) {
                 voiceBtn.classList.remove('active');
                 voiceBtn.style.background = '';
             }
-            
+
             if (event.error === 'no-speech') {
                 if (typeof toast !== 'undefined' && toast) {
-                    toast.warning('Nenhum áudio detectado. Tente novamente.', 2000);
+                    toast.warning(
+                        'Nenhum áudio detectado. Tente novamente.',
+                        2000
+                    );
                 }
             } else {
                 if (typeof toast !== 'undefined' && toast) {
@@ -17663,35 +19660,48 @@ class LojaApp {
 
     // Executar busca avançada
     executeAdvancedSearch() {
-        const searchTerm = document.getElementById('advancedSearchTerm')?.value.trim();
-        const resultsContainer = document.getElementById('advancedSearchResults');
-        
+        const searchTerm = document
+            .getElementById('advancedSearchTerm')
+            ?.value.trim();
+        const resultsContainer = document.getElementById(
+            'advancedSearchResults'
+        );
+
         if (!resultsContainer) return;
-        
+
         if (!searchTerm) {
-            resultsContainer.innerHTML = '<p style="text-align: center; color: var(--gray-600); padding: 2rem;">Digite um termo para buscar...</p>';
+            resultsContainer.innerHTML =
+                '<p style="text-align: center; color: var(--gray-600); padding: 2rem;">Digite um termo para buscar...</p>';
             return;
         }
-        
+
         const search = searchTerm.toLowerCase();
         const results = {
             items: [],
             clients: [],
             suppliers: [],
             sales: [],
-            appointments: []
+            appointments: [],
         };
-        
+
         // Verificar quais entidades buscar
-        const searchInProducts = document.getElementById('searchInProducts')?.checked || false;
-        const searchInClients = document.getElementById('searchInClients')?.checked || false;
-        const searchInSuppliers = document.getElementById('searchInSuppliers')?.checked || false;
-        const searchInSales = document.getElementById('searchInSales')?.checked || false;
-        const searchInAppointments = document.getElementById('searchInAppointments')?.checked || false;
-        const searchInNotes = document.getElementById('searchInNotes')?.checked || false;
-        const categoryFilter = document.getElementById('advancedSearchCategory')?.value || '';
-        const dateRangeFilter = document.getElementById('advancedSearchDateRange')?.value || '';
-        
+        const searchInProducts =
+            document.getElementById('searchInProducts')?.checked || false;
+        const searchInClients =
+            document.getElementById('searchInClients')?.checked || false;
+        const searchInSuppliers =
+            document.getElementById('searchInSuppliers')?.checked || false;
+        const searchInSales =
+            document.getElementById('searchInSales')?.checked || false;
+        const searchInAppointments =
+            document.getElementById('searchInAppointments')?.checked || false;
+        const searchInNotes =
+            document.getElementById('searchInNotes')?.checked || false;
+        const categoryFilter =
+            document.getElementById('advancedSearchCategory')?.value || '';
+        const dateRangeFilter =
+            document.getElementById('advancedSearchDateRange')?.value || '';
+
         // Calcular range de datas se necessário
         let dateStart = null;
         let dateEnd = null;
@@ -17699,8 +19709,16 @@ class LojaApp {
             const now = new Date();
             switch (dateRangeFilter) {
                 case 'today':
-                    dateStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-                    dateEnd = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1);
+                    dateStart = new Date(
+                        now.getFullYear(),
+                        now.getMonth(),
+                        now.getDate()
+                    );
+                    dateEnd = new Date(
+                        now.getFullYear(),
+                        now.getMonth(),
+                        now.getDate() + 1
+                    );
                     break;
                 case 'week':
                     const dayOfWeek = now.getDay();
@@ -17712,7 +19730,11 @@ class LojaApp {
                     break;
                 case 'month':
                     dateStart = new Date(now.getFullYear(), now.getMonth(), 1);
-                    dateEnd = new Date(now.getFullYear(), now.getMonth() + 1, 1);
+                    dateEnd = new Date(
+                        now.getFullYear(),
+                        now.getMonth() + 1,
+                        1
+                    );
                     break;
                 case 'quarter':
                     const quarter = Math.floor(now.getMonth() / 3);
@@ -17725,94 +19747,117 @@ class LojaApp {
                     break;
             }
         }
-        
+
         // Buscar em produtos
         if (searchInProducts) {
-            this.items.forEach(item => {
+            this.items.forEach((item) => {
                 if (categoryFilter && item.category !== categoryFilter) return;
-                
+
                 const itemName = item.name || item.brand || item.model || '';
                 const itemBrand = item.brand || '';
                 const itemModel = item.model || '';
                 const itemStyle = item.style || '';
-                
-                const matches = 
+
+                const matches =
                     itemName.toLowerCase().includes(search) ||
                     itemBrand.toLowerCase().includes(search) ||
                     itemModel.toLowerCase().includes(search) ||
                     itemStyle.toLowerCase().includes(search) ||
-                    (searchInNotes && item.notes && item.notes.toLowerCase().includes(search));
-                
+                    (searchInNotes &&
+                        item.notes &&
+                        item.notes.toLowerCase().includes(search));
+
                 if (matches) {
                     results.items.push({
                         id: item.id,
-                        name: itemName || itemBrand || itemModel || `Produto ${item.id}`,
+                        name:
+                            itemName ||
+                            itemBrand ||
+                            itemModel ||
+                            `Produto ${item.id}`,
                         category: item.category,
                         price: item.price,
-                        type: 'item'
+                        type: 'item',
                     });
                 }
             });
         }
-        
+
         // Buscar em clientes
         if (searchInClients) {
-            this.clients.forEach(client => {
-                const matches = 
+            this.clients.forEach((client) => {
+                const matches =
                     client.name.toLowerCase().includes(search) ||
                     (client.cpf && client.cpf.toLowerCase().includes(search)) ||
-                    (client.email && client.email.toLowerCase().includes(search)) ||
-                    (client.phone && client.phone.toLowerCase().includes(search)) ||
-                    (searchInNotes && client.notes && client.notes.toLowerCase().includes(search));
-                
+                    (client.email &&
+                        client.email.toLowerCase().includes(search)) ||
+                    (client.phone &&
+                        client.phone.toLowerCase().includes(search)) ||
+                    (searchInNotes &&
+                        client.notes &&
+                        client.notes.toLowerCase().includes(search));
+
                 if (matches) {
                     results.clients.push({
                         id: client.id,
                         name: client.name,
                         cpf: client.cpf,
                         email: client.email,
-                        type: 'client'
+                        type: 'client',
                     });
                 }
             });
         }
-        
+
         // Buscar em fornecedores
         if (searchInSuppliers) {
-            this.suppliers.forEach(supplier => {
-                const matches = 
+            this.suppliers.forEach((supplier) => {
+                const matches =
                     supplier.name.toLowerCase().includes(search) ||
-                    (supplier.cnpj && supplier.cnpj.toLowerCase().includes(search)) ||
-                    (supplier.email && supplier.email.toLowerCase().includes(search)) ||
-                    (supplier.phone && supplier.phone.toLowerCase().includes(search)) ||
-                    (searchInNotes && supplier.notes && supplier.notes.toLowerCase().includes(search));
-                
+                    (supplier.cnpj &&
+                        supplier.cnpj.toLowerCase().includes(search)) ||
+                    (supplier.email &&
+                        supplier.email.toLowerCase().includes(search)) ||
+                    (supplier.phone &&
+                        supplier.phone.toLowerCase().includes(search)) ||
+                    (searchInNotes &&
+                        supplier.notes &&
+                        supplier.notes.toLowerCase().includes(search));
+
                 if (matches) {
                     results.suppliers.push({
                         id: supplier.id,
                         name: supplier.name,
                         cnpj: supplier.cnpj,
-                        type: 'supplier'
+                        type: 'supplier',
                     });
                 }
             });
         }
-        
+
         // Buscar em vendas
         if (searchInSales) {
-            this.completedSales.forEach(sale => {
+            this.completedSales.forEach((sale) => {
                 // Filtrar por data se necessário
                 if (dateStart && dateEnd) {
                     const saleDate = new Date(sale.date);
                     if (saleDate < dateStart || saleDate >= dateEnd) return;
                 }
-                
-                const matches = 
+
+                const matches =
                     sale.customerName.toLowerCase().includes(search) ||
-                    (sale.orderCode && sale.orderCode.toLowerCase().includes(search)) ||
-                    (sale.items && sale.items.some(item => item.name && item.name.toLowerCase().includes(search))) ||
-                    (searchInNotes && sale.notes && sale.notes.toLowerCase().includes(search));
-                
+                    (sale.orderCode &&
+                        sale.orderCode.toLowerCase().includes(search)) ||
+                    (sale.items &&
+                        sale.items.some(
+                            (item) =>
+                                item.name &&
+                                item.name.toLowerCase().includes(search)
+                        )) ||
+                    (searchInNotes &&
+                        sale.notes &&
+                        sale.notes.toLowerCase().includes(search));
+
                 if (matches) {
                     results.sales.push({
                         id: sale.id,
@@ -17820,30 +19865,44 @@ class LojaApp {
                         orderCode: sale.orderCode,
                         totalValue: sale.totalValue,
                         date: sale.date,
-                        type: 'sale'
+                        type: 'sale',
                     });
                 }
             });
         }
-        
+
         // Buscar em agendamentos
         if (searchInAppointments) {
-            this.serviceAppointments.forEach(appointment => {
+            this.serviceAppointments.forEach((appointment) => {
                 // Filtrar por data se necessário
                 if (dateStart && dateEnd) {
                     const appointmentDate = new Date(appointment.date);
-                    if (appointmentDate < dateStart || appointmentDate >= dateEnd) return;
+                    if (
+                        appointmentDate < dateStart ||
+                        appointmentDate >= dateEnd
+                    )
+                        return;
                 }
-                
-                const service = this.items.find(item => item.id === appointment.serviceTypeId);
-                const serviceName = service ? (service.name || service.brand || service.model) : '';
-                
-                const matches = 
+
+                const service = this.items.find(
+                    (item) => item.id === appointment.serviceTypeId
+                );
+                const serviceName = service
+                    ? service.name || service.brand || service.model
+                    : '';
+
+                const matches =
                     appointment.customerName.toLowerCase().includes(search) ||
-                    (appointment.customerContact && appointment.customerContact.toLowerCase().includes(search)) ||
-                    (serviceName && serviceName.toLowerCase().includes(search)) ||
-                    (searchInNotes && appointment.notes && appointment.notes.toLowerCase().includes(search));
-                
+                    (appointment.customerContact &&
+                        appointment.customerContact
+                            .toLowerCase()
+                            .includes(search)) ||
+                    (serviceName &&
+                        serviceName.toLowerCase().includes(search)) ||
+                    (searchInNotes &&
+                        appointment.notes &&
+                        appointment.notes.toLowerCase().includes(search));
+
                 if (matches) {
                     results.appointments.push({
                         id: appointment.id,
@@ -17852,24 +19911,29 @@ class LojaApp {
                         date: appointment.date,
                         time: appointment.time,
                         status: appointment.status,
-                        type: 'appointment'
+                        type: 'appointment',
                     });
                 }
             });
         }
-        
+
         // Renderizar resultados
         this.renderAdvancedSearchResults(results, searchTerm);
     }
 
     // Renderizar resultados da busca avançada
     renderAdvancedSearchResults(results, searchTerm) {
-        const resultsContainer = document.getElementById('advancedSearchResults');
+        const resultsContainer = document.getElementById(
+            'advancedSearchResults'
+        );
         if (!resultsContainer) return;
-        
-        const totalResults = results.items.length + results.clients.length + 
-                           results.suppliers.length + results.sales.length + 
-                           results.appointments.length;
+
+        const totalResults =
+            results.items.length +
+            results.clients.length +
+            results.suppliers.length +
+            results.sales.length +
+            results.appointments.length;
 
         if (totalResults === 0) {
             resultsContainer.innerHTML = `
@@ -17879,7 +19943,9 @@ class LojaApp {
                     </div>
                     <h3 class="empty-state-title">Nenhum resultado encontrado</h3>
                     <p class="empty-state-message">
-                        Não foram encontrados resultados para "${this.escapeHtml(searchTerm)}"
+                        Não foram encontrados resultados para "${this.escapeHtml(
+                            searchTerm
+                        )}"
                     </p>
                 </div>
             `;
@@ -17888,7 +19954,9 @@ class LojaApp {
 
         let html = `<div style="grid-column: 1/-1; margin-bottom: 1rem; padding: 1rem; background: var(--light-gray); border-radius: var(--radius-md);">
             <h3 style="margin: 0 0 0.5rem 0; color: var(--primary-color);">
-                <i class="fas fa-search"></i> Resultados da busca: "${this.escapeHtml(searchTerm)}"
+                <i class="fas fa-search"></i> Resultados da busca: "${this.escapeHtml(
+                    searchTerm
+                )}"
             </h3>
             <p style="margin: 0; color: var(--gray-600); font-size: 0.9rem;">
                 Encontrados ${totalResults} resultado(s)
@@ -17902,15 +19970,21 @@ class LojaApp {
                     <i class="fas fa-box"></i> Produtos (${results.items.length})
                 </h4>
             </div>`;
-            results.items.forEach(item => {
+            results.items.forEach((item) => {
                 html += `
                     <div class="item-card">
                         <div class="item-header">
                             <h3>${this.escapeHtml(item.name)}</h3>
-                            <span style="font-size: 0.75rem; color: var(--gray-600);">${item.category || 'Produto'}</span>
+                            <span style="font-size: 0.75rem; color: var(--gray-600);">${
+                                item.category || 'Produto'
+                            }</span>
                         </div>
                         <div class="item-details">
-                            <p><i class="fas fa-dollar-sign"></i> Preço: R$ ${(item.price || 0).toFixed(2).replace('.', ',')}</p>
+                            <p><i class="fas fa-dollar-sign"></i> Preço: R$ ${(
+                                item.price || 0
+                            )
+                                .toFixed(2)
+                                .replace('.', ',')}</p>
                         </div>
                     </div>
                 `;
@@ -17924,7 +19998,7 @@ class LojaApp {
                     <i class="fas fa-user"></i> Clientes (${results.clients.length})
                 </h4>
             </div>`;
-            results.clients.forEach(client => {
+            results.clients.forEach((client) => {
                 html += `
                     <div class="item-card">
                         <div class="item-header">
@@ -17932,8 +20006,20 @@ class LojaApp {
                             <span style="font-size: 0.75rem; color: var(--gray-600);">Cliente</span>
                         </div>
                         <div class="item-details">
-                            ${client.cpf ? `<p><i class="fas fa-id-card"></i> CPF: ${this.escapeHtml(client.cpf)}</p>` : ''}
-                            ${client.email ? `<p><i class="fas fa-envelope"></i> ${this.escapeHtml(client.email)}</p>` : ''}
+                            ${
+                                client.cpf
+                                    ? `<p><i class="fas fa-id-card"></i> CPF: ${this.escapeHtml(
+                                          client.cpf
+                                      )}</p>`
+                                    : ''
+                            }
+                            ${
+                                client.email
+                                    ? `<p><i class="fas fa-envelope"></i> ${this.escapeHtml(
+                                          client.email
+                                      )}</p>`
+                                    : ''
+                            }
                         </div>
                     </div>
                 `;
@@ -17947,7 +20033,7 @@ class LojaApp {
                     <i class="fas fa-truck"></i> Fornecedores (${results.suppliers.length})
                 </h4>
             </div>`;
-            results.suppliers.forEach(supplier => {
+            results.suppliers.forEach((supplier) => {
                 html += `
                     <div class="item-card">
                         <div class="item-header">
@@ -17955,7 +20041,13 @@ class LojaApp {
                             <span style="font-size: 0.75rem; color: var(--gray-600);">Fornecedor</span>
                         </div>
                         <div class="item-details">
-                            ${supplier.cnpj ? `<p><i class="fas fa-building"></i> CNPJ: ${this.escapeHtml(supplier.cnpj)}</p>` : ''}
+                            ${
+                                supplier.cnpj
+                                    ? `<p><i class="fas fa-building"></i> CNPJ: ${this.escapeHtml(
+                                          supplier.cnpj
+                                      )}</p>`
+                                    : ''
+                            }
                         </div>
                     </div>
                 `;
@@ -17969,8 +20061,10 @@ class LojaApp {
                     <i class="fas fa-shopping-cart"></i> Vendas (${results.sales.length})
                 </h4>
             </div>`;
-            results.sales.forEach(sale => {
-                const saleDate = sale.date ? new Date(sale.date).toLocaleDateString('pt-BR') : 'N/A';
+            results.sales.forEach((sale) => {
+                const saleDate = sale.date
+                    ? new Date(sale.date).toLocaleDateString('pt-BR')
+                    : 'N/A';
                 html += `
                     <div class="item-card">
                         <div class="item-header">
@@ -17978,8 +20072,18 @@ class LojaApp {
                             <span style="font-size: 0.75rem; color: var(--gray-600);">Venda - ${saleDate}</span>
                         </div>
                         <div class="item-details">
-                            ${sale.orderCode ? `<p><i class="fas fa-barcode"></i> Código: ${this.escapeHtml(sale.orderCode)}</p>` : ''}
-                            <p><i class="fas fa-dollar-sign"></i> Total: R$ ${(sale.totalValue || 0).toFixed(2).replace('.', ',')}</p>
+                            ${
+                                sale.orderCode
+                                    ? `<p><i class="fas fa-barcode"></i> Código: ${this.escapeHtml(
+                                          sale.orderCode
+                                      )}</p>`
+                                    : ''
+                            }
+                            <p><i class="fas fa-dollar-sign"></i> Total: R$ ${(
+                                sale.totalValue || 0
+                            )
+                                .toFixed(2)
+                                .replace('.', ',')}</p>
                         </div>
                     </div>
                 `;
@@ -17993,13 +20097,15 @@ class LojaApp {
                     <i class="fas fa-calendar-check"></i> Agendamentos (${results.appointments.length})
                 </h4>
             </div>`;
-            results.appointments.forEach(appointment => {
-                const appointmentDate = appointment.date ? new Date(appointment.date).toLocaleDateString('pt-BR') : 'N/A';
+            results.appointments.forEach((appointment) => {
+                const appointmentDate = appointment.date
+                    ? new Date(appointment.date).toLocaleDateString('pt-BR')
+                    : 'N/A';
                 const statusNames = {
                     pending: 'Pendente',
                     confirmed: 'Confirmado',
                     completed: 'Concluído',
-                    cancelled: 'Cancelado'
+                    cancelled: 'Cancelado',
                 };
                 html += `
                     <div class="item-card">
@@ -18008,9 +20114,24 @@ class LojaApp {
                             <span style="font-size: 0.75rem; color: var(--gray-600);">Agendamento - ${appointmentDate}</span>
                         </div>
                         <div class="item-details">
-                            ${appointment.serviceName ? `<p><i class="fas fa-tools"></i> Serviço: ${this.escapeHtml(appointment.serviceName)}</p>` : ''}
-                            ${appointment.time ? `<p><i class="fas fa-clock"></i> Horário: ${this.escapeHtml(appointment.time)}</p>` : ''}
-                            <p><i class="fas fa-info-circle"></i> Status: ${statusNames[appointment.status] || appointment.status}</p>
+                            ${
+                                appointment.serviceName
+                                    ? `<p><i class="fas fa-tools"></i> Serviço: ${this.escapeHtml(
+                                          appointment.serviceName
+                                      )}</p>`
+                                    : ''
+                            }
+                            ${
+                                appointment.time
+                                    ? `<p><i class="fas fa-clock"></i> Horário: ${this.escapeHtml(
+                                          appointment.time
+                                      )}</p>`
+                                    : ''
+                            }
+                            <p><i class="fas fa-info-circle"></i> Status: ${
+                                statusNames[appointment.status] ||
+                                appointment.status
+                            }</p>
                         </div>
                     </div>
                 `;
@@ -18029,7 +20150,7 @@ class LojaApp {
             console.error('Modal de histórico de promoções não encontrado');
             return;
         }
-        
+
         this.populatePromotionHistoryFilter();
         this.renderPromotionHistory();
         modal.classList.add('active');
@@ -18047,17 +20168,19 @@ class LojaApp {
     populatePromotionHistoryFilter() {
         const filter = document.getElementById('promotionHistoryFilter');
         if (!filter) return;
-        
+
         // Limpar opções existentes (exceto a primeira)
         while (filter.options.length > 1) {
             filter.remove(1);
         }
-        
+
         // Adicionar cupons
-        this.coupons.forEach(coupon => {
+        this.coupons.forEach((coupon) => {
             const option = document.createElement('option');
             option.value = coupon.code;
-            option.textContent = `${coupon.code} - ${coupon.description || 'Sem descrição'}`;
+            option.textContent = `${coupon.code} - ${
+                coupon.description || 'Sem descrição'
+            }`;
             filter.appendChild(option);
         });
     }
@@ -18066,17 +20189,20 @@ class LojaApp {
     renderPromotionHistory() {
         const container = document.getElementById('promotionHistoryList');
         const filter = document.getElementById('promotionHistoryFilter');
-        
+
         if (!container) return;
-        
+
         const selectedCouponCode = filter ? filter.value : '';
-        
+
         // Buscar vendas que usaram cupons
-        const salesWithCoupons = this.completedSales.filter(sale => 
-            sale.discount && sale.discount.couponCode &&
-            (!selectedCouponCode || sale.discount.couponCode === selectedCouponCode)
+        const salesWithCoupons = this.completedSales.filter(
+            (sale) =>
+                sale.discount &&
+                sale.discount.couponCode &&
+                (!selectedCouponCode ||
+                    sale.discount.couponCode === selectedCouponCode)
         );
-        
+
         if (salesWithCoupons.length === 0) {
             container.innerHTML = `
                 <div class="empty-state" style="grid-column: 1/-1;">
@@ -18085,51 +20211,74 @@ class LojaApp {
                     </div>
                     <h3 class="empty-state-title">Nenhum uso de cupom encontrado</h3>
                     <p class="empty-state-message">
-                        ${selectedCouponCode ? 'Este cupom ainda não foi usado em nenhuma venda.' : 'Ainda não há vendas que utilizaram cupons de desconto.'}
+                        ${
+                            selectedCouponCode
+                                ? 'Este cupom ainda não foi usado em nenhuma venda.'
+                                : 'Ainda não há vendas que utilizaram cupons de desconto.'
+                        }
                     </p>
                 </div>
             `;
             return;
         }
-        
+
         // Agrupar por cupom
         const historyByCoupon = {};
-        salesWithCoupons.forEach(sale => {
+        salesWithCoupons.forEach((sale) => {
             const couponCode = sale.discount.couponCode;
             if (!historyByCoupon[couponCode]) {
-                const coupon = this.coupons.find(c => c.code === couponCode);
+                const coupon = this.coupons.find((c) => c.code === couponCode);
                 historyByCoupon[couponCode] = {
                     coupon: coupon,
                     sales: [],
                     totalDiscount: 0,
-                    totalValue: 0
+                    totalValue: 0,
                 };
             }
             historyByCoupon[couponCode].sales.push(sale);
-            historyByCoupon[couponCode].totalDiscount += sale.discount.amount || 0;
+            historyByCoupon[couponCode].totalDiscount +=
+                sale.discount.amount || 0;
             historyByCoupon[couponCode].totalValue += sale.totalValue || 0;
         });
-        
+
         let html = '';
-        
+
         // Renderizar por cupom
-        Object.keys(historyByCoupon).forEach(couponCode => {
+        Object.keys(historyByCoupon).forEach((couponCode) => {
             const history = historyByCoupon[couponCode];
             const coupon = history.coupon;
-            
+
             html += `
                 <div style="margin-bottom: 2rem; padding: 1.5rem; background: var(--white); border: 1px solid var(--border-color); border-radius: var(--radius-md);">
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; padding-bottom: 1rem; border-bottom: 2px solid var(--border-color);">
                         <div>
                             <h3 style="margin: 0; color: var(--primary-color);">
-                                <i class="fas fa-tag"></i> ${this.escapeHtml(couponCode)}
+                                <i class="fas fa-tag"></i> ${this.escapeHtml(
+                                    couponCode
+                                )}
                             </h3>
-                            ${coupon ? `
+                            ${
+                                coupon
+                                    ? `
                                 <p style="margin: 0.5rem 0 0 0; color: var(--gray-600); font-size: 0.9rem;">
-                                    ${coupon.type === 'percent' ? `${coupon.value}%` : `R$ ${coupon.value.toFixed(2).replace('.', ',')}`} de desconto
-                                    ${coupon.description ? ` - ${this.escapeHtml(coupon.description)}` : ''}
+                                    ${
+                                        coupon.type === 'percent'
+                                            ? `${coupon.value}%`
+                                            : `R$ ${coupon.value
+                                                  .toFixed(2)
+                                                  .replace('.', ',')}`
+                                    } de desconto
+                                    ${
+                                        coupon.description
+                                            ? ` - ${this.escapeHtml(
+                                                  coupon.description
+                                              )}`
+                                            : ''
+                                    }
                                 </p>
-                            ` : ''}
+                            `
+                                    : ''
+                            }
                         </div>
                         <div style="text-align: right;">
                             <p style="margin: 0; font-size: 0.85rem; color: var(--gray-600);">Total de usos</p>
@@ -18143,56 +20292,95 @@ class LojaApp {
                         <div style="padding: 1rem; background: var(--light-gray); border-radius: var(--radius-sm);">
                             <p style="margin: 0; font-size: 0.85rem; color: var(--gray-600);">Total em Descontos</p>
                             <p style="margin: 0.25rem 0 0 0; font-size: 1.2rem; font-weight: 600; color: #28a745;">
-                                R$ ${history.totalDiscount.toFixed(2).replace('.', ',')}
+                                R$ ${history.totalDiscount
+                                    .toFixed(2)
+                                    .replace('.', ',')}
                             </p>
                         </div>
                         <div style="padding: 1rem; background: var(--light-gray); border-radius: var(--radius-sm);">
                             <p style="margin: 0; font-size: 0.85rem; color: var(--gray-600);">Valor Total das Vendas</p>
                             <p style="margin: 0.25rem 0 0 0; font-size: 1.2rem; font-weight: 600; color: var(--primary-color);">
-                                R$ ${history.totalValue.toFixed(2).replace('.', ',')}
+                                R$ ${history.totalValue
+                                    .toFixed(2)
+                                    .replace('.', ',')}
                             </p>
                         </div>
                     </div>
                     
                     <div>
                         <h4 style="margin: 0 0 1rem 0; color: var(--dark-gray); font-size: 1rem;">
-                            <i class="fas fa-shopping-cart"></i> Vendas que usaram este cupom (${history.sales.length})
+                            <i class="fas fa-shopping-cart"></i> Vendas que usaram este cupom (${
+                                history.sales.length
+                            })
                         </h4>
                         <div style="display: flex; flex-direction: column; gap: 0.75rem;">
-                            ${history.sales.map(sale => {
-                                const saleDate = sale.date ? new Date(sale.date).toLocaleDateString('pt-BR') : 'N/A';
-                                const saleTime = sale.date ? new Date(sale.date).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }) : '';
-                                return `
+                            ${history.sales
+                                .map((sale) => {
+                                    const saleDate = sale.date
+                                        ? new Date(
+                                              sale.date
+                                          ).toLocaleDateString('pt-BR')
+                                        : 'N/A';
+                                    const saleTime = sale.date
+                                        ? new Date(
+                                              sale.date
+                                          ).toLocaleTimeString('pt-BR', {
+                                              hour: '2-digit',
+                                              minute: '2-digit',
+                                          })
+                                        : '';
+                                    return `
                                     <div style="padding: 1rem; background: var(--light-gray); border-radius: var(--radius-sm); border-left: 3px solid var(--primary-color);">
                                         <div style="display: flex; justify-content: space-between; align-items: start; flex-wrap: wrap; gap: 0.5rem;">
                                             <div style="flex: 1;">
                                                 <p style="margin: 0; font-weight: 600; color: var(--dark-gray);">
-                                                    ${this.escapeHtml(sale.customerName || 'Cliente não informado')}
+                                                    ${this.escapeHtml(
+                                                        sale.customerName ||
+                                                            'Cliente não informado'
+                                                    )}
                                                 </p>
                                                 <p style="margin: 0.25rem 0 0 0; font-size: 0.85rem; color: var(--gray-600);">
-                                                    <i class="fas fa-calendar"></i> ${saleDate} ${saleTime ? `às ${saleTime}` : ''}
-                                                    ${sale.orderCode ? ` | <i class="fas fa-barcode"></i> ${this.escapeHtml(sale.orderCode)}` : ''}
+                                                    <i class="fas fa-calendar"></i> ${saleDate} ${
+                                        saleTime ? `às ${saleTime}` : ''
+                                    }
+                                                    ${
+                                                        sale.orderCode
+                                                            ? ` | <i class="fas fa-barcode"></i> ${this.escapeHtml(
+                                                                  sale.orderCode
+                                                              )}`
+                                                            : ''
+                                                    }
                                                 </p>
                                             </div>
                                             <div style="text-align: right;">
                                                 <p style="margin: 0; font-size: 0.85rem; color: var(--gray-600);">Desconto aplicado</p>
                                                 <p style="margin: 0.25rem 0 0 0; font-weight: 600; color: #28a745;">
-                                                    - R$ ${(sale.discount.amount || 0).toFixed(2).replace('.', ',')}
+                                                    - R$ ${(
+                                                        sale.discount.amount ||
+                                                        0
+                                                    )
+                                                        .toFixed(2)
+                                                        .replace('.', ',')}
                                                 </p>
                                                 <p style="margin: 0.25rem 0 0 0; font-size: 0.85rem; color: var(--gray-600);">
-                                                    Total: R$ ${(sale.totalValue || 0).toFixed(2).replace('.', ',')}
+                                                    Total: R$ ${(
+                                                        sale.totalValue || 0
+                                                    )
+                                                        .toFixed(2)
+                                                        .replace('.', ',')}
                                                 </p>
                                             </div>
                                         </div>
                                     </div>
                                 `;
-                            }).join('')}
+                                })
+                                .join('')}
                         </div>
                     </div>
                 </div>
             `;
         });
-        
+
         container.innerHTML = html;
     }
 
@@ -18201,22 +20389,35 @@ class LojaApp {
     // Verificar alertas de metas próximas
     checkGoalsAlerts() {
         const now = new Date();
-        const currentMonth = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+        const currentMonth = `${now.getFullYear()}-${String(
+            now.getMonth() + 1
+        ).padStart(2, '0')}`;
         const currentGoal = this.goals.find((g) => g.month === currentMonth);
-        
+
         if (!currentGoal) return;
-        
+
         const currentSales = this.getMonthSales(currentMonth);
         const progress = (currentSales / currentGoal.amount) * 100;
-        const daysInMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
+        const daysInMonth = new Date(
+            now.getFullYear(),
+            now.getMonth() + 1,
+            0
+        ).getDate();
         const daysRemaining = daysInMonth - now.getDate();
-        
+
         // Alerta se está entre 75-95% e faltam menos de 7 dias
         if (progress >= 75 && progress < 100 && daysRemaining <= 7) {
             const remaining = currentGoal.amount - currentSales;
             if (typeof toast !== 'undefined' && toast) {
                 toast.warning(
-                    `Meta do mês: ${progress.toFixed(1)}% concluída. Faltam R$ ${remaining.toFixed(2).replace('.', ',')} e ${daysRemaining} dia(s) restante(s)!`,
+                    `Meta do mês: ${progress.toFixed(
+                        1
+                    )}% concluída. Faltam R$ ${remaining
+                        .toFixed(2)
+                        .replace(
+                            '.',
+                            ','
+                        )} e ${daysRemaining} dia(s) restante(s)!`,
                     5000
                 );
             }
@@ -18229,28 +20430,33 @@ class LojaApp {
         const tomorrow = new Date(now);
         tomorrow.setDate(tomorrow.getDate() + 1);
         tomorrow.setHours(0, 0, 0, 0);
-        
+
         const todayEnd = new Date(now);
         todayEnd.setHours(23, 59, 59, 999);
-        
+
         // Agendamentos hoje
-        const todayAppointments = this.serviceAppointments.filter(apt => {
-            if (apt.status === 'completed' || apt.status === 'cancelled') return false;
+        const todayAppointments = this.serviceAppointments.filter((apt) => {
+            if (apt.status === 'completed' || apt.status === 'cancelled')
+                return false;
             const aptDate = new Date(`${apt.date}T${apt.time}`);
             return aptDate >= now && aptDate <= todayEnd;
         });
-        
+
         // Agendamentos amanhã
         const tomorrowEnd = new Date(tomorrow);
         tomorrowEnd.setHours(23, 59, 59, 999);
-        const tomorrowAppointments = this.serviceAppointments.filter(apt => {
-            if (apt.status === 'completed' || apt.status === 'cancelled') return false;
+        const tomorrowAppointments = this.serviceAppointments.filter((apt) => {
+            if (apt.status === 'completed' || apt.status === 'cancelled')
+                return false;
             const aptDate = new Date(`${apt.date}T${apt.time}`);
             return aptDate >= tomorrow && aptDate <= tomorrowEnd;
         });
-        
+
         // Mostrar alertas (apenas uma vez por sessão)
-        if (todayAppointments.length > 0 && !sessionStorage.getItem('todayAppointmentsAlerted')) {
+        if (
+            todayAppointments.length > 0 &&
+            !sessionStorage.getItem('todayAppointmentsAlerted')
+        ) {
             if (typeof toast !== 'undefined' && toast) {
                 toast.info(
                     `Você tem ${todayAppointments.length} agendamento(s) hoje!`,
@@ -18259,8 +20465,11 @@ class LojaApp {
                 sessionStorage.setItem('todayAppointmentsAlerted', 'true');
             }
         }
-        
-        if (tomorrowAppointments.length > 0 && !sessionStorage.getItem('tomorrowAppointmentsAlerted')) {
+
+        if (
+            tomorrowAppointments.length > 0 &&
+            !sessionStorage.getItem('tomorrowAppointmentsAlerted')
+        ) {
             if (typeof toast !== 'undefined' && toast) {
                 toast.info(
                     `Você tem ${tomorrowAppointments.length} agendamento(s) amanhã!`,
@@ -18275,23 +20484,38 @@ class LojaApp {
     checkPendingOrdersAlerts() {
         const now = new Date();
         now.setHours(0, 0, 0, 0);
-        
-        const expiredOrders = this.pendingOrders.filter(order => {
-            if (!order.dueDate || order.status === 'cancelled' || order.status === 'completed') return false;
+
+        const expiredOrders = this.pendingOrders.filter((order) => {
+            if (
+                !order.dueDate ||
+                order.status === 'cancelled' ||
+                order.status === 'completed'
+            )
+                return false;
             const dueDate = new Date(order.dueDate);
             dueDate.setHours(0, 0, 0, 0);
             return dueDate < now;
         });
-        
-        const expiringSoonOrders = this.pendingOrders.filter(order => {
-            if (!order.dueDate || order.status === 'cancelled' || order.status === 'completed') return false;
+
+        const expiringSoonOrders = this.pendingOrders.filter((order) => {
+            if (
+                !order.dueDate ||
+                order.status === 'cancelled' ||
+                order.status === 'completed'
+            )
+                return false;
             const dueDate = new Date(order.dueDate);
             dueDate.setHours(0, 0, 0, 0);
-            const daysUntilDue = Math.ceil((dueDate - now) / (1000 * 60 * 60 * 24));
+            const daysUntilDue = Math.ceil(
+                (dueDate - now) / (1000 * 60 * 60 * 24)
+            );
             return daysUntilDue >= 0 && daysUntilDue <= 3;
         });
-        
-        if (expiredOrders.length > 0 && !sessionStorage.getItem('expiredOrdersAlerted')) {
+
+        if (
+            expiredOrders.length > 0 &&
+            !sessionStorage.getItem('expiredOrdersAlerted')
+        ) {
             if (typeof toast !== 'undefined' && toast) {
                 toast.error(
                     `Atenção! ${expiredOrders.length} pedido(s) vencido(s) precisam de atenção.`,
@@ -18300,8 +20524,11 @@ class LojaApp {
                 sessionStorage.setItem('expiredOrdersAlerted', 'true');
             }
         }
-        
-        if (expiringSoonOrders.length > 0 && !sessionStorage.getItem('expiringSoonOrdersAlerted')) {
+
+        if (
+            expiringSoonOrders.length > 0 &&
+            !sessionStorage.getItem('expiringSoonOrdersAlerted')
+        ) {
             if (typeof toast !== 'undefined' && toast) {
                 toast.warning(
                     `${expiringSoonOrders.length} pedido(s) vence(m) em até 3 dias!`,
@@ -18321,17 +20548,19 @@ class LojaApp {
             console.error('Modal de construtor de relatórios não encontrado');
             return;
         }
-        
+
         // Limpar formulário
         const form = document.getElementById('reportBuilderForm');
         if (form) form.reset();
-        
+
         // Definir datas padrão (mês atual)
         const now = new Date();
         const firstDay = new Date(now.getFullYear(), now.getMonth(), 1);
         const lastDay = new Date(now.getFullYear(), now.getMonth() + 1, 0);
-        
-        const startDateInput = document.getElementById('reportBuilderStartDate');
+
+        const startDateInput = document.getElementById(
+            'reportBuilderStartDate'
+        );
         const endDateInput = document.getElementById('reportBuilderEndDate');
         if (startDateInput) {
             startDateInput.value = firstDay.toISOString().split('T')[0];
@@ -18339,7 +20568,7 @@ class LojaApp {
         if (endDateInput) {
             endDateInput.value = lastDay.toISOString().split('T')[0];
         }
-        
+
         modal.classList.add('active');
     }
 
@@ -18355,18 +20584,24 @@ class LojaApp {
     updateReportBuilderFields() {
         const type = document.getElementById('reportBuilderType')?.value;
         const filtersDiv = document.getElementById('reportBuilderFilters');
-        
+
         if (!filtersDiv) return;
-        
+
         // Mostrar/ocultar filtros específicos baseado no tipo
-        const categoryFilter = document.getElementById('reportBuilderCategory')?.parentElement;
-        const statusFilter = document.getElementById('reportBuilderStatus')?.parentElement;
-        
+        const categoryFilter = document.getElementById(
+            'reportBuilderCategory'
+        )?.parentElement;
+        const statusFilter = document.getElementById(
+            'reportBuilderStatus'
+        )?.parentElement;
+
         if (categoryFilter) {
-            categoryFilter.style.display = (type === 'products' || type === 'sales') ? 'block' : 'none';
+            categoryFilter.style.display =
+                type === 'products' || type === 'sales' ? 'block' : 'none';
         }
         if (statusFilter) {
-            statusFilter.style.display = (type === 'sales' || type === 'services') ? 'block' : 'none';
+            statusFilter.style.display =
+                type === 'sales' || type === 'services' ? 'block' : 'none';
         }
     }
 
@@ -18374,10 +20609,10 @@ class LojaApp {
     setReportBuilderPeriod() {
         const period = document.getElementById('reportBuilderPeriod')?.value;
         if (!period || period === '') return;
-        
+
         const now = new Date();
         let startDate, endDate;
-        
+
         switch (period) {
             case 'today':
                 startDate = new Date(now);
@@ -18409,7 +20644,8 @@ class LojaApp {
                 break;
             case 'lastQuarter':
                 const lastQuarter = Math.floor(now.getMonth() / 3) - 1;
-                const lastQuarterYear = lastQuarter < 0 ? now.getFullYear() - 1 : now.getFullYear();
+                const lastQuarterYear =
+                    lastQuarter < 0 ? now.getFullYear() - 1 : now.getFullYear();
                 const lastQuarterMonth = lastQuarter < 0 ? 9 : lastQuarter * 3;
                 startDate = new Date(lastQuarterYear, lastQuarterMonth, 1);
                 endDate = new Date(lastQuarterYear, lastQuarterMonth + 3, 0);
@@ -18421,52 +20657,75 @@ class LojaApp {
             default:
                 return;
         }
-        
-        const startDateInput = document.getElementById('reportBuilderStartDate');
+
+        const startDateInput = document.getElementById(
+            'reportBuilderStartDate'
+        );
         const endDateInput = document.getElementById('reportBuilderEndDate');
-        if (startDateInput) startDateInput.value = startDate.toISOString().split('T')[0];
-        if (endDateInput) endDateInput.value = endDate.toISOString().split('T')[0];
+        if (startDateInput)
+            startDateInput.value = startDate.toISOString().split('T')[0];
+        if (endDateInput)
+            endDateInput.value = endDate.toISOString().split('T')[0];
     }
 
     // Gerar relatório personalizado
     generateCustomReport(e) {
         if (e) e.preventDefault();
-        
+
         const type = document.getElementById('reportBuilderType')?.value;
-        const startDate = document.getElementById('reportBuilderStartDate')?.value;
+        const startDate = document.getElementById(
+            'reportBuilderStartDate'
+        )?.value;
         const endDate = document.getElementById('reportBuilderEndDate')?.value;
         const format = document.getElementById('reportBuilderFormat')?.value;
-        const includeCharts = document.getElementById('reportBuilderIncludeCharts')?.checked || false;
-        const includeSummary = document.getElementById('reportBuilderIncludeSummary')?.checked || false;
-        const category = document.getElementById('reportBuilderCategory')?.value || '';
-        const status = document.getElementById('reportBuilderStatus')?.value || '';
-        
+        const includeCharts =
+            document.getElementById('reportBuilderIncludeCharts')?.checked ||
+            false;
+        const includeSummary =
+            document.getElementById('reportBuilderIncludeSummary')?.checked ||
+            false;
+        const category =
+            document.getElementById('reportBuilderCategory')?.value || '';
+        const status =
+            document.getElementById('reportBuilderStatus')?.value || '';
+
         if (!type || !format) {
             if (typeof toast !== 'undefined' && toast) {
-                toast.warning('Por favor, preencha todos os campos obrigatórios.', 3000);
+                toast.warning(
+                    'Por favor, preencha todos os campos obrigatórios.',
+                    3000
+                );
             }
             return;
         }
-        
+
         if (!startDate || !endDate) {
             if (typeof toast !== 'undefined' && toast) {
-                toast.warning('Por favor, selecione o período do relatório.', 3000);
+                toast.warning(
+                    'Por favor, selecione o período do relatório.',
+                    3000
+                );
             }
             return;
         }
-        
+
         // Coletar dados baseado no tipo
         let reportData = {};
         let reportTitle = '';
-        
+
         const start = new Date(startDate);
         const end = new Date(endDate);
         end.setHours(23, 59, 59, 999);
-        
+
         switch (type) {
             case 'sales':
                 reportTitle = 'Relatório de Vendas';
-                reportData = this.generateSalesReport(start, end, category, status);
+                reportData = this.generateSalesReport(
+                    start,
+                    end,
+                    category,
+                    status
+                );
                 break;
             case 'services':
                 reportTitle = 'Relatório de Serviços';
@@ -18486,14 +20745,21 @@ class LojaApp {
                 break;
             case 'custom':
                 reportTitle = 'Relatório Personalizado';
-                reportData = this.generateCustomCombinedReport(start, end, category, status);
+                reportData = this.generateCustomCombinedReport(
+                    start,
+                    end,
+                    category,
+                    status
+                );
                 break;
         }
-        
+
         // Verificar se é agendamento ou compartilhamento
-        const isScheduled = document.getElementById('reportBuilderSchedule')?.checked || false;
-        const isShared = document.getElementById('reportBuilderShare')?.checked || false;
-        
+        const isScheduled =
+            document.getElementById('reportBuilderSchedule')?.checked || false;
+        const isShared =
+            document.getElementById('reportBuilderShare')?.checked || false;
+
         // Configuração do relatório
         const reportConfig = {
             type,
@@ -18504,33 +20770,51 @@ class LojaApp {
             includeSummary,
             category,
             status,
-            title: reportTitle
+            title: reportTitle,
         };
-        
+
         // Agendar relatório se solicitado
         if (isScheduled) {
-            const scheduleDate = document.getElementById('reportBuilderScheduleDate')?.value;
-            const scheduleTime = document.getElementById('reportBuilderScheduleTime')?.value;
-            const frequency = document.getElementById('reportBuilderScheduleFrequency')?.value || 'once';
-            
+            const scheduleDate = document.getElementById(
+                'reportBuilderScheduleDate'
+            )?.value;
+            const scheduleTime = document.getElementById(
+                'reportBuilderScheduleTime'
+            )?.value;
+            const frequency =
+                document.getElementById('reportBuilderScheduleFrequency')
+                    ?.value || 'once';
+
             if (scheduleDate && scheduleTime) {
-                this.scheduleReport(reportConfig, scheduleDate, scheduleTime, frequency);
+                this.scheduleReport(
+                    reportConfig,
+                    scheduleDate,
+                    scheduleTime,
+                    frequency
+                );
                 if (typeof toast !== 'undefined' && toast) {
                     toast.success('Relatório agendado com sucesso!', 3000);
                 }
             } else {
                 if (typeof toast !== 'undefined' && toast) {
-                    toast.warning('Por favor, preencha data e hora do agendamento.', 3000);
+                    toast.warning(
+                        'Por favor, preencha data e hora do agendamento.',
+                        3000
+                    );
                 }
                 return;
             }
         }
-        
+
         // Compartilhar relatório se solicitado
         if (isShared) {
-            const shareEmails = document.getElementById('reportBuilderShareEmails')?.value;
-            const shareMessage = document.getElementById('reportBuilderShareMessage')?.value || '';
-            
+            const shareEmails = document.getElementById(
+                'reportBuilderShareEmails'
+            )?.value;
+            const shareMessage =
+                document.getElementById('reportBuilderShareMessage')?.value ||
+                '';
+
             if (shareEmails) {
                 this.shareReport(reportConfig, shareEmails, shareMessage);
                 if (typeof toast !== 'undefined' && toast) {
@@ -18538,20 +20822,29 @@ class LojaApp {
                 }
             } else {
                 if (typeof toast !== 'undefined' && toast) {
-                    toast.warning('Por favor, informe pelo menos um email para compartilhamento.', 3000);
+                    toast.warning(
+                        'Por favor, informe pelo menos um email para compartilhamento.',
+                        3000
+                    );
                 }
                 return;
             }
         }
-        
+
         // Se não for agendamento, gerar imediatamente
         if (!isScheduled) {
             // Exportar no formato selecionado
-            this.exportReport(reportData, reportTitle, format, includeCharts, includeSummary);
-            
+            this.exportReport(
+                reportData,
+                reportTitle,
+                format,
+                includeCharts,
+                includeSummary
+            );
+
             // Fechar modal
             this.closeReportBuilderModal();
-            
+
             if (typeof toast !== 'undefined' && toast) {
                 toast.success('Relatório gerado com sucesso!', 3000);
             }
@@ -18560,153 +20853,185 @@ class LojaApp {
             this.closeReportBuilderModal();
         }
     }
-    
+
     // Toggle campos de agendamento
     toggleScheduleFields() {
-        const scheduleCheckbox = document.getElementById('reportBuilderSchedule');
+        const scheduleCheckbox = document.getElementById(
+            'reportBuilderSchedule'
+        );
         const scheduleFields = document.getElementById('scheduleFields');
-        
+
         if (scheduleCheckbox && scheduleFields) {
-            scheduleFields.style.display = scheduleCheckbox.checked ? 'block' : 'none';
-            
+            scheduleFields.style.display = scheduleCheckbox.checked
+                ? 'block'
+                : 'none';
+
             // Definir data/hora padrão se estiver marcado
             if (scheduleCheckbox.checked) {
                 const now = new Date();
-                const scheduleDate = document.getElementById('reportBuilderScheduleDate');
-                const scheduleTime = document.getElementById('reportBuilderScheduleTime');
-                
+                const scheduleDate = document.getElementById(
+                    'reportBuilderScheduleDate'
+                );
+                const scheduleTime = document.getElementById(
+                    'reportBuilderScheduleTime'
+                );
+
                 if (scheduleDate) {
                     scheduleDate.value = now.toISOString().split('T')[0];
                 }
                 if (scheduleTime) {
-                    scheduleTime.value = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+                    scheduleTime.value = `${String(now.getHours()).padStart(
+                        2,
+                        '0'
+                    )}:${String(now.getMinutes()).padStart(2, '0')}`;
                 }
             }
         }
     }
-    
+
     // Toggle campos de compartilhamento
     toggleShareFields() {
         const shareCheckbox = document.getElementById('reportBuilderShare');
         const shareFields = document.getElementById('shareFields');
-        
+
         if (shareCheckbox && shareFields) {
-            shareFields.style.display = shareCheckbox.checked ? 'block' : 'none';
+            shareFields.style.display = shareCheckbox.checked
+                ? 'block'
+                : 'none';
         }
     }
-    
+
     // Agendar relatório
     scheduleReport(config, scheduleDate, scheduleTime, frequency) {
         const scheduleDateTime = new Date(`${scheduleDate}T${scheduleTime}`);
         const now = new Date();
-        
+
         if (scheduleDateTime <= now && frequency === 'once') {
             if (typeof toast !== 'undefined' && toast) {
-                toast.warning('A data/hora do agendamento deve ser no futuro.', 3000);
+                toast.warning(
+                    'A data/hora do agendamento deve ser no futuro.',
+                    3000
+                );
             }
             return;
         }
-        
+
         const scheduledReport = {
-            id: `schedule_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+            id: `schedule_${Date.now()}_${Math.random()
+                .toString(36)
+                .substr(2, 9)}`,
             config,
             scheduleDate: scheduleDateTime.toISOString(),
             frequency,
             createdAt: new Date().toISOString(),
             lastRun: null,
             nextRun: scheduleDateTime.toISOString(),
-            active: true
+            active: true,
         };
-        
+
         this.scheduledReports.push(scheduledReport);
         this.saveData();
-        
+
         console.log('✅ [SCHEDULE] Relatório agendado:', scheduledReport);
-        
+
         // Iniciar verificação de agendamentos se ainda não estiver rodando
         if (!this.scheduleCheckInterval) {
             this.initScheduleChecker();
         }
     }
-    
+
     // Compartilhar relatório
     shareReport(config, emails, message) {
-        const emailList = emails.split(',').map(email => email.trim()).filter(email => email);
-        
+        const emailList = emails
+            .split(',')
+            .map((email) => email.trim())
+            .filter((email) => email);
+
         if (emailList.length === 0) {
             if (typeof toast !== 'undefined' && toast) {
                 toast.warning('Nenhum email válido fornecido.', 3000);
             }
             return;
         }
-        
+
         const sharedReport = {
-            id: `share_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+            id: `share_${Date.now()}_${Math.random()
+                .toString(36)
+                .substr(2, 9)}`,
             config,
             sharedWith: emailList,
             message,
             sharedAt: new Date().toISOString(),
-            sent: false // Será marcado como true quando enviado (simulado)
+            sent: false, // Será marcado como true quando enviado (simulado)
         };
-        
+
         this.sharedReports.push(sharedReport);
         this.saveData();
-        
+
         console.log('✅ [SHARE] Relatório compartilhado:', sharedReport);
-        
+
         // Simular envio (em produção, isso chamaria a API de email)
         this.sendSharedReport(sharedReport);
     }
-    
+
     // Enviar relatório compartilhado (simulado)
     async sendSharedReport(sharedReport) {
         // Em produção, isso chamaria a API de email configurada
         // Por enquanto, apenas simula o envio
-        console.log('📧 [SHARE] Simulando envio de relatório para:', sharedReport.sharedWith);
-        
+        console.log(
+            '📧 [SHARE] Simulando envio de relatório para:',
+            sharedReport.sharedWith
+        );
+
         // Marcar como enviado após simulação
         setTimeout(() => {
             sharedReport.sent = true;
             this.saveData();
             if (typeof toast !== 'undefined' && toast) {
-                toast.info(`Relatório compartilhado com ${sharedReport.sharedWith.length} destinatário(s)`, 3000);
+                toast.info(
+                    `Relatório compartilhado com ${sharedReport.sharedWith.length} destinatário(s)`,
+                    3000
+                );
             }
         }, 1000);
     }
-    
+
     // Inicializar verificador de agendamentos
     initScheduleChecker() {
         // Verificar a cada minuto
         this.scheduleCheckInterval = setInterval(() => {
             this.checkScheduledReports();
         }, 60000); // 1 minuto
-        
+
         // Verificar imediatamente também
         this.checkScheduledReports();
-        
+
         console.log('✅ [SCHEDULE] Verificador de agendamentos iniciado');
     }
-    
+
     // Verificar e executar relatórios agendados
     checkScheduledReports() {
         const now = new Date();
         let hasChanges = false;
-        
-        this.scheduledReports.forEach(scheduled => {
+
+        this.scheduledReports.forEach((scheduled) => {
             if (!scheduled.active) return;
-            
+
             const nextRun = new Date(scheduled.nextRun);
-            
+
             // Se chegou a hora de executar
             if (nextRun <= now) {
-                console.log('⏰ [SCHEDULE] Executando relatório agendado:', scheduled.id);
-                
+                console.log(
+                    '⏰ [SCHEDULE] Executando relatório agendado:',
+                    scheduled.id
+                );
+
                 // Gerar relatório
                 this.executeScheduledReport(scheduled);
-                
+
                 // Atualizar próxima execução baseado na frequência
                 scheduled.lastRun = new Date().toISOString();
-                
+
                 if (scheduled.frequency === 'once') {
                     scheduled.active = false;
                 } else {
@@ -18725,39 +21050,52 @@ class LojaApp {
                     }
                     scheduled.nextRun = nextDate.toISOString();
                 }
-                
+
                 hasChanges = true;
             }
         });
-        
+
         // Remover agendamentos inativos
-        this.scheduledReports = this.scheduledReports.filter(s => s.active);
-        
+        this.scheduledReports = this.scheduledReports.filter((s) => s.active);
+
         if (hasChanges) {
             this.saveData();
         }
     }
-    
+
     // Executar relatório agendado
     executeScheduledReport(scheduled) {
         const { config } = scheduled;
         const start = new Date(config.startDate);
         const end = new Date(config.endDate);
         end.setHours(23, 59, 59, 999);
-        
+
         let reportData = {};
         let reportTitle = config.title || 'Relatório Agendado';
-        
+
         // Gerar dados do relatório
         switch (config.type) {
             case 'sales':
-                reportData = this.generateSalesReport(start, end, config.category, config.status);
+                reportData = this.generateSalesReport(
+                    start,
+                    end,
+                    config.category,
+                    config.status
+                );
                 break;
             case 'services':
-                reportData = this.generateServicesReport(start, end, config.status);
+                reportData = this.generateServicesReport(
+                    start,
+                    end,
+                    config.status
+                );
                 break;
             case 'products':
-                reportData = this.generateProductsReport(start, end, config.category);
+                reportData = this.generateProductsReport(
+                    start,
+                    end,
+                    config.category
+                );
                 break;
             case 'clients':
                 reportData = this.generateClientsReport(start, end);
@@ -18766,38 +21104,72 @@ class LojaApp {
                 reportData = this.generateFinancialReport(start, end);
                 break;
             case 'custom':
-                reportData = this.generateCustomCombinedReport(start, end, config.category, config.status);
+                reportData = this.generateCustomCombinedReport(
+                    start,
+                    end,
+                    config.category,
+                    config.status
+                );
                 break;
         }
-        
+
         // Exportar relatório
-        this.exportReport(reportData, reportTitle, config.format, config.includeCharts, config.includeSummary);
-        
+        this.exportReport(
+            reportData,
+            reportTitle,
+            config.format,
+            config.includeCharts,
+            config.includeSummary
+        );
+
         // Notificar usuário
         if (typeof toast !== 'undefined' && toast) {
-            toast.success(`Relatório agendado "${reportTitle}" gerado automaticamente!`, 5000);
+            toast.success(
+                `Relatório agendado "${reportTitle}" gerado automaticamente!`,
+                5000
+            );
         }
-        
-        console.log('✅ [SCHEDULE] Relatório agendado executado:', scheduled.id);
+
+        console.log(
+            '✅ [SCHEDULE] Relatório agendado executado:',
+            scheduled.id
+        );
     }
 
     // Gerar relatório de vendas
     generateSalesReport(startDate, endDate, category, status) {
-        const sales = this.completedSales.filter(sale => {
-            const saleDate = sale.date ? new Date(sale.date) : new Date(sale.createdAt);
+        const sales = this.completedSales.filter((sale) => {
+            const saleDate = sale.date
+                ? new Date(sale.date)
+                : new Date(sale.createdAt);
             const matchesDate = saleDate >= startDate && saleDate <= endDate;
-            const matchesCategory = !category || sale.items?.some(item => {
-                const product = this.items.find(i => i.id === item.itemId);
-                return product && product.category === category;
-            });
+            const matchesCategory =
+                !category ||
+                sale.items?.some((item) => {
+                    const product = this.items.find(
+                        (i) => i.id === item.itemId
+                    );
+                    return product && product.category === category;
+                });
             const matchesStatus = !status || sale.status === status;
             return matchesDate && matchesCategory && matchesStatus;
         });
-        
-        const totalValue = sales.reduce((sum, sale) => sum + (sale.totalValue || 0), 0);
-        const totalDiscount = sales.reduce((sum, sale) => sum + (sale.discount?.amount || 0), 0);
-        const totalItems = sales.reduce((sum, sale) => sum + (sale.items?.reduce((s, i) => s + (i.quantity || 0), 0) || 0), 0);
-        
+
+        const totalValue = sales.reduce(
+            (sum, sale) => sum + (sale.totalValue || 0),
+            0
+        );
+        const totalDiscount = sales.reduce(
+            (sum, sale) => sum + (sale.discount?.amount || 0),
+            0
+        );
+        const totalItems = sales.reduce(
+            (sum, sale) =>
+                sum +
+                (sale.items?.reduce((s, i) => s + (i.quantity || 0), 0) || 0),
+            0
+        );
+
         return {
             type: 'sales',
             period: { start: startDate, end: endDate },
@@ -18806,32 +21178,37 @@ class LojaApp {
                 totalValue: totalValue,
                 totalDiscount: totalDiscount,
                 totalItems: totalItems,
-                averageTicket: sales.length > 0 ? totalValue / sales.length : 0
+                averageTicket: sales.length > 0 ? totalValue / sales.length : 0,
             },
             data: sales,
-            generatedAt: new Date().toISOString()
+            generatedAt: new Date().toISOString(),
         };
     }
 
     // Gerar relatório de serviços
     generateServicesReport(startDate, endDate, status) {
-        const services = this.serviceAppointments.filter(apt => {
+        const services = this.serviceAppointments.filter((apt) => {
             const aptDate = new Date(`${apt.date}T${apt.time || '00:00'}`);
             const matchesDate = aptDate >= startDate && aptDate <= endDate;
             const matchesStatus = !status || apt.status === status;
             return matchesDate && matchesStatus;
         });
-        
-        const totalValue = services.reduce((sum, apt) => sum + (apt.price || 0), 0);
+
+        const totalValue = services.reduce(
+            (sum, apt) => sum + (apt.price || 0),
+            0
+        );
         const totalHours = services.reduce((sum, apt) => {
-            const service = this.items.find(i => i.id === apt.serviceTypeId);
+            const service = this.items.find((i) => i.id === apt.serviceTypeId);
             if (service && service.duration) {
-                const [hours, minutes] = service.duration.split(':').map(Number);
-                return sum + hours + (minutes / 60);
+                const [hours, minutes] = service.duration
+                    .split(':')
+                    .map(Number);
+                return sum + hours + minutes / 60;
             }
             return sum;
         }, 0);
-        
+
         return {
             type: 'services',
             period: { start: startDate, end: endDate },
@@ -18839,109 +21216,143 @@ class LojaApp {
                 totalServices: services.length,
                 totalValue: totalValue,
                 totalHours: totalHours,
-                averageValue: services.length > 0 ? totalValue / services.length : 0
+                averageValue:
+                    services.length > 0 ? totalValue / services.length : 0,
             },
             data: services,
-            generatedAt: new Date().toISOString()
+            generatedAt: new Date().toISOString(),
         };
     }
 
     // Gerar relatório de produtos
     generateProductsReport(startDate, endDate, category) {
-        const filteredItems = this.items.filter(item => {
+        const filteredItems = this.items.filter((item) => {
             if (item.category === 'Serviços') return false;
             const matchesCategory = !category || item.category === category;
             return matchesCategory;
         });
-        
+
         // Calcular estatísticas de vendas por produto
-        const productStats = filteredItems.map(item => {
-            const sales = this.completedSales.filter(sale => {
-                const saleDate = sale.date ? new Date(sale.date) : new Date(sale.createdAt);
-                return saleDate >= startDate && saleDate <= endDate &&
-                       sale.items?.some(i => i.itemId === item.id);
+        const productStats = filteredItems.map((item) => {
+            const sales = this.completedSales.filter((sale) => {
+                const saleDate = sale.date
+                    ? new Date(sale.date)
+                    : new Date(sale.createdAt);
+                return (
+                    saleDate >= startDate &&
+                    saleDate <= endDate &&
+                    sale.items?.some((i) => i.itemId === item.id)
+                );
             });
-            
+
             const quantitySold = sales.reduce((sum, sale) => {
-                const saleItem = sale.items?.find(i => i.itemId === item.id);
+                const saleItem = sale.items?.find((i) => i.itemId === item.id);
                 return sum + (saleItem?.quantity || 0);
             }, 0);
-            
+
             const revenue = sales.reduce((sum, sale) => {
-                const saleItem = sale.items?.find(i => i.itemId === item.id);
-                return sum + ((saleItem?.price || 0) * (saleItem?.quantity || 0));
+                const saleItem = sale.items?.find((i) => i.itemId === item.id);
+                return sum + (saleItem?.price || 0) * (saleItem?.quantity || 0);
             }, 0);
-            
+
             return {
                 item: item,
                 quantitySold: quantitySold,
                 revenue: revenue,
-                salesCount: sales.length
+                salesCount: sales.length,
             };
         });
-        
+
         return {
             type: 'products',
             period: { start: startDate, end: endDate },
             summary: {
                 totalProducts: filteredItems.length,
-                totalRevenue: productStats.reduce((sum, p) => sum + p.revenue, 0),
-                totalQuantitySold: productStats.reduce((sum, p) => sum + p.quantitySold, 0)
+                totalRevenue: productStats.reduce(
+                    (sum, p) => sum + p.revenue,
+                    0
+                ),
+                totalQuantitySold: productStats.reduce(
+                    (sum, p) => sum + p.quantitySold,
+                    0
+                ),
             },
             data: productStats,
-            generatedAt: new Date().toISOString()
+            generatedAt: new Date().toISOString(),
         };
     }
 
     // Gerar relatório de clientes
     generateClientsReport(startDate, endDate) {
-        const clientStats = this.clients.map(client => {
-            const sales = this.completedSales.filter(sale => {
-                const saleDate = sale.date ? new Date(sale.date) : new Date(sale.createdAt);
-                return sale.customerName === client.name &&
-                       saleDate >= startDate && saleDate <= endDate;
+        const clientStats = this.clients.map((client) => {
+            const sales = this.completedSales.filter((sale) => {
+                const saleDate = sale.date
+                    ? new Date(sale.date)
+                    : new Date(sale.createdAt);
+                return (
+                    sale.customerName === client.name &&
+                    saleDate >= startDate &&
+                    saleDate <= endDate
+                );
             });
-            
-            const totalSpent = sales.reduce((sum, sale) => sum + (sale.totalValue || 0), 0);
-            
+
+            const totalSpent = sales.reduce(
+                (sum, sale) => sum + (sale.totalValue || 0),
+                0
+            );
+
             return {
                 client: client,
                 salesCount: sales.length,
                 totalSpent: totalSpent,
-                averageTicket: sales.length > 0 ? totalSpent / sales.length : 0
+                averageTicket: sales.length > 0 ? totalSpent / sales.length : 0,
             };
         });
-        
+
         return {
             type: 'clients',
             period: { start: startDate, end: endDate },
             summary: {
                 totalClients: this.clients.length,
-                activeClients: clientStats.filter(c => c.salesCount > 0).length,
-                totalRevenue: clientStats.reduce((sum, c) => sum + c.totalSpent, 0)
+                activeClients: clientStats.filter((c) => c.salesCount > 0)
+                    .length,
+                totalRevenue: clientStats.reduce(
+                    (sum, c) => sum + c.totalSpent,
+                    0
+                ),
             },
             data: clientStats,
-            generatedAt: new Date().toISOString()
+            generatedAt: new Date().toISOString(),
         };
     }
 
     // Gerar relatório financeiro
     generateFinancialReport(startDate, endDate) {
-        const sales = this.completedSales.filter(sale => {
-            const saleDate = sale.date ? new Date(sale.date) : new Date(sale.createdAt);
+        const sales = this.completedSales.filter((sale) => {
+            const saleDate = sale.date
+                ? new Date(sale.date)
+                : new Date(sale.createdAt);
             return saleDate >= startDate && saleDate <= endDate;
         });
-        
-        const costs = this.costs.filter(cost => {
-            const costDate = cost.date ? new Date(cost.date) : new Date(cost.createdAt);
+
+        const costs = this.costs.filter((cost) => {
+            const costDate = cost.date
+                ? new Date(cost.date)
+                : new Date(cost.createdAt);
             return costDate >= startDate && costDate <= endDate;
         });
-        
-        const revenue = sales.reduce((sum, sale) => sum + (sale.totalValue || 0), 0);
-        const totalCosts = costs.reduce((sum, cost) => sum + (cost.amount || 0), 0);
+
+        const revenue = sales.reduce(
+            (sum, sale) => sum + (sale.totalValue || 0),
+            0
+        );
+        const totalCosts = costs.reduce(
+            (sum, cost) => sum + (cost.amount || 0),
+            0
+        );
         const profit = revenue - totalCosts;
         const margin = revenue > 0 ? (profit / revenue) * 100 : 0;
-        
+
         return {
             type: 'financial',
             period: { start: startDate, end: endDate },
@@ -18951,11 +21362,11 @@ class LojaApp {
                 profit: profit,
                 margin: margin,
                 salesCount: sales.length,
-                costsCount: costs.length
+                costsCount: costs.length,
             },
             sales: sales,
             costs: costs,
-            generatedAt: new Date().toISOString()
+            generatedAt: new Date().toISOString(),
         };
     }
 
@@ -18964,22 +21375,35 @@ class LojaApp {
         return {
             type: 'custom',
             period: { start: startDate, end: endDate },
-            sales: this.generateSalesReport(startDate, endDate, category, status),
+            sales: this.generateSalesReport(
+                startDate,
+                endDate,
+                category,
+                status
+            ),
             services: this.generateServicesReport(startDate, endDate, status),
             products: this.generateProductsReport(startDate, endDate, category),
             clients: this.generateClientsReport(startDate, endDate),
             financial: this.generateFinancialReport(startDate, endDate),
-            generatedAt: new Date().toISOString()
+            generatedAt: new Date().toISOString(),
         };
     }
 
     // Exportar relatório no formato selecionado
     exportReport(reportData, title, format, includeCharts, includeSummary) {
-        const filename = `${title.replace(/\s+/g, '_')}_${new Date().toISOString().split('T')[0]}`;
-        
+        const filename = `${title.replace(/\s+/g, '_')}_${
+            new Date().toISOString().split('T')[0]
+        }`;
+
         switch (format) {
             case 'html':
-                this.exportReportHTML(reportData, title, filename, includeCharts, includeSummary);
+                this.exportReportHTML(
+                    reportData,
+                    title,
+                    filename,
+                    includeCharts,
+                    includeSummary
+                );
                 break;
             case 'json':
                 this.exportReportJSON(reportData, filename);
@@ -18988,13 +21412,24 @@ class LojaApp {
                 this.exportReportCSV(reportData, filename);
                 break;
             case 'txt':
-                this.exportReportTXT(reportData, title, filename, includeSummary);
+                this.exportReportTXT(
+                    reportData,
+                    title,
+                    filename,
+                    includeSummary
+                );
                 break;
         }
     }
 
     // Exportar relatório em HTML
-    exportReportHTML(reportData, title, filename, includeCharts, includeSummary) {
+    exportReportHTML(
+        reportData,
+        title,
+        filename,
+        includeCharts,
+        includeSummary
+    ) {
         let html = `<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -19015,27 +21450,36 @@ class LojaApp {
 </head>
 <body>
     <h1>${title}</h1>
-    <p><strong>Período:</strong> ${new Date(reportData.period.start).toLocaleDateString('pt-BR')} a ${new Date(reportData.period.end).toLocaleDateString('pt-BR')}</p>
-    <p><strong>Gerado em:</strong> ${new Date(reportData.generatedAt).toLocaleString('pt-BR')}</p>
+    <p><strong>Período:</strong> ${new Date(
+        reportData.period.start
+    ).toLocaleDateString('pt-BR')} a ${new Date(
+            reportData.period.end
+        ).toLocaleDateString('pt-BR')}</p>
+    <p><strong>Gerado em:</strong> ${new Date(
+        reportData.generatedAt
+    ).toLocaleString('pt-BR')}</p>
 `;
-        
+
         if (includeSummary && reportData.summary) {
             html += '<div class="summary"><h2>Resumo Executivo</h2>';
             Object.entries(reportData.summary).forEach(([key, value]) => {
-                const label = key.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase());
-                const formattedValue = typeof value === 'number' && value % 1 !== 0 
-                    ? value.toFixed(2).replace('.', ',') 
-                    : value;
+                const label = key
+                    .replace(/([A-Z])/g, ' $1')
+                    .replace(/^./, (str) => str.toUpperCase());
+                const formattedValue =
+                    typeof value === 'number' && value % 1 !== 0
+                        ? value.toFixed(2).replace('.', ',')
+                        : value;
                 html += `<div class="summary-item"><span class="summary-label">${label}:</span> ${formattedValue}</div>`;
             });
             html += '</div>';
         }
-        
+
         // Adicionar dados específicos do tipo de relatório
         html += this.formatReportDataHTML(reportData);
-        
+
         html += `</body></html>`;
-        
+
         const blob = new Blob([html], { type: 'text/html;charset=utf-8' });
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
@@ -19056,7 +21500,9 @@ class LojaApp {
     // Exportar relatório em JSON
     exportReportJSON(reportData, filename) {
         const json = JSON.stringify(reportData, null, 2);
-        const blob = new Blob([json], { type: 'application/json;charset=utf-8' });
+        const blob = new Blob([json], {
+            type: 'application/json;charset=utf-8',
+        });
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
@@ -19076,7 +21522,7 @@ class LojaApp {
                 csv += `${key},${value}\n`;
             });
         }
-        
+
         const BOM = '\uFEFF';
         const blob = new Blob([BOM + csv], { type: 'text/csv;charset=utf-8;' });
         const url = URL.createObjectURL(blob);
@@ -19093,19 +21539,25 @@ class LojaApp {
     exportReportTXT(reportData, title, filename, includeSummary) {
         let txt = `${title}\n`;
         txt += `${'='.repeat(title.length)}\n\n`;
-        txt += `Período: ${new Date(reportData.period.start).toLocaleDateString('pt-BR')} a ${new Date(reportData.period.end).toLocaleDateString('pt-BR')}\n`;
-        txt += `Gerado em: ${new Date(reportData.generatedAt).toLocaleString('pt-BR')}\n\n`;
-        
+        txt += `Período: ${new Date(reportData.period.start).toLocaleDateString(
+            'pt-BR'
+        )} a ${new Date(reportData.period.end).toLocaleDateString('pt-BR')}\n`;
+        txt += `Gerado em: ${new Date(reportData.generatedAt).toLocaleString(
+            'pt-BR'
+        )}\n\n`;
+
         if (includeSummary && reportData.summary) {
             txt += 'RESUMO EXECUTIVO\n';
             txt += '-'.repeat(20) + '\n';
             Object.entries(reportData.summary).forEach(([key, value]) => {
-                const label = key.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase());
+                const label = key
+                    .replace(/([A-Z])/g, ' $1')
+                    .replace(/^./, (str) => str.toUpperCase());
                 txt += `${label}: ${value}\n`;
             });
             txt += '\n';
         }
-        
+
         const blob = new Blob([txt], { type: 'text/plain;charset=utf-8' });
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
@@ -19118,29 +21570,32 @@ class LojaApp {
     }
 
     // ========== EXPORTAÇÃO AVANÇADA ==========
-    
+
     // Abrir modal de exportação
     openExportModal() {
         // Verificar permissão de exportação
         if (!this.checkPermission('export')) {
             if (typeof toast !== 'undefined' && toast) {
-                toast.error('Você não tem permissão para exportar dados.', 3000);
+                toast.error(
+                    'Você não tem permissão para exportar dados.',
+                    3000
+                );
             } else {
                 alert('Você não tem permissão para exportar dados.');
             }
             return;
         }
-        
+
         const modal = document.getElementById('exportModal');
         if (!modal) {
             console.error('Modal de exportação não encontrado');
             return;
         }
-        
+
         // Limpar formulário
         const form = document.getElementById('exportForm');
         if (form) form.reset();
-        
+
         modal.classList.add('active');
     }
 
@@ -19155,19 +21610,24 @@ class LojaApp {
     // Exportar dados (função principal)
     exportData(e) {
         if (e) e.preventDefault();
-        
+
         const format = document.getElementById('exportFormat')?.value;
         const dataType = document.getElementById('exportDataType')?.value;
-        const includeCharts = document.getElementById('exportIncludeCharts')?.checked || false;
-        const includeSummary = document.getElementById('exportIncludeSummary')?.checked || false;
-        
+        const includeCharts =
+            document.getElementById('exportIncludeCharts')?.checked || false;
+        const includeSummary =
+            document.getElementById('exportIncludeSummary')?.checked || false;
+
         if (!format || !dataType) {
             if (typeof toast !== 'undefined' && toast) {
-                toast.warning('Por favor, preencha todos os campos obrigatórios.', 3000);
+                toast.warning(
+                    'Por favor, preencha todos os campos obrigatórios.',
+                    3000
+                );
             }
             return;
         }
-        
+
         // Preparar dados baseado no tipo
         let exportDataObj = {};
         switch (dataType) {
@@ -19219,68 +21679,102 @@ class LojaApp {
                 };
                 break;
         }
-        
+
         // Verificar se é agendamento ou email automático
-        const isScheduled = document.getElementById('exportSchedule')?.checked || false;
-        const isEmail = document.getElementById('exportEmail')?.checked || false;
-        
+        const isScheduled =
+            document.getElementById('exportSchedule')?.checked || false;
+        const isEmail =
+            document.getElementById('exportEmail')?.checked || false;
+
         // Configuração da exportação
         const exportConfig = {
             format,
             dataType,
             includeCharts,
             includeSummary,
-            exportDataObj
+            exportDataObj,
         };
-        
+
         // Agendar exportação se solicitado
         if (isScheduled) {
-            const scheduleDate = document.getElementById('exportScheduleDate')?.value;
-            const scheduleTime = document.getElementById('exportScheduleTime')?.value;
-            const frequency = document.getElementById('exportScheduleFrequency')?.value || 'once';
-            
+            const scheduleDate =
+                document.getElementById('exportScheduleDate')?.value;
+            const scheduleTime =
+                document.getElementById('exportScheduleTime')?.value;
+            const frequency =
+                document.getElementById('exportScheduleFrequency')?.value ||
+                'once';
+
             if (scheduleDate && scheduleTime) {
-                this.scheduleExport(exportConfig, scheduleDate, scheduleTime, frequency, isEmail);
+                this.scheduleExport(
+                    exportConfig,
+                    scheduleDate,
+                    scheduleTime,
+                    frequency,
+                    isEmail
+                );
                 if (typeof toast !== 'undefined' && toast) {
                     toast.success('Exportação agendada com sucesso!', 3000);
                 }
             } else {
                 if (typeof toast !== 'undefined' && toast) {
-                    toast.warning('Por favor, preencha data e hora do agendamento.', 3000);
+                    toast.warning(
+                        'Por favor, preencha data e hora do agendamento.',
+                        3000
+                    );
                 }
                 return;
             }
         }
-        
+
         // Enviar por email se solicitado
         if (isEmail && !isScheduled) {
-            const emailRecipients = document.getElementById('exportEmailRecipients')?.value;
-            const emailSubject = document.getElementById('exportEmailSubject')?.value || 'Exportação de Dados - Loja';
-            
+            const emailRecipients = document.getElementById(
+                'exportEmailRecipients'
+            )?.value;
+            const emailSubject =
+                document.getElementById('exportEmailSubject')?.value ||
+                'Exportação de Dados - Loja';
+
             if (emailRecipients) {
-                this.sendExportByEmail(exportConfig, emailRecipients, emailSubject);
+                this.sendExportByEmail(
+                    exportConfig,
+                    emailRecipients,
+                    emailSubject
+                );
                 if (typeof toast !== 'undefined' && toast) {
                     toast.success('Exportação enviada por email!', 3000);
                 }
             } else {
                 if (typeof toast !== 'undefined' && toast) {
-                    toast.warning('Por favor, informe pelo menos um email.', 3000);
+                    toast.warning(
+                        'Por favor, informe pelo menos um email.',
+                        3000
+                    );
                 }
                 return;
             }
         }
-        
+
         // Se não for agendamento, exportar imediatamente
         if (!isScheduled) {
             // Exportar no formato selecionado
-            const filename = `loja_export_${dataType}_${new Date().toISOString().split('T')[0]}`;
-            
+            const filename = `loja_export_${dataType}_${
+                new Date().toISOString().split('T')[0]
+            }`;
+
             switch (format) {
                 case 'json':
                     this.exportAsJSON(exportDataObj, filename);
                     break;
                 case 'pdf':
-                    this.exportAsPDF(exportDataObj, dataType, filename, includeCharts, includeSummary);
+                    this.exportAsPDF(
+                        exportDataObj,
+                        dataType,
+                        filename,
+                        includeCharts,
+                        includeSummary
+                    );
                     break;
                 case 'excel':
                     this.exportAsExcel(exportDataObj, dataType, filename);
@@ -19289,10 +21783,10 @@ class LojaApp {
                     this.exportAsCSV(exportDataObj, dataType, filename);
                     break;
             }
-            
+
             // Fechar modal
             this.closeExportModal();
-            
+
             if (typeof toast !== 'undefined' && toast) {
                 toast.success('Dados exportados com sucesso!', 3000);
             }
@@ -19301,140 +21795,184 @@ class LojaApp {
             this.closeExportModal();
         }
     }
-    
+
     // Toggle campos de agendamento de exportação
     toggleExportScheduleFields() {
         const scheduleCheckbox = document.getElementById('exportSchedule');
         const scheduleFields = document.getElementById('exportScheduleFields');
-        
+
         if (scheduleCheckbox && scheduleFields) {
-            scheduleFields.style.display = scheduleCheckbox.checked ? 'block' : 'none';
-            
+            scheduleFields.style.display = scheduleCheckbox.checked
+                ? 'block'
+                : 'none';
+
             // Definir data/hora padrão se estiver marcado
             if (scheduleCheckbox.checked) {
                 const now = new Date();
-                const scheduleDate = document.getElementById('exportScheduleDate');
-                const scheduleTime = document.getElementById('exportScheduleTime');
-                
+                const scheduleDate =
+                    document.getElementById('exportScheduleDate');
+                const scheduleTime =
+                    document.getElementById('exportScheduleTime');
+
                 if (scheduleDate) {
                     scheduleDate.value = now.toISOString().split('T')[0];
                 }
                 if (scheduleTime) {
-                    scheduleTime.value = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+                    scheduleTime.value = `${String(now.getHours()).padStart(
+                        2,
+                        '0'
+                    )}:${String(now.getMinutes()).padStart(2, '0')}`;
                 }
             }
         }
     }
-    
+
     // Toggle campos de email de exportação
     toggleExportEmailFields() {
         const emailCheckbox = document.getElementById('exportEmail');
         const emailFields = document.getElementById('exportEmailFields');
-        
+
         if (emailCheckbox && emailFields) {
-            emailFields.style.display = emailCheckbox.checked ? 'block' : 'none';
+            emailFields.style.display = emailCheckbox.checked
+                ? 'block'
+                : 'none';
         }
     }
-    
+
     // Agendar exportação
-    scheduleExport(config, scheduleDate, scheduleTime, frequency, sendEmail = false) {
+    scheduleExport(
+        config,
+        scheduleDate,
+        scheduleTime,
+        frequency,
+        sendEmail = false
+    ) {
         const scheduleDateTime = new Date(`${scheduleDate}T${scheduleTime}`);
         const now = new Date();
-        
+
         if (scheduleDateTime <= now && frequency === 'once') {
             if (typeof toast !== 'undefined' && toast) {
-                toast.warning('A data/hora do agendamento deve ser no futuro.', 3000);
+                toast.warning(
+                    'A data/hora do agendamento deve ser no futuro.',
+                    3000
+                );
             }
             return;
         }
-        
+
         const scheduledExport = {
-            id: `export_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+            id: `export_${Date.now()}_${Math.random()
+                .toString(36)
+                .substr(2, 9)}`,
             config,
             scheduleDate: scheduleDateTime.toISOString(),
             frequency,
             sendEmail,
-            emailRecipients: sendEmail ? document.getElementById('exportEmailRecipients')?.value : null,
-            emailSubject: sendEmail ? (document.getElementById('exportEmailSubject')?.value || 'Exportação de Dados - Loja') : null,
+            emailRecipients: sendEmail
+                ? document.getElementById('exportEmailRecipients')?.value
+                : null,
+            emailSubject: sendEmail
+                ? document.getElementById('exportEmailSubject')?.value ||
+                  'Exportação de Dados - Loja'
+                : null,
             createdAt: new Date().toISOString(),
             lastRun: null,
             nextRun: scheduleDateTime.toISOString(),
-            active: true
+            active: true,
         };
-        
+
         this.scheduledExports.push(scheduledExport);
         this.saveData();
-        
-        console.log('✅ [EXPORT SCHEDULE] Exportação agendada:', scheduledExport);
-        
+
+        console.log(
+            '✅ [EXPORT SCHEDULE] Exportação agendada:',
+            scheduledExport
+        );
+
         // Iniciar verificação de agendamentos se ainda não estiver rodando
         if (!this.exportScheduleCheckInterval) {
             this.initExportScheduleChecker();
         }
     }
-    
+
     // Enviar exportação por email
     async sendExportByEmail(config, recipients, subject) {
-        const emailList = recipients.split(',').map(email => email.trim()).filter(email => email);
-        
+        const emailList = recipients
+            .split(',')
+            .map((email) => email.trim())
+            .filter((email) => email);
+
         if (emailList.length === 0) {
             if (typeof toast !== 'undefined' && toast) {
                 toast.warning('Nenhum email válido fornecido.', 3000);
             }
             return;
         }
-        
+
         // Preparar dados para exportação
-        const filename = `loja_export_${config.dataType}_${new Date().toISOString().split('T')[0]}`;
-        
+        const filename = `loja_export_${config.dataType}_${
+            new Date().toISOString().split('T')[0]
+        }`;
+
         // Simular envio (em produção, isso chamaria a API de email configurada)
-        console.log('📧 [EXPORT EMAIL] Simulando envio de exportação para:', emailList);
+        console.log(
+            '📧 [EXPORT EMAIL] Simulando envio de exportação para:',
+            emailList
+        );
         console.log('📧 [EXPORT EMAIL] Assunto:', subject);
         console.log('📧 [EXPORT EMAIL] Formato:', config.format);
         console.log('📧 [EXPORT EMAIL] Tipo de dados:', config.dataType);
-        
+
         // Em produção, aqui seria feita a chamada à API de email
         // Por enquanto, apenas simula
         setTimeout(() => {
             if (typeof toast !== 'undefined' && toast) {
-                toast.info(`Exportação enviada para ${emailList.length} destinatário(s)`, 3000);
+                toast.info(
+                    `Exportação enviada para ${emailList.length} destinatário(s)`,
+                    3000
+                );
             }
         }, 1000);
     }
-    
+
     // Inicializar verificador de agendamentos de exportação
     initExportScheduleChecker() {
         // Verificar a cada minuto
         this.exportScheduleCheckInterval = setInterval(() => {
             this.checkScheduledExports();
         }, 60000); // 1 minuto
-        
+
         // Verificar imediatamente também
         this.checkScheduledExports();
-        
-        console.log('✅ [EXPORT SCHEDULE] Verificador de agendamentos de exportação iniciado');
+
+        console.log(
+            '✅ [EXPORT SCHEDULE] Verificador de agendamentos de exportação iniciado'
+        );
     }
-    
+
     // Verificar e executar exportações agendadas
     checkScheduledExports() {
         const now = new Date();
         let hasChanges = false;
-        
-        this.scheduledExports.forEach(scheduled => {
+
+        this.scheduledExports.forEach((scheduled) => {
             if (!scheduled.active) return;
-            
+
             const nextRun = new Date(scheduled.nextRun);
-            
+
             // Se chegou a hora de executar
             if (nextRun <= now) {
-                console.log('⏰ [EXPORT SCHEDULE] Executando exportação agendada:', scheduled.id);
-                
+                console.log(
+                    '⏰ [EXPORT SCHEDULE] Executando exportação agendada:',
+                    scheduled.id
+                );
+
                 // Executar exportação
                 this.executeScheduledExport(scheduled);
-                
+
                 // Atualizar próxima execução baseado na frequência
                 scheduled.lastRun = new Date().toISOString();
-                
+
                 if (scheduled.frequency === 'once') {
                     scheduled.active = false;
                 } else {
@@ -19453,51 +21991,77 @@ class LojaApp {
                     }
                     scheduled.nextRun = nextDate.toISOString();
                 }
-                
+
                 hasChanges = true;
             }
         });
-        
+
         // Remover exportações inativas
-        this.scheduledExports = this.scheduledExports.filter(s => s.active);
-        
+        this.scheduledExports = this.scheduledExports.filter((s) => s.active);
+
         if (hasChanges) {
             this.saveData();
         }
     }
-    
+
     // Executar exportação agendada
     executeScheduledExport(scheduled) {
         const { config } = scheduled;
-        const filename = `loja_export_${config.dataType}_${new Date().toISOString().split('T')[0]}`;
-        
+        const filename = `loja_export_${config.dataType}_${
+            new Date().toISOString().split('T')[0]
+        }`;
+
         // Exportar no formato configurado
         switch (config.format) {
             case 'json':
                 this.exportAsJSON(config.exportDataObj, filename);
                 break;
             case 'pdf':
-                this.exportAsPDF(config.exportDataObj, config.dataType, filename, config.includeCharts, config.includeSummary);
+                this.exportAsPDF(
+                    config.exportDataObj,
+                    config.dataType,
+                    filename,
+                    config.includeCharts,
+                    config.includeSummary
+                );
                 break;
             case 'excel':
-                this.exportAsExcel(config.exportDataObj, config.dataType, filename);
+                this.exportAsExcel(
+                    config.exportDataObj,
+                    config.dataType,
+                    filename
+                );
                 break;
             case 'csv':
-                this.exportAsCSV(config.exportDataObj, config.dataType, filename);
+                this.exportAsCSV(
+                    config.exportDataObj,
+                    config.dataType,
+                    filename
+                );
                 break;
         }
-        
+
         // Enviar por email se configurado
         if (scheduled.sendEmail && scheduled.emailRecipients) {
-            this.sendExportByEmail(config, scheduled.emailRecipients, scheduled.emailSubject || 'Exportação de Dados - Loja');
+            this.sendExportByEmail(
+                config,
+                scheduled.emailRecipients,
+                scheduled.emailSubject || 'Exportação de Dados - Loja'
+            );
         }
-        
+
         // Notificar usuário
         if (typeof toast !== 'undefined' && toast) {
-            toast.success(`Exportação agendada executada automaticamente!`, 5000);
+            toast.success(
+                `Exportação agendada executada automaticamente!`,
+                5000
+            );
         }
-        
-        console.log('✅ [EXPORT SCHEDULE] Exportação agendada executada:', scheduled.id);
+
+        console.log(
+            '✅ [EXPORT SCHEDULE] Exportação agendada executada:',
+            scheduled.id
+        );
     }
 
     // Exportar como JSON
@@ -19526,48 +22090,61 @@ class LojaApp {
     exportAsPDF(data, dataType, filename, includeCharts, includeSummary) {
         if (typeof window.jspdf === 'undefined' || !window.jspdf.jsPDF) {
             if (typeof toast !== 'undefined' && toast) {
-                toast.error('Biblioteca jsPDF não está disponível. Tente outro formato.', 3000);
+                toast.error(
+                    'Biblioteca jsPDF não está disponível. Tente outro formato.',
+                    3000
+                );
             } else {
-                alert('Biblioteca jsPDF não está disponível. Tente outro formato.');
+                alert(
+                    'Biblioteca jsPDF não está disponível. Tente outro formato.'
+                );
             }
             return;
         }
-        
+
         const { jsPDF } = window.jspdf;
         const doc = new jsPDF();
         const pageWidth = doc.internal.pageSize.getWidth();
         const pageHeight = doc.internal.pageSize.getHeight();
         const margin = 14;
         let yPos = margin;
-        
+
         // Cabeçalho com logo/ícone
         doc.setFillColor(220, 53, 69); // Cor primária
         doc.rect(0, 0, pageWidth, 30, 'F');
-        
+
         doc.setTextColor(255, 255, 255);
         doc.setFontSize(20);
         doc.setFont('helvetica', 'bold');
         doc.text('Relatório de Exportação', margin, 20);
-        
+
         // Informações do relatório
         doc.setTextColor(0, 0, 0);
         doc.setFontSize(10);
         doc.setFont('helvetica', 'normal');
         yPos = 40;
-        doc.text(`Exportado em: ${new Date().toLocaleString('pt-BR')}`, margin, yPos);
+        doc.text(
+            `Exportado em: ${new Date().toLocaleString('pt-BR')}`,
+            margin,
+            yPos
+        );
         yPos += 6;
-        doc.text(`Tipo de dados: ${this.getDataTypeLabel(dataType)}`, margin, yPos);
+        doc.text(
+            `Tipo de dados: ${this.getDataTypeLabel(dataType)}`,
+            margin,
+            yPos
+        );
         yPos += 6;
         const username = sessionStorage.getItem('username') || 'Usuário';
         doc.text(`Usuário: ${username}`, margin, yPos);
         yPos += 10;
-        
+
         // Linha separadora
         doc.setDrawColor(220, 53, 69);
         doc.setLineWidth(0.5);
         doc.line(margin, yPos, pageWidth - margin, yPos);
         yPos += 8;
-        
+
         // Resumo executivo melhorado
         if (includeSummary) {
             doc.setFontSize(14);
@@ -19575,139 +22152,202 @@ class LojaApp {
             doc.setTextColor(220, 53, 69);
             doc.text('Resumo Executivo', margin, yPos);
             yPos += 8;
-            
+
             doc.setFontSize(10);
             doc.setFont('helvetica', 'normal');
             doc.setTextColor(0, 0, 0);
-            
+
             if (data.items) {
-                const totalValue = data.items.reduce((sum, item) => sum + ((item.price || 0) * (item.stock || 0)), 0);
-                doc.text(`Total de Produtos: ${data.items.length}`, margin, yPos);
+                const totalValue = data.items.reduce(
+                    (sum, item) => sum + (item.price || 0) * (item.stock || 0),
+                    0
+                );
+                doc.text(
+                    `Total de Produtos: ${data.items.length}`,
+                    margin,
+                    yPos
+                );
                 yPos += 6;
-                doc.text(`Valor Total em Estoque: R$ ${totalValue.toFixed(2).replace('.', ',')}`, margin, yPos);
+                doc.text(
+                    `Valor Total em Estoque: R$ ${totalValue
+                        .toFixed(2)
+                        .replace('.', ',')}`,
+                    margin,
+                    yPos
+                );
                 yPos += 6;
             }
             if (data.completedSales) {
-                const totalSales = data.completedSales.reduce((sum, sale) => sum + (sale.totalValue || 0), 0);
-                const avgSale = data.completedSales.length > 0 ? totalSales / data.completedSales.length : 0;
-                doc.text(`Total de Vendas: ${data.completedSales.length}`, margin, yPos);
+                const totalSales = data.completedSales.reduce(
+                    (sum, sale) => sum + (sale.totalValue || 0),
+                    0
+                );
+                const avgSale =
+                    data.completedSales.length > 0
+                        ? totalSales / data.completedSales.length
+                        : 0;
+                doc.text(
+                    `Total de Vendas: ${data.completedSales.length}`,
+                    margin,
+                    yPos
+                );
                 yPos += 6;
-                doc.text(`Valor Total: R$ ${totalSales.toFixed(2).replace('.', ',')}`, margin, yPos);
+                doc.text(
+                    `Valor Total: R$ ${totalSales
+                        .toFixed(2)
+                        .replace('.', ',')}`,
+                    margin,
+                    yPos
+                );
                 yPos += 6;
-                doc.text(`Ticket Médio: R$ ${avgSale.toFixed(2).replace('.', ',')}`, margin, yPos);
+                doc.text(
+                    `Ticket Médio: R$ ${avgSale.toFixed(2).replace('.', ',')}`,
+                    margin,
+                    yPos
+                );
                 yPos += 6;
             }
             if (data.clients) {
-                doc.text(`Total de Clientes: ${data.clients.length}`, margin, yPos);
+                doc.text(
+                    `Total de Clientes: ${data.clients.length}`,
+                    margin,
+                    yPos
+                );
                 yPos += 6;
             }
             if (data.costs) {
-                const totalCosts = data.costs.reduce((sum, cost) => sum + (cost.amount || 0), 0);
-                doc.text(`Total de Custos: R$ ${totalCosts.toFixed(2).replace('.', ',')}`, margin, yPos);
+                const totalCosts = data.costs.reduce(
+                    (sum, cost) => sum + (cost.amount || 0),
+                    0
+                );
+                doc.text(
+                    `Total de Custos: R$ ${totalCosts
+                        .toFixed(2)
+                        .replace('.', ',')}`,
+                    margin,
+                    yPos
+                );
                 yPos += 6;
             }
             if (data.completedSales && data.costs) {
-                const totalSales = data.completedSales.reduce((sum, sale) => sum + (sale.totalValue || 0), 0);
-                const totalCosts = data.costs.reduce((sum, cost) => sum + (cost.amount || 0), 0);
+                const totalSales = data.completedSales.reduce(
+                    (sum, sale) => sum + (sale.totalValue || 0),
+                    0
+                );
+                const totalCosts = data.costs.reduce(
+                    (sum, cost) => sum + (cost.amount || 0),
+                    0
+                );
                 const profit = totalSales - totalCosts;
-                const marginPercent = totalSales > 0 ? (profit / totalSales * 100) : 0;
-                doc.text(`Lucro Líquido: R$ ${profit.toFixed(2).replace('.', ',')}`, margin, yPos);
+                const marginPercent =
+                    totalSales > 0 ? (profit / totalSales) * 100 : 0;
+                doc.text(
+                    `Lucro Líquido: R$ ${profit.toFixed(2).replace('.', ',')}`,
+                    margin,
+                    yPos
+                );
                 yPos += 6;
-                doc.text(`Margem de Lucro: ${marginPercent.toFixed(2).replace('.', ',')}%`, margin, yPos);
+                doc.text(
+                    `Margem de Lucro: ${marginPercent
+                        .toFixed(2)
+                        .replace('.', ',')}%`,
+                    margin,
+                    yPos
+                );
                 yPos += 6;
             }
             yPos += 5;
         }
-        
+
         // Tabela de dados melhorada
         if (data.items && data.items.length > 0) {
             if (yPos > pageHeight - 60) {
                 doc.addPage();
                 yPos = margin;
             }
-            
+
             doc.setFontSize(12);
             doc.setFont('helvetica', 'bold');
             doc.setTextColor(220, 53, 69);
             doc.text('Produtos', margin, yPos);
             yPos += 8;
-            
-            const tableData = data.items.map(item => [
+
+            const tableData = data.items.map((item) => [
                 (item.name || 'Sem nome').substring(0, 30), // Limitar tamanho
                 item.category || '',
                 `R$ ${(item.price || 0).toFixed(2).replace('.', ',')}`,
                 (item.stock || 0).toString(),
-                item.minStock ? (item.stock < item.minStock ? '⚠️' : '✓') : '-'
+                item.minStock ? (item.stock < item.minStock ? '⚠️' : '✓') : '-',
             ]);
-            
+
             doc.autoTable({
                 startY: yPos,
                 head: [['Nome', 'Categoria', 'Preço', 'Estoque', 'Status']],
                 body: tableData,
                 theme: 'striped',
-                headStyles: { 
+                headStyles: {
                     fillColor: [220, 53, 69],
                     textColor: [255, 255, 255],
-                    fontStyle: 'bold'
+                    fontStyle: 'bold',
                 },
                 styles: {
                     fontSize: 8,
-                    cellPadding: 3
+                    cellPadding: 3,
                 },
                 columnStyles: {
                     0: { cellWidth: 60 },
                     1: { cellWidth: 40 },
                     2: { cellWidth: 30, halign: 'right' },
                     3: { cellWidth: 25, halign: 'center' },
-                    4: { cellWidth: 20, halign: 'center' }
+                    4: { cellWidth: 20, halign: 'center' },
                 },
-                margin: { left: margin, right: margin }
+                margin: { left: margin, right: margin },
             });
-            
+
             yPos = doc.lastAutoTable.finalY + 10;
         }
-        
+
         // Adicionar vendas se disponível
         if (data.completedSales && data.completedSales.length > 0) {
             if (yPos > pageHeight - 60) {
                 doc.addPage();
                 yPos = margin;
             }
-            
+
             doc.setFontSize(12);
             doc.setFont('helvetica', 'bold');
             doc.setTextColor(220, 53, 69);
             doc.text('Vendas Recentes', margin, yPos);
             yPos += 8;
-            
-            const salesData = data.completedSales.slice(0, 20).map(sale => {
+
+            const salesData = data.completedSales.slice(0, 20).map((sale) => {
                 const date = new Date(sale.date || sale.timestamp);
                 return [
                     date.toLocaleDateString('pt-BR'),
                     sale.clientName || 'Cliente não identificado',
                     `R$ ${(sale.totalValue || 0).toFixed(2).replace('.', ',')}`,
-                    sale.items?.length || 0
+                    sale.items?.length || 0,
                 ];
             });
-            
+
             doc.autoTable({
                 startY: yPos,
                 head: [['Data', 'Cliente', 'Valor', 'Itens']],
                 body: salesData,
                 theme: 'striped',
-                headStyles: { 
+                headStyles: {
                     fillColor: [220, 53, 69],
                     textColor: [255, 255, 255],
-                    fontStyle: 'bold'
+                    fontStyle: 'bold',
                 },
                 styles: {
                     fontSize: 8,
-                    cellPadding: 3
+                    cellPadding: 3,
                 },
-                margin: { left: margin, right: margin }
+                margin: { left: margin, right: margin },
             });
         }
-        
+
         // Rodapé em todas as páginas
         const totalPages = doc.internal.getNumberOfPages();
         for (let i = 1; i <= totalPages; i++) {
@@ -19715,13 +22355,15 @@ class LojaApp {
             doc.setFontSize(8);
             doc.setTextColor(128, 128, 128);
             doc.text(
-                `Página ${i} de ${totalPages} | Gerado em ${new Date().toLocaleString('pt-BR')}`,
+                `Página ${i} de ${totalPages} | Gerado em ${new Date().toLocaleString(
+                    'pt-BR'
+                )}`,
                 pageWidth / 2,
                 pageHeight - 10,
                 { align: 'center' }
             );
         }
-        
+
         // Salvar PDF
         doc.save(`${filename}.pdf`);
     }
@@ -19729,82 +22371,136 @@ class LojaApp {
     // Exportar como Excel (CSV formatado)
     exportAsExcel(data, dataType, filename) {
         let csv = '';
-        
+
         // Adicionar BOM para Excel reconhecer UTF-8
         csv = '\uFEFF';
-        
+
         if (data.items && data.items.length > 0) {
             csv += 'Produtos\n';
             csv += 'Nome,Categoria,Preço,Estoque,Descrição\n';
-            data.items.forEach(item => {
-                csv += `"${(item.name || '').replace(/"/g, '""')}","${(item.category || '').replace(/"/g, '""')}",${(item.price || 0).toFixed(2)},${item.stock || 0},"${(item.description || '').replace(/"/g, '""')}"\n`;
+            data.items.forEach((item) => {
+                csv += `"${(item.name || '').replace(/"/g, '""')}","${(
+                    item.category || ''
+                ).replace(/"/g, '""')}",${(item.price || 0).toFixed(2)},${
+                    item.stock || 0
+                },"${(item.description || '').replace(/"/g, '""')}"\n`;
             });
             csv += '\n';
         }
-        
+
         // Vendas
         if (data.completedSales && data.completedSales.length > 0) {
             csv += 'VENDAS\n';
-            csv += 'Data,Cliente,CPF Cliente,Valor Total,Desconto,Itens,Forma de Pagamento\n';
-            data.completedSales.forEach(sale => {
-                const date = sale.date ? new Date(sale.date).toLocaleDateString('pt-BR') : (sale.timestamp ? new Date(sale.timestamp).toLocaleDateString('pt-BR') : '');
-                const clientName = sale.clientName || sale.customerName || 'Cliente não identificado';
+            csv +=
+                'Data,Cliente,CPF Cliente,Valor Total,Desconto,Itens,Forma de Pagamento\n';
+            data.completedSales.forEach((sale) => {
+                const date = sale.date
+                    ? new Date(sale.date).toLocaleDateString('pt-BR')
+                    : sale.timestamp
+                    ? new Date(sale.timestamp).toLocaleDateString('pt-BR')
+                    : '';
+                const clientName =
+                    sale.clientName ||
+                    sale.customerName ||
+                    'Cliente não identificado';
                 const clientCPF = sale.clientCPF || sale.customerCPF || '';
                 const discount = sale.discount || sale.discountValue || 0;
-                const paymentMethod = sale.paymentMethod || sale.payment || 'Não informado';
-                csv += `"${date}","${clientName.replace(/"/g, '""')}","${clientCPF.replace(/"/g, '""')}",${(sale.totalValue || 0).toFixed(2)},${discount.toFixed(2)},${(sale.items || []).length},"${paymentMethod.replace(/"/g, '""')}"\n`;
+                const paymentMethod =
+                    sale.paymentMethod || sale.payment || 'Não informado';
+                csv += `"${date}","${clientName.replace(
+                    /"/g,
+                    '""'
+                )}","${clientCPF.replace(/"/g, '""')}",${(
+                    sale.totalValue || 0
+                ).toFixed(2)},${discount.toFixed(2)},${
+                    (sale.items || []).length
+                },"${paymentMethod.replace(/"/g, '""')}"\n`;
             });
             csv += '\n';
         }
-        
+
         // Clientes
         if (data.clients && data.clients.length > 0) {
             csv += 'CLIENTES\n';
-            csv += 'Nome,CPF,Telefone,Email,Endereço,Pontos de Fidelidade,Total Gasto,Total de Compras\n';
-            data.clients.forEach(client => {
+            csv +=
+                'Nome,CPF,Telefone,Email,Endereço,Pontos de Fidelidade,Total Gasto,Total de Compras\n';
+            data.clients.forEach((client) => {
                 const totalSpent = client.totalSpent || 0;
                 const totalPurchases = client.totalPurchases || 0;
-                csv += `"${(client.name || '').replace(/"/g, '""')}","${(client.cpf || '').replace(/"/g, '""')}","${(client.phone || '').replace(/"/g, '""')}","${(client.email || '').replace(/"/g, '""')}","${(client.address || '').replace(/"/g, '""')}",${client.loyaltyPoints || 0},${totalSpent.toFixed(2)},${totalPurchases}\n`;
+                csv += `"${(client.name || '').replace(/"/g, '""')}","${(
+                    client.cpf || ''
+                ).replace(/"/g, '""')}","${(client.phone || '').replace(
+                    /"/g,
+                    '""'
+                )}","${(client.email || '').replace(/"/g, '""')}","${(
+                    client.address || ''
+                ).replace(/"/g, '""')}",${
+                    client.loyaltyPoints || 0
+                },${totalSpent.toFixed(2)},${totalPurchases}\n`;
             });
             csv += '\n';
         }
-        
+
         // Custos
         if (data.costs && data.costs.length > 0) {
             csv += 'CUSTOS\n';
             csv += 'Data,Descrição,Categoria,Valor,Observações\n';
-            data.costs.forEach(cost => {
-                const date = cost.date ? new Date(cost.date).toLocaleDateString('pt-BR') : '';
-                csv += `"${date}","${(cost.description || '').replace(/"/g, '""')}","${(cost.category || '').replace(/"/g, '""')}",${(cost.amount || 0).toFixed(2)},"${(cost.notes || '').replace(/"/g, '""')}"\n`;
+            data.costs.forEach((cost) => {
+                const date = cost.date
+                    ? new Date(cost.date).toLocaleDateString('pt-BR')
+                    : '';
+                csv += `"${date}","${(cost.description || '').replace(
+                    /"/g,
+                    '""'
+                )}","${(cost.category || '').replace(/"/g, '""')}",${(
+                    cost.amount || 0
+                ).toFixed(2)},"${(cost.notes || '').replace(/"/g, '""')}"\n`;
             });
             csv += '\n';
         }
-        
+
         // Metas
         if (data.goals && data.goals.length > 0) {
             csv += 'METAS\n';
             csv += 'Mês,Valor da Meta,Valor Alcançado,Percentual,Status\n';
-            data.goals.forEach(goal => {
+            data.goals.forEach((goal) => {
                 const month = goal.month || '';
                 const target = goal.amount || 0;
                 const achieved = this.getMonthSales(month);
-                const percent = target > 0 ? (achieved / target * 100) : 0;
-                const status = percent >= 100 ? 'Atingida' : percent >= 75 ? 'Em andamento' : 'Abaixo do esperado';
-                csv += `"${month}",${target.toFixed(2)},${achieved.toFixed(2)},${percent.toFixed(2)}%,"${status}"\n`;
+                const percent = target > 0 ? (achieved / target) * 100 : 0;
+                const status =
+                    percent >= 100
+                        ? 'Atingida'
+                        : percent >= 75
+                        ? 'Em andamento'
+                        : 'Abaixo do esperado';
+                csv += `"${month}",${target.toFixed(2)},${achieved.toFixed(
+                    2
+                )},${percent.toFixed(2)}%,"${status}"\n`;
             });
             csv += '\n';
         }
-        
+
         // Fornecedores
         if (data.suppliers && data.suppliers.length > 0) {
             csv += 'FORNECEDORES\n';
             csv += 'Nome,CNPJ,Telefone,Email,Endereço,Contato\n';
-            data.suppliers.forEach(supplier => {
-                csv += `"${(supplier.name || '').replace(/"/g, '""')}","${(supplier.cnpj || '').replace(/"/g, '""')}","${(supplier.phone || '').replace(/"/g, '""')}","${(supplier.email || '').replace(/"/g, '""')}","${(supplier.address || '').replace(/"/g, '""')}","${(supplier.contact || '').replace(/"/g, '""')}"\n`;
+            data.suppliers.forEach((supplier) => {
+                csv += `"${(supplier.name || '').replace(/"/g, '""')}","${(
+                    supplier.cnpj || ''
+                ).replace(/"/g, '""')}","${(supplier.phone || '').replace(
+                    /"/g,
+                    '""'
+                )}","${(supplier.email || '').replace(/"/g, '""')}","${(
+                    supplier.address || ''
+                ).replace(/"/g, '""')}","${(supplier.contact || '').replace(
+                    /"/g,
+                    '""'
+                )}"\n`;
             });
             csv += '\n';
         }
-        
+
         const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
@@ -19824,11 +22520,11 @@ class LojaApp {
     // Obter label do tipo de dados
     getDataTypeLabel(dataType) {
         const labels = {
-            'all': 'Todos os Dados',
-            'items': 'Produtos',
-            'sales': 'Vendas',
-            'clients': 'Clientes',
-            'financial': 'Dados Financeiros'
+            all: 'Todos os Dados',
+            items: 'Produtos',
+            sales: 'Vendas',
+            clients: 'Clientes',
+            financial: 'Dados Financeiros',
         };
         return labels[dataType] || dataType;
     }
@@ -19842,7 +22538,7 @@ class LojaApp {
             console.error('Modal de análise preditiva não encontrado');
             return;
         }
-        
+
         modal.classList.add('active');
         this.updatePredictiveAnalysis();
     }
@@ -19857,58 +22553,108 @@ class LojaApp {
 
     // Atualizar análise preditiva
     updatePredictiveAnalysis() {
-        const period = parseInt(document.getElementById('predictivePeriod')?.value || 6);
-        
+        const period = parseInt(
+            document.getElementById('predictivePeriod')?.value || 6
+        );
+
         // Calcular previsão de vendas (melhorada)
         const forecast = this.calculateSalesForecast(period);
         const forecastEl = document.getElementById('salesForecast');
         if (forecastEl) {
-            const confidenceBadge = forecast.confidence >= 70 ? '🟢' : forecast.confidence >= 50 ? '🟡' : '🔴';
-            forecastEl.innerHTML = `R$ ${forecast.value.toFixed(2).replace('.', ',')} <span style="font-size: 0.8em; color: var(--gray-600);" title="Confiança: ${forecast.confidence}%">${confidenceBadge}</span>`;
+            const confidenceBadge =
+                forecast.confidence >= 70
+                    ? '🟢'
+                    : forecast.confidence >= 50
+                    ? '🟡'
+                    : '🔴';
+            forecastEl.innerHTML = `R$ ${forecast.value
+                .toFixed(2)
+                .replace(
+                    '.',
+                    ','
+                )} <span style="font-size: 0.8em; color: var(--gray-600);" title="Confiança: ${
+                forecast.confidence
+            }%">${confidenceBadge}</span>`;
         }
-        
+
         // Mostrar detalhes da previsão se disponível
-        const forecastDetailsEl = document.getElementById('salesForecastDetails');
+        const forecastDetailsEl = document.getElementById(
+            'salesForecastDetails'
+        );
         if (forecastDetailsEl && forecast.method) {
             let details = `Confiança: ${forecast.confidence}%`;
             if (forecast.trend) {
-                details += ` | Tendência: ${forecast.trend > 0 ? '+' : ''}${forecast.trend.toFixed(2)}`;
+                details += ` | Tendência: ${
+                    forecast.trend > 0 ? '+' : ''
+                }${forecast.trend.toFixed(2)}`;
             }
             if (forecast.seasonalAdjustment) {
-                details += ` | Ajuste sazonal: ${forecast.seasonalAdjustment > 0 ? '+' : ''}${forecast.seasonalAdjustment.toFixed(2)}`;
+                details += ` | Ajuste sazonal: ${
+                    forecast.seasonalAdjustment > 0 ? '+' : ''
+                }${forecast.seasonalAdjustment.toFixed(2)}`;
             }
             forecastDetailsEl.textContent = details;
             forecastDetailsEl.style.display = 'block';
         }
-        
+
         // Calcular tendência (melhorada)
         const trend = this.calculateSalesTrend(period);
         const trendEl = document.getElementById('salesTrend');
         if (trendEl) {
-            const trendIcon = trend.direction === 'up' ? '📈' : trend.direction === 'down' ? '📉' : '➡️';
-            const trendColor = trend.direction === 'up' ? '#28a745' : trend.direction === 'down' ? '#dc3545' : '#6c757d';
-            const strengthIcon = trend.strength === 'strong' ? '💪' : trend.strength === 'moderate' ? '👍' : '👎';
-            trendEl.innerHTML = `${trendIcon} <span style="color: ${trendColor};">${trend.percentage > 0 ? '+' : ''}${trend.percentage.toFixed(1)}%</span> <span style="font-size: 0.8em;" title="Força da tendência: ${trend.strength} (R²=${trend.rSquared})">${strengthIcon}</span>`;
+            const trendIcon =
+                trend.direction === 'up'
+                    ? '📈'
+                    : trend.direction === 'down'
+                    ? '📉'
+                    : '➡️';
+            const trendColor =
+                trend.direction === 'up'
+                    ? '#28a745'
+                    : trend.direction === 'down'
+                    ? '#dc3545'
+                    : '#6c757d';
+            const strengthIcon =
+                trend.strength === 'strong'
+                    ? '💪'
+                    : trend.strength === 'moderate'
+                    ? '👍'
+                    : '👎';
+            trendEl.innerHTML = `${trendIcon} <span style="color: ${trendColor};">${
+                trend.percentage > 0 ? '+' : ''
+            }${trend.percentage.toFixed(
+                1
+            )}%</span> <span style="font-size: 0.8em;" title="Força da tendência: ${
+                trend.strength
+            } (R²=${trend.rSquared})">${strengthIcon}</span>`;
         }
-        
+
         // Mostrar detalhes da tendência
         const trendDetailsEl = document.getElementById('salesTrendDetails');
         if (trendDetailsEl && trend.strength) {
-            trendDetailsEl.innerHTML = `Força: <strong>${trend.strength === 'strong' ? 'Forte' : trend.strength === 'moderate' ? 'Moderada' : 'Fraca'}</strong> (R²=${trend.rSquared})`;
+            trendDetailsEl.innerHTML = `Força: <strong>${
+                trend.strength === 'strong'
+                    ? 'Forte'
+                    : trend.strength === 'moderate'
+                    ? 'Moderada'
+                    : 'Fraca'
+            }</strong> (R²=${trend.rSquared})`;
             trendDetailsEl.style.display = 'block';
         }
-        
+
         // Calcular crescimento esperado
         const growth = this.calculateExpectedGrowth(period);
         const growthEl = document.getElementById('expectedGrowth');
         if (growthEl) {
-            const growthColor = growth > 0 ? '#28a745' : growth < 0 ? '#dc3545' : '#6c757d';
-            growthEl.innerHTML = `<span style="color: ${growthColor};">${growth > 0 ? '+' : ''}${growth.toFixed(1)}%</span>`;
+            const growthColor =
+                growth > 0 ? '#28a745' : growth < 0 ? '#dc3545' : '#6c757d';
+            growthEl.innerHTML = `<span style="color: ${growthColor};">${
+                growth > 0 ? '+' : ''
+            }${growth.toFixed(1)}%</span>`;
         }
-        
+
         // Gerar insights
         this.generatePredictiveInsights(period, forecast, trend, growth);
-        
+
         // Gerar recomendações
         this.generateRecommendations(period, forecast, trend);
     }
@@ -19917,33 +22663,45 @@ class LojaApp {
     calculateSalesForecast(months = 6) {
         const now = new Date();
         const salesByMonth = [];
-        
+
         // Coletar vendas dos últimos N meses
         for (let i = months - 1; i >= 0; i--) {
             const date = new Date(now.getFullYear(), now.getMonth() - i, 1);
-            const monthKey = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
+            const monthKey = `${date.getFullYear()}-${String(
+                date.getMonth() + 1
+            ).padStart(2, '0')}`;
             const sales = this.getMonthSales(monthKey);
             salesByMonth.push(sales);
         }
-        
+
         if (salesByMonth.length === 0) {
             return { value: 0, confidence: 0 };
         }
-        
+
         // Calcular média móvel simples (últimos 3 meses)
         const recentMonths = salesByMonth.slice(-3);
-        const average = recentMonths.reduce((sum, val) => sum + val, 0) / recentMonths.length;
-        
+        const average =
+            recentMonths.reduce((sum, val) => sum + val, 0) /
+            recentMonths.length;
+
         // Calcular tendência linear simples
         let trend = 0;
         if (salesByMonth.length >= 2) {
-            const firstHalf = salesByMonth.slice(0, Math.floor(salesByMonth.length / 2));
-            const secondHalf = salesByMonth.slice(Math.floor(salesByMonth.length / 2));
-            const firstAvg = firstHalf.reduce((sum, val) => sum + val, 0) / firstHalf.length;
-            const secondAvg = secondHalf.reduce((sum, val) => sum + val, 0) / secondHalf.length;
+            const firstHalf = salesByMonth.slice(
+                0,
+                Math.floor(salesByMonth.length / 2)
+            );
+            const secondHalf = salesByMonth.slice(
+                Math.floor(salesByMonth.length / 2)
+            );
+            const firstAvg =
+                firstHalf.reduce((sum, val) => sum + val, 0) / firstHalf.length;
+            const secondAvg =
+                secondHalf.reduce((sum, val) => sum + val, 0) /
+                secondHalf.length;
             trend = (secondAvg - firstAvg) / firstHalf.length;
         }
-        
+
         // Previsão melhorada: média ponderada (últimos meses têm mais peso) + tendência + sazonalidade
         let weightedAverage = 0;
         let totalWeight = 0;
@@ -19952,63 +22710,81 @@ class LojaApp {
             weightedAverage += sales * weight;
             totalWeight += weight;
         });
-        weightedAverage = totalWeight > 0 ? weightedAverage / totalWeight : average;
-        
+        weightedAverage =
+            totalWeight > 0 ? weightedAverage / totalWeight : average;
+
         // Detectar sazonalidade (comparar mês atual com mesmo mês em anos anteriores)
         const currentMonth = now.getMonth();
-        const seasonalAdjustment = this.calculateSeasonalAdjustment(currentMonth, salesByMonth);
-        
+        const seasonalAdjustment = this.calculateSeasonalAdjustment(
+            currentMonth,
+            salesByMonth
+        );
+
         // Previsão = média ponderada + tendência + ajuste sazonal
         const forecast = weightedAverage + trend + seasonalAdjustment;
-        
+
         // Calcular confiança melhorada baseada em múltiplos fatores
-        const variance = salesByMonth.reduce((sum, val) => sum + Math.pow(val - average, 2), 0) / salesByMonth.length;
+        const variance =
+            salesByMonth.reduce(
+                (sum, val) => sum + Math.pow(val - average, 2),
+                0
+            ) / salesByMonth.length;
         const stdDev = Math.sqrt(variance);
         const coefficientOfVariation = average > 0 ? stdDev / average : 1;
-        
+
         // Confiança baseada em: baixa variância, tendência consistente, dados suficientes
         let confidence = 100;
         confidence -= Math.min(50, coefficientOfVariation * 100); // Penalizar alta variância
         if (salesByMonth.length < 3) confidence -= 20; // Penalizar poucos dados
         if (Math.abs(trend) > average * 0.5) confidence -= 10; // Penalizar tendências muito fortes (instabilidade)
-        
+
         confidence = Math.max(0, Math.min(100, confidence));
-        
+
         return {
             value: Math.max(0, forecast),
             confidence: Math.round(confidence),
             trend: trend,
             seasonalAdjustment: seasonalAdjustment,
-            method: 'weighted_average_with_seasonality'
+            method: 'weighted_average_with_seasonality',
         };
     }
-    
+
     // Calcular ajuste sazonal
     calculateSeasonalAdjustment(currentMonth, salesByMonth) {
         if (salesByMonth.length < 12) {
             // Não há dados suficientes para análise sazonal completa
             return 0;
         }
-        
+
         // Calcular média por mês do ano
         const monthlyAverages = {};
         salesByMonth.forEach((sales, index) => {
-            const monthIndex = (currentMonth - (salesByMonth.length - 1 - index) + 12) % 12;
+            const monthIndex =
+                (currentMonth - (salesByMonth.length - 1 - index) + 12) % 12;
             if (!monthlyAverages[monthIndex]) {
                 monthlyAverages[monthIndex] = [];
             }
             monthlyAverages[monthIndex].push(sales);
         });
-        
+
         // Calcular média geral
-        const overallAverage = salesByMonth.reduce((sum, val) => sum + val, 0) / salesByMonth.length;
-        
+        const overallAverage =
+            salesByMonth.reduce((sum, val) => sum + val, 0) /
+            salesByMonth.length;
+
         // Calcular ajuste para o mês atual
-        if (monthlyAverages[currentMonth] && monthlyAverages[currentMonth].length > 0) {
-            const monthAverage = monthlyAverages[currentMonth].reduce((sum, val) => sum + val, 0) / monthlyAverages[currentMonth].length;
+        if (
+            monthlyAverages[currentMonth] &&
+            monthlyAverages[currentMonth].length > 0
+        ) {
+            const monthAverage =
+                monthlyAverages[currentMonth].reduce(
+                    (sum, val) => sum + val,
+                    0
+                ) / monthlyAverages[currentMonth].length;
             return monthAverage - overallAverage;
         }
-        
+
         return 0;
     }
 
@@ -20016,30 +22792,43 @@ class LojaApp {
     calculateSalesTrend(months = 6) {
         const now = new Date();
         const salesByMonth = [];
-        
+
         for (let i = months - 1; i >= 0; i--) {
             const date = new Date(now.getFullYear(), now.getMonth() - i, 1);
-            const monthKey = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
+            const monthKey = `${date.getFullYear()}-${String(
+                date.getMonth() + 1
+            ).padStart(2, '0')}`;
             const sales = this.getMonthSales(monthKey);
             salesByMonth.push(sales);
         }
-        
+
         if (salesByMonth.length < 2) {
             return { direction: 'stable', percentage: 0 };
         }
-        
-        const firstHalf = salesByMonth.slice(0, Math.floor(salesByMonth.length / 2));
-        const secondHalf = salesByMonth.slice(Math.floor(salesByMonth.length / 2));
-        const firstAvg = firstHalf.reduce((sum, val) => sum + val, 0) / firstHalf.length;
-        const secondAvg = secondHalf.reduce((sum, val) => sum + val, 0) / secondHalf.length;
-        
+
+        const firstHalf = salesByMonth.slice(
+            0,
+            Math.floor(salesByMonth.length / 2)
+        );
+        const secondHalf = salesByMonth.slice(
+            Math.floor(salesByMonth.length / 2)
+        );
+        const firstAvg =
+            firstHalf.reduce((sum, val) => sum + val, 0) / firstHalf.length;
+        const secondAvg =
+            secondHalf.reduce((sum, val) => sum + val, 0) / secondHalf.length;
+
         if (firstAvg === 0) {
-            return { direction: secondAvg > 0 ? 'up' : 'stable', percentage: 0 };
+            return {
+                direction: secondAvg > 0 ? 'up' : 'stable',
+                percentage: 0,
+            };
         }
-        
+
         const percentage = ((secondAvg - firstAvg) / firstAvg) * 100;
-        const direction = percentage > 5 ? 'up' : percentage < -5 ? 'down' : 'stable';
-        
+        const direction =
+            percentage > 5 ? 'up' : percentage < -5 ? 'down' : 'stable';
+
         return { direction, percentage };
     }
 
@@ -20053,36 +22842,45 @@ class LojaApp {
     generatePredictiveInsights(period, forecast, trend, growth) {
         const container = document.getElementById('predictiveInsights');
         if (!container) return;
-        
+
         let insights = [];
-        
+
         // Insight sobre previsão
         if (forecast.value > 0) {
             insights.push({
                 type: 'info',
                 icon: '📊',
                 title: 'Previsão de Vendas',
-                message: `Baseado nos últimos ${period} meses, a previsão para o próximo mês é de R$ ${forecast.value.toFixed(2).replace('.', ',')} (confiança: ${forecast.confidence.toFixed(0)}%)`
+                message: `Baseado nos últimos ${period} meses, a previsão para o próximo mês é de R$ ${forecast.value
+                    .toFixed(2)
+                    .replace(
+                        '.',
+                        ','
+                    )} (confiança: ${forecast.confidence.toFixed(0)}%)`,
             });
         }
-        
+
         // Insight sobre tendência
         if (trend.direction === 'up') {
             insights.push({
                 type: 'success',
                 icon: '📈',
                 title: 'Tendência Positiva',
-                message: `Vendas estão em crescimento de ${trend.percentage.toFixed(1)}% comparado ao período anterior`
+                message: `Vendas estão em crescimento de ${trend.percentage.toFixed(
+                    1
+                )}% comparado ao período anterior`,
             });
         } else if (trend.direction === 'down') {
             insights.push({
                 type: 'warning',
                 icon: '📉',
                 title: 'Tendência Negativa',
-                message: `Vendas estão em declínio de ${Math.abs(trend.percentage).toFixed(1)}% comparado ao período anterior`
+                message: `Vendas estão em declínio de ${Math.abs(
+                    trend.percentage
+                ).toFixed(1)}% comparado ao período anterior`,
             });
         }
-        
+
         // Insight sobre produtos mais vendidos
         const topProducts = this.getTopSellingProducts(period);
         if (topProducts.length > 0) {
@@ -20090,91 +22888,144 @@ class LojaApp {
                 type: 'info',
                 icon: '⭐',
                 title: 'Produtos em Destaque',
-                message: `${topProducts[0].name} é o produto mais vendido com ${topProducts[0].quantity} unidades nos últimos ${period} meses`
+                message: `${topProducts[0].name} é o produto mais vendido com ${topProducts[0].quantity} unidades nos últimos ${period} meses`,
             });
         }
-        
+
         // Renderizar insights
-        container.innerHTML = insights.map(insight => `
-            <div style="padding: 1rem; background: ${insight.type === 'success' ? '#d4edda' : insight.type === 'warning' ? '#fff3cd' : '#d1ecf1'}; border-left: 4px solid ${insight.type === 'success' ? '#28a745' : insight.type === 'warning' ? '#ffc107' : '#17a2b8'}; border-radius: var(--radius-sm); margin-bottom: 0.75rem;">
+        container.innerHTML = insights
+            .map(
+                (insight) => `
+            <div style="padding: 1rem; background: ${
+                insight.type === 'success'
+                    ? '#d4edda'
+                    : insight.type === 'warning'
+                    ? '#fff3cd'
+                    : '#d1ecf1'
+            }; border-left: 4px solid ${
+                    insight.type === 'success'
+                        ? '#28a745'
+                        : insight.type === 'warning'
+                        ? '#ffc107'
+                        : '#17a2b8'
+                }; border-radius: var(--radius-sm); margin-bottom: 0.75rem;">
                 <div style="display: flex; align-items: start; gap: 0.75rem;">
                     <span style="font-size: 1.5rem;">${insight.icon}</span>
                     <div style="flex: 1;">
-                        <h4 style="margin: 0 0 0.25rem 0; color: var(--dark-gray); font-size: 0.95rem; font-weight: 600;">${insight.title}</h4>
-                        <p style="margin: 0; color: var(--gray-700); font-size: 0.9rem;">${insight.message}</p>
+                        <h4 style="margin: 0 0 0.25rem 0; color: var(--dark-gray); font-size: 0.95rem; font-weight: 600;">${
+                            insight.title
+                        }</h4>
+                        <p style="margin: 0; color: var(--gray-700); font-size: 0.9rem;">${
+                            insight.message
+                        }</p>
                     </div>
                 </div>
             </div>
-        `).join('');
+        `
+            )
+            .join('');
     }
 
     // Gerar recomendações
     generateRecommendations(period, forecast, trend) {
         const container = document.getElementById('recommendationsList');
         if (!container) return;
-        
+
         let recommendations = [];
-        
+
         // Recomendação baseada em tendência
         if (trend.direction === 'down') {
             recommendations.push({
                 priority: 'high',
                 title: 'Ação Necessária: Vendas em Declínio',
-                message: 'Considere criar promoções ou campanhas de marketing para reverter a tendência de queda nas vendas.'
+                message:
+                    'Considere criar promoções ou campanhas de marketing para reverter a tendência de queda nas vendas.',
             });
         }
-        
+
         // Recomendação baseada em produtos
-        const lowStockItems = this.items.filter(item => {
+        const lowStockItems = this.items.filter((item) => {
             if (item.category === 'Serviços') return false;
             return item.stock && item.minStock && item.stock < item.minStock;
         });
-        
+
         if (lowStockItems.length > 0) {
             recommendations.push({
                 priority: 'medium',
                 title: 'Reposição de Estoque',
-                message: `${lowStockItems.length} produto(s) estão com estoque abaixo do mínimo. Considere fazer reposição.`
+                message: `${lowStockItems.length} produto(s) estão com estoque abaixo do mínimo. Considere fazer reposição.`,
             });
         }
-        
+
         // Recomendação baseada em metas
         const now = new Date();
-        const currentMonth = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
-        const currentGoal = this.goals.find(g => g.month === currentMonth);
+        const currentMonth = `${now.getFullYear()}-${String(
+            now.getMonth() + 1
+        ).padStart(2, '0')}`;
+        const currentGoal = this.goals.find((g) => g.month === currentMonth);
         if (currentGoal) {
             const currentSales = this.getMonthSales(currentMonth);
             const progress = (currentSales / currentGoal.amount) * 100;
-            const daysRemaining = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate() - now.getDate();
-            
+            const daysRemaining =
+                new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate() -
+                now.getDate();
+
             if (progress < 75 && daysRemaining <= 7) {
                 recommendations.push({
                     priority: 'high',
                     title: 'Meta em Risco',
-                    message: `A meta do mês está em ${progress.toFixed(1)}% com apenas ${daysRemaining} dia(s) restante(s). Ação imediata recomendada.`
+                    message: `A meta do mês está em ${progress.toFixed(
+                        1
+                    )}% com apenas ${daysRemaining} dia(s) restante(s). Ação imediata recomendada.`,
                 });
             }
         }
-        
+
         // Recomendação baseada em previsão
         if (forecast.value > 0 && forecast.confidence > 70) {
             recommendations.push({
                 priority: 'low',
                 title: 'Oportunidade de Crescimento',
-                message: `A previsão indica vendas de R$ ${forecast.value.toFixed(2).replace('.', ',')} no próximo mês. Prepare-se para atender essa demanda.`
+                message: `A previsão indica vendas de R$ ${forecast.value
+                    .toFixed(2)
+                    .replace(
+                        '.',
+                        ','
+                    )} no próximo mês. Prepare-se para atender essa demanda.`,
             });
         }
-        
+
         // Renderizar recomendações
         if (recommendations.length === 0) {
-            container.innerHTML = '<p style="color: var(--gray-600); font-style: italic;">Nenhuma recomendação no momento.</p>';
+            container.innerHTML =
+                '<p style="color: var(--gray-600); font-style: italic;">Nenhuma recomendação no momento.</p>';
         } else {
-            container.innerHTML = recommendations.map(rec => `
-                <div style="padding: 1rem; background: ${rec.priority === 'high' ? '#fee' : rec.priority === 'medium' ? '#fff3cd' : '#f8f9fa'}; border-left: 4px solid ${rec.priority === 'high' ? '#dc3545' : rec.priority === 'medium' ? '#ffc107' : '#6c757d'}; border-radius: var(--radius-sm); margin-bottom: 0.75rem;">
-                    <h4 style="margin: 0 0 0.5rem 0; color: var(--dark-gray); font-size: 0.95rem; font-weight: 600;">${rec.title}</h4>
-                    <p style="margin: 0; color: var(--gray-700); font-size: 0.9rem;">${rec.message}</p>
+            container.innerHTML = recommendations
+                .map(
+                    (rec) => `
+                <div style="padding: 1rem; background: ${
+                    rec.priority === 'high'
+                        ? '#fee'
+                        : rec.priority === 'medium'
+                        ? '#fff3cd'
+                        : '#f8f9fa'
+                }; border-left: 4px solid ${
+                        rec.priority === 'high'
+                            ? '#dc3545'
+                            : rec.priority === 'medium'
+                            ? '#ffc107'
+                            : '#6c757d'
+                    }; border-radius: var(--radius-sm); margin-bottom: 0.75rem;">
+                    <h4 style="margin: 0 0 0.5rem 0; color: var(--dark-gray); font-size: 0.95rem; font-weight: 600;">${
+                        rec.title
+                    }</h4>
+                    <p style="margin: 0; color: var(--gray-700); font-size: 0.9rem;">${
+                        rec.message
+                    }</p>
                 </div>
-            `).join('');
+            `
+                )
+                .join('');
         }
     }
 
@@ -20182,37 +23033,41 @@ class LojaApp {
     getTopSellingProducts(months = 6) {
         const now = new Date();
         const productSales = {};
-        
+
         // Coletar vendas dos últimos N meses
         for (let i = months - 1; i >= 0; i--) {
             const date = new Date(now.getFullYear(), now.getMonth() - i, 1);
-            const monthKey = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
-            const group = this.groups.find(g => g.month === monthKey);
-            
+            const monthKey = `${date.getFullYear()}-${String(
+                date.getMonth() + 1
+            ).padStart(2, '0')}`;
+            const group = this.groups.find((g) => g.month === monthKey);
+
             if (group) {
-                group.days.forEach(day => {
-                    day.sales.forEach(sale => {
-                        sale.items.forEach(item => {
+                group.days.forEach((day) => {
+                    day.sales.forEach((sale) => {
+                        sale.items.forEach((item) => {
                             if (!productSales[item.itemId]) {
                                 productSales[item.itemId] = {
                                     itemId: item.itemId,
                                     quantity: 0,
-                                    revenue: 0
+                                    revenue: 0,
                                 };
                             }
-                            productSales[item.itemId].quantity += item.quantity || 0;
-                            productSales[item.itemId].revenue += (item.price || 0) * (item.quantity || 0);
+                            productSales[item.itemId].quantity +=
+                                item.quantity || 0;
+                            productSales[item.itemId].revenue +=
+                                (item.price || 0) * (item.quantity || 0);
                         });
                     });
                 });
             }
         }
-        
+
         // Converter para array e ordenar
         return Object.values(productSales)
-            .map(ps => ({
+            .map((ps) => ({
                 ...ps,
-                name: this.getItemName(ps.itemId)
+                name: this.getItemName(ps.itemId),
             }))
             .sort((a, b) => b.quantity - a.quantity)
             .slice(0, 5);
@@ -20258,7 +23113,7 @@ class LojaApp {
             gap: 1rem;
             flex-wrap: wrap;
         `;
-        
+
         banner.innerHTML = `
             <div style="flex: 1; min-width: 250px;">
                 <p style="margin: 0; font-size: 0.9rem;">
@@ -20275,7 +23130,7 @@ class LojaApp {
                 </button>
             </div>
         `;
-        
+
         document.body.appendChild(banner);
     }
 
@@ -20284,13 +23139,13 @@ class LojaApp {
         const consent = {
             accepted: true,
             timestamp: new Date().toISOString(),
-            version: '1.0'
+            version: '1.0',
         };
         localStorage.setItem('cookieConsent', JSON.stringify(consent));
         this.cookieConsent = consent;
         this.updateCookieConsentStatus();
         this.hideCookieConsentBanner();
-        
+
         if (typeof toast !== 'undefined' && toast) {
             toast.success('Consentimento de cookies aceito.', 3000);
         }
@@ -20301,19 +23156,22 @@ class LojaApp {
         const consent = {
             accepted: false,
             timestamp: new Date().toISOString(),
-            version: '1.0'
+            version: '1.0',
         };
         localStorage.setItem('cookieConsent', JSON.stringify(consent));
         this.cookieConsent = consent;
         this.updateCookieConsentStatus();
         this.hideCookieConsentBanner();
-        
+
         // Limpar dados não essenciais
         localStorage.removeItem('appTheme');
         localStorage.removeItem('searchHistory');
-        
+
         if (typeof toast !== 'undefined' && toast) {
-            toast.info('Consentimento recusado. Alguns recursos podem não funcionar corretamente.', 4000);
+            toast.info(
+                'Consentimento recusado. Alguns recursos podem não funcionar corretamente.',
+                4000
+            );
         }
     }
 
@@ -20329,13 +23187,15 @@ class LojaApp {
     updateCookieConsentStatus() {
         const statusEl = document.getElementById('cookieConsentStatus');
         if (!statusEl) return;
-        
+
         if (this.cookieConsent) {
             const date = new Date(this.cookieConsent.timestamp);
             const status = this.cookieConsent.accepted ? 'Aceito' : 'Recusado';
             const color = this.cookieConsent.accepted ? '#28a745' : '#dc3545';
             statusEl.innerHTML = `
-                <span style="color: ${color}; font-weight: 600;">${status}</span> em ${date.toLocaleDateString('pt-BR')} às ${date.toLocaleTimeString('pt-BR')}
+                <span style="color: ${color}; font-weight: 600;">${status}</span> em ${date.toLocaleDateString(
+                'pt-BR'
+            )} às ${date.toLocaleTimeString('pt-BR')}
             `;
         } else {
             statusEl.textContent = 'Não definido';
@@ -20349,15 +23209,20 @@ class LojaApp {
             console.error('Modal de política de privacidade não encontrado');
             return;
         }
-        
+
         // Atualizar data
         const dateEl = document.getElementById('privacyPolicyDate');
         if (dateEl) {
             dateEl.textContent = new Date().toLocaleDateString('pt-BR');
         }
-        
+
         modal.classList.add('active');
-        this.logDataAccess('view', 'privacy_policy', null, 'Visualização da política de privacidade');
+        this.logDataAccess(
+            'view',
+            'privacy_policy',
+            null,
+            'Visualização da política de privacidade'
+        );
     }
 
     // Fechar modal de política de privacidade
@@ -20370,19 +23235,25 @@ class LojaApp {
 
     // Exportar política de privacidade
     exportPrivacyPolicy() {
-        const content = document.getElementById('privacyPolicyContent')?.innerText || '';
+        const content =
+            document.getElementById('privacyPolicyContent')?.innerText || '';
         const blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
-        a.download = `politica_privacidade_${new Date().toISOString().split('T')[0]}.txt`;
+        a.download = `politica_privacidade_${
+            new Date().toISOString().split('T')[0]
+        }.txt`;
         document.body.appendChild(a);
         a.click();
         document.body.removeChild(a);
         URL.revokeObjectURL(url);
-        
+
         if (typeof toast !== 'undefined' && toast) {
-            toast.success('Política de privacidade exportada com sucesso!', 3000);
+            toast.success(
+                'Política de privacidade exportada com sucesso!',
+                3000
+            );
         }
     }
 
@@ -20414,11 +23285,11 @@ class LojaApp {
             preferences: {
                 theme: localStorage.getItem(`appTheme_${username}`) || 'red',
             },
-            auditLog: (this.auditLog || []).filter(log => 
-                log.username === username
+            auditLog: (this.auditLog || []).filter(
+                (log) => log.username === username
             ),
-            dataAccessLogs: (this.dataAccessLogs || []).filter(log => 
-                log.username === username
+            dataAccessLogs: (this.dataAccessLogs || []).filter(
+                (log) => log.username === username
             ),
         };
 
@@ -20429,15 +23300,22 @@ class LojaApp {
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
-        a.download = `meus_dados_${username}_${new Date().toISOString().split('T')[0]}.json`;
+        a.download = `meus_dados_${username}_${
+            new Date().toISOString().split('T')[0]
+        }.json`;
         document.body.appendChild(a);
         a.click();
         document.body.removeChild(a);
         URL.revokeObjectURL(url);
 
         // Registrar acesso
-        this.logDataAccess('export', 'personal_data', username, 'Exportação de dados pessoais');
-        
+        this.logDataAccess(
+            'export',
+            'personal_data',
+            username,
+            'Exportação de dados pessoais'
+        );
+
         if (typeof toast !== 'undefined' && toast) {
             toast.success('Dados pessoais exportados com sucesso!', 3000);
         }
@@ -20456,14 +23334,13 @@ class LojaApp {
         const confirmMessage = `Tem certeza que deseja solicitar a exclusão de todos os seus dados pessoais?\n\nEsta ação irá:\n- Excluir todos os clientes cadastrados\n- Excluir todos os fornecedores cadastrados\n- Excluir todos os dados de vendas associados\n- Excluir preferências e configurações\n\nEsta ação NÃO PODE ser desfeita!`;
 
         if (typeof confirmDialog !== 'undefined' && confirmDialog) {
-            confirmDialog.danger(
-                confirmMessage,
-                'Solicitar Exclusão de Dados'
-            ).then((confirmed) => {
-                if (confirmed) {
-                    this.performDataDeletion(username);
-                }
-            });
+            confirmDialog
+                .danger(confirmMessage, 'Solicitar Exclusão de Dados')
+                .then((confirmed) => {
+                    if (confirmed) {
+                        this.performDataDeletion(username);
+                    }
+                });
         } else {
             if (confirm(confirmMessage)) {
                 this.performDataDeletion(username);
@@ -20475,30 +23352,43 @@ class LojaApp {
     performDataDeletion(username) {
         try {
             // Registrar solicitação
-            this.logDataAccess('delete_request', 'personal_data', username, 'Solicitação de exclusão de dados (LGPD)');
+            this.logDataAccess(
+                'delete_request',
+                'personal_data',
+                username,
+                'Solicitação de exclusão de dados (LGPD)'
+            );
 
             // Excluir dados pessoais
             this.clients = [];
             this.suppliers = [];
-            
+
             // Excluir dados do localStorage
             const localStorageKey = `lojaData_${username}`;
             localStorage.removeItem(localStorageKey);
-            
+
             // Excluir preferências
             localStorage.removeItem(`appTheme_${username}`);
-            
+
             // Limpar dados relacionados
-            this.completedSales = this.completedSales.filter(sale => {
+            this.completedSales = this.completedSales.filter((sale) => {
                 // Manter apenas vendas sem dados pessoais identificáveis
-                return !sale.clientName || sale.clientName === 'Cliente não cadastrado';
+                return (
+                    !sale.clientName ||
+                    sale.clientName === 'Cliente não cadastrado'
+                );
             });
 
             // Salvar alterações
             this.saveData();
 
             // Registrar exclusão
-            this.logDataAccess('delete', 'personal_data', username, 'Exclusão de dados pessoais realizada');
+            this.logDataAccess(
+                'delete',
+                'personal_data',
+                username,
+                'Exclusão de dados pessoais realizada'
+            );
 
             if (typeof toast !== 'undefined' && toast) {
                 toast.success('Dados pessoais excluídos com sucesso!', 3000);
@@ -20511,7 +23401,10 @@ class LojaApp {
         } catch (error) {
             console.error('Erro ao excluir dados:', error);
             if (typeof toast !== 'undefined' && toast) {
-                toast.error('Erro ao excluir dados. Verifique o console.', 4000);
+                toast.error(
+                    'Erro ao excluir dados. Verifique o console.',
+                    4000
+                );
             }
         }
     }
@@ -20523,7 +23416,7 @@ class LojaApp {
             console.error('Modal de logs de acesso não encontrado');
             return;
         }
-        
+
         modal.classList.add('active');
         this.renderDataAccessLogs();
     }
@@ -20542,14 +23435,18 @@ class LojaApp {
         if (!container) return;
 
         let logs = this.dataAccessLogs || [];
-        
+
         // Filtrar logs
         if (filter !== 'all') {
-            logs = logs.filter(log => {
+            logs = logs.filter((log) => {
                 if (filter === 'client') return log.entityType === 'client';
                 if (filter === 'supplier') return log.entityType === 'supplier';
                 if (filter === 'export') return log.action === 'export';
-                if (filter === 'delete') return log.action === 'delete' || log.action === 'delete_request';
+                if (filter === 'delete')
+                    return (
+                        log.action === 'delete' ||
+                        log.action === 'delete_request'
+                    );
                 return true;
             });
         }
@@ -20558,68 +23455,96 @@ class LojaApp {
         logs.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
 
         if (logs.length === 0) {
-            container.innerHTML = '<p style="text-align: center; color: var(--gray-600); padding: 2rem;">Nenhum log de acesso encontrado.</p>';
+            container.innerHTML =
+                '<p style="text-align: center; color: var(--gray-600); padding: 2rem;">Nenhum log de acesso encontrado.</p>';
             return;
         }
 
-        container.innerHTML = logs.map(log => {
-            const date = new Date(log.timestamp);
-            const actionIcon = {
-                'view': '👁️',
-                'export': '📥',
-                'delete': '🗑️',
-                'delete_request': '⚠️',
-                'update': '✏️',
-                'create': '➕'
-            }[log.action] || '📋';
-            
-            const actionColor = {
-                'view': '#17a2b8',
-                'export': '#28a745',
-                'delete': '#dc3545',
-                'delete_request': '#ffc107',
-                'update': '#007bff',
-                'create': '#6c757d'
-            }[log.action] || '#6c757d';
+        container.innerHTML = logs
+            .map((log) => {
+                const date = new Date(log.timestamp);
+                const actionIcon =
+                    {
+                        view: '👁️',
+                        export: '📥',
+                        delete: '🗑️',
+                        delete_request: '⚠️',
+                        update: '✏️',
+                        create: '➕',
+                    }[log.action] || '📋';
 
-            return `
+                const actionColor =
+                    {
+                        view: '#17a2b8',
+                        export: '#28a745',
+                        delete: '#dc3545',
+                        delete_request: '#ffc107',
+                        update: '#007bff',
+                        create: '#6c757d',
+                    }[log.action] || '#6c757d';
+
+                return `
                 <div style="padding: 1rem; background: var(--white); border-left: 4px solid ${actionColor}; border-radius: var(--radius-sm); margin-bottom: 0.75rem; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
                     <div style="display: flex; align-items: start; gap: 0.75rem;">
                         <span style="font-size: 1.5rem;">${actionIcon}</span>
                         <div style="flex: 1;">
                             <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 0.25rem;">
                                 <h4 style="margin: 0; color: var(--dark-gray); font-size: 0.95rem; font-weight: 600;">
-                                    ${log.action === 'view' ? 'Visualização' : 
-                                      log.action === 'export' ? 'Exportação' : 
-                                      log.action === 'delete' ? 'Exclusão' : 
-                                      log.action === 'delete_request' ? 'Solicitação de Exclusão' : 
-                                      log.action === 'update' ? 'Atualização' : 
-                                      log.action === 'create' ? 'Criação' : log.action}
+                                    ${
+                                        log.action === 'view'
+                                            ? 'Visualização'
+                                            : log.action === 'export'
+                                            ? 'Exportação'
+                                            : log.action === 'delete'
+                                            ? 'Exclusão'
+                                            : log.action === 'delete_request'
+                                            ? 'Solicitação de Exclusão'
+                                            : log.action === 'update'
+                                            ? 'Atualização'
+                                            : log.action === 'create'
+                                            ? 'Criação'
+                                            : log.action
+                                    }
                                 </h4>
                                 <span style="font-size: 0.85rem; color: var(--gray-600);">
-                                    ${date.toLocaleDateString('pt-BR')} ${date.toLocaleTimeString('pt-BR')}
+                                    ${date.toLocaleDateString(
+                                        'pt-BR'
+                                    )} ${date.toLocaleTimeString('pt-BR')}
                                 </span>
                             </div>
                             <p style="margin: 0 0 0.25rem 0; color: var(--gray-700); font-size: 0.9rem;">
-                                <strong>Tipo:</strong> ${log.entityType === 'client' ? 'Cliente' : 
-                                                       log.entityType === 'supplier' ? 'Fornecedor' : 
-                                                       log.entityType === 'personal_data' ? 'Dados Pessoais' : 
-                                                       log.entityType || 'N/A'}
+                                <strong>Tipo:</strong> ${
+                                    log.entityType === 'client'
+                                        ? 'Cliente'
+                                        : log.entityType === 'supplier'
+                                        ? 'Fornecedor'
+                                        : log.entityType === 'personal_data'
+                                        ? 'Dados Pessoais'
+                                        : log.entityType || 'N/A'
+                                }
                             </p>
                             <p style="margin: 0 0 0.25rem 0; color: var(--gray-700); font-size: 0.9rem;">
-                                <strong>Usuário:</strong> ${log.username || 'N/A'}
+                                <strong>Usuário:</strong> ${
+                                    log.username || 'N/A'
+                                }
                             </p>
-                            ${log.description ? `<p style="margin: 0; color: var(--gray-600); font-size: 0.85rem; font-style: italic;">${log.description}</p>` : ''}
+                            ${
+                                log.description
+                                    ? `<p style="margin: 0; color: var(--gray-600); font-size: 0.85rem; font-style: italic;">${log.description}</p>`
+                                    : ''
+                            }
                         </div>
                     </div>
                 </div>
             `;
-        }).join('');
+            })
+            .join('');
     }
 
     // Filtrar logs de acesso
     filterDataAccessLogs() {
-        const filter = document.getElementById('dataAccessLogsFilter')?.value || 'all';
+        const filter =
+            document.getElementById('dataAccessLogsFilter')?.value || 'all';
         this.renderDataAccessLogs(filter);
     }
 
@@ -20632,12 +23557,14 @@ class LojaApp {
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
-        a.download = `logs_acesso_dados_${new Date().toISOString().split('T')[0]}.json`;
+        a.download = `logs_acesso_dados_${
+            new Date().toISOString().split('T')[0]
+        }.json`;
         document.body.appendChild(a);
         a.click();
         document.body.removeChild(a);
         URL.revokeObjectURL(url);
-        
+
         if (typeof toast !== 'undefined' && toast) {
             toast.success('Logs de acesso exportados com sucesso!', 3000);
         }
@@ -20647,9 +23574,13 @@ class LojaApp {
     logDataAccess(action, entityType, entityId, description) {
         const username = sessionStorage.getItem('username') || 'unknown';
         const timestamp = new Date().toISOString();
-        
+
         const logEntry = {
-            id: 'DATA_ACCESS_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9),
+            id:
+                'DATA_ACCESS_' +
+                Date.now() +
+                '_' +
+                Math.random().toString(36).substr(2, 9),
             action: action, // 'view', 'export', 'delete', 'delete_request', etc.
             entityType: entityType, // 'client', 'supplier', 'personal_data', etc.
             entityId: entityId,
@@ -20679,7 +23610,9 @@ class LojaApp {
             // Usar senha do usuário + username como material para derivar chave
             const keyMaterial = await crypto.subtle.importKey(
                 'raw',
-                new TextEncoder().encode(username + password + 'loja-secret-salt'),
+                new TextEncoder().encode(
+                    username + password + 'loja-secret-salt'
+                ),
                 { name: 'PBKDF2' },
                 false,
                 ['deriveBits', 'deriveKey']
@@ -20732,7 +23665,9 @@ class LojaApp {
         try {
             const key = await this.getEncryptionKey(username);
             if (!key) {
-                console.warn('⚠️ [ENCRYPT] Chave de criptografia não disponível, dados não serão criptografados');
+                console.warn(
+                    '⚠️ [ENCRYPT] Chave de criptografia não disponível, dados não serão criptografados'
+                );
                 return data;
             }
 
@@ -20754,13 +23689,15 @@ class LojaApp {
             );
 
             // Combinar IV + dados criptografados
-            const combined = new Uint8Array(iv.length + encryptedData.byteLength);
+            const combined = new Uint8Array(
+                iv.length + encryptedData.byteLength
+            );
             combined.set(iv, 0);
             combined.set(new Uint8Array(encryptedData), iv.length);
 
             // Converter para base64 para armazenamento
             const base64 = btoa(String.fromCharCode(...combined));
-            
+
             return {
                 encrypted: true,
                 data: base64,
@@ -20782,12 +23719,16 @@ class LojaApp {
         try {
             const key = await this.getEncryptionKey(username);
             if (!key) {
-                console.warn('⚠️ [DECRYPT] Chave de criptografia não disponível, dados não podem ser descriptografados');
+                console.warn(
+                    '⚠️ [DECRYPT] Chave de criptografia não disponível, dados não podem ser descriptografados'
+                );
                 return encryptedData;
             }
 
             // Converter de base64 para Uint8Array
-            const combined = Uint8Array.from(atob(encryptedData.data), c => c.charCodeAt(0));
+            const combined = Uint8Array.from(atob(encryptedData.data), (c) =>
+                c.charCodeAt(0)
+            );
 
             // Extrair IV (primeiros 12 bytes)
             const iv = combined.slice(0, 12);
@@ -20829,8 +23770,11 @@ class LojaApp {
                     address: client.address,
                 };
 
-                const encryptedFields = await this.encryptSensitiveData(sensitiveFields, username);
-                
+                const encryptedFields = await this.encryptSensitiveData(
+                    sensitiveFields,
+                    username
+                );
+
                 encryptedClients.push({
                     ...client,
                     sensitiveData: encryptedFields,
@@ -20859,8 +23803,11 @@ class LojaApp {
             for (const client of clients) {
                 if (client.sensitiveData && client.sensitiveData.encrypted) {
                     // Descriptografar campos sensíveis
-                    const decryptedFields = await this.decryptSensitiveData(client.sensitiveData, username);
-                    
+                    const decryptedFields = await this.decryptSensitiveData(
+                        client.sensitiveData,
+                        username
+                    );
+
                     decryptedClients.push({
                         ...client,
                         ...decryptedFields,
@@ -20888,8 +23835,14 @@ class LojaApp {
             // Criptografar dados sensíveis do backup (clientes, fornecedores)
             const encryptedBackup = {
                 ...backupData,
-                clients: await this.encryptClientData(backupData.clients || [], username),
-                suppliers: await this.encryptClientData(backupData.suppliers || [], username),
+                clients: await this.encryptClientData(
+                    backupData.clients || [],
+                    username
+                ),
+                suppliers: await this.encryptClientData(
+                    backupData.suppliers || [],
+                    username
+                ),
             };
 
             return encryptedBackup;
@@ -20905,8 +23858,14 @@ class LojaApp {
             // Descriptografar dados sensíveis do backup
             const decryptedBackup = {
                 ...backupData,
-                clients: await this.decryptClientData(backupData.clients || [], username),
-                suppliers: await this.decryptClientData(backupData.suppliers || [], username),
+                clients: await this.decryptClientData(
+                    backupData.clients || [],
+                    username
+                ),
+                suppliers: await this.decryptClientData(
+                    backupData.suppliers || [],
+                    username
+                ),
             };
 
             return decryptedBackup;
@@ -20980,12 +23939,23 @@ class LojaApp {
         this.resetInactivityTimer();
 
         // Eventos que indicam atividade do usuário
-        const activityEvents = ['mousedown', 'mousemove', 'keypress', 'scroll', 'touchstart', 'click'];
-        
+        const activityEvents = [
+            'mousedown',
+            'mousemove',
+            'keypress',
+            'scroll',
+            'touchstart',
+            'click',
+        ];
+
         activityEvents.forEach((event) => {
-            document.addEventListener(event, () => {
-                this.resetInactivityTimer();
-            }, { passive: true });
+            document.addEventListener(
+                event,
+                () => {
+                    this.resetInactivityTimer();
+                },
+                { passive: true }
+            );
         });
 
         console.log('✅ [INACTIVITY] Monitoramento de inatividade iniciado');
@@ -21007,11 +23977,14 @@ class LojaApp {
         }, this.inactivityTimeout);
 
         // Avisar 5 minutos antes do logout
-        const warningTime = this.inactivityTimeout - (5 * 60 * 1000); // 5 minutos antes
+        const warningTime = this.inactivityTimeout - 5 * 60 * 1000; // 5 minutos antes
         setTimeout(() => {
             if (this.inactivityTimer) {
                 if (typeof toast !== 'undefined' && toast) {
-                    toast.warning('Você será desconectado em 5 minutos por inatividade. Mova o mouse ou pressione uma tecla para continuar.', 10000);
+                    toast.warning(
+                        'Você será desconectado em 5 minutos por inatividade. Mova o mouse ou pressione uma tecla para continuar.',
+                        10000
+                    );
                 }
             }
         }, warningTime);
@@ -21020,7 +23993,7 @@ class LojaApp {
     // Fazer logout do usuário
     logoutUser() {
         console.log('⚠️ [INACTIVITY] Logout automático por inatividade');
-        
+
         // Limpar timer
         if (this.inactivityTimer) {
             clearTimeout(this.inactivityTimer);
@@ -21034,7 +24007,10 @@ class LojaApp {
 
         // Mostrar mensagem
         if (typeof toast !== 'undefined' && toast) {
-            toast.error('Você foi desconectado por inatividade. Faça login novamente.', 5000);
+            toast.error(
+                'Você foi desconectado por inatividade. Faça login novamente.',
+                5000
+            );
         }
 
         // Redirecionar para login após 2 segundos
@@ -21048,7 +24024,9 @@ class LojaApp {
     // Solicitar permissão para notificações
     async requestNotificationPermission() {
         if (!('Notification' in window)) {
-            console.warn('⚠️ [PWA] Notificações não suportadas neste navegador');
+            console.warn(
+                '⚠️ [PWA] Notificações não suportadas neste navegador'
+            );
             return false;
         }
 
@@ -21131,7 +24109,10 @@ class LojaApp {
 
         try {
             // Registrar sincronização em background
-            if ('serviceWorker' in navigator && 'sync' in window.ServiceWorkerRegistration.prototype) {
+            if (
+                'serviceWorker' in navigator &&
+                'sync' in window.ServiceWorkerRegistration.prototype
+            ) {
                 const registration = await navigator.serviceWorker.ready;
                 await registration.sync.register('sync-data');
             } else {
@@ -21182,7 +24163,7 @@ class LojaApp {
         window.addEventListener('beforeinstallprompt', (e) => {
             e.preventDefault();
             deferredPrompt = e;
-            
+
             // Mostrar botão de instalação se necessário
             const installButton = document.getElementById('installPWAButton');
             if (installButton) {
@@ -21219,7 +24200,10 @@ class LojaApp {
         window.addEventListener('offline', () => {
             console.warn('⚠️ [PWA] Conexão perdida');
             if (typeof toast !== 'undefined' && toast) {
-                toast.warning('Você está offline. Algumas funcionalidades podem estar limitadas.', 4000);
+                toast.warning(
+                    'Você está offline. Algumas funcionalidades podem estar limitadas.',
+                    4000
+                );
             }
         });
     }
@@ -21231,19 +24215,21 @@ class LojaApp {
         try {
             // Remover caracteres não numéricos
             const cepLimpo = cep.replace(/\D/g, '');
-            
+
             if (cepLimpo.length !== 8) {
                 throw new Error('CEP deve conter 8 dígitos');
             }
 
-            const response = await fetch(`https://viacep.com.br/ws/${cepLimpo}/json/`);
-            
+            const response = await fetch(
+                `https://viacep.com.br/ws/${cepLimpo}/json/`
+            );
+
             if (!response.ok) {
                 throw new Error('Erro ao buscar CEP');
             }
 
             const data = await response.json();
-            
+
             if (data.erro) {
                 throw new Error('CEP não encontrado');
             }
@@ -21255,7 +24241,12 @@ class LojaApp {
                 bairro: data.bairro || '',
                 cidade: data.localidade || '',
                 estado: data.uf || '',
-                enderecoCompleto: `${data.logradouro || ''}, ${data.bairro || ''}, ${data.localidade || ''} - ${data.uf || ''}`.replace(/^,\s*|,\s*$/g, ''),
+                enderecoCompleto: `${data.logradouro || ''}, ${
+                    data.bairro || ''
+                }, ${data.localidade || ''} - ${data.uf || ''}`.replace(
+                    /^,\s*|,\s*$/g,
+                    ''
+                ),
             };
         } catch (error) {
             console.error('Erro ao buscar CEP:', error);
@@ -21264,13 +24255,18 @@ class LojaApp {
     }
 
     // Preencher endereço automaticamente ao digitar CEP
-    async preencherEnderecoPorCEP(cepInput, enderecoInput, cidadeInput, estadoInput) {
+    async preencherEnderecoPorCEP(
+        cepInput,
+        enderecoInput,
+        cidadeInput,
+        estadoInput
+    ) {
         const cep = cepInput.value;
-        
+
         if (cep.replace(/\D/g, '').length === 8) {
             try {
                 const endereco = await this.buscarCEP(cep);
-                
+
                 if (enderecoInput) {
                     enderecoInput.value = endereco.logradouro || '';
                 }
@@ -21280,7 +24276,7 @@ class LojaApp {
                 if (estadoInput) {
                     estadoInput.value = endereco.estado || '';
                 }
-                
+
                 if (typeof toast !== 'undefined' && toast) {
                     toast.success('Endereço preenchido automaticamente!', 2000);
                 }
@@ -21296,7 +24292,7 @@ class LojaApp {
     // Validar CPF (algoritmo)
     validarCPF(cpf) {
         const cpfLimpo = cpf.replace(/\D/g, '');
-        
+
         if (cpfLimpo.length !== 11) {
             return false;
         }
@@ -21333,7 +24329,7 @@ class LojaApp {
     // Validar CNPJ (algoritmo)
     validarCNPJ(cnpj) {
         const cnpjLimpo = cnpj.replace(/\D/g, '');
-        
+
         if (cnpjLimpo.length !== 14) {
             return false;
         }
@@ -21382,14 +24378,16 @@ class LojaApp {
     async buscarCotacaoMoedas(baseCurrency = 'BRL', targetCurrency = 'USD') {
         try {
             // Usar API gratuita (sem chave necessária)
-            const response = await fetch(`https://api.exchangerate-api.com/v4/latest/${baseCurrency}`);
-            
+            const response = await fetch(
+                `https://api.exchangerate-api.com/v4/latest/${baseCurrency}`
+            );
+
             if (!response.ok) {
                 throw new Error('Erro ao buscar cotação');
             }
 
             const data = await response.json();
-            
+
             return {
                 base: data.base,
                 date: data.date,
@@ -21406,9 +24404,11 @@ class LojaApp {
     async converterMoeda(valor, deMoeda, paraMoeda) {
         try {
             const cotacao = await this.buscarCotacaoMoedas(deMoeda, paraMoeda);
-            
+
             if (!cotacao.targetRate) {
-                throw new Error(`Taxa de câmbio não encontrada para ${paraMoeda}`);
+                throw new Error(
+                    `Taxa de câmbio não encontrada para ${paraMoeda}`
+                );
             }
 
             return valor * cotacao.targetRate;
@@ -21463,7 +24463,7 @@ class LojaApp {
             }
 
             const data = await response.json();
-            
+
             return {
                 endereco: data.display_name || '',
                 cidade: data.address?.city || data.address?.town || '',
@@ -21499,19 +24499,21 @@ class LojaApp {
     async buscarInfoCNPJ(cnpj) {
         try {
             const cnpjLimpo = cnpj.replace(/\D/g, '');
-            
+
             if (cnpjLimpo.length !== 14) {
                 throw new Error('CNPJ deve conter 14 dígitos');
             }
 
-            const response = await fetch(`https://www.receitaws.com.br/v1/${cnpjLimpo}`);
-            
+            const response = await fetch(
+                `https://www.receitaws.com.br/v1/${cnpjLimpo}`
+            );
+
             if (!response.ok) {
                 throw new Error('Erro ao buscar CNPJ');
             }
 
             const data = await response.json();
-            
+
             if (data.status === 'ERROR') {
                 throw new Error(data.message || 'CNPJ não encontrado');
             }
@@ -21544,7 +24546,9 @@ class LojaApp {
     // Inicializar IndexedDB
     initIndexedDB() {
         if (!window.indexedDB) {
-            console.warn('⚠️ [INDEXEDDB] IndexedDB não suportado neste navegador');
+            console.warn(
+                '⚠️ [INDEXEDDB] IndexedDB não suportado neste navegador'
+            );
             this.useIndexedDB = false;
             return;
         }
@@ -21552,7 +24556,10 @@ class LojaApp {
         const request = indexedDB.open(this.dbName, this.dbVersion);
 
         request.onerror = (event) => {
-            console.error('❌ [INDEXEDDB] Erro ao abrir banco de dados:', event);
+            console.error(
+                '❌ [INDEXEDDB] Erro ao abrir banco de dados:',
+                event
+            );
             this.useIndexedDB = false;
         };
 
@@ -21564,20 +24571,31 @@ class LojaApp {
 
         request.onupgradeneeded = (event) => {
             const db = event.target.result;
-            
+
             // Criar object stores se não existirem
             if (!db.objectStoreNames.contains('data')) {
-                const dataStore = db.createObjectStore('data', { keyPath: 'username' });
+                const dataStore = db.createObjectStore('data', {
+                    keyPath: 'username',
+                });
                 dataStore.createIndex('username', 'username', { unique: true });
             }
 
             if (!db.objectStoreNames.contains('backups')) {
-                const backupStore = db.createObjectStore('backups', { keyPath: 'id', autoIncrement: true });
-                backupStore.createIndex('username', 'username', { unique: false });
-                backupStore.createIndex('timestamp', 'timestamp', { unique: false });
+                const backupStore = db.createObjectStore('backups', {
+                    keyPath: 'id',
+                    autoIncrement: true,
+                });
+                backupStore.createIndex('username', 'username', {
+                    unique: false,
+                });
+                backupStore.createIndex('timestamp', 'timestamp', {
+                    unique: false,
+                });
             }
 
-            console.log('✅ [INDEXEDDB] Estrutura do banco de dados criada/atualizada');
+            console.log(
+                '✅ [INDEXEDDB] Estrutura do banco de dados criada/atualizada'
+            );
         };
     }
 
@@ -21586,8 +24604,13 @@ class LojaApp {
     // Inicializar navegação por voz
     initVoiceNavigation() {
         // Verificar se Web Speech API está disponível
-        if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
-            console.warn('⚠️ [VOICE] Web Speech API não suportada neste navegador');
+        if (
+            !('webkitSpeechRecognition' in window) &&
+            !('SpeechRecognition' in window)
+        ) {
+            console.warn(
+                '⚠️ [VOICE] Web Speech API não suportada neste navegador'
+            );
             return;
         }
 
@@ -21608,12 +24631,12 @@ class LojaApp {
             'novo produto': () => this.openItemModal(),
             'novo cliente': () => this.openClientModal(),
             'nova venda': () => this.openSaleModal(),
-            'salvar': () => this.saveData(),
-            'fechar': () => this.closeAllModals(),
-            'ajuda': () => {
+            salvar: () => this.saveData(),
+            fechar: () => this.closeAllModals(),
+            ajuda: () => {
                 const helpBtn = document.getElementById('helpBtn');
                 if (helpBtn) helpBtn.click();
-            }
+            },
         };
     }
 
@@ -21624,7 +24647,8 @@ class LojaApp {
             return;
         }
 
-        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        const SpeechRecognition =
+            window.SpeechRecognition || window.webkitSpeechRecognition;
         if (!SpeechRecognition) {
             console.error('❌ [VOICE] SpeechRecognition não disponível');
             return;
@@ -21707,7 +24731,7 @@ class LojaApp {
     // Anunciar mudanças para leitores de tela (ARIA live regions)
     announceLiveRegion(message, politeness = 'polite') {
         let liveRegion = document.getElementById('aria-live-region');
-        
+
         if (!liveRegion) {
             liveRegion = document.createElement('div');
             liveRegion.id = 'aria-live-region';
@@ -21715,12 +24739,13 @@ class LojaApp {
             liveRegion.setAttribute('aria-live', politeness);
             liveRegion.setAttribute('aria-atomic', 'true');
             liveRegion.className = 'sr-only';
-            liveRegion.style.cssText = 'position: absolute; left: -10000px; width: 1px; height: 1px; overflow: hidden;';
+            liveRegion.style.cssText =
+                'position: absolute; left: -10000px; width: 1px; height: 1px; overflow: hidden;';
             document.body.appendChild(liveRegion);
         }
-        
+
         liveRegion.textContent = message;
-        
+
         // Limpar após um tempo para permitir novas mensagens
         setTimeout(() => {
             if (liveRegion) {
@@ -21738,7 +24763,8 @@ class LojaApp {
             return;
         }
 
-        const mainContent = document.querySelector('.main-content') || document.body;
+        const mainContent =
+            document.querySelector('.main-content') || document.body;
         let pullIndicator = document.getElementById('pullToRefreshIndicator');
 
         // Criar indicador visual se não existir
@@ -21774,106 +24800,139 @@ class LojaApp {
         let hasScrolled = false;
 
         // Touch start
-        mainContent.addEventListener('touchstart', (e) => {
-            if (isRefreshing) return;
-            
-            // Verificar se está realmente no topo da página (com margem de erro)
-            const scrollY = window.scrollY || window.pageYOffset || document.documentElement.scrollTop;
-            const scrollTop = mainContent.scrollTop || 0;
-            const isAtTop = scrollY <= 5 && scrollTop <= 5; // Margem de 5px para evitar problemas de precisão
-            
-            if (isAtTop) {
-                touchStartY = e.touches[0].clientY;
-                initialScrollY = scrollY;
-                isPulling = false;
-                hasScrolled = false;
-            } else {
-                touchStartY = 0; // Resetar se não estiver no topo
-            }
-        }, { passive: true });
+        mainContent.addEventListener(
+            'touchstart',
+            (e) => {
+                if (isRefreshing) return;
+
+                // Verificar se está realmente no topo da página (com margem de erro)
+                const scrollY =
+                    window.scrollY ||
+                    window.pageYOffset ||
+                    document.documentElement.scrollTop;
+                const scrollTop = mainContent.scrollTop || 0;
+                const isAtTop = scrollY <= 5 && scrollTop <= 5; // Margem de 5px para evitar problemas de precisão
+
+                if (isAtTop) {
+                    touchStartY = e.touches[0].clientY;
+                    initialScrollY = scrollY;
+                    isPulling = false;
+                    hasScrolled = false;
+                } else {
+                    touchStartY = 0; // Resetar se não estiver no topo
+                }
+            },
+            { passive: true }
+        );
 
         // Touch move
-        mainContent.addEventListener('touchmove', (e) => {
-            if (isRefreshing || touchStartY === 0) return;
+        mainContent.addEventListener(
+            'touchmove',
+            (e) => {
+                if (isRefreshing || touchStartY === 0) return;
 
-            const currentScrollY = window.scrollY || window.pageYOffset || document.documentElement.scrollTop;
-            const currentScrollTop = mainContent.scrollTop || 0;
-            
-            // Se o usuário já fez scroll para baixo, não permitir pull-to-refresh
-            if (currentScrollY > initialScrollY + 5 || currentScrollTop > 5) {
-                hasScrolled = true;
-                touchStartY = 0; // Cancelar pull-to-refresh
-                return;
-            }
+                const currentScrollY =
+                    window.scrollY ||
+                    window.pageYOffset ||
+                    document.documentElement.scrollTop;
+                const currentScrollTop = mainContent.scrollTop || 0;
 
-            touchCurrentY = e.touches[0].clientY;
-            const pullDistance = touchCurrentY - touchStartY;
-
-            // Só permitir pull para baixo E se ainda estiver no topo
-            if (pullDistance > 0 && currentScrollY <= 5 && currentScrollTop <= 5 && !hasScrolled) {
-                isPulling = true;
-                
-                // Só prevenir scroll padrão se realmente estiver fazendo pull
-                if (pullDistance > 10) {
-                    e.preventDefault(); // Prevenir scroll padrão apenas quando pull é significativo
+                // Se o usuário já fez scroll para baixo, não permitir pull-to-refresh
+                if (
+                    currentScrollY > initialScrollY + 5 ||
+                    currentScrollTop > 5
+                ) {
+                    hasScrolled = true;
+                    touchStartY = 0; // Cancelar pull-to-refresh
+                    return;
                 }
 
-                const maxPull = 120;
-                const threshold = 80;
-                const pullAmount = Math.min(pullDistance, maxPull);
-                const progress = Math.min(pullAmount / threshold, 1);
-
-                // Atualizar posição do indicador
-                pullIndicator.style.top = `${Math.min(pullAmount - 20, 60)}px`;
-                
-                // Rotacionar ícone baseado no progresso
-                const rotation = progress * 360;
-                pullIndicator.querySelector('i').style.transform = `rotate(${rotation}deg)`;
-
-                // Mudar cor quando passar do threshold
-                if (pullAmount >= threshold) {
-                    pullIndicator.style.background = 'var(--primary-color)';
-                    pullIndicator.style.transform = 'translateX(-50%) scale(1.1)';
-                } else {
-                    pullIndicator.style.background = 'var(--gray-500)';
-                    pullIndicator.style.transform = 'translateX(-50%) scale(1)';
-                }
-            } else if (pullDistance < 0) {
-                // Se o usuário está movendo para cima, cancelar pull
-                touchStartY = 0;
-                isPulling = false;
-                this.resetPullToRefreshIndicator(pullIndicator);
-            }
-        }, { passive: false });
-
-        // Touch end
-        mainContent.addEventListener('touchend', () => {
-            if (isRefreshing) {
-                this.resetPullToRefreshIndicator(pullIndicator);
-                return;
-            }
-
-            if (isPulling && touchStartY > 0 && !hasScrolled) {
+                touchCurrentY = e.touches[0].clientY;
                 const pullDistance = touchCurrentY - touchStartY;
 
-                if (pullDistance >= this.pullToRefresh.threshold) {
-                    // Ativar refresh
-                    this.triggerPullToRefresh(pullIndicator);
-                } else {
-                    // Resetar indicador
+                // Só permitir pull para baixo E se ainda estiver no topo
+                if (
+                    pullDistance > 0 &&
+                    currentScrollY <= 5 &&
+                    currentScrollTop <= 5 &&
+                    !hasScrolled
+                ) {
+                    isPulling = true;
+
+                    // Só prevenir scroll padrão se realmente estiver fazendo pull
+                    if (pullDistance > 10) {
+                        e.preventDefault(); // Prevenir scroll padrão apenas quando pull é significativo
+                    }
+
+                    const maxPull = 120;
+                    const threshold = 80;
+                    const pullAmount = Math.min(pullDistance, maxPull);
+                    const progress = Math.min(pullAmount / threshold, 1);
+
+                    // Atualizar posição do indicador
+                    pullIndicator.style.top = `${Math.min(
+                        pullAmount - 20,
+                        60
+                    )}px`;
+
+                    // Rotacionar ícone baseado no progresso
+                    const rotation = progress * 360;
+                    pullIndicator.querySelector(
+                        'i'
+                    ).style.transform = `rotate(${rotation}deg)`;
+
+                    // Mudar cor quando passar do threshold
+                    if (pullAmount >= threshold) {
+                        pullIndicator.style.background = 'var(--primary-color)';
+                        pullIndicator.style.transform =
+                            'translateX(-50%) scale(1.1)';
+                    } else {
+                        pullIndicator.style.background = 'var(--gray-500)';
+                        pullIndicator.style.transform =
+                            'translateX(-50%) scale(1)';
+                    }
+                } else if (pullDistance < 0) {
+                    // Se o usuário está movendo para cima, cancelar pull
+                    touchStartY = 0;
+                    isPulling = false;
                     this.resetPullToRefreshIndicator(pullIndicator);
                 }
-            } else {
-                // Resetar se não completou o pull
-                this.resetPullToRefreshIndicator(pullIndicator);
-            }
+            },
+            { passive: false }
+        );
 
-            touchStartY = 0;
-            touchCurrentY = 0;
-            isPulling = false;
-            hasScrolled = false;
-            initialScrollY = 0;
-        }, { passive: true });
+        // Touch end
+        mainContent.addEventListener(
+            'touchend',
+            () => {
+                if (isRefreshing) {
+                    this.resetPullToRefreshIndicator(pullIndicator);
+                    return;
+                }
+
+                if (isPulling && touchStartY > 0 && !hasScrolled) {
+                    const pullDistance = touchCurrentY - touchStartY;
+
+                    if (pullDistance >= this.pullToRefresh.threshold) {
+                        // Ativar refresh
+                        this.triggerPullToRefresh(pullIndicator);
+                    } else {
+                        // Resetar indicador
+                        this.resetPullToRefreshIndicator(pullIndicator);
+                    }
+                } else {
+                    // Resetar se não completou o pull
+                    this.resetPullToRefreshIndicator(pullIndicator);
+                }
+
+                touchStartY = 0;
+                touchCurrentY = 0;
+                isPulling = false;
+                hasScrolled = false;
+                initialScrollY = 0;
+            },
+            { passive: true }
+        );
 
         console.log('✅ [PULL-TO-REFRESH] Inicializado');
     }
@@ -21883,7 +24942,8 @@ class LojaApp {
         if (this.pullToRefresh.isRefreshing) return;
 
         this.pullToRefresh.isRefreshing = true;
-        const indicatorElement = indicator || document.getElementById('pullToRefreshIndicator');
+        const indicatorElement =
+            indicator || document.getElementById('pullToRefreshIndicator');
 
         // Mostrar indicador
         if (indicatorElement) {
@@ -21921,11 +24981,13 @@ class LojaApp {
 
     // Resetar indicador de pull-to-refresh
     resetPullToRefreshIndicator(indicator) {
-        const indicatorElement = indicator || document.getElementById('pullToRefreshIndicator');
+        const indicatorElement =
+            indicator || document.getElementById('pullToRefreshIndicator');
         if (indicatorElement) {
             indicatorElement.style.top = '-60px';
             indicatorElement.querySelector('i').classList.remove('fa-spin');
-            indicatorElement.querySelector('i').style.transform = 'rotate(0deg)';
+            indicatorElement.querySelector('i').style.transform =
+                'rotate(0deg)';
             indicatorElement.style.background = 'var(--gray-500)';
             indicatorElement.style.transform = 'translateX(-50%) scale(1)';
         }
@@ -21940,11 +25002,12 @@ class LojaApp {
             productComparison: this.compareProducts(period),
             marketTrends: this.analyzeMarketTrends(period),
             competitiveAdvantages: this.identifyCompetitiveAdvantages(period),
-            recommendations: []
+            recommendations: [],
         };
 
         // Gerar recomendações baseadas na análise
-        analysis.recommendations = this.generateCompetitiveRecommendations(analysis);
+        analysis.recommendations =
+            this.generateCompetitiveRecommendations(analysis);
 
         return analysis;
     }
@@ -21952,28 +25015,45 @@ class LojaApp {
     // Comparar preços com mercado
     comparePrices(period = 6) {
         const now = new Date();
-        const startDate = new Date(now.getFullYear(), now.getMonth() - period, 1);
-        
+        const startDate = new Date(
+            now.getFullYear(),
+            now.getMonth() - period,
+            1
+        );
+
         // Calcular preço médio dos produtos vendidos
         const soldItems = this.completedSales
-            .filter(sale => new Date(sale.date) >= startDate)
-            .flatMap(sale => sale.items || [])
-            .map(item => {
-                const product = this.items.find(i => i.id === item.id || i.name === item.name);
-                return product ? { price: item.price || product.price, cost: product.cost || 0 } : null;
+            .filter((sale) => new Date(sale.date) >= startDate)
+            .flatMap((sale) => sale.items || [])
+            .map((item) => {
+                const product = this.items.find(
+                    (i) => i.id === item.id || i.name === item.name
+                );
+                return product
+                    ? {
+                          price: item.price || product.price,
+                          cost: product.cost || 0,
+                      }
+                    : null;
             })
-            .filter(item => item !== null);
+            .filter((item) => item !== null);
 
-        const avgPrice = soldItems.length > 0
-            ? soldItems.reduce((sum, item) => sum + (item.price || 0), 0) / soldItems.length
-            : 0;
+        const avgPrice =
+            soldItems.length > 0
+                ? soldItems.reduce((sum, item) => sum + (item.price || 0), 0) /
+                  soldItems.length
+                : 0;
 
-        const avgMargin = soldItems.length > 0
-            ? soldItems.reduce((sum, item) => {
-                const margin = item.cost > 0 ? ((item.price - item.cost) / item.price) * 100 : 0;
-                return sum + margin;
-            }, 0) / soldItems.length
-            : 0;
+        const avgMargin =
+            soldItems.length > 0
+                ? soldItems.reduce((sum, item) => {
+                      const margin =
+                          item.cost > 0
+                              ? ((item.price - item.cost) / item.price) * 100
+                              : 0;
+                      return sum + margin;
+                  }, 0) / soldItems.length
+                : 0;
 
         // Comparar com benchmarks do mercado (valores simulados - em produção, usar dados reais)
         const marketAvgPrice = avgPrice * 1.1; // Assumir que mercado é 10% mais caro
@@ -21982,28 +25062,41 @@ class LojaApp {
         return {
             ourAvgPrice: avgPrice,
             marketAvgPrice: marketAvgPrice,
-            priceDifference: ((avgPrice - marketAvgPrice) / marketAvgPrice) * 100,
+            priceDifference:
+                ((avgPrice - marketAvgPrice) / marketAvgPrice) * 100,
             ourAvgMargin: avgMargin,
             marketAvgMargin: marketAvgMargin,
             marginDifference: avgMargin - marketAvgMargin,
-            competitiveness: avgPrice < marketAvgPrice ? 'competitivo' : avgPrice > marketAvgPrice ? 'acima' : 'similar'
+            competitiveness:
+                avgPrice < marketAvgPrice
+                    ? 'competitivo'
+                    : avgPrice > marketAvgPrice
+                    ? 'acima'
+                    : 'similar',
         };
     }
 
     // Comparar produtos com mercado
     compareProducts(period = 6) {
         const now = new Date();
-        const startDate = new Date(now.getFullYear(), now.getMonth() - period, 1);
-        
+        const startDate = new Date(
+            now.getFullYear(),
+            now.getMonth() - period,
+            1
+        );
+
         // Analisar categorias mais vendidas
         const categorySales = {};
         this.completedSales
-            .filter(sale => new Date(sale.date) >= startDate)
-            .forEach(sale => {
-                (sale.items || []).forEach(item => {
-                    const product = this.items.find(i => i.id === item.id || i.name === item.name);
+            .filter((sale) => new Date(sale.date) >= startDate)
+            .forEach((sale) => {
+                (sale.items || []).forEach((item) => {
+                    const product = this.items.find(
+                        (i) => i.id === item.id || i.name === item.name
+                    );
                     if (product && product.category) {
-                        categorySales[product.category] = (categorySales[product.category] || 0) + 1;
+                        categorySales[product.category] =
+                            (categorySales[product.category] || 0) + 1;
                     }
                 });
             });
@@ -22016,9 +25109,9 @@ class LojaApp {
         // Analisar diversidade de produtos
         const uniqueProducts = new Set();
         this.completedSales
-            .filter(sale => new Date(sale.date) >= startDate)
-            .forEach(sale => {
-                (sale.items || []).forEach(item => {
+            .filter((sale) => new Date(sale.date) >= startDate)
+            .forEach((sale) => {
+                (sale.items || []).forEach((item) => {
                     uniqueProducts.add(item.id || item.name);
                 });
             });
@@ -22028,7 +25121,7 @@ class LojaApp {
             productDiversity: uniqueProducts.size,
             totalProducts: this.items.length,
             diversityScore: (uniqueProducts.size / this.items.length) * 100,
-            marketShare: this.calculateMarketShare(period)
+            marketShare: this.calculateMarketShare(period),
         };
     }
 
@@ -22038,48 +25131,74 @@ class LojaApp {
         const monthlyData = [];
 
         for (let i = period - 1; i >= 0; i--) {
-            const monthDate = new Date(now.getFullYear(), now.getMonth() - i, 1);
-            const monthEnd = new Date(now.getFullYear(), now.getMonth() - i + 1, 0);
-            
-            const monthSales = this.completedSales.filter(sale => {
+            const monthDate = new Date(
+                now.getFullYear(),
+                now.getMonth() - i,
+                1
+            );
+            const monthEnd = new Date(
+                now.getFullYear(),
+                now.getMonth() - i + 1,
+                0
+            );
+
+            const monthSales = this.completedSales.filter((sale) => {
                 const saleDate = new Date(sale.date);
                 return saleDate >= monthDate && saleDate <= monthEnd;
             });
 
-            const monthTotal = monthSales.reduce((sum, sale) => sum + (sale.totalValue || 0), 0);
+            const monthTotal = monthSales.reduce(
+                (sum, sale) => sum + (sale.totalValue || 0),
+                0
+            );
             const monthCount = monthSales.length;
 
             monthlyData.push({
-                month: `${monthDate.getFullYear()}-${String(monthDate.getMonth() + 1).padStart(2, '0')}`,
+                month: `${monthDate.getFullYear()}-${String(
+                    monthDate.getMonth() + 1
+                ).padStart(2, '0')}`,
                 total: monthTotal,
                 count: monthCount,
-                avgTicket: monthCount > 0 ? monthTotal / monthCount : 0
+                avgTicket: monthCount > 0 ? monthTotal / monthCount : 0,
             });
         }
 
         // Calcular tendência
-        const firstHalf = monthlyData.slice(0, Math.floor(monthlyData.length / 2));
-        const secondHalf = monthlyData.slice(Math.floor(monthlyData.length / 2));
-        
-        const firstAvg = firstHalf.reduce((sum, m) => sum + m.total, 0) / firstHalf.length;
-        const secondAvg = secondHalf.reduce((sum, m) => sum + m.total, 0) / secondHalf.length;
-        
-        const trend = secondAvg > firstAvg ? 'crescimento' : secondAvg < firstAvg ? 'declínio' : 'estável';
-        const trendPercentage = firstAvg > 0 ? ((secondAvg - firstAvg) / firstAvg) * 100 : 0;
+        const firstHalf = monthlyData.slice(
+            0,
+            Math.floor(monthlyData.length / 2)
+        );
+        const secondHalf = monthlyData.slice(
+            Math.floor(monthlyData.length / 2)
+        );
+
+        const firstAvg =
+            firstHalf.reduce((sum, m) => sum + m.total, 0) / firstHalf.length;
+        const secondAvg =
+            secondHalf.reduce((sum, m) => sum + m.total, 0) / secondHalf.length;
+
+        const trend =
+            secondAvg > firstAvg
+                ? 'crescimento'
+                : secondAvg < firstAvg
+                ? 'declínio'
+                : 'estável';
+        const trendPercentage =
+            firstAvg > 0 ? ((secondAvg - firstAvg) / firstAvg) * 100 : 0;
 
         return {
             monthlyData: monthlyData,
             trend: trend,
             trendPercentage: trendPercentage,
             avgMonthlyGrowth: this.calculateAverageGrowth(monthlyData),
-            seasonality: this.detectSeasonality(monthlyData)
+            seasonality: this.detectSeasonality(monthlyData),
         };
     }
 
     // Identificar vantagens competitivas
     identifyCompetitiveAdvantages(period = 6) {
         const advantages = [];
-        
+
         // Verificar preços competitivos
         const priceComparison = this.comparePrices(period);
         if (priceComparison.competitiveness === 'competitivo') {
@@ -22087,7 +25206,7 @@ class LojaApp {
                 type: 'preço',
                 description: 'Preços abaixo da média do mercado',
                 impact: 'alto',
-                value: Math.abs(priceComparison.priceDifference)
+                value: Math.abs(priceComparison.priceDifference),
             });
         }
 
@@ -22097,7 +25216,7 @@ class LojaApp {
                 type: 'margem',
                 description: 'Margem de lucro acima da média',
                 impact: 'alto',
-                value: priceComparison.marginDifference
+                value: priceComparison.marginDifference,
             });
         }
 
@@ -22108,7 +25227,7 @@ class LojaApp {
                 type: 'diversidade',
                 description: 'Boa diversidade de produtos',
                 impact: 'médio',
-                value: productComparison.diversityScore
+                value: productComparison.diversityScore,
             });
         }
 
@@ -22119,7 +25238,7 @@ class LojaApp {
                 type: 'crescimento',
                 description: 'Crescimento consistente',
                 impact: 'alto',
-                value: trends.trendPercentage
+                value: trends.trendPercentage,
             });
         }
 
@@ -22131,19 +25250,26 @@ class LojaApp {
         // Em produção, isso usaria dados reais do mercado
         // Por enquanto, simula baseado em vendas próprias
         const now = new Date();
-        const startDate = new Date(now.getFullYear(), now.getMonth() - period, 1);
-        
+        const startDate = new Date(
+            now.getFullYear(),
+            now.getMonth() - period,
+            1
+        );
+
         const ourSales = this.completedSales
-            .filter(sale => new Date(sale.date) >= startDate)
+            .filter((sale) => new Date(sale.date) >= startDate)
             .reduce((sum, sale) => sum + (sale.totalValue || 0), 0);
 
         // Simular mercado total (assumir que representamos 5% do mercado)
         const estimatedMarketTotal = ourSales * 20;
-        
+
         return {
             ourSales: ourSales,
             estimatedMarketTotal: estimatedMarketTotal,
-            marketShare: estimatedMarketTotal > 0 ? (ourSales / estimatedMarketTotal) * 100 : 0
+            marketShare:
+                estimatedMarketTotal > 0
+                    ? (ourSales / estimatedMarketTotal) * 100
+                    : 0,
         };
     }
 
@@ -22161,7 +25287,8 @@ class LojaApp {
         }
 
         return growthRates.length > 0
-            ? growthRates.reduce((sum, rate) => sum + rate, 0) / growthRates.length
+            ? growthRates.reduce((sum, rate) => sum + rate, 0) /
+                  growthRates.length
             : 0;
     }
 
@@ -22169,7 +25296,7 @@ class LojaApp {
     detectSeasonality(monthlyData) {
         // Análise básica de sazonalidade
         const monthTotals = {};
-        monthlyData.forEach(data => {
+        monthlyData.forEach((data) => {
             const month = parseInt(data.month.split('-')[1]);
             if (!monthTotals[month]) {
                 monthTotals[month] = [];
@@ -22178,23 +25305,34 @@ class LojaApp {
         });
 
         const monthAverages = {};
-        Object.keys(monthTotals).forEach(month => {
+        Object.keys(monthTotals).forEach((month) => {
             const totals = monthTotals[month];
-            monthAverages[month] = totals.reduce((sum, val) => sum + val, 0) / totals.length;
+            monthAverages[month] =
+                totals.reduce((sum, val) => sum + val, 0) / totals.length;
         });
 
-        const overallAvg = Object.values(monthAverages).reduce((sum, val) => sum + val, 0) / Object.keys(monthAverages).length;
-        
+        const overallAvg =
+            Object.values(monthAverages).reduce((sum, val) => sum + val, 0) /
+            Object.keys(monthAverages).length;
+
         const seasonality = {};
-        Object.keys(monthAverages).forEach(month => {
-            seasonality[month] = ((monthAverages[month] - overallAvg) / overallAvg) * 100;
+        Object.keys(monthAverages).forEach((month) => {
+            seasonality[month] =
+                ((monthAverages[month] - overallAvg) / overallAvg) * 100;
         });
 
         return {
-            hasSeasonality: Math.max(...Object.values(seasonality)) - Math.min(...Object.values(seasonality)) > 20,
+            hasSeasonality:
+                Math.max(...Object.values(seasonality)) -
+                    Math.min(...Object.values(seasonality)) >
+                20,
             monthVariations: seasonality,
-            peakMonth: Object.keys(monthAverages).reduce((a, b) => monthAverages[a] > monthAverages[b] ? a : b),
-            lowMonth: Object.keys(monthAverages).reduce((a, b) => monthAverages[a] < monthAverages[b] ? a : b)
+            peakMonth: Object.keys(monthAverages).reduce((a, b) =>
+                monthAverages[a] > monthAverages[b] ? a : b
+            ),
+            lowMonth: Object.keys(monthAverages).reduce((a, b) =>
+                monthAverages[a] < monthAverages[b] ? a : b
+            ),
         };
     }
 
@@ -22208,8 +25346,10 @@ class LojaApp {
                 type: 'preço',
                 priority: 'alta',
                 title: 'Ajustar Preços',
-                description: `Seus preços estão ${analysis.priceComparison.priceDifference.toFixed(1)}% acima da média do mercado. Considere revisar preços para aumentar competitividade.`,
-                action: 'Revisar estratégia de precificação'
+                description: `Seus preços estão ${analysis.priceComparison.priceDifference.toFixed(
+                    1
+                )}% acima da média do mercado. Considere revisar preços para aumentar competitividade.`,
+                action: 'Revisar estratégia de precificação',
             });
         }
 
@@ -22219,8 +25359,12 @@ class LojaApp {
                 type: 'margem',
                 priority: 'alta',
                 title: 'Melhorar Margem de Lucro',
-                description: `Sua margem está ${Math.abs(analysis.priceComparison.marginDifference).toFixed(1)}% abaixo da média. Considere negociar melhores condições com fornecedores ou ajustar preços.`,
-                action: 'Negociar com fornecedores'
+                description: `Sua margem está ${Math.abs(
+                    analysis.priceComparison.marginDifference
+                ).toFixed(
+                    1
+                )}% abaixo da média. Considere negociar melhores condições com fornecedores ou ajustar preços.`,
+                action: 'Negociar com fornecedores',
             });
         }
 
@@ -22230,19 +25374,28 @@ class LojaApp {
                 type: 'produto',
                 priority: 'média',
                 title: 'Aumentar Diversidade de Produtos',
-                description: `Sua diversidade de produtos está baixa (${analysis.productComparison.diversityScore.toFixed(1)}%). Considere expandir o catálogo.`,
-                action: 'Adicionar novos produtos'
+                description: `Sua diversidade de produtos está baixa (${analysis.productComparison.diversityScore.toFixed(
+                    1
+                )}%). Considere expandir o catálogo.`,
+                action: 'Adicionar novos produtos',
             });
         }
 
         // Recomendações baseadas em tendências
-        if (analysis.marketTrends.trend === 'declínio' && analysis.marketTrends.trendPercentage < -10) {
+        if (
+            analysis.marketTrends.trend === 'declínio' &&
+            analysis.marketTrends.trendPercentage < -10
+        ) {
             recommendations.push({
                 type: 'tendência',
                 priority: 'alta',
                 title: 'Reversão de Tendência',
-                description: `Vendas em declínio de ${Math.abs(analysis.marketTrends.trendPercentage).toFixed(1)}%. Considere campanhas promocionais ou ajustes estratégicos.`,
-                action: 'Criar campanha promocional'
+                description: `Vendas em declínio de ${Math.abs(
+                    analysis.marketTrends.trendPercentage
+                ).toFixed(
+                    1
+                )}%. Considere campanhas promocionais ou ajustes estratégicos.`,
+                action: 'Criar campanha promocional',
             });
         }
 
@@ -22252,8 +25405,9 @@ class LojaApp {
                 type: 'geral',
                 priority: 'média',
                 title: 'Desenvolver Vantagens Competitivas',
-                description: 'Identifique e desenvolva diferenciais competitivos para se destacar no mercado.',
-                action: 'Análise estratégica'
+                description:
+                    'Identifique e desenvolva diferenciais competitivos para se destacar no mercado.',
+                action: 'Análise estratégica',
             });
         }
 
@@ -22267,7 +25421,7 @@ class LojaApp {
             console.error('Modal de análise de concorrência não encontrado');
             return;
         }
-        
+
         modal.classList.add('active');
         this.updateCompetitiveAnalysis();
     }
@@ -22282,81 +25436,147 @@ class LojaApp {
 
     // Atualizar análise de concorrência
     updateCompetitiveAnalysis() {
-        const period = parseInt(document.getElementById('competitivePeriod')?.value || 6);
+        const period = parseInt(
+            document.getElementById('competitivePeriod')?.value || 6
+        );
         this.renderCompetitiveAnalysis(period);
     }
 
     // Exportar análise de concorrência
     exportCompetitiveAnalysis() {
-        const period = parseInt(document.getElementById('competitivePeriod')?.value || 6);
+        const period = parseInt(
+            document.getElementById('competitivePeriod')?.value || 6
+        );
         const analysis = this.analyzeCompetition(period);
-        
+
         const exportData = {
             period: period,
             analysis: analysis,
-            generatedAt: new Date().toISOString()
+            generatedAt: new Date().toISOString(),
         };
-        
+
         const blob = new Blob([JSON.stringify(exportData, null, 2)], {
             type: 'application/json',
         });
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
-        a.download = `analise_concorrencia_${new Date().toISOString().split('T')[0]}.json`;
+        a.download = `analise_concorrencia_${
+            new Date().toISOString().split('T')[0]
+        }.json`;
         document.body.appendChild(a);
         a.click();
         document.body.removeChild(a);
         URL.revokeObjectURL(url);
-        
+
         if (typeof toast !== 'undefined' && toast) {
-            toast.success('Análise de concorrência exportada com sucesso!', 3000);
+            toast.success(
+                'Análise de concorrência exportada com sucesso!',
+                3000
+            );
         }
     }
 
     // Renderizar análise de concorrência
     renderCompetitiveAnalysis(period = 6) {
         const analysis = this.analyzeCompetition(period);
-        const container = document.getElementById('competitiveAnalysisContainer');
-        
+        const container = document.getElementById(
+            'competitiveAnalysisContainer'
+        );
+
         if (!container) return;
 
         let html = `
             <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1rem; margin-bottom: 1.5rem;">
                 <div style="padding: 1rem; background: var(--light-gray); border-radius: var(--radius-sm);">
                     <h3 style="margin: 0 0 0.5rem 0; font-size: 0.9rem; color: var(--gray-600);">Competitividade de Preços</h3>
-                    <p style="margin: 0; font-size: 1.2rem; font-weight: 600; color: ${analysis.priceComparison.competitiveness === 'competitivo' ? '#28a745' : analysis.priceComparison.competitiveness === 'acima' ? '#dc3545' : '#6c757d'};">
-                        ${analysis.priceComparison.competitiveness === 'competitivo' ? '✓ Competitivo' : analysis.priceComparison.competitiveness === 'acima' ? '↑ Acima' : '→ Similar'}
+                    <p style="margin: 0; font-size: 1.2rem; font-weight: 600; color: ${
+                        analysis.priceComparison.competitiveness ===
+                        'competitivo'
+                            ? '#28a745'
+                            : analysis.priceComparison.competitiveness ===
+                              'acima'
+                            ? '#dc3545'
+                            : '#6c757d'
+                    };">
+                        ${
+                            analysis.priceComparison.competitiveness ===
+                            'competitivo'
+                                ? '✓ Competitivo'
+                                : analysis.priceComparison.competitiveness ===
+                                  'acima'
+                                ? '↑ Acima'
+                                : '→ Similar'
+                        }
                     </p>
                     <p style="margin: 0.25rem 0 0 0; font-size: 0.85rem; color: var(--gray-600);">
-                        ${analysis.priceComparison.priceDifference > 0 ? '+' : ''}${analysis.priceComparison.priceDifference.toFixed(1)}% vs mercado
+                        ${
+                            analysis.priceComparison.priceDifference > 0
+                                ? '+'
+                                : ''
+                        }${analysis.priceComparison.priceDifference.toFixed(
+            1
+        )}% vs mercado
                     </p>
                 </div>
                 <div style="padding: 1rem; background: var(--light-gray); border-radius: var(--radius-sm);">
                     <h3 style="margin: 0 0 0.5rem 0; font-size: 0.9rem; color: var(--gray-600);">Margem de Lucro</h3>
-                    <p style="margin: 0; font-size: 1.2rem; font-weight: 600; color: ${analysis.priceComparison.ourAvgMargin > analysis.priceComparison.marketAvgMargin ? '#28a745' : '#dc3545'};">
+                    <p style="margin: 0; font-size: 1.2rem; font-weight: 600; color: ${
+                        analysis.priceComparison.ourAvgMargin >
+                        analysis.priceComparison.marketAvgMargin
+                            ? '#28a745'
+                            : '#dc3545'
+                    };">
                         ${analysis.priceComparison.ourAvgMargin.toFixed(1)}%
                     </p>
                     <p style="margin: 0.25rem 0 0 0; font-size: 0.85rem; color: var(--gray-600);">
-                        ${analysis.priceComparison.marginDifference > 0 ? '+' : ''}${analysis.priceComparison.marginDifference.toFixed(1)}% vs mercado
+                        ${
+                            analysis.priceComparison.marginDifference > 0
+                                ? '+'
+                                : ''
+                        }${analysis.priceComparison.marginDifference.toFixed(
+            1
+        )}% vs mercado
                     </p>
                 </div>
                 <div style="padding: 1rem; background: var(--light-gray); border-radius: var(--radius-sm);">
                     <h3 style="margin: 0 0 0.5rem 0; font-size: 0.9rem; color: var(--gray-600);">Diversidade de Produtos</h3>
-                    <p style="margin: 0; font-size: 1.2rem; font-weight: 600; color: ${analysis.productComparison.diversityScore > 70 ? '#28a745' : analysis.productComparison.diversityScore > 50 ? '#ffc107' : '#dc3545'};">
+                    <p style="margin: 0; font-size: 1.2rem; font-weight: 600; color: ${
+                        analysis.productComparison.diversityScore > 70
+                            ? '#28a745'
+                            : analysis.productComparison.diversityScore > 50
+                            ? '#ffc107'
+                            : '#dc3545'
+                    };">
                         ${analysis.productComparison.diversityScore.toFixed(1)}%
                     </p>
                     <p style="margin: 0.25rem 0 0 0; font-size: 0.85rem; color: var(--gray-600);">
-                        ${analysis.productComparison.productDiversity} produtos únicos
+                        ${
+                            analysis.productComparison.productDiversity
+                        } produtos únicos
                     </p>
                 </div>
                 <div style="padding: 1rem; background: var(--light-gray); border-radius: var(--radius-sm);">
                     <h3 style="margin: 0 0 0.5rem 0; font-size: 0.9rem; color: var(--gray-600);">Tendência de Mercado</h3>
-                    <p style="margin: 0; font-size: 1.2rem; font-weight: 600; color: ${analysis.marketTrends.trend === 'crescimento' ? '#28a745' : analysis.marketTrends.trend === 'declínio' ? '#dc3545' : '#6c757d'};">
-                        ${analysis.marketTrends.trend === 'crescimento' ? '📈 Crescimento' : analysis.marketTrends.trend === 'declínio' ? '📉 Declínio' : '➡️ Estável'}
+                    <p style="margin: 0; font-size: 1.2rem; font-weight: 600; color: ${
+                        analysis.marketTrends.trend === 'crescimento'
+                            ? '#28a745'
+                            : analysis.marketTrends.trend === 'declínio'
+                            ? '#dc3545'
+                            : '#6c757d'
+                    };">
+                        ${
+                            analysis.marketTrends.trend === 'crescimento'
+                                ? '📈 Crescimento'
+                                : analysis.marketTrends.trend === 'declínio'
+                                ? '📉 Declínio'
+                                : '➡️ Estável'
+                        }
                     </p>
                     <p style="margin: 0.25rem 0 0 0; font-size: 0.85rem; color: var(--gray-600);">
-                        ${analysis.marketTrends.trendPercentage > 0 ? '+' : ''}${analysis.marketTrends.trendPercentage.toFixed(1)}%
+                        ${
+                            analysis.marketTrends.trendPercentage > 0 ? '+' : ''
+                        }${analysis.marketTrends.trendPercentage.toFixed(1)}%
                     </p>
                 </div>
             </div>
@@ -22366,14 +25586,30 @@ class LojaApp {
                     <i class="fas fa-trophy"></i> Vantagens Competitivas
                 </h3>
                 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 0.75rem;">
-                    ${analysis.competitiveAdvantages.length > 0
-                        ? analysis.competitiveAdvantages.map(adv => `
-                            <div style="padding: 0.75rem; background: ${adv.impact === 'alto' ? '#d4edda' : '#fff3cd'}; border-left: 3px solid ${adv.impact === 'alto' ? '#28a745' : '#ffc107'}; border-radius: var(--radius-sm);">
-                                <strong style="display: block; margin-bottom: 0.25rem; color: var(--dark-gray);">${adv.type.charAt(0).toUpperCase() + adv.type.slice(1)}</strong>
-                                <p style="margin: 0; font-size: 0.85rem; color: var(--gray-700);">${adv.description}</p>
+                    ${
+                        analysis.competitiveAdvantages.length > 0
+                            ? analysis.competitiveAdvantages
+                                  .map(
+                                      (adv) => `
+                            <div style="padding: 0.75rem; background: ${
+                                adv.impact === 'alto' ? '#d4edda' : '#fff3cd'
+                            }; border-left: 3px solid ${
+                                          adv.impact === 'alto'
+                                              ? '#28a745'
+                                              : '#ffc107'
+                                      }; border-radius: var(--radius-sm);">
+                                <strong style="display: block; margin-bottom: 0.25rem; color: var(--dark-gray);">${
+                                    adv.type.charAt(0).toUpperCase() +
+                                    adv.type.slice(1)
+                                }</strong>
+                                <p style="margin: 0; font-size: 0.85rem; color: var(--gray-700);">${
+                                    adv.description
+                                }</p>
                             </div>
-                        `).join('')
-                        : '<p style="color: var(--gray-600);">Nenhuma vantagem competitiva identificada no período.</p>'
+                        `
+                                  )
+                                  .join('')
+                            : '<p style="color: var(--gray-600);">Nenhuma vantagem competitiva identificada no período.</p>'
                     }
                 </div>
             </div>
@@ -22383,18 +25619,40 @@ class LojaApp {
                     <i class="fas fa-lightbulb"></i> Recomendações
                 </h3>
                 <div style="display: flex; flex-direction: column; gap: 0.75rem;">
-                    ${analysis.recommendations.map(rec => `
-                        <div style="padding: 1rem; background: ${rec.priority === 'alta' ? '#f8d7da' : '#fff3cd'}; border-left: 4px solid ${rec.priority === 'alta' ? '#dc3545' : '#ffc107'}; border-radius: var(--radius-sm);">
+                    ${analysis.recommendations
+                        .map(
+                            (rec) => `
+                        <div style="padding: 1rem; background: ${
+                            rec.priority === 'alta' ? '#f8d7da' : '#fff3cd'
+                        }; border-left: 4px solid ${
+                                rec.priority === 'alta' ? '#dc3545' : '#ffc107'
+                            }; border-radius: var(--radius-sm);">
                             <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 0.5rem;">
-                                <strong style="color: var(--dark-gray);">${rec.title}</strong>
-                                <span style="padding: 0.25rem 0.5rem; background: ${rec.priority === 'alta' ? '#dc3545' : '#ffc107'}; color: white; border-radius: var(--radius-sm); font-size: 0.75rem;">
-                                    ${rec.priority === 'alta' ? 'Alta' : 'Média'}
+                                <strong style="color: var(--dark-gray);">${
+                                    rec.title
+                                }</strong>
+                                <span style="padding: 0.25rem 0.5rem; background: ${
+                                    rec.priority === 'alta'
+                                        ? '#dc3545'
+                                        : '#ffc107'
+                                }; color: white; border-radius: var(--radius-sm); font-size: 0.75rem;">
+                                    ${
+                                        rec.priority === 'alta'
+                                            ? 'Alta'
+                                            : 'Média'
+                                    }
                                 </span>
                             </div>
-                            <p style="margin: 0 0 0.5rem 0; color: var(--gray-700); font-size: 0.9rem;">${rec.description}</p>
-                            <p style="margin: 0; font-size: 0.85rem; color: var(--gray-600);"><strong>Ação:</strong> ${rec.action}</p>
+                            <p style="margin: 0 0 0.5rem 0; color: var(--gray-700); font-size: 0.9rem;">${
+                                rec.description
+                            }</p>
+                            <p style="margin: 0; font-size: 0.85rem; color: var(--gray-600);"><strong>Ação:</strong> ${
+                                rec.action
+                            }</p>
                         </div>
-                    `).join('')}
+                    `
+                        )
+                        .join('')}
                 </div>
             </div>
         `;
@@ -22409,15 +25667,18 @@ class LojaApp {
         // Limpar cache de gráficos expirados periodicamente
         setInterval(() => {
             const now = Date.now();
-            Object.keys(this.chartCache).forEach(chartId => {
+            Object.keys(this.chartCache).forEach((chartId) => {
                 const cacheEntry = this.chartCache[chartId];
                 if (cacheEntry && cacheEntry.timestamp) {
                     const age = now - cacheEntry.timestamp;
-                    const ttl = this.cacheStrategies.charts.ttl || (5 * 60 * 1000);
-                    
+                    const ttl =
+                        this.cacheStrategies.charts.ttl || 5 * 60 * 1000;
+
                     if (age > ttl) {
                         delete this.chartCache[chartId];
-                        console.log(`🗑️ [CACHE] Cache expirado removido: ${chartId}`);
+                        console.log(
+                            `🗑️ [CACHE] Cache expirado removido: ${chartId}`
+                        );
                     }
                 }
             });
@@ -22431,24 +25692,30 @@ class LojaApp {
         // Função throttle genérica
         const throttle = (func, limit) => {
             let inThrottle;
-            return function() {
+            return function () {
                 const args = arguments;
                 const context = this;
                 if (!inThrottle) {
                     func.apply(context, args);
                     inThrottle = true;
-                    setTimeout(() => inThrottle = false, limit);
+                    setTimeout(() => (inThrottle = false), limit);
                 }
             };
         };
 
         // Aplicar throttle em eventos de scroll
-        const scrollableElements = document.querySelectorAll('.items-list, .clients-list, .suppliers-list, .main-content');
-        scrollableElements.forEach(element => {
+        const scrollableElements = document.querySelectorAll(
+            '.items-list, .clients-list, .suppliers-list, .main-content'
+        );
+        scrollableElements.forEach((element) => {
             if (element) {
-                element.addEventListener('scroll', throttle(() => {
-                    // Scroll throttled - pode adicionar lógica aqui se necessário
-                }, 100), { passive: true });
+                element.addEventListener(
+                    'scroll',
+                    throttle(() => {
+                        // Scroll throttled - pode adicionar lógica aqui se necessário
+                    }, 100),
+                    { passive: true }
+                );
             }
         });
 
@@ -22461,28 +25728,33 @@ class LojaApp {
     initLazyLoading() {
         // Usar Intersection Observer para lazy loading de imagens
         if ('IntersectionObserver' in window) {
-            const imageObserver = new IntersectionObserver((entries, observer) => {
-                entries.forEach((entry) => {
-                    if (entry.isIntersecting) {
-                        const img = entry.target;
-                        if (img.dataset.src) {
-                            img.src = img.dataset.src;
-                            img.removeAttribute('data-src');
-                            img.classList.add('loaded');
-                            observer.unobserve(img);
+            const imageObserver = new IntersectionObserver(
+                (entries, observer) => {
+                    entries.forEach((entry) => {
+                        if (entry.isIntersecting) {
+                            const img = entry.target;
+                            if (img.dataset.src) {
+                                img.src = img.dataset.src;
+                                img.removeAttribute('data-src');
+                                img.classList.add('loaded');
+                                observer.unobserve(img);
+                            }
                         }
-                    }
-                });
-            }, {
-                rootMargin: '50px', // Carregar 50px antes de entrar na viewport
-            });
+                    });
+                },
+                {
+                    rootMargin: '50px', // Carregar 50px antes de entrar na viewport
+                }
+            );
 
             // Observar todas as imagens com data-src
             document.querySelectorAll('img[data-src]').forEach((img) => {
                 imageObserver.observe(img);
             });
 
-            console.log('✅ [LAZY LOADING] Lazy loading de imagens inicializado');
+            console.log(
+                '✅ [LAZY LOADING] Lazy loading de imagens inicializado'
+            );
         } else {
             // Fallback para navegadores sem Intersection Observer
             document.querySelectorAll('img[data-src]').forEach((img) => {
@@ -22493,7 +25765,12 @@ class LojaApp {
     }
 
     // Renderizar lista com virtual scrolling (paginção)
-    renderListWithVirtualScrolling(containerId, items, renderItem, itemsPerPage = 20) {
+    renderListWithVirtualScrolling(
+        containerId,
+        items,
+        renderItem,
+        itemsPerPage = 20
+    ) {
         const container = document.getElementById(containerId);
         if (!container) return;
 
@@ -22521,12 +25798,14 @@ class LojaApp {
             if (totalPages > 1) {
                 const pagination = document.createElement('div');
                 pagination.className = 'pagination';
-                pagination.style.cssText = 'display: flex; justify-content: center; align-items: center; gap: 0.5rem; margin-top: 1rem; padding: 1rem;';
+                pagination.style.cssText =
+                    'display: flex; justify-content: center; align-items: center; gap: 0.5rem; margin-top: 1rem; padding: 1rem;';
 
                 // Botão anterior
                 const prevBtn = document.createElement('button');
                 prevBtn.className = 'btn-small btn-secondary';
-                prevBtn.innerHTML = '<i class="fas fa-chevron-left"></i> Anterior';
+                prevBtn.innerHTML =
+                    '<i class="fas fa-chevron-left"></i> Anterior';
                 prevBtn.disabled = currentPage === 1;
                 prevBtn.addEventListener('click', () => {
                     if (currentPage > 1) {
@@ -22539,13 +25818,15 @@ class LojaApp {
                 // Informação de página
                 const pageInfo = document.createElement('span');
                 pageInfo.textContent = `Página ${currentPage} de ${totalPages} (${items.length} itens)`;
-                pageInfo.style.cssText = 'padding: 0 1rem; color: var(--gray-600);';
+                pageInfo.style.cssText =
+                    'padding: 0 1rem; color: var(--gray-600);';
                 pagination.appendChild(pageInfo);
 
                 // Botão próximo
                 const nextBtn = document.createElement('button');
                 nextBtn.className = 'btn-small btn-secondary';
-                nextBtn.innerHTML = 'Próximo <i class="fas fa-chevron-right"></i>';
+                nextBtn.innerHTML =
+                    'Próximo <i class="fas fa-chevron-right"></i>';
                 nextBtn.disabled = currentPage === totalPages;
                 nextBtn.addEventListener('click', () => {
                     if (currentPage < totalPages) {
@@ -22581,20 +25862,22 @@ class LojaApp {
             // Verificar se está próximo do fim
             if (scrollTop + clientHeight >= scrollHeight - threshold) {
                 isLoading = true;
-                loadMoreCallback().then((result) => {
-                    isLoading = false;
-                    if (result && result.hasMore !== undefined) {
-                        hasMore = result.hasMore;
-                    }
-                }).catch((error) => {
-                    console.error('Erro ao carregar mais itens:', error);
-                    isLoading = false;
-                });
+                loadMoreCallback()
+                    .then((result) => {
+                        isLoading = false;
+                        if (result && result.hasMore !== undefined) {
+                            hasMore = result.hasMore;
+                        }
+                    })
+                    .catch((error) => {
+                        console.error('Erro ao carregar mais itens:', error);
+                        isLoading = false;
+                    });
             }
         };
 
         container.addEventListener('scroll', checkScroll, { passive: true });
-        
+
         // Verificar inicialmente
         checkScroll();
 
@@ -22615,7 +25898,9 @@ class LojaApp {
         // Por enquanto, apenas retorna uma Promise resolvida
         return new Promise((resolve) => {
             setTimeout(() => {
-                console.log(`✅ [LAZY LOADING] Componente ${componentName} carregado`);
+                console.log(
+                    `✅ [LAZY LOADING] Componente ${componentName} carregado`
+                );
                 resolve(true);
             }, 100);
         });
@@ -22627,25 +25912,29 @@ class LojaApp {
         img.className = className;
         img.alt = alt;
         img.dataset.src = src; // Usar data-src para lazy loading
-        img.src = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="1" height="1"%3E%3C/svg%3E'; // Placeholder 1x1
+        img.src =
+            'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="1" height="1"%3E%3C/svg%3E'; // Placeholder 1x1
         img.style.cssText = 'opacity: 0; transition: opacity 0.3s;';
-        
+
         img.addEventListener('load', () => {
             img.style.opacity = '1';
         });
 
         // Observar quando entrar na viewport
         if ('IntersectionObserver' in window) {
-            const observer = new IntersectionObserver((entries) => {
-                entries.forEach((entry) => {
-                    if (entry.isIntersecting) {
-                        img.src = img.dataset.src;
-                        img.removeAttribute('data-src');
-                        observer.unobserve(img);
-                    }
-                });
-            }, { rootMargin: '50px' });
-            
+            const observer = new IntersectionObserver(
+                (entries) => {
+                    entries.forEach((entry) => {
+                        if (entry.isIntersecting) {
+                            img.src = img.dataset.src;
+                            img.removeAttribute('data-src');
+                            observer.unobserve(img);
+                        }
+                    });
+                },
+                { rootMargin: '50px' }
+            );
+
             observer.observe(img);
         } else {
             // Fallback: carregar imediatamente
@@ -22660,8 +25949,8 @@ class LojaApp {
     // Solicitar acesso à câmera
     async requestCameraAccess() {
         try {
-            const stream = await navigator.mediaDevices.getUserMedia({ 
-                video: { facingMode: 'environment' } // Câmera traseira
+            const stream = await navigator.mediaDevices.getUserMedia({
+                video: { facingMode: 'environment' }, // Câmera traseira
             });
             return stream;
         } catch (error) {
@@ -22678,15 +25967,23 @@ class LojaApp {
             canvas.height = videoElement.videoHeight;
             const ctx = canvas.getContext('2d');
             ctx.drawImage(videoElement, 0, 0);
-            
-            canvas.toBlob((blob) => {
-                if (blob) {
-                    const url = URL.createObjectURL(blob);
-                    resolve({ blob, url, dataUrl: canvas.toDataURL('image/jpeg', 0.8) });
-                } else {
-                    reject(new Error('Erro ao capturar foto'));
-                }
-            }, 'image/jpeg', 0.8);
+
+            canvas.toBlob(
+                (blob) => {
+                    if (blob) {
+                        const url = URL.createObjectURL(blob);
+                        resolve({
+                            blob,
+                            url,
+                            dataUrl: canvas.toDataURL('image/jpeg', 0.8),
+                        });
+                    } else {
+                        reject(new Error('Erro ao capturar foto'));
+                    }
+                },
+                'image/jpeg',
+                0.8
+            );
         });
     }
 
@@ -22725,7 +26022,10 @@ class LojaApp {
             if (data.text) {
                 await navigator.clipboard.writeText(data.text);
                 if (typeof toast !== 'undefined' && toast) {
-                    toast.success('Conteúdo copiado para área de transferência!', 3000);
+                    toast.success(
+                        'Conteúdo copiado para área de transferência!',
+                        3000
+                    );
                 }
             }
             return false;
@@ -22744,15 +26044,23 @@ class LojaApp {
 
     // Abrir calendário nativo (para agendamentos)
     openNativeCalendar(event) {
-        const startDate = event.startDate || new Date().toISOString().split('T')[0];
+        const startDate =
+            event.startDate || new Date().toISOString().split('T')[0];
         const endDate = event.endDate || startDate;
         const title = event.title || 'Agendamento';
         const description = event.description || '';
         const location = event.location || '';
 
         // Formato para Google Calendar
-        const googleCalendarUrl = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(title)}&dates=${startDate.replace(/-/g, '')}/${endDate.replace(/-/g, '')}&details=${encodeURIComponent(description)}&location=${encodeURIComponent(location)}`;
-        
+        const googleCalendarUrl = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(
+            title
+        )}&dates=${startDate.replace(/-/g, '')}/${endDate.replace(
+            /-/g,
+            ''
+        )}&details=${encodeURIComponent(
+            description
+        )}&location=${encodeURIComponent(location)}`;
+
         window.open(googleCalendarUrl, '_blank');
     }
 
@@ -22769,28 +26077,36 @@ END:VCARD`;
 
         const blob = new Blob([vcard], { type: 'text/vcard' });
         const url = URL.createObjectURL(blob);
-        
+
         const a = document.createElement('a');
         a.href = url;
         a.download = `${contact.name || 'contato'}.vcf`;
         a.click();
-        
+
         URL.revokeObjectURL(url);
-        
+
         if (typeof toast !== 'undefined' && toast) {
-            toast.success('Contato salvo! Abra o arquivo .vcf para adicionar aos seus contatos.', 4000);
+            toast.success(
+                'Contato salvo! Abra o arquivo .vcf para adicionar aos seus contatos.',
+                4000
+            );
         }
     }
 
     // Detectar se está em dispositivo móvel
     isMobileDevice() {
-        return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) ||
-               (window.innerWidth <= 768);
+        return (
+            /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
+                navigator.userAgent
+            ) || window.innerWidth <= 768
+        );
     }
 
     // Detectar orientação do dispositivo
     getDeviceOrientation() {
-        return window.innerHeight > window.innerWidth ? 'portrait' : 'landscape';
+        return window.innerHeight > window.innerWidth
+            ? 'portrait'
+            : 'landscape';
     }
 
     // ========== NAVEGAÇÃO POR TECLADO ==========
@@ -22826,14 +26142,17 @@ END:VCARD`;
             if (e.key === 'ArrowRight' || e.key === 'ArrowLeft') {
                 const activeTab = document.querySelector('.tab-btn.active');
                 if (activeTab) {
-                    const tabs = Array.from(document.querySelectorAll('.tab-btn'));
+                    const tabs = Array.from(
+                        document.querySelectorAll('.tab-btn')
+                    );
                     const currentIndex = tabs.indexOf(activeTab);
                     let nextIndex;
 
                     if (e.key === 'ArrowRight') {
                         nextIndex = (currentIndex + 1) % tabs.length;
                     } else {
-                        nextIndex = (currentIndex - 1 + tabs.length) % tabs.length;
+                        nextIndex =
+                            (currentIndex - 1 + tabs.length) % tabs.length;
                     }
 
                     if (tabs[nextIndex]) {
@@ -22854,18 +26173,28 @@ END:VCARD`;
 
     // Configurar navegação por teclado em listas
     setupListKeyboardNavigation() {
-        const lists = document.querySelectorAll('.items-list, .clients-list, .suppliers-list');
-        
+        const lists = document.querySelectorAll(
+            '.items-list, .clients-list, .suppliers-list'
+        );
+
         lists.forEach((list) => {
             list.setAttribute('tabindex', '0');
             list.setAttribute('role', 'listbox');
-            
+
             list.addEventListener('keydown', (e) => {
-                const items = Array.from(list.querySelectorAll('[role="listitem"], .item-card, .client-card, .supplier-card'));
-                const currentIndex = items.findIndex(item => item === document.activeElement || item.contains(document.activeElement));
-                
+                const items = Array.from(
+                    list.querySelectorAll(
+                        '[role="listitem"], .item-card, .client-card, .supplier-card'
+                    )
+                );
+                const currentIndex = items.findIndex(
+                    (item) =>
+                        item === document.activeElement ||
+                        item.contains(document.activeElement)
+                );
+
                 let nextIndex = currentIndex;
-                
+
                 switch (e.key) {
                     case 'ArrowDown':
                         e.preventDefault();
@@ -22873,7 +26202,8 @@ END:VCARD`;
                         break;
                     case 'ArrowUp':
                         e.preventDefault();
-                        nextIndex = (currentIndex - 1 + items.length) % items.length;
+                        nextIndex =
+                            (currentIndex - 1 + items.length) % items.length;
                         break;
                     case 'Home':
                         e.preventDefault();
@@ -22887,15 +26217,19 @@ END:VCARD`;
                     case ' ':
                         e.preventDefault();
                         if (items[currentIndex]) {
-                            const button = items[currentIndex].querySelector('button, a');
+                            const button =
+                                items[currentIndex].querySelector('button, a');
                             if (button) button.click();
                         }
                         return;
                 }
-                
+
                 if (items[nextIndex]) {
                     items[nextIndex].focus();
-                    items[nextIndex].scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                    items[nextIndex].scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'nearest',
+                    });
                 }
             });
         });
@@ -22904,7 +26238,7 @@ END:VCARD`;
     // Configurar navegação por teclado em modais
     setupModalKeyboardNavigation() {
         const modals = document.querySelectorAll('.modal');
-        
+
         modals.forEach((modal) => {
             modal.addEventListener('keydown', (e) => {
                 // Tab: Navegar entre campos
@@ -22913,8 +26247,9 @@ END:VCARD`;
                         'input, textarea, select, button, [href], [tabindex]:not([tabindex="-1"])'
                     );
                     const firstElement = focusableElements[0];
-                    const lastElement = focusableElements[focusableElements.length - 1];
-                    
+                    const lastElement =
+                        focusableElements[focusableElements.length - 1];
+
                     if (e.shiftKey) {
                         // Shift + Tab
                         if (document.activeElement === firstElement) {
@@ -22942,34 +26277,4180 @@ END:VCARD`;
 
     // Exportar análise preditiva
     exportPredictiveAnalysis() {
-        const period = parseInt(document.getElementById('predictivePeriod')?.value || 6);
+        const period = parseInt(
+            document.getElementById('predictivePeriod')?.value || 6
+        );
         const forecast = this.calculateSalesForecast(period);
         const trend = this.calculateSalesTrend(period);
         const growth = this.calculateExpectedGrowth(period);
-        
+
         const analysis = {
             period: period,
             forecast: forecast,
             trend: trend,
             growth: growth,
             topProducts: this.getTopSellingProducts(period),
-            generatedAt: new Date().toISOString()
+            generatedAt: new Date().toISOString(),
         };
-        
+
         const blob = new Blob([JSON.stringify(analysis, null, 2)], {
             type: 'application/json',
         });
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
-        a.download = `analise_preditiva_${new Date().toISOString().split('T')[0]}.json`;
+        a.download = `analise_preditiva_${
+            new Date().toISOString().split('T')[0]
+        }.json`;
         document.body.appendChild(a);
         a.click();
         document.body.removeChild(a);
         URL.revokeObjectURL(url);
-        
+
         if (typeof toast !== 'undefined' && toast) {
             toast.success('Análise preditiva exportada com sucesso!', 3000);
+        }
+    }
+
+    // ========== GERENCIAMENTO DE INTEGRAÇÕES ==========
+
+    /**
+     * Renderiza o status das integrações no painel admin
+     */
+    renderIntegrationsStatus() {
+        const statusDiv = document.getElementById('integrationsStatus');
+        if (!statusDiv) return;
+
+        const integrations = [
+            {
+                name: 'Email',
+                config: this.emailConfig,
+                enabled: this.emailConfig?.enabled,
+            },
+            {
+                name: 'SMS',
+                config: this.smsConfig,
+                enabled: this.smsConfig?.enabled,
+            },
+            {
+                name: 'WhatsApp',
+                config: this.whatsappConfig,
+                enabled: this.whatsappConfig?.enabled,
+            },
+            {
+                name: 'E-commerce',
+                config: this.ecommerceConfig,
+                enabled: Object.values(this.ecommerceConfig || {}).some(
+                    (c) => c?.enabled
+                ),
+            },
+            {
+                name: 'ERP',
+                config: this.erpConfig,
+                enabled: Object.values(this.erpConfig || {}).some(
+                    (c) => c?.enabled
+                ),
+            },
+        ];
+
+        statusDiv.innerHTML = integrations
+            .map((integration) => {
+                const status = integration.enabled ? '✅ Ativo' : '❌ Inativo';
+                const statusColor = integration.enabled ? '#28a745' : '#dc3545';
+                return `
+                <div style="padding: 0.75rem; background: white; border-radius: var(--radius-sm); border: 1px solid var(--border-color);">
+                    <strong style="display: block; margin-bottom: 0.25rem;">${integration.name}</strong>
+                    <span style="color: ${statusColor}; font-size: 0.9rem;">${status}</span>
+                </div>
+            `;
+            })
+            .join('');
+    }
+
+    // ========== EMAIL ==========
+
+    openEmailConfigModal() {
+        const modal = document.getElementById('emailConfigModal');
+        if (!modal) return;
+
+        // Carregar configurações atuais
+        const config = this.emailConfig || {};
+        document.getElementById('emailEnabled').checked =
+            config.enabled || false;
+        document.getElementById('emailProvider').value =
+            config.provider || 'smtp';
+
+        // Carregar campos SMTP
+        if (config.smtp) {
+            document.getElementById('smtpHost').value = config.smtp.host || '';
+            document.getElementById('smtpPort').value = config.smtp.port || 587;
+            document.getElementById('smtpSecure').checked =
+                config.smtp.secure || false;
+            document.getElementById('smtpUsername').value =
+                config.smtp.username || '';
+            document.getElementById('smtpPassword').value =
+                config.smtp.password || '';
+        }
+
+        // Carregar campos SendGrid
+        if (config.sendgrid) {
+            document.getElementById('sendgridApiKey').value =
+                config.sendgrid.apiKey || '';
+        }
+
+        // Carregar campos SES
+        if (config.ses) {
+            document.getElementById('sesAccessKeyId').value =
+                config.ses.accessKeyId || '';
+            document.getElementById('sesSecretAccessKey').value =
+                config.ses.secretAccessKey || '';
+            document.getElementById('sesRegion').value =
+                config.ses.region || 'us-east-1';
+        }
+
+        // Carregar campos Mailgun
+        if (config.mailgun) {
+            document.getElementById('mailgunApiKey').value =
+                config.mailgun.apiKey || '';
+            document.getElementById('mailgunDomain').value =
+                config.mailgun.domain || '';
+        }
+
+        this.toggleEmailProviderFields();
+        modal.classList.add('active');
+    }
+
+    closeEmailConfigModal() {
+        const modal = document.getElementById('emailConfigModal');
+        if (modal) modal.classList.remove('active');
+    }
+
+    toggleEmailProviderFields() {
+        const provider = document.getElementById('emailProvider').value;
+
+        document.getElementById('emailSMTPFields').style.display =
+            provider === 'smtp' ? 'block' : 'none';
+        document.getElementById('emailSendGridFields').style.display =
+            provider === 'sendgrid' ? 'block' : 'none';
+        document.getElementById('emailSESFields').style.display =
+            provider === 'ses' ? 'block' : 'none';
+        document.getElementById('emailMailgunFields').style.display =
+            provider === 'mailgun' ? 'block' : 'none';
+    }
+
+    saveEmailConfig(event) {
+        if (event) event.preventDefault();
+
+        const enabled = document.getElementById('emailEnabled').checked;
+        const provider = document.getElementById('emailProvider').value;
+
+        this.emailConfig = {
+            enabled,
+            provider,
+            smtp: {
+                host: document.getElementById('smtpHost').value,
+                port:
+                    parseInt(document.getElementById('smtpPort').value) || 587,
+                secure: document.getElementById('smtpSecure').checked,
+                username: document.getElementById('smtpUsername').value,
+                password: document.getElementById('smtpPassword').value,
+            },
+            sendgrid: {
+                apiKey: document.getElementById('sendgridApiKey').value,
+            },
+            ses: {
+                accessKeyId: document.getElementById('sesAccessKeyId').value,
+                secretAccessKey:
+                    document.getElementById('sesSecretAccessKey').value,
+                region:
+                    document.getElementById('sesRegion').value || 'us-east-1',
+            },
+            mailgun: {
+                apiKey: document.getElementById('mailgunApiKey').value,
+                domain: document.getElementById('mailgunDomain').value,
+            },
+        };
+
+        this.saveData();
+        this.renderIntegrationsStatus();
+        this.closeEmailConfigModal();
+
+        if (typeof toast !== 'undefined' && toast) {
+            toast.success('Configuração de email salva com sucesso!', 3000);
+        }
+    }
+
+    /**
+     * Testa conexão de email
+     * Valida credenciais e tenta conectar ao servidor/provedor
+     */
+    async testEmailConnection() {
+        const provider =
+            document.getElementById('emailProvider')?.value ||
+            this.emailConfig?.provider ||
+            'smtp';
+        const config = this.emailConfig || {};
+
+        if (typeof toast !== 'undefined' && toast) {
+            toast.info('Testando conexão de email...', 2000);
+        }
+
+        try {
+            // Validar campos obrigatórios
+            if (provider === 'smtp') {
+                const smtp = config.smtp || {};
+                if (!smtp.host || !smtp.username || !smtp.password) {
+                    throw new Error(
+                        'Preencha todos os campos obrigatórios (Host, Usuário, Senha)'
+                    );
+                }
+
+                // Teste básico: validar formato de host
+                if (!/^[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(smtp.host)) {
+                    throw new Error('Host SMTP inválido');
+                }
+
+                // Nota: Teste real de conexão SMTP requer backend
+                // Por enquanto, apenas validamos os campos
+                if (typeof toast !== 'undefined' && toast) {
+                    toast.success(
+                        'Credenciais SMTP válidas! (Teste completo requer backend)',
+                        4000
+                    );
+                }
+                return { success: true, message: 'Credenciais válidas' };
+            } else if (provider === 'sendgrid') {
+                const apiKey = config.sendgrid?.apiKey || '';
+                if (!apiKey) {
+                    throw new Error('API Key do SendGrid é obrigatória');
+                }
+
+                // Testar API do SendGrid
+                const response = await fetch(
+                    'https://api.sendgrid.com/v3/user/profile',
+                    {
+                        method: 'GET',
+                        headers: {
+                            Authorization: `Bearer ${apiKey}`,
+                            'Content-Type': 'application/json',
+                        },
+                    }
+                );
+
+                if (response.ok) {
+                    const data = await response.json();
+                    if (typeof toast !== 'undefined' && toast) {
+                        toast.success(
+                            `SendGrid conectado! Usuário: ${
+                                data.username || 'N/A'
+                            }`,
+                            4000
+                        );
+                    }
+                    return {
+                        success: true,
+                        message: 'SendGrid conectado',
+                        data,
+                    };
+                } else {
+                    const error = await response.json();
+                    throw new Error(
+                        `SendGrid: ${
+                            error.errors?.[0]?.message ||
+                            'Credenciais inválidas'
+                        }`
+                    );
+                }
+            } else if (provider === 'ses') {
+                const ses = config.ses || {};
+                if (!ses.accessKeyId || !ses.secretAccessKey) {
+                    throw new Error(
+                        'Access Key ID e Secret Access Key são obrigatórios'
+                    );
+                }
+
+                // Nota: Teste real de SES requer backend com AWS SDK
+                // Por enquanto, apenas validamos os campos
+                if (typeof toast !== 'undefined' && toast) {
+                    toast.success(
+                        'Credenciais AWS SES válidas! (Teste completo requer backend)',
+                        4000
+                    );
+                }
+                return { success: true, message: 'Credenciais válidas' };
+            } else if (provider === 'mailgun') {
+                const mailgun = config.mailgun || {};
+                if (!mailgun.apiKey || !mailgun.domain) {
+                    throw new Error('API Key e Domain são obrigatórios');
+                }
+
+                // Testar API do Mailgun
+                const auth = btoa(`api:${mailgun.apiKey}`);
+                const response = await fetch(
+                    `https://api.mailgun.net/v3/${mailgun.domain}`,
+                    {
+                        method: 'GET',
+                        headers: {
+                            Authorization: `Basic ${auth}`,
+                        },
+                    }
+                );
+
+                if (response.ok || response.status === 200) {
+                    if (typeof toast !== 'undefined' && toast) {
+                        toast.success(
+                            `Mailgun conectado! Domínio: ${mailgun.domain}`,
+                            4000
+                        );
+                    }
+                    return { success: true, message: 'Mailgun conectado' };
+                } else {
+                    throw new Error(
+                        'Mailgun: Credenciais inválidas ou domínio não encontrado'
+                    );
+                }
+            }
+        } catch (error) {
+            console.error('Erro ao testar conexão de email:', error);
+            if (typeof toast !== 'undefined' && toast) {
+                toast.error(`Erro: ${error.message}`, 5000);
+            }
+            return { success: false, message: error.message };
+        }
+    }
+
+    // ========== SMS ==========
+
+    openSMSConfigModal() {
+        const modal = document.getElementById('smsConfigModal');
+        if (!modal) return;
+
+        const config = this.smsConfig || {};
+        document.getElementById('smsEnabled').checked = config.enabled || false;
+        document.getElementById('smsProvider').value =
+            config.provider || 'twilio';
+
+        if (config.twilio) {
+            document.getElementById('twilioAccountSid').value =
+                config.twilio.accountSid || '';
+            document.getElementById('twilioAuthToken').value =
+                config.twilio.authToken || '';
+            document.getElementById('twilioFromNumber').value =
+                config.twilio.fromNumber || '';
+        }
+
+        if (config.zenvia) {
+            document.getElementById('zenviaApiKey').value =
+                config.zenvia.apiKey || '';
+            document.getElementById('zenviaFromNumber').value =
+                config.zenvia.fromNumber || '';
+        }
+
+        if (config.totalvoice) {
+            document.getElementById('totalvoiceAccessToken').value =
+                config.totalvoice.accessToken || '';
+            document.getElementById('totalvoiceFromNumber').value =
+                config.totalvoice.fromNumber || '';
+        }
+
+        this.toggleSMSProviderFields();
+        modal.classList.add('active');
+    }
+
+    closeSMSConfigModal() {
+        const modal = document.getElementById('smsConfigModal');
+        if (modal) modal.classList.remove('active');
+    }
+
+    toggleSMSProviderFields() {
+        const provider = document.getElementById('smsProvider').value;
+
+        document.getElementById('smsTwilioFields').style.display =
+            provider === 'twilio' ? 'block' : 'none';
+        document.getElementById('smsZenviaFields').style.display =
+            provider === 'zenvia' ? 'block' : 'none';
+        document.getElementById('smsTotalVoiceFields').style.display =
+            provider === 'totalvoice' ? 'block' : 'none';
+    }
+
+    saveSMSConfig(event) {
+        if (event) event.preventDefault();
+
+        const enabled = document.getElementById('smsEnabled').checked;
+        const provider = document.getElementById('smsProvider').value;
+
+        this.smsConfig = {
+            enabled,
+            provider,
+            twilio: {
+                accountSid: document.getElementById('twilioAccountSid').value,
+                authToken: document.getElementById('twilioAuthToken').value,
+                fromNumber: document.getElementById('twilioFromNumber').value,
+            },
+            zenvia: {
+                apiKey: document.getElementById('zenviaApiKey').value,
+                fromNumber: document.getElementById('zenviaFromNumber').value,
+            },
+            totalvoice: {
+                accessToken: document.getElementById('totalvoiceAccessToken')
+                    .value,
+                fromNumber: document.getElementById('totalvoiceFromNumber')
+                    .value,
+            },
+        };
+
+        this.saveData();
+        this.renderIntegrationsStatus();
+        this.closeSMSConfigModal();
+
+        if (typeof toast !== 'undefined' && toast) {
+            toast.success('Configuração de SMS salva com sucesso!', 3000);
+        }
+    }
+
+    /**
+     * Testa conexão de SMS
+     * Valida credenciais e tenta conectar ao provedor
+     */
+    async testSMSConnection() {
+        const provider =
+            document.getElementById('smsProvider')?.value ||
+            this.smsConfig?.provider ||
+            'twilio';
+        const config = this.smsConfig || {};
+
+        if (typeof toast !== 'undefined' && toast) {
+            toast.info('Testando conexão de SMS...', 2000);
+        }
+
+        try {
+            if (provider === 'twilio') {
+                const twilio = config.twilio || {};
+                if (!twilio.accountSid || !twilio.authToken) {
+                    throw new Error(
+                        'Account SID e Auth Token são obrigatórios'
+                    );
+                }
+
+                // Testar API do Twilio
+                const auth = btoa(`${twilio.accountSid}:${twilio.authToken}`);
+                const response = await fetch(
+                    `https://api.twilio.com/2010-04-01/Accounts/${twilio.accountSid}.json`,
+                    {
+                        method: 'GET',
+                        headers: {
+                            Authorization: `Basic ${auth}`,
+                        },
+                    }
+                );
+
+                if (response.ok) {
+                    const data = await response.json();
+                    if (typeof toast !== 'undefined' && toast) {
+                        toast.success(
+                            `Twilio conectado! Conta: ${
+                                data.friendly_name || twilio.accountSid
+                            }`,
+                            4000
+                        );
+                    }
+                    return { success: true, message: 'Twilio conectado', data };
+                } else {
+                    const error = await response.json();
+                    throw new Error(
+                        `Twilio: ${error.message || 'Credenciais inválidas'}`
+                    );
+                }
+            } else if (provider === 'zenvia') {
+                const zenvia = config.zenvia || {};
+                if (!zenvia.apiKey) {
+                    throw new Error('API Key da Zenvia é obrigatória');
+                }
+
+                // Testar API da Zenvia
+                const response = await fetch(
+                    'https://api.zenvia.com/v2/account',
+                    {
+                        method: 'GET',
+                        headers: {
+                            'X-API-TOKEN': zenvia.apiKey,
+                            'Content-Type': 'application/json',
+                        },
+                    }
+                );
+
+                if (response.ok) {
+                    const data = await response.json();
+                    if (typeof toast !== 'undefined' && toast) {
+                        toast.success(
+                            `Zenvia conectada! Conta: ${data.name || 'N/A'}`,
+                            4000
+                        );
+                    }
+                    return { success: true, message: 'Zenvia conectada', data };
+                } else {
+                    throw new Error('Zenvia: Credenciais inválidas');
+                }
+            } else if (provider === 'totalvoice') {
+                const totalvoice = config.totalvoice || {};
+                if (!totalvoice.accessToken) {
+                    throw new Error('Access Token do TotalVoice é obrigatório');
+                }
+
+                // Testar API do TotalVoice
+                const response = await fetch(
+                    'https://api.totalvoice.com.br/account',
+                    {
+                        method: 'GET',
+                        headers: {
+                            'Access-Token': totalvoice.accessToken,
+                            'Content-Type': 'application/json',
+                        },
+                    }
+                );
+
+                if (response.ok) {
+                    const data = await response.json();
+                    if (typeof toast !== 'undefined' && toast) {
+                        toast.success(
+                            `TotalVoice conectado! Conta: ${
+                                data.dados?.nome || 'N/A'
+                            }`,
+                            4000
+                        );
+                    }
+                    return {
+                        success: true,
+                        message: 'TotalVoice conectado',
+                        data,
+                    };
+                } else {
+                    const error = await response.json();
+                    throw new Error(
+                        `TotalVoice: ${
+                            error.mensagem || 'Credenciais inválidas'
+                        }`
+                    );
+                }
+            }
+        } catch (error) {
+            console.error('Erro ao testar conexão de SMS:', error);
+            if (typeof toast !== 'undefined' && toast) {
+                toast.error(`Erro: ${error.message}`, 5000);
+            }
+            return { success: false, message: error.message };
+        }
+    }
+
+    // ========== WHATSAPP ==========
+
+    openWhatsAppConfigModal() {
+        const modal = document.getElementById('whatsappConfigModal');
+        if (!modal) return;
+
+        const config = this.whatsappConfig || {};
+        document.getElementById('whatsappEnabled').checked =
+            config.enabled || false;
+        document.getElementById('whatsappApiKey').value = config.apiKey || '';
+        document.getElementById('whatsappPhoneNumberId').value =
+            config.phoneNumberId || '';
+        document.getElementById('whatsappBusinessAccountId').value =
+            config.businessAccountId || '';
+        document.getElementById('whatsappWebhookUrl').value =
+            config.webhookUrl || '';
+
+        modal.classList.add('active');
+    }
+
+    closeWhatsAppConfigModal() {
+        const modal = document.getElementById('whatsappConfigModal');
+        if (modal) modal.classList.remove('active');
+    }
+
+    saveWhatsAppConfig(event) {
+        if (event) event.preventDefault();
+
+        this.whatsappConfig = {
+            enabled: document.getElementById('whatsappEnabled').checked,
+            provider: 'whatsapp_business',
+            apiKey: document.getElementById('whatsappApiKey').value,
+            phoneNumberId: document.getElementById('whatsappPhoneNumberId')
+                .value,
+            businessAccountId: document.getElementById(
+                'whatsappBusinessAccountId'
+            ).value,
+            webhookUrl: document.getElementById('whatsappWebhookUrl').value,
+        };
+
+        this.saveData();
+        this.renderIntegrationsStatus();
+        this.closeWhatsAppConfigModal();
+
+        if (typeof toast !== 'undefined' && toast) {
+            toast.success('Configuração de WhatsApp salva com sucesso!', 3000);
+        }
+    }
+
+    /**
+     * Testa conexão de WhatsApp
+     * Valida credenciais e tenta conectar à API do WhatsApp Business
+     */
+    async testWhatsAppConnection() {
+        const config = this.whatsappConfig || {};
+
+        if (typeof toast !== 'undefined' && toast) {
+            toast.info('Testando conexão de WhatsApp...', 2000);
+        }
+
+        try {
+            if (
+                !config.apiKey ||
+                !config.phoneNumberId ||
+                !config.businessAccountId
+            ) {
+                throw new Error(
+                    'API Key, Phone Number ID e Business Account ID são obrigatórios'
+                );
+            }
+
+            // Testar API do WhatsApp Business
+            const response = await fetch(
+                `https://graph.facebook.com/v18.0/${config.phoneNumberId}`,
+                {
+                    method: 'GET',
+                    headers: {
+                        Authorization: `Bearer ${config.apiKey}`,
+                        'Content-Type': 'application/json',
+                    },
+                }
+            );
+
+            if (response.ok) {
+                const data = await response.json();
+                if (typeof toast !== 'undefined' && toast) {
+                    toast.success(
+                        `WhatsApp conectado! Número: ${
+                            data.display_phone_number || 'N/A'
+                        }`,
+                        4000
+                    );
+                }
+                return { success: true, message: 'WhatsApp conectado', data };
+            } else {
+                const error = await response.json();
+                throw new Error(
+                    `WhatsApp: ${
+                        error.error?.message || 'Credenciais inválidas'
+                    }`
+                );
+            }
+        } catch (error) {
+            console.error('Erro ao testar conexão de WhatsApp:', error);
+            if (typeof toast !== 'undefined' && toast) {
+                toast.error(`Erro: ${error.message}`, 5000);
+            }
+            return { success: false, message: error.message };
+        }
+    }
+
+    // ========== E-COMMERCE ==========
+
+    openEcommerceConfigModal() {
+        const modal = document.getElementById('ecommerceConfigModal');
+        if (!modal) return;
+
+        const config = this.ecommerceConfig || {};
+
+        // Verificar qual plataforma está ativa
+        let activePlatform = 'woocommerce';
+        if (config.shopify?.enabled) activePlatform = 'shopify';
+        else if (config.mercadoLivre?.enabled) activePlatform = 'mercadoLivre';
+
+        document.getElementById('ecommercePlatform').value = activePlatform;
+
+        // Carregar WooCommerce
+        if (config.woocommerce) {
+            document.getElementById('woocommerceEnabled').checked =
+                config.woocommerce.enabled || false;
+            document.getElementById('woocommerceUrl').value =
+                config.woocommerce.url || '';
+            document.getElementById('woocommerceConsumerKey').value =
+                config.woocommerce.consumerKey || '';
+            document.getElementById('woocommerceConsumerSecret').value =
+                config.woocommerce.consumerSecret || '';
+        }
+
+        // Carregar Shopify
+        if (config.shopify) {
+            document.getElementById('shopifyEnabled').checked =
+                config.shopify.enabled || false;
+            document.getElementById('shopifyShop').value =
+                config.shopify.shop || '';
+            document.getElementById('shopifyApiKey').value =
+                config.shopify.apiKey || '';
+            document.getElementById('shopifyApiSecret').value =
+                config.shopify.apiSecret || '';
+        }
+
+        // Carregar Mercado Livre
+        if (config.mercadoLivre) {
+            document.getElementById('mercadoLivreEnabled').checked =
+                config.mercadoLivre.enabled || false;
+            document.getElementById('mercadoLivreClientId').value =
+                config.mercadoLivre.clientId || '';
+            document.getElementById('mercadoLivreClientSecret').value =
+                config.mercadoLivre.clientSecret || '';
+            document.getElementById('mercadoLivreAccessToken').value =
+                config.mercadoLivre.accessToken || '';
+        }
+
+        this.toggleEcommercePlatformFields();
+        modal.classList.add('active');
+    }
+
+    closeEcommerceConfigModal() {
+        const modal = document.getElementById('ecommerceConfigModal');
+        if (modal) modal.classList.remove('active');
+    }
+
+    toggleEcommercePlatformFields() {
+        const platform = document.getElementById('ecommercePlatform').value;
+
+        document.getElementById('woocommerceFields').style.display =
+            platform === 'woocommerce' ? 'block' : 'none';
+        document.getElementById('shopifyFields').style.display =
+            platform === 'shopify' ? 'block' : 'none';
+        document.getElementById('mercadoLivreFields').style.display =
+            platform === 'mercadoLivre' ? 'block' : 'none';
+    }
+
+    saveEcommerceConfig() {
+        const platform = document.getElementById('ecommercePlatform').value;
+
+        if (platform === 'woocommerce') {
+            this.ecommerceConfig.woocommerce = {
+                enabled: document.getElementById('woocommerceEnabled').checked,
+                url: document.getElementById('woocommerceUrl').value,
+                consumerKey: document.getElementById('woocommerceConsumerKey')
+                    .value,
+                consumerSecret: document.getElementById(
+                    'woocommerceConsumerSecret'
+                ).value,
+            };
+            // Desativar outras plataformas
+            if (this.ecommerceConfig.shopify)
+                this.ecommerceConfig.shopify.enabled = false;
+            if (this.ecommerceConfig.mercadoLivre)
+                this.ecommerceConfig.mercadoLivre.enabled = false;
+        } else if (platform === 'shopify') {
+            this.ecommerceConfig.shopify = {
+                enabled: document.getElementById('shopifyEnabled').checked,
+                shop: document.getElementById('shopifyShop').value,
+                apiKey: document.getElementById('shopifyApiKey').value,
+                apiSecret: document.getElementById('shopifyApiSecret').value,
+            };
+            // Desativar outras plataformas
+            if (this.ecommerceConfig.woocommerce)
+                this.ecommerceConfig.woocommerce.enabled = false;
+            if (this.ecommerceConfig.mercadoLivre)
+                this.ecommerceConfig.mercadoLivre.enabled = false;
+        } else if (platform === 'mercadoLivre') {
+            this.ecommerceConfig.mercadoLivre = {
+                enabled: document.getElementById('mercadoLivreEnabled').checked,
+                clientId: document.getElementById('mercadoLivreClientId').value,
+                clientSecret: document.getElementById(
+                    'mercadoLivreClientSecret'
+                ).value,
+                accessToken: document.getElementById('mercadoLivreAccessToken')
+                    .value,
+            };
+            // Desativar outras plataformas
+            if (this.ecommerceConfig.woocommerce)
+                this.ecommerceConfig.woocommerce.enabled = false;
+            if (this.ecommerceConfig.shopify)
+                this.ecommerceConfig.shopify.enabled = false;
+        }
+
+        this.saveData();
+        this.renderIntegrationsStatus();
+        this.closeEcommerceConfigModal();
+
+        if (typeof toast !== 'undefined' && toast) {
+            toast.success(
+                'Configuração de e-commerce salva com sucesso!',
+                3000
+            );
+        }
+    }
+
+    /**
+     * Testa conexão de e-commerce
+     * Valida credenciais e tenta conectar à plataforma
+     */
+    async testEcommerceConnection() {
+        const platform =
+            document.getElementById('ecommercePlatform')?.value ||
+            'woocommerce';
+        const config = this.ecommerceConfig || {};
+
+        if (typeof toast !== 'undefined' && toast) {
+            toast.info(`Testando conexão com ${platform}...`, 2000);
+        }
+
+        try {
+            if (platform === 'woocommerce') {
+                const wc = config.woocommerce || {};
+                if (!wc.url || !wc.consumerKey || !wc.consumerSecret) {
+                    throw new Error(
+                        'URL, Consumer Key e Consumer Secret são obrigatórios'
+                    );
+                }
+
+                // Validar formato da URL
+                if (!/^https?:\/\/.+/.test(wc.url)) {
+                    throw new Error('URL inválida. Use http:// ou https://');
+                }
+
+                // Testar API do WooCommerce
+                const url =
+                    wc.url.replace(/\/$/, '') + '/wp-json/wc/v3/system_status';
+                const auth = btoa(`${wc.consumerKey}:${wc.consumerSecret}`);
+
+                const response = await fetch(url, {
+                    method: 'GET',
+                    headers: {
+                        Authorization: `Basic ${auth}`,
+                        'Content-Type': 'application/json',
+                    },
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    if (typeof toast !== 'undefined' && toast) {
+                        toast.success(
+                            `WooCommerce conectado! Versão: ${
+                                data.environment?.version || 'N/A'
+                            }`,
+                            4000
+                        );
+                    }
+                    return {
+                        success: true,
+                        message: 'WooCommerce conectado',
+                        data,
+                    };
+                } else {
+                    const error = await response.json();
+                    throw new Error(
+                        `WooCommerce: ${
+                            error.message ||
+                            'Credenciais inválidas ou URL incorreta'
+                        }`
+                    );
+                }
+            } else if (platform === 'shopify') {
+                const shopify = config.shopify || {};
+                if (!shopify.shop || !shopify.apiKey || !shopify.apiSecret) {
+                    throw new Error(
+                        'Shop, API Key e API Secret são obrigatórios'
+                    );
+                }
+
+                // Testar API do Shopify
+                const shop = shopify.shop.replace(/\.myshopify\.com$/, '');
+                const url = `https://${shop}.myshopify.com/admin/api/2024-01/shop.json`;
+                const auth = btoa(`${shopify.apiKey}:${shopify.apiSecret}`);
+
+                const response = await fetch(url, {
+                    method: 'GET',
+                    headers: {
+                        Authorization: `Basic ${auth}`,
+                        'Content-Type': 'application/json',
+                    },
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    if (typeof toast !== 'undefined' && toast) {
+                        toast.success(
+                            `Shopify conectado! Loja: ${
+                                data.shop?.name || shop
+                            }`,
+                            4000
+                        );
+                    }
+                    return {
+                        success: true,
+                        message: 'Shopify conectado',
+                        data,
+                    };
+                } else {
+                    const error = await response.json();
+                    throw new Error(
+                        `Shopify: ${error.errors || 'Credenciais inválidas'}`
+                    );
+                }
+            } else if (platform === 'mercadoLivre') {
+                const ml = config.mercadoLivre || {};
+                if (!ml.clientId || !ml.clientSecret || !ml.accessToken) {
+                    throw new Error(
+                        'Client ID, Client Secret e Access Token são obrigatórios'
+                    );
+                }
+
+                // Testar API do Mercado Livre
+                const response = await fetch(
+                    'https://api.mercadolibre.com/users/me',
+                    {
+                        method: 'GET',
+                        headers: {
+                            Authorization: `Bearer ${ml.accessToken}`,
+                            'Content-Type': 'application/json',
+                        },
+                    }
+                );
+
+                if (response.ok) {
+                    const data = await response.json();
+                    if (typeof toast !== 'undefined' && toast) {
+                        toast.success(
+                            `Mercado Livre conectado! Usuário: ${
+                                data.nickname || 'N/A'
+                            }`,
+                            4000
+                        );
+                    }
+                    return {
+                        success: true,
+                        message: 'Mercado Livre conectado',
+                        data,
+                    };
+                } else {
+                    const error = await response.json();
+                    throw new Error(
+                        `Mercado Livre: ${
+                            error.message || 'Token inválido ou expirado'
+                        }`
+                    );
+                }
+            }
+        } catch (error) {
+            console.error('Erro ao testar conexão de e-commerce:', error);
+            if (typeof toast !== 'undefined' && toast) {
+                toast.error(`Erro: ${error.message}`, 5000);
+            }
+            return { success: false, message: error.message };
+        }
+    }
+
+    // ========== ERP ==========
+
+    openERPConfigModal() {
+        const modal = document.getElementById('erpConfigModal');
+        if (!modal) return;
+
+        const config = this.erpConfig || {};
+
+        // Verificar qual ERP está ativo
+        let activeERP = 'totvs';
+        if (config.sap?.enabled) activeERP = 'sap';
+
+        document.getElementById('erpPlatform').value = activeERP;
+
+        // Carregar TOTVS
+        if (config.totvs) {
+            document.getElementById('totvsEnabled').checked =
+                config.totvs.enabled || false;
+            document.getElementById('totvsUrl').value = config.totvs.url || '';
+            document.getElementById('totvsUsername').value =
+                config.totvs.username || '';
+            document.getElementById('totvsPassword').value =
+                config.totvs.password || '';
+            document.getElementById('totvsDatabase').value =
+                config.totvs.database || '';
+        }
+
+        // Carregar SAP
+        if (config.sap) {
+            document.getElementById('sapEnabled').checked =
+                config.sap.enabled || false;
+            document.getElementById('sapUrl').value = config.sap.url || '';
+            document.getElementById('sapUsername').value =
+                config.sap.username || '';
+            document.getElementById('sapPassword').value =
+                config.sap.password || '';
+            document.getElementById('sapClient').value =
+                config.sap.client || '';
+        }
+
+        this.toggleERPPlatformFields();
+        modal.classList.add('active');
+    }
+
+    closeERPConfigModal() {
+        const modal = document.getElementById('erpConfigModal');
+        if (modal) modal.classList.remove('active');
+    }
+
+    toggleERPPlatformFields() {
+        const platform = document.getElementById('erpPlatform').value;
+
+        document.getElementById('totvsFields').style.display =
+            platform === 'totvs' ? 'block' : 'none';
+        document.getElementById('sapFields').style.display =
+            platform === 'sap' ? 'block' : 'none';
+    }
+
+    saveERPConfig() {
+        const platform = document.getElementById('erpPlatform').value;
+
+        if (platform === 'totvs') {
+            this.erpConfig.totvs = {
+                enabled: document.getElementById('totvsEnabled').checked,
+                url: document.getElementById('totvsUrl').value,
+                username: document.getElementById('totvsUsername').value,
+                password: document.getElementById('totvsPassword').value,
+                database: document.getElementById('totvsDatabase').value,
+            };
+            // Desativar SAP
+            if (this.erpConfig.sap) this.erpConfig.sap.enabled = false;
+        } else if (platform === 'sap') {
+            this.erpConfig.sap = {
+                enabled: document.getElementById('sapEnabled').checked,
+                url: document.getElementById('sapUrl').value,
+                username: document.getElementById('sapUsername').value,
+                password: document.getElementById('sapPassword').value,
+                client: document.getElementById('sapClient').value,
+            };
+            // Desativar TOTVS
+            if (this.erpConfig.totvs) this.erpConfig.totvs.enabled = false;
+        }
+
+        this.saveData();
+        this.renderIntegrationsStatus();
+        this.closeERPConfigModal();
+
+        if (typeof toast !== 'undefined' && toast) {
+            toast.success('Configuração de ERP salva com sucesso!', 3000);
+        }
+    }
+
+    /**
+     * Testa conexão de ERP
+     * Valida credenciais e tenta conectar ao sistema ERP
+     */
+    async testERPConnection() {
+        const platform =
+            document.getElementById('erpPlatform')?.value || 'totvs';
+        const config = this.erpConfig || {};
+
+        if (typeof toast !== 'undefined' && toast) {
+            toast.info(
+                `Testando conexão com ${platform.toUpperCase()}...`,
+                2000
+            );
+        }
+
+        try {
+            if (platform === 'totvs') {
+                const totvs = config.totvs || {};
+                if (!totvs.url || !totvs.username || !totvs.password) {
+                    throw new Error('URL, Usuário e Senha são obrigatórios');
+                }
+
+                // Validar formato da URL
+                if (!/^https?:\/\/.+/.test(totvs.url)) {
+                    throw new Error('URL inválida. Use http:// ou https://');
+                }
+
+                // Nota: Teste real de TOTVS requer backend com SDK específico
+                // Por enquanto, apenas validamos os campos e formato da URL
+                if (typeof toast !== 'undefined' && toast) {
+                    toast.success(
+                        'Credenciais TOTVS válidas! (Teste completo requer backend com SDK)',
+                        5000
+                    );
+                }
+                return {
+                    success: true,
+                    message:
+                        'Credenciais válidas (teste completo requer backend)',
+                };
+            } else if (platform === 'sap') {
+                const sap = config.sap || {};
+                if (!sap.url || !sap.username || !sap.password || !sap.client) {
+                    throw new Error(
+                        'URL, Usuário, Senha e Client são obrigatórios'
+                    );
+                }
+
+                // Validar formato da URL
+                if (!/^https?:\/\/.+/.test(sap.url)) {
+                    throw new Error('URL inválida. Use http:// ou https://');
+                }
+
+                // Validar formato do client (deve ser número)
+                if (!/^\d+$/.test(sap.client)) {
+                    throw new Error('Client deve ser um número (ex: 100, 200)');
+                }
+
+                // Nota: Teste real de SAP requer backend com SAP SDK
+                // Por enquanto, apenas validamos os campos
+                if (typeof toast !== 'undefined' && toast) {
+                    toast.success(
+                        'Credenciais SAP válidas! (Teste completo requer backend com SAP SDK)',
+                        5000
+                    );
+                }
+                return {
+                    success: true,
+                    message:
+                        'Credenciais válidas (teste completo requer backend)',
+                };
+            }
+        } catch (error) {
+            console.error('Erro ao testar conexão de ERP:', error);
+            if (typeof toast !== 'undefined' && toast) {
+                toast.error(`Erro: ${error.message}`, 5000);
+            }
+            return { success: false, message: error.message };
+        }
+    }
+
+    // ========== FUNÇÕES AUXILIARES DE INTEGRAÇÃO ==========
+
+    /**
+     * Envia email usando a integração configurada
+     * @param {string} to - Email do destinatário
+     * @param {string} subject - Assunto do email
+     * @param {string} html - Conteúdo HTML do email
+     * @param {string} text - Conteúdo texto do email (opcional)
+     * @returns {Promise<{success: boolean, message: string}>}
+     */
+    async sendEmail(to, subject, html, text = '') {
+        if (!this.emailConfig?.enabled) {
+            throw new Error('Integração de email não está habilitada');
+        }
+
+        const provider = this.emailConfig.provider || 'smtp';
+        const config = this.emailConfig;
+
+        try {
+            if (provider === 'sendgrid') {
+                const apiKey = config.sendgrid?.apiKey;
+                if (!apiKey) {
+                    throw new Error('API Key do SendGrid não configurada');
+                }
+
+                const response = await fetch(
+                    'https://api.sendgrid.com/v3/mail/send',
+                    {
+                        method: 'POST',
+                        headers: {
+                            Authorization: `Bearer ${apiKey}`,
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            personalizations: [{ to: [{ email: to }] }],
+                            from: {
+                                email:
+                                    config.fromEmail || 'noreply@example.com',
+                            },
+                            subject: subject,
+                            content: [
+                                {
+                                    type: 'text/plain',
+                                    value: text || html.replace(/<[^>]*>/g, ''),
+                                },
+                                { type: 'text/html', value: html },
+                            ],
+                        }),
+                    }
+                );
+
+                if (response.ok) {
+                    return {
+                        success: true,
+                        message: 'Email enviado com sucesso',
+                    };
+                } else {
+                    const error = await response.json();
+                    throw new Error(
+                        `SendGrid: ${
+                            error.errors?.[0]?.message || 'Erro ao enviar email'
+                        }`
+                    );
+                }
+            } else if (provider === 'mailgun') {
+                const mailgun = config.mailgun || {};
+                if (!mailgun.apiKey || !mailgun.domain) {
+                    throw new Error(
+                        'API Key e Domain do Mailgun não configurados'
+                    );
+                }
+
+                const formData = new FormData();
+                formData.append(
+                    'from',
+                    config.fromEmail || `noreply@${mailgun.domain}`
+                );
+                formData.append('to', to);
+                formData.append('subject', subject);
+                formData.append('html', html);
+                if (text) formData.append('text', text);
+
+                const auth = btoa(`api:${mailgun.apiKey}`);
+                const response = await fetch(
+                    `https://api.mailgun.net/v3/${mailgun.domain}/messages`,
+                    {
+                        method: 'POST',
+                        headers: {
+                            Authorization: `Basic ${auth}`,
+                        },
+                        body: formData,
+                    }
+                );
+
+                if (response.ok) {
+                    return {
+                        success: true,
+                        message: 'Email enviado com sucesso',
+                    };
+                } else {
+                    const error = await response.json();
+                    throw new Error(
+                        `Mailgun: ${error.message || 'Erro ao enviar email'}`
+                    );
+                }
+            } else {
+                // SMTP e SES requerem backend
+                throw new Error(
+                    `Envio de email via ${provider} requer backend. Use SendGrid ou Mailgun para envio direto.`
+                );
+            }
+        } catch (error) {
+            console.error('Erro ao enviar email:', error);
+            throw error;
+        }
+    }
+
+    /**
+     * Envia SMS usando a integração configurada
+     * @param {string} to - Número do destinatário (formato: +5511999999999)
+     * @param {string} message - Mensagem a ser enviada
+     * @returns {Promise<{success: boolean, message: string, sid?: string}>}
+     */
+    async sendSMS(to, message) {
+        if (!this.smsConfig?.enabled) {
+            throw new Error('Integração de SMS não está habilitada');
+        }
+
+        const provider = this.smsConfig.provider || 'twilio';
+        const config = this.smsConfig;
+
+        try {
+            if (provider === 'twilio') {
+                const twilio = config.twilio || {};
+                if (
+                    !twilio.accountSid ||
+                    !twilio.authToken ||
+                    !twilio.fromNumber
+                ) {
+                    throw new Error(
+                        'Credenciais do Twilio não configuradas completamente'
+                    );
+                }
+
+                const auth = btoa(`${twilio.accountSid}:${twilio.authToken}`);
+                const formData = new URLSearchParams();
+                formData.append('From', twilio.fromNumber);
+                formData.append('To', to);
+                formData.append('Body', message);
+
+                const response = await fetch(
+                    `https://api.twilio.com/2010-04-01/Accounts/${twilio.accountSid}/Messages.json`,
+                    {
+                        method: 'POST',
+                        headers: {
+                            Authorization: `Basic ${auth}`,
+                            'Content-Type': 'application/x-www-form-urlencoded',
+                        },
+                        body: formData,
+                    }
+                );
+
+                if (response.ok) {
+                    const data = await response.json();
+                    return {
+                        success: true,
+                        message: 'SMS enviado com sucesso',
+                        sid: data.sid,
+                    };
+                } else {
+                    const error = await response.json();
+                    throw new Error(
+                        `Twilio: ${error.message || 'Erro ao enviar SMS'}`
+                    );
+                }
+            } else if (provider === 'zenvia') {
+                const zenvia = config.zenvia || {};
+                if (!zenvia.apiKey || !zenvia.fromNumber) {
+                    throw new Error(
+                        'API Key e número remetente da Zenvia não configurados'
+                    );
+                }
+
+                const response = await fetch(
+                    'https://api.zenvia.com/v2/channels/sms/messages',
+                    {
+                        method: 'POST',
+                        headers: {
+                            'X-API-TOKEN': zenvia.apiKey,
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            from: zenvia.fromNumber,
+                            to: to,
+                            contents: [{ type: 'text', text: message }],
+                        }),
+                    }
+                );
+
+                if (response.ok) {
+                    const data = await response.json();
+                    return {
+                        success: true,
+                        message: 'SMS enviado com sucesso',
+                        id: data.id,
+                    };
+                } else {
+                    throw new Error('Zenvia: Erro ao enviar SMS');
+                }
+            } else if (provider === 'totalvoice') {
+                const totalvoice = config.totalvoice || {};
+                if (!totalvoice.accessToken || !totalvoice.fromNumber) {
+                    throw new Error(
+                        'Access Token e número remetente do TotalVoice não configurados'
+                    );
+                }
+
+                const response = await fetch(
+                    'https://api.totalvoice.com.br/sms',
+                    {
+                        method: 'POST',
+                        headers: {
+                            'Access-Token': totalvoice.accessToken,
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            numero_destino: to,
+                            mensagem: message,
+                            resposta_usuario: false,
+                        }),
+                    }
+                );
+
+                if (response.ok) {
+                    const data = await response.json();
+                    return {
+                        success: true,
+                        message: 'SMS enviado com sucesso',
+                        id: data.dados?.id,
+                    };
+                } else {
+                    const error = await response.json();
+                    throw new Error(
+                        `TotalVoice: ${error.mensagem || 'Erro ao enviar SMS'}`
+                    );
+                }
+            }
+        } catch (error) {
+            console.error('Erro ao enviar SMS:', error);
+            throw error;
+        }
+    }
+
+    /**
+     * Envia mensagem WhatsApp usando a integração configurada
+     * @param {string} to - Número do destinatário (formato: 5511999999999)
+     * @param {string} message - Mensagem a ser enviada
+     * @returns {Promise<{success: boolean, message: string, id?: string}>}
+     */
+    async sendWhatsApp(to, message) {
+        if (!this.whatsappConfig?.enabled) {
+            throw new Error('Integração de WhatsApp não está habilitada');
+        }
+
+        const config = this.whatsappConfig;
+
+        try {
+            if (!config.apiKey || !config.phoneNumberId) {
+                throw new Error('API Key e Phone Number ID não configurados');
+            }
+
+            // Formatar número (remover + e espaços)
+            const formattedTo = to.replace(/[+\s]/g, '');
+
+            const response = await fetch(
+                `https://graph.facebook.com/v18.0/${config.phoneNumberId}/messages`,
+                {
+                    method: 'POST',
+                    headers: {
+                        Authorization: `Bearer ${config.apiKey}`,
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        messaging_product: 'whatsapp',
+                        to: formattedTo,
+                        type: 'text',
+                        text: { body: message },
+                    }),
+                }
+            );
+
+            if (response.ok) {
+                const data = await response.json();
+                return {
+                    success: true,
+                    message: 'WhatsApp enviado com sucesso',
+                    id: data.messages?.[0]?.id,
+                };
+            } else {
+                const error = await response.json();
+                throw new Error(
+                    `WhatsApp: ${
+                        error.error?.message || 'Erro ao enviar mensagem'
+                    }`
+                );
+            }
+        } catch (error) {
+            console.error('Erro ao enviar WhatsApp:', error);
+            throw error;
+        }
+    }
+
+    // ========== SISTEMA DE MONITORAMENTO DE PERFORMANCE ==========
+
+    /**
+     * Inicializa o sistema de monitoramento de performance
+     */
+    initPerformanceMonitoring() {
+        this.performanceMetrics = {
+            pageLoadTime: 0,
+            domContentLoaded: 0,
+            firstPaint: 0,
+            firstContentfulPaint: 0,
+            timeToInteractive: 0,
+            memoryUsage: null,
+            renderTimes: [],
+            apiCallTimes: [],
+            cacheHitRate: { hits: 0, misses: 0 },
+            functionCallTimes: {},
+        };
+
+        // Monitorar carregamento da página
+        if (window.performance && window.performance.timing) {
+            const timing = window.performance.timing;
+            this.performanceMetrics.pageLoadTime =
+                timing.loadEventEnd - timing.navigationStart;
+            this.performanceMetrics.domContentLoaded =
+                timing.domContentLoadedEventEnd - timing.navigationStart;
+        }
+
+        // Monitorar Performance Paint Timing
+        if (window.performance && window.performance.getEntriesByType) {
+            const paintEntries = window.performance.getEntriesByType('paint');
+            paintEntries.forEach((entry) => {
+                if (entry.name === 'first-paint') {
+                    this.performanceMetrics.firstPaint = entry.startTime;
+                } else if (entry.name === 'first-contentful-paint') {
+                    this.performanceMetrics.firstContentfulPaint =
+                        entry.startTime;
+                }
+            });
+        }
+
+        // Monitorar uso de memória (se disponível)
+        if (performance.memory) {
+            this.updateMemoryUsage();
+            setInterval(() => this.updateMemoryUsage(), 30000); // Atualizar a cada 30s
+        }
+
+        // Monitorar chamadas de API
+        this.interceptFetch();
+
+        // Monitorar renderizações
+        this.monitorRendering();
+
+        console.log('✅ [PERFORMANCE] Sistema de monitoramento inicializado');
+    }
+
+    /**
+     * Atualiza métricas de uso de memória
+     */
+    updateMemoryUsage() {
+        if (performance.memory) {
+            this.performanceMetrics.memoryUsage = {
+                used: (performance.memory.usedJSHeapSize / 1048576).toFixed(2), // MB
+                total: (performance.memory.totalJSHeapSize / 1048576).toFixed(
+                    2
+                ), // MB
+                limit: (performance.memory.jsHeapSizeLimit / 1048576).toFixed(
+                    2
+                ), // MB
+                timestamp: Date.now(),
+            };
+        }
+    }
+
+    /**
+     * Intercepta chamadas fetch para medir tempo de resposta
+     */
+    interceptFetch() {
+        const originalFetch = window.fetch;
+        const self = this;
+
+        window.fetch = async function (...args) {
+            const startTime = performance.now();
+            const url = args[0];
+
+            try {
+                const response = await originalFetch.apply(this, args);
+                const endTime = performance.now();
+                const duration = endTime - startTime;
+
+                self.performanceMetrics.apiCallTimes.push({
+                    url: typeof url === 'string' ? url : url.url || 'unknown',
+                    duration,
+                    timestamp: Date.now(),
+                    status: response.status,
+                });
+
+                // Manter apenas últimas 100 chamadas
+                if (self.performanceMetrics.apiCallTimes.length > 100) {
+                    self.performanceMetrics.apiCallTimes.shift();
+                }
+
+                return response;
+            } catch (error) {
+                const endTime = performance.now();
+                const duration = endTime - startTime;
+
+                self.performanceMetrics.apiCallTimes.push({
+                    url: typeof url === 'string' ? url : url.url || 'unknown',
+                    duration,
+                    timestamp: Date.now(),
+                    status: 'error',
+                    error: error.message,
+                });
+
+                throw error;
+            }
+        };
+    }
+
+    /**
+     * Monitora tempo de renderização de funções
+     */
+    monitorRendering() {
+        const self = this;
+        const originalRender = this.renderItems;
+
+        this.renderItems = function (...args) {
+            const startTime = performance.now();
+            const result = originalRender.apply(self, args);
+            const endTime = performance.now();
+            const duration = endTime - startTime;
+
+            self.performanceMetrics.renderTimes.push({
+                function: 'renderItems',
+                duration,
+                timestamp: Date.now(),
+            });
+
+            // Manter apenas últimas 50 renderizações
+            if (self.performanceMetrics.renderTimes.length > 50) {
+                self.performanceMetrics.renderTimes.shift();
+            }
+
+            return result;
+        };
+    }
+
+    /**
+     * Mede tempo de execução de uma função
+     * @param {string} functionName - Nome da função
+     * @param {Function} fn - Função a ser medida
+     * @returns {Function} - Função wrapper com medição
+     */
+    measureFunction(functionName, fn) {
+        const self = this;
+        return function (...args) {
+            const startTime = performance.now();
+            const result = fn.apply(this, args);
+            const endTime = performance.now();
+            const duration = endTime - startTime;
+
+            if (!self.performanceMetrics.functionCallTimes[functionName]) {
+                self.performanceMetrics.functionCallTimes[functionName] = [];
+            }
+
+            self.performanceMetrics.functionCallTimes[functionName].push({
+                duration,
+                timestamp: Date.now(),
+            });
+
+            // Manter apenas últimas 20 chamadas por função
+            if (
+                self.performanceMetrics.functionCallTimes[functionName].length >
+                20
+            ) {
+                self.performanceMetrics.functionCallTimes[functionName].shift();
+            }
+
+            return result;
+        };
+    }
+
+    /**
+     * Registra hit de cache
+     * @param {string} cacheType - Tipo de cache ('hit' ou 'miss')
+     */
+    recordCacheAccess(cacheType) {
+        if (cacheType === 'hit') {
+            this.performanceMetrics.cacheHitRate.hits++;
+        } else {
+            this.performanceMetrics.cacheHitRate.misses++;
+        }
+    }
+
+    /**
+     * Calcula taxa de acerto do cache
+     * @returns {number} - Taxa de acerto (0-1)
+     */
+    getCacheHitRate() {
+        const { hits, misses } = this.performanceMetrics.cacheHitRate;
+        const total = hits + misses;
+        return total > 0 ? hits / total : 0;
+    }
+
+    /**
+     * Obtém relatório de performance
+     * @returns {Object} - Relatório completo de performance
+     */
+    getPerformanceReport() {
+        const report = {
+            pageLoad: {
+                pageLoadTime: this.performanceMetrics.pageLoadTime,
+                domContentLoaded: this.performanceMetrics.domContentLoaded,
+                firstPaint: this.performanceMetrics.firstPaint,
+                firstContentfulPaint:
+                    this.performanceMetrics.firstContentfulPaint,
+            },
+            memory: this.performanceMetrics.memoryUsage,
+            rendering: {
+                averageRenderTime: this.calculateAverage(
+                    this.performanceMetrics.renderTimes,
+                    'duration'
+                ),
+                totalRenders: this.performanceMetrics.renderTimes.length,
+                slowRenders: this.performanceMetrics.renderTimes.filter(
+                    (r) => r.duration > 100
+                ).length,
+            },
+            api: {
+                averageResponseTime: this.calculateAverage(
+                    this.performanceMetrics.apiCallTimes,
+                    'duration'
+                ),
+                totalCalls: this.performanceMetrics.apiCallTimes.length,
+                slowCalls: this.performanceMetrics.apiCallTimes.filter(
+                    (c) => c.duration > 1000
+                ).length,
+                errorRate: this.calculateErrorRate(
+                    this.performanceMetrics.apiCallTimes
+                ),
+            },
+            cache: {
+                hitRate: this.getCacheHitRate(),
+                hits: this.performanceMetrics.cacheHitRate.hits,
+                misses: this.performanceMetrics.cacheHitRate.misses,
+            },
+            functions: this.calculateFunctionStats(),
+            timestamp: Date.now(),
+        };
+
+        return report;
+    }
+
+    /**
+     * Calcula média de uma propriedade em um array
+     * @param {Array} array - Array de objetos
+     * @param {string} property - Propriedade a ser calculada
+     * @returns {number} - Média
+     */
+    calculateAverage(array, property) {
+        if (!array || array.length === 0) return 0;
+        const sum = array.reduce((acc, item) => acc + (item[property] || 0), 0);
+        return sum / array.length;
+    }
+
+    /**
+     * Calcula taxa de erro em chamadas de API
+     * @param {Array} apiCalls - Array de chamadas de API
+     * @returns {number} - Taxa de erro (0-1)
+     */
+    calculateErrorRate(apiCalls) {
+        if (!apiCalls || apiCalls.length === 0) return 0;
+        const errors = apiCalls.filter(
+            (c) => c.status === 'error' || c.status >= 400
+        ).length;
+        return errors / apiCalls.length;
+    }
+
+    /**
+     * Calcula estatísticas de funções
+     * @returns {Object} - Estatísticas por função
+     */
+    calculateFunctionStats() {
+        const stats = {};
+        Object.keys(this.performanceMetrics.functionCallTimes).forEach(
+            (functionName) => {
+                const calls =
+                    this.performanceMetrics.functionCallTimes[functionName];
+                stats[functionName] = {
+                    averageTime: this.calculateAverage(calls, 'duration'),
+                    totalCalls: calls.length,
+                    maxTime: Math.max(...calls.map((c) => c.duration)),
+                    minTime: Math.min(...calls.map((c) => c.duration)),
+                };
+            }
+        );
+        return stats;
+    }
+
+    /**
+     * Renderiza painel de performance
+     */
+    renderPerformancePanel() {
+        const report = this.getPerformanceReport();
+        const panel = document.getElementById('performancePanel');
+        if (!panel) return;
+
+        const html = `
+            <div class="performance-panel">
+                <h2><i class="fas fa-tachometer-alt"></i> Monitoramento de Performance</h2>
+                
+                <div class="performance-section">
+                    <h3>Carregamento da Página</h3>
+                    <div class="metric">
+                        <span class="metric-label">Tempo Total:</span>
+                        <span class="metric-value">${
+                            report.pageLoad.pageLoadTime
+                        }ms</span>
+                    </div>
+                    <div class="metric">
+                        <span class="metric-label">DOM Content Loaded:</span>
+                        <span class="metric-value">${
+                            report.pageLoad.domContentLoaded
+                        }ms</span>
+                    </div>
+                    <div class="metric">
+                        <span class="metric-label">First Paint:</span>
+                        <span class="metric-value">${report.pageLoad.firstPaint.toFixed(
+                            2
+                        )}ms</span>
+                    </div>
+                    <div class="metric">
+                        <span class="metric-label">First Contentful Paint:</span>
+                        <span class="metric-value">${report.pageLoad.firstContentfulPaint.toFixed(
+                            2
+                        )}ms</span>
+                    </div>
+                </div>
+
+                ${
+                    report.memory
+                        ? `
+                <div class="performance-section">
+                    <h3>Uso de Memória</h3>
+                    <div class="metric">
+                        <span class="metric-label">Usado:</span>
+                        <span class="metric-value">${
+                            report.memory.used
+                        } MB</span>
+                    </div>
+                    <div class="metric">
+                        <span class="metric-label">Total:</span>
+                        <span class="metric-value">${
+                            report.memory.total
+                        } MB</span>
+                    </div>
+                    <div class="metric">
+                        <span class="metric-label">Limite:</span>
+                        <span class="metric-value">${
+                            report.memory.limit
+                        } MB</span>
+                    </div>
+                    <div class="progress-bar" style="margin-top: 0.5rem;">
+                        <div class="progress-fill" style="width: ${(
+                            (report.memory.used / report.memory.limit) *
+                            100
+                        ).toFixed(1)}%"></div>
+                    </div>
+                </div>
+                `
+                        : ''
+                }
+
+                <div class="performance-section">
+                    <h3>Renderização</h3>
+                    <div class="metric">
+                        <span class="metric-label">Tempo Médio:</span>
+                        <span class="metric-value">${report.rendering.averageRenderTime.toFixed(
+                            2
+                        )}ms</span>
+                    </div>
+                    <div class="metric">
+                        <span class="metric-label">Total de Renderizações:</span>
+                        <span class="metric-value">${
+                            report.rendering.totalRenders
+                        }</span>
+                    </div>
+                    <div class="metric">
+                        <span class="metric-label">Renderizações Lentas (&gt;100ms):</span>
+                        <span class="metric-value ${
+                            report.rendering.slowRenders > 0 ? 'warning' : ''
+                        }">${report.rendering.slowRenders}</span>
+                    </div>
+                </div>
+
+                <div class="performance-section">
+                    <h3>Chamadas de API</h3>
+                    <div class="metric">
+                        <span class="metric-label">Tempo Médio de Resposta:</span>
+                        <span class="metric-value">${report.api.averageResponseTime.toFixed(
+                            2
+                        )}ms</span>
+                    </div>
+                    <div class="metric">
+                        <span class="metric-label">Total de Chamadas:</span>
+                        <span class="metric-value">${
+                            report.api.totalCalls
+                        }</span>
+                    </div>
+                    <div class="metric">
+                        <span class="metric-label">Chamadas Lentas (&gt;1s):</span>
+                        <span class="metric-value ${
+                            report.api.slowCalls > 0 ? 'warning' : ''
+                        }">${report.api.slowCalls}</span>
+                    </div>
+                    <div class="metric">
+                        <span class="metric-label">Taxa de Erro:</span>
+                        <span class="metric-value ${
+                            report.api.errorRate > 0.1 ? 'error' : ''
+                        }">${(report.api.errorRate * 100).toFixed(2)}%</span>
+                    </div>
+                </div>
+
+                <div class="performance-section">
+                    <h3>Cache</h3>
+                    <div class="metric">
+                        <span class="metric-label">Taxa de Acerto:</span>
+                        <span class="metric-value">${(
+                            report.cache.hitRate * 100
+                        ).toFixed(2)}%</span>
+                    </div>
+                    <div class="metric">
+                        <span class="metric-label">Hits:</span>
+                        <span class="metric-value">${report.cache.hits}</span>
+                    </div>
+                    <div class="metric">
+                        <span class="metric-label">Misses:</span>
+                        <span class="metric-value">${report.cache.misses}</span>
+                    </div>
+                </div>
+
+                <div class="performance-actions" style="margin-top: 1.5rem; display: flex; gap: 0.5rem;">
+                    <button class="btn-primary" onclick="app.exportPerformanceReport()">
+                        <i class="fas fa-download"></i> Exportar Relatório
+                    </button>
+                    <button class="btn-secondary" onclick="app.resetPerformanceMetrics()">
+                        <i class="fas fa-redo"></i> Resetar Métricas
+                    </button>
+                </div>
+            </div>
+        `;
+
+        panel.innerHTML = html;
+    }
+
+    /**
+     * Exporta relatório de performance
+     */
+    exportPerformanceReport() {
+        const report = this.getPerformanceReport();
+        const dataStr = JSON.stringify(report, null, 2);
+        const dataBlob = new Blob([dataStr], { type: 'application/json' });
+        const url = URL.createObjectURL(dataBlob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = `performance-report-${Date.now()}.json`;
+        link.click();
+        URL.revokeObjectURL(url);
+
+        if (typeof toast !== 'undefined' && toast) {
+            toast.success('Relatório de performance exportado!', 3000);
+        }
+    }
+
+    /**
+     * Reseta métricas de performance
+     */
+    resetPerformanceMetrics() {
+        this.performanceMetrics = {
+            pageLoadTime: this.performanceMetrics.pageLoadTime, // Manter métricas de carregamento
+            domContentLoaded: this.performanceMetrics.domContentLoaded,
+            firstPaint: this.performanceMetrics.firstPaint,
+            firstContentfulPaint: this.performanceMetrics.firstContentfulPaint,
+            timeToInteractive: 0,
+            memoryUsage: this.performanceMetrics.memoryUsage, // Manter uso atual de memória
+            renderTimes: [],
+            apiCallTimes: [],
+            cacheHitRate: { hits: 0, misses: 0 },
+            functionCallTimes: {},
+        };
+
+        if (typeof toast !== 'undefined' && toast) {
+            toast.success('Métricas de performance resetadas!', 3000);
+        }
+
+        this.renderPerformancePanel();
+    }
+
+    // ========== OTIMIZAÇÕES ADICIONAIS ==========
+
+    /**
+     * Memoização de funções custosas
+     * @param {Function} fn - Função a ser memoizada
+     * @param {Function} keyGenerator - Função para gerar chave de cache
+     * @returns {Function} - Função memoizada
+     */
+    memoize(fn, keyGenerator = (...args) => JSON.stringify(args)) {
+        const cache = new Map();
+        return function (...args) {
+            const key = keyGenerator(...args);
+            if (cache.has(key)) {
+                this.recordCacheAccess('hit');
+                return cache.get(key);
+            }
+            this.recordCacheAccess('miss');
+            const result = fn.apply(this, args);
+            cache.set(key, result);
+            return result;
+        };
+    }
+
+    /**
+     * Virtual scrolling para listas grandes
+     * @param {Array} items - Array de itens
+     * @param {number} containerHeight - Altura do container
+     * @param {number} itemHeight - Altura de cada item
+     * @param {number} scrollTop - Posição do scroll
+     * @returns {Object} - { startIndex, endIndex, visibleItems }
+     */
+    calculateVirtualScroll(items, containerHeight, itemHeight, scrollTop) {
+        const startIndex = Math.floor(scrollTop / itemHeight);
+        const endIndex = Math.min(
+            startIndex + Math.ceil(containerHeight / itemHeight) + 1,
+            items.length
+        );
+        const visibleItems = items.slice(startIndex, endIndex);
+
+        return {
+            startIndex,
+            endIndex,
+            visibleItems,
+            totalHeight: items.length * itemHeight,
+            offsetY: startIndex * itemHeight,
+        };
+    }
+
+    /**
+     * Debounce melhorado com cancelamento
+     * @param {Function} fn - Função a ser executada
+     * @param {number} delay - Delay em ms
+     * @returns {Function} - Função com debounce
+     */
+    debounce(fn, delay = 300) {
+        let timeoutId;
+        const debounced = function (...args) {
+            clearTimeout(timeoutId);
+            timeoutId = setTimeout(() => fn.apply(this, args), delay);
+        };
+        debounced.cancel = () => clearTimeout(timeoutId);
+        return debounced;
+    }
+
+    /**
+     * Throttle melhorado
+     * @param {Function} fn - Função a ser executada
+     * @param {number} limit - Limite em ms
+     * @returns {Function} - Função com throttle
+     */
+    throttle(fn, limit = 100) {
+        let inThrottle;
+        return function (...args) {
+            if (!inThrottle) {
+                fn.apply(this, args);
+                inThrottle = true;
+                setTimeout(() => (inThrottle = false), limit);
+            }
+        };
+    }
+
+    // ========== SISTEMA DE TEMPLATES DE MENSAGENS ==========
+
+    /**
+     * Processa template de mensagem substituindo variáveis
+     * @param {string} template - Template com variáveis (ex: "Olá {{nome}}, seu pedido {{pedido}} foi enviado")
+     * @param {Object} variables - Objeto com valores das variáveis (ex: { nome: "João", pedido: "#123" })
+     * @returns {string} - Template processado
+     */
+    processMessageTemplate(template, variables = {}) {
+        if (!template || typeof template !== 'string') {
+            return template || '';
+        }
+
+        let processed = template;
+
+        // Substituir variáveis no formato {{variavel}}
+        Object.keys(variables).forEach((key) => {
+            const regex = new RegExp(`\\{\\{${key}\\}\\}`, 'g');
+            processed = processed.replace(regex, variables[key] || '');
+        });
+
+        // Variáveis padrão do sistema
+        const defaultVars = {
+            data: new Date().toLocaleDateString('pt-BR'),
+            hora: new Date().toLocaleTimeString('pt-BR'),
+            dataHora: new Date().toLocaleString('pt-BR'),
+            ano: new Date().getFullYear(),
+            mes: new Date().toLocaleDateString('pt-BR', { month: 'long' }),
+        };
+
+        Object.keys(defaultVars).forEach((key) => {
+            const regex = new RegExp(`\\{\\{${key}\\}\\}`, 'g');
+            processed = processed.replace(regex, defaultVars[key]);
+        });
+
+        return processed;
+    }
+
+    /**
+     * Cria novo template de mensagem
+     * @param {Object} templateData - Dados do template
+     * @returns {Object} - Template criado
+     */
+    createMessageTemplate(templateData) {
+        const template = {
+            id: Date.now().toString(),
+            name: templateData.name || 'Template sem nome',
+            type: templateData.type || 'email', // 'email', 'sms', 'whatsapp'
+            subject: templateData.subject || '',
+            content: templateData.content || '',
+            variables: templateData.variables || [],
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString(),
+        };
+
+        this.messageTemplates.push(template);
+        this.saveData();
+        this.logAction('create', 'messageTemplate', template.id, template.name);
+
+        if (typeof toast !== 'undefined' && toast) {
+            toast.success('Template criado com sucesso!', 3000);
+        }
+
+        return template;
+    }
+
+    /**
+     * Atualiza template de mensagem
+     * @param {string} templateId - ID do template
+     * @param {Object} updates - Dados para atualizar
+     * @returns {Object} - Template atualizado
+     */
+    updateMessageTemplate(templateId, updates) {
+        const template = this.messageTemplates.find((t) => t.id === templateId);
+        if (!template) {
+            throw new Error('Template não encontrado');
+        }
+
+        Object.keys(updates).forEach((key) => {
+            if (key !== 'id' && key !== 'createdAt') {
+                template[key] = updates[key];
+            }
+        });
+
+        template.updatedAt = new Date().toISOString();
+        this.saveData();
+        this.logAction('update', 'messageTemplate', template.id, template.name);
+
+        if (typeof toast !== 'undefined' && toast) {
+            toast.success('Template atualizado com sucesso!', 3000);
+        }
+
+        return template;
+    }
+
+    /**
+     * Deleta template de mensagem (função interna)
+     * @param {string} templateId - ID do template
+     */
+    deleteMessageTemplate(templateId) {
+        const index = this.messageTemplates.findIndex(
+            (t) => t.id === templateId
+        );
+        if (index === -1) {
+            throw new Error('Template não encontrado');
+        }
+
+        const template = this.messageTemplates[index];
+        this.messageTemplates.splice(index, 1);
+        this.saveData();
+        this.logAction('delete', 'messageTemplate', templateId, template.name);
+
+        if (typeof toast !== 'undefined' && toast) {
+            toast.success('Template deletado com sucesso!', 3000);
+        }
+    }
+
+    /**
+     * Deleta template de mensagem (com confirmação)
+     * @param {string} templateId - ID do template
+     */
+    async deleteMessageTemplateWithConfirm(templateId) {
+        const template = this.getMessageTemplate(templateId);
+        if (!template) {
+            if (typeof toast !== 'undefined' && toast) {
+                toast.error('Template não encontrado', 3000);
+            }
+            return;
+        }
+
+        const confirmed = await ConfirmSystem.confirm({
+            title: 'Confirmar Exclusão',
+            message: `Tem certeza que deseja excluir o template "${template.name}"?`,
+            type: 'danger',
+        });
+
+        if (confirmed) {
+            try {
+                this.deleteMessageTemplate(templateId);
+                this.renderMessageTemplates();
+            } catch (error) {
+                console.error('Erro ao deletar template:', error);
+                if (typeof toast !== 'undefined' && toast) {
+                    toast.error(`Erro: ${error.message}`, 5000);
+                }
+            }
+        }
+    }
+
+    /**
+     * Obtém template de mensagem por ID
+     * @param {string} templateId - ID do template
+     * @returns {Object|null} - Template ou null
+     */
+    getMessageTemplate(templateId) {
+        return this.messageTemplates.find((t) => t.id === templateId) || null;
+    }
+
+    /**
+     * Obtém templates por tipo
+     * @param {string} type - Tipo do template ('email', 'sms', 'whatsapp')
+     * @returns {Array} - Array de templates
+     */
+    getMessageTemplatesByType(type) {
+        return this.messageTemplates.filter((t) => t.type === type);
+    }
+
+    /**
+     * Envia mensagem usando template
+     * @param {string} templateId - ID do template
+     * @param {string} to - Destinatário
+     * @param {Object} variables - Variáveis para substituir no template
+     * @returns {Promise<Object>} - Resultado do envio
+     */
+    async sendMessageWithTemplate(templateId, to, variables = {}) {
+        const template = this.getMessageTemplate(templateId);
+        if (!template) {
+            throw new Error('Template não encontrado');
+        }
+
+        // Processar template
+        const processedSubject = this.processMessageTemplate(
+            template.subject,
+            variables
+        );
+        const processedContent = this.processMessageTemplate(
+            template.content,
+            variables
+        );
+
+        let result;
+
+        try {
+            if (template.type === 'email') {
+                result = await this.sendEmail(
+                    to,
+                    processedSubject,
+                    processedContent
+                );
+            } else if (template.type === 'sms') {
+                result = await this.sendSMS(to, processedContent);
+            } else if (template.type === 'whatsapp') {
+                result = await this.sendWhatsApp(to, processedContent);
+            } else {
+                throw new Error(`Tipo de template inválido: ${template.type}`);
+            }
+
+            // Registrar no histórico
+            this.messageHistory.push({
+                id: Date.now().toString(),
+                type: template.type,
+                to,
+                subject: processedSubject,
+                content: processedContent,
+                templateId: template.id,
+                templateName: template.name,
+                status: 'success',
+                sentAt: new Date().toISOString(),
+                variables,
+            });
+
+            // Manter apenas últimos 1000 envios
+            if (this.messageHistory.length > 1000) {
+                this.messageHistory.shift();
+            }
+
+            this.saveData();
+
+            return result;
+        } catch (error) {
+            // Registrar erro no histórico
+            this.messageHistory.push({
+                id: Date.now().toString(),
+                type: template.type,
+                to,
+                subject: processedSubject,
+                content: processedContent,
+                templateId: template.id,
+                templateName: template.name,
+                status: 'error',
+                sentAt: new Date().toISOString(),
+                error: error.message,
+                variables,
+            });
+
+            this.saveData();
+            throw error;
+        }
+    }
+
+    /**
+     * Agenda envio de mensagem
+     * @param {string} templateId - ID do template
+     * @param {string} to - Destinatário
+     * @param {Date|string} scheduledAt - Data/hora para envio
+     * @param {Object} variables - Variáveis para substituir no template
+     * @returns {Object} - Mensagem agendada
+     */
+    scheduleMessage(templateId, to, scheduledAt, variables = {}) {
+        const template = this.getMessageTemplate(templateId);
+        if (!template) {
+            throw new Error('Template não encontrado');
+        }
+
+        const scheduled = {
+            id: Date.now().toString(),
+            templateId,
+            templateName: template.name,
+            type: template.type,
+            to,
+            variables,
+            scheduledAt:
+                scheduledAt instanceof Date
+                    ? scheduledAt.toISOString()
+                    : scheduledAt,
+            sent: false,
+            createdAt: new Date().toISOString(),
+        };
+
+        this.scheduledMessages.push(scheduled);
+        this.saveData();
+        this.logAction(
+            'create',
+            'scheduledMessage',
+            scheduled.id,
+            `Agendado para ${scheduledAt}`
+        );
+
+        // Iniciar verificação de agendamentos se ainda não estiver rodando
+        this.initScheduledMessagesChecker();
+
+        if (typeof toast !== 'undefined' && toast) {
+            toast.success('Mensagem agendada com sucesso!', 3000);
+        }
+
+        return scheduled;
+    }
+
+    /**
+     * Inicia verificação de mensagens agendadas
+     */
+    initScheduledMessagesChecker() {
+        if (this.scheduledMessagesInterval) {
+            return; // Já está rodando
+        }
+
+        this.scheduledMessagesInterval = setInterval(() => {
+            this.checkScheduledMessages();
+        }, 60000); // Verificar a cada minuto
+
+        console.log(
+            '✅ [MESSAGES] Verificador de mensagens agendadas iniciado'
+        );
+    }
+
+    /**
+     * Verifica e envia mensagens agendadas
+     */
+    async checkScheduledMessages() {
+        const now = new Date();
+        const messagesToSend = this.scheduledMessages.filter((msg) => {
+            if (msg.sent) return false;
+            const scheduledDate = new Date(msg.scheduledAt);
+            return scheduledDate <= now;
+        });
+
+        for (const msg of messagesToSend) {
+            try {
+                await this.sendMessageWithTemplate(
+                    msg.templateId,
+                    msg.to,
+                    msg.variables
+                );
+                msg.sent = true;
+                msg.sentAt = new Date().toISOString();
+
+                if (typeof toast !== 'undefined' && toast) {
+                    toast.success(
+                        `Mensagem agendada enviada para ${msg.to}`,
+                        3000
+                    );
+                }
+            } catch (error) {
+                msg.error = error.message;
+                console.error(
+                    '❌ [MESSAGES] Erro ao enviar mensagem agendada:',
+                    error
+                );
+
+                if (typeof toast !== 'undefined' && toast) {
+                    toast.error(
+                        `Erro ao enviar mensagem agendada: ${error.message}`,
+                        5000
+                    );
+                }
+            }
+        }
+
+        if (messagesToSend.length > 0) {
+            this.saveData();
+        }
+    }
+
+    /**
+     * Renderiza lista de templates de mensagens
+     */
+    renderMessageTemplates() {
+        const container = document.getElementById('messageTemplatesList');
+        if (!container) return;
+
+        if (this.messageTemplates.length === 0) {
+            container.innerHTML = `
+                <div class="empty-state">
+                    <i class="fas fa-envelope-open-text" style="font-size: 3rem; color: var(--gray-400); margin-bottom: 1rem;"></i>
+                    <p style="color: var(--gray-600);">Nenhum template de mensagem criado ainda.</p>
+                    <button class="btn-primary" onclick="app.openMessageTemplateModal()">
+                        <i class="fas fa-plus"></i> Criar Primeiro Template
+                    </button>
+                </div>
+            `;
+            return;
+        }
+
+        const html = this.messageTemplates
+            .map((template) => {
+                const typeIcon =
+                    {
+                        email: 'fa-envelope',
+                        sms: 'fa-sms',
+                        whatsapp: 'fa-whatsapp',
+                    }[template.type] || 'fa-envelope';
+
+                const typeColor =
+                    {
+                        email: '#dc3545',
+                        sms: '#28a745',
+                        whatsapp: '#25D366',
+                    }[template.type] || '#6c757d';
+
+                return `
+                <div class="template-card" style="border-left: 4px solid ${typeColor};">
+                    <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 0.5rem;">
+                        <div>
+                            <h3 style="margin: 0; display: flex; align-items: center; gap: 0.5rem;">
+                                <i class="fas ${typeIcon}" style="color: ${typeColor};"></i>
+                                ${template.name}
+                            </h3>
+                            <small style="color: var(--gray-600);">
+                                ${template.type.toUpperCase()} • Criado em ${new Date(
+                    template.createdAt
+                ).toLocaleDateString('pt-BR')}
+                            </small>
+                        </div>
+                        <div style="display: flex; gap: 0.5rem;">
+                            <button class="btn-secondary" onclick="app.openMessageTemplateModal('${
+                                template.id
+                            }')" title="Editar">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button class="btn-secondary" onclick="app.deleteMessageTemplateWithConfirm('${
+                                template.id
+                            }')" title="Deletar">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    </div>
+                    ${
+                        template.subject
+                            ? `<p style="margin: 0.5rem 0; color: var(--gray-700);"><strong>Assunto:</strong> ${template.subject}</p>`
+                            : ''
+                    }
+                    <p style="margin: 0; color: var(--gray-600); font-size: 0.9rem;">
+                        ${template.content.substring(0, 100)}${
+                    template.content.length > 100 ? '...' : ''
+                }
+                    </p>
+                    ${
+                        template.variables && template.variables.length > 0
+                            ? `
+                        <div style="margin-top: 0.5rem; display: flex; flex-wrap: gap: 0.25rem;">
+                            ${template.variables
+                                .map(
+                                    (v) =>
+                                        `<span style="background: var(--light-gray); padding: 0.25rem 0.5rem; border-radius: 4px; font-size: 0.8rem;">{{${v}}}</span>`
+                                )
+                                .join('')}
+                        </div>
+                    `
+                            : ''
+                    }
+                </div>
+            `;
+            })
+            .join('');
+
+        container.innerHTML = html;
+    }
+
+    /**
+     * Abre modal de template de mensagem
+     * @param {string} templateId - ID do template (opcional, para edição)
+     */
+    openMessageTemplateModal(templateId = null) {
+        const modal = document.getElementById('messageTemplateModal');
+        if (!modal) {
+            console.warn('Modal de template de mensagem não encontrado');
+            return;
+        }
+
+        const form = document.getElementById('messageTemplateForm');
+        const title = document.getElementById('messageTemplateModalTitle');
+
+        if (!form || !title) {
+            console.warn('Elementos do modal não encontrados');
+            return;
+        }
+
+        const template = templateId
+            ? this.getMessageTemplate(templateId)
+            : null;
+
+        if (template) {
+            title.textContent = 'Editar Template de Mensagem';
+            form.templateName.value = template.name || '';
+            form.templateType.value = template.type || 'email';
+            form.templateSubject.value = template.subject || '';
+            form.templateContent.value = template.content || '';
+            form.templateVariables.value = (template.variables || []).join(
+                ', '
+            );
+            form.dataset.templateId = templateId;
+        } else {
+            title.textContent = 'Criar Template de Mensagem';
+            form.reset();
+            form.templateType.value = 'email';
+            delete form.dataset.templateId;
+        }
+
+        this.toggleMessageTemplateFields();
+        modal.classList.add('active');
+    }
+
+    /**
+     * Fecha modal de template de mensagem
+     */
+    closeMessageTemplateModal() {
+        const modal = document.getElementById('messageTemplateModal');
+        if (modal) modal.classList.remove('active');
+    }
+
+    /**
+     * Alterna campos do template baseado no tipo
+     */
+    toggleMessageTemplateFields() {
+        const type =
+            document.getElementById('messageTemplateType')?.value || 'email';
+        const subjectField = document.getElementById(
+            'messageTemplateSubjectField'
+        );
+
+        // Email tem campo de assunto, SMS e WhatsApp não
+        if (subjectField) {
+            subjectField.style.display = type === 'email' ? 'block' : 'none';
+        }
+    }
+
+    /**
+     * Salva template de mensagem
+     * @param {Event} event - Evento do formulário
+     */
+    saveMessageTemplate(event) {
+        if (event) event.preventDefault();
+
+        const form = document.getElementById('messageTemplateForm');
+        if (!form) return;
+
+        const templateId = form.dataset.templateId;
+        const templateData = {
+            name: form.templateName.value,
+            type: form.templateType.value,
+            subject: form.templateSubject.value,
+            content: form.templateContent.value,
+            variables: form.templateVariables.value
+                .split(',')
+                .map((v) => v.trim())
+                .filter((v) => v.length > 0),
+        };
+
+        try {
+            if (templateId) {
+                this.updateMessageTemplate(templateId, templateData);
+            } else {
+                this.createMessageTemplate(templateData);
+            }
+
+            this.renderMessageTemplates();
+            this.closeMessageTemplateModal();
+        } catch (error) {
+            console.error('Erro ao salvar template:', error);
+            if (typeof toast !== 'undefined' && toast) {
+                toast.error(`Erro: ${error.message}`, 5000);
+            }
+        }
+    }
+
+    /**
+     * Renderiza histórico de mensagens enviadas
+     */
+    renderMessageHistory() {
+        const container = document.getElementById('messageHistoryList');
+        const statsContainer = document.getElementById('historyStats');
+        if (!container) return;
+
+        // Aplicar filtros
+        const typeFilter =
+            document.getElementById('historyFilterType')?.value || '';
+        const statusFilter =
+            document.getElementById('historyFilterStatus')?.value || '';
+        const searchTerm = (
+            document.getElementById('historySearch')?.value || ''
+        ).toLowerCase();
+
+        let filteredHistory = [...this.messageHistory];
+
+        // Filtro por tipo
+        if (typeFilter) {
+            filteredHistory = filteredHistory.filter(
+                (msg) => msg.type === typeFilter
+            );
+        }
+
+        // Filtro por status
+        if (statusFilter) {
+            filteredHistory = filteredHistory.filter(
+                (msg) => msg.status === statusFilter
+            );
+        }
+
+        // Filtro por busca
+        if (searchTerm) {
+            filteredHistory = filteredHistory.filter((msg) => {
+                return (
+                    msg.to.toLowerCase().includes(searchTerm) ||
+                    (msg.subject &&
+                        msg.subject.toLowerCase().includes(searchTerm)) ||
+                    (msg.content &&
+                        msg.content.toLowerCase().includes(searchTerm)) ||
+                    (msg.templateName &&
+                        msg.templateName.toLowerCase().includes(searchTerm))
+                );
+            });
+        }
+
+        // Calcular estatísticas
+        const total = this.messageHistory.length;
+        const success = this.messageHistory.filter(
+            (m) => m.status === 'success'
+        ).length;
+        const errors = this.messageHistory.filter(
+            (m) => m.status === 'error'
+        ).length;
+        const byType = {
+            email: this.messageHistory.filter((m) => m.type === 'email').length,
+            sms: this.messageHistory.filter((m) => m.type === 'sms').length,
+            whatsapp: this.messageHistory.filter((m) => m.type === 'whatsapp')
+                .length,
+        };
+
+        // Renderizar estatísticas
+        if (statsContainer) {
+            statsContainer.innerHTML = `
+                <div style="background: var(--white); padding: 1rem; border-radius: var(--radius-sm); border-left: 4px solid #007bff;">
+                    <div style="font-size: 0.85rem; color: var(--gray-600); margin-bottom: 0.25rem;">Total</div>
+                    <div style="font-size: 1.5rem; font-weight: bold; color: var(--dark-gray);">${total}</div>
+                </div>
+                <div style="background: var(--white); padding: 1rem; border-radius: var(--radius-sm); border-left: 4px solid #28a745;">
+                    <div style="font-size: 0.85rem; color: var(--gray-600); margin-bottom: 0.25rem;">Sucesso</div>
+                    <div style="font-size: 1.5rem; font-weight: bold; color: #28a745;">${success}</div>
+                </div>
+                <div style="background: var(--white); padding: 1rem; border-radius: var(--radius-sm); border-left: 4px solid #dc3545;">
+                    <div style="font-size: 0.85rem; color: var(--gray-600); margin-bottom: 0.25rem;">Erros</div>
+                    <div style="font-size: 1.5rem; font-weight: bold; color: #dc3545;">${errors}</div>
+                </div>
+                <div style="background: var(--white); padding: 1rem; border-radius: var(--radius-sm); border-left: 4px solid #ffc107;">
+                    <div style="font-size: 0.85rem; color: var(--gray-600); margin-bottom: 0.25rem;">Taxa de Sucesso</div>
+                    <div style="font-size: 1.5rem; font-weight: bold; color: #ffc107;">${
+                        total > 0 ? ((success / total) * 100).toFixed(1) : 0
+                    }%</div>
+                </div>
+            `;
+        }
+
+        if (filteredHistory.length === 0) {
+            container.innerHTML = `
+                <div class="empty-state">
+                    <i class="fas fa-history" style="font-size: 3rem; color: var(--gray-400); margin-bottom: 1rem;"></i>
+                    <p style="color: var(--gray-600);">Nenhuma mensagem encontrada com os filtros selecionados.</p>
+                </div>
+            `;
+            return;
+        }
+
+        // Ordenar por data (mais recente primeiro)
+        const sortedHistory = filteredHistory.sort((a, b) => {
+            return new Date(b.sentAt) - new Date(a.sentAt);
+        });
+
+        const html = sortedHistory
+            .slice(0, 100)
+            .map((msg) => {
+                const statusIcon =
+                    msg.status === 'success'
+                        ? 'fa-check-circle'
+                        : 'fa-times-circle';
+                const statusColor =
+                    msg.status === 'success' ? '#28a745' : '#dc3545';
+                const typeIcon =
+                    {
+                        email: 'fa-envelope',
+                        sms: 'fa-sms',
+                        whatsapp: 'fa-whatsapp',
+                    }[msg.type] || 'fa-envelope';
+
+                return `
+                <div class="history-item" style="border-left: 3px solid ${statusColor};">
+                    <div style="display: flex; justify-content: space-between; align-items: start;">
+                        <div style="flex: 1;">
+                            <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.25rem;">
+                                <i class="fas ${typeIcon}" style="color: var(--gray-600);"></i>
+                                <strong>${msg.to}</strong>
+                                <i class="fas ${statusIcon}" style="color: ${statusColor};"></i>
+                            </div>
+                            ${
+                                msg.subject
+                                    ? `<p style="margin: 0.25rem 0; color: var(--gray-700);"><strong>Assunto:</strong> ${msg.subject}</p>`
+                                    : ''
+                            }
+                            <p style="margin: 0.25rem 0; color: var(--gray-600); font-size: 0.9rem;">
+                                ${msg.content.substring(0, 150)}${
+                    msg.content.length > 150 ? '...' : ''
+                }
+                            </p>
+                            ${
+                                msg.templateName
+                                    ? `<small style="color: var(--gray-500);">Template: ${msg.templateName}</small>`
+                                    : ''
+                            }
+                        </div>
+                        <div style="text-align: right;">
+                            <small style="color: var(--gray-500);">
+                                ${new Date(msg.sentAt).toLocaleString('pt-BR')}
+                            </small>
+                            ${
+                                msg.error
+                                    ? `<div style="color: ${statusColor}; font-size: 0.8rem; margin-top: 0.25rem;">${msg.error}</div>`
+                                    : ''
+                            }
+                        </div>
+                    </div>
+                </div>
+            `;
+            })
+            .join('');
+
+        container.innerHTML = html;
+    }
+
+    /**
+     * Renderiza lista de mensagens agendadas
+     */
+    renderScheduledMessages() {
+        const container = document.getElementById('scheduledMessagesList');
+        if (!container) return;
+
+        if (this.scheduledMessages.length === 0) {
+            container.innerHTML = `
+                <div class="empty-state">
+                    <i class="fas fa-clock" style="font-size: 3rem; color: var(--gray-400); margin-bottom: 1rem;"></i>
+                    <p style="color: var(--gray-600);">Nenhuma mensagem agendada.</p>
+                    <button class="btn-primary" onclick="app.openScheduleMessageModal()">
+                        <i class="fas fa-plus"></i> Agendar Primeira Mensagem
+                    </button>
+                </div>
+            `;
+            return;
+        }
+
+        // Separar agendadas e enviadas
+        const pending = this.scheduledMessages.filter((msg) => !msg.sent);
+        const sent = this.scheduledMessages.filter((msg) => msg.sent);
+
+        // Ordenar por data (mais próximas primeiro)
+        pending.sort(
+            (a, b) => new Date(a.scheduledAt) - new Date(b.scheduledAt)
+        );
+        sent.sort(
+            (a, b) =>
+                new Date(b.sentAt || b.scheduledAt) -
+                new Date(a.sentAt || a.scheduledAt)
+        );
+
+        let html = '';
+
+        if (pending.length > 0) {
+            html += `
+                <h3 style="margin: 0 0 1rem 0; color: var(--dark-gray);">
+                    <i class="fas fa-hourglass-half"></i> Pendentes (${pending.length})
+                </h3>
+            `;
+
+            html += pending
+                .map((msg) => {
+                    const template = this.getMessageTemplate(msg.templateId);
+                    const scheduledDate = new Date(msg.scheduledAt);
+                    const now = new Date();
+                    const isPast = scheduledDate < now;
+                    const timeUntil = scheduledDate - now;
+                    const hoursUntil = Math.floor(timeUntil / (1000 * 60 * 60));
+                    const minutesUntil = Math.floor(
+                        (timeUntil % (1000 * 60 * 60)) / (1000 * 60)
+                    );
+
+                    const typeIcon =
+                        {
+                            email: 'fa-envelope',
+                            sms: 'fa-sms',
+                            whatsapp: 'fa-whatsapp',
+                        }[msg.type] || 'fa-envelope';
+
+                    const typeColor =
+                        {
+                            email: '#dc3545',
+                            sms: '#28a745',
+                            whatsapp: '#25D366',
+                        }[msg.type] || '#6c757d';
+
+                    return `
+                    <div class="scheduled-message-card" style="border-left: 4px solid ${typeColor}; ${
+                        isPast ? 'opacity: 0.7;' : ''
+                    }">
+                        <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 0.5rem;">
+                            <div style="flex: 1;">
+                                <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.25rem;">
+                                    <i class="fas ${typeIcon}" style="color: ${typeColor};"></i>
+                                    <strong>${msg.to}</strong>
+                                </div>
+                                <p style="margin: 0.25rem 0; color: var(--gray-700);">
+                                    <strong>Template:</strong> ${
+                                        template?.name ||
+                                        'Template não encontrado'
+                                    }
+                                </p>
+                                <p style="margin: 0.25rem 0; color: var(--gray-600); font-size: 0.9rem;">
+                                    <i class="fas fa-calendar"></i> ${scheduledDate.toLocaleString(
+                                        'pt-BR'
+                                    )}
+                                </p>
+                                ${
+                                    isPast
+                                        ? `
+                                    <p style="margin: 0.25rem 0; color: #ffc107; font-size: 0.85rem;">
+                                        <i class="fas fa-exclamation-triangle"></i> Agendado para o passado - será enviado na próxima verificação
+                                    </p>
+                                `
+                                        : `
+                                    <p style="margin: 0.25rem 0; color: var(--gray-600); font-size: 0.85rem;">
+                                        <i class="fas fa-hourglass-half"></i> Envio em ${
+                                            hoursUntil > 0
+                                                ? `${hoursUntil}h `
+                                                : ''
+                                        }${minutesUntil}min
+                                    </p>
+                                `
+                                }
+                                ${
+                                    msg.error
+                                        ? `
+                                    <p style="margin: 0.25rem 0; color: #dc3545; font-size: 0.85rem;">
+                                        <i class="fas fa-exclamation-circle"></i> Erro: ${msg.error}
+                                    </p>
+                                `
+                                        : ''
+                                }
+                            </div>
+                            <div style="display: flex; gap: 0.5rem;">
+                                ${
+                                    !msg.sent
+                                        ? `
+                                    <button class="btn-secondary" onclick="app.cancelScheduledMessage('${msg.id}')" title="Cancelar">
+                                        <i class="fas fa-times"></i>
+                                    </button>
+                                `
+                                        : `
+                                    <span style="color: #28a745; font-size: 0.9rem;">
+                                        <i class="fas fa-check-circle"></i> Enviada
+                                    </span>
+                                `
+                                }
+                            </div>
+                        </div>
+                    </div>
+                `;
+                })
+                .join('');
+
+            html += '<div style="margin: 1.5rem 0;"></div>';
+        }
+
+        if (sent.length > 0) {
+            html += `
+                <h3 style="margin: 0 0 1rem 0; color: var(--dark-gray);">
+                    <i class="fas fa-check-circle"></i> Enviadas (${sent.length})
+                </h3>
+            `;
+
+            html += sent
+                .slice(0, 10)
+                .map((msg) => {
+                    const template = this.getMessageTemplate(msg.templateId);
+                    const sentDate = msg.sentAt
+                        ? new Date(msg.sentAt)
+                        : new Date(msg.scheduledAt);
+
+                    const typeIcon =
+                        {
+                            email: 'fa-envelope',
+                            sms: 'fa-sms',
+                            whatsapp: 'fa-whatsapp',
+                        }[msg.type] || 'fa-envelope';
+
+                    const typeColor =
+                        {
+                            email: '#dc3545',
+                            sms: '#28a745',
+                            whatsapp: '#25D366',
+                        }[msg.type] || '#6c757d';
+
+                    return `
+                    <div class="scheduled-message-card" style="border-left: 4px solid ${typeColor}; opacity: 0.6;">
+                        <div style="display: flex; justify-content: space-between; align-items: start;">
+                            <div style="flex: 1;">
+                                <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.25rem;">
+                                    <i class="fas ${typeIcon}" style="color: ${typeColor};"></i>
+                                    <strong>${msg.to}</strong>
+                                    <i class="fas fa-check-circle" style="color: #28a745;"></i>
+                                </div>
+                                <p style="margin: 0.25rem 0; color: var(--gray-700); font-size: 0.9rem;">
+                                    <strong>Template:</strong> ${
+                                        template?.name ||
+                                        'Template não encontrado'
+                                    }
+                                </p>
+                                <p style="margin: 0.25rem 0; color: var(--gray-600); font-size: 0.85rem;">
+                                    <i class="fas fa-calendar-check"></i> Enviada em ${sentDate.toLocaleString(
+                                        'pt-BR'
+                                    )}
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                })
+                .join('');
+        }
+
+        container.innerHTML = html;
+    }
+
+    /**
+     * Abre modal para agendar mensagem
+     */
+    openScheduleMessageModal() {
+        const modal = document.getElementById('scheduleMessageModal');
+        if (!modal) {
+            console.warn('Modal de agendamento não encontrado');
+            return;
+        }
+
+        const form = document.getElementById('scheduleMessageForm');
+        const templateSelect = document.getElementById('scheduleTemplate');
+
+        if (!form || !templateSelect) {
+            console.warn('Elementos do modal não encontrados');
+            return;
+        }
+
+        // Popular select de templates
+        templateSelect.innerHTML =
+            '<option value="">Selecione um template...</option>';
+        this.messageTemplates.forEach((template) => {
+            const option = document.createElement('option');
+            option.value = template.id;
+            option.textContent = `${
+                template.name
+            } (${template.type.toUpperCase()})`;
+            templateSelect.appendChild(option);
+        });
+
+        // Limpar formulário
+        form.reset();
+        document.getElementById('templateVariablesContainer').innerHTML =
+            '<p style="color: var(--gray-600); font-size: 0.9rem; margin: 0.5rem 0;">Selecione um template para ver as variáveis</p>';
+
+        // Definir data/hora mínima como agora
+        const now = new Date();
+        now.setMinutes(now.getMinutes() + 1); // Mínimo 1 minuto no futuro
+        const minDateTime = now.toISOString().slice(0, 16);
+        document.getElementById('scheduleDateTime').min = minDateTime;
+
+        modal.classList.add('active');
+    }
+
+    /**
+     * Fecha modal de agendamento
+     */
+    closeScheduleMessageModal() {
+        const modal = document.getElementById('scheduleMessageModal');
+        if (modal) modal.classList.remove('active');
+    }
+
+    /**
+     * Carrega variáveis do template selecionado
+     */
+    loadTemplateVariables() {
+        const templateId = document.getElementById('scheduleTemplate')?.value;
+        const container = document.getElementById('templateVariablesContainer');
+
+        if (!templateId || !container) return;
+
+        const template = this.getMessageTemplate(templateId);
+        if (!template) return;
+
+        // Variáveis padrão
+        const defaultVars = ['nome', 'data', 'hora', 'dataHora', 'ano', 'mes'];
+        const allVars = [...defaultVars, ...(template.variables || [])];
+
+        if (allVars.length === 0) {
+            container.innerHTML =
+                '<p style="color: var(--gray-600); font-size: 0.9rem; margin: 0.5rem 0;">Este template não usa variáveis</p>';
+            return;
+        }
+
+        let html =
+            '<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 0.75rem;">';
+
+        allVars.forEach((varName) => {
+            html += `
+                <div class="form-group" style="margin: 0;">
+                    <label for="var_${varName}" style="font-size: 0.85rem;">{{${varName}}}</label>
+                    <input type="text" id="var_${varName}" name="variables[${varName}]" placeholder="Valor para ${varName}" />
+                </div>
+            `;
+        });
+
+        html += '</div>';
+        container.innerHTML = html;
+    }
+
+    /**
+     * Salva mensagem agendada
+     * @param {Event} event - Evento do formulário
+     */
+    saveScheduledMessage(event) {
+        if (event) event.preventDefault();
+
+        const form = document.getElementById('scheduleMessageForm');
+        if (!form) return;
+
+        const templateId = form.templateId.value;
+        const to = form.to.value;
+        const scheduledAt = form.scheduledAt.value;
+
+        if (!templateId || !to || !scheduledAt) {
+            if (typeof toast !== 'undefined' && toast) {
+                toast.error('Preencha todos os campos obrigatórios', 3000);
+            }
+            return;
+        }
+
+        // Coletar variáveis
+        const variables = {};
+        const varInputs = form.querySelectorAll('[name^="variables["]');
+        varInputs.forEach((input) => {
+            const match = input.name.match(/variables\[(.+)\]/);
+            if (match && input.value.trim()) {
+                variables[match[1]] = input.value.trim();
+            }
+        });
+
+        try {
+            this.scheduleMessage(templateId, to, scheduledAt, variables);
+            this.renderScheduledMessages();
+            this.closeScheduleMessageModal();
+        } catch (error) {
+            console.error('Erro ao agendar mensagem:', error);
+            if (typeof toast !== 'undefined' && toast) {
+                toast.error(`Erro: ${error.message}`, 5000);
+            }
+        }
+    }
+
+    /**
+     * Cancela mensagem agendada
+     * @param {string} messageId - ID da mensagem agendada
+     */
+    async cancelScheduledMessage(messageId) {
+        const message = this.scheduledMessages.find((m) => m.id === messageId);
+        if (!message) {
+            if (typeof toast !== 'undefined' && toast) {
+                toast.error('Mensagem não encontrada', 3000);
+            }
+            return;
+        }
+
+        const confirmed = await ConfirmSystem.confirm({
+            title: 'Cancelar Agendamento',
+            message: `Tem certeza que deseja cancelar o agendamento para ${message.to}?`,
+            type: 'warning',
+        });
+
+        if (confirmed) {
+            const index = this.scheduledMessages.findIndex(
+                (m) => m.id === messageId
+            );
+            if (index !== -1) {
+                this.scheduledMessages.splice(index, 1);
+                this.saveData();
+                this.logAction(
+                    'delete',
+                    'scheduledMessage',
+                    messageId,
+                    `Cancelado: ${message.to}`
+                );
+                this.renderScheduledMessages();
+
+                if (typeof toast !== 'undefined' && toast) {
+                    toast.success('Agendamento cancelado com sucesso!', 3000);
+                }
+            }
+        }
+    }
+
+    // ========== SINCRONIZAÇÃO E-COMMERCE ==========
+
+    /**
+     * Importa produtos do E-commerce
+     * @param {string} platform - Plataforma ('woocommerce', 'shopify', 'mercadoLivre')
+     * @returns {Promise<Object>} - Resultado da importação
+     */
+    async importProductsFromEcommerce(platform = null) {
+        const activePlatform = platform || this.getActiveEcommercePlatform();
+        if (!activePlatform) {
+            throw new Error('Nenhuma plataforma de e-commerce configurada');
+        }
+
+        const config = this.ecommerceConfig[activePlatform];
+        if (!config || !config.enabled) {
+            throw new Error(`Plataforma ${activePlatform} não está habilitada`);
+        }
+
+        if (typeof toast !== 'undefined' && toast) {
+            toast.info(`Importando produtos de ${activePlatform}...`, 3000);
+        }
+
+        try {
+            let products = [];
+
+            if (activePlatform === 'woocommerce') {
+                products = await this.importWooCommerceProducts(config);
+            } else if (activePlatform === 'shopify') {
+                products = await this.importShopifyProducts(config);
+            } else if (activePlatform === 'mercadoLivre') {
+                products = await this.importMercadoLivreProducts(config);
+            }
+
+            // Converter produtos do E-commerce para o formato do sistema
+            const convertedProducts = products.map((product) =>
+                this.convertEcommerceProductToLocal(product, activePlatform)
+            );
+
+            // Adicionar produtos ao sistema (evitar duplicatas)
+            let addedCount = 0;
+            let updatedCount = 0;
+
+            convertedProducts.forEach((product) => {
+                const existingIndex = this.items.findIndex(
+                    (item) =>
+                        item.ecommerceId === product.ecommerceId &&
+                        item.ecommercePlatform === activePlatform
+                );
+
+                if (existingIndex !== -1) {
+                    // Atualizar produto existente
+                    this.items[existingIndex] = {
+                        ...this.items[existingIndex],
+                        ...product,
+                        id: this.items[existingIndex].id, // Manter ID original
+                    };
+                    updatedCount++;
+                } else {
+                    // Adicionar novo produto
+                    product.id =
+                        Date.now().toString() +
+                        Math.random().toString(36).substr(2, 9);
+                    product.ecommerceId = product.ecommerceId || product.id;
+                    product.ecommercePlatform = activePlatform;
+                    this.items.push(product);
+                    addedCount++;
+                }
+            });
+
+            this.saveData();
+            this.logAction(
+                'import',
+                'products',
+                'ecommerce',
+                `Importados ${addedCount} novos e ${updatedCount} atualizados de ${activePlatform}`
+            );
+
+            if (typeof toast !== 'undefined' && toast) {
+                toast.success(
+                    `Importação concluída: ${addedCount} novos, ${updatedCount} atualizados`,
+                    5000
+                );
+            }
+
+            return {
+                added: addedCount,
+                updated: updatedCount,
+                total: convertedProducts.length,
+            };
+        } catch (error) {
+            console.error('Erro ao importar produtos:', error);
+            if (typeof toast !== 'undefined' && toast) {
+                toast.error(
+                    `Erro ao importar produtos: ${error.message}`,
+                    5000
+                );
+            }
+            throw error;
+        }
+    }
+
+    /**
+     * Exporta produtos para o E-commerce
+     * @param {Array} productIds - IDs dos produtos para exportar (opcional, se vazio exporta todos)
+     * @param {string} platform - Plataforma (opcional)
+     * @returns {Promise<Object>} - Resultado da exportação
+     */
+    async exportProductsToEcommerce(productIds = [], platform = null) {
+        const activePlatform = platform || this.getActiveEcommercePlatform();
+        if (!activePlatform) {
+            throw new Error('Nenhuma plataforma de e-commerce configurada');
+        }
+
+        const config = this.ecommerceConfig[activePlatform];
+        if (!config || !config.enabled) {
+            throw new Error(`Plataforma ${activePlatform} não está habilitada`);
+        }
+
+        // Selecionar produtos para exportar
+        const productsToExport =
+            productIds.length > 0
+                ? this.items.filter((item) => productIds.includes(item.id))
+                : this.items;
+
+        if (productsToExport.length === 0) {
+            throw new Error('Nenhum produto selecionado para exportar');
+        }
+
+        if (typeof toast !== 'undefined' && toast) {
+            toast.info(
+                `Exportando ${productsToExport.length} produtos para ${activePlatform}...`,
+                3000
+            );
+        }
+
+        try {
+            let exportedCount = 0;
+            let updatedCount = 0;
+            const errors = [];
+
+            for (const product of productsToExport) {
+                try {
+                    const ecommerceProduct =
+                        this.convertLocalProductToEcommerce(
+                            product,
+                            activePlatform
+                        );
+                    let result;
+
+                    if (activePlatform === 'woocommerce') {
+                        result = await this.exportToWooCommerce(
+                            product,
+                            ecommerceProduct,
+                            config
+                        );
+                    } else if (activePlatform === 'shopify') {
+                        result = await this.exportToShopify(
+                            product,
+                            ecommerceProduct,
+                            config
+                        );
+                    } else if (activePlatform === 'mercadoLivre') {
+                        result = await this.exportToMercadoLivre(
+                            product,
+                            ecommerceProduct,
+                            config
+                        );
+                    }
+
+                    if (result.created) {
+                        exportedCount++;
+                        product.ecommerceId = result.id;
+                        product.ecommercePlatform = activePlatform;
+                    } else if (result.updated) {
+                        updatedCount++;
+                    }
+                } catch (error) {
+                    errors.push({
+                        product: product.name || product.id,
+                        error: error.message,
+                    });
+                }
+            }
+
+            this.saveData();
+            this.logAction(
+                'export',
+                'products',
+                'ecommerce',
+                `Exportados ${exportedCount} novos e ${updatedCount} atualizados para ${activePlatform}`
+            );
+
+            if (typeof toast !== 'undefined' && toast) {
+                if (errors.length > 0) {
+                    toast.warning(
+                        `Exportação concluída com ${errors.length} erros: ${exportedCount} novos, ${updatedCount} atualizados`,
+                        5000
+                    );
+                } else {
+                    toast.success(
+                        `Exportação concluída: ${exportedCount} novos, ${updatedCount} atualizados`,
+                        5000
+                    );
+                }
+            }
+
+            return { exported: exportedCount, updated: updatedCount, errors };
+        } catch (error) {
+            console.error('Erro ao exportar produtos:', error);
+            if (typeof toast !== 'undefined' && toast) {
+                toast.error(
+                    `Erro ao exportar produtos: ${error.message}`,
+                    5000
+                );
+            }
+            throw error;
+        }
+    }
+
+    /**
+     * Importa pedidos do E-commerce
+     * @param {string} platform - Plataforma (opcional)
+     * @param {Date} startDate - Data inicial (opcional)
+     * @param {Date} endDate - Data final (opcional)
+     * @returns {Promise<Object>} - Resultado da importação
+     */
+    async importOrdersFromEcommerce(
+        platform = null,
+        startDate = null,
+        endDate = null
+    ) {
+        const activePlatform = platform || this.getActiveEcommercePlatform();
+        if (!activePlatform) {
+            throw new Error('Nenhuma plataforma de e-commerce configurada');
+        }
+
+        const config = this.ecommerceConfig[activePlatform];
+        if (!config || !config.enabled) {
+            throw new Error(`Plataforma ${activePlatform} não está habilitada`);
+        }
+
+        if (typeof toast !== 'undefined' && toast) {
+            toast.info(`Importando pedidos de ${activePlatform}...`, 3000);
+        }
+
+        try {
+            let orders = [];
+
+            if (activePlatform === 'woocommerce') {
+                orders = await this.importWooCommerceOrders(
+                    config,
+                    startDate,
+                    endDate
+                );
+            } else if (activePlatform === 'shopify') {
+                orders = await this.importShopifyOrders(
+                    config,
+                    startDate,
+                    endDate
+                );
+            } else if (activePlatform === 'mercadoLivre') {
+                orders = await this.importMercadoLivreOrders(
+                    config,
+                    startDate,
+                    endDate
+                );
+            }
+
+            // Converter pedidos para o formato do sistema
+            const convertedSales = orders.map((order) =>
+                this.convertEcommerceOrderToSale(order, activePlatform)
+            );
+
+            // Adicionar vendas ao sistema
+            let addedCount = 0;
+            convertedSales.forEach((sale) => {
+                const existingIndex = this.completedSales.findIndex(
+                    (s) =>
+                        s.ecommerceId === sale.ecommerceId &&
+                        s.ecommercePlatform === activePlatform
+                );
+
+                if (existingIndex === -1) {
+                    sale.id =
+                        Date.now().toString() +
+                        Math.random().toString(36).substr(2, 9);
+                    sale.ecommerceId = sale.ecommerceId || sale.id;
+                    sale.ecommercePlatform = activePlatform;
+                    this.completedSales.push(sale);
+                    addedCount++;
+                }
+            });
+
+            this.saveData();
+            this.logAction(
+                'import',
+                'orders',
+                'ecommerce',
+                `Importados ${addedCount} pedidos de ${activePlatform}`
+            );
+
+            if (typeof toast !== 'undefined' && toast) {
+                toast.success(
+                    `Importação concluída: ${addedCount} pedidos importados`,
+                    5000
+                );
+            }
+
+            return { added: addedCount, total: convertedSales.length };
+        } catch (error) {
+            console.error('Erro ao importar pedidos:', error);
+            if (typeof toast !== 'undefined' && toast) {
+                toast.error(`Erro ao importar pedidos: ${error.message}`, 5000);
+            }
+            throw error;
+        }
+    }
+
+    /**
+     * Obtém plataforma de e-commerce ativa
+     * @returns {string|null} - Nome da plataforma ou null
+     */
+    getActiveEcommercePlatform() {
+        const config = this.ecommerceConfig || {};
+        if (config.woocommerce?.enabled) return 'woocommerce';
+        if (config.shopify?.enabled) return 'shopify';
+        if (config.mercadoLivre?.enabled) return 'mercadoLivre';
+        return null;
+    }
+
+    /**
+     * Converte produto do E-commerce para formato local
+     * @param {Object} ecommerceProduct - Produto do E-commerce
+     * @param {string} platform - Plataforma
+     * @returns {Object} - Produto no formato local
+     */
+    convertEcommerceProductToLocal(ecommerceProduct, platform) {
+        if (platform === 'woocommerce') {
+            return {
+                name: ecommerceProduct.name || '',
+                price: parseFloat(ecommerceProduct.price || 0),
+                cost: parseFloat(ecommerceProduct.cost || 0),
+                stock: parseInt(ecommerceProduct.stock_quantity || 0),
+                description: ecommerceProduct.description || '',
+                sku: ecommerceProduct.sku || '',
+                category: ecommerceProduct.categories?.[0]?.name || '',
+                ecommerceId: ecommerceProduct.id?.toString() || '',
+            };
+        } else if (platform === 'shopify') {
+            return {
+                name: ecommerceProduct.title || '',
+                price: parseFloat(ecommerceProduct.variants?.[0]?.price || 0),
+                cost: 0,
+                stock: parseInt(
+                    ecommerceProduct.variants?.[0]?.inventory_quantity || 0
+                ),
+                description: ecommerceProduct.body_html || '',
+                sku: ecommerceProduct.variants?.[0]?.sku || '',
+                category: ecommerceProduct.product_type || '',
+                ecommerceId: ecommerceProduct.id?.toString() || '',
+            };
+        } else if (platform === 'mercadoLivre') {
+            return {
+                name: ecommerceProduct.title || '',
+                price: parseFloat(ecommerceProduct.price || 0),
+                cost: 0,
+                stock: parseInt(ecommerceProduct.available_quantity || 0),
+                description: ecommerceProduct.description || '',
+                sku: ecommerceProduct.seller_custom_field || '',
+                category: ecommerceProduct.category_id || '',
+                ecommerceId: ecommerceProduct.id || '',
+            };
+        }
+
+        return ecommerceProduct;
+    }
+
+    /**
+     * Converte produto local para formato do E-commerce
+     * @param {Object} localProduct - Produto local
+     * @param {string} platform - Plataforma
+     * @returns {Object} - Produto no formato do E-commerce
+     */
+    convertLocalProductToEcommerce(localProduct, platform) {
+        if (platform === 'woocommerce') {
+            return {
+                name: localProduct.name || '',
+                type: 'simple',
+                regular_price: (localProduct.price || 0).toString(),
+                description: localProduct.description || '',
+                short_description:
+                    localProduct.description?.substring(0, 200) || '',
+                sku: localProduct.sku || '',
+                manage_stock: true,
+                stock_quantity: localProduct.stock || 0,
+                categories: localProduct.category
+                    ? [{ name: localProduct.category }]
+                    : [],
+            };
+        } else if (platform === 'shopify') {
+            return {
+                title: localProduct.name || '',
+                body_html: localProduct.description || '',
+                vendor: 'Loja',
+                product_type: localProduct.category || '',
+                variants: [
+                    {
+                        price: (localProduct.price || 0).toString(),
+                        sku: localProduct.sku || '',
+                        inventory_quantity: localProduct.stock || 0,
+                    },
+                ],
+            };
+        } else if (platform === 'mercadoLivre') {
+            return {
+                title: localProduct.name || '',
+                price: localProduct.price || 0,
+                available_quantity: localProduct.stock || 0,
+                description: localProduct.description || '',
+                seller_custom_field: localProduct.sku || '',
+            };
+        }
+
+        return localProduct;
+    }
+
+    /**
+     * Converte pedido do E-commerce para venda local
+     * @param {Object} order - Pedido do E-commerce
+     * @param {string} platform - Plataforma
+     * @returns {Object} - Venda no formato local
+     */
+    convertEcommerceOrderToSale(order, platform) {
+        let items = [];
+        let total = 0;
+        let customerName = '';
+        let customerEmail = '';
+
+        if (platform === 'woocommerce') {
+            items = (order.line_items || []).map((item) => ({
+                name: item.name,
+                quantity: item.quantity,
+                price: parseFloat(item.price || 0),
+            }));
+            total = parseFloat(order.total || 0);
+            customerName = `${order.billing?.first_name || ''} ${
+                order.billing?.last_name || ''
+            }`.trim();
+            customerEmail = order.billing?.email || '';
+        } else if (platform === 'shopify') {
+            items = (order.line_items || []).map((item) => ({
+                name: item.name,
+                quantity: item.quantity,
+                price: parseFloat(item.price || 0),
+            }));
+            total = parseFloat(order.total_price || 0);
+            customerName = `${order.customer?.first_name || ''} ${
+                order.customer?.last_name || ''
+            }`.trim();
+            customerEmail = order.customer?.email || order.email || '';
+        } else if (platform === 'mercadoLivre') {
+            items = [
+                {
+                    name: order.title || 'Produto',
+                    quantity: 1,
+                    price: parseFloat(order.price || 0),
+                },
+            ];
+            total = parseFloat(order.price || 0);
+            customerName = order.buyer?.nickname || '';
+            customerEmail = order.buyer?.email || '';
+        }
+
+        return {
+            items,
+            total,
+            date:
+                order.date_created ||
+                order.created_at ||
+                order.date_created ||
+                new Date().toISOString(),
+            customerName,
+            customerEmail,
+            paymentMethod:
+                order.payment_method_title ||
+                order.financial_status ||
+                'Online',
+            status: order.status || 'completed',
+            ecommerceId:
+                order.id?.toString() || order.order_id?.toString() || '',
+        };
+    }
+
+    // Funções específicas por plataforma
+    async importWooCommerceProducts(config) {
+        const url = `${config.url}/wp-json/wc/v3/products?per_page=100`;
+        const auth = btoa(`${config.consumerKey}:${config.consumerSecret}`);
+
+        const response = await fetch(url, {
+            headers: {
+                Authorization: `Basic ${auth}`,
+            },
+        });
+
+        if (!response.ok) {
+            throw new Error(
+                `WooCommerce: ${response.status} ${response.statusText}`
+            );
+        }
+
+        return await response.json();
+    }
+
+    async importShopifyProducts(config) {
+        const url = `https://${config.shop}.myshopify.com/admin/api/2024-01/products.json?limit=250`;
+
+        const response = await fetch(url, {
+            headers: {
+                'X-Shopify-Access-Token': config.apiKey,
+            },
+        });
+
+        if (!response.ok) {
+            throw new Error(
+                `Shopify: ${response.status} ${response.statusText}`
+            );
+        }
+
+        const data = await response.json();
+        return data.products || [];
+    }
+
+    async importMercadoLivreProducts(config) {
+        const url = `https://api.mercadolivre.com/users/me/items/search?access_token=${config.accessToken}`;
+
+        const response = await fetch(url);
+
+        if (!response.ok) {
+            throw new Error(
+                `Mercado Livre: ${response.status} ${response.statusText}`
+            );
+        }
+
+        const data = await response.json();
+        const itemIds = data.results || [];
+
+        // Buscar detalhes de cada produto (limitado a 50)
+        const products = await Promise.all(
+            itemIds.slice(0, 50).map(async (itemId) => {
+                try {
+                    const itemUrl = `https://api.mercadolivre.com/items/${itemId}?access_token=${config.accessToken}`;
+                    const itemResponse = await fetch(itemUrl);
+                    if (itemResponse.ok) {
+                        return await itemResponse.json();
+                    }
+                } catch (error) {
+                    console.error(`Erro ao buscar item ${itemId}:`, error);
+                }
+                return null;
+            })
+        );
+
+        return products.filter((p) => p !== null);
+    }
+
+    async exportToWooCommerce(product, ecommerceProduct, config) {
+        const url = product.ecommerceId
+            ? `${config.url}/wp-json/wc/v3/products/${product.ecommerceId}`
+            : `${config.url}/wp-json/wc/v3/products`;
+        const auth = btoa(`${config.consumerKey}:${config.consumerSecret}`);
+
+        const method = product.ecommerceId ? 'PUT' : 'POST';
+
+        const response = await fetch(url, {
+            method,
+            headers: {
+                Authorization: `Basic ${auth}`,
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(ecommerceProduct),
+        });
+
+        if (!response.ok) {
+            const error = await response
+                .json()
+                .catch(() => ({ message: response.statusText }));
+            throw new Error(
+                `WooCommerce: ${error.message || response.statusText}`
+            );
+        }
+
+        const result = await response.json();
+        return {
+            created: method === 'POST',
+            updated: method === 'PUT',
+            id: result.id,
+        };
+    }
+
+    async exportToShopify(product, ecommerceProduct, config) {
+        const url = product.ecommerceId
+            ? `https://${config.shop}.myshopify.com/admin/api/2024-01/products/${product.ecommerceId}.json`
+            : `https://${config.shop}.myshopify.com/admin/api/2024-01/products.json`;
+
+        const method = product.ecommerceId ? 'PUT' : 'POST';
+        const body = { product: ecommerceProduct };
+
+        const response = await fetch(url, {
+            method,
+            headers: {
+                'X-Shopify-Access-Token': config.apiKey,
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(body),
+        });
+
+        if (!response.ok) {
+            const error = await response
+                .json()
+                .catch(() => ({ message: response.statusText }));
+            throw new Error(
+                `Shopify: ${
+                    error.errors || error.message || response.statusText
+                }`
+            );
+        }
+
+        const data = await response.json();
+        return {
+            created: method === 'POST',
+            updated: method === 'PUT',
+            id: data.product?.id,
+        };
+    }
+
+    async exportToMercadoLivre(product, ecommerceProduct, config) {
+        // Mercado Livre requer mais configuração e autenticação OAuth
+        throw new Error(
+            'Exportação para Mercado Livre requer configuração adicional de OAuth'
+        );
+    }
+
+    async importWooCommerceOrders(config, startDate, endDate) {
+        let url = `${config.url}/wp-json/wc/v3/orders?per_page=100&status=completed`;
+
+        if (startDate) {
+            url += `&after=${startDate.toISOString()}`;
+        }
+        if (endDate) {
+            url += `&before=${endDate.toISOString()}`;
+        }
+
+        const auth = btoa(`${config.consumerKey}:${config.consumerSecret}`);
+
+        const response = await fetch(url, {
+            headers: {
+                Authorization: `Basic ${auth}`,
+            },
+        });
+
+        if (!response.ok) {
+            throw new Error(
+                `WooCommerce: ${response.status} ${response.statusText}`
+            );
+        }
+
+        return await response.json();
+    }
+
+    async importShopifyOrders(config, startDate, endDate) {
+        let url = `https://${config.shop}.myshopify.com/admin/api/2024-01/orders.json?limit=250&status=any`;
+
+        if (startDate) {
+            url += `&created_at_min=${startDate.toISOString()}`;
+        }
+        if (endDate) {
+            url += `&created_at_max=${endDate.toISOString()}`;
+        }
+
+        const response = await fetch(url, {
+            headers: {
+                'X-Shopify-Access-Token': config.apiKey,
+            },
+        });
+
+        if (!response.ok) {
+            throw new Error(
+                `Shopify: ${response.status} ${response.statusText}`
+            );
+        }
+
+        const data = await response.json();
+        return data.orders || [];
+    }
+
+    async importMercadoLivreOrders(config, startDate, endDate) {
+        // Mercado Livre requer seller_id e endpoint específico
+        if (!config.sellerId) {
+            throw new Error('Seller ID do Mercado Livre não configurado');
+        }
+
+        let url = `https://api.mercadolivre.com/orders/search?seller=${config.sellerId}&access_token=${config.accessToken}`;
+
+        if (startDate) {
+            url += `&order.date_created.from=${startDate.toISOString()}`;
+        }
+        if (endDate) {
+            url += `&order.date_created.to=${endDate.toISOString()}`;
+        }
+
+        const response = await fetch(url);
+
+        if (!response.ok) {
+            throw new Error(
+                `Mercado Livre: ${response.status} ${response.statusText}`
+            );
+        }
+
+        const data = await response.json();
+        return data.results || [];
+    }
+
+    /**
+     * Renderiza status da sincronização E-commerce
+     */
+    renderEcommerceSyncStatus() {
+        const container = document.getElementById('activeEcommercePlatform');
+        if (!container) return;
+
+        const activePlatform = this.getActiveEcommercePlatform();
+
+        if (activePlatform) {
+            const platformNames = {
+                woocommerce: 'WooCommerce',
+                shopify: 'Shopify',
+                mercadoLivre: 'Mercado Livre',
+            };
+
+            container.textContent = `Plataforma ativa: ${
+                platformNames[activePlatform] || activePlatform
+            }`;
+            const parent = container.parentElement;
+            if (parent) {
+                parent.style.background = '#d4edda';
+                parent.style.borderLeft = '4px solid #28a745';
+            }
+        } else {
+            container.textContent =
+                'Nenhuma plataforma de e-commerce configurada';
+            const parent = container.parentElement;
+            if (parent) {
+                parent.style.background = '#fff3cd';
+                parent.style.borderLeft = '4px solid #ffc107';
+            }
+        }
+    }
+
+    /**
+     * Sincroniza estoque de produtos vinculados ao E-commerce
+     * @param {string} direction - Direção da sincronização ('to', 'from', 'both')
+     * @returns {Promise<Object>} - Resultado da sincronização
+     */
+    async syncStockWithEcommerce(direction = 'both') {
+        const activePlatform = this.getActiveEcommercePlatform();
+        if (!activePlatform) {
+            throw new Error('Nenhuma plataforma de e-commerce configurada');
+        }
+
+        const config = this.ecommerceConfig[activePlatform];
+        if (!config || !config.enabled) {
+            throw new Error(`Plataforma ${activePlatform} não está habilitada`);
+        }
+
+        // Produtos vinculados ao E-commerce
+        const linkedProducts = this.items.filter(
+            (item) =>
+                item.ecommerceId && item.ecommercePlatform === activePlatform
+        );
+
+        if (linkedProducts.length === 0) {
+            if (typeof toast !== 'undefined' && toast) {
+                toast.info(
+                    'Nenhum produto vinculado ao E-commerce encontrado',
+                    3000
+                );
+            }
+            return { synced: 0, errors: [] };
+        }
+
+        if (typeof toast !== 'undefined' && toast) {
+            toast.info(
+                `Sincronizando estoque de ${linkedProducts.length} produtos...`,
+                3000
+            );
+        }
+
+        let syncedCount = 0;
+        const errors = [];
+
+        try {
+            if (direction === 'from' || direction === 'both') {
+                // Importar estoque do E-commerce
+                for (const product of linkedProducts) {
+                    try {
+                        const ecommerceStock = await this.getEcommerceStock(
+                            product,
+                            activePlatform,
+                            config
+                        );
+
+                        if (ecommerceStock !== null) {
+                            product.stock = ecommerceStock;
+                            syncedCount++;
+                        }
+                    } catch (error) {
+                        errors.push({
+                            product: product.name || product.id,
+                            error: error.message,
+                        });
+                    }
+                }
+            }
+
+            if (direction === 'to' || direction === 'both') {
+                // Exportar estoque para o E-commerce
+                for (const product of linkedProducts) {
+                    try {
+                        await this.updateEcommerceStock(
+                            product,
+                            activePlatform,
+                            config
+                        );
+                        syncedCount++;
+                    } catch (error) {
+                        errors.push({
+                            product: product.name || product.id,
+                            error: error.message,
+                        });
+                    }
+                }
+            }
+
+            this.saveData();
+            this.logAction(
+                'sync',
+                'stock',
+                'ecommerce',
+                `Sincronizado estoque de ${syncedCount} produtos com ${activePlatform}`
+            );
+
+            if (typeof toast !== 'undefined' && toast) {
+                if (errors.length > 0) {
+                    toast.warning(
+                        `Sincronização concluída com ${errors.length} erros: ${syncedCount} produtos sincronizados`,
+                        5000
+                    );
+                } else {
+                    toast.success(
+                        `Estoque sincronizado: ${syncedCount} produtos`,
+                        5000
+                    );
+                }
+            }
+
+            return { synced: syncedCount, errors };
+        } catch (error) {
+            console.error('Erro ao sincronizar estoque:', error);
+            if (typeof toast !== 'undefined' && toast) {
+                toast.error(
+                    `Erro ao sincronizar estoque: ${error.message}`,
+                    5000
+                );
+            }
+            throw error;
+        }
+    }
+
+    /**
+     * Obtém estoque de um produto no E-commerce
+     * @param {Object} product - Produto local
+     * @param {string} platform - Plataforma
+     * @param {Object} config - Configuração da plataforma
+     * @returns {Promise<number>} - Quantidade em estoque
+     */
+    async getEcommerceStock(product, platform, config) {
+        if (platform === 'woocommerce') {
+            const url = `${config.url}/wp-json/wc/v3/products/${product.ecommerceId}`;
+            const auth = btoa(`${config.consumerKey}:${config.consumerSecret}`);
+
+            const response = await fetch(url, {
+                headers: {
+                    Authorization: `Basic ${auth}`,
+                },
+            });
+
+            if (!response.ok) {
+                throw new Error(`WooCommerce: ${response.status}`);
+            }
+
+            const data = await response.json();
+            return parseInt(data.stock_quantity || 0);
+        } else if (platform === 'shopify') {
+            const url = `https://${config.shop}.myshopify.com/admin/api/2024-01/products/${product.ecommerceId}.json`;
+
+            const response = await fetch(url, {
+                headers: {
+                    'X-Shopify-Access-Token': config.apiKey,
+                },
+            });
+
+            if (!response.ok) {
+                throw new Error(`Shopify: ${response.status}`);
+            }
+
+            const data = await response.json();
+            return parseInt(
+                data.product?.variants?.[0]?.inventory_quantity || 0
+            );
+        } else if (platform === 'mercadoLivre') {
+            const url = `https://api.mercadolivre.com/items/${product.ecommerceId}?access_token=${config.accessToken}`;
+
+            const response = await fetch(url);
+
+            if (!response.ok) {
+                throw new Error(`Mercado Livre: ${response.status}`);
+            }
+
+            const data = await response.json();
+            return parseInt(data.available_quantity || 0);
+        }
+
+        return null;
+    }
+
+    /**
+     * Atualiza estoque de um produto no E-commerce
+     * @param {Object} product - Produto local
+     * @param {string} platform - Plataforma
+     * @param {Object} config - Configuração da plataforma
+     * @returns {Promise<void>}
+     */
+    async updateEcommerceStock(product, platform, config) {
+        if (platform === 'woocommerce') {
+            const url = `${config.url}/wp-json/wc/v3/products/${product.ecommerceId}`;
+            const auth = btoa(`${config.consumerKey}:${config.consumerSecret}`);
+
+            const response = await fetch(url, {
+                method: 'PUT',
+                headers: {
+                    Authorization: `Basic ${auth}`,
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    stock_quantity: product.stock || 0,
+                }),
+            });
+
+            if (!response.ok) {
+                throw new Error(`WooCommerce: ${response.status}`);
+            }
+        } else if (platform === 'shopify') {
+            // Shopify requer atualização via Inventory API
+            const variantId = product.ecommerceVariantId;
+            if (!variantId) {
+                throw new Error('Variant ID não encontrado para Shopify');
+            }
+
+            const url = `https://${config.shop}.myshopify.com/admin/api/2024-01/inventory_levels/set.json`;
+
+            const response = await fetch(url, {
+                method: 'POST',
+                headers: {
+                    'X-Shopify-Access-Token': config.apiKey,
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    location_id: config.locationId || 1,
+                    inventory_item_id: variantId,
+                    available: product.stock || 0,
+                }),
+            });
+
+            if (!response.ok) {
+                throw new Error(`Shopify: ${response.status}`);
+            }
+        } else if (platform === 'mercadoLivre') {
+            const url = `https://api.mercadolivre.com/items/${product.ecommerceId}?access_token=${config.accessToken}`;
+
+            const response = await fetch(url, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    available_quantity: product.stock || 0,
+                }),
+            });
+
+            if (!response.ok) {
+                throw new Error(`Mercado Livre: ${response.status}`);
+            }
+        }
+    }
+
+    /**
+     * Inicia sincronização automática de estoque
+     * @param {number} intervalMinutes - Intervalo em minutos (padrão: 30)
+     */
+    startAutoStockSync(intervalMinutes = 30) {
+        if (this.autoStockSyncInterval) {
+            clearInterval(this.autoStockSyncInterval);
+        }
+
+        this.autoStockSyncInterval = setInterval(() => {
+            const activePlatform = this.getActiveEcommercePlatform();
+            if (activePlatform) {
+                this.syncStockWithEcommerce('both').catch((error) => {
+                    console.error(
+                        'Erro na sincronização automática de estoque:',
+                        error
+                    );
+                });
+            }
+        }, intervalMinutes * 60 * 1000);
+
+        console.log(
+            `✅ [E-COMMERCE] Sincronização automática de estoque iniciada (a cada ${intervalMinutes} minutos)`
+        );
+    }
+
+    /**
+     * Para sincronização automática de estoque
+     */
+    stopAutoStockSync() {
+        if (this.autoStockSyncInterval) {
+            clearInterval(this.autoStockSyncInterval);
+            this.autoStockSyncInterval = null;
+            console.log(
+                '✅ [E-COMMERCE] Sincronização automática de estoque parada'
+            );
         }
     }
 }

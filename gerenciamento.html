@@ -1009,6 +1009,203 @@
                             </div>
                         </div>
 
+                        <!-- Seção de Integrações -->
+                        <div class="panel-section">
+                            <div class="panel-header">
+                                <h2><i class="fas fa-plug"></i> Integrações com APIs</h2>
+                            </div>
+                            <div style="padding: 1.5rem;">
+                                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1rem; margin-bottom: 1.5rem;">
+                                    <button class="btn-secondary" onclick="app.openEmailConfigModal()" style="width: 100%;">
+                                        <i class="fas fa-envelope"></i> Configurar Email
+                                    </button>
+                                    <button class="btn-secondary" onclick="app.openSMSConfigModal()" style="width: 100%;">
+                                        <i class="fas fa-sms"></i> Configurar SMS
+                                    </button>
+                                    <button class="btn-secondary" onclick="app.openWhatsAppConfigModal()" style="width: 100%;">
+                                        <i class="fab fa-whatsapp"></i> Configurar WhatsApp
+                                    </button>
+                                    <button class="btn-secondary" onclick="app.openEcommerceConfigModal()" style="width: 100%;">
+                                        <i class="fas fa-shopping-bag"></i> Configurar E-commerce
+                                    </button>
+                                    <button class="btn-secondary" onclick="app.openERPConfigModal()" style="width: 100%;">
+                                        <i class="fas fa-server"></i> Configurar ERP
+                                    </button>
+                                </div>
+                                
+                                <div style="padding: 1rem; background: var(--light-gray); border-radius: var(--radius-sm); margin-top: 1rem;">
+                                    <h3 style="margin: 0 0 0.5rem 0; font-size: 1rem; color: var(--dark-gray);">
+                                        <i class="fas fa-info-circle"></i> Status das Integrações
+                                    </h3>
+                                    <div id="integrationsStatus" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 0.75rem;">
+                                        <!-- Status será preenchido via JavaScript -->
+                                    </div>
+                                </div>
+                                
+                                <div style="margin-top: 1rem; padding: 1rem; background: #e7f3ff; border-radius: var(--radius-sm);">
+                                    <p style="margin: 0; font-size: 0.9rem; color: #0c5460;">
+                                        <i class="fas fa-book"></i> 
+                                        <strong>Dica:</strong> Consulte o <a href="GUIA-CONFIGURACAO-INTEGRACOES.md" target="_blank" style="color: #0066cc; text-decoration: underline;">Guia de Configuração de Integrações</a> para obter as credenciais de cada serviço.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Seção de Sincronização E-commerce -->
+                        <div class="panel-section">
+                            <div class="panel-header">
+                                <h2><i class="fas fa-sync-alt"></i> Sincronização E-commerce</h2>
+                            </div>
+                            <div style="padding: 1.5rem;">
+                                <div id="ecommerceSyncStatus" style="margin-bottom: 1.5rem; padding: 1rem; background: var(--light-gray); border-radius: var(--radius-sm);">
+                                    <p style="margin: 0; color: var(--gray-600);">
+                                        <i class="fas fa-info-circle"></i> 
+                                        <span id="activeEcommercePlatform">Nenhuma plataforma ativa</span>
+                                    </p>
+                                </div>
+
+                                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1rem;">
+                                    <div style="background: var(--white); padding: 1.5rem; border-radius: var(--radius-sm); border: 1px solid var(--border-color);">
+                                        <h3 style="margin: 0 0 1rem 0; font-size: 1rem;">
+                                            <i class="fas fa-download"></i> Importar Produtos
+                                        </h3>
+                                        <p style="margin: 0 0 1rem 0; color: var(--gray-600); font-size: 0.9rem;">
+                                            Importa produtos do E-commerce para o sistema
+                                        </p>
+                                        <button class="btn-primary" onclick="app.importProductsFromEcommerce()" style="width: 100%;">
+                                            <i class="fas fa-download"></i> Importar Produtos
+                                        </button>
+                                    </div>
+
+                                    <div style="background: var(--white); padding: 1.5rem; border-radius: var(--radius-sm); border: 1px solid var(--border-color);">
+                                        <h3 style="margin: 0 0 1rem 0; font-size: 1rem;">
+                                            <i class="fas fa-upload"></i> Exportar Produtos
+                                        </h3>
+                                        <p style="margin: 0 0 1rem 0; color: var(--gray-600); font-size: 0.9rem;">
+                                            Exporta produtos do sistema para o E-commerce
+                                        </p>
+                                        <button class="btn-primary" onclick="app.exportProductsToEcommerce()" style="width: 100%;">
+                                            <i class="fas fa-upload"></i> Exportar Todos
+                                        </button>
+                                    </div>
+
+                                    <div style="background: var(--white); padding: 1.5rem; border-radius: var(--radius-sm); border: 1px solid var(--border-color);">
+                                        <h3 style="margin: 0 0 1rem 0; font-size: 1rem;">
+                                            <i class="fas fa-shopping-cart"></i> Importar Pedidos
+                                        </h3>
+                                        <p style="margin: 0 0 1rem 0; color: var(--gray-600); font-size: 0.9rem;">
+                                            Importa pedidos/vendas do E-commerce
+                                        </p>
+                                        <button class="btn-primary" onclick="app.importOrdersFromEcommerce()" style="width: 100%;">
+                                            <i class="fas fa-download"></i> Importar Pedidos
+                                        </button>
+                                    </div>
+
+                                    <div style="background: var(--white); padding: 1.5rem; border-radius: var(--radius-sm); border: 1px solid var(--border-color);">
+                                        <h3 style="margin: 0 0 1rem 0; font-size: 1rem;">
+                                            <i class="fas fa-sync-alt"></i> Sincronizar Estoque
+                                        </h3>
+                                        <p style="margin: 0 0 1rem 0; color: var(--gray-600); font-size: 0.9rem;">
+                                            Sincroniza estoque bidirecional com E-commerce
+                                        </p>
+                                        <div style="display: flex; gap: 0.5rem; flex-direction: column;">
+                                            <button class="btn-secondary" onclick="app.syncStockWithEcommerce('from')" style="width: 100%;">
+                                                <i class="fas fa-arrow-down"></i> Importar Estoque
+                                            </button>
+                                            <button class="btn-secondary" onclick="app.syncStockWithEcommerce('to')" style="width: 100%;">
+                                                <i class="fas fa-arrow-up"></i> Exportar Estoque
+                                            </button>
+                                            <button class="btn-primary" onclick="app.syncStockWithEcommerce('both')" style="width: 100%;">
+                                                <i class="fas fa-sync"></i> Sincronizar Ambos
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div style="margin-top: 1.5rem; padding: 1rem; background: #e7f3ff; border-radius: var(--radius-sm);">
+                                    <p style="margin: 0; font-size: 0.9rem; color: #0c5460;">
+                                        <i class="fas fa-lightbulb"></i> 
+                                        <strong>Dica:</strong> Configure a integração E-commerce antes de sincronizar. 
+                                        A sincronização mantém produtos vinculados para evitar duplicatas.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Seção de Templates de Mensagens -->
+                        <div class="panel-section">
+                            <div class="panel-header">
+                                <h2><i class="fas fa-envelope-open-text"></i> Templates de Mensagens</h2>
+                                <button class="btn-primary" onclick="app.openMessageTemplateModal()" title="Criar Template">
+                                    <i class="fas fa-plus"></i> <span class="btn-text">Novo Template</span>
+                                </button>
+                            </div>
+                            <div style="padding: 1.5rem;">
+                                <div id="messageTemplatesList">
+                                    <!-- Templates serão renderizados aqui -->
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Seção de Mensagens Agendadas -->
+                        <div class="panel-section">
+                            <div class="panel-header">
+                                <h2><i class="fas fa-clock"></i> Mensagens Agendadas</h2>
+                                <button class="btn-primary" onclick="app.openScheduleMessageModal()" title="Agendar Mensagem">
+                                    <i class="fas fa-plus"></i> <span class="btn-text">Agendar Mensagem</span>
+                                </button>
+                            </div>
+                            <div style="padding: 1.5rem;">
+                                <div id="scheduledMessagesList">
+                                    <!-- Mensagens agendadas serão renderizadas aqui -->
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Seção de Histórico de Mensagens -->
+                        <div class="panel-section">
+                            <div class="panel-header">
+                                <h2><i class="fas fa-history"></i> Histórico de Mensagens Enviadas</h2>
+                                <button class="btn-secondary" onclick="app.renderMessageHistory()" title="Atualizar">
+                                    <i class="fas fa-sync-alt"></i> <span class="btn-text">Atualizar</span>
+                                </button>
+                            </div>
+                            <div style="padding: 1.5rem;">
+                                <div id="messageHistoryList" style="max-height: 500px; overflow-y: auto;">
+                                    <!-- Histórico será renderizado aqui -->
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Seção de Performance -->
+                        <div class="panel-section">
+                            <div class="panel-header">
+                                <h2><i class="fas fa-tachometer-alt"></i> Monitoramento de Performance</h2>
+                                <button class="btn-secondary" onclick="app.renderPerformancePanel()" title="Atualizar Métricas">
+                                    <i class="fas fa-sync-alt"></i> <span class="btn-text">Atualizar</span>
+                                </button>
+                            </div>
+                            <div id="performancePanel" style="padding: 1.5rem;">
+                                <!-- Painel será preenchido via JavaScript -->
+                            </div>
+                        </div>
+                                    <h3 style="margin: 0 0 0.5rem 0; font-size: 1rem; color: var(--dark-gray);">
+                                        <i class="fas fa-info-circle"></i> Status das Integrações
+                                    </h3>
+                                    <div id="integrationsStatus" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 0.75rem;">
+                                        <!-- Status será preenchido via JavaScript -->
+                                    </div>
+                                </div>
+                                
+                                <div style="margin-top: 1rem; padding: 1rem; background: #e7f3ff; border-radius: var(--radius-sm);">
+                                    <p style="margin: 0; font-size: 0.9rem; color: #0c5460;">
+                                        <i class="fas fa-book"></i> 
+                                        <strong>Dica:</strong> Consulte o <a href="GUIA-CONFIGURACAO-INTEGRACOES.md" target="_blank" style="color: #0066cc; text-decoration: underline;">Guia de Configuração de Integrações</a> para obter as credenciais de cada serviço.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+
                         <!-- Histórico de Atividades (Audit Log) -->
                         <div class="panel-section">
                             <div class="panel-header">
@@ -3204,6 +3401,534 @@
                     <div id="backupHistoryList" style="max-height: 400px; overflow-y: auto; border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 1rem;">
                         <!-- Histórico será inserido aqui via JavaScript -->
                     </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal: Configuração de Email -->
+        <div id="emailConfigModal" class="modal">
+            <div class="modal-content" style="max-width: 700px;">
+                <div class="modal-header">
+                    <h2><i class="fas fa-envelope"></i> Configuração de Email</h2>
+                    <span class="close" onclick="app.closeEmailConfigModal()">&times;</span>
+                </div>
+                <div style="padding: 1.5rem;">
+                    <form id="emailConfigForm" onsubmit="app.saveEmailConfig(event)">
+                        <div class="form-group">
+                            <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+                                <input type="checkbox" id="emailEnabled" />
+                                <span>Ativar envio de emails</span>
+                            </label>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="emailProvider">Provedor de Email</label>
+                            <select id="emailProvider" onchange="app.toggleEmailProviderFields()">
+                                <option value="smtp">SMTP (Gmail, Outlook, etc.)</option>
+                                <option value="sendgrid">SendGrid</option>
+                                <option value="ses">Amazon SES</option>
+                                <option value="mailgun">Mailgun</option>
+                            </select>
+                        </div>
+
+                        <!-- Campos SMTP -->
+                        <div id="emailSMTPFields">
+                            <div class="form-group">
+                                <label for="smtpHost">Servidor SMTP</label>
+                                <input type="text" id="smtpHost" placeholder="smtp.gmail.com" />
+                            </div>
+                            <div class="form-group">
+                                <label for="smtpPort">Porta</label>
+                                <input type="number" id="smtpPort" placeholder="587" value="587" />
+                            </div>
+                            <div class="form-group">
+                                <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+                                    <input type="checkbox" id="smtpSecure" />
+                                    <span>Usar SSL (porta 465)</span>
+                                </label>
+                            </div>
+                            <div class="form-group">
+                                <label for="smtpUsername">Email/Usuário</label>
+                                <input type="text" id="smtpUsername" placeholder="seuemail@gmail.com" />
+                            </div>
+                            <div class="form-group">
+                                <label for="smtpPassword">Senha</label>
+                                <input type="password" id="smtpPassword" placeholder="Senha ou senha de aplicativo" />
+                            </div>
+                        </div>
+
+                        <!-- Campos SendGrid -->
+                        <div id="emailSendGridFields" style="display: none;">
+                            <div class="form-group">
+                                <label for="sendgridApiKey">API Key</label>
+                                <input type="password" id="sendgridApiKey" placeholder="SG.xxxxxxxxxxxxx" />
+                            </div>
+                        </div>
+
+                        <!-- Campos Amazon SES -->
+                        <div id="emailSESFields" style="display: none;">
+                            <div class="form-group">
+                                <label for="sesAccessKeyId">Access Key ID</label>
+                                <input type="text" id="sesAccessKeyId" placeholder="AKIAIOSFODNN7EXAMPLE" />
+                            </div>
+                            <div class="form-group">
+                                <label for="sesSecretAccessKey">Secret Access Key</label>
+                                <input type="password" id="sesSecretAccessKey" placeholder="wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY" />
+                            </div>
+                            <div class="form-group">
+                                <label for="sesRegion">Região</label>
+                                <input type="text" id="sesRegion" placeholder="us-east-1" value="us-east-1" />
+                            </div>
+                        </div>
+
+                        <!-- Campos Mailgun -->
+                        <div id="emailMailgunFields" style="display: none;">
+                            <div class="form-group">
+                                <label for="mailgunApiKey">API Key</label>
+                                <input type="password" id="mailgunApiKey" placeholder="key-xxxxxxxxxxxxx" />
+                            </div>
+                            <div class="form-group">
+                                <label for="mailgunDomain">Domínio</label>
+                                <input type="text" id="mailgunDomain" placeholder="mg.seudominio.com" />
+                            </div>
+                        </div>
+
+                        <div style="display: flex; gap: 0.5rem; margin-top: 1.5rem;">
+                            <button type="button" class="btn-secondary" onclick="app.closeEmailConfigModal()">
+                                Cancelar
+                            </button>
+                            <button type="button" class="btn-secondary" onclick="app.testEmailConnection()">
+                                <i class="fas fa-vial"></i> Testar Conexão
+                            </button>
+                            <button type="submit" class="btn-primary">
+                                <i class="fas fa-save"></i> Salvar
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal: Configuração de SMS -->
+        <div id="smsConfigModal" class="modal">
+            <div class="modal-content" style="max-width: 700px;">
+                <div class="modal-header">
+                    <h2><i class="fas fa-sms"></i> Configuração de SMS</h2>
+                    <span class="close" onclick="app.closeSMSConfigModal()">&times;</span>
+                </div>
+                <div style="padding: 1.5rem;">
+                    <form id="smsConfigForm" onsubmit="app.saveSMSConfig(event)">
+                        <div class="form-group">
+                            <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+                                <input type="checkbox" id="smsEnabled" />
+                                <span>Ativar envio de SMS</span>
+                            </label>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="smsProvider">Provedor de SMS</label>
+                            <select id="smsProvider" onchange="app.toggleSMSProviderFields()">
+                                <option value="twilio">Twilio</option>
+                                <option value="zenvia">Zenvia</option>
+                                <option value="totalvoice">TotalVoice</option>
+                            </select>
+                        </div>
+
+                        <!-- Campos Twilio -->
+                        <div id="smsTwilioFields">
+                            <div class="form-group">
+                                <label for="twilioAccountSid">Account SID</label>
+                                <input type="text" id="twilioAccountSid" placeholder="ACxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" />
+                            </div>
+                            <div class="form-group">
+                                <label for="twilioAuthToken">Auth Token</label>
+                                <input type="password" id="twilioAuthToken" placeholder="Seu Auth Token" />
+                            </div>
+                            <div class="form-group">
+                                <label for="twilioFromNumber">Número Remetente</label>
+                                <input type="text" id="twilioFromNumber" placeholder="+5511999999999" />
+                            </div>
+                        </div>
+
+                        <!-- Campos Zenvia -->
+                        <div id="smsZenviaFields" style="display: none;">
+                            <div class="form-group">
+                                <label for="zenviaApiKey">API Key</label>
+                                <input type="password" id="zenviaApiKey" placeholder="Sua API Key" />
+                            </div>
+                            <div class="form-group">
+                                <label for="zenviaFromNumber">Número Remetente</label>
+                                <input type="text" id="zenviaFromNumber" placeholder="11999999999" />
+                            </div>
+                        </div>
+
+                        <!-- Campos TotalVoice -->
+                        <div id="smsTotalVoiceFields" style="display: none;">
+                            <div class="form-group">
+                                <label for="totalvoiceAccessToken">Access Token</label>
+                                <input type="password" id="totalvoiceAccessToken" placeholder="Seu Access Token" />
+                            </div>
+                            <div class="form-group">
+                                <label for="totalvoiceFromNumber">Número Remetente</label>
+                                <input type="text" id="totalvoiceFromNumber" placeholder="11999999999" />
+                            </div>
+                        </div>
+
+                        <div style="display: flex; gap: 0.5rem; margin-top: 1.5rem;">
+                            <button type="button" class="btn-secondary" onclick="app.closeSMSConfigModal()">
+                                Cancelar
+                            </button>
+                            <button type="button" class="btn-secondary" onclick="app.testSMSConnection()">
+                                <i class="fas fa-vial"></i> Testar Conexão
+                            </button>
+                            <button type="submit" class="btn-primary">
+                                <i class="fas fa-save"></i> Salvar
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal: Configuração de WhatsApp -->
+        <div id="whatsappConfigModal" class="modal">
+            <div class="modal-content" style="max-width: 700px;">
+                <div class="modal-header">
+                    <h2><i class="fab fa-whatsapp"></i> Configuração de WhatsApp</h2>
+                    <span class="close" onclick="app.closeWhatsAppConfigModal()">&times;</span>
+                </div>
+                <div style="padding: 1.5rem;">
+                    <form id="whatsappConfigForm" onsubmit="app.saveWhatsAppConfig(event)">
+                        <div class="form-group">
+                            <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+                                <input type="checkbox" id="whatsappEnabled" />
+                                <span>Ativar integração com WhatsApp</span>
+                            </label>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="whatsappApiKey">API Key (Token de Acesso)</label>
+                            <input type="password" id="whatsappApiKey" placeholder="Seu token de acesso do WhatsApp Business API" />
+                        </div>
+
+                        <div class="form-group">
+                            <label for="whatsappPhoneNumberId">Phone Number ID</label>
+                            <input type="text" id="whatsappPhoneNumberId" placeholder="ID do número de telefone" />
+                        </div>
+
+                        <div class="form-group">
+                            <label for="whatsappBusinessAccountId">Business Account ID</label>
+                            <input type="text" id="whatsappBusinessAccountId" placeholder="ID da conta de negócios" />
+                        </div>
+
+                        <div class="form-group">
+                            <label for="whatsappWebhookUrl">Webhook URL (Opcional)</label>
+                            <input type="url" id="whatsappWebhookUrl" placeholder="https://seudominio.com/webhook/whatsapp" />
+                            <small style="color: var(--gray-600); font-size: 0.85rem;">URL para receber notificações do WhatsApp</small>
+                        </div>
+
+                        <div style="display: flex; gap: 0.5rem; margin-top: 1.5rem;">
+                            <button type="button" class="btn-secondary" onclick="app.closeWhatsAppConfigModal()">
+                                Cancelar
+                            </button>
+                            <button type="button" class="btn-secondary" onclick="app.testWhatsAppConnection()">
+                                <i class="fas fa-vial"></i> Testar Conexão
+                            </button>
+                            <button type="submit" class="btn-primary">
+                                <i class="fas fa-save"></i> Salvar
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal: Configuração de E-commerce -->
+        <div id="ecommerceConfigModal" class="modal">
+            <div class="modal-content" style="max-width: 800px;">
+                <div class="modal-header">
+                    <h2><i class="fas fa-shopping-bag"></i> Configuração de E-commerce</h2>
+                    <span class="close" onclick="app.closeEcommerceConfigModal()">&times;</span>
+                </div>
+                <div style="padding: 1.5rem;">
+                    <div style="margin-bottom: 1.5rem;">
+                        <label for="ecommercePlatform" style="font-weight: 600; margin-bottom: 0.5rem; display: block;">Plataforma</label>
+                        <select id="ecommercePlatform" class="search-input-with-icon" onchange="app.toggleEcommercePlatformFields()" style="width: 100%;">
+                            <option value="woocommerce">WooCommerce</option>
+                            <option value="shopify">Shopify</option>
+                            <option value="mercadoLivre">Mercado Livre</option>
+                        </select>
+                    </div>
+
+                    <!-- Campos WooCommerce -->
+                    <div id="woocommerceFields">
+                        <div class="form-group">
+                            <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+                                <input type="checkbox" id="woocommerceEnabled" />
+                                <span>Ativar sincronização com WooCommerce</span>
+                            </label>
+                        </div>
+                        <div class="form-group">
+                            <label for="woocommerceUrl">URL da Loja</label>
+                            <input type="url" id="woocommerceUrl" placeholder="https://loja.com.br" />
+                        </div>
+                        <div class="form-group">
+                            <label for="woocommerceConsumerKey">Consumer Key</label>
+                            <input type="text" id="woocommerceConsumerKey" placeholder="ck_xxxxxxxxxxxxx" />
+                        </div>
+                        <div class="form-group">
+                            <label for="woocommerceConsumerSecret">Consumer Secret</label>
+                            <input type="password" id="woocommerceConsumerSecret" placeholder="cs_xxxxxxxxxxxxx" />
+                        </div>
+                    </div>
+
+                    <!-- Campos Shopify -->
+                    <div id="shopifyFields" style="display: none;">
+                        <div class="form-group">
+                            <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+                                <input type="checkbox" id="shopifyEnabled" />
+                                <span>Ativar sincronização com Shopify</span>
+                            </label>
+                        </div>
+                        <div class="form-group">
+                            <label for="shopifyShop">Shop</label>
+                            <input type="text" id="shopifyShop" placeholder="loja.myshopify.com" />
+                        </div>
+                        <div class="form-group">
+                            <label for="shopifyApiKey">API Key</label>
+                            <input type="text" id="shopifyApiKey" placeholder="Sua API Key" />
+                        </div>
+                        <div class="form-group">
+                            <label for="shopifyApiSecret">API Secret</label>
+                            <input type="password" id="shopifyApiSecret" placeholder="Sua API Secret" />
+                        </div>
+                    </div>
+
+                    <!-- Campos Mercado Livre -->
+                    <div id="mercadoLivreFields" style="display: none;">
+                        <div class="form-group">
+                            <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+                                <input type="checkbox" id="mercadoLivreEnabled" />
+                                <span>Ativar sincronização com Mercado Livre</span>
+                            </label>
+                        </div>
+                        <div class="form-group">
+                            <label for="mercadoLivreClientId">Client ID</label>
+                            <input type="text" id="mercadoLivreClientId" placeholder="Seu Client ID" />
+                        </div>
+                        <div class="form-group">
+                            <label for="mercadoLivreClientSecret">Client Secret</label>
+                            <input type="password" id="mercadoLivreClientSecret" placeholder="Seu Client Secret" />
+                        </div>
+                        <div class="form-group">
+                            <label for="mercadoLivreAccessToken">Access Token</label>
+                            <input type="password" id="mercadoLivreAccessToken" placeholder="Token OAuth (renova periodicamente)" />
+                            <small style="color: var(--gray-600); font-size: 0.85rem;">O token expira e precisa ser renovado periodicamente</small>
+                        </div>
+                    </div>
+
+                    <div style="display: flex; gap: 0.5rem; margin-top: 1.5rem;">
+                        <button type="button" class="btn-secondary" onclick="app.closeEcommerceConfigModal()">
+                            Cancelar
+                        </button>
+                        <button type="button" class="btn-secondary" onclick="app.testEcommerceConnection()">
+                            <i class="fas fa-vial"></i> Testar Conexão
+                        </button>
+                        <button type="button" class="btn-primary" onclick="app.saveEcommerceConfig()">
+                            <i class="fas fa-save"></i> Salvar
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal: Configuração de ERP -->
+        <div id="erpConfigModal" class="modal">
+            <div class="modal-content" style="max-width: 700px;">
+                <div class="modal-header">
+                    <h2><i class="fas fa-server"></i> Configuração de ERP</h2>
+                    <span class="close" onclick="app.closeERPConfigModal()">&times;</span>
+                </div>
+                <div style="padding: 1.5rem;">
+                    <div style="margin-bottom: 1.5rem;">
+                        <label for="erpPlatform" style="font-weight: 600; margin-bottom: 0.5rem; display: block;">Sistema ERP</label>
+                        <select id="erpPlatform" class="search-input-with-icon" onchange="app.toggleERPPlatformFields()" style="width: 100%;">
+                            <option value="totvs">TOTVS</option>
+                            <option value="sap">SAP</option>
+                        </select>
+                    </div>
+
+                    <!-- Campos TOTVS -->
+                    <div id="totvsFields">
+                        <div class="form-group">
+                            <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+                                <input type="checkbox" id="totvsEnabled" />
+                                <span>Ativar integração com TOTVS</span>
+                            </label>
+                        </div>
+                        <div class="form-group">
+                            <label for="totvsUrl">URL do Servidor</label>
+                            <input type="url" id="totvsUrl" placeholder="http://servidor:8080" />
+                        </div>
+                        <div class="form-group">
+                            <label for="totvsUsername">Usuário</label>
+                            <input type="text" id="totvsUsername" placeholder="Usuário do sistema" />
+                        </div>
+                        <div class="form-group">
+                            <label for="totvsPassword">Senha</label>
+                            <input type="password" id="totvsPassword" placeholder="Senha do usuário" />
+                        </div>
+                        <div class="form-group">
+                            <label for="totvsDatabase">Banco de Dados</label>
+                            <input type="text" id="totvsDatabase" placeholder="Nome do banco de dados" />
+                        </div>
+                    </div>
+
+                    <!-- Campos SAP -->
+                    <div id="sapFields" style="display: none;">
+                        <div class="form-group">
+                            <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+                                <input type="checkbox" id="sapEnabled" />
+                                <span>Ativar integração com SAP</span>
+                            </label>
+                        </div>
+                        <div class="form-group">
+                            <label for="sapUrl">URL do Servidor</label>
+                            <input type="url" id="sapUrl" placeholder="https://servidor:8000" />
+                        </div>
+                        <div class="form-group">
+                            <label for="sapUsername">Usuário</label>
+                            <input type="text" id="sapUsername" placeholder="Usuário do sistema" />
+                        </div>
+                        <div class="form-group">
+                            <label for="sapPassword">Senha</label>
+                            <input type="password" id="sapPassword" placeholder="Senha do usuário" />
+                        </div>
+                        <div class="form-group">
+                            <label for="sapClient">Cliente</label>
+                            <input type="text" id="sapClient" placeholder="100" />
+                        </div>
+                    </div>
+
+                    <div style="display: flex; gap: 0.5rem; margin-top: 1.5rem;">
+                        <button type="button" class="btn-secondary" onclick="app.closeERPConfigModal()">
+                            Cancelar
+                        </button>
+                        <button type="button" class="btn-secondary" onclick="app.testERPConnection()">
+                            <i class="fas fa-vial"></i> Testar Conexão
+                        </button>
+                        <button type="button" class="btn-primary" onclick="app.saveERPConfig()">
+                            <i class="fas fa-save"></i> Salvar
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal: Agendar Mensagem -->
+        <div id="scheduleMessageModal" class="modal">
+            <div class="modal-content" style="max-width: 700px;">
+                <div class="modal-header">
+                    <h2 id="scheduleMessageModalTitle"><i class="fas fa-clock"></i> Agendar Mensagem</h2>
+                    <button class="modal-close" onclick="app.closeScheduleMessageModal()" aria-label="Fechar">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <div style="padding: 1.5rem;">
+                    <form id="scheduleMessageForm" onsubmit="app.saveScheduledMessage(event)">
+                        <div class="form-group">
+                            <label for="scheduleTemplate">Template *</label>
+                            <select id="scheduleTemplate" name="templateId" required onchange="app.loadTemplateVariables()">
+                                <option value="">Selecione um template...</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="scheduleTo">Destinatário *</label>
+                            <input type="text" id="scheduleTo" name="to" required placeholder="email@exemplo.com ou +5511999999999" />
+                            <small style="color: var(--gray-600); font-size: 0.85rem;">Email para emails, número com código do país para SMS/WhatsApp</small>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="scheduleDateTime">Data e Hora do Envio *</label>
+                            <input type="datetime-local" id="scheduleDateTime" name="scheduledAt" required />
+                            <small style="color: var(--gray-600); font-size: 0.85rem;">Selecione a data e hora para envio automático</small>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Variáveis do Template</label>
+                            <div id="templateVariablesContainer">
+                                <p style="color: var(--gray-600); font-size: 0.9rem; margin: 0.5rem 0;">Selecione um template para ver as variáveis</p>
+                            </div>
+                        </div>
+
+                        <div style="display: flex; gap: 0.5rem; margin-top: 1.5rem;">
+                            <button type="button" class="btn-secondary" onclick="app.closeScheduleMessageModal()">
+                                Cancelar
+                            </button>
+                            <button type="submit" class="btn-primary">
+                                <i class="fas fa-calendar-check"></i> Agendar
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal: Template de Mensagem -->
+        <div id="messageTemplateModal" class="modal">
+            <div class="modal-content" style="max-width: 800px;">
+                <div class="modal-header">
+                    <h2 id="messageTemplateModalTitle"><i class="fas fa-envelope-open-text"></i> Template de Mensagem</h2>
+                    <button class="modal-close" onclick="app.closeMessageTemplateModal()" aria-label="Fechar">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <div style="padding: 1.5rem;">
+                    <form id="messageTemplateForm" onsubmit="app.saveMessageTemplate(event)">
+                        <div class="form-group">
+                            <label for="messageTemplateName">Nome do Template *</label>
+                            <input type="text" id="messageTemplateName" name="templateName" required placeholder="Ex: Confirmação de Pedido" />
+                        </div>
+
+                        <div class="form-group">
+                            <label for="messageTemplateType">Tipo de Mensagem *</label>
+                            <select id="messageTemplateType" name="templateType" onchange="app.toggleMessageTemplateFields()" required>
+                                <option value="email">Email</option>
+                                <option value="sms">SMS</option>
+                                <option value="whatsapp">WhatsApp</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group" id="messageTemplateSubjectField">
+                            <label for="messageTemplateSubject">Assunto (apenas para Email)</label>
+                            <input type="text" id="messageTemplateSubject" name="templateSubject" placeholder="Ex: Seu pedido {{pedido}} foi confirmado" />
+                            <small style="color: var(--gray-600); font-size: 0.85rem;">Use {{variavel}} para variáveis dinâmicas</small>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="messageTemplateContent">Conteúdo da Mensagem *</label>
+                            <textarea id="messageTemplateContent" name="templateContent" rows="8" required placeholder="Ex: Olá {{nome}}, seu pedido {{pedido}} no valor de {{valor}} foi confirmado. Obrigado pela preferência!"></textarea>
+                            <small style="color: var(--gray-600); font-size: 0.85rem;">
+                                Use {{variavel}} para variáveis dinâmicas. Variáveis disponíveis: {{nome}}, {{pedido}}, {{valor}}, {{data}}, {{hora}}, {{dataHora}}
+                            </small>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="messageTemplateVariables">Variáveis Personalizadas (separadas por vírgula)</label>
+                            <input type="text" id="messageTemplateVariables" name="templateVariables" placeholder="Ex: pedido, valor, produto" />
+                            <small style="color: var(--gray-600); font-size: 0.85rem;">Liste as variáveis que serão usadas no template (além das padrão)</small>
+                        </div>
+
+                        <div style="display: flex; gap: 0.5rem; margin-top: 1.5rem;">
+                            <button type="button" class="btn-secondary" onclick="app.closeMessageTemplateModal()">
+                                Cancelar
+                            </button>
+                            <button type="submit" class="btn-primary">
+                                <i class="fas fa-save"></i> Salvar Template
+                            </button>
+                        </div>
+                    </form>
                 </div>
             </div>
         </div>

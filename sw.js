@@ -1,7 +1,8 @@
-// Service Worker para PWA - Versão 3.0
+// Service Worker para PWA - Versão 4.0
 // Suporte a cache, notificações push e sincronização em background
-const CACHE_NAME = 'loja-vendas-v3';
-const RUNTIME_CACHE = 'loja-vendas-runtime-v3';
+const CACHE_NAME = 'loja-vendas-v4';
+const RUNTIME_CACHE = 'loja-vendas-runtime-v4';
+const MAX_CACHE_SIZE = 50 * 1024 * 1024; // 50MB
 const urlsToCache = [
   '/',
   '/index.html',

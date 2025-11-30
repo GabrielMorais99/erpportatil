@@ -4,11 +4,28 @@ Sistema web para gestão de itens (roupas), vendas e controle mensal desenvolvid
 
 ## 🚀 Como Executar o Projeto
 
-### Pré-requisitos
+### 🌐 Deploy no Vercel (Recomendado)
+
+O sistema está pronto para deploy no Vercel. Veja o guia completo em `GUIA-DEPLOY-VERCEL.md`.
+
+**Deploy rápido:**
+```bash
+npm i -g vercel
+vercel login
+vercel --prod
+```
+
+**Configurar variáveis de ambiente no Vercel:**
+- `JSONBIN_API_KEY` - Sua chave Master do JSONBin.io
+- `JSONBIN_BIN_ID` - ID do seu Bin no JSONBin.io
+
+### 💻 Executar Localmente
+
+#### Pré-requisitos
 - Node.js instalado (versão 14 ou superior)
 - npm (geralmente vem com Node.js)
 
-### Instalação e Execução
+#### Instalação e Execução
 
 1. **Instalar as dependências:**
    ```bash
@@ -49,20 +66,33 @@ Usuários disponíveis:
 
 ## 📋 Funcionalidades
 
-- ✅ Tela de login com autenticação
+### Core
+- ✅ Tela de login com autenticação multiusuário
 - ✅ Cadastro e gestão de itens (roupas e eletrônicos)
 - ✅ Criação de grupos mensais
 - ✅ Registro de vendas por dia
 - ✅ Resumo mensal com estatísticas
 - ✅ Importar/Exportar dados em arquivo .txt
-- ✅ Pesquisa e filtros
+- ✅ Pesquisa e filtros avançados
 - ✅ Design responsivo com paleta vermelho/branco
-- ✅ **NOVO:** Sistema de busca de comprovantes (por nome ou CPF)
-- ✅ **NOVO:** Carrossel de últimos comprovantes na seção Pedidos Pendentes
-- ✅ **NOVO:** Visualização completa de comprovantes de vendas
-- ✅ **NOVO:** Agenda de serviços com calendário interativo
-- ✅ **NOVO:** Pedidos pendentes com finalização e geração de comprovante
-- ✅ **NOVO:** Armazenamento na nuvem (JSONBin) para sincronização entre dispositivos
+- ✅ Sistema de busca de comprovantes (por nome ou CPF)
+- ✅ Carrossel de últimos comprovantes
+- ✅ Visualização completa de comprovantes de vendas
+- ✅ Agenda de serviços com calendário interativo
+- ✅ Pedidos pendentes com finalização e geração de comprovante
+- ✅ Armazenamento na nuvem (JSONBin) para sincronização entre dispositivos
+
+### Novas Funcionalidades (2025-01-29)
+- ✅ **Templates de Mensagens** - Email, SMS e WhatsApp com variáveis dinâmicas
+- ✅ **Agendamento de Mensagens** - Envio automático em data/hora específica
+- ✅ **Histórico de Mensagens** - Registro completo com filtros e estatísticas
+- ✅ **Sincronização E-commerce** - Importar/exportar produtos e pedidos (WooCommerce, Shopify, Mercado Livre)
+- ✅ **Sincronização de Estoque** - Sincronização bidirecional automática
+- ✅ **Backup Automático** - Múltiplos pontos de armazenamento
+- ✅ **Exportação Avançada** - PDF e Excel com formatação profissional
+- ✅ **Audit Log** - Histórico completo com reversão de ações
+- ✅ **Performance Monitoring** - Monitoramento em tempo real
+- ✅ **PWA Completo** - Instalável, offline e notificações push
 
 ## 📁 Estrutura do Projeto
 
@@ -102,8 +132,10 @@ Os dados são salvos de forma híbrida:
 ## 🔧 Tecnologias Utilizadas
 
 - **Frontend:** HTML5, CSS3, JavaScript (Vanilla)
-- **Backend:** Node.js com Express
-- **Servidor:** Express (servindo arquivos estáticos)
+- **Backend:** Node.js com Express (local) / Vercel Serverless Functions (produção)
+- **Armazenamento:** localStorage, IndexedDB, JSONBin.io (nuvem)
+- **PWA:** Service Worker, Manifest.json
+- **Integrações:** Email (SendGrid, Mailgun), SMS (Twilio, Zenvia), WhatsApp, E-commerce APIs
 
 ## 📝 Notas
 

@@ -1,0 +1,50 @@
+{
+  "// Configurações para GitHub Copilot (Integrado no Cursor)": "",
+  "// NOTA: Copilot está integrado no Cursor, não precisa de extensão": "",
+  "github.copilot.enable": {
+    "*": true,
+    "yaml": true,
+    "plaintext": false,
+    "markdown": true,
+    "javascript": true,
+    "html": true,
+    "css": true
+  },
+  "github.copilot.editor.enableAutoCompletions": true,
+  "github.copilot.inlineSuggest.enable": true,
+  "github.copilot.advanced": {
+    "listCount": 10,
+    "debug": false
+  },
+  
+  "// Configurações para Continue.dev": "",
+  "continue.enableTabAutocomplete": true,
+  "continue.enableCodeActions": true,
+  
+  "// Configurações gerais do projeto ERP": "",
+  "editor.formatOnSave": true,
+  "editor.codeActionsOnSave": {
+    "source.fixAll": "explicit"
+  },
+  "files.associations": {
+    "*.html": "html",
+    "*.js": "javascript",
+    "*.css": "css"
+  },
+  "javascript.preferences.quoteStyle": "single",
+  "javascript.suggest.autoImports": true,
+  "javascript.updateImportsOnFileMove.enabled": "always",
+  
+  "// Configurações de arquivos": "",
+  "files.exclude": {
+    "**/.git": true,
+    "**/.DS_Store": true,
+    "**/node_modules": true,
+    "**/Thumbs.db": true
+  },
+  "files.watcherExclude": {
+    "**/node_modules/**": true,
+    "**/.git/**": true
+  }
+}
+
