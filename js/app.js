@@ -1878,6 +1878,40 @@ class LojaApp {
                     alert('Erro ao gerar QR code: ' + error.message);
                 } else {
                     console.log('QR code gerado com sucesso para:', qrData);
+                    // Verificar se o QR code foi realmente desenhado
+                    setTimeout(() => {
+                        const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+                        // Um QR code válido terá pixels pretos (0,0,0) e brancos (255,255,255)
+                        // Verificar se há pixels pretos (que indicam que o QR code foi desenhado)
+                        let blackPixels = 0;
+                        let whitePixels = 0;
+                        for (let i = 0; i < imageData.data.length; i += 4) {
+                            const r = imageData.data[i];
+                            const g = imageData.data[i + 1];
+                            const b = imageData.data[i + 2];
+                            // Pixel preto (ou quase preto)
+                            if (r < 50 && g < 50 && b < 50) {
+                                blackPixels++;
+                            }
+                            // Pixel branco (ou quase branco)
+                            else if (r > 200 && g > 200 && b > 200) {
+                                whitePixels++;
+                            }
+                        }
+                        const totalPixels = (canvas.width * canvas.height);
+                        const blackPercentage = (blackPixels / totalPixels) * 100;
+                        const whitePercentage = (whitePixels / totalPixels) * 100;
+                        
+                        // Um QR code válido deve ter pelo menos alguns pixels pretos e brancos
+                        if (blackPixels === 0 && whitePixels === 0) {
+                            console.warn('⚠️ Canvas está completamente vazio após geração');
+                        } else if (blackPixels === 0) {
+                            console.warn('⚠️ Canvas não contém pixels pretos (QR code pode estar incorreto)');
+                        } else {
+                            console.log(`✅ QR code verificado: ${blackPixels} pixels pretos (${blackPercentage.toFixed(2)}%), ${whitePixels} pixels brancos (${whitePercentage.toFixed(2)}%)`);
+                        }
+                    }, 200);
+                    
                     if (section) {
                         section.style.display = 'block';
                     }
@@ -1965,11 +1999,39 @@ class LojaApp {
                 } else {
                     console.log('✅ QR code gerado com sucesso no modal:', qrData);
                     // Verificar se o QR code foi realmente desenhado
-                    const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-                    const hasContent = imageData.data.some(channel => channel !== 0 && channel !== 255);
-                    if (!hasContent) {
-                        console.warn('⚠️ Canvas pode estar vazio após geração');
-                    }
+                    // Aguardar um pouco para garantir que o canvas foi renderizado
+                    setTimeout(() => {
+                        const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+                        // Um QR code válido terá pixels pretos (0,0,0) e brancos (255,255,255)
+                        // Verificar se há pixels pretos (que indicam que o QR code foi desenhado)
+                        let blackPixels = 0;
+                        let whitePixels = 0;
+                        for (let i = 0; i < imageData.data.length; i += 4) {
+                            const r = imageData.data[i];
+                            const g = imageData.data[i + 1];
+                            const b = imageData.data[i + 2];
+                            // Pixel preto (ou quase preto)
+                            if (r < 50 && g < 50 && b < 50) {
+                                blackPixels++;
+                            }
+                            // Pixel branco (ou quase branco)
+                            else if (r > 200 && g > 200 && b > 200) {
+                                whitePixels++;
+                            }
+                        }
+                        const totalPixels = (canvas.width * canvas.height);
+                        const blackPercentage = (blackPixels / totalPixels) * 100;
+                        const whitePercentage = (whitePixels / totalPixels) * 100;
+                        
+                        // Um QR code válido deve ter pelo menos alguns pixels pretos e brancos
+                        if (blackPixels === 0 && whitePixels === 0) {
+                            console.warn('⚠️ Canvas está completamente vazio após geração');
+                        } else if (blackPixels === 0) {
+                            console.warn('⚠️ Canvas não contém pixels pretos (QR code pode estar incorreto)');
+                        } else {
+                            console.log(`✅ QR code verificado: ${blackPixels} pixels pretos (${blackPercentage.toFixed(2)}%), ${whitePixels} pixels brancos (${whitePercentage.toFixed(2)}%)`);
+                        }
+                    }, 200);
                 }
             }
         );
