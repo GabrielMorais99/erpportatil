@@ -1,3 +1,44 @@
+/**
+ * ========================================
+ * SISTEMA ERP - GESTÃO FINANCEIRA
+ * ========================================
+ * 
+ * @fileoverview Sistema ERP completo para gestão de loja/vendas
+ * @description Sistema Full Stack (HTML, CSS, JavaScript) sem frameworks pesados
+ * 
+ * MÓDULOS PRINCIPAIS:
+ * - Gestão de Produtos (Estoque, Categorias, Tags)
+ * - Gestão de Vendas (Vendas, Pedidos Pendentes, Recibos)
+ * - Gestão de Clientes (Cadastro, Fidelidade, Notificações)
+ * - Gestão de Fornecedores
+ * - Gestão Financeira (Custos, Metas, Relatórios)
+ * - Serviços (Agendamentos, Grupos Mensais)
+ * - Integrações (E-commerce, ERP, Email, SMS, WhatsApp)
+ * - Multiusuário (Permissões, Auditoria, LGPD)
+ * 
+ * PERSISTÊNCIA:
+ * - localStorage (fallback)
+ * - IndexedDB (quando disponível)
+ * - JSONBin.io (sincronização na nuvem)
+ * 
+ * ARQUITETURA:
+ * - Classe principal: LojaApp
+ * - Sistema de notificações: ToastSystem
+ * - Sistema de confirmações: ConfirmSystem
+ * - Sistema de loading: LoadingOverlay
+ * - Validação de campos: FieldValidator
+ * 
+ * PARA IAs (GitHub Copilot / Continue.dev):
+ * - Use comentários descritivos para gerar código
+ * - Funções seguem padrão: nomeDescritivo(parametros)
+ * - Validações sempre verificam permissões
+ * - Regras de negócio documentadas nos comentários
+ * 
+ * @author Sistema ERP
+ * @version 2.0
+ * @since 2024
+ */
+
 // ========== APP.JS CARREGADO ==========
 console.log('🟣 [APP.JS] Script carregado e executando...');
 
@@ -533,8 +574,47 @@ class FieldValidator {
 // Instância global de FieldValidator
 const fieldValidator = new FieldValidator();
 
-// Sistema de Gestão de Loja
+/**
+ * ========================================
+ * CLASSE PRINCIPAL: LojaApp
+ * ========================================
+ * 
+ * @class LojaApp
+ * @description Classe principal do sistema ERP de gestão financeira
+ * 
+ * RESPONSABILIDADES:
+ * - Gerenciar estado da aplicação (produtos, vendas, clientes, etc.)
+ * - Coordenar operações entre módulos
+ * - Gerenciar persistência de dados
+ * - Controlar UI e interações do usuário
+ * - Validar permissões e regras de negócio
+ * 
+ * ESTRUTURA DE DADOS:
+ * - items: Array de produtos
+ * - clients: Array de clientes
+ * - suppliers: Array de fornecedores
+ * - completedSales: Array de vendas concluídas
+ * - pendingOrders: Array de pedidos pendentes
+ * - costs: Array de custos
+ * - goals: Array de metas
+ * 
+ * PARA IAs:
+ * - Ao criar novas funções, seguir padrão de nomenclatura
+ * - Sempre validar permissões antes de operações críticas
+ * - Documentar regras de negócio nos comentários
+ * - Usar this.logAction() para auditoria
+ */
 class LojaApp {
+    /**
+     * @constructor
+     * @description Inicializa todas as propriedades e estruturas de dados do sistema
+     * 
+     * INICIALIZA:
+     * - Arrays de dados (items, clients, sales, etc.)
+     * - Configurações (payment, ecommerce, erp, email, sms, whatsapp)
+     * - Sistemas auxiliares (cache, timers, locks)
+     * - Chama this.init() para setup completo
+     */
     constructor() {
         this.items = [];
         this.groups = [];
@@ -2301,8 +2381,45 @@ class LojaApp {
         });
     }
 
+    /**
+     * ========================================
+     * MÓDULO: GESTÃO DE PRODUTOS/ITENS
+     * ========================================
+     * 
+     * @description Gerencia produtos, estoque, categorias e tags
+     * 
+     * FUNCIONALIDADES:
+     * - CRUD de produtos (criar, ler, atualizar, deletar)
+     * - Controle de estoque (entrada, saída, mínimo)
+     * - Gestão de categorias e grupos
+     * - Sistema de tags para organização
+     * - QR Code para produtos
+     * - Templates de produtos
+     * 
+     * REGRAS DE NEGÓCIO:
+     * - Estoque não pode ser negativo
+     * - Estoque mínimo deve ser >= 0
+     * - Preço deve ser > 0
+     * - Produto precisa de nome e categoria
+     * 
+     * PERMISSÕES:
+     * - Criar: user, manager, admin
+     * - Editar: user, manager, admin
+     * - Deletar: manager, admin
+     * 
+     * PARA IAs:
+     * - Ao criar funções de estoque, validar regras acima
+     * - Sempre verificar permissões antes de operações
+     * - Usar this.logAction() para auditoria
+     * - Considerar multiusuário ao manipular dados
+     */
     // ========== GESTÃO DE ITENS ==========
 
+    /**
+     * Alterna campos de formulário baseado na categoria selecionada
+     * @description Mostra/oculta campos específicos para Roupas ou Eletrônicos
+     * @example toggleCategoryFields() // Mostra campos de roupas se categoria for "Roupas"
+     */
     toggleCategoryFields() {
         const category = document.getElementById('itemCategory').value;
         const clothingFields = document.getElementById('clothingFields');
@@ -21066,60 +21183,90 @@ class LojaApp {
         let touchCurrentY = 0;
         let isPulling = false;
         let isRefreshing = false;
+        let initialScrollY = 0;
+        let hasScrolled = false;
 
         // Touch start
         mainContent.addEventListener('touchstart', (e) => {
             if (isRefreshing) return;
             
-            // Verificar se está no topo da página
-            if (window.scrollY === 0 || (mainContent.scrollTop === 0 && mainContent === document.querySelector('.main-content'))) {
+            // Verificar se está realmente no topo da página (com margem de erro)
+            const scrollY = window.scrollY || window.pageYOffset || document.documentElement.scrollTop;
+            const scrollTop = mainContent.scrollTop || 0;
+            const isAtTop = scrollY <= 5 && scrollTop <= 5; // Margem de 5px para evitar problemas de precisão
+            
+            if (isAtTop) {
                 touchStartY = e.touches[0].clientY;
+                initialScrollY = scrollY;
                 isPulling = false;
+                hasScrolled = false;
+            } else {
+                touchStartY = 0; // Resetar se não estiver no topo
             }
         }, { passive: true });
 
         // Touch move
         mainContent.addEventListener('touchmove', (e) => {
-            if (isRefreshing) return;
+            if (isRefreshing || touchStartY === 0) return;
 
-            if (touchStartY > 0) {
-                touchCurrentY = e.touches[0].clientY;
-                const pullDistance = touchCurrentY - touchStartY;
+            const currentScrollY = window.scrollY || window.pageYOffset || document.documentElement.scrollTop;
+            const currentScrollTop = mainContent.scrollTop || 0;
+            
+            // Se o usuário já fez scroll para baixo, não permitir pull-to-refresh
+            if (currentScrollY > initialScrollY + 5 || currentScrollTop > 5) {
+                hasScrolled = true;
+                touchStartY = 0; // Cancelar pull-to-refresh
+                return;
+            }
 
-                // Só permitir pull para baixo
-                if (pullDistance > 0 && (window.scrollY === 0 || (mainContent.scrollTop === 0 && mainContent === document.querySelector('.main-content')))) {
-                    isPulling = true;
-                    e.preventDefault(); // Prevenir scroll padrão
+            touchCurrentY = e.touches[0].clientY;
+            const pullDistance = touchCurrentY - touchStartY;
 
-                    const maxPull = 120;
-                    const threshold = 80;
-                    const pullAmount = Math.min(pullDistance, maxPull);
-                    const progress = Math.min(pullAmount / threshold, 1);
-
-                    // Atualizar posição do indicador
-                    pullIndicator.style.top = `${Math.min(pullAmount - 20, 60)}px`;
-                    
-                    // Rotacionar ícone baseado no progresso
-                    const rotation = progress * 360;
-                    pullIndicator.querySelector('i').style.transform = `rotate(${rotation}deg)`;
-
-                    // Mudar cor quando passar do threshold
-                    if (pullAmount >= threshold) {
-                        pullIndicator.style.background = 'var(--primary-color)';
-                        pullIndicator.style.transform = 'translateX(-50%) scale(1.1)';
-                    } else {
-                        pullIndicator.style.background = 'var(--gray-500)';
-                        pullIndicator.style.transform = 'translateX(-50%) scale(1)';
-                    }
+            // Só permitir pull para baixo E se ainda estiver no topo
+            if (pullDistance > 0 && currentScrollY <= 5 && currentScrollTop <= 5 && !hasScrolled) {
+                isPulling = true;
+                
+                // Só prevenir scroll padrão se realmente estiver fazendo pull
+                if (pullDistance > 10) {
+                    e.preventDefault(); // Prevenir scroll padrão apenas quando pull é significativo
                 }
+
+                const maxPull = 120;
+                const threshold = 80;
+                const pullAmount = Math.min(pullDistance, maxPull);
+                const progress = Math.min(pullAmount / threshold, 1);
+
+                // Atualizar posição do indicador
+                pullIndicator.style.top = `${Math.min(pullAmount - 20, 60)}px`;
+                
+                // Rotacionar ícone baseado no progresso
+                const rotation = progress * 360;
+                pullIndicator.querySelector('i').style.transform = `rotate(${rotation}deg)`;
+
+                // Mudar cor quando passar do threshold
+                if (pullAmount >= threshold) {
+                    pullIndicator.style.background = 'var(--primary-color)';
+                    pullIndicator.style.transform = 'translateX(-50%) scale(1.1)';
+                } else {
+                    pullIndicator.style.background = 'var(--gray-500)';
+                    pullIndicator.style.transform = 'translateX(-50%) scale(1)';
+                }
+            } else if (pullDistance < 0) {
+                // Se o usuário está movendo para cima, cancelar pull
+                touchStartY = 0;
+                isPulling = false;
+                this.resetPullToRefreshIndicator(pullIndicator);
             }
         }, { passive: false });
 
         // Touch end
         mainContent.addEventListener('touchend', () => {
-            if (isRefreshing) return;
+            if (isRefreshing) {
+                this.resetPullToRefreshIndicator(pullIndicator);
+                return;
+            }
 
-            if (isPulling && touchStartY > 0) {
+            if (isPulling && touchStartY > 0 && !hasScrolled) {
                 const pullDistance = touchCurrentY - touchStartY;
 
                 if (pullDistance >= this.pullToRefresh.threshold) {
@@ -21129,11 +21276,16 @@ class LojaApp {
                     // Resetar indicador
                     this.resetPullToRefreshIndicator(pullIndicator);
                 }
+            } else {
+                // Resetar se não completou o pull
+                this.resetPullToRefreshIndicator(pullIndicator);
             }
 
             touchStartY = 0;
             touchCurrentY = 0;
             isPulling = false;
+            hasScrolled = false;
+            initialScrollY = 0;
         }, { passive: true });
 
         console.log('✅ [PULL-TO-REFRESH] Inicializado');
