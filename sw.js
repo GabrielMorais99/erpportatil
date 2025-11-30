@@ -1,7 +1,8 @@
-// Service Worker para PWA - Versão 4.0
+// Service Worker para PWA - Versão 5.0
 // Suporte a cache, notificações push e sincronização em background
-const CACHE_NAME = 'loja-vendas-v4';
-const RUNTIME_CACHE = 'loja-vendas-runtime-v4';
+// Estratégia: Network First (sempre busca da rede primeiro, cache como fallback)
+const CACHE_NAME = 'loja-vendas-v5';
+const RUNTIME_CACHE = 'loja-vendas-runtime-v5';
 const MAX_CACHE_SIZE = 50 * 1024 * 1024; // 50MB
 const urlsToCache = [
   '/',
@@ -37,11 +38,12 @@ self.addEventListener('install', (event) => {
 
 // Ativar Service Worker
 self.addEventListener('activate', (event) => {
-  console.log('[SW] Ativando Service Worker...');
+  console.log('[SW] Ativando Service Worker v5.0 (Network First)...');
   event.waitUntil(
     caches.keys().then((cacheNames) => {
       return Promise.all(
         cacheNames.map((cacheName) => {
+          // Limpar TODOS os caches antigos (v4 e anteriores)
           if (cacheName !== CACHE_NAME && cacheName !== RUNTIME_CACHE) {
             console.log('[SW] Removendo cache antigo:', cacheName);
             return caches.delete(cacheName);
@@ -50,8 +52,11 @@ self.addEventListener('activate', (event) => {
       );
     })
     .then(() => {
-      // Assumir controle de todas as páginas
+      // Assumir controle de todas as páginas imediatamente
       return self.clients.claim();
+    })
+    .then(() => {
+      console.log('[SW] Service Worker ativado com estratégia Network First');
     })
   );
 });
@@ -90,7 +95,8 @@ self.addEventListener('fetch', (event) => {
     return; // Deixar o navegador lidar com requisições externas
   }
   
-  // Para arquivos estáticos (HTML, CSS, JS), usar cache primeiro
+  // Para arquivos estáticos (HTML, CSS, JS), usar NETWORK FIRST
+  // Sempre buscar da rede primeiro, usar cache apenas se rede falhar
   if (url.pathname.endsWith('.html') || 
       url.pathname.endsWith('.css') || 
       url.pathname.endsWith('.js') ||
@@ -99,71 +105,53 @@ self.addEventListener('fetch', (event) => {
       url.pathname.endsWith('.png')) {
     
     event.respondWith(
-      caches.match(event.request)
-        .then((cachedResponse) => {
-          if (cachedResponse) {
-            // Buscar atualização em background
-            fetch(event.request)
-              .then((response) => {
-                if (response && response.status === 200) {
-                  // Verificar se o header Vary não contém * (não permitido pelo Cache API)
-                  const varyHeader = response.headers.get('Vary');
-                  if (varyHeader && varyHeader.includes('*')) {
-                    // Não fazer cache se Vary contém *
-                    return;
-                  }
-                  
-                  const responseClone = response.clone();
-                  caches.open(RUNTIME_CACHE)
-                    .then((cache) => {
-                      cache.put(event.request, responseClone);
-                    })
-                    .catch((err) => {
-                      // Ignorar erros de cache
-                      console.warn('[SW] Erro ao atualizar cache:', err.message);
-                    });
-                }
-              })
-              .catch(() => {
-                // Ignorar erros de rede
-              });
-            return cachedResponse;
+      // NETWORK FIRST: Buscar da rede primeiro
+      fetch(event.request)
+        .then((response) => {
+          // Verificar se a resposta é válida
+          if (!response || response.status !== 200 || response.type !== 'basic') {
+            // Se resposta inválida, tentar cache
+            return caches.match(event.request).then((cachedResponse) => {
+              return cachedResponse || response;
+            });
           }
           
-          // Se não estiver em cache, buscar da rede
-          return fetch(event.request)
-            .then((response) => {
-              // Verificar se a resposta é válida
-              if (!response || response.status !== 200 || response.type !== 'basic') {
-                return response;
-              }
-              
-              // Verificar se o header Vary não contém * (não permitido pelo Cache API)
-              const varyHeader = response.headers.get('Vary');
-              if (varyHeader && varyHeader.includes('*')) {
-                // Não fazer cache se Vary contém *
-                console.warn('[SW] Resposta com Vary: * não será cacheada:', event.request.url);
-                return response;
-              }
-              
-              // Clonar a resposta para cache
-              const responseToCache = response.clone();
-              caches.open(RUNTIME_CACHE)
-                .then((cache) => {
-                  cache.put(event.request, responseToCache);
-                })
-                .catch((err) => {
-                  // Ignorar erros de cache (pode ser por headers inválidos)
-                  console.warn('[SW] Erro ao fazer cache:', err.message);
-                });
-              
-              return response;
+          // Verificar se o header Vary não contém * (não permitido pelo Cache API)
+          const varyHeader = response.headers.get('Vary');
+          if (varyHeader && varyHeader.includes('*')) {
+            // Não fazer cache se Vary contém *
+            console.warn('[SW] Resposta com Vary: * não será cacheada:', event.request.url);
+            return response;
+          }
+          
+          // Clonar a resposta para cache (em background)
+          const responseToCache = response.clone();
+          caches.open(RUNTIME_CACHE)
+            .then((cache) => {
+              cache.put(event.request, responseToCache);
             })
-            .catch(() => {
-              // Se falhar, retornar página offline se for HTML
+            .catch((err) => {
+              // Ignorar erros de cache (pode ser por headers inválidos)
+              console.warn('[SW] Erro ao fazer cache:', err.message);
+            });
+          
+          // Retornar resposta da rede (sempre a mais recente)
+          return response;
+        })
+        .catch((error) => {
+          // Se rede falhar, tentar cache como fallback
+          console.log('[SW] Rede falhou, usando cache:', event.request.url);
+          return caches.match(event.request)
+            .then((cachedResponse) => {
+              if (cachedResponse) {
+                return cachedResponse;
+              }
+              // Se não houver cache e for HTML, retornar página offline
               if (event.request.destination === 'document') {
                 return caches.match('/index.html');
               }
+              // Se não houver cache, retornar erro
+              throw error;
             });
         })
     );
