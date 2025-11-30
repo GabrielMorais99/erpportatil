@@ -2520,11 +2520,11 @@ body.theme-blue .login-container #entrarBtn:focus {
 
     .header .btn-secondary {
         font-size: 0.8rem;
-        padding: 0.65rem !important;
+        padding: 0.75rem !important; /* Padding adequado para toque */
         white-space: nowrap;
         flex: 1;
         min-width: 44px !important; /* Tamanho mínimo para toque */
-        height: 44px !important; /* Altura mínima para toque */
+        height: 44px !important; /* Altura fixa para toque */
         text-align: center;
         justify-content: center;
     }
@@ -2535,7 +2535,7 @@ body.theme-blue .login-container #entrarBtn:focus {
 
     .header .btn-secondary i {
         margin: 0;
-        font-size: 1rem;
+        font-size: 1.2rem !important; /* Tamanho maior para melhor visibilidade */
     }
 
     .theme-toggle-btn {
