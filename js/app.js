@@ -1474,6 +1474,60 @@ class LojaApp {
         this.animateValue(element, startValue, value, 300, format);
     }
 
+    // ========== QR CODE LIBRARY LOADER ==========
+    
+    // Carregar biblioteca QRCode dinamicamente se não estiver carregada
+    loadQRCodeLibrary() {
+        return new Promise((resolve, reject) => {
+            // Verificar se já está carregada
+            if (window.QRCode || window.qrcode) {
+                console.log('Biblioteca QRCode já está carregada');
+                resolve();
+                return;
+            }
+
+            // Verificar se já existe um script carregando
+            const existingScript = document.querySelector('script[src*="qrcode"]');
+            if (existingScript) {
+                console.log('Script QRCode já existe, aguardando carregamento...');
+                const checkInterval = setInterval(() => {
+                    if (window.QRCode || window.qrcode) {
+                        clearInterval(checkInterval);
+                        console.log('Biblioteca QRCode carregada!');
+                        resolve();
+                    }
+                }, 100);
+                
+                // Timeout após 5 segundos
+                setTimeout(() => {
+                    clearInterval(checkInterval);
+                    if (!window.QRCode && !window.qrcode) {
+                        reject(new Error('Timeout ao carregar biblioteca QRCode'));
+                    }
+                }, 5000);
+                return;
+            }
+
+            // Carregar script dinamicamente
+            console.log('Carregando biblioteca QRCode...');
+            const script = document.createElement('script');
+            script.src = 'https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js';
+            script.onload = () => {
+                console.log('✅ Biblioteca QRCode carregada com sucesso');
+                if (window.QRCode || window.qrcode) {
+                    resolve();
+                } else {
+                    reject(new Error('Biblioteca carregada mas não disponível em window.QRCode ou window.qrcode'));
+                }
+            };
+            script.onerror = () => {
+                console.error('❌ Erro ao carregar biblioteca QRCode');
+                reject(new Error('Erro ao carregar script QRCode'));
+            };
+            document.head.appendChild(script);
+        });
+    }
+
     // ========== SKELETON LOADING ==========
     
     // Criar HTML do skeleton
@@ -1616,8 +1670,18 @@ class LojaApp {
     }
 
     generateQRCode(itemId) {
-        if (!window.QRCode) {
+        // Verificar se a biblioteca está carregada (pode ser QRCode ou qrcode)
+        const QRCodeLib = window.QRCode || window.qrcode;
+        
+        if (!QRCodeLib) {
             console.error('Biblioteca QRCode não carregada');
+            // Tentar carregar a biblioteca dinamicamente
+            this.loadQRCodeLibrary().then(() => {
+                console.log('Biblioteca QRCode carregada, tentando gerar novamente...');
+                this.generateQRCode(itemId);
+            }).catch((error) => {
+                console.error('Erro ao carregar biblioteca QRCode:', error);
+            });
             return;
         }
 
@@ -1668,9 +1732,21 @@ class LojaApp {
     }
 
     generateQRCodeForModal(itemId, canvasId) {
-        if (!window.QRCode) {
+        // Verificar se a biblioteca está carregada (pode ser QRCode ou qrcode)
+        const QRCodeLib = window.QRCode || window.qrcode;
+        
+        if (!QRCodeLib) {
             console.error('Biblioteca QRCode não carregada');
-            alert('Biblioteca QRCode não está carregada. Recarregue a página.');
+            console.log('Tentando recarregar biblioteca QRCode...');
+            
+            // Tentar carregar a biblioteca dinamicamente
+            this.loadQRCodeLibrary().then(() => {
+                console.log('Biblioteca QRCode carregada, tentando gerar novamente...');
+                this.generateQRCodeForModal(itemId, canvasId);
+            }).catch((error) => {
+                console.error('Erro ao carregar biblioteca QRCode:', error);
+                alert('Erro ao carregar biblioteca QRCode. Verifique sua conexão e recarregue a página.');
+            });
             return;
         }
 
@@ -1708,7 +1784,16 @@ class LojaApp {
             canvas.height = 300;
         }
 
-        QRCode.toCanvas(
+        // Usar a biblioteca disponível
+        const QRCodeLib = window.QRCode || window.qrcode;
+        
+        if (!QRCodeLib) {
+            console.error('Biblioteca QRCode não disponível após verificação');
+            alert('Biblioteca QRCode não está disponível. Tente recarregar a página.');
+            return;
+        }
+        
+        QRCodeLib.toCanvas(
             canvas,
             qrData,
             {

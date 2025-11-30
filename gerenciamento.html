@@ -28,7 +28,9 @@
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
         <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js" onload="window.chartJsLoaded = true;" onerror="console.error('Erro ao carregar Chart.js');"></script>
         <!-- QR Code Libraries -->
-        <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js" 
+                onload="window.qrcodeLoaded = true; console.log('✅ Biblioteca QRCode carregada com sucesso');" 
+                onerror="console.error('❌ Erro ao carregar biblioteca QRCode'); window.qrcodeLoaded = false;"></script>
         <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
         <link rel="manifest" href="/manifest.json" />
         <link
