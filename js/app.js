@@ -1705,14 +1705,7 @@ class LojaApp {
         const ctx = canvas.getContext('2d');
         ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-        // Usar a biblioteca disponível
-        const QRCodeLib = window.QRCode || window.qrcode;
-        
-        if (!QRCodeLib) {
-            console.error('Biblioteca QRCode não disponível após verificação');
-            return;
-        }
-        
+        // Usar a biblioteca já verificada anteriormente
         QRCodeLib.toCanvas(
             canvas,
             qrData,
@@ -1792,15 +1785,7 @@ class LojaApp {
             canvas.height = 300;
         }
 
-        // Usar a biblioteca disponível
-        const QRCodeLib = window.QRCode || window.qrcode;
-        
-        if (!QRCodeLib) {
-            console.error('Biblioteca QRCode não disponível após verificação');
-            alert('Biblioteca QRCode não está disponível. Tente recarregar a página.');
-            return;
-        }
-        
+        // Usar a biblioteca já verificada anteriormente
         QRCodeLib.toCanvas(
             canvas,
             qrData,
