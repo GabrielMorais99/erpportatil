@@ -2556,11 +2556,12 @@ body.theme-blue .login-container #entrarBtn:focus {
 
     .toolbar .btn-primary,
     .toolbar button.btn-primary {
-        min-width: auto !important;
+        min-width: 44px !important; /* Tamanho mínimo para toque */
         max-width: none !important;
         width: auto !important;
+        height: 44px !important; /* Altura mínima para toque */
         font-size: 0.9rem;
-        padding: 0.5rem !important;
+        padding: 0.75rem !important;
         gap: 0 !important;
         white-space: nowrap !important;
     }
@@ -5918,16 +5919,27 @@ body.dark-mode .skeleton-line {
         opacity: 0 !important;
     }
 
-    /* Esconder texto direto em botões usando técnica de font-size zero */
-    /* Isso esconde qualquer texto que não seja ícone */
+    /* Esconder texto direto em botões - técnica melhorada */
+    /* Usar text-indent para esconder texto sem quebrar layout */
     .btn-primary:not(.dark-mode-toggle):not(.theme-toggle-btn),
     button.btn-primary:not(.dark-mode-toggle):not(.theme-toggle-btn) {
-        font-size: 0 !important;
-        line-height: 0 !important;
-        color: transparent !important;
+        position: relative !important;
+        min-width: 44px !important; /* Tamanho mínimo para touch (padrão mobile) */
+        min-height: 44px !important; /* Tamanho mínimo para touch */
+        padding: 0.5rem !important;
     }
 
-    /* Mostrar apenas ícones - restaurar font-size apenas para ícones */
+    /* Esconder texto usando text-indent e overflow */
+    .btn-primary:not(.dark-mode-toggle):not(.theme-toggle-btn) > *:not(i),
+    button.btn-primary:not(.dark-mode-toggle):not(.theme-toggle-btn) > *:not(i) {
+        text-indent: -9999px !important;
+        overflow: hidden !important;
+        width: 0 !important;
+        height: 0 !important;
+        display: none !important;
+    }
+
+    /* Mostrar apenas ícones - garantir tamanho adequado */
     .btn-primary i,
     button.btn-primary i,
     .btn-primary > i,
@@ -5935,19 +5947,18 @@ body.dark-mode .skeleton-line {
     .btn-primary i.fas,
     button.btn-primary i.fas,
     .btn-primary i.far,
-    button.btn-primary i.far {
-        font-size: 1rem !important;
+    button.btn-primary i.far,
+    .btn-primary i.fab,
+    button.btn-primary i.fab {
+        font-size: 1.1rem !important;
         line-height: 1 !important;
         display: inline-block !important;
         color: var(--white) !important;
         visibility: visible !important;
         opacity: 1 !important;
-    }
-
-    /* Esconder qualquer texto que não seja ícone usando ::after e ::before */
-    .btn-primary:not(.dark-mode-toggle):not(.theme-toggle-btn)::after,
-    button.btn-primary:not(.dark-mode-toggle):not(.theme-toggle-btn)::after {
-        display: none !important;
+        margin: 0 !important;
+        width: auto !important;
+        height: auto !important;
     }
 
     /* Ajustar padding e tamanho dos botões para ícones apenas - FORÇAR SOBRESCRITA */
@@ -5957,16 +5968,20 @@ body.dark-mode .skeleton-line {
     button.btn-secondary:not(.dark-mode-toggle):not(.theme-toggle-btn),
     .btn-small:not(.dark-mode-toggle):not(.theme-toggle-btn),
     button.btn-small:not(.dark-mode-toggle):not(.theme-toggle-btn) {
-        padding: 0.5rem !important;
-        min-width: auto !important;
+        padding: 0.75rem !important; /* Aumentar padding para melhor toque */
+        min-width: 44px !important; /* Tamanho mínimo para touch (padrão mobile) */
+        min-height: 44px !important; /* Tamanho mínimo para touch */
         max-width: none !important;
         width: auto !important;
+        height: auto !important;
         justify-content: center !important;
+        align-items: center !important;
         gap: 0 !important;
         white-space: nowrap !important;
+        box-sizing: border-box !important;
     }
 
-    /* Ajustar ícones nos botões - GARANTIR QUE APARECEM */
+    /* Ajustar ícones nos botões - GARANTIR QUE APARECEM E TENHAM TAMANHO ADEQUADO */
     .btn-primary i,
     button.btn-primary i,
     .btn-primary > i,
@@ -5979,10 +5994,11 @@ body.dark-mode .skeleton-line {
     button:not(.dark-mode-toggle):not(.theme-toggle-btn) i,
     .btn:not(.dark-mode-toggle):not(.theme-toggle-btn) i {
         margin: 0 !important;
-        font-size: 1rem !important;
+        font-size: 1.2rem !important; /* Tamanho maior para melhor visibilidade */
         display: inline-block !important;
         visibility: visible !important;
         opacity: 1 !important;
+        line-height: 1 !important;
     }
 
     /* Garantir que modais e formulários sejam responsivos */
@@ -6047,18 +6063,20 @@ body.dark-mode .skeleton-line {
 
 /* Breakpoint para telas muito pequenas (até 480px) */
 @media (max-width: 480px) {
-    /* Ajustes adicionais para telas muito pequenas */
+    /* Ajustes adicionais para telas muito pequenas - MANTER TAMANHO MÍNIMO PARA TOQUE */
     .btn-primary:not(.dark-mode-toggle):not(.theme-toggle-btn),
     .btn-secondary:not(.dark-mode-toggle):not(.theme-toggle-btn),
     .btn-small:not(.dark-mode-toggle):not(.theme-toggle-btn) {
-        padding: 0.4rem !important;
+        padding: 0.65rem !important;
+        min-width: 44px !important; /* Manter tamanho mínimo para toque */
+        height: 44px !important; /* Altura mínima para toque */
     }
 
     .btn-primary i,
     .btn-secondary i,
     .btn-small i,
     .tab-btn i {
-        font-size: 0.9rem !important;
+        font-size: 1.1rem !important; /* Tamanho adequado mesmo em telas pequenas */
     }
 
     /* Reduzir padding em cards */
