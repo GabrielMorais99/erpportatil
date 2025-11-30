@@ -316,6 +316,29 @@ module.exports = async (req, res) => {
             }
         }
         
+        // Para sw.js, tentar caminhos alternativos
+        if (cleanPath === 'sw.js' || filePath.includes('sw.js')) {
+            const altPaths = [
+                path.join(projectRoot, 'sw.js'),
+                path.join(__dirname, '..', 'sw.js'),
+                path.join(process.cwd(), 'sw.js'),
+                path.join('/var/task', 'sw.js'),
+                path.join('/var/task', '..', 'sw.js')
+            ];
+            for (const altPath of altPaths) {
+                if (fs.existsSync(altPath)) {
+                    console.log('sw.js encontrado em caminho alternativo:', altPath);
+                    const content = fs.readFileSync(altPath, 'utf8');
+                    res.setHeader('Content-Type', 'application/javascript; charset=utf-8');
+                    res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate, max-age=0');
+                    res.setHeader('Service-Worker-Allowed', '/');
+                    return res.status(200).send(content);
+                }
+            }
+            console.error('sw.js não encontrado em nenhum caminho');
+            return res.status(404).json({ error: 'sw.js not found' });
+        }
+
         // Para manifest.json, tentar caminhos alternativos
         if (cleanPath.includes('manifest.json') || filePath.includes('manifest.json')) {
             const manifestAltPaths = [
@@ -340,6 +363,36 @@ module.exports = async (req, res) => {
             return res.status(404).json({ error: 'manifest.json not found' });
         }
         
+        // Para arquivos na pasta lib/, tentar caminhos alternativos
+        if (cleanPath.startsWith('lib/')) {
+            const libAltPaths = [
+                path.join(projectRoot, cleanPath),
+                path.join(__dirname, '..', cleanPath),
+                path.join(process.cwd(), cleanPath),
+                path.join('/var/task', cleanPath),
+                path.join('/var/task', '..', cleanPath)
+            ];
+            
+            for (const altPath of libAltPaths) {
+                if (fs.existsSync(altPath)) {
+                    console.log('Arquivo lib/ encontrado em caminho alternativo:', altPath);
+                    const ext = path.extname(altPath).toLowerCase();
+                    const contentTypes = {
+                        '.js': 'application/javascript',
+                        '.css': 'text/css',
+                        '.json': 'application/json'
+                    };
+                    const contentType = contentTypes[ext] || 'application/octet-stream';
+                    const fileContent = fs.readFileSync(altPath, ext === '.js' || ext === '.css' || ext === '.json' ? 'utf8' : null);
+                    res.setHeader('Content-Type', `${contentType}; charset=utf-8`);
+                    res.setHeader('Cache-Control', 'public, max-age=31536000, immutable');
+                    return res.status(200).send(fileContent);
+                }
+            }
+            console.error('Arquivo lib/ não encontrado em nenhum caminho:', cleanPath);
+            return res.status(404).json({ error: 'Library file not found' });
+        }
+
         // Para imagens, tentar caminhos alternativos antes de retornar 404
         if (['.png', '.jpg', '.jpeg', '.gif', '.svg', '.ico', '.webp'].some(ext => cleanPath.endsWith(ext))) {
             const imageAltPaths = [

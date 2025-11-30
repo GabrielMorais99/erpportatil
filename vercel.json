@@ -46,6 +46,27 @@
             }
         },
         {
+            "src": "/lib/(.*)",
+            "dest": "/api/index.js",
+            "headers": {
+                "Cache-Control": "public, max-age=31536000, immutable"
+            }
+        },
+        {
+            "src": "/sw.js",
+            "dest": "/api/index.js",
+            "headers": {
+                "Cache-Control": "no-cache, no-store, must-revalidate, max-age=0"
+            }
+        },
+        {
+            "src": "/manifest.json",
+            "dest": "/api/index.js",
+            "headers": {
+                "Cache-Control": "public, max-age=3600"
+            }
+        },
+        {
             "src": "/gerenciamento.html",
             "dest": "/api/index.js",
             "headers": {

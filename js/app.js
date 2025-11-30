@@ -683,6 +683,7 @@ class LojaApp {
         this.tutorialActive = false; // Se o tutorial está ativo
         this.searchHistory = []; // Histórico de buscas
         this.searchDebounceTimer = null; // Timer para debounce de busca
+        this.productSearchDebounceTimer = null; // Timer para debounce de busca de produtos
         this.clientSearchDebounceTimer = null; // Timer para debounce de busca de clientes
         this.supplierSearchDebounceTimer = null; // Timer para debounce de busca de fornecedores
         this.coupons = []; // Cupons de desconto
@@ -2105,7 +2106,7 @@ class LojaApp {
         }
 
         // Pesquisa e filtro
-        const searchInput = document.getElementById('searchInput');
+        const searchInput = document.getElementById('globalSearchInput');
         const monthFilter = document.getElementById('monthFilter');
 
         if (searchInput) {
@@ -2162,6 +2163,24 @@ class LojaApp {
             console.log('✅ [APP.JS] Listener anexado ao monthFilter');
         } else {
             console.error('❌ [APP.JS] monthFilter não encontrado!');
+        }
+
+        // Listener para busca de produtos no painel de vendas
+        const productSearchInput =
+            document.getElementById('productSearchInput');
+        if (productSearchInput) {
+            productSearchInput.addEventListener('input', (e) => {
+                // Debounce para melhorar performance
+                if (this.productSearchDebounceTimer) {
+                    clearTimeout(this.productSearchDebounceTimer);
+                }
+                this.productSearchDebounceTimer = setTimeout(() => {
+                    this.renderItems();
+                }, 300);
+            });
+            console.log(
+                '✅ [APP.JS] Listener anexado ao productSearchInput (com debounce)'
+            );
         }
 
         // Filtro de ano para grupos mensais
@@ -4804,7 +4823,7 @@ class LojaApp {
             historyContainer = document.createElement('div');
             historyContainer.id = 'searchHistoryContainer';
             historyContainer.className = 'search-history-container';
-            const searchInput = document.getElementById('searchInput');
+            const searchInput = document.getElementById('globalSearchInput');
             if (searchInput && searchInput.parentElement) {
                 searchInput.parentElement.appendChild(historyContainer);
             }
@@ -4847,7 +4866,7 @@ class LojaApp {
     }
 
     selectSearchHistory(term) {
-        const searchInput = document.getElementById('searchInput');
+        const searchInput = document.getElementById('globalSearchInput');
         if (searchInput) {
             searchInput.value = term;
             this.handleSearch(term);
@@ -5007,7 +5026,7 @@ class LojaApp {
             return;
         }
 
-        const searchInput = document.getElementById('searchInput');
+        const searchInput = document.getElementById('productSearchInput');
         const monthFilterEl = document.getElementById('monthFilter');
 
         const searchTerm = searchInput ? searchInput.value.toLowerCase() : '';
@@ -26118,7 +26137,8 @@ END:VCARD`;
             // Ctrl/Cmd + K: Busca rápida
             if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
                 e.preventDefault();
-                const searchInput = document.getElementById('searchInput');
+                const searchInput =
+                    document.getElementById('globalSearchInput');
                 if (searchInput) {
                     searchInput.focus();
                 }

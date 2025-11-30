@@ -37,19 +37,21 @@
                 
                 // ========== CONFIGURAÇÃO ==========
                 const QRCODE_VERSION = '1.5.3';
+                const QRCODE_LOCAL = '/lib/qrcode.min.js';
                 const QRCODE_CDNS = [
                     'https://cdn.jsdelivr.net/npm/qrcode@' + QRCODE_VERSION + '/build/qrcode.min.js',
                     'https://unpkg.com/qrcode@' + QRCODE_VERSION + '/build/qrcode.min.js',
                     'https://cdnjs.cloudflare.com/ajax/libs/qrcode/' + QRCODE_VERSION + '/qrcode.min.js'
                 ];
-                const QRCODE_LOCAL = '/lib/qrcode.min.js';
                 
-                // Detectar se está em localhost (para fallback local)
+                // Detectar se está em localhost ou Vercel (para usar arquivo local primeiro)
                 const isLocalhost = window.location.hostname === 'localhost' || 
                                    window.location.hostname === '127.0.0.1' ||
                                    window.location.hostname.startsWith('192.168.') ||
                                    window.location.hostname.startsWith('10.') ||
                                    window.location.hostname === '0.0.0.0';
+                const isVercel = window.location.hostname.includes('vercel.app') || 
+                                window.location.hostname.includes('vercel.com');
                 
                 // ========== VALIDAÇÃO DE COMPATIBILIDADE ==========
                 function validateQRCodeLibrary(lib, source) {
@@ -166,7 +168,19 @@
                         return;
                     }
                     
-                    // Tentar CDNs primeiro (mais confiável)
+                    // Tentar arquivo local primeiro (Vercel ou localhost)
+                    if (isLocalhost || isVercel) {
+                        try {
+                            console.log('📥 [QRCode] Tentando carregar do arquivo local...');
+                            await loadFromSource(QRCODE_LOCAL, 'arquivo local');
+                            return; // Sucesso!
+                        } catch (error) {
+                            console.warn('⚠️ [QRCode] Falha ao carregar arquivo local:', error.message);
+                            console.log('📥 [QRCode] Tentando CDNs como fallback...');
+                        }
+                    }
+                    
+                    // Tentar CDNs como fallback
                     for (let i = 0; i < QRCODE_CDNS.length; i++) {
                         try {
                             const cdnName = i === 0 ? 'CDN jsdelivr (principal)' : 
@@ -177,17 +191,6 @@
                         } catch (error) {
                             console.warn('⚠️ [QRCode] Falha ao carregar de CDN', i + 1, ':', error.message);
                             // Continuar para próximo CDN
-                        }
-                    }
-                    
-                    // Se todos os CDNs falharam e estiver em localhost, tentar arquivo local
-                    if (isLocalhost) {
-                        try {
-                            console.log('📥 [QRCode] Todos os CDNs falharam, tentando arquivo local...');
-                            await loadFromSource(QRCODE_LOCAL, 'arquivo local');
-                            return; // Sucesso!
-                        } catch (error) {
-                            console.error('❌ [QRCode] Falha ao carregar arquivo local:', error.message);
                         }
                     }
                     
@@ -291,7 +294,7 @@
                             <i class="fas fa-search search-icon"></i>
                             <input
                                 type="text"
-                                id="searchInput"
+                                id="globalSearchInput"
                                 class="search-input-with-icon"
                                 placeholder="Pesquisar..."
                             />
@@ -360,7 +363,7 @@
                             <div class="panel-filters" style="margin-bottom: 1rem; display: flex; gap: 1rem; align-items: center; flex-wrap: wrap;">
                                 <div class="filter-group" style="display: flex; align-items: center; gap: 0.5rem; flex: 1; min-width: 250px;">
                                     <i class="fas fa-search" style="color: var(--gray-400);"></i>
-                                    <input type="text" id="searchInput" class="search-input-with-icon" placeholder="Buscar produtos (inclui notas)..." style="flex: 1;">
+                                    <input type="text" id="productSearchInput" class="search-input-with-icon" placeholder="Buscar produtos (inclui notas)..." style="flex: 1;">
                                 </div>
                                 <div class="filter-group" style="display: flex; align-items: center; gap: 0.5rem;">
                                     <label for="tagFilter" style="font-size: 0.875rem; color: var(--gray-600); white-space: nowrap;">
