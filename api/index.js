@@ -134,8 +134,8 @@ module.exports = async (req, res) => {
                 const now = new Date();
                 res.setHeader('Last-Modified', now.toUTCString());
                 
-                // Adicionar header para evitar cache do Vercel CDN
-                res.setHeader('Vary', '*');
+                // Adicionar header para evitar cache do Vercel CDN (sem * para compatibilidade com Service Worker)
+                res.setHeader('Vary', 'Accept, Accept-Encoding');
 
                 // Remover headers que podem causar 304
                 res.removeHeader('ETag');
@@ -316,6 +316,65 @@ module.exports = async (req, res) => {
             }
         }
         
+        // Para arquivos na pasta lib/, tentar PRIMEIRO (antes de outras verificações)
+        // Verificar tanto cleanPath quanto filePath para garantir detecção
+        if (cleanPath.startsWith('lib/') || filePath.startsWith('/lib/') || filePath.includes('/lib/')) {
+            // Normalizar o caminho removendo barras duplicadas
+            let normalizedPath = cleanPath;
+            if (filePath.startsWith('/lib/')) {
+                normalizedPath = filePath.slice(1); // Remove / inicial
+            } else if (filePath.includes('/lib/')) {
+                const parts = filePath.split('/lib/');
+                normalizedPath = 'lib/' + parts[parts.length - 1]; // Pega a última parte após /lib/
+            } else if (!cleanPath.startsWith('lib/')) {
+                normalizedPath = 'lib/' + cleanPath; // Adiciona lib/ se não tiver
+            }
+            
+            const libAltPaths = [
+                path.join(projectRoot, normalizedPath),
+                path.join(__dirname, '..', normalizedPath),
+                path.join(process.cwd(), normalizedPath),
+                path.join('/var/task', normalizedPath),
+                path.join('/var/task', '..', normalizedPath),
+                // Tentar também com lib/ explícito
+                path.join(projectRoot, 'lib', normalizedPath.replace('lib/', '')),
+                path.join(__dirname, '..', 'lib', normalizedPath.replace('lib/', ''))
+            ];
+            
+            console.log('🔍 [LIB] Tentando encontrar arquivo:', normalizedPath);
+            console.log('🔍 [LIB] Caminhos a tentar:', libAltPaths.slice(0, 3));
+            
+            for (const altPath of libAltPaths) {
+                try {
+                    if (fs.existsSync(altPath)) {
+                        console.log('✅ [LIB] Arquivo encontrado em:', altPath);
+                        const stats = fs.statSync(altPath);
+                        if (stats.isFile()) {
+                            const ext = path.extname(altPath).toLowerCase();
+                            const contentTypes = {
+                                '.js': 'application/javascript',
+                                '.css': 'text/css',
+                                '.json': 'application/json'
+                            };
+                            const contentType = contentTypes[ext] || 'application/octet-stream';
+                            const fileContent = fs.readFileSync(altPath, ext === '.js' || ext === '.css' || ext === '.json' ? 'utf8' : null);
+                            res.setHeader('Content-Type', `${contentType}; charset=utf-8`);
+                            res.setHeader('Cache-Control', 'public, max-age=31536000, immutable');
+                            // Não usar Vary: * para compatibilidade com Service Worker
+                            res.setHeader('Vary', 'Accept, Accept-Encoding');
+                            return res.status(200).send(fileContent);
+                        }
+                    }
+                } catch (err) {
+                    // Continuar tentando outros caminhos
+                    continue;
+                }
+            }
+            console.error('❌ [LIB] Arquivo não encontrado em nenhum caminho:', normalizedPath);
+            console.error('❌ [LIB] Caminhos tentados:', libAltPaths);
+            return res.status(404).json({ error: 'Library file not found', path: normalizedPath });
+        }
+
         // Para sw.js, tentar caminhos alternativos
         if (cleanPath === 'sw.js' || filePath.includes('sw.js')) {
             const altPaths = [
@@ -363,35 +422,6 @@ module.exports = async (req, res) => {
             return res.status(404).json({ error: 'manifest.json not found' });
         }
         
-        // Para arquivos na pasta lib/, tentar caminhos alternativos
-        if (cleanPath.startsWith('lib/')) {
-            const libAltPaths = [
-                path.join(projectRoot, cleanPath),
-                path.join(__dirname, '..', cleanPath),
-                path.join(process.cwd(), cleanPath),
-                path.join('/var/task', cleanPath),
-                path.join('/var/task', '..', cleanPath)
-            ];
-            
-            for (const altPath of libAltPaths) {
-                if (fs.existsSync(altPath)) {
-                    console.log('Arquivo lib/ encontrado em caminho alternativo:', altPath);
-                    const ext = path.extname(altPath).toLowerCase();
-                    const contentTypes = {
-                        '.js': 'application/javascript',
-                        '.css': 'text/css',
-                        '.json': 'application/json'
-                    };
-                    const contentType = contentTypes[ext] || 'application/octet-stream';
-                    const fileContent = fs.readFileSync(altPath, ext === '.js' || ext === '.css' || ext === '.json' ? 'utf8' : null);
-                    res.setHeader('Content-Type', `${contentType}; charset=utf-8`);
-                    res.setHeader('Cache-Control', 'public, max-age=31536000, immutable');
-                    return res.status(200).send(fileContent);
-                }
-            }
-            console.error('Arquivo lib/ não encontrado em nenhum caminho:', cleanPath);
-            return res.status(404).json({ error: 'Library file not found' });
-        }
 
         // Para imagens, tentar caminhos alternativos antes de retornar 404
         if (['.png', '.jpg', '.jpeg', '.gif', '.svg', '.ico', '.webp'].some(ext => cleanPath.endsWith(ext))) {

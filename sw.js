@@ -81,10 +81,21 @@ self.addEventListener('fetch', (event) => {
             fetch(event.request)
               .then((response) => {
                 if (response && response.status === 200) {
+                  // Verificar se o header Vary não contém * (não permitido pelo Cache API)
+                  const varyHeader = response.headers.get('Vary');
+                  if (varyHeader && varyHeader.includes('*')) {
+                    // Não fazer cache se Vary contém *
+                    return;
+                  }
+                  
                   const responseClone = response.clone();
                   caches.open(RUNTIME_CACHE)
                     .then((cache) => {
                       cache.put(event.request, responseClone);
+                    })
+                    .catch((err) => {
+                      // Ignorar erros de cache
+                      console.warn('[SW] Erro ao atualizar cache:', err.message);
                     });
                 }
               })
@@ -102,11 +113,23 @@ self.addEventListener('fetch', (event) => {
                 return response;
               }
               
+              // Verificar se o header Vary não contém * (não permitido pelo Cache API)
+              const varyHeader = response.headers.get('Vary');
+              if (varyHeader && varyHeader.includes('*')) {
+                // Não fazer cache se Vary contém *
+                console.warn('[SW] Resposta com Vary: * não será cacheada:', event.request.url);
+                return response;
+              }
+              
               // Clonar a resposta para cache
               const responseToCache = response.clone();
               caches.open(RUNTIME_CACHE)
                 .then((cache) => {
                   cache.put(event.request, responseToCache);
+                })
+                .catch((err) => {
+                  // Ignorar erros de cache (pode ser por headers inválidos)
+                  console.warn('[SW] Erro ao fazer cache:', err.message);
                 });
               
               return response;
