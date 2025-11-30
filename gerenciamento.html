@@ -44,10 +44,6 @@
                         QRCodeLib = QRCode;
                     } else if (typeof window.QRCode !== 'undefined') {
                         QRCodeLib = window.QRCode;
-                    } else if (typeof require !== 'undefined') {
-                        try {
-                            QRCodeLib = require('qrcode');
-                        } catch(e) {}
                     }
                     
                     if (QRCodeLib) {
@@ -80,9 +76,9 @@
                     qrScript.src = '/lib/qrcode.min.js';
                     console.log('📥 Carregando QRCode do arquivo local...');
                 } else {
-                    // Usar CDN com caminho correto (sem /build/)
-                    qrScript.src = 'https://cdn.jsdelivr.net/npm/qrcode@1.5.3/lib/browser.js';
-                    console.log('📥 Carregando QRCode do CDN...');
+                    // Usar CDN UMD que funciona no browser (sem require)
+                    qrScript.src = 'https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js';
+                    console.log('📥 Carregando QRCode do CDN (UMD)...');
                 }
                 
                 qrScript.async = true;
@@ -107,7 +103,7 @@
                         // Se local falhar, tentar CDN
                         console.warn('⚠️ Arquivo local não encontrado, tentando CDN...');
                         var cdnScript = document.createElement('script');
-                        cdnScript.src = 'https://cdn.jsdelivr.net/npm/qrcode@1.5.3/lib/browser.js';
+                        cdnScript.src = 'https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js';
                         cdnScript.async = true;
                         cdnScript.onload = function() {
                             if (window.setupQRCode) {
@@ -127,7 +123,7 @@
                         // Se CDN falhar, tentar alternativas
                         console.warn('⚠️ CDN principal falhou, tentando alternativas...');
                         var altScript = document.createElement('script');
-                        altScript.src = 'https://unpkg.com/qrcode@1.5.3/lib/browser.js';
+                        altScript.src = 'https://unpkg.com/qrcode@1.5.3/build/qrcode.min.js';
                         altScript.async = true;
                         altScript.onload = function() {
                             if (window.setupQRCode) {
