@@ -30,118 +30,187 @@
         <!-- Bibliotecas para exportação avançada -->
         <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
         <script src="https://cdn.jsdelivr.net/npm/jspdf-autotable@3.8.2/dist/jspdf.plugin.autotable.min.js"></script>
-        <!-- QR Code Libraries - Usar local no localhost, CDN no Vercel -->
+        <!-- QR Code Libraries - Estratégia Unificada (funciona em localhost e Vercel) -->
         <script>
-            // Função auxiliar para expor QRCode globalmente
-            window.setupQRCode = function() {
-                setTimeout(function() {
-                    // A biblioteca QRCode expõe como QRCode no escopo global
-                    // Verificar múltiplas formas de acesso
-                    var QRCodeLib = null;
+            (function() {
+                'use strict';
+                
+                // ========== CONFIGURAÇÃO ==========
+                const QRCODE_VERSION = '1.5.3';
+                const QRCODE_CDNS = [
+                    'https://cdn.jsdelivr.net/npm/qrcode@' + QRCODE_VERSION + '/build/qrcode.min.js',
+                    'https://unpkg.com/qrcode@' + QRCODE_VERSION + '/build/qrcode.min.js',
+                    'https://cdnjs.cloudflare.com/ajax/libs/qrcode/' + QRCODE_VERSION + '/qrcode.min.js'
+                ];
+                const QRCODE_LOCAL = '/lib/qrcode.min.js';
+                
+                // Detectar se está em localhost (para fallback local)
+                const isLocalhost = window.location.hostname === 'localhost' || 
+                                   window.location.hostname === '127.0.0.1' ||
+                                   window.location.hostname.startsWith('192.168.') ||
+                                   window.location.hostname.startsWith('10.') ||
+                                   window.location.hostname === '0.0.0.0';
+                
+                // ========== VALIDAÇÃO DE COMPATIBILIDADE ==========
+                function validateQRCodeLibrary(lib, source) {
+                    if (!lib) {
+                        console.error('❌ [QRCode] Biblioteca não encontrada após carregamento de:', source);
+                        return false;
+                    }
                     
-                    // Tentar diferentes formas de acesso
+                    // Verificar métodos essenciais
+                    const requiredMethods = ['toCanvas', 'toDataURL'];
+                    const missingMethods = requiredMethods.filter(method => typeof lib[method] !== 'function');
+                    
+                    if (missingMethods.length > 0) {
+                        console.error('❌ [QRCode] Biblioteca incompleta. Métodos faltando:', missingMethods.join(', '));
+                        console.error('❌ [QRCode] Fonte:', source);
+                        return false;
+                    }
+                    
+                    console.log('✅ [QRCode] Biblioteca validada com sucesso!');
+                    console.log('📦 [QRCode] Fonte:', source);
+                    console.log('🔧 [QRCode] Métodos disponíveis: toCanvas, toDataURL');
+                    return true;
+                }
+                
+                // ========== EXPOR BIBLIOTECA GLOBALMENTE ==========
+                function exposeQRCodeLibrary(lib, source) {
+                    if (!validateQRCodeLibrary(lib, source)) {
+                        return false;
+                    }
+                    
+                    // Expor em múltiplas formas para compatibilidade
+                    window.QRCode = lib;
+                    window.qrcode = lib;
+                    window.qrcodeLoaded = true;
+                    window.qrcodeSource = source; // Para debug
+                    
+                    console.log('✅ [QRCode] Biblioteca QRCode configurada e disponível globalmente');
+                    return true;
+                }
+                
+                // ========== VERIFICAR SE JÁ ESTÁ CARREGADO ==========
+                function checkIfAlreadyLoaded() {
+                    // Verificar múltiplas formas de acesso
+                    let QRCodeLib = null;
+                    let source = 'já carregado';
+                    
                     if (typeof QRCode !== 'undefined') {
                         QRCodeLib = QRCode;
-                    } else if (typeof window.QRCode !== 'undefined') {
+                        source = 'variável global QRCode';
+                    } else if (window.QRCode) {
                         QRCodeLib = window.QRCode;
+                        source = 'window.QRCode';
+                    } else if (window.qrcode) {
+                        QRCodeLib = window.qrcode;
+                        source = 'window.qrcode';
                     }
                     
-                    if (QRCodeLib) {
-                        window.QRCode = QRCodeLib;
-                        window.qrcode = QRCodeLib;
-                        window.qrcodeLoaded = true;
-                        console.log('✅ Biblioteca QRCode configurada e disponível');
-                    } else {
-                        console.warn('⚠️ QRCode não encontrado após carregamento');
-                        window.qrcodeLoaded = false;
+                    if (QRCodeLib && validateQRCodeLibrary(QRCodeLib, source)) {
+                        exposeQRCodeLibrary(QRCodeLib, source);
+                        return true;
                     }
-                }, 100);
-            };
-            
-            // Detectar se está rodando localmente ou no Vercel
-            var isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
-            
-            // Carregar QRCode
-            (function() {
-                // Verificar se já foi carregado
-                if (window.qrcodeLoaded || (window.QRCode || window.qrcode)) {
-                    console.log('✅ Biblioteca QRCode já está disponível');
-                    return;
+                    
+                    return false;
                 }
                 
-                var qrScript = document.createElement('script');
-                
-                // No localhost, usar arquivo local; no Vercel, usar CDN
-                if (isLocalhost) {
-                    qrScript.src = '/lib/qrcode.min.js';
-                    console.log('📥 Carregando QRCode do arquivo local...');
-                } else {
-                    // Usar CDN UMD que funciona no browser (sem require)
-                    qrScript.src = 'https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js';
-                    console.log('📥 Carregando QRCode do CDN (UMD)...');
+                // ========== CARREGAR DE UMA FONTE ==========
+                function loadFromSource(url, sourceName) {
+                    return new Promise((resolve, reject) => {
+                        console.log('📥 [QRCode] Tentando carregar de:', sourceName);
+                        console.log('🔗 [QRCode] URL:', url);
+                        
+                        const script = document.createElement('script');
+                        script.src = url;
+                        script.async = true;
+                        
+                        script.onload = function() {
+                            console.log('✅ [QRCode] Script carregado de:', sourceName);
+                            
+                            // Aguardar um pouco para garantir que a biblioteca está disponível
+                            setTimeout(function() {
+                                let QRCodeLib = null;
+                                
+                                // Tentar múltiplas formas de acesso
+                                if (typeof QRCode !== 'undefined') {
+                                    QRCodeLib = QRCode;
+                                } else if (window.QRCode) {
+                                    QRCodeLib = window.QRCode;
+                                } else if (window.qrcode) {
+                                    QRCodeLib = window.qrcode;
+                                }
+                                
+                                if (QRCodeLib && exposeQRCodeLibrary(QRCodeLib, sourceName)) {
+                                    resolve(QRCodeLib);
+                                } else {
+                                    console.warn('⚠️ [QRCode] Biblioteca não encontrada após carregamento de:', sourceName);
+                                    reject(new Error('Biblioteca não encontrada após carregamento'));
+                                }
+                            }, 150);
+                        };
+                        
+                        script.onerror = function() {
+                            console.warn('❌ [QRCode] Erro ao carregar de:', sourceName);
+                            reject(new Error('Erro ao carregar script'));
+                        };
+                        
+                        document.head.appendChild(script);
+                    });
                 }
                 
-                qrScript.async = true;
-                qrScript.onload = function() {
-                    if (window.setupQRCode) {
-                        window.setupQRCode();
-                    } else {
-                        setTimeout(function() {
-                            if (window.setupQRCode) {
-                                window.setupQRCode();
-                            } else if (typeof QRCode !== 'undefined') {
-                                window.QRCode = QRCode;
-                                window.qrcode = QRCode;
-                                window.qrcodeLoaded = true;
-                                console.log('✅ Biblioteca QRCode configurada');
-                            }
-                        }, 100);
+                // ========== CARREGAR COM FALLBACKS ==========
+                async function loadQRCodeWithFallbacks() {
+                    // Verificar se já está carregado
+                    if (checkIfAlreadyLoaded()) {
+                        return;
                     }
-                };
-                qrScript.onerror = function() {
+                    
+                    // Tentar CDNs primeiro (mais confiável)
+                    for (let i = 0; i < QRCODE_CDNS.length; i++) {
+                        try {
+                            const cdnName = i === 0 ? 'CDN jsdelivr (principal)' : 
+                                          i === 1 ? 'CDN unpkg (fallback 1)' : 
+                                          'CDN cdnjs (fallback 2)';
+                            await loadFromSource(QRCODE_CDNS[i], cdnName);
+                            return; // Sucesso!
+                        } catch (error) {
+                            console.warn('⚠️ [QRCode] Falha ao carregar de CDN', i + 1, ':', error.message);
+                            // Continuar para próximo CDN
+                        }
+                    }
+                    
+                    // Se todos os CDNs falharam e estiver em localhost, tentar arquivo local
                     if (isLocalhost) {
-                        // Se local falhar, tentar CDN
-                        console.warn('⚠️ Arquivo local não encontrado, tentando CDN...');
-                        var cdnScript = document.createElement('script');
-                        cdnScript.src = 'https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js';
-                        cdnScript.async = true;
-                        cdnScript.onload = function() {
-                            if (window.setupQRCode) {
-                                window.setupQRCode();
-                            } else if (typeof QRCode !== 'undefined') {
-                                window.QRCode = QRCode;
-                                window.qrcode = QRCode;
-                                window.qrcodeLoaded = true;
-                            }
-                        };
-                        cdnScript.onerror = function() {
-                            console.warn('⚠️ Funcionalidade de QRCode não estará disponível');
-                            window.qrcodeLoaded = false;
-                        };
-                        document.head.appendChild(cdnScript);
-                    } else {
-                        // Se CDN falhar, tentar alternativas
-                        console.warn('⚠️ CDN principal falhou, tentando alternativas...');
-                        var altScript = document.createElement('script');
-                        altScript.src = 'https://unpkg.com/qrcode@1.5.3/build/qrcode.min.js';
-                        altScript.async = true;
-                        altScript.onload = function() {
-                            if (window.setupQRCode) {
-                                window.setupQRCode();
-                            } else if (typeof QRCode !== 'undefined') {
-                                window.QRCode = QRCode;
-                                window.qrcode = QRCode;
-                                window.qrcodeLoaded = true;
-                            }
-                        };
-                        altScript.onerror = function() {
-                            console.warn('⚠️ Funcionalidade de QRCode não estará disponível');
-                            window.qrcodeLoaded = false;
-                        };
-                        document.head.appendChild(altScript);
+                        try {
+                            console.log('📥 [QRCode] Todos os CDNs falharam, tentando arquivo local...');
+                            await loadFromSource(QRCODE_LOCAL, 'arquivo local');
+                            return; // Sucesso!
+                        } catch (error) {
+                            console.error('❌ [QRCode] Falha ao carregar arquivo local:', error.message);
+                        }
                     }
-                };
-                document.head.appendChild(qrScript);
+                    
+                    // Se tudo falhou
+                    console.error('❌ [QRCode] Todas as fontes falharam!');
+                    console.error('💡 [QRCode] Possíveis causas:');
+                    console.error('   1. Problema de conexão com a internet');
+                    console.error('   2. Firewall ou proxy bloqueando CDNs');
+                    console.error('   3. Arquivo local não encontrado (localhost)');
+                    console.error('   4. CDNs temporariamente indisponíveis');
+                    
+                    window.qrcodeLoaded = false;
+                    window.qrcodeError = 'Não foi possível carregar a biblioteca QRCode de nenhuma fonte disponível.';
+                }
+                
+                // ========== INICIAR CARREGAMENTO ==========
+                // Aguardar DOM estar pronto
+                if (document.readyState === 'loading') {
+                    document.addEventListener('DOMContentLoaded', loadQRCodeWithFallbacks);
+                } else {
+                    // DOM já está pronto
+                    loadQRCodeWithFallbacks();
+                }
             })();
         </script>
         <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
