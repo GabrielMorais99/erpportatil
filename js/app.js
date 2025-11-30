@@ -1,6 +1,260 @@
 // ========== APP.JS CARREGADO ==========
 console.log('🟣 [APP.JS] Script carregado e executando...');
 
+// ========================================
+// SISTEMA DE NOTIFICAÇÕES TOAST
+// ========================================
+class ToastSystem {
+    constructor() {
+        this.container = this.createContainer();
+        this.toasts = [];
+    }
+
+    createContainer() {
+        let container = document.getElementById('toast-container');
+        if (!container) {
+            container = document.createElement('div');
+            container.id = 'toast-container';
+            container.className = 'toast-container';
+            document.body.appendChild(container);
+        }
+        return container;
+    }
+
+    show(message, type = 'info', duration = 3000) {
+        const toast = this.createToast(message, type);
+        this.container.appendChild(toast);
+        this.toasts.push(toast);
+
+        // Animar entrada
+        requestAnimationFrame(() => {
+            setTimeout(() => toast.classList.add('show'), 10);
+        });
+
+        // Auto-dismiss
+        if (duration > 0) {
+            setTimeout(() => this.hide(toast), duration);
+        }
+
+        return toast;
+    }
+
+    createToast(message, type) {
+        const toast = document.createElement('div');
+        toast.className = `toast toast-${type}`;
+        
+        const icon = this.getIcon(type);
+        toast.innerHTML = `
+            <div class="toast-icon">
+                <i class="fas fa-${icon}"></i>
+            </div>
+            <div class="toast-message">${this.escapeHtml(message)}</div>
+            <button class="toast-close" aria-label="Fechar notificação" onclick="this.parentElement.remove()">
+                <i class="fas fa-times"></i>
+            </button>
+        `;
+
+        // Adicionar evento de clique no toast para fechar
+        toast.addEventListener('click', (e) => {
+            if (e.target.classList.contains('toast-close') || e.target.closest('.toast-close')) {
+                this.hide(toast);
+            }
+        });
+
+        return toast;
+    }
+
+    hide(toast) {
+        if (!toast || !toast.parentElement) return;
+        
+        toast.classList.add('hiding');
+        setTimeout(() => {
+            if (toast.parentElement) {
+                toast.remove();
+            }
+            this.toasts = this.toasts.filter(t => t !== toast);
+        }, 200);
+    }
+
+    getIcon(type) {
+        const icons = {
+            success: 'check-circle',
+            error: 'exclamation-circle',
+            warning: 'exclamation-triangle',
+            info: 'info-circle'
+        };
+        return icons[type] || 'info-circle';
+    }
+
+    escapeHtml(text) {
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+    }
+
+    // Métodos de conveniência
+    success(message, duration = 3000) {
+        return this.show(message, 'success', duration);
+    }
+
+    error(message, duration = 5000) {
+        return this.show(message, 'error', duration);
+    }
+
+    warning(message, duration = 4000) {
+        return this.show(message, 'warning', duration);
+    }
+
+    info(message, duration = 3000) {
+        return this.show(message, 'info', duration);
+    }
+}
+
+// ========================================
+// SISTEMA DE CONFIRMAÇÃO CUSTOMIZADO
+// ========================================
+class ConfirmSystem {
+    constructor() {
+        this.modal = this.createModal();
+    }
+
+    createModal() {
+        let modal = document.getElementById('confirm-modal');
+        if (!modal) {
+            modal = document.createElement('div');
+            modal.id = 'confirm-modal';
+            modal.className = 'confirm-modal';
+            modal.innerHTML = `
+                <div class="confirm-modal-content">
+                    <div class="confirm-modal-header">
+                        <div class="confirm-modal-icon" id="confirm-modal-icon">
+                            <i class="fas fa-exclamation-triangle"></i>
+                        </div>
+                        <h3 class="confirm-modal-title" id="confirm-modal-title">Confirmar ação</h3>
+                    </div>
+                    <div class="confirm-modal-body" id="confirm-modal-body">
+                        Tem certeza que deseja continuar?
+                    </div>
+                    <div class="confirm-modal-actions">
+                        <button class="confirm-modal-btn confirm-modal-btn-cancel" id="confirm-modal-cancel">
+                            <i class="fas fa-times"></i> Cancelar
+                        </button>
+                        <button class="confirm-modal-btn confirm-modal-btn-confirm" id="confirm-modal-confirm">
+                            <i class="fas fa-check"></i> Confirmar
+                        </button>
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(modal);
+
+            // Fechar ao clicar fora
+            modal.addEventListener('click', (e) => {
+                if (e.target === modal) {
+                    this.close();
+                }
+            });
+
+            // Fechar com ESC
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape' && modal.classList.contains('active')) {
+                    this.close();
+                }
+            });
+        }
+        return modal;
+    }
+
+    show(options = {}) {
+        return new Promise((resolve) => {
+            const {
+                title = 'Confirmar ação',
+                message = 'Tem certeza que deseja continuar?',
+                type = 'warning', // warning, danger, info
+                confirmText = 'Confirmar',
+                cancelText = 'Cancelar',
+                confirmButtonClass = 'confirm-modal-btn-confirm',
+                icon = null
+            } = options;
+
+            const iconEl = this.modal.querySelector('#confirm-modal-icon');
+            const titleEl = this.modal.querySelector('#confirm-modal-title');
+            const bodyEl = this.modal.querySelector('#confirm-modal-body');
+            const confirmBtn = this.modal.querySelector('#confirm-modal-confirm');
+            const cancelBtn = this.modal.querySelector('#confirm-modal-cancel');
+
+            // Configurar ícone
+            iconEl.className = `confirm-modal-icon ${type}`;
+            if (icon) {
+                iconEl.innerHTML = `<i class="fas fa-${icon}"></i>`;
+            } else {
+                const defaultIcons = {
+                    warning: 'exclamation-triangle',
+                    danger: 'exclamation-circle',
+                    info: 'info-circle'
+                };
+                iconEl.innerHTML = `<i class="fas fa-${defaultIcons[type] || 'exclamation-triangle'}"></i>`;
+            }
+
+            // Configurar conteúdo
+            titleEl.textContent = title;
+            bodyEl.textContent = message;
+            confirmBtn.textContent = confirmText;
+            confirmBtn.className = `confirm-modal-btn ${confirmButtonClass}`;
+            cancelBtn.textContent = cancelText;
+
+            // Remover listeners anteriores
+            const newConfirmBtn = confirmBtn.cloneNode(true);
+            const newCancelBtn = cancelBtn.cloneNode(true);
+            confirmBtn.parentNode.replaceChild(newConfirmBtn, confirmBtn);
+            cancelBtn.parentNode.replaceChild(newCancelBtn, cancelBtn);
+
+            // Adicionar novos listeners
+            newConfirmBtn.addEventListener('click', () => {
+                this.close();
+                resolve(true);
+            });
+
+            newCancelBtn.addEventListener('click', () => {
+                this.close();
+                resolve(false);
+            });
+
+            // Mostrar modal
+            this.modal.classList.add('active');
+            
+            // Focar no botão de cancelar por padrão (mais seguro)
+            setTimeout(() => newCancelBtn.focus(), 100);
+        });
+    }
+
+    close() {
+        this.modal.classList.remove('active');
+    }
+
+    // Métodos de conveniência
+    confirm(message, title = 'Confirmar ação') {
+        return this.show({ message, title, type: 'warning' });
+    }
+
+    danger(message, title = 'Atenção!') {
+        return this.show({ 
+            message, 
+            title, 
+            type: 'danger',
+            confirmButtonClass: 'confirm-modal-btn-danger',
+            confirmText: 'Excluir'
+        });
+    }
+
+    info(message, title = 'Informação') {
+        return this.show({ message, title, type: 'info' });
+    }
+}
+
+// Instâncias globais
+const toast = new ToastSystem();
+const confirmDialog = new ConfirmSystem();
+
 // Sistema de Gestão de Loja
 class LojaApp {
     constructor() {
@@ -1738,38 +1992,27 @@ class LojaApp {
 
     // Funções auxiliares para feedback visual
     showError(message) {
-        // Remover mensagens anteriores
-        const existingError = document.querySelector('.error-message');
-        const existingSuccess = document.querySelector('.success-message');
-        if (existingError) existingError.remove();
-        if (existingSuccess) existingSuccess.remove();
-
-        // Criar nova mensagem de erro
-        const errorDiv = document.createElement('div');
-        errorDiv.className = 'error-message show';
-        errorDiv.textContent = message;
-        errorDiv.setAttribute('role', 'alert');
-        errorDiv.setAttribute('aria-live', 'polite');
-
-        // Inserir no início do formulário ativo
-        const activeModal = document.querySelector('.modal.active');
-        if (activeModal) {
-            const form = activeModal.querySelector('form');
-            if (form) {
-                form.insertBefore(errorDiv, form.firstChild);
-                // Remover após 5 segundos
-                setTimeout(() => {
-                    errorDiv.classList.remove('show');
-                    setTimeout(() => errorDiv.remove(), 300);
-                }, 5000);
-            }
-        } else {
-            // Se não houver modal, usar alert como fallback
-            alert(message);
-        }
+        // Usar sistema de Toast para erros
+        toast.error(message, 5000);
     }
 
     showSuccess(message) {
+        // Usar sistema de Toast para sucessos
+        toast.success(message, 3000);
+    }
+
+    // Método auxiliar para mostrar warning
+    showWarning(message) {
+        toast.warning(message, 4000);
+    }
+
+    // Método auxiliar para mostrar info
+    showInfo(message) {
+        toast.info(message, 3000);
+    }
+
+    // Método auxiliar antigo (manter compatibilidade)
+    showSuccessOld(message) {
         // Remover mensagens anteriores
         const existingError = document.querySelector('.error-message');
         const existingSuccess = document.querySelector('.success-message');
@@ -2160,7 +2403,7 @@ class LojaApp {
                 }, 500);
                 return;
             } else {
-                alert('Erro: Não foi possível identificar o item para gerar o QR code.');
+                toast.error('Erro: Não foi possível identificar o item para gerar o QR code.', 4000);
                 return;
             }
         }
@@ -2176,7 +2419,7 @@ class LojaApp {
             console.log('QR code baixado com sucesso:', filename);
         } catch (error) {
             console.error('Erro ao baixar QR code:', error);
-            alert('Erro ao baixar QR code. Tente novamente.');
+            toast.error('Erro ao baixar QR code. Tente novamente.', 4000);
         }
     }
 
@@ -2394,7 +2637,15 @@ class LojaApp {
     }
 
     deleteItem(id) {
-        if (confirm('Tem certeza que deseja excluir este item?')) {
+        const item = this.items.find(i => i.id === id);
+        const itemName = item ? this.getItemName(id) : 'este item';
+        
+        confirmDialog.danger(
+            `Tem certeza que deseja excluir "${itemName}"? Esta ação não pode ser desfeita.`,
+            'Excluir Produto'
+        ).then((confirmed) => {
+            if (!confirmed) return;
+            
             this.items = this.items.filter((item) => item.id !== id);
             // Remover vendas relacionadas
             this.groups.forEach((group) => {
@@ -2405,7 +2656,8 @@ class LojaApp {
             this.saveData();
             this.renderItems();
             this.renderGroups();
-        }
+            toast.success(`Produto "${itemName}" excluído com sucesso!`, 3000);
+        });
     }
 
     renderItems() {
@@ -2624,7 +2876,7 @@ class LojaApp {
         const month = document.getElementById('groupMonth').value;
 
         if (this.groups.some((g) => g.month === month)) {
-            alert('Já existe um grupo para este mês.');
+            toast.warning('Já existe um grupo para este mês.', 4000);
             return;
         }
 
@@ -2656,7 +2908,7 @@ class LojaApp {
         this.updateMonthFilter();
         this.updateYearFilter();
         this.closeGroupModal();
-        alert('Grupo mensal criado com sucesso!');
+        toast.success('Grupo mensal criado com sucesso!', 3000);
     }
 
     viewGroup(groupId) {
@@ -3235,7 +3487,8 @@ class LojaApp {
 
         const dayData = group.days.find((d) => d.day === day);
         if (dayData && dayData.sales[saleIndex]) {
-            if (confirm('Deseja excluir esta venda?')) {
+            confirmDialog.danger('Deseja excluir esta venda?', 'Excluir Venda').then((confirmed) => {
+                if (!confirmed) return;
                 dayData.sales.splice(saleIndex, 1);
 
                 // Atualizar referência do grupo atual
@@ -3323,7 +3576,7 @@ class LojaApp {
 
         if (!saleItem || !saleQuantity || !salePrice) {
             console.error('❌ [SAVE SALE] Elementos do formulário não encontrados!');
-            alert('Erro: Formulário incompleto. Por favor, recarregue a página.');
+            toast.error('Erro: Formulário incompleto. Por favor, recarregue a página.', 5000);
             // Remover loading se houver
             if (saveBtn) {
                 saveBtn.classList.remove('loading');
@@ -3341,7 +3594,7 @@ class LojaApp {
         const color = (saleColorInput && saleColorInput.value) ? saleColorInput.value.trim() : '';
 
         if (!itemId) {
-            alert('Por favor, selecione um item.');
+            toast.warning('Por favor, selecione um item.', 3000);
             // Remover loading se houver
             if (saveBtn) {
                 saveBtn.classList.remove('loading');
@@ -3351,7 +3604,7 @@ class LojaApp {
         }
 
         if (price <= 0 || quantity <= 0) {
-            alert('Preço e quantidade devem ser maiores que zero.');
+            toast.warning('Preço e quantidade devem ser maiores que zero.', 3000);
             // Remover loading se houver
             if (saveBtn) {
                 saveBtn.classList.remove('loading');
@@ -3387,7 +3640,7 @@ class LojaApp {
 
         // Verificar se é roupa ou eletrônico e se tamanho foi informado
         if (item && (item.category === 'Roupas' || item.category === 'Eletrônicos') && !size) {
-            alert(`Por favor, informe o tamanho do ${item.category === 'Roupas' ? 'roupa' : 'eletrônico'}.`);
+            toast.warning(`Por favor, informe o tamanho do ${item.category === 'Roupas' ? 'roupa' : 'eletrônico'}.`, 3000);
             // Remover loading se houver
             if (saveBtn) {
                 saveBtn.classList.remove('loading');
@@ -3447,7 +3700,7 @@ class LojaApp {
             .replace(/\D/g, '');
 
         if (!customerName) {
-            alert('Por favor, informe o nome do cliente.');
+            toast.warning('Por favor, informe o nome do cliente.', 3000);
             // Remover loading se houver
             if (saveBtn) {
                 saveBtn.classList.remove('loading');
@@ -4469,7 +4722,7 @@ class LojaApp {
         const totalInput = document.getElementById('pendingOrderTotal');
 
         if (!customerName) {
-            alert('Por favor, informe o nome do cliente.');
+            toast.warning('Por favor, informe o nome do cliente.', 3000);
             return;
         }
 
@@ -4906,7 +5159,7 @@ class LojaApp {
         }
 
         if (!customerName) {
-            alert('Por favor, informe o nome do cliente.');
+            toast.warning('Por favor, informe o nome do cliente.', 3000);
             return;
         }
 
@@ -5561,7 +5814,9 @@ class LojaApp {
     }
 
     // Funções de feedback para o usuário
-    showSuccess(message) {
+    // Métodos showSuccess e showError já foram atualizados acima para usar Toast
+    // Este método antigo é mantido apenas para compatibilidade
+    showSuccessOld2(message) {
         // Criar elemento de mensagem
         const messageEl = document.createElement('div');
         messageEl.style.cssText =
@@ -5580,7 +5835,8 @@ class LojaApp {
         }, 3000);
     }
 
-    showError(message) {
+    // Método antigo mantido para compatibilidade
+    showErrorOld(message) {
         // Criar elemento de mensagem
         const messageEl = document.createElement('div');
         messageEl.style.cssText =
