@@ -5834,21 +5834,36 @@ body.dark-mode .skeleton-line {
         opacity: 0 !important;
     }
 
-    /* Esconder texto direto em botões (não dentro de span) - pegar texto que não seja ícone */
+    /* Esconder texto direto em botões usando técnica de font-size zero */
+    /* Isso esconde qualquer texto que não seja ícone */
     .btn-primary:not(.dark-mode-toggle):not(.theme-toggle-btn),
     button.btn-primary:not(.dark-mode-toggle):not(.theme-toggle-btn) {
         font-size: 0 !important;
         line-height: 0 !important;
+        color: transparent !important;
     }
 
-    /* Mostrar apenas ícones - sobrescrever font-size apenas para ícones */
+    /* Mostrar apenas ícones - restaurar font-size apenas para ícones */
     .btn-primary i,
     button.btn-primary i,
     .btn-primary > i,
-    button.btn-primary > i {
+    button.btn-primary > i,
+    .btn-primary i.fas,
+    button.btn-primary i.fas,
+    .btn-primary i.far,
+    button.btn-primary i.far {
         font-size: 1rem !important;
         line-height: 1 !important;
         display: inline-block !important;
+        color: var(--white) !important;
+        visibility: visible !important;
+        opacity: 1 !important;
+    }
+
+    /* Esconder qualquer texto que não seja ícone usando ::after e ::before */
+    .btn-primary:not(.dark-mode-toggle):not(.theme-toggle-btn)::after,
+    button.btn-primary:not(.dark-mode-toggle):not(.theme-toggle-btn)::after {
+        display: none !important;
     }
 
     /* Ajustar padding e tamanho dos botões para ícones apenas - FORÇAR SOBRESCRITA */
