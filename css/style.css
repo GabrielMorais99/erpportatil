@@ -6044,10 +6044,11 @@ body.dark-mode .skeleton-line {
     .panel-header .btn-primary,
     .panel-section .btn-primary,
     .panel-actions .btn-primary {
-        padding: 0.5rem !important;
-        min-width: auto !important;
+        padding: 0.75rem !important; /* Padding adequado para toque */
+        min-width: 44px !important; /* Tamanho mínimo para toque */
         max-width: none !important;
         width: auto !important;
+        height: 44px !important; /* Altura fixa para toque */
     }
 
     .panel-header .btn-primary .btn-text,
@@ -6060,7 +6061,7 @@ body.dark-mode .skeleton-line {
     .panel-section .btn-primary i,
     .panel-actions .btn-primary i {
         margin: 0 !important;
-        font-size: 1rem !important;
+        font-size: 1.2rem !important; /* Tamanho maior para melhor visibilidade */
     }
 }
 
@@ -6070,16 +6071,17 @@ body.dark-mode .skeleton-line {
     .btn-primary:not(.dark-mode-toggle):not(.theme-toggle-btn),
     .btn-secondary:not(.dark-mode-toggle):not(.theme-toggle-btn),
     .btn-small:not(.dark-mode-toggle):not(.theme-toggle-btn) {
-        padding: 0.65rem !important;
-        min-width: 44px !important; /* Manter tamanho mínimo para toque */
-        height: 44px !important; /* Altura mínima para toque */
+        padding: 0.7rem !important; /* Padding adequado mesmo em telas pequenas */
+        min-width: 44px !important; /* Manter tamanho mínimo para toque (padrão mobile) */
+        min-height: 44px !important; /* Altura mínima para toque */
+        height: 44px !important; /* Altura fixa para consistência */
     }
 
     .btn-primary i,
     .btn-secondary i,
     .btn-small i,
     .tab-btn i {
-        font-size: 1.1rem !important; /* Tamanho adequado mesmo em telas pequenas */
+        font-size: 1.15rem !important; /* Tamanho adequado mesmo em telas pequenas */
     }
 
     /* Reduzir padding em cards */
