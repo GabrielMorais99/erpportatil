@@ -172,6 +172,25 @@
                             </div>
                         </div>
                         
+                        <!-- Seção de Clientes -->
+                        <div class="panel-section">
+                            <div class="panel-header">
+                                <h2><i class="fas fa-users"></i> Clientes</h2>
+                                <button class="btn-primary" onclick="app.openClientModal()">
+                                    <i class="fas fa-plus"></i> Novo Cliente
+                                </button>
+                            </div>
+                            <div class="panel-filters" style="margin-bottom: 1rem; display: flex; gap: 1rem; align-items: center; flex-wrap: wrap;">
+                                <div class="filter-group" style="display: flex; align-items: center; gap: 0.5rem; flex: 1; min-width: 250px;">
+                                    <i class="fas fa-search" style="color: var(--gray-400);"></i>
+                                    <input type="text" id="clientSearch" class="search-input-with-icon" placeholder="Buscar cliente por nome, CPF ou telefone..." style="flex: 1;">
+                                </div>
+                            </div>
+                            <div id="clientsList" class="items-grid">
+                                <!-- Clientes serão inseridos aqui via JavaScript -->
+                            </div>
+                        </div>
+                        
                         <!-- Seção de Pedidos Pendentes -->
                         <div class="panel-section">
                             <div class="panel-header">
@@ -691,6 +710,50 @@
         </div>
 
 
+        <!-- Modal: Cadastro/Edição de Cliente -->
+        <div id="clientModal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2 id="clientModalTitle">Novo Cliente</h2>
+                    <span class="close" aria-label="Fechar modal" role="button" tabindex="0">&times;</span>
+                </div>
+                <form id="clientForm">
+                    <div class="form-group">
+                        <label for="clientName">Nome Completo *</label>
+                        <input type="text" id="clientName" required placeholder="Ex: João Silva" />
+                    </div>
+                    <div class="form-group">
+                        <label for="clientCPF">CPF</label>
+                        <input type="text" id="clientCPF" placeholder="000.000.000-00" maxlength="14" />
+                    </div>
+                    <div class="form-group">
+                        <label for="clientPhone">Telefone</label>
+                        <input type="text" id="clientPhone" placeholder="(00) 00000-0000" maxlength="15" />
+                    </div>
+                    <div class="form-group">
+                        <label for="clientEmail">E-mail</label>
+                        <input type="email" id="clientEmail" placeholder="cliente@email.com" />
+                    </div>
+                    <div class="form-group">
+                        <label for="clientAddress">Endereço</label>
+                        <textarea id="clientAddress" rows="3" placeholder="Rua, número, bairro, cidade - CEP"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="clientNotes">Observações</label>
+                        <textarea id="clientNotes" rows="2" placeholder="Informações adicionais sobre o cliente"></textarea>
+                    </div>
+                    <div class="modal-actions">
+                        <button type="button" class="btn-secondary" onclick="app.closeClientModal()">
+                            Cancelar
+                        </button>
+                        <button type="submit" class="btn-primary">
+                            <i class="fas fa-save"></i> Salvar Cliente
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
         <!-- Modal: Registrar Venda -->
         <div id="saleModal" class="modal">
             <div class="modal-content">
@@ -704,11 +767,20 @@
                     </div>
                     <div class="form-group">
                         <label for="saleCustomerName">Nome do Cliente *</label>
+                        <div style="display: flex; gap: 0.5rem; align-items: flex-start;">
+                            <select id="saleCustomerSelect" style="flex: 1;" onchange="app.onClientSelectChange('sale')">
+                                <option value="">Selecione um cliente ou digite novo nome...</option>
+                            </select>
+                            <button type="button" class="btn-secondary" onclick="app.openClientModal()" title="Novo Cliente" style="white-space: nowrap;">
+                                <i class="fas fa-user-plus"></i>
+                            </button>
+                        </div>
                         <input
                             type="text"
                             id="saleCustomerName"
-                            placeholder="Digite o nome do cliente"
+                            placeholder="Ou digite o nome do cliente"
                             required
+                            style="margin-top: 0.5rem;"
                         />
                     </div>
                     <div class="form-group">

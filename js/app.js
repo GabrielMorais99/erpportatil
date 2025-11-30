@@ -312,10 +312,12 @@ class LojaApp {
         this.serviceGroups = []; // Grupos mensais de serviços
         this.costs = [];
         this.goals = [];
+        this.clients = []; // Clientes cadastrados
         this.completedSales = []; // Vendas concluídas com dados completos
         this.pendingOrders = []; // Pedidos pendentes
         this.serviceAppointments = []; // Agendamentos de serviços
         this.currentEditingItem = null;
+        this.currentEditingClient = null;
         this.currentGroup = null;
         this.currentServiceGroup = null;
         this.currentServiceDay = null;
@@ -473,6 +475,7 @@ class LojaApp {
                     // Renderizar após carregar dados
                     this.renderGroups();
                     this.renderItems();
+                    this.renderClients();
                     this.renderPendingOrders();
                     // Renderizar carrossel APÓS carregar dados com um pequeno delay para garantir que o DOM está pronto
                     setTimeout(() => {
@@ -802,6 +805,57 @@ class LojaApp {
             console.log('✅ [APP.JS] Listener anexado ao itemForm');
         } else {
             console.error('❌ [APP.JS] itemForm não encontrado!');
+        }
+
+        // Formulário de Cliente
+        const clientForm = document.getElementById('clientForm');
+        const clientModalClose = document.querySelector('#clientModal .close');
+        const clientSearch = document.getElementById('clientSearch');
+
+        if (clientForm) {
+            clientForm.addEventListener('submit', (e) => this.saveClient(e));
+            console.log('✅ [APP.JS] Listener anexado ao clientForm');
+        }
+
+        if (clientModalClose) {
+            clientModalClose.addEventListener('click', () => this.closeClientModal());
+        }
+
+        if (clientSearch) {
+            clientSearch.addEventListener('input', () => this.renderClients());
+            console.log('✅ [APP.JS] Listener anexado ao clientSearch');
+        }
+
+        // Máscaras para CPF e Telefone
+        const clientCPF = document.getElementById('clientCPF');
+        const clientPhone = document.getElementById('clientPhone');
+
+        if (clientCPF) {
+            clientCPF.addEventListener('input', (e) => {
+                let value = e.target.value.replace(/\D/g, '');
+                if (value.length <= 11) {
+                    value = value.replace(/(\d{3})(\d)/, '$1.$2');
+                    value = value.replace(/(\d{3})(\d)/, '$1.$2');
+                    value = value.replace(/(\d{3})(\d{1,2})$/, '$1-$2');
+                    e.target.value = value;
+                }
+            });
+        }
+
+        if (clientPhone) {
+            clientPhone.addEventListener('input', (e) => {
+                let value = e.target.value.replace(/\D/g, '');
+                if (value.length <= 11) {
+                    if (value.length <= 10) {
+                        value = value.replace(/(\d{2})(\d)/, '($1) $2');
+                        value = value.replace(/(\d{4})(\d)/, '$1-$2');
+                    } else {
+                        value = value.replace(/(\d{2})(\d)/, '($1) $2');
+                        value = value.replace(/(\d{5})(\d)/, '$1-$2');
+                    }
+                    e.target.value = value;
+                }
+            });
         }
 
         if (itemCategory) {
@@ -2938,6 +2992,238 @@ class LojaApp {
             .join('');
     }
 
+    // ========== CLIENTES ==========
+
+    openClientModal(clientId = null) {
+        const modal = document.getElementById('clientModal');
+        const form = document.getElementById('clientForm');
+        const title = document.getElementById('clientModalTitle');
+
+        if (!modal || !form || !title) {
+            console.error('Elementos do modal de cliente não encontrados');
+            return;
+        }
+
+        this.currentEditingClient = clientId
+            ? this.clients.find((c) => c.id === clientId)
+            : null;
+
+        if (this.currentEditingClient) {
+            title.textContent = 'Editar Cliente';
+            form.clientName.value = this.currentEditingClient.name || '';
+            form.clientCPF.value = this.currentEditingClient.cpf || '';
+            form.clientPhone.value = this.currentEditingClient.phone || '';
+            form.clientEmail.value = this.currentEditingClient.email || '';
+            form.clientAddress.value = this.currentEditingClient.address || '';
+            form.clientNotes.value = this.currentEditingClient.notes || '';
+        } else {
+            title.textContent = 'Novo Cliente';
+            form.reset();
+        }
+
+        modal.classList.add('active');
+    }
+
+    closeClientModal() {
+        const modal = document.getElementById('clientModal');
+        const form = document.getElementById('clientForm');
+        if (modal) {
+            modal.classList.remove('active');
+        }
+        if (form) {
+            form.reset();
+        }
+        this.currentEditingClient = null;
+    }
+
+    saveClient(e) {
+        if (e) e.preventDefault();
+
+        const form = document.getElementById('clientForm');
+        if (!form) return;
+
+        const name = form.clientName.value.trim();
+        if (!name) {
+            if (typeof toast !== 'undefined' && toast) {
+                toast.warning('Por favor, informe o nome do cliente.', 3000);
+            } else {
+                alert('Por favor, informe o nome do cliente.');
+            }
+            return;
+        }
+
+        const client = {
+            id: this.currentEditingClient
+                ? this.currentEditingClient.id
+                : Date.now().toString(),
+            name: name,
+            cpf: form.clientCPF.value.trim(),
+            phone: form.clientPhone.value.trim(),
+            email: form.clientEmail.value.trim(),
+            address: form.clientAddress.value.trim(),
+            notes: form.clientNotes.value.trim(),
+            createdAt: this.currentEditingClient
+                ? this.currentEditingClient.createdAt
+                : new Date().toISOString(),
+            updatedAt: new Date().toISOString(),
+        };
+
+        if (this.currentEditingClient) {
+            const index = this.clients.findIndex(
+                (c) => c.id === this.currentEditingClient.id
+            );
+            if (index !== -1) {
+                this.clients[index] = client;
+            }
+        } else {
+            this.clients.push(client);
+        }
+
+        this.saveData();
+        this.renderClients();
+        this.closeClientModal();
+
+        if (typeof toast !== 'undefined' && toast) {
+            toast.success(
+                this.currentEditingClient
+                    ? 'Cliente atualizado com sucesso!'
+                    : 'Cliente cadastrado com sucesso!',
+                3000
+            );
+        }
+    }
+
+    deleteClient(clientId) {
+        const client = this.clients.find((c) => c.id === clientId);
+        const clientName = client ? client.name : 'este cliente';
+
+        const performDelete = (confirmed) => {
+            if (!confirmed) return;
+
+            this.clients = this.clients.filter((c) => c.id !== clientId);
+            this.saveData();
+            this.renderClients();
+
+            if (typeof toast !== 'undefined' && toast) {
+                toast.success(`Cliente "${clientName}" excluído com sucesso!`, 3000);
+            }
+        };
+
+        if (typeof confirmDialog !== 'undefined' && confirmDialog) {
+            confirmDialog.danger(
+                `Tem certeza que deseja excluir "${clientName}"? Esta ação não pode ser desfeita.`,
+                'Excluir Cliente'
+            ).then(performDelete);
+        } else {
+            if (confirm(`Tem certeza que deseja excluir "${clientName}"?`)) {
+                performDelete(true);
+            }
+        }
+    }
+
+    renderClients() {
+        const container = document.getElementById('clientsList');
+        if (!container) return;
+
+        const searchTerm = document.getElementById('clientSearch')
+            ? document.getElementById('clientSearch').value.toLowerCase()
+            : '';
+
+        let filteredClients = this.clients;
+        if (searchTerm) {
+            filteredClients = this.clients.filter(
+                (client) =>
+                    client.name.toLowerCase().includes(searchTerm) ||
+                    (client.cpf && client.cpf.includes(searchTerm)) ||
+                    (client.phone && client.phone.includes(searchTerm))
+            );
+        }
+
+        if (filteredClients.length === 0 && !container.querySelector('.item-card')) {
+            this.showSkeleton('clientsList', 6, false);
+            return;
+        }
+
+        this.hideSkeleton('clientsList');
+
+        if (filteredClients.length === 0) {
+            container.innerHTML = `
+                <div style="text-align: center; padding: 3rem; color: var(--gray-500);">
+                    <i class="fas fa-users" style="font-size: 3rem; margin-bottom: 1rem; opacity: 0.3;"></i>
+                    <p style="font-size: 1.1rem; margin-bottom: 0.5rem;">${searchTerm ? 'Nenhum cliente encontrado' : 'Nenhum cliente cadastrado'}</p>
+                    <p style="font-size: 0.9rem;">${searchTerm ? 'Tente buscar com outros termos' : 'Clique em "Novo Cliente" para começar'}</p>
+                </div>
+            `;
+            return;
+        }
+
+        container.innerHTML = filteredClients
+            .map((client) => {
+                const purchaseCount = this.completedSales.filter(
+                    (sale) => sale.customerName === client.name
+                ).length;
+                const totalSpent = this.completedSales
+                    .filter((sale) => sale.customerName === client.name)
+                    .reduce((sum, sale) => sum + (sale.totalValue || 0), 0);
+
+                return `
+                <div class="item-card">
+                    <div class="item-header">
+                        <h3>${this.escapeHtml(client.name)}</h3>
+                        <div class="item-actions">
+                            <button class="btn-small btn-edit" onclick="app.openClientModal('${client.id}')" title="Editar">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button class="btn-small btn-delete" onclick="app.deleteClient('${client.id}')" title="Excluir">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="item-details">
+                        ${client.cpf ? `<p><i class="fas fa-id-card"></i> CPF: ${this.escapeHtml(client.cpf)}</p>` : ''}
+                        ${client.phone ? `<p><i class="fas fa-phone"></i> ${this.escapeHtml(client.phone)}</p>` : ''}
+                        ${client.email ? `<p><i class="fas fa-envelope"></i> ${this.escapeHtml(client.email)}</p>` : ''}
+                        ${purchaseCount > 0 ? `<p><i class="fas fa-shopping-cart"></i> ${purchaseCount} compra${purchaseCount > 1 ? 's' : ''}</p>` : ''}
+                        ${totalSpent > 0 ? `<p><i class="fas fa-dollar-sign"></i> Total: R$ ${totalSpent.toFixed(2).replace('.', ',')}</p>` : ''}
+                    </div>
+                </div>
+            `;
+            })
+            .join('');
+    }
+
+    // Função para quando cliente é selecionado no select
+    onClientSelectChange(type) {
+        const selectId = type === 'sale' ? 'saleCustomerSelect' : 
+                         type === 'pending' ? 'pendingOrderCustomerSelect' : 
+                         'appointmentCustomerSelect';
+        const inputId = type === 'sale' ? 'saleCustomerName' : 
+                       type === 'pending' ? 'pendingOrderCustomerName' : 
+                       'appointmentCustomerName';
+        
+        const select = document.getElementById(selectId);
+        const input = document.getElementById(inputId);
+        
+        if (select && input) {
+            if (select.value) {
+                // Cliente selecionado - preencher input e buscar dados do cliente
+                input.value = select.value;
+                const client = this.clients.find(c => c.name === select.value);
+                if (client) {
+                    // Preencher CPF se existir campo
+                    const cpfField = document.getElementById(type === 'sale' ? 'saleCustomerCPF' : 
+                                                           type === 'pending' ? 'pendingOrderCustomerCPF' : null);
+                    if (cpfField && client.cpf) {
+                        cpfField.value = client.cpf;
+                    }
+                }
+            } else {
+                // Nenhum cliente selecionado - limpar input
+                input.value = '';
+            }
+        }
+    }
+
     // ========== GRUPOS MENSAIS ==========
 
     openGroupModal() {
@@ -3221,6 +3507,18 @@ class LojaApp {
             // Remover classe de overlay se o viewGroupModal não estiver aberto
             saleModal.classList.remove('modal-overlay');
             saleModal.style.zIndex = '';
+        }
+
+        // Popular select de clientes
+        const saleCustomerSelect = document.getElementById('saleCustomerSelect');
+        if (saleCustomerSelect) {
+            saleCustomerSelect.innerHTML =
+                '<option value="">Selecione um cliente ou digite novo nome...</option>' +
+                this.clients
+                    .map((client) => {
+                        return `<option value="${this.escapeHtml(client.name)}">${this.escapeHtml(client.name)}${client.phone ? ` - ${this.escapeHtml(client.phone)}` : ''}</option>`;
+                    })
+                    .join('');
         }
 
         // Popular select de itens (incluindo serviços)
@@ -11211,6 +11509,7 @@ class LojaApp {
             serviceGroups: this.serviceGroups || [], // Grupos mensais de serviços
             costs: this.costs,
             goals: this.goals,
+            clients: this.clients || [], // Clientes cadastrados
             completedSales: this.completedSales || [],
             pendingOrders: this.pendingOrders || [],
             serviceAppointments: this.serviceAppointments || [],
@@ -11431,7 +11730,8 @@ class LojaApp {
                         (cloudData.serviceGroups &&
                             cloudData.serviceGroups.length > 0) ||
                         (cloudData.costs && cloudData.costs.length > 0) ||
-                        (cloudData.goals && cloudData.goals.length > 0);
+                        (cloudData.goals && cloudData.goals.length > 0) ||
+                        (cloudData.clients && cloudData.clients.length > 0);
 
                     if (hasData) {
                         // Dados da nuvem encontrados
@@ -11440,6 +11740,7 @@ class LojaApp {
                         this.serviceGroups = cloudData.serviceGroups || [];
                         this.costs = cloudData.costs || [];
                         this.goals = cloudData.goals || [];
+                        this.clients = cloudData.clients || [];
                         this.completedSales = cloudData.completedSales || [];
                         this.pendingOrders = cloudData.pendingOrders || [];
                         this.serviceAppointments =
@@ -11622,6 +11923,7 @@ class LojaApp {
                 this.serviceGroups = data.serviceGroups || [];
                 this.costs = data.costs || [];
                 this.goals = data.goals || [];
+                this.clients = data.clients || [];
                 this.completedSales = data.completedSales || [];
                 this.pendingOrders = data.pendingOrders || [];
                 this.serviceAppointments = data.serviceAppointments || [];
