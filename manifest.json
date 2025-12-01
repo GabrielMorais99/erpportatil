@@ -1,6 +1,6 @@
 {
-  "name": "Gerenciamento de Loja Vendas",
-  "short_name": "Loja Vendas",
+  "name": "ERP Portátil",
+  "short_name": "ERP Portátil",
   "description": "Sistema completo de gestão de loja - Controle de vendas, estoque, clientes e financeiro",
   "start_url": "/",
   "display": "standalone",
