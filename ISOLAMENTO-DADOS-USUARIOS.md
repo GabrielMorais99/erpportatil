@@ -212,62 +212,77 @@ if (allData.users && allData.users[username]) {
 ### ✅ **Dados Completamente Isolados:**
 
 1. **Produtos (Items)**
-   - Cada usuário cadastra seus próprios produtos
-   - `this.items` → isolado por usuário
+
+    - Cada usuário cadastra seus próprios produtos
+    - `this.items` → isolado por usuário
 
 2. **Grupos/Meses (Groups)**
-   - Controle mensal de vendas e estoque
-   - `this.groups` → isolado por usuário
+
+    - Controle mensal de vendas e estoque
+    - `this.groups` → isolado por usuário
 
 3. **Grupos de Serviços (Service Groups)**
-   - Agendamentos e serviços mensais
-   - `this.serviceGroups` → isolado por usuário
+
+    - Agendamentos e serviços mensais
+    - `this.serviceGroups` → isolado por usuário
 
 4. **Custos (Costs)**
-   - Despesas e custos cadastrados
-   - `this.costs` → isolado por usuário
+
+    - Despesas e custos cadastrados
+    - `this.costs` → isolado por usuário
 
 5. **Metas (Goals)**
-   - Metas financeiras e de vendas
-   - `this.goals` → isolado por usuário
+
+    - Metas financeiras e de vendas
+    - `this.goals` → isolado por usuário
 
 6. **Vendas Concluídas (Completed Sales)**
-   - Histórico de vendas finalizadas
-   - `this.completedSales` → isolado por usuário
+
+    - Histórico de vendas finalizadas
+    - `this.completedSales` → isolado por usuário
 
 7. **Pedidos Pendentes (Pending Orders)**
-   - Pedidos em andamento
-   - `this.pendingOrders` → isolado por usuário
+
+    - Pedidos em andamento
+    - `this.pendingOrders` → isolado por usuário
 
 8. **Agendamentos de Serviços (Service Appointments)**
-   - Agendamentos de serviços
-   - `this.serviceAppointments` → isolado por usuário
+
+    - Agendamentos de serviços
+    - `this.serviceAppointments` → isolado por usuário
 
 9. **Clientes (Clients)**
-   - Cadastro de clientes
-   - `this.clients` → isolado por usuário (pode ser criptografado)
+
+    - Cadastro de clientes
+    - `this.clients` → isolado por usuário (pode ser criptografado)
 
 10. **Fornecedores (Suppliers)**
+
     - Cadastro de fornecedores
     - `this.suppliers` → isolado por usuário (pode ser criptografado)
 
 11. **Cupons (Coupons)**
+
     - Cupons de desconto
     - `this.coupons` → isolado por usuário
 
 12. **Templates de Mensagens**
+
     - Templates de email, SMS, WhatsApp
     - `this.templates` → isolado por usuário
 
 13. **Configurações**
+
     - Configurações de pagamento, e-commerce, ERP, email, SMS, WhatsApp
     - `this.paymentConfig`, `this.ecommerceConfig`, etc. → isolado por usuário
 
 14. **Histórico e Logs**
+
     - Audit log, logs de acesso (LGPD)
     - `this.auditLog`, `this.dataAccessLogs` → isolado por usuário
 
 15. **Relatórios e Exportações**
+
     - Relatórios agendados, compartilhados, exportações
     - `this.scheduledReports`, `this.sharedReports` → isolado por usuário
 
