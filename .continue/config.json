@@ -27,6 +27,13 @@
             "completionOptions": {
                 "model": "gpt-4"
             }
+        },
+        {
+            "title": "Emergente.sh",
+            "provider": "openai",
+            "model": "gpt-4",
+            "apiKey": "sk-emergent-679E883Ee90668a5aA",
+            "contextLength": 8192
         }
     ],
     "customCommands": [
@@ -173,5 +180,11 @@
         "useCopilotExtension": true,
         "preferContinueForChat": true,
         "preferCopilotForAutocomplete": false
+    },
+    "emergenteSettings": {
+        "enabled": true,
+        "apiKey": "sk-emergent-679E883Ee90668a5aA",
+        "provider": "openai",
+        "model": "gpt-4"
     }
 }
