@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Política de Privacidade - Gerenciamento de Loja Vendas</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.8;
+            color: #333;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+        }
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+        .card {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+            padding: 50px;
+            margin-bottom: 30px;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding-bottom: 30px;
+            border-bottom: 2px solid #f0f0f0;
+        }
+        .logo {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, #1a1a2e, #16213e);
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+            color: #00d4ff;
+            font-size: 36px;
+            font-weight: bold;
+            box-shadow: 0 0 20px rgba(0,212,255,0.3);
+        }
+        h1 {
+            color: #00d4ff;
+            font-size: 2.2em;
+            margin-bottom: 10px;
+        }
+        .subtitle {
+            color: #666;
+            font-size: 1.1em;
+        }
+        .last-update {
+            background: #f8f9fa;
+            padding: 10px 20px;
+            border-radius: 8px;
+            display: inline-block;
+            margin-top: 15px;
+            color: #666;
+            font-size: 0.9em;
+        }
+        h2 {
+            color: #00a8cc;
+            font-size: 1.5em;
+            margin: 35px 0 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #f0f0f0;
+        }
+        h3 {
+            color: #333;
+            font-size: 1.2em;
+            margin: 25px 0 15px;
+        }
+        p {
+            margin-bottom: 15px;
+            text-align: justify;
+        }
+        ul, ol {
+            margin: 15px 0 15px 30px;
+        }
+        li {
+            margin-bottom: 10px;
+        }
+        .highlight {
+            background: linear-gradient(135deg, #fff3cd 0%, #ffeaa7 100%);
+            padding: 20px 25px;
+            border-radius: 10px;
+            border-left: 4px solid #ffc107;
+            margin: 20px 0;
+        }
+        .highlight-info {
+            background: linear-gradient(135deg, #d1ecf1 0%, #bee5eb 100%);
+            border-left-color: #17a2b8;
+        }
+        .highlight-success {
+            background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%);
+            border-left-color: #28a745;
+        }
+        .contact-box {
+            background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+            padding: 25px;
+            border-radius: 12px;
+            margin: 30px 0;
+            text-align: center;
+        }
+        .contact-box h3 {
+            color: #1976d2;
+            margin-bottom: 15px;
+        }
+        .contact-box a {
+            color: #1976d2;
+            text-decoration: none;
+            font-weight: 600;
+        }
+        .contact-box a:hover {
+            text-decoration: underline;
+        }
+        .footer {
+            text-align: center;
+            padding: 30px;
+            color: #666;
+            font-size: 0.9em;
+        }
+        .footer a {
+            color: #00a8cc;
+            text-decoration: none;
+        }
+        .toc {
+            background: #f8f9fa;
+            padding: 25px 30px;
+            border-radius: 12px;
+            margin-bottom: 30px;
+        }
+        .toc h3 {
+            margin-top: 0;
+            color: #333;
+        }
+        .toc ol {
+            margin-bottom: 0;
+        }
+        .toc a {
+            color: #00a8cc;
+            text-decoration: none;
+        }
+        .toc a:hover {
+            text-decoration: underline;
+        }
+        @media (max-width: 768px) {
+            .card {
+                padding: 30px 20px;
+            }
+            h1 {
+                font-size: 1.8em;
+            }
+            h2 {
+                font-size: 1.3em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="card">
+            <div class="header">
+                <div class="logo">📈</div>
+                <h1>Política de Privacidade</h1>
+                <p class="subtitle">Gerenciamento de Loja Vendas</p>
+                <div class="last-update">📅 Última atualização: Dezembro de 2024</div>
+            </div>
+
+            <div class="toc">
+                <h3>📋 Índice</h3>
+                <ol>
+                    <li><a href="#introducao">Introdução</a></li>
+                    <li><a href="#dados-coletados">Dados Coletados</a></li>
+                    <li><a href="#uso-dados">Como Usamos Seus Dados</a></li>
+                    <li><a href="#armazenamento">Armazenamento de Dados</a></li>
+                    <li><a href="#compartilhamento">Compartilhamento de Dados</a></li>
+                    <li><a href="#seguranca">Segurança</a></li>
+                    <li><a href="#direitos">Seus Direitos (LGPD)</a></li>
+                    <li><a href="#cookies">Cookies e Tecnologias</a></li>
+                    <li><a href="#menores">Menores de Idade</a></li>
+                    <li><a href="#alteracoes">Alterações na Política</a></li>
+                    <li><a href="#contato">Contato</a></li>
+                </ol>
+            </div>
+
+            <section id="introducao">
+                <h2>1. Introdução</h2>
+                <p>
+                    A sua privacidade é importante para nós. Esta Política de Privacidade descreve como o aplicativo 
+                    <strong>"Gerenciamento de Loja Vendas"</strong> coleta, usa, armazena e protege as informações 
+                    dos usuários.
+                </p>
+                <p>
+                    Ao utilizar nosso aplicativo, você concorda com as práticas descritas nesta política. 
+                    Recomendamos que leia este documento com atenção.
+                </p>
+                <div class="highlight highlight-info">
+                    <strong>📱 Sobre o Aplicativo:</strong> O "Gerenciamento de Loja Vendas" é um sistema de gestão 
+                    empresarial que ajuda lojistas a controlar vendas, estoque, clientes e finanças de forma 
+                    simples e eficiente.
+                </div>
+            </section>
+
+            <section id="dados-coletados">
+                <h2>2. Dados Coletados</h2>
+                <p>Coletamos os seguintes tipos de informações:</p>
+                
+                <h3>2.1. Dados Fornecidos pelo Usuário</h3>
+                <ul>
+                    <li><strong>Dados de cadastro:</strong> nome, e-mail, senha (criptografada)</li>
+                    <li><strong>Dados empresariais:</strong> nome da loja, informações de contato</li>
+                    <li><strong>Dados de clientes:</strong> nome, telefone, endereço, histórico de compras</li>
+                    <li><strong>Dados de produtos:</strong> descrição, preços, estoque</li>
+                    <li><strong>Dados financeiros:</strong> registros de vendas, custos, receitas</li>
+                </ul>
+
+                <h3>2.2. Dados Coletados Automaticamente</h3>
+                <ul>
+                    <li><strong>Dados de uso:</strong> funcionalidades utilizadas, frequência de acesso</li>
+                    <li><strong>Dados técnicos:</strong> tipo de dispositivo, sistema operacional, navegador</li>
+                    <li><strong>Dados de performance:</strong> tempo de carregamento, erros técnicos</li>
+                </ul>
+
+                <div class="highlight highlight-success">
+                    <strong>✅ O que NÃO coletamos:</strong>
+                    <ul style="margin-bottom: 0;">
+                        <li>Dados bancários ou de cartão de crédito</li>
+                        <li>Localização GPS em tempo real</li>
+                        <li>Acesso a contatos, câmera ou microfone do dispositivo</li>
+                        <li>Dados de outras aplicações</li>
+                    </ul>
+                </div>
+            </section>
+
+            <section id="uso-dados">
+                <h2>3. Como Usamos Seus Dados</h2>
+                <p>Utilizamos as informações coletadas para:</p>
+                <ul>
+                    <li>Fornecer e manter as funcionalidades do aplicativo</li>
+                    <li>Processar e gerenciar suas vendas e estoque</li>
+                    <li>Gerar relatórios e análises para seu negócio</li>
+                    <li>Melhorar a experiência do usuário</li>
+                    <li>Enviar notificações importantes sobre o serviço</li>
+                    <li>Fornecer suporte técnico quando necessário</li>
+                    <li>Garantir a segurança e prevenir fraudes</li>
+                </ul>
+            </section>
+
+            <section id="armazenamento">
+                <h2>4. Armazenamento de Dados</h2>
+                <p>Seus dados são armazenados de duas formas:</p>
+                
+                <h3>4.1. Armazenamento Local</h3>
+                <p>
+                    A maior parte dos dados é armazenada localmente no seu dispositivo usando tecnologias 
+                    como <strong>LocalStorage</strong> e <strong>IndexedDB</strong>. Isso significa que seus 
+                    dados permanecem no seu dispositivo e não são enviados para servidores externos sem sua 
+                    autorização.
+                </p>
+
+                <h3>4.2. Sincronização na Nuvem (Opcional)</h3>
+                <p>
+                    Se você optar por ativar a sincronização na nuvem, seus dados serão armazenados em 
+                    servidores seguros para permitir backup e acesso em múltiplos dispositivos.
+                </p>
+
+                <div class="highlight">
+                    <strong>⏰ Retenção de Dados:</strong> Mantemos seus dados enquanto você utilizar o 
+                    aplicativo. Você pode solicitar a exclusão dos seus dados a qualquer momento.
+                </div>
+            </section>
+
+            <section id="compartilhamento">
+                <h2>5. Compartilhamento de Dados</h2>
+                <p><strong>Não vendemos, alugamos ou compartilhamos seus dados pessoais com terceiros</strong> para fins de marketing.</p>
+                
+                <p>Podemos compartilhar informações apenas nas seguintes situações:</p>
+                <ul>
+                    <li><strong>Com seu consentimento:</strong> quando você autoriza explicitamente</li>
+                    <li><strong>Para cumprir obrigações legais:</strong> quando exigido por lei ou ordem judicial</li>
+                    <li><strong>Para proteger direitos:</strong> quando necessário para proteger nossos direitos legais</li>
+                    <li><strong>Com prestadores de serviço:</strong> empresas que nos ajudam a operar o aplicativo, sob rigorosos acordos de confidencialidade</li>
+                </ul>
+            </section>
+
+            <section id="seguranca">
+                <h2>6. Segurança</h2>
+                <p>Implementamos medidas de segurança técnicas e organizacionais para proteger seus dados:</p>
+                <ul>
+                    <li>Criptografia de senhas usando algoritmos seguros</li>
+                    <li>Conexões seguras via HTTPS</li>
+                    <li>Controle de acesso baseado em permissões</li>
+                    <li>Logout automático por inatividade</li>
+                    <li>Auditoria de operações críticas</li>
+                    <li>Backups regulares dos dados</li>
+                </ul>
+                
+                <div class="highlight">
+                    <strong>⚠️ Importante:</strong> Embora nos esforcemos para proteger seus dados, nenhum 
+                    método de transmissão pela internet ou armazenamento eletrônico é 100% seguro. 
+                    Recomendamos que você também tome precauções, como usar senhas fortes e manter 
+                    seu dispositivo protegido.
+                </div>
+            </section>
+
+            <section id="direitos">
+                <h2>7. Seus Direitos (LGPD)</h2>
+                <p>
+                    De acordo com a Lei Geral de Proteção de Dados (LGPD - Lei nº 13.709/2018), 
+                    você possui os seguintes direitos:
+                </p>
+                <ul>
+                    <li><strong>Acesso:</strong> solicitar informações sobre quais dados possuímos sobre você</li>
+                    <li><strong>Correção:</strong> solicitar a correção de dados incompletos ou incorretos</li>
+                    <li><strong>Exclusão:</strong> solicitar a exclusão dos seus dados pessoais</li>
+                    <li><strong>Portabilidade:</strong> solicitar a transferência dos seus dados para outro serviço</li>
+                    <li><strong>Revogação:</strong> revogar o consentimento dado anteriormente</li>
+                    <li><strong>Informação:</strong> ser informado sobre com quem compartilhamos seus dados</li>
+                    <li><strong>Oposição:</strong> se opor ao tratamento dos seus dados em certas situações</li>
+                </ul>
+                
+                <p>
+                    Para exercer qualquer um desses direitos, entre em contato conosco através dos 
+                    canais informados na seção "Contato".
+                </p>
+            </section>
+
+            <section id="cookies">
+                <h2>8. Cookies e Tecnologias Similares</h2>
+                <p>
+                    Nosso aplicativo utiliza tecnologias de armazenamento local (LocalStorage, IndexedDB) 
+                    para funcionar corretamente. Essas tecnologias são essenciais para:
+                </p>
+                <ul>
+                    <li>Manter você conectado à sua conta</li>
+                    <li>Salvar suas preferências e configurações</li>
+                    <li>Armazenar dados do seu negócio localmente</li>
+                    <li>Permitir funcionamento offline</li>
+                </ul>
+                <p>
+                    <strong>Não utilizamos cookies de rastreamento ou publicidade.</strong>
+                </p>
+            </section>
+
+            <section id="menores">
+                <h2>9. Menores de Idade</h2>
+                <p>
+                    Este aplicativo é destinado a uso empresarial e não é direcionado a menores de 18 anos. 
+                    Não coletamos intencionalmente informações de menores de idade. Se tomarmos conhecimento 
+                    de que coletamos dados de um menor, tomaremos medidas para excluir essas informações.
+                </p>
+            </section>
+
+            <section id="alteracoes">
+                <h2>10. Alterações nesta Política</h2>
+                <p>
+                    Podemos atualizar esta Política de Privacidade periodicamente. Quando fizermos alterações 
+                    significativas, notificaremos você através do aplicativo ou por e-mail.
+                </p>
+                <p>
+                    Recomendamos que você revise esta política regularmente para se manter informado sobre 
+                    como protegemos suas informações.
+                </p>
+            </section>
+
+            <section id="contato">
+                <h2>11. Contato</h2>
+                <p>
+                    Se você tiver dúvidas, preocupações ou solicitações relacionadas a esta Política de 
+                    Privacidade ou ao tratamento dos seus dados, entre em contato conosco:
+                </p>
+                
+                <div class="contact-box">
+                    <h3>📧 Fale Conosco</h3>
+                    <p>
+                        <strong>E-mail:</strong> <a href="mailto:contato@gerenciadorloja.com">contato@gerenciadorloja.com</a>
+                    </p>
+                    <p>
+                        <strong>Desenvolvedor:</strong> Gabriel Morais
+                    </p>
+                    <p>
+                        <strong>Resposta:</strong> Em até 15 dias úteis
+                    </p>
+                </div>
+            </section>
+
+            <div class="highlight highlight-success" style="margin-top: 40px;">
+                <strong>✅ Compromisso com sua Privacidade</strong>
+                <p style="margin-bottom: 0;">
+                    Estamos comprometidos em proteger sua privacidade e garantir a segurança dos seus dados. 
+                    Agradecemos por confiar no "Gerenciamento de Loja Vendas" para gerenciar seu negócio.
+                </p>
+            </div>
+        </div>
+
+        <div class="footer">
+            <p>
+                © 2024 Gerenciamento de Loja Vendas. Todos os direitos reservados.
+            </p>
+            <p>
+                <a href="/">Voltar ao Aplicativo</a> | 
+                <a href="/terms.html">Termos de Uso</a>
+            </p>
+        </div>
+    </div>
+</body>
+</html>
+

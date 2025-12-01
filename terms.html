@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Termos de Uso - Gerenciamento de Loja Vendas</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.8;
+            color: #333;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+        }
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+        .card {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+            padding: 50px;
+            margin-bottom: 30px;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding-bottom: 30px;
+            border-bottom: 2px solid #f0f0f0;
+        }
+        .logo {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, #1a1a2e, #16213e);
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+            color: #00d4ff;
+            font-size: 36px;
+            font-weight: bold;
+            box-shadow: 0 0 20px rgba(0,212,255,0.3);
+        }
+        h1 {
+            color: #00d4ff;
+            font-size: 2.2em;
+            margin-bottom: 10px;
+        }
+        .subtitle {
+            color: #666;
+            font-size: 1.1em;
+        }
+        .last-update {
+            background: #f8f9fa;
+            padding: 10px 20px;
+            border-radius: 8px;
+            display: inline-block;
+            margin-top: 15px;
+            color: #666;
+            font-size: 0.9em;
+        }
+        h2 {
+            color: #00a8cc;
+            font-size: 1.5em;
+            margin: 35px 0 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #f0f0f0;
+        }
+        h3 {
+            color: #333;
+            font-size: 1.2em;
+            margin: 25px 0 15px;
+        }
+        p {
+            margin-bottom: 15px;
+            text-align: justify;
+        }
+        ul, ol {
+            margin: 15px 0 15px 30px;
+        }
+        li {
+            margin-bottom: 10px;
+        }
+        .highlight {
+            background: linear-gradient(135deg, #fff3cd 0%, #ffeaa7 100%);
+            padding: 20px 25px;
+            border-radius: 10px;
+            border-left: 4px solid #ffc107;
+            margin: 20px 0;
+        }
+        .highlight-info {
+            background: linear-gradient(135deg, #d1ecf1 0%, #bee5eb 100%);
+            border-left-color: #17a2b8;
+        }
+        .highlight-danger {
+            background: linear-gradient(135deg, #f8d7da 0%, #f5c6cb 100%);
+            border-left-color: #dc3545;
+        }
+        .highlight-success {
+            background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%);
+            border-left-color: #28a745;
+        }
+        .contact-box {
+            background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+            padding: 25px;
+            border-radius: 12px;
+            margin: 30px 0;
+            text-align: center;
+        }
+        .contact-box h3 {
+            color: #1976d2;
+            margin-bottom: 15px;
+        }
+        .contact-box a {
+            color: #1976d2;
+            text-decoration: none;
+            font-weight: 600;
+        }
+        .contact-box a:hover {
+            text-decoration: underline;
+        }
+        .footer {
+            text-align: center;
+            padding: 30px;
+            color: #666;
+            font-size: 0.9em;
+        }
+        .footer a {
+            color: #00a8cc;
+            text-decoration: none;
+        }
+        .toc {
+            background: #f8f9fa;
+            padding: 25px 30px;
+            border-radius: 12px;
+            margin-bottom: 30px;
+        }
+        .toc h3 {
+            margin-top: 0;
+            color: #333;
+        }
+        .toc ol {
+            margin-bottom: 0;
+        }
+        .toc a {
+            color: #00a8cc;
+            text-decoration: none;
+        }
+        .toc a:hover {
+            text-decoration: underline;
+        }
+        @media (max-width: 768px) {
+            .card {
+                padding: 30px 20px;
+            }
+            h1 {
+                font-size: 1.8em;
+            }
+            h2 {
+                font-size: 1.3em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="card">
+            <div class="header">
+                <div class="logo">📈</div>
+                <h1>Termos de Uso</h1>
+                <p class="subtitle">Gerenciamento de Loja Vendas</p>
+                <div class="last-update">📅 Última atualização: Dezembro de 2024</div>
+            </div>
+
+            <div class="toc">
+                <h3>📋 Índice</h3>
+                <ol>
+                    <li><a href="#aceitacao">Aceitação dos Termos</a></li>
+                    <li><a href="#descricao">Descrição do Serviço</a></li>
+                    <li><a href="#cadastro">Cadastro e Conta</a></li>
+                    <li><a href="#uso-permitido">Uso Permitido</a></li>
+                    <li><a href="#uso-proibido">Uso Proibido</a></li>
+                    <li><a href="#propriedade">Propriedade Intelectual</a></li>
+                    <li><a href="#dados">Dados e Privacidade</a></li>
+                    <li><a href="#disponibilidade">Disponibilidade do Serviço</a></li>
+                    <li><a href="#responsabilidade">Limitação de Responsabilidade</a></li>
+                    <li><a href="#rescisao">Rescisão</a></li>
+                    <li><a href="#alteracoes">Alterações nos Termos</a></li>
+                    <li><a href="#legislacao">Legislação Aplicável</a></li>
+                    <li><a href="#contato">Contato</a></li>
+                </ol>
+            </div>
+
+            <div class="highlight highlight-info">
+                <strong>📢 Importante:</strong> Ao utilizar o aplicativo "Gerenciamento de Loja Vendas", 
+                você declara ter lido, compreendido e concordado com estes Termos de Uso. Se você não 
+                concordar com algum termo, não utilize o aplicativo.
+            </div>
+
+            <section id="aceitacao">
+                <h2>1. Aceitação dos Termos</h2>
+                <p>
+                    Estes Termos de Uso ("Termos") constituem um acordo legal entre você ("Usuário") e o 
+                    desenvolvedor do aplicativo "Gerenciamento de Loja Vendas" ("Aplicativo", "Serviço", "nós").
+                </p>
+                <p>
+                    Ao acessar ou usar o Aplicativo, você concorda em cumprir e estar vinculado a estes Termos. 
+                    Este acordo entra em vigor na data em que você acessar o Aplicativo pela primeira vez.
+                </p>
+            </section>
+
+            <section id="descricao">
+                <h2>2. Descrição do Serviço</h2>
+                <p>
+                    O "Gerenciamento de Loja Vendas" é um aplicativo de gestão empresarial que oferece:
+                </p>
+                <ul>
+                    <li><strong>Gestão de Vendas:</strong> registro, acompanhamento e análise de vendas</li>
+                    <li><strong>Controle de Estoque:</strong> gerenciamento de produtos e inventário</li>
+                    <li><strong>Cadastro de Clientes:</strong> organização de informações de clientes</li>
+                    <li><strong>Relatórios Financeiros:</strong> análises e estatísticas do negócio</li>
+                    <li><strong>Controle de Custos:</strong> gestão de despesas e lucros</li>
+                    <li><strong>Multiusuário:</strong> controle de acesso por níveis de permissão</li>
+                </ul>
+                <p>
+                    O Serviço é fornecido "como está" e pode ser modificado, atualizado ou descontinuado 
+                    a qualquer momento, sem aviso prévio.
+                </p>
+            </section>
+
+            <section id="cadastro">
+                <h2>3. Cadastro e Conta</h2>
+                <h3>3.1. Requisitos</h3>
+                <p>Para utilizar o Aplicativo, você deve:</p>
+                <ul>
+                    <li>Ter pelo menos 18 anos de idade ou capacidade legal</li>
+                    <li>Fornecer informações verdadeiras e completas</li>
+                    <li>Manter suas credenciais de acesso em segurança</li>
+                    <li>Notificar-nos imediatamente sobre uso não autorizado</li>
+                </ul>
+
+                <h3>3.2. Responsabilidade da Conta</h3>
+                <p>
+                    Você é responsável por todas as atividades realizadas em sua conta. Mantenha sua 
+                    senha confidencial e não compartilhe suas credenciais com terceiros.
+                </p>
+
+                <div class="highlight">
+                    <strong>🔐 Segurança:</strong> Recomendamos usar senhas fortes e únicas, além de 
+                    ativar o logout automático por inatividade nas configurações.
+                </div>
+            </section>
+
+            <section id="uso-permitido">
+                <h2>4. Uso Permitido</h2>
+                <p>Você está autorizado a:</p>
+                <ul>
+                    <li>Usar o Aplicativo para gerenciar seu negócio legítimo</li>
+                    <li>Cadastrar produtos, clientes e vendas</li>
+                    <li>Gerar relatórios e análises</li>
+                    <li>Exportar seus dados para backup</li>
+                    <li>Personalizar configurações conforme suas necessidades</li>
+                    <li>Instalar o Aplicativo em seus dispositivos pessoais</li>
+                </ul>
+            </section>
+
+            <section id="uso-proibido">
+                <h2>5. Uso Proibido</h2>
+                <p>Você <strong>NÃO</strong> está autorizado a:</p>
+                <ul>
+                    <li>Usar o Aplicativo para atividades ilegais ou fraudulentas</li>
+                    <li>Violar direitos de propriedade intelectual</li>
+                    <li>Tentar acessar áreas restritas ou sistemas não autorizados</li>
+                    <li>Modificar, descompilar ou fazer engenharia reversa do código</li>
+                    <li>Distribuir, vender ou sublicenciar o Aplicativo</li>
+                    <li>Usar o Aplicativo para prejudicar terceiros</li>
+                    <li>Introduzir vírus, malware ou códigos maliciosos</li>
+                    <li>Sobrecarregar os servidores ou interferir no funcionamento</li>
+                    <li>Criar contas falsas ou usar identidade de terceiros</li>
+                </ul>
+
+                <div class="highlight highlight-danger">
+                    <strong>⚠️ Consequências:</strong> O uso indevido pode resultar em suspensão ou 
+                    encerramento da conta, além de possíveis medidas legais cabíveis.
+                </div>
+            </section>
+
+            <section id="propriedade">
+                <h2>6. Propriedade Intelectual</h2>
+                <p>
+                    Todos os direitos de propriedade intelectual relacionados ao Aplicativo, incluindo 
+                    mas não limitado a:
+                </p>
+                <ul>
+                    <li>Código-fonte e software</li>
+                    <li>Design e interface gráfica</li>
+                    <li>Logotipos e marcas</li>
+                    <li>Textos e conteúdos</li>
+                    <li>Documentação e tutoriais</li>
+                </ul>
+                <p>
+                    São de propriedade exclusiva do desenvolvedor ou de seus licenciadores. Nenhum direito 
+                    de propriedade intelectual é transferido ao Usuário.
+                </p>
+            </section>
+
+            <section id="dados">
+                <h2>7. Dados e Privacidade</h2>
+                <h3>7.1. Seus Dados</h3>
+                <p>
+                    Você mantém todos os direitos sobre os dados que inserir no Aplicativo (clientes, 
+                    produtos, vendas, etc.). Esses dados pertencem a você.
+                </p>
+
+                <h3>7.2. Armazenamento</h3>
+                <p>
+                    Seus dados são armazenados principalmente no seu dispositivo. A sincronização na 
+                    nuvem é opcional e pode ser configurada nas preferências.
+                </p>
+
+                <h3>7.3. Política de Privacidade</h3>
+                <p>
+                    O tratamento de dados pessoais é regido por nossa 
+                    <a href="/privacy-policy.html" style="color: #dc3545;">Política de Privacidade</a>, 
+                    que é parte integrante destes Termos.
+                </p>
+            </section>
+
+            <section id="disponibilidade">
+                <h2>8. Disponibilidade do Serviço</h2>
+                <p>
+                    Nos esforçamos para manter o Aplicativo disponível 24 horas por dia, 7 dias por semana. 
+                    No entanto, não garantimos disponibilidade ininterrupta.
+                </p>
+                <p>O Serviço pode ficar indisponível devido a:</p>
+                <ul>
+                    <li>Manutenção programada ou emergencial</li>
+                    <li>Atualizações e melhorias</li>
+                    <li>Problemas técnicos imprevistos</li>
+                    <li>Fatores fora do nosso controle (internet, dispositivo, etc.)</li>
+                </ul>
+                <div class="highlight highlight-success">
+                    <strong>✅ Modo Offline:</strong> O Aplicativo possui funcionalidade offline, 
+                    permitindo uso básico mesmo sem conexão com a internet.
+                </div>
+            </section>
+
+            <section id="responsabilidade">
+                <h2>9. Limitação de Responsabilidade</h2>
+                <h3>9.1. Isenção de Garantias</h3>
+                <p>
+                    O Aplicativo é fornecido "como está" e "conforme disponível", sem garantias de 
+                    qualquer tipo, expressas ou implícitas, incluindo garantias de comercialização, 
+                    adequação a um propósito específico ou não violação.
+                </p>
+
+                <h3>9.2. Limitação de Danos</h3>
+                <p>
+                    Em nenhuma circunstância seremos responsáveis por danos indiretos, incidentais, 
+                    especiais, consequenciais ou punitivos, incluindo perda de lucros, dados, uso 
+                    ou outras perdas intangíveis.
+                </p>
+
+                <h3>9.3. Backup de Dados</h3>
+                <p>
+                    <strong>É sua responsabilidade manter backups regulares dos seus dados.</strong> 
+                    Não nos responsabilizamos por perda de dados devido a falhas de hardware, 
+                    software ou erro do usuário.
+                </p>
+            </section>
+
+            <section id="rescisao">
+                <h2>10. Rescisão</h2>
+                <h3>10.1. Por Você</h3>
+                <p>
+                    Você pode parar de usar o Aplicativo a qualquer momento. Para excluir sua conta 
+                    e dados, entre em contato conosco ou use a opção nas configurações.
+                </p>
+
+                <h3>10.2. Por Nós</h3>
+                <p>
+                    Podemos suspender ou encerrar seu acesso ao Aplicativo, a nosso critério, por:
+                </p>
+                <ul>
+                    <li>Violação destes Termos</li>
+                    <li>Comportamento fraudulento ou ilegal</li>
+                    <li>Solicitação de autoridade competente</li>
+                    <li>Descontinuação do Serviço</li>
+                </ul>
+
+                <h3>10.3. Efeitos da Rescisão</h3>
+                <p>
+                    Após a rescisão, você deve cessar todo uso do Aplicativo. Você pode solicitar 
+                    exportação dos seus dados antes do encerramento.
+                </p>
+            </section>
+
+            <section id="alteracoes">
+                <h2>11. Alterações nos Termos</h2>
+                <p>
+                    Reservamo-nos o direito de modificar estes Termos a qualquer momento. Alterações 
+                    significativas serão comunicadas através do Aplicativo ou por e-mail.
+                </p>
+                <p>
+                    O uso continuado do Aplicativo após as alterações constitui aceitação dos novos 
+                    Termos. Se você não concordar com as alterações, deve parar de usar o Aplicativo.
+                </p>
+            </section>
+
+            <section id="legislacao">
+                <h2>12. Legislação Aplicável</h2>
+                <p>
+                    Estes Termos são regidos pelas leis da República Federativa do Brasil. Qualquer 
+                    disputa será submetida ao foro da comarca do domicílio do desenvolvedor, com 
+                    exclusão de qualquer outro, por mais privilegiado que seja.
+                </p>
+                <p>
+                    Aplicam-se a estes Termos, quando cabíveis:
+                </p>
+                <ul>
+                    <li>Código Civil Brasileiro (Lei nº 10.406/2002)</li>
+                    <li>Marco Civil da Internet (Lei nº 12.965/2014)</li>
+                    <li>Lei Geral de Proteção de Dados - LGPD (Lei nº 13.709/2018)</li>
+                    <li>Código de Defesa do Consumidor (Lei nº 8.078/1990)</li>
+                </ul>
+            </section>
+
+            <section id="contato">
+                <h2>13. Contato</h2>
+                <p>
+                    Se você tiver dúvidas sobre estes Termos de Uso, entre em contato conosco:
+                </p>
+                
+                <div class="contact-box">
+                    <h3>📧 Fale Conosco</h3>
+                    <p>
+                        <strong>E-mail:</strong> <a href="mailto:contato@gerenciadorloja.com">contato@gerenciadorloja.com</a>
+                    </p>
+                    <p>
+                        <strong>Desenvolvedor:</strong> Gabriel Morais
+                    </p>
+                </div>
+            </section>
+
+            <div class="highlight highlight-success" style="margin-top: 40px;">
+                <strong>✅ Ao usar o Aplicativo, você confirma que:</strong>
+                <ul style="margin-bottom: 0;">
+                    <li>Leu e compreendeu estes Termos de Uso</li>
+                    <li>Concorda em cumprir todas as disposições aqui apresentadas</li>
+                    <li>Tem capacidade legal para celebrar este acordo</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="footer">
+            <p>
+                © 2024 Gerenciamento de Loja Vendas. Todos os direitos reservados.
+            </p>
+            <p>
+                <a href="/">Voltar ao Aplicativo</a> | 
+                <a href="/privacy-policy.html">Política de Privacidade</a>
+            </p>
+        </div>
+    </div>
+</body>
+</html>
+

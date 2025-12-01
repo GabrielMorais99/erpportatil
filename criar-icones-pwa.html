@@ -3,132 +3,473 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gerador de Ícones PWA</title>
+    <title>Gerador de Ícones PWA - Play Store</title>
     <style>
+        * {
+            box-sizing: border-box;
+        }
         body {
-            font-family: Arial, sans-serif;
-            max-width: 800px;
-            margin: 50px auto;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
             padding: 20px;
-            background: #f5f5f5;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            min-height: 100vh;
+            color: #fff;
         }
         .container {
-            background: white;
+            background: rgba(255,255,255,0.05);
             padding: 30px;
-            border-radius: 10px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            border-radius: 16px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.1);
         }
         h1 {
-            color: #dc3545;
+            color: #00d4ff;
+            text-align: center;
+            margin-bottom: 10px;
+        }
+        .subtitle {
+            text-align: center;
+            color: #aaa;
+            margin-bottom: 30px;
         }
         .instructions {
-            background: #fff3cd;
-            padding: 15px;
-            border-radius: 5px;
+            background: rgba(0,212,255,0.1);
+            padding: 20px;
+            border-radius: 10px;
             margin: 20px 0;
-            border-left: 4px solid #ffc107;
+            border-left: 4px solid #00d4ff;
         }
-        canvas {
-            border: 2px solid #ddd;
-            margin: 10px;
-            display: block;
+        .instructions h3 {
+            margin-top: 0;
+            color: #00d4ff;
+        }
+        .original-preview {
+            text-align: center;
+            margin: 30px 0;
+            padding: 30px;
+            background: rgba(0,0,0,0.3);
+            border-radius: 12px;
+        }
+        .original-preview img {
+            max-width: 200px;
+            border-radius: 20px;
+            box-shadow: 0 0 30px rgba(0,212,255,0.3);
+        }
+        .icon-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin: 30px 0;
+        }
+        .icon-item {
+            text-align: center;
+            background: rgba(0,0,0,0.2);
+            padding: 20px;
+            border-radius: 12px;
+        }
+        .icon-item canvas {
+            border: 2px solid #333;
+            border-radius: 12px;
+            max-width: 100%;
+            height: auto;
+            background: #1a1a2e;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .icon-item canvas:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 20px rgba(0,212,255,0.5);
+        }
+        .icon-item p {
+            margin: 10px 0 5px;
+            font-size: 14px;
+            color: #aaa;
+        }
+        .icon-item .size {
+            color: #00d4ff;
+            font-weight: bold;
+        }
+        .icon-item button {
+            margin-top: 10px;
+            padding: 8px 16px;
+            font-size: 14px;
+        }
+        .buttons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            justify-content: center;
+            margin: 30px 0;
         }
         button {
-            background: #dc3545;
-            color: white;
-            padding: 10px 20px;
+            background: linear-gradient(135deg, #00d4ff, #0099cc);
+            color: #1a1a2e;
+            padding: 14px 28px;
             border: none;
-            border-radius: 5px;
+            border-radius: 8px;
             cursor: pointer;
             font-size: 16px;
-            margin: 10px 5px;
+            font-weight: 700;
+            transition: all 0.3s ease;
         }
         button:hover {
-            background: #c82333;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 20px rgba(0,212,255,0.5);
+        }
+        button.secondary {
+            background: linear-gradient(135deg, #28a745, #218838);
+            color: white;
+        }
+        button.small {
+            padding: 8px 16px;
+            font-size: 13px;
+        }
+        .status {
+            text-align: center;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 20px 0;
+            font-weight: 600;
+        }
+        .status.success {
+            background: rgba(40,167,69,0.2);
+            color: #28a745;
+        }
+        .status.info {
+            background: rgba(0,212,255,0.2);
+            color: #00d4ff;
+        }
+        .checklist {
+            background: rgba(40,167,69,0.1);
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+            border-left: 4px solid #28a745;
+        }
+        .checklist h3 {
+            margin-top: 0;
+            color: #28a745;
+        }
+        .checklist ul {
+            list-style: none;
+            padding: 0;
+        }
+        .checklist li {
+            padding: 8px 0;
+            color: #ddd;
+        }
+        .checklist li::before {
+            content: '✅ ';
+        }
+        .tip {
+            background: rgba(255,193,7,0.15);
+            padding: 15px 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+            border-left: 4px solid #ffc107;
+            color: #ffc107;
+        }
+        .tip strong {
+            color: #ffdb4d;
         }
     </style>
 </head>
 <body>
     <div class="container">
         <h1>🎨 Gerador de Ícones PWA</h1>
-        <div class="instructions">
-            <p><strong>Instruções:</strong></p>
-            <ol>
-                <li>Clique em "Gerar Ícones" para criar os ícones</li>
-                <li>Os ícones serão baixados automaticamente</li>
-                <li>Coloque os arquivos <code>icon-192.png</code> e <code>icon-512.png</code> na raiz do projeto</li>
-            </ol>
+        <p class="subtitle">Clique em cada ícone para baixar individualmente</p>
+        
+        <div class="tip">
+            <strong>💡 Dica:</strong> Clique diretamente no ícone ou no botão "Baixar" abaixo de cada um para fazer o download individual.
         </div>
+
+        <div class="original-preview">
+            <h3 style="color:#00d4ff;margin-bottom:20px;">📷 Imagem Original</h3>
+            <img id="originalImage" src="/images/icone-e-transicao.jpg" alt="Ícone Original" crossorigin="anonymous">
+            <p style="color:#aaa;margin-top:15px;">icone-e-transicao.jpg</p>
+        </div>
+
+        <h3 style="text-align:center;color:#aaa;margin:30px 0 20px;">📱 Clique para Baixar</h3>
         
-        <canvas id="canvas192" width="192" height="192"></canvas>
-        <canvas id="canvas512" width="512" height="512"></canvas>
-        
-        <div>
-            <button onclick="gerarIcones()">Gerar Ícones</button>
+        <div class="icon-grid">
+            <div class="icon-item">
+                <canvas id="canvas512" width="512" height="512" onclick="baixarIcone(this, 'icon-512.png')" title="Clique para baixar"></canvas>
+                <p><span class="size">512x512</span><br>Play Store</p>
+                <button class="small" onclick="baixarIcone(document.getElementById('canvas512'), 'icon-512.png')">📥 Baixar</button>
+            </div>
+            <div class="icon-item">
+                <canvas id="canvas512m" width="512" height="512" onclick="baixarIcone(this, 'icon-512-maskable.png')" title="Clique para baixar"></canvas>
+                <p><span class="size">512x512</span><br>Maskable</p>
+                <button class="small" onclick="baixarIcone(document.getElementById('canvas512m'), 'icon-512-maskable.png')">📥 Baixar</button>
+            </div>
+            <div class="icon-item">
+                <canvas id="canvas192" width="192" height="192" onclick="baixarIcone(this, 'icon-192.png')" title="Clique para baixar"></canvas>
+                <p><span class="size">192x192</span><br>PWA Principal</p>
+                <button class="small" onclick="baixarIcone(document.getElementById('canvas192'), 'icon-192.png')">📥 Baixar</button>
+            </div>
+            <div class="icon-item">
+                <canvas id="canvas144" width="144" height="144" onclick="baixarIcone(this, 'icon-144.png')" title="Clique para baixar"></canvas>
+                <p><span class="size">144x144</span><br>xxhdpi</p>
+                <button class="small" onclick="baixarIcone(document.getElementById('canvas144'), 'icon-144.png')">📥 Baixar</button>
+            </div>
+            <div class="icon-item">
+                <canvas id="canvas96" width="96" height="96" onclick="baixarIcone(this, 'icon-96.png')" title="Clique para baixar"></canvas>
+                <p><span class="size">96x96</span><br>xhdpi</p>
+                <button class="small" onclick="baixarIcone(document.getElementById('canvas96'), 'icon-96.png')">📥 Baixar</button>
+            </div>
+            <div class="icon-item">
+                <canvas id="canvas72" width="72" height="72" onclick="baixarIcone(this, 'icon-72.png')" title="Clique para baixar"></canvas>
+                <p><span class="size">72x72</span><br>hdpi</p>
+                <button class="small" onclick="baixarIcone(document.getElementById('canvas72'), 'icon-72.png')">📥 Baixar</button>
+            </div>
+            <div class="icon-item">
+                <canvas id="canvas48" width="48" height="48" onclick="baixarIcone(this, 'icon-48.png')" title="Clique para baixar"></canvas>
+                <p><span class="size">48x48</span><br>mdpi</p>
+                <button class="small" onclick="baixarIcone(document.getElementById('canvas48'), 'icon-48.png')">📥 Baixar</button>
+            </div>
+        </div>
+
+        <div class="buttons">
+            <button class="secondary" onclick="baixarManifest()">📄 Baixar Manifest.json</button>
+        </div>
+
+        <div id="status" class="status info" style="display:none;"></div>
+
+        <div class="checklist">
+            <h3>📋 Ícones para baixar</h3>
+            <ul>
+                <li><strong>icon-512.png</strong> - Play Store principal</li>
+                <li><strong>icon-512-maskable.png</strong> - Ícone adaptativo (com padding)</li>
+                <li><strong>icon-192.png</strong> - PWA Chrome</li>
+                <li><strong>icon-144.png</strong> - Android xxhdpi</li>
+                <li><strong>icon-96.png</strong> - Android xhdpi</li>
+                <li><strong>icon-72.png</strong> - Android hdpi</li>
+                <li><strong>icon-48.png</strong> - Android mdpi</li>
+            </ul>
+        </div>
+
+        <div class="instructions">
+            <h3>📁 Após baixar</h3>
+            <ol>
+                <li>Mova todos os arquivos <code>.png</code> para a pasta <code>/images/</code></li>
+                <li>Substitua o <code>manifest.json</code> na raiz do projeto</li>
+                <li>Faça commit e push para a Vercel</li>
+            </ol>
         </div>
     </div>
 
     <script>
-        function gerarIcones() {
-            // Ícone 192x192
-            const canvas192 = document.getElementById('canvas192');
-            const ctx192 = canvas192.getContext('2d');
+        const sizes = [512, 192, 144, 96, 72, 48];
+        let imagemOriginal = null;
+        
+        function carregarImagem() {
+            const img = document.getElementById('originalImage');
             
-            // Fundo vermelho
-            ctx192.fillStyle = '#dc3545';
-            ctx192.fillRect(0, 0, 192, 192);
+            if (img.complete && img.naturalHeight !== 0) {
+                imagemOriginal = img;
+                atualizarPreviews();
+                return;
+            }
             
-            // Texto branco "L"
-            ctx192.fillStyle = '#ffffff';
-            ctx192.font = 'bold 120px Arial';
-            ctx192.textAlign = 'center';
-            ctx192.textBaseline = 'middle';
-            ctx192.fillText('L', 96, 96);
+            img.onload = function() {
+                imagemOriginal = img;
+                atualizarPreviews();
+                mostrarStatus('✅ Imagem carregada! Clique nos ícones para baixar.', 'success');
+            };
             
-            // Ícone 512x512
-            const canvas512 = document.getElementById('canvas512');
-            const ctx512 = canvas512.getContext('2d');
+            img.onerror = function() {
+                mostrarStatus('⚠️ Erro ao carregar imagem. Verifique /images/icone-e-transicao.jpg', 'error');
+            };
+        }
+        
+        function desenharIcone(canvas, size) {
+            if (!imagemOriginal) return;
             
-            // Fundo vermelho
-            ctx512.fillStyle = '#dc3545';
-            ctx512.fillRect(0, 0, 512, 512);
+            const ctx = canvas.getContext('2d');
+            ctx.clearRect(0, 0, size, size);
+            ctx.fillStyle = '#1a1a2e';
+            ctx.fillRect(0, 0, size, size);
             
-            // Texto branco "L"
-            ctx512.fillStyle = '#ffffff';
-            ctx512.font = 'bold 320px Arial';
-            ctx512.textAlign = 'center';
-            ctx512.textBaseline = 'middle';
-            ctx512.fillText('L', 256, 256);
+            const imgRatio = imagemOriginal.naturalWidth / imagemOriginal.naturalHeight;
+            let drawWidth, drawHeight, offsetX, offsetY;
             
-            // Download dos ícones
-            canvas192.toBlob((blob) => {
+            if (imgRatio > 1) {
+                drawHeight = size;
+                drawWidth = size * imgRatio;
+                offsetX = -(drawWidth - size) / 2;
+                offsetY = 0;
+            } else {
+                drawWidth = size;
+                drawHeight = size / imgRatio;
+                offsetX = 0;
+                offsetY = -(drawHeight - size) / 2;
+            }
+            
+            ctx.drawImage(imagemOriginal, offsetX, offsetY, drawWidth, drawHeight);
+        }
+        
+        function desenharIconeMaskable(canvas, size) {
+            if (!imagemOriginal) return;
+            
+            const ctx = canvas.getContext('2d');
+            ctx.clearRect(0, 0, size, size);
+            ctx.fillStyle = '#1a1a2e';
+            ctx.fillRect(0, 0, size, size);
+            
+            // Safe zone: 80% central (padding 10% cada lado)
+            const padding = size * 0.1;
+            const innerSize = size * 0.8;
+            
+            const imgRatio = imagemOriginal.naturalWidth / imagemOriginal.naturalHeight;
+            let drawWidth, drawHeight, offsetX, offsetY;
+            
+            if (imgRatio > 1) {
+                drawHeight = innerSize;
+                drawWidth = innerSize * imgRatio;
+                offsetX = padding - (drawWidth - innerSize) / 2;
+                offsetY = padding;
+            } else {
+                drawWidth = innerSize;
+                drawHeight = innerSize / imgRatio;
+                offsetX = padding;
+                offsetY = padding - (drawHeight - innerSize) / 2;
+            }
+            
+            ctx.drawImage(imagemOriginal, offsetX, offsetY, drawWidth, drawHeight);
+        }
+        
+        function atualizarPreviews() {
+            if (!imagemOriginal) return;
+            
+            sizes.forEach(size => {
+                const canvas = document.getElementById(`canvas${size}`);
+                if (canvas) desenharIcone(canvas, size);
+            });
+            
+            // Maskable
+            const canvasMaskable = document.getElementById('canvas512m');
+            if (canvasMaskable) desenharIconeMaskable(canvasMaskable, 512);
+        }
+        
+        function mostrarStatus(mensagem, tipo) {
+            const status = document.getElementById('status');
+            status.textContent = mensagem;
+            status.className = `status ${tipo}`;
+            status.style.display = 'block';
+            
+            setTimeout(() => {
+                status.style.display = 'none';
+            }, 4000);
+        }
+        
+        function baixarIcone(canvas, nome) {
+            canvas.toBlob((blob) => {
                 const url = URL.createObjectURL(blob);
                 const a = document.createElement('a');
                 a.href = url;
-                a.download = 'icon-192.png';
+                a.download = nome;
                 a.click();
                 URL.revokeObjectURL(url);
-            });
-            
-            setTimeout(() => {
-                canvas512.toBlob((blob) => {
-                    const url = URL.createObjectURL(blob);
-                    const a = document.createElement('a');
-                    a.href = url;
-                    a.download = 'icon-512.png';
-                    a.click();
-                    URL.revokeObjectURL(url);
-                });
-            }, 500);
-            
-            alert('Ícones gerados e baixados! Coloque-os na raiz do projeto.');
+                mostrarStatus(`✅ ${nome} baixado!`, 'success');
+            }, 'image/png');
         }
         
-        // Gerar automaticamente ao carregar
-        window.addEventListener('load', () => {
-            gerarIcones();
-        });
+        function baixarManifest() {
+            const manifest = {
+                "name": "Gerenciamento de Loja Vendas",
+                "short_name": "Loja Vendas",
+                "description": "Sistema completo de gestão de loja - Controle de vendas, estoque, clientes e financeiro",
+                "start_url": "/",
+                "display": "standalone",
+                "background_color": "#1a1a2e",
+                "theme_color": "#00d4ff",
+                "orientation": "portrait-primary",
+                "categories": ["business", "finance", "productivity"],
+                "icons": [
+                    {
+                        "src": "/images/icon-48.png",
+                        "sizes": "48x48",
+                        "type": "image/png",
+                        "purpose": "any"
+                    },
+                    {
+                        "src": "/images/icon-72.png",
+                        "sizes": "72x72",
+                        "type": "image/png",
+                        "purpose": "any"
+                    },
+                    {
+                        "src": "/images/icon-96.png",
+                        "sizes": "96x96",
+                        "type": "image/png",
+                        "purpose": "any"
+                    },
+                    {
+                        "src": "/images/icon-144.png",
+                        "sizes": "144x144",
+                        "type": "image/png",
+                        "purpose": "any"
+                    },
+                    {
+                        "src": "/images/icon-192.png",
+                        "sizes": "192x192",
+                        "type": "image/png",
+                        "purpose": "any"
+                    },
+                    {
+                        "src": "/images/icon-512.png",
+                        "sizes": "512x512",
+                        "type": "image/png",
+                        "purpose": "any"
+                    },
+                    {
+                        "src": "/images/icon-512-maskable.png",
+                        "sizes": "512x512",
+                        "type": "image/png",
+                        "purpose": "maskable"
+                    }
+                ],
+                "screenshots": [
+                    {
+                        "src": "/images/screenshot-1.png",
+                        "sizes": "1080x1920",
+                        "type": "image/png",
+                        "label": "Dashboard principal",
+                        "form_factor": "narrow"
+                    },
+                    {
+                        "src": "/images/screenshot-2.png",
+                        "sizes": "1080x1920",
+                        "type": "image/png",
+                        "label": "Gestão de vendas",
+                        "form_factor": "narrow"
+                    }
+                ],
+                "related_applications": [],
+                "prefer_related_applications": false
+            };
+            
+            const blob = new Blob([JSON.stringify(manifest, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'manifest.json';
+            a.click();
+            URL.revokeObjectURL(url);
+            
+            mostrarStatus('✅ manifest.json baixado! Substitua na raiz do projeto.', 'success');
+        }
+        
+        // Inicializar
+        window.addEventListener('load', carregarImagem);
+        
+        const img = document.getElementById('originalImage');
+        if (img && img.complete) {
+            imagemOriginal = img;
+            setTimeout(atualizarPreviews, 100);
+        }
     </script>
 </body>
 </html>
-
