@@ -4640,13 +4640,34 @@ body.theme-blue .login-container #entrarBtn:focus {
         padding: 1rem;
     }
 
+    /* Tabelas responsivas com scroll horizontal */
     .admin-dashboard-content table {
         font-size: 0.8rem;
+        display: block;
+        width: 100%;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .admin-dashboard-content table thead,
+    .admin-dashboard-content table tbody,
+    .admin-dashboard-content table tr {
+        display: table;
+        width: 100%;
+        table-layout: fixed;
     }
 
     .admin-dashboard-content table th,
     .admin-dashboard-content table td {
         padding: 0.5rem;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    /* Garantir largura mínima para tabelas */
+    .admin-dashboard-content table {
+        min-width: 600px;
     }
 }
 
@@ -6151,6 +6172,26 @@ body.dark-mode .skeleton-line {
         max-width: 95% !important;
         margin: 1rem auto !important;
         padding: 1rem !important;
+        max-height: 90vh !important;
+        overflow-y: auto !important;
+        -webkit-overflow-scrolling: touch !important;
+    }
+
+    .modal-header {
+        padding: 0.75rem 1rem !important;
+    }
+
+    .modal-body {
+        padding: 1rem !important;
+        max-height: calc(90vh - 120px) !important;
+        overflow-y: auto !important;
+    }
+
+    .modal-footer,
+    .modal-actions {
+        padding: 0.75rem 1rem !important;
+        flex-wrap: wrap !important;
+        gap: 0.5rem !important;
     }
 
     /* Ajustar inputs e selects para não quebrar */
@@ -6158,11 +6199,31 @@ body.dark-mode .skeleton-line {
     input[type='number'],
     input[type='email'],
     input[type='tel'],
+    input[type='password'],
+    input[type='date'],
+    input[type='time'],
     select,
     textarea {
         width: 100% !important;
         max-width: 100% !important;
         box-sizing: border-box !important;
+        font-size: 16px !important; /* Prevenir zoom no iOS */
+        padding: 0.75rem !important;
+        border-radius: var(--radius-md) !important;
+    }
+
+    /* Labels acima dos inputs em mobile */
+    .form-group {
+        display: flex !important;
+        flex-direction: column !important;
+        gap: 0.5rem !important;
+        margin-bottom: 1rem !important;
+    }
+
+    .form-group label {
+        font-size: 0.9rem !important;
+        font-weight: 600 !important;
+        color: var(--gray-700) !important;
     }
 
     /* Garantir que grids sejam responsivos */
@@ -6176,9 +6237,21 @@ body.dark-mode .skeleton-line {
     /* Ajustar cards para mobile */
     .item-card,
     .client-card,
-    .sale-card {
+    .sale-card,
+    .template-card,
+    .scheduled-message-card {
         min-width: 0 !important;
         max-width: 100% !important;
+        padding: 1rem !important;
+        margin-bottom: 1rem !important;
+    }
+
+    /* Garantir que cards não quebrem */
+    .item-card *,
+    .client-card *,
+    .sale-card * {
+        max-width: 100% !important;
+        word-wrap: break-word !important;
     }
 
     /* Ajustar botões em painéis */
@@ -6228,7 +6301,43 @@ body.dark-mode .skeleton-line {
     /* Reduzir padding em cards */
     .item-card,
     .client-card,
-    .sale-card {
+    .sale-card,
+    .template-card,
+    .scheduled-message-card {
+        padding: 0.75rem !important;
+    }
+
+    /* Garantir que todas as tabelas tenham scroll horizontal */
+    table {
+        display: block !important;
+        width: 100% !important;
+        overflow-x: auto !important;
+        -webkit-overflow-scrolling: touch !important;
+        white-space: nowrap !important;
+    }
+
+    table thead,
+    table tbody,
+    table tr {
+        display: table !important;
+        width: 100% !important;
+        table-layout: fixed !important;
+    }
+
+    /* Garantir que containers não causem overflow */
+    .panel-section,
+    .panel-content,
+    .tab-content {
+        max-width: 100% !important;
+        overflow-x: hidden !important;
+    }
+
+    /* Melhorar espaçamento em mobile pequeno */
+    .main-content {
+        padding: 0.75rem !important;
+    }
+
+    .panel-section {
         padding: 0.75rem !important;
     }
 
