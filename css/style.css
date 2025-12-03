@@ -1401,7 +1401,11 @@ body.theme-blue .login-container #entrarBtn:focus {
         height: 44px !important;
         padding: 0 !important;
         flex: 0 0 44px !important;
-        background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-color-dark) 100%) !important;
+        background: linear-gradient(
+            135deg,
+            var(--primary-color) 0%,
+            var(--primary-color-dark) 100%
+        ) !important;
     }
 
     .item-actions-row .btn-edit i,

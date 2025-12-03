@@ -248,6 +248,105 @@
             body { visibility: hidden; opacity: 0; }
             body.loaded { visibility: visible; opacity: 1; transition: opacity 0.2s; }
         </style>
+        
+        <!-- CSS CRÍTICO MOBILE - Botões só ícone -->
+        <style>
+            @media (max-width: 768px) {
+                /* ESCONDER TEXTO DOS BOTÕES */
+                .item-actions .btn-text,
+                .item-card .btn-text,
+                .btn-small .btn-text,
+                .btn-edit .btn-text,
+                .btn-qr .btn-text {
+                    display: none !important;
+                    visibility: hidden !important;
+                    width: 0 !important;
+                    height: 0 !important;
+                    font-size: 0 !important;
+                    position: absolute !important;
+                    left: -9999px !important;
+                }
+                
+                /* BOTÕES QUADRADOS */
+                .item-actions .btn-small,
+                .item-actions .btn-edit,
+                .item-actions .btn-delete,
+                .item-actions .btn-qr,
+                .item-actions .btn-secondary,
+                .item-actions-row .btn-edit,
+                .item-actions-row .btn-delete {
+                    width: 44px !important;
+                    min-width: 44px !important;
+                    max-width: 44px !important;
+                    height: 44px !important;
+                    padding: 0 !important;
+                    display: inline-flex !important;
+                    align-items: center !important;
+                    justify-content: center !important;
+                    flex: 0 0 44px !important;
+                    border-radius: 8px !important;
+                    gap: 0 !important;
+                    overflow: hidden !important;
+                }
+                
+                /* ÍCONES VISÍVEIS */
+                .item-actions .btn-small i,
+                .item-actions .btn-edit i,
+                .item-actions .btn-delete i,
+                .item-actions .btn-qr i,
+                .item-actions .btn-secondary i,
+                .item-actions-row .btn-edit i,
+                .item-actions-row .btn-delete i {
+                    font-size: 1.1rem !important;
+                    margin: 0 !important;
+                    display: inline-block !important;
+                }
+                
+                /* LAYOUT DAS AÇÕES */
+                .item-actions {
+                    display: flex !important;
+                    flex-direction: row !important;
+                    flex-wrap: nowrap !important;
+                    gap: 8px !important;
+                    align-items: center !important;
+                }
+                
+                .item-actions-row {
+                    display: flex !important;
+                    gap: 8px !important;
+                    flex: 0 0 auto !important;
+                }
+            }
+            
+            @media (max-width: 480px) {
+                .item-actions .btn-small,
+                .item-actions .btn-edit,
+                .item-actions .btn-delete,
+                .item-actions .btn-qr,
+                .item-actions-row .btn-edit,
+                .item-actions-row .btn-delete {
+                    width: 40px !important;
+                    min-width: 40px !important;
+                    max-width: 40px !important;
+                    height: 40px !important;
+                    flex: 0 0 40px !important;
+                }
+                
+                .item-actions .btn-small i,
+                .item-actions-row .btn-edit i,
+                .item-actions-row .btn-delete i {
+                    font-size: 1rem !important;
+                }
+                
+                .item-actions {
+                    gap: 6px !important;
+                }
+                
+                .item-actions-row {
+                    gap: 6px !important;
+                }
+            }
+        </style>
         <script>
             // Mostrar conteúdo quando CSS carregar e aplicar animação de entrada
             window.addEventListener('load', function() {
