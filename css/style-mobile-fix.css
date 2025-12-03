@@ -54,7 +54,12 @@ a,
 label,
 span,
 div,
-h1, h2, h3, h4, h5, h6,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
 p,
 li {
     /* Garante que ícones dentro de elementos tenham gap */
@@ -120,7 +125,12 @@ label i,
 }
 
 /* Headers com ícones */
-h1 i, h2 i, h3 i, h4 i, h5 i, h6 i {
+h1 i,
+h2 i,
+h3 i,
+h4 i,
+h5 i,
+h6 i {
     margin-right: var(--space-icon, 0.5rem);
 }
 
@@ -448,7 +458,7 @@ a i {
     /* ========================================
        CARDS - BOTÕES COMPACTOS (SÓ ÍCONE)
        ======================================== */
-    
+
     /* Área de ações dos cards */
     .item-actions {
         display: flex;
@@ -492,16 +502,16 @@ a i {
     .item-card .btn-edit::before,
     .group-card .btn-edit::before,
     .client-card .btn-edit::before {
-        font-family: "Font Awesome 5 Free";
+        font-family: 'Font Awesome 5 Free';
         font-weight: 900;
-        content: "\f044"; /* fa-edit */
+        content: '\f044'; /* fa-edit */
         font-size: 1rem;
     }
 
     /* Botão QR Code - esconder texto "QR Code" */
-    .item-card .btn-secondary[title*="QR"],
-    .item-card button[onclick*="QR"],
-    .item-card button[onclick*="qr"] {
+    .item-card .btn-secondary[title*='QR'],
+    .item-card button[onclick*='QR'],
+    .item-card button[onclick*='qr'] {
         font-size: 0 !important;
         min-width: 40px !important;
         width: 40px !important;
@@ -509,9 +519,9 @@ a i {
         padding: 0 !important;
     }
 
-    .item-card .btn-secondary[title*="QR"] i,
-    .item-card button[onclick*="QR"] i,
-    .item-card button[onclick*="qr"] i {
+    .item-card .btn-secondary[title*='QR'] i,
+    .item-card button[onclick*='QR'] i,
+    .item-card button[onclick*='qr'] i {
         font-size: 1rem !important;
         margin: 0 !important;
     }
@@ -905,8 +915,12 @@ a i {
 }
 
 @keyframes skeleton-shimmer {
-    0% { background-position: 200% 0; }
-    100% { background-position: -200% 0; }
+    0% {
+        background-position: 200% 0;
+    }
+    100% {
+        background-position: -200% 0;
+    }
 }
 
 /* Estado de timeout - skeleton parado */
@@ -1026,20 +1040,20 @@ a i {
         padding: var(--space-lg) var(--space-md);
         min-height: 160px;
     }
-    
+
     .empty-state-icon {
         width: 56px;
         height: 56px;
     }
-    
+
     .empty-state-icon i {
         font-size: 1.5rem;
     }
-    
+
     .empty-state-title {
         font-size: 1rem;
     }
-    
+
     .empty-state-description {
         font-size: 0.85rem;
     }
@@ -1052,10 +1066,8 @@ a i {
 /* Transição suave ao alternar tema */
 body,
 body * {
-    transition: background-color 0.3s ease, 
-                border-color 0.3s ease,
-                color 0.3s ease,
-                box-shadow 0.3s ease;
+    transition: background-color 0.3s ease, border-color 0.3s ease,
+        color 0.3s ease, box-shadow 0.3s ease;
 }
 
 /* Paleta Dark Mode Premium */
@@ -1065,26 +1077,26 @@ body.dark-mode {
     --dark-bg-secondary: #161922;
     --dark-bg-tertiary: #1c1f2e;
     --dark-bg-elevated: #232738;
-    
+
     /* Cores de superfície com glassmorphism */
     --dark-surface: rgba(35, 39, 56, 0.8);
     --dark-surface-hover: rgba(45, 50, 70, 0.9);
-    
+
     /* Bordas luminosas */
     --dark-border: rgba(255, 255, 255, 0.08);
     --dark-border-hover: rgba(255, 255, 255, 0.15);
     --dark-border-accent: rgba(99, 102, 241, 0.5);
-    
+
     /* Texto */
     --dark-text-primary: #f1f5f9;
     --dark-text-secondary: #94a3b8;
     --dark-text-muted: #64748b;
-    
+
     /* Acentos coloridos */
     --dark-accent: #6366f1;
     --dark-accent-hover: #818cf8;
     --dark-accent-glow: rgba(99, 102, 241, 0.4);
-    
+
     /* Cores de status */
     --dark-success: #10b981;
     --dark-success-bg: rgba(16, 185, 129, 0.15);
@@ -1092,11 +1104,15 @@ body.dark-mode {
     --dark-warning-bg: rgba(245, 158, 11, 0.15);
     --dark-danger: #ef4444;
     --dark-danger-bg: rgba(239, 68, 68, 0.15);
-    
+
     /* Gradientes */
     --dark-gradient-primary: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
-    --dark-gradient-surface: linear-gradient(180deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0) 100%);
-    
+    --dark-gradient-surface: linear-gradient(
+        180deg,
+        rgba(255, 255, 255, 0.05) 0%,
+        rgba(255, 255, 255, 0) 100%
+    );
+
     /* Sombras para dark mode */
     --dark-shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.4);
     --dark-shadow-md: 0 4px 20px rgba(0, 0, 0, 0.5);
@@ -1121,9 +1137,16 @@ body.dark-mode::before {
     left: 0;
     right: 0;
     bottom: 0;
-    background: 
-        radial-gradient(ellipse at top right, rgba(99, 102, 241, 0.08) 0%, transparent 50%),
-        radial-gradient(ellipse at bottom left, rgba(139, 92, 246, 0.06) 0%, transparent 50%);
+    background: radial-gradient(
+            ellipse at top right,
+            rgba(99, 102, 241, 0.08) 0%,
+            transparent 50%
+        ),
+        radial-gradient(
+            ellipse at bottom left,
+            rgba(139, 92, 246, 0.06) 0%,
+            transparent 50%
+        );
     pointer-events: none;
     z-index: -1;
 }
@@ -1133,7 +1156,11 @@ body.dark-mode::before {
    ======================================== */
 
 body.dark-mode .header {
-    background: linear-gradient(135deg, var(--dark-bg-secondary) 0%, var(--dark-bg-primary) 100%);
+    background: linear-gradient(
+        135deg,
+        var(--dark-bg-secondary) 0%,
+        var(--dark-bg-primary) 100%
+    );
     border-bottom: 1px solid var(--dark-border);
     box-shadow: var(--dark-shadow-md);
 }
@@ -1271,7 +1298,11 @@ body.dark-mode .panel-section {
 }
 
 body.dark-mode .panel-header {
-    background: linear-gradient(135deg, var(--dark-bg-tertiary) 0%, var(--dark-bg-secondary) 100%);
+    background: linear-gradient(
+        135deg,
+        var(--dark-bg-tertiary) 0%,
+        var(--dark-bg-secondary) 100%
+    );
     border-bottom: 1px solid var(--dark-border);
 }
 
@@ -1520,18 +1551,18 @@ body.dark-mode .toast-warning {
    ======================================== */
 
 /* Checkbox customizado */
-body.dark-mode input[type="checkbox"] {
+body.dark-mode input[type='checkbox'] {
     accent-color: var(--dark-accent);
 }
 
 /* Range slider */
-body.dark-mode input[type="range"] {
+body.dark-mode input[type='range'] {
     accent-color: var(--dark-accent);
 }
 
 /* Date picker */
-body.dark-mode input[type="date"],
-body.dark-mode input[type="datetime-local"] {
+body.dark-mode input[type='date'],
+body.dark-mode input[type='datetime-local'] {
     color-scheme: dark;
 }
 
@@ -1566,8 +1597,12 @@ body.dark-mode .skeleton {
 }
 
 @keyframes skeleton-pulse {
-    0% { background-position: 200% 0; }
-    100% { background-position: -200% 0; }
+    0% {
+        background-position: 200% 0;
+    }
+    100% {
+        background-position: -200% 0;
+    }
 }
 
 /* ========================================
@@ -1673,7 +1708,7 @@ body.dark-mode .empty-state-container.empty-error .empty-state-icon i {
         border: none;
         border-top: 1px solid var(--dark-border);
     }
-    
+
     body.dark-mode .content-tabs {
         border-radius: 0;
         border-left: none;
