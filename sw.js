@@ -12,6 +12,7 @@ const urlsToCache = [
     '/css/style-mobile-fix.css',
     '/js/login.js',
     '/js/app.js',
+    '/js/skeleton-manager.js',
     '/manifest.json',
     '/images/icone-e-transicao.jpg',
 ];

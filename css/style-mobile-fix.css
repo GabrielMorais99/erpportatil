@@ -40,6 +40,111 @@
 }
 
 /* ========================================
+   ESPAÇAMENTO GLOBAL ÍCONE-TEXTO
+   ======================================== */
+
+/* Gap mínimo entre ícones e textos em TODOS elementos */
+button,
+.btn,
+.btn-primary,
+.btn-secondary,
+.btn-small,
+.tab-btn,
+a,
+label,
+span,
+div,
+h1, h2, h3, h4, h5, h6,
+p,
+li {
+    /* Garante que ícones dentro de elementos tenham gap */
+}
+
+/* Regra universal: ícone seguido de texto */
+i + span,
+i + .btn-text,
+i + strong,
+i + b,
+i + em,
+span + i,
+.btn-text + i {
+    margin-left: var(--space-icon, 0.5rem);
+}
+
+/* Ícone antes de texto direto (sem span) */
+i.fas,
+i.far,
+i.fab,
+i.fa {
+    margin-right: var(--space-icon, 0.5rem);
+}
+
+/* Ícone APÓS texto */
+span + i.fas,
+span + i.far,
+span + i.fab,
+span + i.fa,
+.btn-text + i.fas,
+.btn-text + i.far {
+    margin-right: 0;
+    margin-left: var(--space-icon, 0.5rem);
+}
+
+/* Botões com flexbox - usar gap */
+button,
+.btn,
+.btn-primary,
+.btn-secondary,
+.btn-small,
+.tab-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-icon, 0.5rem);
+}
+
+/* Reset margin quando usando gap */
+button i,
+.btn i,
+.btn-primary i,
+.btn-secondary i,
+.btn-small i,
+.tab-btn i {
+    margin: 0 !important;
+    flex-shrink: 0;
+}
+
+/* Labels com ícones */
+label i,
+.form-group label i {
+    margin-right: var(--space-icon, 0.5rem);
+}
+
+/* Headers com ícones */
+h1 i, h2 i, h3 i, h4 i, h5 i, h6 i {
+    margin-right: var(--space-icon, 0.5rem);
+}
+
+/* Cards e painéis */
+.panel-header h2,
+.modal-header h2,
+.card-header h3 {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+}
+
+/* Links com ícones */
+a i {
+    margin-right: var(--space-icon, 0.5rem);
+}
+
+/* Badge e tags com ícones */
+.badge i,
+.tag i {
+    margin-right: calc(var(--space-icon, 0.5rem) * 0.75);
+}
+
+/* ========================================
    MODAIS - DESIGN MODERNO
    ======================================== */
 
@@ -594,6 +699,170 @@
 }
 
 /* ========================================
+   SKELETON COM TIMEOUT E ESTADO VAZIO
+   ======================================== */
+
+/* Container do skeleton */
+.skeleton-container,
+.skeleton-list {
+    position: relative;
+}
+
+/* Skeleton cards padrão */
+.skeleton-card,
+.skeleton-line {
+    animation: skeleton-shimmer 1.5s ease-in-out infinite;
+    background: linear-gradient(
+        90deg,
+        var(--gray-200) 0%,
+        var(--gray-100) 50%,
+        var(--gray-200) 100%
+    );
+    background-size: 200% 100%;
+}
+
+@keyframes skeleton-shimmer {
+    0% { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
+}
+
+/* Estado de timeout - skeleton parado */
+.skeleton-container.skeleton-timeout .skeleton-card,
+.skeleton-container.skeleton-timeout .skeleton-line,
+.skeleton-list.skeleton-timeout .skeleton-card,
+.skeleton-list.skeleton-timeout .skeleton-line,
+.skeleton-card.skeleton-timeout,
+.skeleton-line.skeleton-timeout {
+    animation: none !important;
+    background: var(--gray-100);
+    opacity: 0.5;
+}
+
+/* Estado vazio - sem dados */
+.empty-state-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: var(--space-xl) var(--space-lg);
+    text-align: center;
+    min-height: 200px;
+    background: var(--gray-50);
+    border: 2px dashed var(--gray-200);
+    border-radius: var(--radius-lg);
+    margin: var(--space-md) 0;
+}
+
+.empty-state-container.hidden {
+    display: none;
+}
+
+/* Ícone do estado vazio */
+.empty-state-icon {
+    width: 64px;
+    height: 64px;
+    background: var(--gray-100);
+    border-radius: var(--radius-full);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: var(--space-md);
+}
+
+.empty-state-icon i {
+    font-size: 1.75rem;
+    color: var(--gray-400);
+    margin: 0;
+}
+
+/* Título do estado vazio */
+.empty-state-title {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--gray-700);
+    margin-bottom: var(--space-xs);
+}
+
+/* Descrição do estado vazio */
+.empty-state-description {
+    font-size: 0.9rem;
+    color: var(--gray-500);
+    max-width: 280px;
+    line-height: 1.5;
+}
+
+/* Botão de ação no estado vazio */
+.empty-state-action {
+    margin-top: var(--space-lg);
+}
+
+/* Variantes de estados vazios */
+.empty-state-container.empty-items .empty-state-icon {
+    background: color-mix(in srgb, var(--primary-color) 10%, transparent);
+}
+
+.empty-state-container.empty-items .empty-state-icon i {
+    color: var(--primary-color);
+}
+
+.empty-state-container.empty-search .empty-state-icon {
+    background: color-mix(in srgb, #f59e0b 10%, transparent);
+}
+
+.empty-state-container.empty-search .empty-state-icon i {
+    color: #f59e0b;
+}
+
+.empty-state-container.empty-error .empty-state-icon {
+    background: color-mix(in srgb, #ef4444 10%, transparent);
+}
+
+.empty-state-container.empty-error .empty-state-icon i {
+    color: #ef4444;
+}
+
+/* Animação de entrada */
+.empty-state-container {
+    animation: fadeInUp 0.4s ease-out;
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Mobile ajustes */
+@media (max-width: 480px) {
+    .empty-state-container {
+        padding: var(--space-lg) var(--space-md);
+        min-height: 160px;
+    }
+    
+    .empty-state-icon {
+        width: 56px;
+        height: 56px;
+    }
+    
+    .empty-state-icon i {
+        font-size: 1.5rem;
+    }
+    
+    .empty-state-title {
+        font-size: 1rem;
+    }
+    
+    .empty-state-description {
+        font-size: 0.85rem;
+    }
+}
+
+/* ========================================
    🌙 DARK MODE - DESIGN PREMIUM
    ======================================== */
 
@@ -1138,6 +1407,77 @@ body.dark-mode .theme-toggle-btn:hover {
 body.dark-mode #themeToggleBtn i,
 body.dark-mode .theme-toggle-btn i {
     color: var(--dark-accent) !important;
+}
+
+/* ========================================
+   DARK MODE - RESPONSIVO
+   ======================================== */
+
+/* ========================================
+   DARK MODE - SKELETON E EMPTY STATE
+   ======================================== */
+
+body.dark-mode .skeleton-card,
+body.dark-mode .skeleton-line {
+    background: linear-gradient(
+        90deg,
+        var(--dark-bg-tertiary) 0%,
+        var(--dark-bg-elevated) 50%,
+        var(--dark-bg-tertiary) 100%
+    );
+    background-size: 200% 100%;
+}
+
+body.dark-mode .skeleton-container.skeleton-timeout .skeleton-card,
+body.dark-mode .skeleton-container.skeleton-timeout .skeleton-line,
+body.dark-mode .skeleton-list.skeleton-timeout .skeleton-card,
+body.dark-mode .skeleton-list.skeleton-timeout .skeleton-line {
+    background: var(--dark-bg-tertiary);
+}
+
+body.dark-mode .empty-state-container {
+    background: var(--dark-bg-tertiary);
+    border-color: var(--dark-border);
+}
+
+body.dark-mode .empty-state-icon {
+    background: var(--dark-surface);
+}
+
+body.dark-mode .empty-state-icon i {
+    color: var(--dark-text-muted);
+}
+
+body.dark-mode .empty-state-title {
+    color: var(--dark-text-primary);
+}
+
+body.dark-mode .empty-state-description {
+    color: var(--dark-text-secondary);
+}
+
+body.dark-mode .empty-state-container.empty-items .empty-state-icon {
+    background: var(--dark-accent-glow);
+}
+
+body.dark-mode .empty-state-container.empty-items .empty-state-icon i {
+    color: var(--dark-accent);
+}
+
+body.dark-mode .empty-state-container.empty-search .empty-state-icon {
+    background: var(--dark-warning-bg);
+}
+
+body.dark-mode .empty-state-container.empty-search .empty-state-icon i {
+    color: var(--dark-warning);
+}
+
+body.dark-mode .empty-state-container.empty-error .empty-state-icon {
+    background: var(--dark-danger-bg);
+}
+
+body.dark-mode .empty-state-container.empty-error .empty-state-icon i {
+    color: var(--dark-danger);
 }
 
 /* ========================================
