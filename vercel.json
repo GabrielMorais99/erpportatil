@@ -1,73 +1,18 @@
 {
     "$schema": "https://openapi.vercel.sh/vercel.json",
     "version": 2,
-    "cleanUrls": true,
-    "trailingSlash": false,
     "functions": {
-        "api/load.js": {
-            "maxDuration": 10
-        },
-        "api/save.js": {
-            "maxDuration": 10
-        },
-        "api/admin.js": {
-            "maxDuration": 10
-        },
-        "api/crypto-config.js": {
-            "maxDuration": 5
-        }
+        "api/load.js": { "maxDuration": 10 },
+        "api/save.js": { "maxDuration": 10 },
+        "api/admin.js": { "maxDuration": 10 },
+        "api/crypto-config.js": { "maxDuration": 5 },
+        "api/index.js": { "maxDuration": 10 }
     },
-    "headers": [
-        {
-            "source": "/(.*).css",
-            "headers": [
-                {
-                    "key": "Cache-Control",
-                    "value": "no-cache, no-store, must-revalidate, max-age=0"
-                },
-                { "key": "Pragma", "value": "no-cache" },
-                { "key": "Expires", "value": "0" }
-            ]
-        },
-        {
-            "source": "/(.*).js",
-            "headers": [
-                {
-                    "key": "Cache-Control",
-                    "value": "no-cache, no-store, must-revalidate, max-age=0"
-                },
-                { "key": "Pragma", "value": "no-cache" },
-                { "key": "Expires", "value": "0" }
-            ]
-        },
-        {
-            "source": "/(.*).html",
-            "headers": [
-                {
-                    "key": "Cache-Control",
-                    "value": "no-cache, no-store, must-revalidate, max-age=0"
-                },
-                { "key": "Pragma", "value": "no-cache" },
-                { "key": "Expires", "value": "0" }
-            ]
-        },
-        {
-            "source": "/sw.js",
-            "headers": [
-                {
-                    "key": "Cache-Control",
-                    "value": "no-cache, no-store, must-revalidate, max-age=0"
-                },
-                { "key": "Pragma", "value": "no-cache" },
-                { "key": "Expires", "value": "0" },
-                { "key": "Service-Worker-Allowed", "value": "/" }
-            ]
-        }
-    ],
-    "rewrites": [
-        { "source": "/api/load", "destination": "/api/load.js" },
-        { "source": "/api/save", "destination": "/api/save.js" },
-        { "source": "/api/admin", "destination": "/api/admin.js" },
-        { "source": "/api/crypto-config", "destination": "/api/crypto-config.js" }
+    "routes": [
+        { "src": "/api/load", "dest": "/api/load.js" },
+        { "src": "/api/save", "dest": "/api/save.js" },
+        { "src": "/api/admin", "dest": "/api/admin.js" },
+        { "src": "/api/crypto-config", "dest": "/api/crypto-config.js" },
+        { "src": "/(.*)", "dest": "/api/index.js" }
     ]
 }
