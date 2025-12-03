@@ -33,7 +33,10 @@ html,
 body {
     width: 100%;
     overflow-x: hidden;
+    overflow-y: auto !important; /* Garantir scroll vertical sempre */
     position: relative;
+    height: auto !important;
+    min-height: 100vh;
 }
 
 :root {
@@ -170,8 +173,11 @@ body {
     color: var(--dark-gray);
     line-height: 1.5;
     overflow-x: hidden;
+    overflow-y: auto !important; /* CRÍTICO: Garantir scroll vertical */
     width: 100%;
     max-width: 100vw;
+    height: auto !important;
+    min-height: 100vh;
 }
 
 /* ========================================
