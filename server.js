@@ -67,9 +67,11 @@ app.use(
         index: 'index.html',
         extensions: ['html', 'css', 'js', 'json', 'png', 'jpg', 'ico', 'svg'],
         setHeaders: (res, filePath) => {
-            // Headers para cache de arquivos estáticos
-            if (filePath.endsWith('.css') || filePath.endsWith('.js')) {
-                res.setHeader('Cache-Control', 'public, max-age=31536000');
+            // Headers SEM CACHE para desenvolvimento
+            if (filePath.endsWith('.css') || filePath.endsWith('.js') || filePath.endsWith('.html')) {
+                res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+                res.setHeader('Pragma', 'no-cache');
+                res.setHeader('Expires', '0');
             }
         },
     })
