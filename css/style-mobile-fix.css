@@ -449,81 +449,69 @@ a i {
        CARDS - BOTÕES COMPACTOS (SÓ ÍCONE)
        ======================================== */
     
-    /* Botões dentro de cards - esconder texto, mostrar só ícone */
-    .item-card .btn-primary,
-    .item-card .btn-secondary,
-    .item-card .btn-edit,
-    .item-card .btn-delete,
-    .item-card .edit-btn,
-    .item-card .delete-btn,
-    .group-card .btn-primary,
-    .group-card .btn-secondary,
-    .client-card .btn-primary,
-    .client-card .btn-secondary,
-    .supplier-card .btn-primary,
-    .supplier-card .btn-secondary {
-        padding: var(--space-sm) !important;
-        min-width: 44px !important;
-        width: 44px !important;
-        height: 44px !important;
-        justify-content: center;
+    /* Área de ações dos cards */
+    .item-actions {
+        display: flex;
+        flex-direction: column;
+        gap: var(--space-xs) !important;
+        margin-top: var(--space-sm);
     }
 
-    /* Esconder texto nos botões dos cards */
-    .item-card .btn-primary span,
-    .item-card .btn-primary .btn-text,
-    .item-card .btn-secondary span:not(.badge),
-    .item-card .btn-secondary .btn-text,
-    .group-card .btn-primary span,
-    .group-card .btn-primary .btn-text,
-    .group-card .btn-secondary span:not(.badge),
-    .group-card .btn-secondary .btn-text,
-    .client-card .btn-primary span,
-    .client-card .btn-primary .btn-text,
-    .client-card .btn-secondary span:not(.badge),
-    .client-card .btn-secondary .btn-text,
-    .supplier-card .btn-primary span,
-    .supplier-card .btn-primary .btn-text,
-    .supplier-card .btn-secondary span:not(.badge),
-    .supplier-card .btn-secondary .btn-text {
-        display: none !important;
+    .item-actions-row {
+        display: flex;
+        gap: var(--space-xs) !important;
+        justify-content: flex-start;
     }
 
-    /* Ícones centralizados */
-    .item-card .btn-primary i,
-    .item-card .btn-secondary i,
-    .group-card .btn-primary i,
-    .group-card .btn-secondary i,
-    .client-card .btn-primary i,
-    .client-card .btn-secondary i,
-    .supplier-card .btn-primary i,
-    .supplier-card .btn-secondary i {
+    /* Todos os btn-small dentro de cards - formato quadrado */
+    .item-card .btn-small,
+    .group-card .btn-small,
+    .client-card .btn-small,
+    .supplier-card .btn-small {
+        min-width: 40px !important;
+        width: 40px !important;
+        height: 40px !important;
+        padding: 0 !important;
+        display: inline-flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        font-size: 0 !important; /* Esconde texto */
+        border-radius: var(--radius-sm) !important;
+    }
+
+    /* Ícones visíveis e centralizados */
+    .item-card .btn-small i,
+    .group-card .btn-small i,
+    .client-card .btn-small i,
+    .supplier-card .btn-small i {
+        font-size: 1rem !important;
         margin: 0 !important;
+    }
+
+    /* Botão Editar - adicionar ícone via CSS (não tem ícone no HTML) */
+    .item-card .btn-edit::before,
+    .group-card .btn-edit::before,
+    .client-card .btn-edit::before {
+        font-family: "Font Awesome 5 Free";
+        font-weight: 900;
+        content: "\f044"; /* fa-edit */
         font-size: 1rem;
     }
 
-    /* ========================================
-       QR CODE - ESCONDER TEXTO NO MOBILE
-       ======================================== */
-    
-    /* Link/botão QR Code - esconder texto */
-    .qr-code-link,
-    .qr-link,
-    [onclick*="QR"],
-    [onclick*="qr"],
-    a[title*="QR"],
-    button[title*="QR"] {
+    /* Botão QR Code - esconder texto "QR Code" */
+    .item-card .btn-secondary[title*="QR"],
+    .item-card button[onclick*="QR"],
+    .item-card button[onclick*="qr"] {
         font-size: 0 !important;
-        padding: var(--space-xs) var(--space-sm) !important;
+        min-width: 40px !important;
+        width: 40px !important;
+        height: 40px !important;
+        padding: 0 !important;
     }
 
-    /* Mostrar apenas o ícone do QR */
-    .qr-code-link i,
-    .qr-link i,
-    [onclick*="QR"] i,
-    [onclick*="qr"] i,
-    a[title*="QR"] i,
-    button[title*="QR"] i {
+    .item-card .btn-secondary[title*="QR"] i,
+    .item-card button[onclick*="QR"] i,
+    .item-card button[onclick*="qr"] i {
         font-size: 1rem !important;
         margin: 0 !important;
     }
@@ -536,26 +524,13 @@ a i {
         padding: var(--space-sm) !important;
     }
 
-    /* Container de ações dos cards */
-    .item-card .card-actions,
-    .item-card .item-actions,
-    .item-card > div:last-child,
-    .group-card .card-actions,
-    .client-card .card-actions,
-    .supplier-card .card-actions {
-        display: flex;
-        gap: var(--space-xs) !important;
-        flex-wrap: nowrap;
-        justify-content: flex-end;
-        margin-top: var(--space-sm);
-    }
-
     /* Badge de categoria nos cards */
+    .item-card .item-category-badge,
     .item-card .badge,
-    .item-card .tag,
-    .item-card .category-badge {
+    .item-card .tag {
         font-size: 0.7rem;
-        padding: 2px 6px;
+        padding: 2px 8px;
+        margin-bottom: var(--space-xs);
     }
 
     /* Preço nos cards */
@@ -563,6 +538,7 @@ a i {
     .item-card .price {
         font-size: 1.1rem;
         font-weight: 700;
+        margin: var(--space-xs) 0;
     }
 
     /* Nome do item */
@@ -570,14 +546,15 @@ a i {
     .item-card .item-name {
         font-size: 0.95rem;
         margin-bottom: var(--space-xs);
+        line-height: 1.3;
     }
 
     /* Detalhes do item */
-    .item-card p,
-    .item-card .item-details {
+    .item-card .item-info {
         font-size: 0.8rem;
         line-height: 1.4;
         color: var(--gray-500);
+        margin: 2px 0;
     }
 
     /* Modal em tela cheia quase */
@@ -743,6 +720,7 @@ a i {
        ======================================== */
 
     /* Cards em grid de 2 colunas */
+    #itemsGrid,
     .items-grid,
     .groups-grid,
     .clients-grid,
@@ -760,23 +738,22 @@ a i {
     }
 
     /* Botões de ação menores */
-    .item-card .btn-primary,
-    .item-card .btn-secondary,
-    .item-card .btn-edit,
-    .item-card .btn-delete,
-    .group-card .btn-primary,
-    .group-card .btn-secondary {
+    .item-card .btn-small,
+    .group-card .btn-small,
+    .client-card .btn-small,
+    .supplier-card .btn-small {
         width: 36px !important;
         height: 36px !important;
         min-width: 36px !important;
-        padding: var(--space-xs) !important;
     }
 
-    .item-card .btn-primary i,
-    .item-card .btn-secondary i,
-    .group-card .btn-primary i,
-    .group-card .btn-secondary i {
-        font-size: 0.875rem;
+    .item-card .btn-small i,
+    .group-card .btn-small i {
+        font-size: 0.875rem !important;
+    }
+
+    .item-card .btn-edit::before {
+        font-size: 0.875rem !important;
     }
 
     /* Textos menores */
@@ -786,29 +763,27 @@ a i {
         line-height: 1.2;
     }
 
-    .item-card p,
-    .item-card .item-details {
-        font-size: 0.75rem;
+    .item-card .item-info {
+        font-size: 0.7rem;
     }
 
     .item-card .item-price,
     .item-card .price {
-        font-size: 1rem;
+        font-size: 0.95rem;
     }
 
-    /* QR link ultra compacto */
-    .qr-code-link,
-    .qr-link,
-    [onclick*="QR"],
-    a[title*="QR"] {
-        padding: 4px 8px !important;
+    .item-card .item-category-badge {
+        font-size: 0.65rem;
+        padding: 2px 6px;
     }
 
-    .qr-code-link i,
-    .qr-link i,
-    [onclick*="QR"] i,
-    a[title*="QR"] i {
-        font-size: 0.875rem !important;
+    /* Item actions mais compacto */
+    .item-actions {
+        gap: 4px !important;
+    }
+
+    .item-actions-row {
+        gap: 4px !important;
     }
 }
 
