@@ -461,69 +461,123 @@ a i {
 
     /* Área de ações dos cards */
     .item-actions {
-        display: flex;
-        flex-direction: column;
-        gap: var(--space-xs) !important;
-        margin-top: var(--space-sm);
+        display: flex !important;
+        flex-direction: column !important;
+        gap: 8px !important;
+        margin-top: 8px !important;
     }
 
     .item-actions-row {
-        display: flex;
-        gap: var(--space-xs) !important;
-        justify-content: flex-start;
+        display: flex !important;
+        gap: 8px !important;
+        justify-content: flex-start !important;
     }
 
-    /* Todos os btn-small dentro de cards - formato quadrado */
-    .item-card .btn-small,
-    .group-card .btn-small,
-    .client-card .btn-small,
-    .supplier-card .btn-small {
-        min-width: 40px !important;
-        width: 40px !important;
-        height: 40px !important;
+    /* ====== BOTÃO EDITAR - SÓ ÍCONE ====== */
+    .item-card .btn-edit,
+    .item-card .btn-small.btn-edit,
+    .item-card button.btn-edit,
+    .group-card .btn-edit,
+    .client-card .btn-edit,
+    .supplier-card .btn-edit {
+        min-width: 44px !important;
+        width: 44px !important;
+        height: 44px !important;
+        max-width: 44px !important;
         padding: 0 !important;
         display: inline-flex !important;
         align-items: center !important;
         justify-content: center !important;
-        font-size: 0 !important; /* Esconde texto */
-        border-radius: var(--radius-sm) !important;
-    }
-
-    /* Ícones visíveis e centralizados */
-    .item-card .btn-small i,
-    .group-card .btn-small i,
-    .client-card .btn-small i,
-    .supplier-card .btn-small i {
-        font-size: 1rem !important;
-        margin: 0 !important;
-    }
-
-    /* Botão Editar - adicionar ícone via CSS (não tem ícone no HTML) */
-    .item-card .btn-edit::before,
-    .group-card .btn-edit::before,
-    .client-card .btn-edit::before {
-        font-family: 'Font Awesome 5 Free';
-        font-weight: 900;
-        content: '\f044'; /* fa-edit */
-        font-size: 1rem;
-    }
-
-    /* Botão QR Code - esconder texto "QR Code" */
-    .item-card .btn-secondary[title*='QR'],
-    .item-card button[onclick*='QR'],
-    .item-card button[onclick*='qr'] {
         font-size: 0 !important;
-        min-width: 40px !important;
-        width: 40px !important;
-        height: 40px !important;
-        padding: 0 !important;
+        text-indent: -9999px !important;
+        overflow: hidden !important;
+        border-radius: 8px !important;
+        position: relative !important;
     }
 
-    .item-card .btn-secondary[title*='QR'] i,
-    .item-card button[onclick*='QR'] i,
-    .item-card button[onclick*='qr'] i {
+    /* Ícone do botão Editar via ::before */
+    .item-card .btn-edit::before,
+    .item-card .btn-small.btn-edit::before,
+    .item-card button.btn-edit::before,
+    .group-card .btn-edit::before,
+    .client-card .btn-edit::before,
+    .supplier-card .btn-edit::before {
+        font-family: 'Font Awesome 5 Free' !important;
+        font-weight: 900 !important;
+        content: '\f304' !important; /* fa-pen */
+        font-size: 1rem !important;
+        text-indent: 0 !important;
+        position: absolute !important;
+        left: 50% !important;
+        top: 50% !important;
+        transform: translate(-50%, -50%) !important;
+    }
+
+    /* ====== BOTÃO EXCLUIR - SÓ ÍCONE ====== */
+    .item-card .btn-delete,
+    .item-card .btn-small.btn-delete,
+    .group-card .btn-delete,
+    .client-card .btn-delete,
+    .supplier-card .btn-delete {
+        min-width: 44px !important;
+        width: 44px !important;
+        height: 44px !important;
+        max-width: 44px !important;
+        padding: 0 !important;
+        display: inline-flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        border-radius: 8px !important;
+    }
+
+    .item-card .btn-delete i,
+    .group-card .btn-delete i,
+    .client-card .btn-delete i,
+    .supplier-card .btn-delete i {
         font-size: 1rem !important;
         margin: 0 !important;
+    }
+
+    /* ====== BOTÃO QR CODE - SÓ ÍCONE ====== */
+    .item-card .btn-small.btn-secondary,
+    .item-card button.btn-small.btn-secondary,
+    .item-actions > .btn-small.btn-secondary,
+    .item-actions > button.btn-secondary {
+        min-width: 44px !important;
+        width: 44px !important;
+        height: 44px !important;
+        max-width: 44px !important;
+        padding: 0 !important;
+        display: inline-flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        font-size: 0 !important;
+        text-indent: -9999px !important;
+        overflow: hidden !important;
+        border-radius: 8px !important;
+    }
+
+    .item-card .btn-small.btn-secondary i,
+    .item-card button.btn-small.btn-secondary i,
+    .item-actions > .btn-small.btn-secondary i,
+    .item-actions > button.btn-secondary i {
+        font-size: 1.1rem !important;
+        margin: 0 !important;
+        text-indent: 0 !important;
+    }
+
+    /* ====== TODOS OS btn-small GENÉRICOS ====== */
+    .item-card .btn-small,
+    .group-card .btn-small,
+    .client-card .btn-small,
+    .supplier-card .btn-small {
+        min-width: 44px !important;
+        height: 44px !important;
+        padding: 0 !important;
+        display: inline-flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        border-radius: 8px !important;
     }
 
     /* Cards de itens - melhor espaçamento */
@@ -531,40 +585,40 @@ a i {
     .group-card,
     .client-card,
     .supplier-card {
-        padding: var(--space-sm) !important;
+        padding: 12px !important;
     }
 
     /* Badge de categoria nos cards */
     .item-card .item-category-badge,
     .item-card .badge,
     .item-card .tag {
-        font-size: 0.7rem;
-        padding: 2px 8px;
-        margin-bottom: var(--space-xs);
+        font-size: 0.7rem !important;
+        padding: 2px 8px !important;
+        margin-bottom: 8px !important;
     }
 
     /* Preço nos cards */
     .item-card .item-price,
     .item-card .price {
-        font-size: 1.1rem;
-        font-weight: 700;
-        margin: var(--space-xs) 0;
+        font-size: 1.1rem !important;
+        font-weight: 700 !important;
+        margin: 8px 0 !important;
     }
 
     /* Nome do item */
     .item-card h3,
     .item-card .item-name {
-        font-size: 0.95rem;
-        margin-bottom: var(--space-xs);
-        line-height: 1.3;
+        font-size: 0.95rem !important;
+        margin-bottom: 4px !important;
+        line-height: 1.3 !important;
     }
 
     /* Detalhes do item */
     .item-card .item-info {
-        font-size: 0.8rem;
-        line-height: 1.4;
-        color: var(--gray-500);
-        margin: 2px 0;
+        font-size: 0.8rem !important;
+        line-height: 1.4 !important;
+        color: var(--gray-500) !important;
+        margin: 2px 0 !important;
     }
 
     /* Modal em tela cheia quase */
