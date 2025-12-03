@@ -249,6 +249,18 @@
             body.loaded { visibility: visible; opacity: 1; transition: opacity 0.2s; }
         </style>
         
+        <!-- DEBUG: Verificar se JS está executando -->
+        <script>
+            // ALERT DE DEBUG - Remover após confirmar funcionamento
+            console.log('🔴🔴🔴 DEBUG: HTML CARREGADO 🔴🔴🔴');
+            // alert('DEBUG: JavaScript está funcionando! Este alert confirma que o JS está executando.');
+            
+            // Log colorido no console
+            console.log('%c🔴 DEBUG: gerenciamento.html carregado!', 'background: red; color: white; font-size: 20px; padding: 10px;');
+            console.log('%c📍 URL: ' + window.location.href, 'background: blue; color: white; font-size: 14px; padding: 5px;');
+            console.log('%c⏰ Hora: ' + new Date().toLocaleString(), 'background: green; color: white; font-size: 14px; padding: 5px;');
+        </script>
+        
         <!-- CSS CRÍTICO MOBILE - Botões só ícone -->
         <style>
             @media (max-width: 768px) {
