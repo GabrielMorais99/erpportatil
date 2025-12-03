@@ -23622,7 +23622,7 @@ class LojaApp {
     }
 
     // ========== CRIPTOGRAFIA DE DADOS SENSÍVEIS ==========
-    
+
     /**
      * Carrega configuração de criptografia do servidor
      * Os salts ficam no servidor e nunca são expostos no código do cliente

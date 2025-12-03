@@ -1,0 +1,594 @@
+/**
+ * ========================================
+ * CORREÇÕES MOBILE + COMPONENTES MODERNOS
+ * ========================================
+ * 
+ * Este arquivo corrige problemas de espaçamento no Android
+ * e moderniza a aparência dos modais/componentes
+ * 
+ * Incluir APÓS o style.css principal:
+ * <link rel="stylesheet" href="/css/style-mobile-fix.css" />
+ */
+
+/* ========================================
+   VARIÁVEIS - DESIGN SYSTEM MOBILE
+   ======================================== */
+:root {
+    /* Touch targets mínimos (Google Material) */
+    --touch-min: 48px;
+    --touch-comfortable: 56px;
+
+    /* Espaçamentos mobile */
+    --space-xs: 0.5rem; /* 8px */
+    --space-sm: 0.75rem; /* 12px */
+    --space-md: 1rem; /* 16px */
+    --space-lg: 1.5rem; /* 24px */
+    --space-xl: 2rem; /* 32px */
+
+    /* Bordas mais suaves */
+    --radius-sm: 8px;
+    --radius-md: 12px;
+    --radius-lg: 16px;
+    --radius-xl: 20px;
+    --radius-full: 9999px;
+
+    /* Sombras modernas */
+    --shadow-soft: 0 2px 8px rgba(0, 0, 0, 0.08);
+    --shadow-medium: 0 4px 16px rgba(0, 0, 0, 0.12);
+    --shadow-strong: 0 8px 32px rgba(0, 0, 0, 0.16);
+    --shadow-float: 0 12px 40px rgba(0, 0, 0, 0.2);
+}
+
+/* ========================================
+   MODAIS - DESIGN MODERNO
+   ======================================== */
+
+/* Modal backdrop mais suave */
+.modal.active {
+    background: rgba(0, 0, 0, 0.4);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+}
+
+/* Modal content modernizado */
+.modal-content {
+    border-radius: var(--radius-xl);
+    box-shadow: var(--shadow-float);
+    border: none;
+    overflow: hidden;
+}
+
+/* Header do modal mais clean */
+.modal-header {
+    background: linear-gradient(
+        135deg,
+        var(--primary-color) 0%,
+        color-mix(in srgb, var(--primary-color) 85%, black) 100%
+    );
+    color: white;
+    padding: var(--space-lg);
+    border-bottom: none;
+    position: relative;
+}
+
+.modal-header h2 {
+    color: white;
+    font-weight: 600;
+    font-size: 1.25rem;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+}
+
+.modal-header h2 i {
+    opacity: 0.9;
+}
+
+/* Botão fechar modernizado */
+.modal-header .close,
+.modal .close {
+    position: absolute;
+    right: var(--space-md);
+    top: 50%;
+    transform: translateY(-50%);
+    width: 36px;
+    height: 36px;
+    border-radius: var(--radius-full);
+    background: rgba(255, 255, 255, 0.2);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    transition: all 0.2s ease;
+    cursor: pointer;
+    border: none;
+    line-height: 1;
+}
+
+.modal-header .close:hover,
+.modal .close:hover {
+    background: rgba(255, 255, 255, 0.3);
+    transform: translateY(-50%) scale(1.1);
+}
+
+/* Form dentro do modal */
+.modal form {
+    padding: var(--space-lg);
+}
+
+/* ========================================
+   FORM GROUPS - MODERNIZADOS
+   ======================================== */
+
+.form-group {
+    margin-bottom: var(--space-lg);
+}
+
+.form-group label {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--gray-700);
+    margin-bottom: var(--space-xs);
+    display: flex;
+    align-items: center;
+    gap: var(--space-xs);
+}
+
+.form-group label i {
+    color: var(--primary-color);
+    font-size: 0.8rem;
+}
+
+/* Inputs modernos */
+.form-group input,
+.form-group select,
+.form-group textarea {
+    width: 100%;
+    padding: var(--space-sm) var(--space-md);
+    border: 2px solid var(--gray-200);
+    border-radius: var(--radius-md);
+    font-size: 1rem;
+    transition: all 0.2s ease;
+    background: var(--white);
+    min-height: var(--touch-min);
+}
+
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 4px
+        color-mix(in srgb, var(--primary-color) 15%, transparent);
+    outline: none;
+}
+
+/* Placeholder mais sutil */
+.form-group input::placeholder,
+.form-group textarea::placeholder {
+    color: var(--gray-400);
+}
+
+/* ========================================
+   BOTÕES - TOUCH FRIENDLY
+   ======================================== */
+
+.btn-primary,
+.btn-secondary {
+    min-height: var(--touch-min);
+    padding: var(--space-sm) var(--space-lg);
+    border-radius: var(--radius-md);
+    font-weight: 600;
+    font-size: 0.95rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-xs);
+    transition: all 0.2s ease;
+    cursor: pointer;
+    border: none;
+    position: relative;
+    overflow: hidden;
+}
+
+/* Efeito ripple no toque */
+.btn-primary::after,
+.btn-secondary::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    background: rgba(255, 255, 255, 0.3);
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+    transition: width 0.3s ease, height 0.3s ease;
+}
+
+.btn-primary:active::after,
+.btn-secondary:active::after {
+    width: 200%;
+    height: 200%;
+}
+
+.btn-primary {
+    background: var(--primary-color);
+    color: white;
+    box-shadow: var(--shadow-soft);
+}
+
+.btn-primary:hover {
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-medium);
+}
+
+.btn-primary:active {
+    transform: translateY(0);
+}
+
+.btn-secondary {
+    background: var(--gray-100);
+    color: var(--gray-700);
+    border: 2px solid var(--gray-200);
+}
+
+.btn-secondary:hover {
+    background: var(--gray-200);
+    border-color: var(--gray-300);
+}
+
+/* ========================================
+   FLEX CONTAINERS - GAP ADEQUADO
+   ======================================== */
+
+/* Corrigir gap em containers com botões */
+.form-group > div[style*='display: flex'],
+.form-group > div[style*='display:flex'] {
+    gap: var(--space-sm) !important;
+}
+
+/* Container do botão QR Code */
+#saleItem + button,
+[id='scanQRBtn'] {
+    min-width: var(--touch-min) !important;
+    min-height: var(--touch-min) !important;
+    flex-shrink: 0;
+}
+
+/* ========================================
+   PANEL SECTIONS - MODERNIZADOS
+   ======================================== */
+
+.panel-section {
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--gray-200);
+    box-shadow: var(--shadow-soft);
+    overflow: hidden;
+}
+
+.panel-header {
+    background: linear-gradient(135deg, var(--gray-50) 0%, var(--white) 100%);
+    padding: var(--space-lg);
+    border-bottom: 1px solid var(--gray-200);
+    gap: var(--space-md);
+}
+
+.panel-header h2 {
+    font-size: 1.1rem;
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+}
+
+.panel-header h2 i {
+    width: 32px;
+    height: 32px;
+    background: color-mix(in srgb, var(--primary-color) 15%, transparent);
+    border-radius: var(--radius-sm);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.9rem;
+}
+
+/* Panel filters modernizado */
+.panel-filters {
+    background: var(--gray-50);
+    border-radius: var(--radius-md);
+    padding: var(--space-md);
+    gap: var(--space-md);
+    border: 1px solid var(--gray-100);
+}
+
+/* ========================================
+   CARDS - DESIGN MODERNO
+   ======================================== */
+
+.item-card,
+.group-card,
+.client-card,
+.supplier-card {
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--gray-200);
+    box-shadow: var(--shadow-soft);
+    transition: all 0.2s ease;
+    overflow: hidden;
+}
+
+.item-card:hover,
+.group-card:hover,
+.client-card:hover,
+.supplier-card:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-medium);
+    border-color: var(--primary-color);
+}
+
+/* ========================================
+   MOBILE ESPECÍFICO - ANDROID
+   ======================================== */
+
+@media (max-width: 768px) {
+    /* Touch targets adequados */
+    .btn-primary,
+    .btn-secondary,
+    button,
+    .form-group input,
+    .form-group select {
+        min-height: var(--touch-min);
+    }
+
+    /* Modal em tela cheia quase */
+    .modal-content {
+        width: 95% !important;
+        max-width: 95% !important;
+        margin: var(--space-sm) auto;
+        max-height: 92vh;
+        border-radius: var(--radius-lg);
+    }
+
+    /* Header do modal menor */
+    .modal-header {
+        padding: var(--space-md);
+    }
+
+    .modal-header h2 {
+        font-size: 1.1rem;
+    }
+
+    /* Form com mais espaço */
+    .modal form {
+        padding: var(--space-md);
+    }
+
+    /* Form groups mais compactos */
+    .form-group {
+        margin-bottom: var(--space-md);
+    }
+
+    /* Gap adequado em flex containers */
+    .form-group > div[style*='display: flex'],
+    .form-group > div[style*='display:flex'] {
+        gap: var(--space-sm) !important;
+        flex-wrap: wrap;
+    }
+
+    /* Select com botão ao lado */
+    .form-group select {
+        flex: 1;
+        min-width: 0;
+    }
+
+    /* Botões ao lado de selects */
+    .form-group .btn-secondary[title],
+    .form-group button[title] {
+        min-width: var(--touch-min);
+        width: var(--touch-min);
+        height: var(--touch-min);
+        padding: 0;
+        flex-shrink: 0;
+    }
+
+    /* Botão QR Code com mais espaço */
+    #scanQRBtn {
+        min-width: var(--touch-comfortable) !important;
+        min-height: var(--touch-min) !important;
+        margin-left: var(--space-xs);
+    }
+
+    /* Panel headers mobile */
+    .panel-header {
+        flex-direction: column;
+        align-items: stretch;
+        gap: var(--space-sm);
+    }
+
+    .panel-header h2 {
+        justify-content: center;
+    }
+
+    .panel-header .btn-primary {
+        width: 100%;
+        justify-content: center;
+    }
+
+    /* Filtros em coluna */
+    .panel-filters {
+        flex-direction: column;
+        gap: var(--space-sm);
+    }
+
+    .filter-group {
+        width: 100%;
+    }
+
+    /* Scanner QR expandido */
+    #qrScannerContainer {
+        margin: var(--space-md) 0;
+        padding: var(--space-md);
+        border-radius: var(--radius-md);
+    }
+
+    #qrReader {
+        width: 100% !important;
+        max-width: none !important;
+    }
+
+    /* Botões de ação no footer do modal */
+    .modal form > div:last-child {
+        display: flex;
+        gap: var(--space-sm);
+        flex-wrap: wrap;
+        padding-top: var(--space-md);
+        border-top: 1px solid var(--gray-200);
+        margin-top: var(--space-md);
+    }
+
+    .modal form > div:last-child button {
+        flex: 1;
+        min-width: 120px;
+    }
+}
+
+/* ========================================
+   TELAS MUITO PEQUENAS (< 480px)
+   ======================================== */
+
+@media (max-width: 480px) {
+    :root {
+        --space-lg: 1rem;
+        --space-xl: 1.5rem;
+    }
+
+    /* Modal quase fullscreen */
+    .modal-content {
+        width: 100% !important;
+        max-width: 100% !important;
+        margin: 0;
+        border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+        max-height: 95vh;
+        position: fixed;
+        bottom: 0;
+        top: auto;
+    }
+
+    /* Botões em linha separada */
+    .form-group > div[style*='display: flex'] {
+        flex-direction: column;
+        gap: var(--space-sm) !important;
+    }
+
+    .form-group > div[style*='display: flex'] > select,
+    .form-group > div[style*='display: flex'] > input {
+        width: 100%;
+    }
+
+    .form-group > div[style*='display: flex'] > button,
+    .form-group > div[style*='display: flex'] > .btn-secondary {
+        width: 100%;
+        min-width: 100%;
+    }
+
+    /* Botão QR em linha separada */
+    #scanQRBtn {
+        width: 100% !important;
+        margin-left: 0 !important;
+        margin-top: var(--space-xs);
+    }
+}
+
+/* ========================================
+   ANIMAÇÕES SUAVES
+   ======================================== */
+
+@media (prefers-reduced-motion: no-preference) {
+    .modal-content {
+        animation: slideUp 0.3s ease-out;
+    }
+
+    @keyframes slideUp {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    /* Cards com hover suave */
+    .item-card,
+    .group-card,
+    .client-card {
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+}
+
+/* ========================================
+   SAFE AREA (NOTCH DO IPHONE/ANDROID)
+   ======================================== */
+
+@supports (padding: max(0px)) {
+    .modal-content {
+        padding-bottom: max(var(--space-md), env(safe-area-inset-bottom));
+    }
+
+    .panel-section {
+        padding-left: max(var(--space-md), env(safe-area-inset-left));
+        padding-right: max(var(--space-md), env(safe-area-inset-right));
+    }
+}
+
+/* ========================================
+   FEEDBACK VISUAL - ESTADOS
+   ======================================== */
+
+/* Estado de loading nos botões */
+.btn-primary.loading,
+.btn-secondary.loading {
+    pointer-events: none;
+    opacity: 0.7;
+}
+
+.btn-primary.loading::before,
+.btn-secondary.loading::before {
+    content: '';
+    width: 16px;
+    height: 16px;
+    border: 2px solid currentColor;
+    border-top-color: transparent;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+    margin-right: var(--space-xs);
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* Estado de sucesso */
+.form-group.success input,
+.form-group.success select {
+    border-color: #10b981;
+    background: #f0fdf4;
+}
+
+/* Estado de erro */
+.form-group.error input,
+.form-group.error select {
+    border-color: #ef4444;
+    background: #fef2f2;
+}
+
+.form-group.error::after {
+    content: attr(data-error);
+    color: #ef4444;
+    font-size: 0.8rem;
+    margin-top: var(--space-xs);
+    display: block;
+}
