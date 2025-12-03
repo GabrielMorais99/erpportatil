@@ -26,6 +26,11 @@ Thumbs.db
 .idea/
 *.swp
 *.swo
+
+# Cursor AI (arquivos locais, não devem ir para produção)
+.cursor/
+.cursorrules
+
 # Manter configurações de IA
 !.vscode/extensions.json
 !.vscode/settings.json
