@@ -1,8 +1,8 @@
 // Service Worker para PWA - Versão 5.0
 // Suporte a cache, notificações push e sincronização em background
 // Estratégia: Network First (sempre busca da rede primeiro, cache como fallback)
-const CACHE_NAME = 'loja-vendas-v9';
-const RUNTIME_CACHE = 'loja-vendas-runtime-v9';
+const CACHE_NAME = 'loja-vendas-v10';
+const RUNTIME_CACHE = 'loja-vendas-runtime-v10';
 const MAX_CACHE_SIZE = 50 * 1024 * 1024; // 50MB
 const urlsToCache = [
     '/',
