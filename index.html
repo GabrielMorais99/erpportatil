@@ -58,7 +58,6 @@
             window.addEventListener('load', function () {
                 document.body.classList.add('loaded');
             });
-
         </script>
     </head>
     <body>
@@ -97,18 +96,38 @@
                     function forceLoginButtonBlack() {
                         const entrarBtn = document.getElementById('entrarBtn');
                         if (entrarBtn) {
-                            entrarBtn.style.setProperty('background', '#000000', 'important');
-                            entrarBtn.style.setProperty('background-color', '#000000', 'important');
-                            entrarBtn.style.setProperty('background-image', 'none', 'important');
-                            entrarBtn.style.setProperty('color', '#ffffff', 'important');
-                            entrarBtn.style.setProperty('border', 'none', 'important');
+                            entrarBtn.style.setProperty(
+                                'background',
+                                '#000000',
+                                'important'
+                            );
+                            entrarBtn.style.setProperty(
+                                'background-color',
+                                '#000000',
+                                'important'
+                            );
+                            entrarBtn.style.setProperty(
+                                'background-image',
+                                'none',
+                                'important'
+                            );
+                            entrarBtn.style.setProperty(
+                                'color',
+                                '#ffffff',
+                                'important'
+                            );
+                            entrarBtn.style.setProperty(
+                                'border',
+                                'none',
+                                'important'
+                            );
                         }
                     }
 
                     document.addEventListener('DOMContentLoaded', function () {
                         // Forçar cor preta imediatamente
                         forceLoginButtonBlack();
-                        
+
                         const entrarBtn = document.getElementById('entrarBtn');
                         const usernameInput =
                             document.getElementById('username');
@@ -119,14 +138,14 @@
 
                         // Observar mudanças no botão para manter cor preta
                         if (entrarBtn) {
-                            const observer = new MutationObserver(function() {
+                            const observer = new MutationObserver(function () {
                                 forceLoginButtonBlack();
                             });
-                            observer.observe(entrarBtn, { 
-                                attributes: true, 
+                            observer.observe(entrarBtn, {
+                                attributes: true,
                                 attributeFilter: ['style', 'class'],
                                 childList: false,
-                                subtree: false
+                                subtree: false,
                             });
                         }
 
@@ -240,19 +259,25 @@
                 // Na tela de login, SEMPRE usar preto, independente do tema salvo
                 // Forçar preto e não permitir mudanças
                 updateThemeColor('#000000');
-                
+
                 // Garantir que o theme-color permaneça preto mesmo se houver tentativa de mudança
-                const metaThemeColor = document.getElementById('theme-color-meta');
+                const metaThemeColor =
+                    document.getElementById('theme-color-meta');
                 if (metaThemeColor) {
                     // Observar mudanças e forçar de volta para preto
-                    const observer = new MutationObserver(function(mutations) {
-                        if (metaThemeColor.getAttribute('content') !== '#000000') {
+                    const observer = new MutationObserver(function (mutations) {
+                        if (
+                            metaThemeColor.getAttribute('content') !== '#000000'
+                        ) {
                             metaThemeColor.setAttribute('content', '#000000');
                         }
                     });
-                    observer.observe(metaThemeColor, { attributes: true, attributeFilter: ['content'] });
+                    observer.observe(metaThemeColor, {
+                        attributes: true,
+                        attributeFilter: ['content'],
+                    });
                 }
-                
+
                 // Na tela de login, não carregar tema (sempre usar padrão)
                 // O tema será carregado após o login na página de gerenciamento
             })();
@@ -279,27 +304,48 @@
             // Registrar Service Worker para PWA
             if ('serviceWorker' in navigator) {
                 window.addEventListener('load', () => {
-                    navigator.serviceWorker.register('/sw.js')
+                    navigator.serviceWorker
+                        .register('/sw.js')
                         .then((registration) => {
-                            console.log('✅ [PWA] Service Worker registrado:', registration.scope);
-                            
+                            console.log(
+                                '✅ [PWA] Service Worker registrado:',
+                                registration.scope
+                            );
+
                             // Verificar atualizações
                             registration.addEventListener('updatefound', () => {
                                 const newWorker = registration.installing;
-                                newWorker.addEventListener('statechange', () => {
-                                    if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-                                        // Nova versão disponível
-                                        console.log('🔄 [PWA] Nova versão disponível!');
-                                        if (confirm('Uma nova versão está disponível. Deseja atualizar?')) {
-                                            newWorker.postMessage({ type: 'SKIP_WAITING' });
-                                            window.location.reload();
+                                newWorker.addEventListener(
+                                    'statechange',
+                                    () => {
+                                        if (
+                                            newWorker.state === 'installed' &&
+                                            navigator.serviceWorker.controller
+                                        ) {
+                                            // Nova versão disponível
+                                            console.log(
+                                                '🔄 [PWA] Nova versão disponível!'
+                                            );
+                                            if (
+                                                confirm(
+                                                    'Uma nova versão está disponível. Deseja atualizar?'
+                                                )
+                                            ) {
+                                                newWorker.postMessage({
+                                                    type: 'SKIP_WAITING',
+                                                });
+                                                window.location.reload();
+                                            }
                                         }
                                     }
-                                });
+                                );
                             });
                         })
                         .catch((error) => {
-                            console.error('❌ [PWA] Erro ao registrar Service Worker:', error);
+                            console.error(
+                                '❌ [PWA] Erro ao registrar Service Worker:',
+                                error
+                            );
                         });
                 });
             }

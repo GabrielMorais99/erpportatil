@@ -9,6 +9,9 @@
         },
         "api/admin.js": {
             "maxDuration": 10
+        },
+        "api/crypto-config.js": {
+            "maxDuration": 5
         }
     },
     "routes": [
@@ -23,6 +26,10 @@
         {
             "src": "/api/admin",
             "dest": "/api/admin.js"
+        },
+        {
+            "src": "/api/crypto-config",
+            "dest": "/api/crypto-config.js"
         },
         {
             "src": "/images/(.*)",

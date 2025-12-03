@@ -46,6 +46,20 @@ app.post('/api/save', async (req, res) => {
     }
 });
 
+// API para configuração de criptografia (salts seguros)
+app.get('/api/crypto-config', async (req, res) => {
+    try {
+        const cryptoConfigFunction = require('./api/crypto-config.js');
+        await cryptoConfigFunction(req, res);
+    } catch (error) {
+        console.error('Erro ao executar api/crypto-config.js:', error);
+        res.status(500).json({ 
+            error: 'Erro ao obter configuração de criptografia',
+            message: error.message 
+        });
+    }
+});
+
 // Servir arquivos estáticos com caminhos absolutos
 // IMPORTANTE: Excluir pasta /api/ do static para não servir arquivos .js como estáticos
 app.use(

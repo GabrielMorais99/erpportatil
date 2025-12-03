@@ -1,6 +1,6 @@
 {
-  "name": "Gerenciamento Financeiro ERP Portátil",
-  "short_name": "ERP Portátil",
+    "name": "Gerenciamento Financeiro ERP Portátil",
+    "short_name": "ERP Portátil",
     "description": "Sistema completo de gestão de loja - Controle de vendas, estoque, clientes e financeiro",
     "start_url": "/",
     "display": "standalone",

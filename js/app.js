@@ -23622,31 +23622,138 @@ class LojaApp {
     }
 
     // ========== CRIPTOGRAFIA DE DADOS SENSÍVEIS ==========
+    
+    /**
+     * Carrega configuração de criptografia do servidor
+     * Os salts ficam no servidor e nunca são expostos no código do cliente
+     * @param {string} username - Nome do usuário
+     * @returns {Promise<Object|null>} Configuração de criptografia ou null em caso de erro
+     */
+    async loadCryptoConfig(username) {
+        // Se já temos configuração para este usuário, retornar
+        if (this.cryptoConfig && this.cryptoConfig.username === username) {
+            return this.cryptoConfig;
+        }
+        
+        try {
+            const response = await fetch('/api/crypto-config', {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-Username': username
+                }
+            });
+            
+            if (!response.ok) {
+                console.warn('⚠️ [CRYPTO] Não foi possível carregar config do servidor, usando fallback local');
+                return this.getLocalCryptoConfig(username);
+            }
+            
+            const result = await response.json();
+            
+            if (result.success && result.config) {
+                this.cryptoConfig = {
+                    ...result.config,
+                    username: username
+                };
+                console.log('✅ [CRYPTO] Configuração carregada do servidor');
+                return this.cryptoConfig;
+            }
+        } catch (error) {
+            console.warn('⚠️ [CRYPTO] Erro ao carregar config do servidor:', error.message);
+        }
+        
+        // Fallback: usar configuração local (apenas para desenvolvimento/offline)
+        return this.getLocalCryptoConfig(username);
+    }
+    
+    /**
+     * Gera configuração de criptografia local (fallback)
+     * Usado apenas quando o servidor não está disponível
+     * @param {string} username - Nome do usuário
+     * @returns {Object} Configuração de criptografia
+     */
+    getLocalCryptoConfig(username) {
+        // Gerar salt derivado único para o usuário (menos seguro que do servidor)
+        const derivedSalt = this.generateLocalDerivedSalt(username);
+        
+        this.cryptoConfig = {
+            derivedSalt: derivedSalt,
+            algorithm: 'AES-GCM',
+            keyLength: 256,
+            iterations: 100000,
+            hashAlgorithm: 'SHA-256',
+            username: username,
+            isLocal: true // Flag para indicar que é config local
+        };
+        
+        console.log('ℹ️ [CRYPTO] Usando configuração local (offline)');
+        return this.cryptoConfig;
+    }
+    
+    /**
+     * Gera um salt derivado local para o usuário
+     * @param {string} username - Nome do usuário
+     * @returns {string} Salt derivado em base64
+     */
+    generateLocalDerivedSalt(username) {
+        // Combinar username com um identificador da sessão/dispositivo
+        const sessionId = sessionStorage.getItem('sessionId') || this.generateSessionId();
+        const combined = `${username}:${sessionId}:${navigator.userAgent.slice(0, 50)}`;
+        
+        // Criar hash simples (não tão seguro quanto do servidor, mas funciona offline)
+        let hash = 0;
+        for (let i = 0; i < combined.length; i++) {
+            const char = combined.charCodeAt(i);
+            hash = ((hash << 5) - hash) + char;
+            hash = hash & hash;
+        }
+        
+        return btoa(Math.abs(hash).toString(16) + combined.slice(0, 20));
+    }
+    
+    /**
+     * Gera um ID de sessão único
+     * @returns {string} ID de sessão
+     */
+    generateSessionId() {
+        const id = 'sess_' + Math.random().toString(36).substr(2, 9) + Date.now().toString(36);
+        sessionStorage.setItem('sessionId', id);
+        return id;
+    }
 
     // Gerar chave de criptografia para o usuário
     async generateEncryptionKey(username, password) {
         try {
-            // Usar senha do usuário + username como material para derivar chave
+            // Carregar configuração de criptografia do servidor
+            const config = await this.loadCryptoConfig(username);
+            
+            if (!config || !config.derivedSalt) {
+                console.error('❌ [CRYPTO] Não foi possível obter configuração de criptografia');
+                return null;
+            }
+            
+            // Usar senha do usuário + username + salt derivado do servidor
             const keyMaterial = await crypto.subtle.importKey(
                 'raw',
                 new TextEncoder().encode(
-                    username + password + 'loja-secret-salt'
+                    username + password + config.derivedSalt
                 ),
                 { name: 'PBKDF2' },
                 false,
                 ['deriveBits', 'deriveKey']
             );
 
-            // Derivar chave usando PBKDF2
+            // Derivar chave usando PBKDF2 com salt do servidor
             const key = await crypto.subtle.deriveKey(
                 {
                     name: 'PBKDF2',
-                    salt: new TextEncoder().encode('loja-encryption-salt'),
-                    iterations: 100000,
-                    hash: 'SHA-256',
+                    salt: new TextEncoder().encode(config.derivedSalt),
+                    iterations: config.iterations || 100000,
+                    hash: config.hashAlgorithm || 'SHA-256',
                 },
                 keyMaterial,
-                { name: 'AES-GCM', length: 256 },
+                { name: config.algorithm || 'AES-GCM', length: config.keyLength || 256 },
                 true,
                 ['encrypt', 'decrypt']
             );
