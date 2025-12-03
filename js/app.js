@@ -5232,15 +5232,17 @@ class LojaApp {
                 <div class="item-actions">
                     ${
                         category !== 'Serviços'
-                            ? `<button class="btn-small btn-secondary" onclick="app.showQRCodeModal('${item.id}')" title="Ver QR Code">
-                            <i class="fas fa-qrcode"></i> QR Code
+                            ? `<button class="btn-small btn-secondary btn-qr" onclick="app.showQRCodeModal('${item.id}')" title="Ver QR Code">
+                            <i class="fas fa-qrcode"></i><span class="btn-text">QR Code</span>
                         </button>`
                             : ''
                     }
                     <div class="item-actions-row">
                         <button class="btn-small btn-edit" onclick="app.openItemModal(${JSON.stringify(
                             item
-                        ).replace(/"/g, '&quot;')})">Editar</button>
+                        ).replace(/"/g, '&quot;')})" title="Editar">
+                            <i class="fas fa-pen"></i><span class="btn-text">Editar</span>
+                        </button>
                         <button class="btn-small btn-delete" onclick="app.deleteItem('${
                             item.id
                         }')" title="Excluir"><i class="fas fa-times"></i></button>
