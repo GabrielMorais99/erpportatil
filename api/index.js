@@ -283,14 +283,20 @@ module.exports = async (req, res) => {
             }
         }
         
-        // Para CSS (prioridade)
-        if (cleanPath.includes('css/style.css') || cleanPath.includes('style.css') || filePath.includes('css')) {
+        // Para CSS (qualquer arquivo .css)
+        if (cleanPath.endsWith('.css')) {
+            // Extrair o nome do arquivo CSS do cleanPath
+            const cssFileName = path.basename(cleanPath);
             const cssAltPaths = [
-                path.join(projectRoot, 'css', 'style.css'),
-                path.join(__dirname, '..', 'css', 'style.css'),
-                path.join(process.cwd(), 'css', 'style.css'),
-                path.join(projectRoot, 'style.css')
+                path.join(projectRoot, 'css', cssFileName),
+                path.join(__dirname, '..', 'css', cssFileName),
+                path.join(process.cwd(), 'css', cssFileName),
+                path.join(projectRoot, cssFileName)
             ];
+            
+            console.log('=== CSS FALLBACK ===');
+            console.log('Procurando CSS:', cssFileName);
+            console.log('Caminhos:', cssAltPaths);
             
             for (const altPath of cssAltPaths) {
                 if (fs.existsSync(altPath)) {
@@ -303,6 +309,10 @@ module.exports = async (req, res) => {
                     return res.status(200).send(fileContent);
                 }
             }
+            
+            // Se não encontrou o CSS específico, retornar 404
+            console.error('CSS não encontrado:', cssFileName);
+            return res.status(404).json({ error: 'CSS not found', file: cssFileName });
         }
         
         // Para gerenciamento.html
