@@ -1,0 +1,565 @@
+/* ========================================
+   TAILWIND CSS - ENTRADA
+   Este arquivo é processado pelo Tailwind
+   Componentes baseados nos estilos existentes do ERP
+   ======================================== */
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ========================================
+   COMPONENTES CUSTOMIZADOS COM TAILWIND
+   Baseados nos estilos existentes do projeto
+   ======================================== */
+
+@layer components {
+  /* ========================================
+     BOTÕES
+     ======================================== */
+  
+  /* Botão primário - mantém estilo original */
+  .btn-primary {
+    @apply px-6 py-3 font-semibold text-white rounded-lg shadow-md transition-all duration-200;
+    padding: 0.65rem 1.5rem;
+    background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-color-dark) 100%);
+    color: var(--white);
+    border: none;
+    border-radius: var(--radius-md);
+    font-size: 0.95rem;
+    font-weight: 600;
+    min-width: 140px;
+    max-width: 220px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    box-shadow: var(--shadow-md);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .btn-primary:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-lg);
+  }
+
+  .btn-primary:active:not(:disabled) {
+    transform: translateY(0);
+    box-shadow: var(--shadow-md);
+  }
+
+  .btn-primary:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+
+  /* Botão secundário */
+  .btn-secondary {
+    @apply px-5 py-2.5 font-semibold rounded-lg shadow-sm transition-all duration-200;
+    padding: 0.55rem 1.25rem;
+    background-color: rgba(255, 255, 255, 0.95);
+    color: var(--primary-color);
+    border: 2px solid rgba(255, 255, 255, 0.8);
+    border-radius: var(--radius-md);
+    font-size: 0.9rem;
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.4rem;
+    backdrop-filter: blur(10px);
+  }
+
+  .btn-secondary:hover {
+    background-color: rgba(255, 255, 255, 1);
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-md);
+  }
+
+  /* Botão pequeno */
+  .btn-small {
+    @apply px-3 py-1.5 text-sm font-medium rounded transition-all duration-200;
+    padding: 0.4rem 0.75rem;
+    font-size: 0.85rem;
+  }
+
+  /* ========================================
+     CARDS
+     ======================================== */
+  
+  .item-card,
+  .group-card,
+  .cost-card,
+  .goal-card,
+  .day-card,
+  .summary-card,
+  .chart-card,
+  .stat-card {
+    @apply bg-white rounded-lg shadow-md p-4 transition-all duration-200;
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-md);
+  }
+
+  .item-card:hover,
+  .group-card:hover,
+  .cost-card:hover,
+  .goal-card:hover,
+  .day-card:hover,
+  .summary-card:hover,
+  .chart-card:hover,
+  .stat-card:hover {
+    box-shadow: var(--shadow-lg);
+    transform: translateY(-2px);
+  }
+
+  /* ========================================
+     HEADER
+     ======================================== */
+  
+  .header {
+    @apply flex justify-between items-center px-8 py-5 text-white shadow-lg relative z-50;
+    background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-color-dark) 100%);
+    box-shadow: var(--shadow-lg);
+  }
+
+  .header h1 {
+    @apply text-3xl font-semibold;
+    font-family: 'Dancing Script', cursive;
+    font-size: 1.75rem;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+
+  .header-actions {
+    @apply flex gap-3 items-center;
+  }
+
+  /* ========================================
+     MODAIS
+     ======================================== */
+  
+  .modal {
+    @apply fixed inset-0 z-50 hidden items-center justify-center;
+    background: rgba(0, 0, 0, 0.4);
+    backdrop-filter: blur(8px);
+  }
+
+  .modal.active {
+    @apply flex;
+  }
+
+  .modal-content {
+    @apply bg-white rounded-xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-hidden flex flex-col;
+    border-radius: var(--radius-xl);
+    box-shadow: var(--shadow-xl);
+  }
+
+  .modal-header {
+    @apply px-6 py-4 text-white relative;
+    background: linear-gradient(135deg, var(--primary-color) 0%, color-mix(in srgb, var(--primary-color) 85%, black) 100%);
+  }
+
+  .modal-header h2 {
+    @apply text-xl font-semibold text-white;
+  }
+
+  .modal-body {
+    @apply px-6 py-4 overflow-y-auto flex-1;
+  }
+
+  .modal-footer,
+  .modal-actions {
+    @apply px-6 py-4 flex gap-3 justify-end border-t border-gray-200;
+  }
+
+  .close {
+    @apply absolute top-4 right-4 text-white text-2xl cursor-pointer hover:text-gray-200 transition-colors;
+    font-size: 1.75rem;
+    line-height: 1;
+  }
+
+  /* ========================================
+     FORMULÁRIOS
+     ======================================== */
+  
+  .form-group {
+    @apply mb-4;
+  }
+
+  .form-group label {
+    @apply block mb-2 text-sm font-medium text-gray-700;
+  }
+
+  .form-group input,
+  .form-group select,
+  .form-group textarea {
+    @apply w-full px-4 py-2 border rounded-md transition-all duration-200;
+    border-color: var(--border-color);
+    border-radius: var(--radius-sm);
+    font-size: 0.95rem;
+  }
+
+  .form-group input:focus,
+  .form-group select:focus,
+  .form-group textarea:focus {
+    @apply outline-none ring-2;
+    border-color: var(--primary-color);
+    ring-color: var(--primary-color-light);
+  }
+
+  /* ========================================
+     LOGIN
+     ======================================== */
+  
+  .login-container {
+    @apply min-h-screen flex items-center justify-center p-4;
+    background-image: url('/images/background-financial.svg'), linear-gradient(to bottom, rgba(0, 0, 0, 0.1) 0%, rgba(0, 0, 0, 0.2) 50%, rgba(0, 0, 0, 0.3) 100%);
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+  }
+
+  .login-box {
+    @apply bg-white rounded-xl shadow-2xl p-8 w-full max-w-md;
+    border-radius: var(--radius-xl);
+    box-shadow: var(--shadow-xl);
+  }
+
+  .login-box .logo h1 {
+    @apply text-3xl font-bold text-center mb-6 text-black;
+    color: #000000;
+  }
+
+  /* Botão de login sempre preto */
+  .login-container .btn-primary,
+  .login-container #entrarBtn {
+    @apply bg-black text-white;
+    background: #000000 !important;
+    background-color: #000000 !important;
+  }
+
+  .login-container .btn-primary:hover {
+    @apply bg-gray-900;
+    background: #1a1a1a !important;
+    background-color: #1a1a1a !important;
+  }
+
+  .error-message {
+    @apply text-red-600 text-sm mt-2 hidden;
+  }
+
+  .error-message.show {
+    @apply block;
+  }
+
+  /* ========================================
+     GRID DE ITENS
+     ======================================== */
+  
+  .items-grid {
+    @apply grid gap-4;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  }
+
+  @media (max-width: 640px) {
+    .items-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  /* ========================================
+     TABS
+     ======================================== */
+  
+  .content-tabs {
+    @apply flex gap-2 border-b border-gray-200 mb-4 overflow-x-auto;
+  }
+
+  .tab-btn {
+    @apply px-4 py-2 font-medium text-gray-600 border-b-2 border-transparent transition-colors duration-200;
+    white-space: nowrap;
+  }
+
+  .tab-btn.active {
+    @apply text-primary border-primary;
+    color: var(--primary-color);
+    border-bottom-color: var(--primary-color);
+  }
+
+  .tab-btn:hover {
+    @apply text-gray-800;
+  }
+
+  /* ========================================
+     CONTAINERS E LAYOUT
+     ======================================== */
+  
+  .app-container {
+    @apply min-h-screen flex flex-col;
+    background-color: var(--gray-50);
+  }
+
+  .main-content {
+    @apply flex-1 p-4 md:p-6 lg:p-8;
+  }
+
+  .container {
+    @apply max-w-7xl mx-auto px-4;
+  }
+
+  /* ========================================
+     ESTADOS DE LOADING
+     ======================================== */
+  
+  .btn-primary.loading,
+  .btn-secondary.loading,
+  .btn-small.loading {
+    @apply relative text-transparent pointer-events-none;
+  }
+
+  .btn-primary.loading::after,
+  .btn-secondary.loading::after,
+  .btn-small.loading::after {
+    content: '';
+    @apply absolute top-1/2 left-1/2 w-4 h-4 border-2 border-transparent border-t-white rounded-full animate-spin;
+    margin-left: -8px;
+    margin-top: -8px;
+  }
+
+  .btn-secondary.loading::after {
+    border-top-color: var(--primary-color);
+  }
+
+  /* ========================================
+     EMPTY STATE
+     ======================================== */
+  
+  .empty-state {
+    @apply text-center py-12 px-4;
+  }
+
+  .empty-state-icon {
+    @apply text-6xl text-gray-400 mb-4;
+  }
+
+  .empty-state-title {
+    @apply text-xl font-semibold text-gray-700 mb-2;
+  }
+
+  .empty-state-description {
+    @apply text-gray-600 mb-6;
+  }
+
+  /* ========================================
+     FOOTER
+     ======================================== */
+  
+  .footer {
+    @apply bg-gray-800 text-white py-4 px-6 text-center text-sm;
+  }
+
+  .footer-text-cursive {
+    font-family: 'Dancing Script', cursive;
+    font-size: 1.1rem;
+  }
+
+  /* ========================================
+     DARK MODE - RESPONDE A body.dark-mode
+     Todas as classes Tailwind funcionam normalmente no tema branco
+     Quando body.dark-mode está ativo, o CSS customizado do projeto cuida do dark mode
+     ======================================== */
+  
+  /* Garantir que componentes Tailwind respeitem o dark mode do projeto */
+  body.dark-mode .btn-primary {
+    background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-color-dark) 100%);
+    color: var(--white);
+  }
+
+  body.dark-mode .btn-secondary {
+    background-color: rgba(255, 255, 255, 0.1);
+    color: var(--gray-800);
+    border-color: rgba(255, 255, 255, 0.2);
+  }
+
+  body.dark-mode .card-tailwind,
+  body.dark-mode .item-card,
+  body.dark-mode .group-card,
+  body.dark-mode .cost-card,
+  body.dark-mode .goal-card,
+  body.dark-mode .day-card,
+  body.dark-mode .summary-card,
+  body.dark-mode .chart-card,
+  body.dark-mode .stat-card {
+    background: var(--gray-50);
+    color: var(--gray-800);
+    border-color: var(--gray-200);
+  }
+
+  body.dark-mode .modal-content {
+    background: var(--gray-50);
+    color: var(--gray-800);
+  }
+
+  body.dark-mode .modal-header {
+    background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-color-dark) 100%);
+  }
+
+  body.dark-mode .form-group input,
+  body.dark-mode .form-group select,
+  body.dark-mode .form-group textarea {
+    background: var(--gray-100);
+    color: var(--gray-800);
+    border-color: var(--gray-300);
+  }
+
+  body.dark-mode .form-group input:focus,
+  body.dark-mode .form-group select:focus,
+  body.dark-mode .form-group textarea:focus {
+    border-color: var(--primary-color);
+    background: var(--gray-50);
+  }
+}
+
+/* ========================================
+   UTILITÁRIOS CUSTOMIZADOS
+   ======================================== */
+
+@layer utilities {
+  /* Usar variáveis CSS existentes */
+  .bg-primary {
+    background-color: var(--primary-color);
+  }
+  
+  .text-primary {
+    color: var(--primary-color);
+  }
+  
+  .border-primary {
+    border-color: var(--primary-color);
+  }
+
+  .bg-primary-dark {
+    background-color: var(--primary-color-dark);
+  }
+
+  .bg-primary-light {
+    background-color: var(--primary-color-light);
+  }
+
+  /* Shadow usando variáveis */
+  .shadow-custom-sm {
+    box-shadow: var(--shadow-sm);
+  }
+  
+  .shadow-custom-md {
+    box-shadow: var(--shadow-md);
+  }
+  
+  .shadow-custom-lg {
+    box-shadow: var(--shadow-lg);
+  }
+  
+  .shadow-custom-xl {
+    box-shadow: var(--shadow-xl);
+  }
+
+  /* Border radius usando variáveis */
+  .rounded-custom-sm {
+    border-radius: var(--radius-sm);
+  }
+  
+  .rounded-custom-md {
+    border-radius: var(--radius-md);
+  }
+  
+  .rounded-custom-lg {
+    border-radius: var(--radius-lg);
+  }
+  
+  .rounded-custom-xl {
+    border-radius: var(--radius-xl);
+  }
+
+  /* Transições usando variáveis */
+  .transition-fast {
+    transition-duration: var(--transition-fast);
+  }
+
+  .transition-base {
+    transition-duration: var(--transition-base);
+  }
+
+  .transition-slow {
+    transition-duration: var(--transition-slow);
+  }
+
+  /* ========================================
+     UTILITÁRIOS PARA DARK MODE DO PROJETO
+     Use estas classes quando body.dark-mode estiver ativo
+     ======================================== */
+  
+  /* Backgrounds para dark mode */
+  .dark-bg {
+    background-color: var(--gray-50);
+  }
+
+  .dark-bg-card {
+    background-color: var(--gray-100);
+  }
+
+  /* Textos para dark mode */
+  .dark-text {
+    color: var(--gray-800);
+  }
+
+  .dark-text-muted {
+    color: var(--gray-600);
+  }
+
+  /* Bordas para dark mode */
+  .dark-border {
+    border-color: var(--gray-200);
+  }
+}
+
+/* ========================================
+   DARK MODE - REGRAS GLOBAIS
+   Quando body.dark-mode está ativo, ajusta componentes Tailwind
+   ======================================== */
+
+body.dark-mode {
+  /* Garantir que classes Tailwind de background funcionem no dark mode */
+}
+
+body.dark-mode .bg-white {
+  background-color: var(--gray-50) !important;
+}
+
+body.dark-mode .bg-gray-50 {
+  background-color: var(--gray-100) !important;
+}
+
+body.dark-mode .bg-gray-100 {
+  background-color: var(--gray-200) !important;
+}
+
+body.dark-mode .text-gray-700,
+body.dark-mode .text-gray-800 {
+  color: var(--gray-800) !important;
+}
+
+body.dark-mode .text-gray-600 {
+  color: var(--gray-600) !important;
+}
+
+body.dark-mode .border-gray-300,
+body.dark-mode .border-gray-200 {
+  border-color: var(--gray-300) !important;
+}
+
+body.dark-mode .shadow-md,
+body.dark-mode .shadow-lg {
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3), 0 2px 4px -1px rgba(0, 0, 0, 0.2) !important;
+}

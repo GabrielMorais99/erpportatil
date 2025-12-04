@@ -25,6 +25,8 @@
         <!-- Preload CSS para evitar FOUC -->
         <link rel="preload" href="/css/style.css?v=20241203c" as="style" />
         <link rel="stylesheet" href="/css/style.css?v=20241203c" />
+        <!-- Tailwind CSS (compilado) -->
+        <link rel="stylesheet" href="/css/tailwind.css?v=20241203c" />
         <!-- Correções Mobile + Componentes Modernos -->
         <link rel="stylesheet" href="/css/style-mobile-fix.css?v=20241203b" />
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
@@ -380,38 +382,38 @@
         <!-- Skip link para acessibilidade -->
         <a href="#main-content" class="skip-link">Pular para o conteúdo principal</a>
         <div class="app-container">
-            <header class="header">
-                <h1>Gestão Financeira</h1>
-                <div class="header-actions">
-                    <button id="helpBtn" class="btn-secondary" title="Como usar" aria-label="Abrir ajuda e instruções de uso">
+            <header class="header flex justify-between items-center px-8 py-5 text-white shadow-lg relative z-50">
+                <h1 class="text-3xl font-semibold" style="font-family: 'Dancing Script', cursive;">Gestão Financeira</h1>
+                <div class="header-actions flex gap-3 items-center">
+                    <button id="helpBtn" class="btn-secondary inline-flex items-center justify-center gap-2" title="Como usar" aria-label="Abrir ajuda e instruções de uso">
                         <i class="fas fa-question-circle"></i> <span class="btn-text">Como usar</span>
                     </button>
-                    <button id="themeToggleBtn" class="theme-toggle-btn" title="Alternar tema" aria-label="Alternar entre tema vermelho e azul">
+                    <button id="themeToggleBtn" class="theme-toggle-btn inline-flex items-center justify-center" title="Alternar tema" aria-label="Alternar entre tema vermelho e azul">
                         <i class="fas fa-palette"></i>
                     </button>
-                    <button id="voiceToggleBtn" class="btn-secondary" title="Ativar/Desativar Navegação por Voz" aria-label="Alternar navegação por voz" onclick="app.toggleVoiceRecognition()" style="display: none;">
+                    <button id="voiceToggleBtn" class="btn-secondary inline-flex items-center justify-center gap-2 hidden" title="Ativar/Desativar Navegação por Voz" aria-label="Alternar navegação por voz" onclick="app.toggleVoiceRecognition()">
                         <i class="fas fa-microphone"></i> <span class="btn-text">Voz</span>
                     </button>
-                    <button id="darkModeToggle" class="dark-mode-toggle" title="Alternar modo escuro" aria-label="Alternar entre modo claro e escuro">
+                    <button id="darkModeToggle" class="dark-mode-toggle inline-flex items-center justify-center" title="Alternar modo escuro" aria-label="Alternar entre modo claro e escuro">
                         <i class="fas fa-sun icon-sun"></i>
                         <i class="fas fa-moon icon-moon"></i>
                     </button>
-                    <button id="importBtn" class="btn-secondary" title="Importar Dados" aria-label="Importar dados do sistema">
+                    <button id="importBtn" class="btn-secondary inline-flex items-center justify-center gap-2" title="Importar Dados" aria-label="Importar dados do sistema">
                         <i class="fas fa-upload"></i> <span class="btn-text">Importar Dados</span>
                     </button>
-                    <button id="exportBtn" class="btn-secondary" title="Exportar Dados" aria-label="Exportar dados do sistema" onclick="app.openExportModal()">
+                    <button id="exportBtn" class="btn-secondary inline-flex items-center justify-center gap-2" title="Exportar Dados" aria-label="Exportar dados do sistema" onclick="app.openExportModal()">
                         <i class="fas fa-download"></i> <span class="btn-text">Exportar Dados</span>
                     </button>
-                    <button id="backupBtn" class="btn-secondary" title="Gerenciar Backups" aria-label="Gerenciar backups do sistema" onclick="app.openBackupModal()">
+                    <button id="backupBtn" class="btn-secondary inline-flex items-center justify-center gap-2" title="Gerenciar Backups" aria-label="Gerenciar backups do sistema" onclick="app.openBackupModal()">
                         <i class="fas fa-database"></i> <span class="btn-text">Backups</span>
                     </button>
                     <input
                         type="file"
                         id="importFile"
                         accept=".txt"
-                        style="display: none"
+                        class="hidden"
                     />
-                    <button type="button" id="logoutBtn" class="btn-secondary" title="Sair" aria-label="Fazer logout e sair do sistema">
+                    <button type="button" id="logoutBtn" class="btn-secondary inline-flex items-center justify-center gap-2" title="Sair" aria-label="Fazer logout e sair do sistema">
                         <i class="fas fa-sign-out-alt"></i> <span class="btn-text">Sair</span>
                     </button>
                 </div>
@@ -1374,16 +1376,16 @@
         </div>
 
         <!-- Modal: Cadastro/Edição de Item -->
-        <div id="itemModal" class="modal">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h2 id="modalTitle">Novo Produto</h2>
-                    <span class="close" aria-label="Fechar modal" role="button" tabindex="0">&times;</span>
+        <div id="itemModal" class="modal fixed inset-0 z-50 hidden items-center justify-center bg-black bg-opacity-40 backdrop-blur-sm">
+            <div class="modal-content bg-white rounded-xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-hidden flex flex-col">
+                <div class="modal-header px-6 py-4 text-white relative">
+                    <h2 id="modalTitle" class="text-xl font-semibold text-white">Novo Produto</h2>
+                    <span class="close absolute top-4 right-4 text-white text-2xl cursor-pointer hover:text-gray-200 transition-colors" aria-label="Fechar modal" role="button" tabindex="0">&times;</span>
                 </div>
-                <form id="itemForm">
-                    <div class="form-group">
-                        <label for="itemCategory">Categoria *</label>
-                        <select id="itemCategory" required>
+                <form id="itemForm" class="modal-body px-6 py-4 overflow-y-auto flex-1">
+                    <div class="form-group mb-4">
+                        <label for="itemCategory" class="block mb-2 text-sm font-medium text-gray-700">Categoria *</label>
+                        <select id="itemCategory" required class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-all">
                             <option value="">Selecione...</option>
                             <option value="Roupas">Roupas</option>
                             <option value="Eletrônicos">Eletrônicos</option>
@@ -1391,13 +1393,13 @@
                     </div>
                     <!-- Campos para Roupas (Nome e Marca) -->
                     <div id="clothingBasicFields">
-                        <div class="form-group">
-                            <label for="itemName">Nome da Roupa (opcional)</label>
-                            <input type="text" id="itemName" placeholder="Ex: Camiseta, Calça, etc." />
+                        <div class="form-group mb-4">
+                            <label for="itemName" class="block mb-2 text-sm font-medium text-gray-700">Nome da Roupa (opcional)</label>
+                            <input type="text" id="itemName" placeholder="Ex: Camiseta, Calça, etc." class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-all" />
                         </div>
-                        <div class="form-group">
-                            <label for="itemBrand">Marca *</label>
-                            <input type="text" id="itemBrand" required />
+                        <div class="form-group mb-4">
+                            <label for="itemBrand" class="block mb-2 text-sm font-medium text-gray-700">Marca *</label>
+                            <input type="text" id="itemBrand" required class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-all" />
                         </div>
                     </div>
                     
@@ -1506,36 +1508,36 @@
 
 
         <!-- Modal: Cadastro/Edição de Cliente -->
-        <div id="clientModal" class="modal">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h2 id="clientModalTitle">Novo Cliente</h2>
-                    <span class="close" aria-label="Fechar modal" role="button" tabindex="0">&times;</span>
+        <div id="clientModal" class="modal fixed inset-0 z-50 hidden items-center justify-center bg-black bg-opacity-40 backdrop-blur-sm">
+            <div class="modal-content bg-white rounded-xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-hidden flex flex-col">
+                <div class="modal-header px-6 py-4 text-white relative">
+                    <h2 id="clientModalTitle" class="text-xl font-semibold text-white">Novo Cliente</h2>
+                    <span class="close absolute top-4 right-4 text-white text-2xl cursor-pointer hover:text-gray-200 transition-colors" aria-label="Fechar modal" role="button" tabindex="0">&times;</span>
                 </div>
-                <form id="clientForm">
-                    <div class="form-group">
-                        <label for="clientName">Nome Completo *</label>
-                        <input type="text" id="clientName" required placeholder="Ex: João Silva" />
+                <form id="clientForm" class="modal-body px-6 py-4 overflow-y-auto flex-1">
+                    <div class="form-group mb-4">
+                        <label for="clientName" class="block mb-2 text-sm font-medium text-gray-700">Nome Completo *</label>
+                        <input type="text" id="clientName" required placeholder="Ex: João Silva" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-all" />
                     </div>
-                    <div class="form-group">
-                        <label for="clientCPF">CPF</label>
-                        <input type="text" id="clientCPF" placeholder="000.000.000-00" maxlength="14" />
+                    <div class="form-group mb-4">
+                        <label for="clientCPF" class="block mb-2 text-sm font-medium text-gray-700">CPF</label>
+                        <input type="text" id="clientCPF" placeholder="000.000.000-00" maxlength="14" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-all" />
                     </div>
-                    <div class="form-group">
-                        <label for="clientPhone">Telefone</label>
-                        <input type="text" id="clientPhone" placeholder="(00) 00000-0000" maxlength="15" />
+                    <div class="form-group mb-4">
+                        <label for="clientPhone" class="block mb-2 text-sm font-medium text-gray-700">Telefone</label>
+                        <input type="text" id="clientPhone" placeholder="(00) 00000-0000" maxlength="15" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-all" />
                     </div>
-                    <div class="form-group">
-                        <label for="clientEmail">E-mail</label>
-                        <input type="email" id="clientEmail" placeholder="cliente@email.com" />
+                    <div class="form-group mb-4">
+                        <label for="clientEmail" class="block mb-2 text-sm font-medium text-gray-700">E-mail</label>
+                        <input type="email" id="clientEmail" placeholder="cliente@email.com" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-all" />
                     </div>
-                    <div class="form-group">
-                        <label for="clientAddress">Endereço</label>
-                        <textarea id="clientAddress" rows="3" placeholder="Rua, número, bairro, cidade - CEP"></textarea>
+                    <div class="form-group mb-4">
+                        <label for="clientAddress" class="block mb-2 text-sm font-medium text-gray-700">Endereço</label>
+                        <textarea id="clientAddress" rows="3" placeholder="Rua, número, bairro, cidade - CEP" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-all"></textarea>
                     </div>
-                    <div class="form-group">
-                        <label for="clientNotes">Observações</label>
-                        <textarea id="clientNotes" rows="2" placeholder="Informações adicionais sobre o cliente"></textarea>
+                    <div class="form-group mb-4">
+                        <label for="clientNotes" class="block mb-2 text-sm font-medium text-gray-700">Observações</label>
+                        <textarea id="clientNotes" rows="2" placeholder="Informações adicionais sobre o cliente" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-all"></textarea>
                     </div>
                     <div class="form-group">
                         <label for="clientLoyaltyPoints">Pontos de Fidelidade</label>

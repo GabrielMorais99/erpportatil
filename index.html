@@ -28,6 +28,8 @@
         <!-- Preload CSS para evitar FOUC -->
         <link rel="preload" href="/css/style.css?v=20241203c" as="style" />
         <link rel="stylesheet" href="/css/style.css?v=20241203c" />
+        <!-- Tailwind CSS (compilado) -->
+        <link rel="stylesheet" href="/css/tailwind.css?v=20241203c" />
         <link
             rel="stylesheet"
             href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
@@ -64,29 +66,31 @@
         <div class="login-container">
             <div class="login-box">
                 <div class="logo">
-                    <h1>ERP Portátil</h1>
+                    <h1 class="text-3xl font-bold text-center mb-6 text-black">ERP Portátil</h1>
                 </div>
-                <form id="loginForm" action="#" onsubmit="return false;">
+                <form id="loginForm" action="#" onsubmit="return false;" class="flex flex-col items-stretch">
                     <div class="form-group">
-                        <label for="username">Usuário</label>
+                        <label for="username" class="block mb-2 text-sm font-medium text-gray-700">Usuário</label>
                         <input
                             type="text"
                             id="username"
                             name="username"
                             required
+                            class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-black focus:border-black transition-all"
                         />
                     </div>
                     <div class="form-group">
-                        <label for="password">Senha</label>
+                        <label for="password" class="block mb-2 text-sm font-medium text-gray-700">Senha</label>
                         <input
                             type="password"
                             id="password"
                             name="password"
                             required
+                            class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-black focus:border-black transition-all"
                         />
                     </div>
-                    <div id="errorMessage" class="error-message"></div>
-                    <button type="button" class="btn-primary" id="entrarBtn">
+                    <div id="errorMessage" class="error-message text-red-600 text-sm mt-2 hidden"></div>
+                    <button type="button" class="btn-primary w-full mt-4 bg-black text-white hover:bg-gray-900" id="entrarBtn">
                         Entrar
                     </button>
                 </form>
@@ -239,7 +243,7 @@
                         }
                     });
                 </script>
-                <div class="signature">
+                <div class="signature text-center mt-6 text-gray-600 text-sm">
                     <p>© Gabriel Dev</p>
                     <p>2025</p>
                 </div>
