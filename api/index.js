@@ -263,16 +263,22 @@ module.exports = async (req, res) => {
             return res.status(404).json({ error: 'login.js not found' });
         }
         
-        if (cleanPath.includes('js/app.js') || cleanPath.includes('app.js') || filePath.includes('js/app.js')) {
+        // Para qualquer arquivo JS da pasta /js/
+        if (cleanPath.startsWith('js/') && cleanPath.endsWith('.js')) {
+            const jsFileName = path.basename(cleanPath);
             const jsAltPaths = [
-                path.join(projectRoot, 'js', 'app.js'),
-                path.join(__dirname, '..', 'js', 'app.js'),
-                path.join(process.cwd(), 'js', 'app.js')
+                path.join(projectRoot, 'js', jsFileName),
+                path.join(__dirname, '..', 'js', jsFileName),
+                path.join(process.cwd(), 'js', jsFileName),
+                path.join('/var/task', 'js', jsFileName)
             ];
+            
+            console.log('=== JS FALLBACK ===');
+            console.log('Procurando JS:', jsFileName);
             
             for (const altPath of jsAltPaths) {
                 if (fs.existsSync(altPath)) {
-                    console.log('app.js encontrado em caminho alternativo:', altPath);
+                    console.log('JS encontrado em:', altPath);
                     const fileContent = fs.readFileSync(altPath, 'utf8');
                     res.setHeader('Content-Type', 'application/javascript; charset=utf-8');
                     res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate, max-age=0');
@@ -281,6 +287,9 @@ module.exports = async (req, res) => {
                     return res.status(200).send(fileContent);
                 }
             }
+            
+            console.error('JS não encontrado:', jsFileName);
+            return res.status(404).json({ error: 'JavaScript file not found', file: jsFileName });
         }
         
         // Para CSS (qualquer arquivo .css)
