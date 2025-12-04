@@ -2,8 +2,8 @@
 // Suporte a cache, notificações push e sincronização em background
 // Estratégia: Network First (sempre busca da rede primeiro, cache como fallback)
 // ATUALIZADO: 2024-12-03 - Forçar limpeza de cache
-const CACHE_NAME = 'loja-vendas-v13';
-const RUNTIME_CACHE = 'loja-vendas-runtime-v13';
+const CACHE_NAME = 'loja-vendas-v14';
+const RUNTIME_CACHE = 'loja-vendas-runtime-v14';
 const MAX_CACHE_SIZE = 50 * 1024 * 1024; // 50MB
 const urlsToCache = [
     '/',
@@ -41,10 +41,7 @@ self.addEventListener('install', (event) => {
                         // Continuar mesmo se alguns recursos falharem
                     });
             })
-            .then(() => {
-                // Forçar ativação imediata
-                return self.skipWaiting();
-            })
+        // NÃO usar skipWaiting() para evitar loop de reload
     );
 });
 

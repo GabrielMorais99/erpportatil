@@ -370,40 +370,19 @@
                                 registration.scope
                             );
 
-                            // Verificar atualizações
+                            // Verificar atualizações (sem reload automático para evitar loop)
                             registration.addEventListener('updatefound', () => {
                                 const newWorker = registration.installing;
-                                newWorker.addEventListener(
-                                    'statechange',
-                                    () => {
-                                        if (
-                                            newWorker.state === 'installed' &&
-                                            navigator.serviceWorker.controller
-                                        ) {
-                                            // Nova versão disponível
-                                            console.log(
-                                                '🔄 [PWA] Nova versão disponível!'
-                                            );
-                                            if (
-                                                confirm(
-                                                    'Uma nova versão está disponível. Deseja atualizar?'
-                                                )
-                                            ) {
-                                                newWorker.postMessage({
-                                                    type: 'SKIP_WAITING',
-                                                });
-                                                window.location.reload();
-                                            }
-                                        }
+                                newWorker.addEventListener('statechange', () => {
+                                    if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                                        console.log('🔄 [PWA] Nova versão disponível - atualize manualmente (Ctrl+Shift+R)');
+                                        // Não fazer reload automático para evitar loop
                                     }
-                                );
+                                });
                             });
                         })
                         .catch((error) => {
-                            console.error(
-                                '❌ [PWA] Erro ao registrar Service Worker:',
-                                error
-                            );
+                            console.error('❌ [PWA] Erro ao registrar Service Worker:', error);
                         });
                 });
             }

@@ -3439,32 +3439,24 @@
             // Registrar Service Worker para PWA
             if ('serviceWorker' in navigator) {
                 window.addEventListener('load', () => {
-                    // Detectar se está em localhost
                     const isLocalhost = window.location.hostname === 'localhost' || 
-                                       window.location.hostname === '127.0.0.1' || 
-                                       window.location.hostname === '[::1]' ||
-                                       window.location.hostname.includes('.local');
+                                       window.location.hostname === '127.0.0.1';
                     
                     navigator.serviceWorker.register('/sw.js')
                         .then((registration) => {
                             console.log('✅ [PWA] Service Worker registrado:', registration.scope);
                             
                             if (isLocalhost) {
-                                console.log('💡 [DEV] Modo localhost detectado - cache desabilitado no SW');
-                                console.log('💡 [DEV] Para limpar cache, execute: clearAllCache()');
+                                console.log('💡 [DEV] Modo localhost - para limpar cache: clearAllCache()');
                             }
                             
-                            // Verificar atualizações
+                            // Verificar atualizações (sem reload automático para evitar loop)
                             registration.addEventListener('updatefound', () => {
                                 const newWorker = registration.installing;
                                 newWorker.addEventListener('statechange', () => {
                                     if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-                                        // Nova versão disponível
-                                        console.log('🔄 [PWA] Nova versão disponível!');
-                                        if (confirm('Uma nova versão está disponível. Deseja atualizar?')) {
-                                            newWorker.postMessage({ type: 'SKIP_WAITING' });
-                                            window.location.reload();
-                                        }
+                                        console.log('🔄 [PWA] Nova versão disponível - atualize manualmente (Ctrl+Shift+R)');
+                                        // Não fazer reload automático para evitar loop
                                     }
                                 });
                             });
