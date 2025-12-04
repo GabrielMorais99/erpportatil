@@ -1514,6 +1514,14 @@ class LojaApp {
     }
 
     init() {
+        // Prevenir inicialização dupla
+        if (this._initializing || this._initialized) {
+            console.log('ℹ️ [APP.JS] init() já foi chamado, ignorando chamada duplicada');
+            return;
+        }
+        this._initializing = true;
+
+        try {
         // Verificar se está em modo de teste
         const isTestMode = window.TEST_MODE === true;
 
@@ -1550,6 +1558,7 @@ class LojaApp {
                     console.error('❌ [APP.JS] Erro ao redirecionar:', error);
                     window.location.href = 'index.html';
                 }
+                this._initializing = false;
                 return;
             }
         }
@@ -1709,17 +1718,41 @@ class LojaApp {
 
             // Carregar dados apenas para usuários normais (não admin)
             if (username !== 'admin') {
+                // Timeout de segurança: se loadData demorar mais de 10 segundos, continuar mesmo assim
+                const loadDataTimeout = setTimeout(() => {
+                    console.warn('⚠️ [INIT] Timeout no loadData() após 10 segundos, continuando com renderização...');
+                    try {
+                        this.renderGroups();
+                        this.renderItems();
+                        this.renderClients();
+                        this.renderSuppliers();
+                        this.renderTemplates();
+                        this.renderCoupons();
+                        this.renderPendingOrders();
+                        this.renderServiceAppointments();
+                        this.renderServiceGroups();
+                        this.renderCosts();
+                        this.renderGoals();
+                        this.updateOverallSummary();
+                    } catch (renderError) {
+                        console.error('❌ [INIT] Erro ao renderizar após timeout:', renderError);
+                    }
+                }, 10000);
+
                 // Carregar dados (assíncrono)
-                this.loadData().then(() => {
-                    // Renderizar após carregar dados
-                    this.renderGroups();
-                    this.updateTagFilter(); // Atualizar lista de tags antes de renderizar
-                    this.renderItems();
-                    this.renderClients();
-                    this.renderSuppliers();
-                    this.renderTemplates();
-                    this.renderCoupons();
-                    this.renderPendingOrders();
+                this.loadData()
+                    .then(() => {
+                        clearTimeout(loadDataTimeout); // Cancelar timeout se carregou com sucesso
+                        console.log('✅ [INIT] Dados carregados com sucesso, renderizando...');
+                        // Renderizar após carregar dados
+                        this.renderGroups();
+                        this.updateTagFilter(); // Atualizar lista de tags antes de renderizar
+                        this.renderItems();
+                        this.renderClients();
+                        this.renderSuppliers();
+                        this.renderTemplates();
+                        this.renderCoupons();
+                        this.renderPendingOrders();
 
                     // Verificar alertas após carregar dados
                     setTimeout(() => {
@@ -1767,9 +1800,64 @@ class LojaApp {
                     this.updateGoalsYearFilter();
                     this.updateServicesYearFilter();
                     this.updateOverallSummary();
-                });
+                    })
+                    .catch((error) => {
+                        clearTimeout(loadDataTimeout); // Cancelar timeout
+                        console.error('❌ [INIT] Erro ao carregar dados:', error);
+                        console.error('❌ [INIT] Stack:', error.stack);
+                        console.error('❌ [INIT] Mensagem:', error.message);
+                        // Continuar mesmo com erro - renderizar com dados vazios
+                        console.warn('⚠️ [INIT] Continuando com dados vazios devido ao erro');
+                        try {
+                            this.renderGroups();
+                            this.renderItems();
+                            this.renderClients();
+                            this.renderSuppliers();
+                            this.renderTemplates();
+                            this.renderCoupons();
+                            this.renderPendingOrders();
+                            this.renderServiceAppointments();
+                            this.renderServiceGroups();
+                            this.renderCosts();
+                            this.renderGoals();
+                            this.updateOverallSummary();
+                        } catch (renderError) {
+                            console.error('❌ [INIT] Erro ao renderizar após falha no loadData:', renderError);
+                            console.error('❌ [INIT] Stack do renderError:', renderError.stack);
+                        }
+                    });
             }
+            
+            // Marcar como inicializado ao final
+            this._initialized = true;
+            this._initializing = false;
         }, 100);
+        
+        // Marcar como inicializado mesmo se houver erro antes do setTimeout
+        setTimeout(() => {
+            if (this._initializing && !this._initialized) {
+                console.warn('⚠️ [INIT] Timeout na inicialização, marcando como inicializado');
+                this._initialized = true;
+                this._initializing = false;
+            }
+        }, 5000); // Timeout de 5 segundos
+        
+        } catch (initError) {
+            console.error('❌ [INIT] ERRO CRÍTICO na inicialização:', initError);
+            console.error('❌ [INIT] Stack:', initError.stack);
+            console.error('❌ [INIT] Mensagem:', initError.message);
+            // Tentar continuar mesmo com erro crítico
+            this._initialized = true;
+            this._initializing = false;
+            
+            // Tentar renderizar pelo menos algo básico
+            try {
+                if (typeof this.renderGroups === 'function') this.renderGroups();
+                if (typeof this.renderItems === 'function') this.renderItems();
+            } catch (renderError) {
+                console.error('❌ [INIT] Erro ao renderizar após erro crítico:', renderError);
+            }
+        }
     }
 
     setupEventListeners() {
@@ -8497,24 +8585,43 @@ class LojaApp {
 
     // Mostrar preview de recibo
     showReceiptPreview(sale) {
-        const modal = document.getElementById('receiptPreviewModal');
-        if (!modal) {
-            // Criar modal se não existir
-            this.createReceiptPreviewModal();
-        }
+        try {
+            if (!sale) {
+                console.error('❌ [SHOW RECEIPT] Sale não fornecido');
+                return;
+            }
 
-        const modalElement = document.getElementById('receiptPreviewModal');
-        const receiptContent = document.getElementById('receiptContent');
+            const modal = document.getElementById('receiptPreviewModal');
+            if (!modal) {
+                // Criar modal se não existir
+                try {
+                    this.createReceiptPreviewModal();
+                } catch (createError) {
+                    console.error('❌ [SHOW RECEIPT] Erro ao criar modal:', createError);
+                    return;
+                }
+            }
 
-        if (!receiptContent || !modalElement) return;
+            const modalElement = document.getElementById('receiptPreviewModal');
+            const receiptContent = document.getElementById('receiptContent');
 
-        // CORRIGIDO: Salvar estado do viewGroupModal antes de abrir o recibo
-        const viewGroupModal = document.getElementById('viewGroupModal');
-        if (viewGroupModal && viewGroupModal.classList.contains('active')) {
-            // Marcar que estava ativo antes do recibo abrir
-            viewGroupModal.dataset.wasActive = 'true';
-            console.log('🔧 [SHOW RECEIPT] viewGroupModal estava ativo - salvando estado');
-        }
+            if (!receiptContent || !modalElement) {
+                console.error('❌ [SHOW RECEIPT] Elementos do modal não encontrados');
+                return;
+            }
+
+            // CORRIGIDO: Salvar estado do viewGroupModal antes de abrir o recibo
+            try {
+                const viewGroupModal = document.getElementById('viewGroupModal');
+                if (viewGroupModal && viewGroupModal.classList.contains('active')) {
+                    // Marcar que estava ativo antes do recibo abrir
+                    viewGroupModal.dataset.wasActive = 'true';
+                    console.log('🔧 [SHOW RECEIPT] viewGroupModal estava ativo - salvando estado');
+                }
+            } catch (saveStateError) {
+                console.error('❌ [SHOW RECEIPT] Erro ao salvar estado do viewGroupModal:', saveStateError);
+                // Continuar mesmo com erro ao salvar estado
+            }
 
         // Garantir que o modal esteja visível e com z-index correto
         modalElement.style.display = 'flex';
@@ -8659,6 +8766,17 @@ class LojaApp {
                 }
             }, 100);
         });
+        } catch (error) {
+            console.error('❌ [SHOW RECEIPT] Erro crítico ao mostrar recibo:', error);
+            console.error('❌ [SHOW RECEIPT] Stack:', error.stack);
+            console.error('❌ [SHOW RECEIPT] Sale:', sale);
+            // Tentar fechar qualquer modal parcialmente aberto
+            const modal = document.getElementById('receiptPreviewModal');
+            if (modal) {
+                modal.style.display = 'none';
+                modal.classList.remove('active');
+            }
+        }
     }
 
     // Criar modal de preview de recibo
@@ -8709,63 +8827,87 @@ class LojaApp {
 
     // Fechar preview de recibo
     closeReceiptPreview() {
-        const modal = document.getElementById('receiptPreviewModal');
-        if (modal) {
+        try {
+            const modal = document.getElementById('receiptPreviewModal');
+            if (!modal) {
+                console.warn('⚠️ [CLOSE RECEIPT] Modal não encontrado');
+                return;
+            }
+
             console.log('🔧 [CLOSE RECEIPT] Fechando modal de recibo');
+            
             // Animação ao fechar modal
             modal.style.opacity = '0';
             modal.style.pointerEvents = 'none'; // Desabilitar cliques durante animação
 
             // CORRIGIDO: Não restaurar viewGroupModal automaticamente
             // Apenas restaurar se o viewGroupModal já estava ativo ANTES do recibo abrir
-            const viewGroupModal = document.getElementById('viewGroupModal');
-            if (viewGroupModal && viewGroupModal.dataset.wasActive === 'true') {
-                console.log(
-                    '🔧 [CLOSE RECEIPT] Restaurando viewGroupModal (estava ativo antes do recibo)'
-                );
-                // Restaurar apenas se estava ativo antes
-                viewGroupModal.style.setProperty(
-                    'z-index',
-                    '1000',
-                    'important'
-                );
-                viewGroupModal.style.pointerEvents = 'auto';
-                viewGroupModal.style.opacity = '1';
-                viewGroupModal.style.display = 'flex';
-                
-                // Remover flag
-                delete viewGroupModal.dataset.wasActive;
+            try {
+                const viewGroupModal = document.getElementById('viewGroupModal');
+                if (viewGroupModal && viewGroupModal.dataset.wasActive === 'true') {
+                    console.log(
+                        '🔧 [CLOSE RECEIPT] Restaurando viewGroupModal (estava ativo antes do recibo)'
+                    );
+                    // Restaurar apenas se estava ativo antes
+                    viewGroupModal.style.setProperty(
+                        'z-index',
+                        '1000',
+                        'important'
+                    );
+                    viewGroupModal.style.pointerEvents = 'auto';
+                    viewGroupModal.style.opacity = '1';
+                    viewGroupModal.style.display = 'flex';
+                    
+                    // Remover flag
+                    delete viewGroupModal.dataset.wasActive;
 
-                const viewGroupContent =
-                    viewGroupModal.querySelector('.modal-content');
-                if (viewGroupContent) {
-                    viewGroupContent.style.zIndex = '';
-                    viewGroupContent.style.pointerEvents = 'auto';
+                    const viewGroupContent =
+                        viewGroupModal.querySelector('.modal-content');
+                    if (viewGroupContent) {
+                        viewGroupContent.style.zIndex = '';
+                        viewGroupContent.style.pointerEvents = 'auto';
+                    }
+
+                    const buttons = viewGroupModal.querySelectorAll('button');
+                    buttons.forEach((btn) => {
+                        btn.style.pointerEvents = 'auto';
+                        btn.style.opacity = '1';
+                        btn.disabled = false;
+                    });
+                } else {
+                    // Se não estava ativo antes, não fazer nada
+                    console.log('🔧 [CLOSE RECEIPT] viewGroupModal não estava ativo antes - não restaurar');
                 }
-
-                const buttons = viewGroupModal.querySelectorAll('button');
-                buttons.forEach((btn) => {
-                    btn.style.pointerEvents = 'auto';
-                    btn.style.opacity = '1';
-                    btn.disabled = false;
-                });
-            } else {
-                // Se não estava ativo antes, não fazer nada
-                console.log('🔧 [CLOSE RECEIPT] viewGroupModal não estava ativo antes - não restaurar');
+            } catch (restoreError) {
+                console.error('❌ [CLOSE RECEIPT] Erro ao restaurar viewGroupModal:', restoreError);
+                // Continuar mesmo com erro na restauração
             }
 
             setTimeout(() => {
-                modal.classList.remove('active');
-                modal.style.display = 'none';
-                modal.style.opacity = '';
-                modal.style.zIndex = '';
-                modal.style.pointerEvents = '';
-                modal.style.position = '';
-                const modalContent = modal.querySelector('.modal-content');
-                if (modalContent) {
-                    modalContent.style.zIndex = '';
+                try {
+                    modal.classList.remove('active');
+                    modal.style.display = 'none';
+                    modal.style.opacity = '';
+                    modal.style.zIndex = '';
+                    modal.style.pointerEvents = '';
+                    modal.style.position = '';
+                    const modalContent = modal.querySelector('.modal-content');
+                    if (modalContent) {
+                        modalContent.style.zIndex = '';
+                    }
+                } catch (cleanupError) {
+                    console.error('❌ [CLOSE RECEIPT] Erro ao limpar modal:', cleanupError);
                 }
             }, 300);
+        } catch (error) {
+            console.error('❌ [CLOSE RECEIPT] Erro crítico ao fechar recibo:', error);
+            console.error('❌ [CLOSE RECEIPT] Stack:', error.stack);
+            // Tentar fechar o modal mesmo com erro
+            const modal = document.getElementById('receiptPreviewModal');
+            if (modal) {
+                modal.style.display = 'none';
+                modal.classList.remove('active');
+            }
         }
     }
 
@@ -17054,6 +17196,8 @@ class LojaApp {
                 console.log(
                     '💾 [LOAD DATA] Usando localStorage como fallback...'
                 );
+                // Continuar mesmo com erro - não lançar exceção
+                // A função continuará e carregará do localStorage
             }
         } else {
             console.log(
@@ -17212,18 +17356,47 @@ class LojaApp {
                 console.warn(
                     '⚠️ [LOAD DATA] Inicializando com dados vazios devido ao erro'
                 );
-                this.items = [];
-                this.groups = [];
-                this.costs = [];
-                this.goals = [];
+                // Garantir que todos os arrays estejam inicializados
+                this.items = this.items || [];
+                this.groups = this.groups || [];
+                this.serviceGroups = this.serviceGroups || [];
+                this.costs = this.costs || [];
+                this.goals = this.goals || [];
+                this.clients = this.clients || [];
+                this.clientNotifications = this.clientNotifications || [];
+                this.suppliers = this.suppliers || [];
+                this.completedSales = this.completedSales || [];
+                this.pendingOrders = this.pendingOrders || [];
+                this.serviceAppointments = this.serviceAppointments || [];
+                this.coupons = this.coupons || [];
+                this.auditLog = this.auditLog || [];
+                this.templates = this.templates || [];
+                this.itemTags = this.itemTags || {};
+                this.categoryHierarchy = this.categoryHierarchy || {};
             }
         } else {
             console.log(
                 'ℹ️ [LOAD DATA] Nenhum dado encontrado no localStorage, iniciando vazio'
             );
+            // Garantir que arrays estejam inicializados mesmo sem dados
+            this.items = this.items || [];
+            this.groups = this.groups || [];
+            this.serviceGroups = this.serviceGroups || [];
+            this.costs = this.costs || [];
+            this.goals = this.goals || [];
+            this.clients = this.clients || [];
+            this.suppliers = this.suppliers || [];
+            this.completedSales = this.completedSales || [];
+            this.pendingOrders = this.pendingOrders || [];
+            this.serviceAppointments = this.serviceAppointments || [];
+            this.coupons = this.coupons || [];
+            this.templates = this.templates || [];
         }
 
         console.log('✅ [LOAD DATA] Carregamento de dados concluído');
+        console.log(`📊 [LOAD DATA] Estado final: Items: ${this.items?.length || 0} | Grupos: ${this.groups?.length || 0} | Clientes: ${this.clients?.length || 0}`);
+        
+        // SEMPRE retornar Promise resolvida, mesmo se houver erro
         return Promise.resolve();
     }
 
@@ -30694,7 +30867,8 @@ function inicializarApp() {
 
     try {
         if (!window.app) {
-            window.app = new LojaApp();
+            console.log('🟣 [APP.JS] Criando nova instância de LojaApp...');
+            window.app = new LojaApp(); // O construtor já chama this.init()
             app = window.app;
             console.log('✅ [APP.JS] Instância de LojaApp criada com sucesso!');
         } else {
@@ -30704,6 +30878,9 @@ function inicializarApp() {
     } catch (error) {
         console.error('❌ [APP.JS] ERRO ao criar LojaApp:', error);
         console.error('❌ [APP.JS] Stack:', error.stack);
+        console.error('❌ [APP.JS] Mensagem:', error.message);
+        // Tentar continuar mesmo com erro
+        console.warn('⚠️ [APP.JS] Tentando continuar mesmo com erro...');
     }
 }
 
