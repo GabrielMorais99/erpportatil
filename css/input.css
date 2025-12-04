@@ -299,6 +299,8 @@
   .app-container {
     @apply min-h-screen flex flex-col;
     background-color: var(--gray-50);
+    overflow-y: visible !important; /* Permitir scroll vertical no desktop */
+    height: auto !important; /* Altura automática para permitir scroll */
   }
 
   .main-content {
@@ -527,6 +529,45 @@
 /* ========================================
    DARK MODE - REGRAS GLOBAIS
    Quando body.dark-mode está ativo, ajusta componentes Tailwind
+   ======================================== */
+
+/* ========================================
+   TEMA PADRÃO: BRANCO
+   Garantir que tudo seja branco por padrão
+   ======================================== */
+
+/* Body sempre branco por padrão */
+body:not(.dark-mode) {
+  background-color: #ffffff !important;
+  background: #ffffff !important;
+  color: #343a40 !important;
+}
+
+body:not(.dark-mode) .app-container {
+  background-color: var(--gray-50) !important;
+  background: var(--gray-50) !important;
+}
+
+/* Classes Tailwind sempre claras por padrão */
+body:not(.dark-mode) .bg-white {
+  background-color: #ffffff !important;
+}
+
+body:not(.dark-mode) .bg-gray-50 {
+  background-color: var(--gray-50) !important;
+}
+
+body:not(.dark-mode) .text-gray-700,
+body:not(.dark-mode) .text-gray-800 {
+  color: #343a40 !important;
+}
+
+body:not(.dark-mode) .text-gray-600 {
+  color: #6c757d !important;
+}
+
+/* ========================================
+   DARK MODE: Apenas quando body.dark-mode está ativo
    ======================================== */
 
 body.dark-mode {

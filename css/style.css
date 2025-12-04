@@ -29,7 +29,14 @@ body.loaded {
     animation: fadeIn 0.6s ease-out;
 }
 
-html,
+html {
+    width: 100%;
+    overflow-x: hidden;
+    overflow-y: auto !important; /* Garantir scroll vertical sempre */
+    position: relative;
+    height: 100%;
+}
+
 body {
     width: 100%;
     overflow-x: hidden;
@@ -37,6 +44,8 @@ body {
     position: relative;
     height: auto !important;
     min-height: 100vh;
+    /* Garantir que o body possa fazer scroll */
+    overflow: visible !important;
 }
 
 :root {
@@ -169,8 +178,10 @@ body.theme-blue .login-container {
 body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     font-size: 0.95rem;
-    background-color: var(--gray-50);
-    color: var(--dark-gray);
+    /* TEMA PADRÃO: BRANCO - Sempre começa em tema claro */
+    background-color: #ffffff !important;
+    background: #ffffff !important;
+    color: var(--dark-gray) !important;
     line-height: 1.5;
     overflow-x: hidden;
     overflow-y: auto !important; /* CRÍTICO: Garantir scroll vertical */
@@ -178,6 +189,27 @@ body {
     max-width: 100vw;
     height: auto !important;
     min-height: 100vh;
+}
+
+/* Garantir que app-container também seja branco por padrão */
+.app-container {
+    background-color: var(--gray-50) !important;
+    background: var(--gray-50) !important;
+    overflow-y: visible !important; /* Permitir scroll vertical */
+    height: auto !important; /* Altura automática para permitir scroll */
+}
+
+/* Garantir que elementos principais sejam brancos por padrão */
+body:not(.dark-mode) .app-container {
+    background-color: var(--gray-50) !important;
+    background: var(--gray-50) !important;
+}
+
+body:not(.dark-mode) .main-content {
+    background-color: transparent !important;
+    background: transparent !important;
+    overflow-y: visible !important; /* Permitir scroll */
+    height: auto !important; /* Altura automática */
 }
 
 /* ========================================
@@ -630,7 +662,10 @@ body.theme-blue .login-container #entrarBtn:focus {
     width: 100%;
     box-sizing: border-box;
     overflow-x: hidden;
+    overflow-y: visible !important; /* Permitir scroll vertical no desktop */
     background-color: #ebebeb;
+    height: auto !important; /* Altura automática para permitir scroll */
+    min-height: auto !important;
 }
 
 /* ========================================
@@ -3510,6 +3545,8 @@ body.theme-blue .login-container #entrarBtn:focus {
     width: 100%;
     max-width: 100vw;
     overflow-x: hidden;
+    overflow-y: visible !important; /* Permitir scroll vertical no desktop */
+    position: relative;
     opacity: 0;
     transform: translateY(20px);
     animation: fadeInUp 0.6s ease-out forwards;

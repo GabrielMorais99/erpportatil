@@ -1,9 +1,7 @@
 /** @type {import('tailwindcss').Config} */
 module.exports = {
-  // Desabilitar dark mode automático do Tailwind
-  // O projeto usa body.dark-mode para controlar o tema
+  // Dark mode controlado pelo CSS customizado do projeto (body.dark-mode)
   // Padrão: tema branco (sem dark mode ativo)
-  darkMode: false,
   content: [
     "./*.html",
     "./js/**/*.js",

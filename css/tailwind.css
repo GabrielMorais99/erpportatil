@@ -306,6 +306,17 @@ body.dark-mode .btn-primary {
   transition-duration: 200ms;
 }
 
+body:not(.dark-mode) .item-card,body:not(.dark-mode) 
+  .group-card,body:not(.dark-mode) 
+  .cost-card,body:not(.dark-mode) 
+  .goal-card,body:not(.dark-mode) 
+  .day-card,body:not(.dark-mode) 
+  .summary-card,body:not(.dark-mode) 
+  .chart-card,body:not(.dark-mode) 
+  .stat-card {
+  background-color: #ffffff;
+}
+
 body.dark-mode .item-card,body.dark-mode 
   .group-card,body.dark-mode 
   .cost-card,body.dark-mode 
@@ -443,6 +454,10 @@ body.dark-mode .header {
   box-shadow: var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow);
 }
 
+body:not(.dark-mode) .modal-content {
+  background-color: #ffffff;
+}
+
 body.dark-mode .modal-content {
   background-color: var(--gray-50);
 }
@@ -543,6 +558,10 @@ body.dark-mode
   color: rgb(55 65 81 / var(--tw-text-opacity, 1));
 }
 
+body:not(.dark-mode) .form-group label {
+  color: #343a40;
+}
+
 body.dark-mode .form-group label {
   color: var(--gray-800);
 }
@@ -603,6 +622,10 @@ body.dark-mode .form-group label {
   --tw-shadow: 0 25px 50px -12px rgb(0 0 0 / 0.25);
   --tw-shadow-colored: 0 25px 50px -12px var(--tw-shadow-color);
   box-shadow: var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow);
+}
+
+body:not(.dark-mode) .login-box {
+  background-color: #ffffff;
 }
 
 body.dark-mode .login-box {
@@ -707,6 +730,10 @@ body.dark-mode .content-tabs {
   transition-duration: 200ms;
 }
 
+body:not(.dark-mode) .tab-btn {
+  color: #6c757d;
+}
+
 body.dark-mode .tab-btn {
   color: var(--gray-600);
 }
@@ -727,6 +754,11 @@ body.dark-mode .tab-btn {
 }
 
 
+body:not(.dark-mode) .tab-btn:hover {
+  color: #343a40;
+}
+
+
 body.dark-mode .tab-btn:hover {
   color: var(--gray-800);
 }
@@ -740,6 +772,10 @@ body.dark-mode .tab-btn:hover {
   min-height: 100vh;
   flex-direction: column;
   background-color: var(--gray-50);
+  overflow-y: visible !important;
+  /* Permitir scroll vertical no desktop */
+  height: auto !important;
+  /* Altura automática para permitir scroll */
 }
 
 .main-content {
@@ -850,6 +886,10 @@ body.dark-mode .tab-btn:hover {
   color: rgb(55 65 81 / var(--tw-text-opacity, 1));
 }
 
+body:not(.dark-mode) .empty-state-title {
+  color: #343a40;
+}
+
 body.dark-mode .empty-state-title {
   color: var(--gray-800);
 }
@@ -858,6 +898,10 @@ body.dark-mode .empty-state-title {
   margin-bottom: 1.5rem;
   --tw-text-opacity: 1;
   color: rgb(75 85 99 / var(--tw-text-opacity, 1));
+}
+
+body:not(.dark-mode) .empty-state-description {
+  color: #6c757d;
 }
 
 body.dark-mode .empty-state-description {
@@ -1482,6 +1526,47 @@ body.dark-mode .form-group input:focus,
 /* ========================================
    DARK MODE - REGRAS GLOBAIS
    Quando body.dark-mode está ativo, ajusta componentes Tailwind
+   ======================================== */
+
+/* ========================================
+   TEMA PADRÃO: BRANCO
+   Garantir que tudo seja branco por padrão
+   ======================================== */
+
+/* Body sempre branco por padrão */
+
+body:not(.dark-mode) {
+  background-color: #ffffff !important;
+  background: #ffffff !important;
+  color: #343a40 !important;
+}
+
+body:not(.dark-mode) .app-container {
+  background-color: var(--gray-50) !important;
+  background: var(--gray-50) !important;
+}
+
+/* Classes Tailwind sempre claras por padrão */
+
+body:not(.dark-mode) .bg-white {
+  background-color: #ffffff !important;
+}
+
+body:not(.dark-mode) .bg-gray-50 {
+  background-color: var(--gray-50) !important;
+}
+
+body:not(.dark-mode) .text-gray-700,
+body:not(.dark-mode) .text-gray-800 {
+  color: #343a40 !important;
+}
+
+body:not(.dark-mode) .text-gray-600 {
+  color: #6c757d !important;
+}
+
+/* ========================================
+   DARK MODE: Apenas quando body.dark-mode está ativo
    ======================================== */
 
 body.dark-mode {
