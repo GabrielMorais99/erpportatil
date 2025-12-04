@@ -3289,11 +3289,72 @@
                 }
             })();
         </script>
-        <!-- Script Loader - Carrega arquivos ofuscados em produção -->
-        <script src="/js/script-loader.js"></script>
+        <!-- Script Loader Inline - Carrega arquivos ofuscados em produção -->
+        <script>
+            // ScriptLoader - Detecta ambiente e carrega arquivos corretos
+            const ScriptLoader = (function() {
+                'use strict';
+                const config = {
+                    isProduction: !['localhost', '127.0.0.1', ''].includes(window.location.hostname.split(':')[0]) 
+                                  || window.location.hostname.includes('vercel.app'),
+                    paths: { development: '/js/', production: '/dist/js/' },
+                    obfuscatedFiles: ['app.js', 'login.js', 'skeleton-manager.js'],
+                    loadedScripts: new Set(),
+                    debug: false
+                };
+                
+                function log(...args) { if (config.debug) console.log('🔧 [ScriptLoader]', ...args); }
+                
+                function getPath(filename) {
+                    if (config.isProduction && config.obfuscatedFiles.includes(filename)) {
+                        return config.paths.production + filename;
+                    }
+                    return config.paths.development + filename;
+                }
+                
+                function loadScript(filename, onSuccess, onError) {
+                    if (config.loadedScripts.has(filename)) { if (onSuccess) onSuccess(); return; }
+                    
+                    const path = getPath(filename);
+                    const fullUrl = path + '?v=' + Date.now();
+                    log('Carregando:', fullUrl);
+                    
+                    const script = document.createElement('script');
+                    script.src = fullUrl;
+                    script.async = false;
+                    
+                    script.onload = function() {
+                        config.loadedScripts.add(filename);
+                        log('✅ Carregado:', filename);
+                        if (onSuccess) onSuccess();
+                    };
+                    
+                    script.onerror = function(e) {
+                        console.error('❌ [ScriptLoader] Falha:', path);
+                        if (config.isProduction && path.includes('/dist/')) {
+                            const fallback = document.createElement('script');
+                            fallback.src = config.paths.development + filename + '?v=' + Date.now();
+                            fallback.onload = function() { config.loadedScripts.add(filename); if (onSuccess) onSuccess(); };
+                            fallback.onerror = function() { if (onError) onError(e); };
+                            document.head.appendChild(fallback);
+                        } else {
+                            if (onError) onError(e);
+                        }
+                    };
+                    
+                    document.head.appendChild(script);
+                }
+                
+                return {
+                    load: function(filename, onSuccess, onError) { loadScript(filename, onSuccess, onError); },
+                    isProduction: function() { return config.isProduction; },
+                    getInfo: function() { return { isProduction: config.isProduction, hostname: window.location.hostname }; }
+                };
+            })();
+        </script>
         
         <script>
-            // Carregar scripts usando o ScriptLoader inteligente
+            // Carregar scripts usando o ScriptLoader
             console.log('🟣 [GERENCIAMENTO.HTML] ========== CARREGANDO SCRIPTS ==========');
             console.log('🟣 [GERENCIAMENTO.HTML] Ambiente:', ScriptLoader.isProduction() ? 'PRODUÇÃO' : 'DESENVOLVIMENTO');
             console.log('🟣 [GERENCIAMENTO.HTML] SessionStorage:', {
