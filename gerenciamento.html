@@ -3289,127 +3289,59 @@
                 }
             })();
         </script>
-        <!-- Skeleton Manager - Controle de loading -->
-        <script src="/js/skeleton-manager.js"></script>
+        <!-- Script Loader - Carrega arquivos ofuscados em produção -->
+        <script src="/js/script-loader.js"></script>
         
         <script>
-            // Carregar app.js com timestamp para evitar cache
-            console.log(
-                '🟣 [GERENCIAMENTO.HTML] ========== CARREGANDO APP.JS =========='
-            );
-            console.log('🟣 [GERENCIAMENTO.HTML] URL atual:', window.location.href);
-            console.log('🟣 [GERENCIAMENTO.HTML] Timestamp:', Date.now());
-            console.log(
-                '🟣 [GERENCIAMENTO.HTML] SessionStorage antes de carregar app.js:',
-                {
-                    loggedIn: sessionStorage.getItem('loggedIn'),
-                    username: sessionStorage.getItem('username'),
-                }
-            );
+            // Carregar scripts usando o ScriptLoader inteligente
+            console.log('🟣 [GERENCIAMENTO.HTML] ========== CARREGANDO SCRIPTS ==========');
+            console.log('🟣 [GERENCIAMENTO.HTML] Ambiente:', ScriptLoader.isProduction() ? 'PRODUÇÃO' : 'DESENVOLVIMENTO');
+            console.log('🟣 [GERENCIAMENTO.HTML] SessionStorage:', {
+                loggedIn: sessionStorage.getItem('loggedIn'),
+                username: sessionStorage.getItem('username'),
+            });
 
-            const script = document.createElement('script');
-            script.src = '/js/app.js?v=' + Date.now();
-
-            script.onerror = function (e) {
-                console.error('❌ [GERENCIAMENTO.HTML] Erro ao carregar app.js!');
-                console.error('❌ [GERENCIAMENTO.HTML] Erro:', e);
-                console.error('❌ [GERENCIAMENTO.HTML] Tentando carregar de caminho alternativo...');
-                // Tentar carregar sem o / inicial (caminho relativo)
-                const scriptRetry = document.createElement('script');
-                scriptRetry.src = 'js/app.js?v=' + Date.now();
-                scriptRetry.onerror = function() {
-                    console.error('❌ [GERENCIAMENTO.HTML] Falha ao carregar app.js de ambos os caminhos!');
-                };
-                scriptRetry.onload = function() {
-                    console.log('✅ [GERENCIAMENTO.HTML] app.js carregado com caminho alternativo!');
-                    if (typeof LojaApp !== 'undefined' && !window.app) {
-                        try {
-                            window.app = new LojaApp();
-                            console.log('✅ [GERENCIAMENTO.HTML] LojaApp criado após retry!');
-                        } catch (error) {
-                            console.error('❌ [GERENCIAMENTO.HTML] Erro ao criar LojaApp após retry:', error);
-                        }
-                    }
-                };
-                document.head.appendChild(scriptRetry);
-            };
-
-            script.onload = function () {
-                console.log('✅ [GERENCIAMENTO.HTML] app.js carregado com sucesso!');
-                console.log('✅ [GERENCIAMENTO.HTML] LojaApp definido?', typeof LojaApp !== 'undefined');
+            // Carregar skeleton-manager primeiro, depois app.js
+            ScriptLoader.load('skeleton-manager.js', function() {
+                console.log('✅ [GERENCIAMENTO.HTML] skeleton-manager.js carregado!');
                 
-                // Garantir que a aplicação seja inicializada mesmo se DOMContentLoaded já foi disparado
-                let tentativas = 0;
-                const maxTentativas = 10;
-                function tentarInicializarApp() {
-                    tentativas++;
-                    if (tentativas > maxTentativas) {
-                        console.error('❌ [GERENCIAMENTO.HTML] Limite de tentativas excedido. LojaApp não pôde ser carregado.');
-                        return;
-                    }
+                // Agora carregar app.js
+                ScriptLoader.load('app.js', function() {
+                    console.log('✅ [GERENCIAMENTO.HTML] app.js carregado com sucesso!');
+                    console.log('✅ [GERENCIAMENTO.HTML] LojaApp definido?', typeof LojaApp !== 'undefined');
                     
-                    if (typeof LojaApp !== 'undefined') {
-                        if (!window.app) {
-                            console.log('🟡 [GERENCIAMENTO.HTML] Criando instância de LojaApp...');
+                    // Inicializar a aplicação
+                    let tentativas = 0;
+                    const maxTentativas = 10;
+                    
+                    function tentarInicializarApp() {
+                        tentativas++;
+                        if (tentativas > maxTentativas) {
+                            console.error('❌ [GERENCIAMENTO.HTML] Limite de tentativas excedido.');
+                            return;
+                        }
+                        
+                        if (typeof LojaApp !== 'undefined' && !window.app) {
                             try {
                                 window.app = new LojaApp();
                                 console.log('✅ [GERENCIAMENTO.HTML] LojaApp criado com sucesso!');
                             } catch (error) {
                                 console.error('❌ [GERENCIAMENTO.HTML] Erro ao criar LojaApp:', error);
-                                console.error('❌ [GERENCIAMENTO.HTML] Stack:', error.stack);
                             }
-                        } else {
-                            console.log('ℹ️ [GERENCIAMENTO.HTML] LojaApp já existe');
+                        } else if (!window.app) {
+                            setTimeout(tentarInicializarApp, 200);
                         }
-                    } else {
-                        console.warn(`⚠️ [GERENCIAMENTO.HTML] LojaApp ainda não está definido, tentando novamente... (${tentativas}/${maxTentativas})`);
-                        setTimeout(tentarInicializarApp, 200);
-                    }
-                }
-                
-                if (document.readyState === 'complete' || document.readyState === 'interactive') {
-                    console.log('🟡 [GERENCIAMENTO.HTML] DOM já está pronto, inicializando app...');
-                    setTimeout(tentarInicializarApp, 100);
-                } else {
-                    document.addEventListener('DOMContentLoaded', tentarInicializarApp);
-                }
-            };
-
-            document.head.appendChild(script);
-            
-            // Também garantir inicialização quando DOMContentLoaded disparar
-            document.addEventListener('DOMContentLoaded', function() {
-                console.log('🟡 [GERENCIAMENTO.HTML] DOMContentLoaded disparado');
-                
-                let tentativasDOM = 0;
-                const maxTentativasDOM = 10;
-                function tentarInicializarApp() {
-                    tentativasDOM++;
-                    if (tentativasDOM > maxTentativasDOM) {
-                        console.error('❌ [GERENCIAMENTO.HTML] Limite de tentativas excedido no DOMContentLoaded. LojaApp não pôde ser carregado.');
-                        return;
                     }
                     
-                    if (typeof LojaApp !== 'undefined') {
-                        if (!window.app) {
-                            console.log('🟡 [GERENCIAMENTO.HTML] Criando instância de LojaApp no DOMContentLoaded...');
-                            try {
-                                window.app = new LojaApp();
-                                console.log('✅ [GERENCIAMENTO.HTML] LojaApp criado com sucesso no DOMContentLoaded!');
-                            } catch (error) {
-                                console.error('❌ [GERENCIAMENTO.HTML] Erro ao criar LojaApp:', error);
-                                console.error('❌ [GERENCIAMENTO.HTML] Stack:', error.stack);
-                            }
-                        } else {
-                            console.log('ℹ️ [GERENCIAMENTO.HTML] LojaApp já existe no DOMContentLoaded');
-                        }
+                    if (document.readyState === 'complete' || document.readyState === 'interactive') {
+                        setTimeout(tentarInicializarApp, 100);
                     } else {
-                        console.warn(`⚠️ [GERENCIAMENTO.HTML] LojaApp ainda não está definido, aguardando... (${tentativasDOM}/${maxTentativasDOM})`);
-                        setTimeout(tentarInicializarApp, 200);
+                        document.addEventListener('DOMContentLoaded', tentarInicializarApp);
                     }
-                }
-                
-                setTimeout(tentarInicializarApp, 200);
+                    
+                }, function(error) {
+                    console.error('❌ [GERENCIAMENTO.HTML] Falha ao carregar app.js:', error);
+                });
             });
         </script>
         <script>

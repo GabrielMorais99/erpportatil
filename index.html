@@ -286,23 +286,17 @@
                 // O tema será carregado após o login na página de gerenciamento
             })();
         </script>
+        <!-- Script Loader - Carrega arquivos ofuscados em produção -->
+        <script src="/js/script-loader.js"></script>
         <script>
-            // Carregar login.js com timestamp para evitar cache
-            const script = document.createElement('script');
-            script.src = '/js/login.js?v=' + Date.now();
-
-            script.onerror = function (e) {
-                console.error('❌ [INDEX.HTML] Erro ao carregar login.js!');
-                console.error('❌ [INDEX.HTML] Erro:', e);
-                // Tentar novamente
-                this.src = '/js/login.js?v=' + Date.now();
-            };
-
-            script.onload = function () {
+            // Carregar login.js usando ScriptLoader
+            console.log('🔐 [INDEX.HTML] Ambiente:', ScriptLoader.isProduction() ? 'PRODUÇÃO (ofuscado)' : 'DESENVOLVIMENTO');
+            
+            ScriptLoader.load('login.js', function() {
                 console.log('✅ [INDEX.HTML] login.js carregado com sucesso!');
-            };
-
-            document.head.appendChild(script);
+            }, function(error) {
+                console.error('❌ [INDEX.HTML] Falha ao carregar login.js:', error);
+            });
         </script>
         <script>
             // Registrar Service Worker para PWA
