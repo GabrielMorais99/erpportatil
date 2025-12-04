@@ -8508,6 +8508,14 @@ class LojaApp {
 
         if (!receiptContent || !modalElement) return;
 
+        // CORRIGIDO: Salvar estado do viewGroupModal antes de abrir o recibo
+        const viewGroupModal = document.getElementById('viewGroupModal');
+        if (viewGroupModal && viewGroupModal.classList.contains('active')) {
+            // Marcar que estava ativo antes do recibo abrir
+            viewGroupModal.dataset.wasActive = 'true';
+            console.log('🔧 [SHOW RECEIPT] viewGroupModal estava ativo - salvando estado');
+        }
+
         // Garantir que o modal esteja visível e com z-index correto
         modalElement.style.display = 'flex';
         modalElement.style.zIndex = '1003';
@@ -8708,13 +8716,14 @@ class LojaApp {
             modal.style.opacity = '0';
             modal.style.pointerEvents = 'none'; // Desabilitar cliques durante animação
 
-            // Reabilitar cliques e opacidade no viewGroupModal IMEDIATAMENTE
+            // CORRIGIDO: Não restaurar viewGroupModal automaticamente
+            // Apenas restaurar se o viewGroupModal já estava ativo ANTES do recibo abrir
             const viewGroupModal = document.getElementById('viewGroupModal');
-            if (viewGroupModal) {
+            if (viewGroupModal && viewGroupModal.dataset.wasActive === 'true') {
                 console.log(
-                    '🔧 [CLOSE RECEIPT] Restaurando viewGroupModal completamente'
+                    '🔧 [CLOSE RECEIPT] Restaurando viewGroupModal (estava ativo antes do recibo)'
                 );
-                // Restaurar todos os estilos do viewGroupModal
+                // Restaurar apenas se estava ativo antes
                 viewGroupModal.style.setProperty(
                     'z-index',
                     '1000',
@@ -8723,11 +8732,9 @@ class LojaApp {
                 viewGroupModal.style.pointerEvents = 'auto';
                 viewGroupModal.style.opacity = '1';
                 viewGroupModal.style.display = 'flex';
-
-                // Garantir que o modal esteja ativo
-                if (!viewGroupModal.classList.contains('active')) {
-                    viewGroupModal.classList.add('active');
-                }
+                
+                // Remover flag
+                delete viewGroupModal.dataset.wasActive;
 
                 const viewGroupContent =
                     viewGroupModal.querySelector('.modal-content');
@@ -8736,25 +8743,15 @@ class LojaApp {
                     viewGroupContent.style.pointerEvents = 'auto';
                 }
 
-                // Garantir que todos os botões dentro do modal sejam clicáveis
                 const buttons = viewGroupModal.querySelectorAll('button');
                 buttons.forEach((btn) => {
                     btn.style.pointerEvents = 'auto';
                     btn.style.opacity = '1';
-                    btn.disabled = false; // Garantir que não esteja desabilitado
+                    btn.disabled = false;
                 });
-
-                // Re-renderizar a view do grupo para garantir que os event listeners estejam ativos
-                if (this.currentGroup) {
-                    console.log(
-                        '🔧 [CLOSE RECEIPT] Re-renderizando viewGroup para restaurar event listeners'
-                    );
-                    this.renderGroupView(this.currentGroup);
-                }
-
-                console.log(
-                    '✅ [CLOSE RECEIPT] viewGroupModal totalmente restaurado'
-                );
+            } else {
+                // Se não estava ativo antes, não fazer nada
+                console.log('🔧 [CLOSE RECEIPT] viewGroupModal não estava ativo antes - não restaurar');
             }
 
             setTimeout(() => {
