@@ -288,13 +288,13 @@
         </script>
         <!-- Script Loader Inline - Carrega arquivos ofuscados em produção -->
         <script>
-            // ScriptLoader - Detecta ambiente e carrega arquivos corretos
+            // ScriptLoader - Carrega scripts de /js/ (sempre)
+            // NOTA: /dist/js/ desabilitado temporariamente até resolver problema de servir na Vercel
             const ScriptLoader = (function() {
                 'use strict';
                 const config = {
-                    isProduction: !['localhost', '127.0.0.1', ''].includes(window.location.hostname.split(':')[0]) 
-                                  || window.location.hostname.includes('vercel.app'),
-                    paths: { development: '/js/', production: '/dist/js/' },
+                    isProduction: !['localhost', '127.0.0.1', ''].includes(window.location.hostname.split(':')[0]),
+                    paths: { development: '/js/', production: '/js/' }, // Usar /js/ sempre por enquanto
                     obfuscatedFiles: ['app.js', 'login.js', 'skeleton-manager.js'],
                     loadedScripts: new Set(),
                     debug: false
@@ -303,9 +303,7 @@
                 function log(...args) { if (config.debug) console.log('🔧 [ScriptLoader]', ...args); }
                 
                 function getPath(filename) {
-                    if (config.isProduction && config.obfuscatedFiles.includes(filename)) {
-                        return config.paths.production + filename;
-                    }
+                    // Sempre usar /js/ até resolver problema de /dist/ na Vercel
                     return config.paths.development + filename;
                 }
                 
@@ -327,17 +325,8 @@
                     };
                     
                     script.onerror = function(e) {
-                        console.error('❌ [ScriptLoader] Falha:', path);
-                        // Fallback para arquivo original
-                        if (config.isProduction && path.includes('/dist/')) {
-                            const fallback = document.createElement('script');
-                            fallback.src = config.paths.development + filename + '?v=' + Date.now();
-                            fallback.onload = function() { config.loadedScripts.add(filename); if (onSuccess) onSuccess(); };
-                            fallback.onerror = function() { if (onError) onError(e); };
-                            document.head.appendChild(fallback);
-                        } else {
-                            if (onError) onError(e);
-                        }
+                        console.error('❌ [ScriptLoader] Falha ao carregar:', path);
+                        if (onError) onError(e);
                     };
                     
                     document.head.appendChild(script);
