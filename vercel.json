@@ -1,14 +1,19 @@
 {
     "$schema": "https://openapi.vercel.sh/vercel.json",
     "version": 2,
-    "buildCommand": "echo 'Build at: '$(date)",
-    "functions": {
-        "api/load.js": { "maxDuration": 10 },
-        "api/save.js": { "maxDuration": 10 },
-        "api/admin.js": { "maxDuration": 10 },
-        "api/crypto-config.js": { "maxDuration": 5 },
-        "api/index.js": { "maxDuration": 10 }
-    },
+    "buildCommand": "npm run build",
+    "builds": [
+        { "src": "api/**/*.js", "use": "@vercel/node" },
+        { "src": "index.html", "use": "@vercel/static" },
+        { "src": "gerenciamento.html", "use": "@vercel/static" },
+        { "src": "manifest.json", "use": "@vercel/static" },
+        { "src": "sw.js", "use": "@vercel/static" },
+        { "src": "css/**", "use": "@vercel/static" },
+        { "src": "js/**", "use": "@vercel/static" },
+        { "src": "dist/**", "use": "@vercel/static" },
+        { "src": "images/**", "use": "@vercel/static" },
+        { "src": "public/**", "use": "@vercel/static" }
+    ],
     "headers": [
         {
             "source": "/(.*)",
@@ -24,12 +29,13 @@
             ]
         }
     ],
-    "routes": [
-        { "src": "/api/load", "dest": "/api/load.js" },
-        { "src": "/api/save", "dest": "/api/save.js" },
-        { "src": "/api/admin", "dest": "/api/admin.js" },
-        { "src": "/api/crypto-config", "dest": "/api/crypto-config.js" },
-        { "src": "/(.*)", "dest": "/api/index.js" }
-    ],
-    "outputDirectory": "dist"
+    "rewrites": [
+        { "source": "/api/load", "destination": "/api/load.js" },
+        { "source": "/api/save", "destination": "/api/save.js" },
+        { "source": "/api/admin", "destination": "/api/admin.js" },
+        {
+            "source": "/api/crypto-config",
+            "destination": "/api/crypto-config.js"
+        }
+    ]
 }

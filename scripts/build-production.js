@@ -42,7 +42,9 @@ const config = {
     // Pasta de saída
     outputDir: 'dist/js',
     // Nível de ofuscação: 'low', 'medium', 'high', 'none' (só minifica)
-    obfuscationLevel: 'low'
+    // Em produção estamos preservando API global (app.openItemModal etc),
+    // então deixamos sem ofuscação para não quebrar handlers inline.
+    obfuscationLevel: 'none'
 };
 
 // Configurações de ofuscação por nível

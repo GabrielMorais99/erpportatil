@@ -480,11 +480,11 @@ a i {
     .group-card .btn-edit,
     .client-card .btn-edit,
     .supplier-card .btn-edit {
-        min-width: 44px !important;
-        width: 44px !important;
-        height: 44px !important;
-        max-width: 44px !important;
-        padding: 0 !important;
+        min-width: 34px !important;
+        width: 34px !important;
+        height: 34px !important;
+        max-width: 34px !important;
+        padding: 4px !important;
         display: inline-flex !important;
         align-items: center !important;
         justify-content: center !important;
@@ -505,7 +505,7 @@ a i {
         font-family: 'Font Awesome 5 Free' !important;
         font-weight: 900 !important;
         content: '\f304' !important; /* fa-pen */
-        font-size: 1rem !important;
+        font-size: 0.85rem !important;
         text-indent: 0 !important;
         position: absolute !important;
         left: 50% !important;
@@ -519,11 +519,11 @@ a i {
     .group-card .btn-delete,
     .client-card .btn-delete,
     .supplier-card .btn-delete {
-        min-width: 44px !important;
-        width: 44px !important;
-        height: 44px !important;
-        max-width: 44px !important;
-        padding: 0 !important;
+        min-width: 34px !important;
+        width: 34px !important;
+        height: 34px !important;
+        max-width: 34px !important;
+        padding: 4px !important;
         display: inline-flex !important;
         align-items: center !important;
         justify-content: center !important;
@@ -534,7 +534,7 @@ a i {
     .group-card .btn-delete i,
     .client-card .btn-delete i,
     .supplier-card .btn-delete i {
-        font-size: 1rem !important;
+        font-size: 0.85rem !important;
         margin: 0 !important;
     }
 
@@ -789,7 +789,7 @@ a i {
     .groups-grid,
     .clients-grid,
     .suppliers-grid {
-        grid-template-columns: repeat(2, 1fr) !important;
+        --grid-template-columns: repeat(2, 1fr) !important;
         gap: var(--space-xs) !important;
     }
 
