@@ -205,7 +205,7 @@ a i {
 .modal .close {
     position: absolute;
     right: var(--space-md);
-    top: 50%;
+    --top: 50%;
     transform: translateY(-50%);
     width: 36px;
     height: 36px;
