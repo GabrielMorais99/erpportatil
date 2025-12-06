@@ -205,7 +205,7 @@ a i {
 .modal .close {
     position: absolute;
     right: var(--space-md);
-    --top: 50%;
+
     transform: translateY(-50%);
     width: 36px;
     height: 36px;
@@ -446,6 +446,31 @@ a i {
    ======================================== */
 
 @media (max-width: 768px) {
+    /* Botões de ação principal: mostrar apenas "+" no mobile para economizar espaço */
+    .btn-plus {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0;
+        min-width: 40px;
+        min-height: 40px;
+        padding: 10px 12px;
+        font-size: 0;
+    }
+
+    .btn-plus i,
+    .btn-plus .btn-text {
+        display: none !important;
+    }
+
+    .btn-plus::after {
+        content: '+';
+        font-size: 18px;
+        font-weight: 700;
+        line-height: 1;
+        display: inline-block;
+    }
+
     /* Touch targets adequados */
     .btn-primary,
     .btn-secondary,
