@@ -26,10 +26,10 @@
             rel="stylesheet"
         />
         <!-- Preload CSS para evitar FOUC -->
-        <link rel="preload" href="/css/style.css?v=20250103a" as="style" />
-        <link rel="stylesheet" href="/css/style.css?v=20250103a" />
+        <link rel="preload" href="/css/style.css?v=20251205" as="style" />
+        <link rel="stylesheet" href="/css/style.css?v=20251205" />
         <!-- Tailwind CSS (compilado) -->
-        <link rel="stylesheet" href="/css/tailwind.css?v=20250103a" />
+        <link rel="stylesheet" href="/css/tailwind.css?v=20251205" />
         <link
             rel="stylesheet"
             href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
@@ -66,11 +66,22 @@
         <div class="login-container">
             <div class="login-box">
                 <div class="logo">
-                    <h1 class="text-3xl font-bold text-center mb-6 text-black">ERP Portátil</h1>
+                    <h1 class="text-3xl font-bold text-center mb-6 text-black">
+                        ERP Portátil
+                    </h1>
                 </div>
-                <form id="loginForm" action="#" onsubmit="return false;" class="flex flex-col items-stretch">
+                <form
+                    id="loginForm"
+                    action="#"
+                    onsubmit="return false;"
+                    class="flex flex-col items-stretch"
+                >
                     <div class="form-group">
-                        <label for="username" class="block mb-2 text-sm font-medium text-gray-700">Usuário</label>
+                        <label
+                            for="username"
+                            class="block mb-2 text-sm font-medium text-gray-700"
+                            >Usuário</label
+                        >
                         <input
                             type="text"
                             id="username"
@@ -80,7 +91,11 @@
                         />
                     </div>
                     <div class="form-group">
-                        <label for="password" class="block mb-2 text-sm font-medium text-gray-700">Senha</label>
+                        <label
+                            for="password"
+                            class="block mb-2 text-sm font-medium text-gray-700"
+                            >Senha</label
+                        >
                         <input
                             type="password"
                             id="password"
@@ -89,8 +104,15 @@
                             class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-black focus:border-black transition-all"
                         />
                     </div>
-                    <div id="errorMessage" class="error-message text-red-600 text-sm mt-2 hidden"></div>
-                    <button type="button" class="btn-primary w-full mt-4 bg-black text-white hover:bg-gray-900" id="entrarBtn">
+                    <div
+                        id="errorMessage"
+                        class="error-message text-red-600 text-sm mt-2 hidden"
+                    ></div>
+                    <button
+                        type="button"
+                        class="btn-primary w-full mt-4 bg-black text-white hover:bg-gray-900"
+                        id="entrarBtn"
+                    >
                         Entrar
                     </button>
                 </form>
@@ -288,91 +310,167 @@
         </script>
         <!-- Script Loader Inline - Carrega arquivos ofuscados em produção -->
         <script>
-            // ScriptLoader - Carrega scripts de /js/ (sempre)
-            // NOTA: /dist/js/ desabilitado temporariamente até resolver problema de servir na Vercel
-            const ScriptLoader = (function() {
+            // ScriptLoader - Carrega scripts de /js/ (dev) e /dist/js/ (produção)
+            const ScriptLoader = (function () {
                 'use strict';
                 const config = {
-                    isProduction: !['localhost', '127.0.0.1', ''].includes(window.location.hostname.split(':')[0]),
-                    paths: { development: '/js/', production: '/js/' }, // Usar /js/ sempre por enquanto
-                    obfuscatedFiles: ['app.js', 'login.js', 'skeleton-manager.js'],
+                    isProduction: !['localhost', '127.0.0.1', ''].includes(
+                        window.location.hostname.split(':')[0]
+                    ),
+                    paths: { development: '/js/', production: '/dist/js/' },
+                    obfuscatedFiles: [
+                        'app.js',
+                        'login.js',
+                        'skeleton-manager.js',
+                    ],
                     loadedScripts: new Set(),
-                    debug: false
+                    debug: false,
                 };
-                
-                function log(...args) { if (config.debug) console.log('🔧 [ScriptLoader]', ...args); }
-                
-                function getPath(filename) {
-                    // Sempre usar /js/ até resolver problema de /dist/ na Vercel
-                    return config.paths.development + filename;
+
+                function log(...args) {
+                    if (config.debug) console.log('🔧 [ScriptLoader]', ...args);
                 }
-                
+
+                function getPath(filename) {
+                    return (
+                        (config.isProduction
+                            ? config.paths.production
+                            : config.paths.development) + filename
+                    );
+                }
+
                 function loadScript(filename, onSuccess, onError) {
-                    if (config.loadedScripts.has(filename)) { if (onSuccess) onSuccess(); return; }
-                    
+                    if (config.loadedScripts.has(filename)) {
+                        if (onSuccess) onSuccess();
+                        return;
+                    }
+
                     const path = getPath(filename);
                     const fullUrl = path + '?v=' + Date.now();
                     log('Carregando:', fullUrl);
-                    
+
                     const script = document.createElement('script');
                     script.src = fullUrl;
                     script.async = false;
-                    
-                    script.onload = function() {
+
+                    script.onload = function () {
                         config.loadedScripts.add(filename);
                         log('✅ Carregado:', filename);
                         if (onSuccess) onSuccess();
                     };
-                    
-                    script.onerror = function(e) {
-                        console.error('❌ [ScriptLoader] Falha ao carregar:', path);
+
+                    script.onerror = function (e) {
+                        console.error(
+                            '❌ [ScriptLoader] Falha ao carregar:',
+                            path
+                        );
                         if (onError) onError(e);
                     };
-                    
+
                     document.head.appendChild(script);
                 }
-                
+
                 return {
-                    load: function(filename, onSuccess, onError) { loadScript(filename, onSuccess, onError); },
-                    isProduction: function() { return config.isProduction; },
-                    getInfo: function() { return { isProduction: config.isProduction, hostname: window.location.hostname }; }
+                    load: function (filename, onSuccess, onError) {
+                        loadScript(filename, onSuccess, onError);
+                    },
+                    isProduction: function () {
+                        return config.isProduction;
+                    },
+                    getInfo: function () {
+                        return {
+                            isProduction: config.isProduction,
+                            hostname: window.location.hostname,
+                        };
+                    },
                 };
             })();
-            
-            console.log('🔐 [INDEX.HTML] Ambiente:', ScriptLoader.isProduction() ? 'PRODUÇÃO (ofuscado)' : 'DESENVOLVIMENTO');
-            
-            ScriptLoader.load('login.js', function() {
-                console.log('✅ [INDEX.HTML] login.js carregado com sucesso!');
-            }, function(error) {
-                console.error('❌ [INDEX.HTML] Falha ao carregar login.js:', error);
-            });
+
+            console.log(
+                '🔐 [INDEX.HTML] Ambiente:',
+                ScriptLoader.isProduction()
+                    ? 'PRODUÇÃO (ofuscado)'
+                    : 'DESENVOLVIMENTO'
+            );
+
+            ScriptLoader.load(
+                'login.js',
+                function () {
+                    console.log(
+                        '✅ [INDEX.HTML] login.js carregado com sucesso!'
+                    );
+                },
+                function (error) {
+                    console.error(
+                        '❌ [INDEX.HTML] Falha ao carregar login.js:',
+                        error
+                    );
+                }
+            );
         </script>
         <script>
-            // Registrar Service Worker para PWA
+            // Registrar Service Worker para PWA (com versão forçada)
             if ('serviceWorker' in navigator) {
-                window.addEventListener('load', () => {
-                    navigator.serviceWorker
-                        .register('/sw.js')
-                        .then((registration) => {
-                            console.log(
-                                '✅ [PWA] Service Worker registrado:',
-                                registration.scope
-                            );
+                const SW_VERSION = '20251204213000';
+                window.addEventListener('load', async () => {
+                    try {
+                        const registrations =
+                            await navigator.serviceWorker.getRegistrations();
+                        await Promise.all(
+                            registrations.map((reg) => {
+                                if (
+                                    !reg.active ||
+                                    !reg.active.scriptURL.includes(SW_VERSION)
+                                ) {
+                                    return reg.unregister();
+                                }
+                            })
+                        );
 
-                            // Verificar atualizações (sem reload automático para evitar loop)
-                            registration.addEventListener('updatefound', () => {
-                                const newWorker = registration.installing;
-                                newWorker.addEventListener('statechange', () => {
-                                    if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-                                        console.log('🔄 [PWA] Nova versão disponível - atualize manualmente (Ctrl+Shift+R)');
-                                        // Não fazer reload automático para evitar loop
+                        navigator.serviceWorker
+                            .register(`/sw.js?v=${SW_VERSION}`, { scope: '/' })
+                            .then((registration) => {
+                                console.log(
+                                    '✅ [PWA] Service Worker registrado:',
+                                    registration.scope
+                                );
+
+                                // Verificar atualizações (sem reload automático para evitar loop)
+                                registration.addEventListener(
+                                    'updatefound',
+                                    () => {
+                                        const newWorker =
+                                            registration.installing;
+                                        newWorker.addEventListener(
+                                            'statechange',
+                                            () => {
+                                                if (
+                                                    newWorker.state ===
+                                                        'installed' &&
+                                                    navigator.serviceWorker
+                                                        .controller
+                                                ) {
+                                                    console.log(
+                                                        '🔄 [PWA] Nova versão disponível - atualize manualmente (Ctrl+Shift+R)'
+                                                    );
+                                                }
+                                            }
+                                        );
                                     }
-                                });
+                                );
+                            })
+                            .catch((error) => {
+                                console.error(
+                                    '❌ [PWA] Erro ao registrar Service Worker:',
+                                    error
+                                );
                             });
-                        })
-                        .catch((error) => {
-                            console.error('❌ [PWA] Erro ao registrar Service Worker:', error);
-                        });
+                    } catch (err) {
+                        console.error(
+                            '❌ [PWA] Erro ao limpar/registrar Service Worker:',
+                            err
+                        );
+                    }
                 });
             }
         </script>

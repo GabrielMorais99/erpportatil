@@ -18,17 +18,17 @@
         />
         <meta name="apple-mobile-web-app-title" content="Loja Vendas" />
         <title>Gestão Financeira</title>
-        <!-- Google Fonts - Dancing Script (cursiva) -->
+        <!-- Google Fonts - Inter (fonte principal padronizada) -->
         <link rel="preconnect" href="https://fonts.googleapis.com">
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-        <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@400;500;600;700&display=swap" rel="stylesheet">
+        <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
         <!-- Preload CSS para evitar FOUC -->
-        <link rel="preload" href="/css/style.css?v=20250103a" as="style" />
-        <link rel="stylesheet" href="/css/style.css?v=20250103a" />
+        <link rel="preload" href="/css/style.css?v=20251205" as="style" />
+        <link rel="stylesheet" href="/css/style.css?v=20251205" />
         <!-- Tailwind CSS (compilado) -->
-        <link rel="stylesheet" href="/css/tailwind.css?v=20250103a" />
+        <link rel="stylesheet" href="/css/tailwind.css?v=20251205" />
         <!-- Correções Mobile + Componentes Modernos -->
-        <link rel="stylesheet" href="/css/style-mobile-fix.css?v=20250103a" />
+        <link rel="stylesheet" href="/css/style-mobile-fix.css?v=20251205" />
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
         <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js" onload="window.chartJsLoaded = true;" onerror="console.error('Erro ao carregar Chart.js');"></script>
         <!-- Bibliotecas para exportação avançada -->
@@ -3291,13 +3291,12 @@
         </script>
         <!-- Script Loader Inline - Carrega arquivos ofuscados em produção -->
         <script>
-            // ScriptLoader - Carrega scripts de /js/ (sempre)
-            // NOTA: /dist/js/ desabilitado temporariamente até resolver problema de servir na Vercel
+            // ScriptLoader - Carrega scripts de /js/ (dev) e /dist/js/ (produção)
             const ScriptLoader = (function() {
                 'use strict';
                 const config = {
                     isProduction: !['localhost', '127.0.0.1', ''].includes(window.location.hostname.split(':')[0]),
-                    paths: { development: '/js/', production: '/js/' }, // Usar /js/ sempre por enquanto
+                    paths: { development: '/js/', production: '/dist/js/' },
                     obfuscatedFiles: ['app.js', 'login.js', 'skeleton-manager.js'],
                     loadedScripts: new Set(),
                     debug: false
@@ -3306,8 +3305,7 @@
                 function log(...args) { if (config.debug) console.log('🔧 [ScriptLoader]', ...args); }
                 
                 function getPath(filename) {
-                    // Sempre usar /js/ até resolver problema de /dist/ na Vercel
-                    return config.paths.development + filename;
+                    return (config.isProduction ? config.paths.production : config.paths.development) + filename;
                 }
                 
                 function loadScript(filename, onSuccess, onError) {
@@ -3426,34 +3424,50 @@
                 }, 500);
             };
             
-            // Registrar Service Worker para PWA
+            // Registrar Service Worker para PWA (com versão forçada)
             if ('serviceWorker' in navigator) {
-                window.addEventListener('load', () => {
-                    const isLocalhost = window.location.hostname === 'localhost' || 
-                                       window.location.hostname === '127.0.0.1';
-                    
-                    navigator.serviceWorker.register('/sw.js')
-                        .then((registration) => {
-                            console.log('✅ [PWA] Service Worker registrado:', registration.scope);
-                            
-                            if (isLocalhost) {
-                                console.log('💡 [DEV] Modo localhost - para limpar cache: clearAllCache()');
-                            }
-                            
-                            // Verificar atualizações (sem reload automático para evitar loop)
-                            registration.addEventListener('updatefound', () => {
-                                const newWorker = registration.installing;
-                                newWorker.addEventListener('statechange', () => {
-                                    if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-                                        console.log('🔄 [PWA] Nova versão disponível - atualize manualmente (Ctrl+Shift+R)');
-                                        // Não fazer reload automático para evitar loop
-                                    }
+                const SW_VERSION = '20251204213000';
+                window.addEventListener('load', async () => {
+                    try {
+                        const registrations = await navigator.serviceWorker.getRegistrations();
+                        await Promise.all(
+                            registrations.map((reg) => {
+                                if (
+                                    !reg.active ||
+                                    !reg.active.scriptURL.includes(SW_VERSION)
+                                ) {
+                                    return reg.unregister();
+                                }
+                            })
+                        );
+
+                        const isLocalhost = window.location.hostname === 'localhost' || 
+                                           window.location.hostname === '127.0.0.1';
+                        
+                        navigator.serviceWorker.register(`/sw.js?v=${SW_VERSION}`, { scope: '/' })
+                            .then((registration) => {
+                                console.log('✅ [PWA] Service Worker registrado:', registration.scope);
+                                
+                                if (isLocalhost) {
+                                    console.log('💡 [DEV] Modo localhost - para limpar cache: clearAllCache()');
+                                }
+                                
+                                // Verificar atualizações (sem reload automático para evitar loop)
+                                registration.addEventListener('updatefound', () => {
+                                    const newWorker = registration.installing;
+                                    newWorker.addEventListener('statechange', () => {
+                                        if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                                            console.log('🔄 [PWA] Nova versão disponível - atualize manualmente (Ctrl+Shift+R)');
+                                        }
+                                    });
                                 });
+                            })
+                            .catch((error) => {
+                                console.error('❌ [PWA] Erro ao registrar Service Worker:', error);
                             });
-                        })
-                        .catch((error) => {
-                            console.error('❌ [PWA] Erro ao registrar Service Worker:', error);
-                        });
+                    } catch (err) {
+                        console.error('❌ [PWA] Erro ao limpar/registrar Service Worker:', err);
+                    }
                 });
             }
         </script>
@@ -4086,6 +4100,181 @@
                 </div>
             </div>
         </div>
+
+        <!-- Modal: Venda Rápida via QR Code -->
+        <div id="quickSaleModal" class="modal">
+            <div class="modal-content" style="max-width: 500px;">
+                <div class="modal-header" style="background: linear-gradient(135deg, #28a745, #20c997);">
+                    <h2><i class="fas fa-qrcode"></i> Venda Rápida</h2>
+                    <span class="close" aria-label="Fechar modal" role="button" tabindex="0" onclick="app.closeQuickSaleModal()">&times;</span>
+                </div>
+                <form id="quickSaleForm" style="padding: 1.5rem;">
+                    <!-- Informações do Produto -->
+                    <div id="quickSaleProductInfo" style="background: var(--gray-50); padding: 1rem; border-radius: var(--radius-md); margin-bottom: 1.5rem; border: 1px solid var(--gray-200);">
+                        <div style="display: flex; align-items: center; gap: 1rem;">
+                            <div style="width: 60px; height: 60px; background: var(--primary-color); border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+                                <i class="fas fa-box" style="color: white; font-size: 1.5rem;"></i>
+                            </div>
+                            <div style="flex: 1;">
+                                <h3 id="quickSaleProductName" style="margin: 0 0 0.25rem 0; font-size: 1.1rem; color: var(--dark-gray);">Produto</h3>
+                                <p id="quickSaleProductCategory" style="margin: 0; font-size: 0.875rem; color: var(--gray-600);">Categoria</p>
+                                <p id="quickSaleProductPrice" style="margin: 0.25rem 0 0 0; font-size: 1.25rem; font-weight: 700; color: var(--primary-color);">R$ 0,00</p>
+                            </div>
+                        </div>
+                        <div id="quickSaleStockInfo" style="margin-top: 1rem; padding-top: 1rem; border-top: 1px solid var(--gray-200); font-size: 0.875rem; color: var(--gray-600);">
+                            <i class="fas fa-warehouse"></i> Estoque: <span id="quickSaleStockQty">-</span>
+                        </div>
+                    </div>
+
+                    <input type="hidden" id="quickSaleItemId" />
+
+                    <!-- Cliente (opcional para venda rápida) -->
+                    <div class="form-group">
+                        <label for="quickSaleCustomerName">Nome do Cliente *</label>
+                        <div style="display: flex; gap: 0.5rem;">
+                            <select id="quickSaleCustomerSelect" style="flex: 1;" onchange="app.onQuickSaleClientChange()">
+                                <option value="">Selecione ou digite...</option>
+                            </select>
+                        </div>
+                        <input type="text" id="quickSaleCustomerName" placeholder="Ou digite o nome do cliente" required style="margin-top: 0.5rem;" />
+                    </div>
+
+                    <!-- Tamanho/Cor (para roupas/eletrônicos) -->
+                    <div id="quickSaleVariationFields" style="display: none;">
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                            <div class="form-group">
+                                <label for="quickSaleSize">Tamanho</label>
+                                <select id="quickSaleSize">
+                                    <option value="">Selecione...</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="quickSaleColor">Cor</label>
+                                <select id="quickSaleColor">
+                                    <option value="">Selecione...</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="quickSaleQuantity">Quantidade *</label>
+                        <input type="number" id="quickSaleQuantity" value="1" min="1" required onchange="app.updateQuickSaleTotal()" oninput="app.updateQuickSaleTotal()" />
+                    </div>
+
+                    <div class="form-group">
+                        <label for="quickSalePrice">Preço Unitário (R$) *</label>
+                        <input type="number" id="quickSalePrice" step="0.01" min="0.01" required onchange="app.updateQuickSaleTotal()" oninput="app.updateQuickSaleTotal()" />
+                    </div>
+
+                    <!-- Sistema de Descontos -->
+                    <div class="form-group" style="background: var(--gray-50); padding: 1rem; border-radius: var(--radius-md); border: 1px solid var(--gray-200);">
+                        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.75rem;">
+                            <label style="margin: 0; font-weight: 600; color: var(--primary-color);">
+                                <i class="fas fa-tag"></i> Desconto
+                            </label>
+                            <button type="button" class="btn-secondary" id="toggleQuickDiscountBtn" onclick="app.toggleQuickSaleDiscount()" style="padding: 0.375rem 0.75rem; font-size: 0.875rem;">
+                                <i class="fas fa-plus"></i> Aplicar Desconto
+                            </button>
+                        </div>
+                        <div id="quickDiscountFields" style="display: none;">
+                            <div style="display: flex; gap: 0.5rem; margin-bottom: 0.75rem;">
+                                <select id="quickSaleDiscountType" style="flex: 1;" onchange="app.updateQuickSaleTotal()">
+                                    <option value="">Tipo de desconto</option>
+                                    <option value="percent">Percentual (%)</option>
+                                    <option value="fixed">Valor fixo (R$)</option>
+                                </select>
+                                <input type="number" id="quickSaleDiscountValue" step="0.01" min="0" placeholder="0.00" style="flex: 1;" onchange="app.updateQuickSaleTotal()" oninput="app.updateQuickSaleTotal()" />
+                            </div>
+                            <div class="form-group" style="margin-bottom: 0;">
+                                <label for="quickSaleCouponCode" style="font-size: 0.875rem;">Cupom de Desconto</label>
+                                <div style="display: flex; gap: 0.5rem;">
+                                    <input type="text" id="quickSaleCouponCode" placeholder="Código do cupom" style="flex: 1;" />
+                                    <button type="button" class="btn-secondary" onclick="app.applyQuickSaleCoupon()" style="white-space: nowrap;">
+                                        <i class="fas fa-check"></i> Aplicar
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Resumo da Venda -->
+                    <div id="quickSaleSummary" style="background: linear-gradient(135deg, #28a745, #20c997); padding: 1rem; border-radius: var(--radius-md); margin: 1rem 0; color: white;">
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+                            <span>Subtotal:</span>
+                            <span id="quickSaleSubtotal" style="font-weight: 600;">R$ 0,00</span>
+                        </div>
+                        <div id="quickSaleDiscountRow" style="display: none; justify-content: space-between; margin-bottom: 0.5rem;">
+                            <span>Desconto:</span>
+                            <span id="quickSaleDiscountAmount" style="font-weight: 600;">- R$ 0,00</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; padding-top: 0.5rem; border-top: 1px solid rgba(255,255,255,0.3); font-size: 1.25rem; font-weight: 700;">
+                            <span>TOTAL:</span>
+                            <span id="quickSaleTotal">R$ 0,00</span>
+                        </div>
+                    </div>
+
+                    <div class="modal-actions" style="margin-top: 1.5rem;">
+                        <button type="button" class="btn-secondary" onclick="app.closeQuickSaleModal()">
+                            <i class="fas fa-times"></i> Cancelar
+                        </button>
+                        <button type="submit" class="btn-primary" style="background: linear-gradient(135deg, #28a745, #20c997); border: none;">
+                            <i class="fas fa-check"></i> Confirmar Venda
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Modal: Scanner QR para Venda Rápida -->
+        <div id="quickSaleScannerModal" class="modal">
+            <div class="modal-content" style="max-width: 450px;">
+                <div class="modal-header" style="background: linear-gradient(135deg, #28a745, #20c997);">
+                    <h2><i class="fas fa-qrcode"></i> Escanear QR Code</h2>
+                    <span class="close" aria-label="Fechar modal" role="button" tabindex="0" onclick="app.closeQuickSaleScanner()">&times;</span>
+                </div>
+                <div style="padding: 1.5rem;">
+                    <p style="text-align: center; color: var(--gray-600); margin-bottom: 1rem;">
+                        Posicione o QR Code do produto na câmera para realizar uma venda rápida
+                    </p>
+                    <div id="quickSaleQrReader" style="width: 100%; max-width: 400px; margin: 0 auto; border-radius: var(--radius-md); overflow: hidden;"></div>
+                    <button type="button" class="btn-secondary" onclick="app.closeQuickSaleScanner()" style="margin-top: 1.5rem; width: 100%;">
+                        <i class="fas fa-stop"></i> Fechar Scanner
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Botão Flutuante para Venda Rápida via QR Code -->
+        <button 
+            id="quickSaleFAB" 
+            onclick="app.openQuickSaleScanner()" 
+            title="Venda Rápida via QR Code"
+            aria-label="Abrir scanner QR para venda rápida"
+            style="
+                position: fixed;
+                bottom: 24px;
+                right: 24px;
+                width: 60px;
+                height: 60px;
+                border-radius: 50%;
+                background: linear-gradient(135deg, #28a745, #20c997);
+                color: white;
+                border: none;
+                box-shadow: 0 4px 12px rgba(40, 167, 69, 0.4);
+                cursor: pointer;
+                z-index: 1000;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 1.5rem;
+                transition: transform 0.2s, box-shadow 0.2s;
+            "
+            onmouseover="this.style.transform='scale(1.1)'; this.style.boxShadow='0 6px 16px rgba(40, 167, 69, 0.5)';"
+            onmouseout="this.style.transform='scale(1)'; this.style.boxShadow='0 4px 12px rgba(40, 167, 69, 0.4)';"
+        >
+            <i class="fas fa-qrcode"></i>
+        </button>
     </body>
 </html>
 

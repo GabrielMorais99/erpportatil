@@ -1516,299 +1516,228 @@ class LojaApp {
     init() {
         // Prevenir inicialização dupla
         if (this._initializing || this._initialized) {
-            console.log('ℹ️ [APP.JS] init() já foi chamado, ignorando chamada duplicada');
+            console.log(
+                'ℹ️ [APP.JS] init() já foi chamado, ignorando chamada duplicada'
+            );
             return;
         }
         this._initializing = true;
 
         try {
-        // Verificar se está em modo de teste
-        const isTestMode = window.TEST_MODE === true;
+            // Verificar se está em modo de teste
+            const isTestMode = window.TEST_MODE === true;
 
-        console.log(
-            '🟣 [APP.JS] ========== INICIALIZANDO APLICAÇÃO =========='
-        );
-        console.log('🟣 [APP.JS] URL atual:', window.location.href);
-        console.log('🟣 [APP.JS] Document readyState:', document.readyState);
-        console.log('🟣 [APP.JS] Modo de teste:', isTestMode);
-        console.log('🟣 [APP.JS] SessionStorage:', {
-            loggedIn: sessionStorage.getItem('loggedIn'),
-            username: sessionStorage.getItem('username'),
-            allKeys: Object.keys(sessionStorage),
-        });
+            console.log(
+                '🟣 [APP.JS] ========== INICIALIZANDO APLICAÇÃO =========='
+            );
+            console.log('🟣 [APP.JS] URL atual:', window.location.href);
+            console.log(
+                '🟣 [APP.JS] Document readyState:',
+                document.readyState
+            );
+            console.log('🟣 [APP.JS] Modo de teste:', isTestMode);
+            console.log('🟣 [APP.JS] SessionStorage:', {
+                loggedIn: sessionStorage.getItem('loggedIn'),
+                username: sessionStorage.getItem('username'),
+                allKeys: Object.keys(sessionStorage),
+            });
 
-        // Verificar autenticação
-        const isLoggedIn = sessionStorage.getItem('loggedIn') === 'true';
-        console.log('🟣 [APP.JS] Verificando autenticação...');
-        console.log('🟣 [APP.JS] Status de login:', isLoggedIn);
+            // Verificar autenticação
+            const isLoggedIn = sessionStorage.getItem('loggedIn') === 'true';
+            console.log('🟣 [APP.JS] Verificando autenticação...');
+            console.log('🟣 [APP.JS] Status de login:', isLoggedIn);
 
-        if (!isLoggedIn) {
-            // Em modo de teste, não redirecionar, apenas avisar
-            if (isTestMode) {
-                console.log(
-                    'ℹ️ [APP.JS] Modo de teste: pulando redirecionamento de autenticação'
-                );
-            } else {
-                console.warn('⚠️ [APP.JS] Usuário NÃO autenticado!');
-                console.log('🟡 [APP.JS] Redirecionando para /index.html...');
-                try {
-                    window.location.href = '/index.html';
-                    console.log('✅ [APP.JS] Redirecionamento executado');
-                } catch (error) {
-                    console.error('❌ [APP.JS] Erro ao redirecionar:', error);
-                    window.location.href = 'index.html';
-                }
-                this._initializing = false;
-                return;
-            }
-        }
-
-        console.log(
-            '✅ [APP.JS] Usuário autenticado! Continuando inicialização...'
-        );
-
-        // Função para adicionar log (apenas no console)
-        const addDebugLog = (msg) => {
-            if (window.console && console.log) {
-                console.log('🟣 [APP.JS] ' + msg);
-            }
-        };
-
-        addDebugLog('Usuário autenticado, continuando...');
-
-        // Verificar se é admin ANTES de qualquer coisa
-        const username = sessionStorage.getItem('username');
-        if (username === 'admin') {
-            // Esconder botão "Como usar" e modal de tutorial imediatamente
-            const helpBtn = document.getElementById('helpBtn');
-            if (helpBtn) {
-                helpBtn.style.display = 'none';
-            }
-            // Esconder modal de tutorial se estiver visível
-            const tutorialModal = document.getElementById('tutorialModal');
-            if (tutorialModal) {
-                tutorialModal.classList.remove('active');
-                tutorialModal.style.display = 'none';
-            }
-        }
-
-        // Aguardar um pouco para garantir que o DOM está totalmente pronto
-        setTimeout(() => {
-            addDebugLog('Iniciando setup...');
-
-            // Verificar se é admin e mostrar apenas aba de administração
-            if (username === 'admin') {
-                // Esconder todas as outras abas
-                const allTabBtns = document.querySelectorAll('.tab-btn');
-                allTabBtns.forEach((btn) => {
-                    const tab = btn.getAttribute('data-tab');
-                    if (tab !== 'adminPanel') {
-                        btn.style.display = 'none';
-                    }
-                });
-
-                // Mostrar apenas a aba de administração
-                const adminTabBtn = document.getElementById('adminTabBtn');
-                if (adminTabBtn) {
-                    // Verificar permissão de visualizar admin
-                    if (this.checkPermission('viewAdmin')) {
-                        adminTabBtn.style.display = 'flex';
-                    } else {
-                        adminTabBtn.style.display = 'none';
-                    }
-                }
-
-                // Esconder todas as outras seções de conteúdo
-                const allTabContents =
-                    document.querySelectorAll('.tab-content');
-                allTabContents.forEach((content) => {
-                    if (content.id !== 'adminPanelTab') {
-                        content.style.display = 'none';
-                    }
-                });
-
-                // Esconder toolbar principal (não necessário para admin)
-                const mainToolbar = document.getElementById('mainToolbar');
-                if (mainToolbar) {
-                    mainToolbar.style.display = 'none';
-                }
-
-                // Garantir que o botão "Como usar" está escondido
-                const helpBtnAgain = document.getElementById('helpBtn');
-                if (helpBtnAgain) {
-                    helpBtnAgain.style.display = 'none';
-                }
-
-                // Não carregar dados desnecessários para admin
-                // Apenas carregar dados do admin
-                setTimeout(() => {
-                    this.switchTab('adminPanel');
-                }, 100);
-            }
-
-            // Carregar tema salvo
-            this.loadTheme();
-
-            // Verificar consentimento de cookies (LGPD)
-            this.checkCookieConsent();
-
-            // Iniciar monitoramento de inatividade (logout automático)
-            this.startInactivityMonitoring();
-
-            // Inicializar PWA
-            this.initPWA();
-
-            // Inicializar lazy loading
-            this.initLazyLoading();
-
-            // Inicializar navegação por teclado
-            this.initKeyboardNavigation();
-
-            // Inicializar cache inteligente
-            this.initCacheCleanup();
-
-            // Configurar throttle de scroll
-            this.setupScrollThrottle();
-
-            // Inicializar monitoramento de performance
-            this.initPerformanceMonitoring();
-
-            // Inicializar IndexedDB
-            this.initIndexedDB();
-
-            // Inicializar navegação por voz
-            this.initVoiceNavigation();
-
-            // Inicializar pull-to-refresh
-            this.initPullToRefresh();
-
-            // Inicializar verificador de agendamentos de relatórios
-            if (this.scheduledReports && this.scheduledReports.length > 0) {
-                this.initScheduleChecker();
-            }
-
-            // Inicializar verificador de agendamentos de exportações
-            if (this.scheduledExports && this.scheduledExports.length > 0) {
-                this.initExportScheduleChecker();
-            }
-
-            // Event listeners (deve ser chamado primeiro)
-            this.setupEventListeners();
-
-            // Garantir que o painel de vendas seja ativado por padrão (apenas para usuários normais)
-            // Em modo de teste, pular renderizações de UI
-            if (!isTestMode && username !== 'admin') {
-                // Remover active de todas as tabs primeiro
-                document.querySelectorAll('.tab-content').forEach((content) => {
-                    content.classList.remove('active');
-                    content.style.display = 'none';
-                });
-                document.querySelectorAll('.tab-btn').forEach((btn) => {
-                    btn.classList.remove('active');
-                });
-
-                // Ativar painel de vendas por padrão
-                setTimeout(() => {
-                    this.switchTab('salesPanel');
-                }, 50);
-            }
-
-            // Carregar histórico de buscas
-            this.loadSearchHistory();
-
-            // Carregar dados apenas para usuários normais (não admin)
-            if (username !== 'admin') {
-                // Timeout de segurança: se loadData demorar mais de 10 segundos, continuar mesmo assim
-                const loadDataTimeout = setTimeout(() => {
-                    console.warn('⚠️ [INIT] Timeout no loadData() após 10 segundos, continuando com renderização...');
+            if (!isLoggedIn) {
+                // Em modo de teste, não redirecionar, apenas avisar
+                if (isTestMode) {
+                    console.log(
+                        'ℹ️ [APP.JS] Modo de teste: pulando redirecionamento de autenticação'
+                    );
+                } else {
+                    console.warn('⚠️ [APP.JS] Usuário NÃO autenticado!');
+                    console.log(
+                        '🟡 [APP.JS] Redirecionando para /index.html...'
+                    );
                     try {
-                        this.renderGroups();
-                        this.renderItems();
-                        this.renderClients();
-                        this.renderSuppliers();
-                        this.renderTemplates();
-                        this.renderCoupons();
-                        this.renderPendingOrders();
-                        this.renderServiceAppointments();
-                        this.renderServiceGroups();
-                        this.renderCosts();
-                        this.renderGoals();
-                        this.updateOverallSummary();
-                    } catch (renderError) {
-                        console.error('❌ [INIT] Erro ao renderizar após timeout:', renderError);
-                    }
-                }, 10000);
-
-                // Carregar dados (assíncrono)
-                this.loadData()
-                    .then(() => {
-                        clearTimeout(loadDataTimeout); // Cancelar timeout se carregou com sucesso
-                        console.log('✅ [INIT] Dados carregados com sucesso, renderizando...');
-                        // Renderizar após carregar dados
-                        this.renderGroups();
-                        this.updateTagFilter(); // Atualizar lista de tags antes de renderizar
-                        this.renderItems();
-                        this.renderClients();
-                        this.renderSuppliers();
-                        this.renderTemplates();
-                        this.renderCoupons();
-                        this.renderPendingOrders();
-
-                    // Verificar alertas após carregar dados
-                    setTimeout(() => {
-                        this.checkPendingOrdersAlerts();
-                        this.checkGoalsAlerts();
-                        this.checkAppointmentsReminders();
-                    }, 1000);
-
-                    // Carregar e iniciar backup automático se configurado
-                    this.loadBackupHistory();
-                    const username = sessionStorage.getItem('username');
-                    if (username) {
-                        const configStr = localStorage.getItem(
-                            `autoBackupConfig_${username}`
+                        window.location.href = '/index.html';
+                        console.log('✅ [APP.JS] Redirecionamento executado');
+                    } catch (error) {
+                        console.error(
+                            '❌ [APP.JS] Erro ao redirecionar:',
+                            error
                         );
-                        if (configStr) {
-                            try {
-                                const config = JSON.parse(configStr);
-                                if (config.enabled) {
-                                    this.startAutoBackup(
-                                        config.frequency || 'daily'
-                                    );
-                                }
-                            } catch (e) {
-                                console.error(
-                                    'Erro ao carregar configuração de backup:',
-                                    e
-                                );
-                            }
+                        window.location.href = 'index.html';
+                    }
+                    this._initializing = false;
+                    return;
+                }
+            }
+
+            console.log(
+                '✅ [APP.JS] Usuário autenticado! Continuando inicialização...'
+            );
+
+            // Função para adicionar log (apenas no console)
+            const addDebugLog = (msg) => {
+                if (window.console && console.log) {
+                    console.log('🟣 [APP.JS] ' + msg);
+                }
+            };
+
+            addDebugLog('Usuário autenticado, continuando...');
+
+            // Verificar se é admin ANTES de qualquer coisa
+            const username = sessionStorage.getItem('username');
+            if (username === 'admin') {
+                // Esconder botão "Como usar" e modal de tutorial imediatamente
+                const helpBtn = document.getElementById('helpBtn');
+                if (helpBtn) {
+                    helpBtn.style.display = 'none';
+                }
+                // Esconder modal de tutorial se estiver visível
+                const tutorialModal = document.getElementById('tutorialModal');
+                if (tutorialModal) {
+                    tutorialModal.classList.remove('active');
+                    tutorialModal.style.display = 'none';
+                }
+            }
+
+            // Aguardar um pouco para garantir que o DOM está totalmente pronto
+            setTimeout(() => {
+                addDebugLog('Iniciando setup...');
+
+                // Verificar se é admin e mostrar apenas aba de administração
+                if (username === 'admin') {
+                    // Esconder todas as outras abas
+                    const allTabBtns = document.querySelectorAll('.tab-btn');
+                    allTabBtns.forEach((btn) => {
+                        const tab = btn.getAttribute('data-tab');
+                        if (tab !== 'adminPanel') {
+                            btn.style.display = 'none';
+                        }
+                    });
+
+                    // Mostrar apenas a aba de administração
+                    const adminTabBtn = document.getElementById('adminTabBtn');
+                    if (adminTabBtn) {
+                        // Verificar permissão de visualizar admin
+                        if (this.checkPermission('viewAdmin')) {
+                            adminTabBtn.style.display = 'flex';
+                        } else {
+                            adminTabBtn.style.display = 'none';
                         }
                     }
-                    // Renderizar carrossel APÓS carregar dados com um pequeno delay para garantir que o DOM está pronto
-                    // Em modo de teste, pular renderizações de UI
-                    if (!isTestMode) {
-                        setTimeout(() => {
-                            this.renderLastReceiptsCarousel();
-                        }, 200);
+
+                    // Esconder todas as outras seções de conteúdo
+                    const allTabContents =
+                        document.querySelectorAll('.tab-content');
+                    allTabContents.forEach((content) => {
+                        if (content.id !== 'adminPanelTab') {
+                            content.style.display = 'none';
+                        }
+                    });
+
+                    // Esconder toolbar principal (não necessário para admin)
+                    const mainToolbar = document.getElementById('mainToolbar');
+                    if (mainToolbar) {
+                        mainToolbar.style.display = 'none';
                     }
-                    this.renderServiceAppointments();
-                    this.renderServiceGroups();
-                    this.renderCosts();
-                    this.renderGoals();
-                    this.updateMonthFilter();
-                    this.updateYearFilter();
-                    this.updateGoalsYearFilter();
-                    this.updateServicesYearFilter();
-                    this.updateOverallSummary();
-                    })
-                    .catch((error) => {
-                        clearTimeout(loadDataTimeout); // Cancelar timeout
-                        console.error('❌ [INIT] Erro ao carregar dados:', error);
-                        console.error('❌ [INIT] Stack:', error.stack);
-                        console.error('❌ [INIT] Mensagem:', error.message);
-                        // Continuar mesmo com erro - renderizar com dados vazios
-                        console.warn('⚠️ [INIT] Continuando com dados vazios devido ao erro');
+
+                    // Garantir que o botão "Como usar" está escondido
+                    const helpBtnAgain = document.getElementById('helpBtn');
+                    if (helpBtnAgain) {
+                        helpBtnAgain.style.display = 'none';
+                    }
+
+                    // Não carregar dados desnecessários para admin
+                    // Apenas carregar dados do admin
+                    setTimeout(() => {
+                        this.switchTab('adminPanel');
+                    }, 100);
+                }
+
+                // Carregar tema salvo
+                this.loadTheme();
+
+                // Verificar consentimento de cookies (LGPD)
+                this.checkCookieConsent();
+
+                // Iniciar monitoramento de inatividade (logout automático)
+                this.startInactivityMonitoring();
+
+                // Inicializar PWA
+                this.initPWA();
+
+                // Inicializar lazy loading
+                this.initLazyLoading();
+
+                // Inicializar navegação por teclado
+                this.initKeyboardNavigation();
+
+                // Inicializar cache inteligente
+                this.initCacheCleanup();
+
+                // Configurar throttle de scroll
+                this.setupScrollThrottle();
+
+                // Inicializar monitoramento de performance
+                this.initPerformanceMonitoring();
+
+                // Inicializar IndexedDB
+                this.initIndexedDB();
+
+                // Inicializar navegação por voz
+                this.initVoiceNavigation();
+
+                // Inicializar pull-to-refresh
+                this.initPullToRefresh();
+
+                // Inicializar verificador de agendamentos de relatórios
+                if (this.scheduledReports && this.scheduledReports.length > 0) {
+                    this.initScheduleChecker();
+                }
+
+                // Inicializar verificador de agendamentos de exportações
+                if (this.scheduledExports && this.scheduledExports.length > 0) {
+                    this.initExportScheduleChecker();
+                }
+
+                // Event listeners (deve ser chamado primeiro)
+                this.setupEventListeners();
+
+                // Garantir que o painel de vendas seja ativado por padrão (apenas para usuários normais)
+                // Em modo de teste, pular renderizações de UI
+                if (!isTestMode && username !== 'admin') {
+                    // Remover active de todas as tabs primeiro
+                    document
+                        .querySelectorAll('.tab-content')
+                        .forEach((content) => {
+                            content.classList.remove('active');
+                            content.style.display = 'none';
+                        });
+                    document.querySelectorAll('.tab-btn').forEach((btn) => {
+                        btn.classList.remove('active');
+                    });
+
+                    // Ativar painel de vendas por padrão
+                    setTimeout(() => {
+                        this.switchTab('salesPanel');
+                    }, 50);
+                }
+
+                // Carregar histórico de buscas
+                this.loadSearchHistory();
+
+                // Carregar dados apenas para usuários normais (não admin)
+                if (username !== 'admin') {
+                    // Timeout de segurança: se loadData demorar mais de 3 segundos, continuar mesmo assim
+                    const loadDataTimeout = setTimeout(() => {
+                        console.warn(
+                            '⚠️ [INIT] Timeout no loadData() após 3 segundos, continuando com renderização...'
+                        );
                         try {
+                            // Forçar remoção de todos os skeletons
+                            this.removeAllSkeletons();
                             this.renderGroups();
                             this.renderItems();
                             this.renderClients();
@@ -1822,40 +1751,155 @@ class LojaApp {
                             this.renderGoals();
                             this.updateOverallSummary();
                         } catch (renderError) {
-                            console.error('❌ [INIT] Erro ao renderizar após falha no loadData:', renderError);
-                            console.error('❌ [INIT] Stack do renderError:', renderError.stack);
+                            console.error(
+                                '❌ [INIT] Erro ao renderizar após timeout:',
+                                renderError
+                            );
                         }
-                    });
-            }
-            
-            // Marcar como inicializado ao final
-            this._initialized = true;
-            this._initializing = false;
-        }, 100);
-        
-        // Marcar como inicializado mesmo se houver erro antes do setTimeout
-        setTimeout(() => {
-            if (this._initializing && !this._initialized) {
-                console.warn('⚠️ [INIT] Timeout na inicialização, marcando como inicializado');
+                    }, 3000);
+
+                    // Carregar dados (assíncrono)
+                    this.loadData()
+                        .then(() => {
+                            clearTimeout(loadDataTimeout); // Cancelar timeout se carregou com sucesso
+                            console.log(
+                                '✅ [INIT] Dados carregados com sucesso, renderizando...'
+                            );
+                            // Forçar remoção de todos os skeletons antes de renderizar
+                            this.removeAllSkeletons();
+                            // Renderizar após carregar dados
+                            this.renderGroups();
+                            this.updateTagFilter(); // Atualizar lista de tags antes de renderizar
+                            this.renderItems();
+                            this.renderClients();
+                            this.renderSuppliers();
+                            this.renderTemplates();
+                            this.renderCoupons();
+                            this.renderPendingOrders();
+
+                            // Verificar alertas após carregar dados
+                            setTimeout(() => {
+                                this.checkPendingOrdersAlerts();
+                                this.checkGoalsAlerts();
+                                this.checkAppointmentsReminders();
+                            }, 1000);
+
+                            // Carregar e iniciar backup automático se configurado
+                            this.loadBackupHistory();
+                            const username = sessionStorage.getItem('username');
+                            if (username) {
+                                const configStr = localStorage.getItem(
+                                    `autoBackupConfig_${username}`
+                                );
+                                if (configStr) {
+                                    try {
+                                        const config = JSON.parse(configStr);
+                                        if (config.enabled) {
+                                            this.startAutoBackup(
+                                                config.frequency || 'daily'
+                                            );
+                                        }
+                                    } catch (e) {
+                                        console.error(
+                                            'Erro ao carregar configuração de backup:',
+                                            e
+                                        );
+                                    }
+                                }
+                            }
+                            // Renderizar carrossel APÓS carregar dados com um pequeno delay para garantir que o DOM está pronto
+                            // Em modo de teste, pular renderizações de UI
+                            if (!isTestMode) {
+                                setTimeout(() => {
+                                    this.renderLastReceiptsCarousel();
+                                }, 200);
+                            }
+                            this.renderServiceAppointments();
+                            this.renderServiceGroups();
+                            this.renderCosts();
+                            this.renderGoals();
+                            this.updateMonthFilter();
+                            this.updateYearFilter();
+                            this.updateGoalsYearFilter();
+                            this.updateServicesYearFilter();
+                            this.updateOverallSummary();
+                        })
+                        .catch((error) => {
+                            clearTimeout(loadDataTimeout); // Cancelar timeout
+                            console.error(
+                                '❌ [INIT] Erro ao carregar dados:',
+                                error
+                            );
+                            console.error('❌ [INIT] Stack:', error.stack);
+                            console.error('❌ [INIT] Mensagem:', error.message);
+                            // Continuar mesmo com erro - renderizar com dados vazios
+                            console.warn(
+                                '⚠️ [INIT] Continuando com dados vazios devido ao erro'
+                            );
+                            try {
+                                // Forçar remoção de todos os skeletons
+                                this.removeAllSkeletons();
+                                this.renderGroups();
+                                this.renderItems();
+                                this.renderClients();
+                                this.renderSuppliers();
+                                this.renderTemplates();
+                                this.renderCoupons();
+                                this.renderPendingOrders();
+                                this.renderServiceAppointments();
+                                this.renderServiceGroups();
+                                this.renderCosts();
+                                this.renderGoals();
+                                this.updateOverallSummary();
+                            } catch (renderError) {
+                                console.error(
+                                    '❌ [INIT] Erro ao renderizar após falha no loadData:',
+                                    renderError
+                                );
+                                console.error(
+                                    '❌ [INIT] Stack do renderError:',
+                                    renderError.stack
+                                );
+                            }
+                        });
+                }
+
+                // Marcar como inicializado ao final
                 this._initialized = true;
                 this._initializing = false;
-            }
-        }, 5000); // Timeout de 5 segundos
-        
+            }, 100);
+
+            // Marcar como inicializado mesmo se houver erro antes do setTimeout
+            setTimeout(() => {
+                if (this._initializing && !this._initialized) {
+                    console.warn(
+                        '⚠️ [INIT] Timeout na inicialização, marcando como inicializado'
+                    );
+                    this._initialized = true;
+                    this._initializing = false;
+                }
+            }, 5000); // Timeout de 5 segundos
         } catch (initError) {
-            console.error('❌ [INIT] ERRO CRÍTICO na inicialização:', initError);
+            console.error(
+                '❌ [INIT] ERRO CRÍTICO na inicialização:',
+                initError
+            );
             console.error('❌ [INIT] Stack:', initError.stack);
             console.error('❌ [INIT] Mensagem:', initError.message);
             // Tentar continuar mesmo com erro crítico
             this._initialized = true;
             this._initializing = false;
-            
+
             // Tentar renderizar pelo menos algo básico
             try {
-                if (typeof this.renderGroups === 'function') this.renderGroups();
+                if (typeof this.renderGroups === 'function')
+                    this.renderGroups();
                 if (typeof this.renderItems === 'function') this.renderItems();
             } catch (renderError) {
-                console.error('❌ [INIT] Erro ao renderizar após erro crítico:', renderError);
+                console.error(
+                    '❌ [INIT] Erro ao renderizar após erro crítico:',
+                    renderError
+                );
             }
         }
     }
@@ -3982,7 +4026,7 @@ class LojaApp {
         return html;
     }
 
-    // Mostrar skeleton em um container
+    // Mostrar skeleton em um container (com timeout automático de 3s)
     showSkeleton(containerId, count = 6, isSmall = false) {
         const container = document.getElementById(containerId);
         if (!container) return;
@@ -3996,6 +4040,11 @@ class LojaApp {
 
         container.innerHTML = '';
         container.appendChild(skeletonContainer);
+
+        // Timeout automático: remove skeleton após 3 segundos se ainda existir
+        setTimeout(() => {
+            this.hideSkeleton(containerId);
+        }, 3000);
     }
 
     // Ocultar skeleton
@@ -4004,6 +4053,17 @@ class LojaApp {
         if (skeleton) {
             skeleton.remove();
         }
+    }
+
+    // Remover TODOS os skeletons da página
+    removeAllSkeletons() {
+        const skeletons = document.querySelectorAll(
+            '[id$="-skeleton"], .skeleton-container, .skeleton-list, .skeleton-card, .skeleton-card-small'
+        );
+        skeletons.forEach((skeleton) => {
+            skeleton.remove();
+        });
+        console.log('✅ Todos os skeletons foram removidos');
     }
 
     // Funções auxiliares para feedback visual
@@ -4841,6 +4901,735 @@ class LojaApp {
                 performDelete(true);
             }
         }
+    }
+
+    // ========================================
+    // VENDA RÁPIDA VIA QR CODE
+    // Sistema de venda direta com desconto e abatimento de estoque
+    // ========================================
+
+    /**
+     * Inicia o scanner de QR Code para venda rápida
+     * Abre um modal dedicado com a câmera para escanear
+     */
+    openQuickSaleScanner() {
+        const modal = document.getElementById('quickSaleScannerModal');
+        if (!modal) {
+            console.error('Modal de scanner não encontrado');
+            return;
+        }
+
+        modal.classList.add('active');
+
+        // Verificar se a biblioteca Html5Qrcode está disponível
+        if (!window.Html5Qrcode) {
+            toast.error(
+                'Biblioteca de scanner não carregada. Verifique sua conexão.',
+                3000
+            );
+            return;
+        }
+
+        const readerDiv = document.getElementById('quickSaleQrReader');
+        if (!readerDiv) return;
+
+        // Limpar conteúdo anterior
+        readerDiv.innerHTML = '';
+
+        // Criar instância do scanner
+        const html5QrCode = new Html5Qrcode('quickSaleQrReader');
+        this.quickSaleQRScanner = html5QrCode;
+
+        // Iniciar scanner
+        html5QrCode
+            .start(
+                { facingMode: 'environment' },
+                { fps: 10, qrbox: { width: 250, height: 250 } },
+                (decodedText) => {
+                    // QR Code detectado
+                    this.handleQuickSaleQRScanned(decodedText);
+                    html5QrCode
+                        .stop()
+                        .then(() => {
+                            modal.classList.remove('active');
+                            this.quickSaleQRScanner = null;
+                        })
+                        .catch(console.error);
+                },
+                (errorMessage) => {
+                    // Silencioso durante escaneamento
+                }
+            )
+            .catch((err) => {
+                console.error('Erro ao iniciar scanner:', err);
+                toast.error(
+                    'Erro ao acessar a câmera. Verifique as permissões.',
+                    3000
+                );
+            });
+    }
+
+    /**
+     * Fecha o scanner de QR Code para venda rápida
+     */
+    closeQuickSaleScanner() {
+        const modal = document.getElementById('quickSaleScannerModal');
+        if (modal) modal.classList.remove('active');
+
+        if (this.quickSaleQRScanner) {
+            this.quickSaleQRScanner
+                .stop()
+                .then(() => {
+                    this.quickSaleQRScanner = null;
+                })
+                .catch(console.error);
+        }
+    }
+
+    /**
+     * Processa o QR Code escaneado e abre o modal de venda rápida
+     * @param {string} qrData - Dados do QR Code escaneado
+     */
+    handleQuickSaleQRScanned(qrData) {
+        const cleanData = qrData.trim();
+        console.log(`📱 [VENDA RÁPIDA] QR Code escaneado: "${cleanData}"`);
+
+        // Buscar item pelo código QR numérico
+        let item = this.items.find((i) => i.qrCodeNumber === cleanData);
+
+        // Fallback para formatos antigos
+        if (!item) {
+            let itemId = cleanData.startsWith('ITEM:')
+                ? cleanData.replace('ITEM:', '')
+                : cleanData;
+            item = this.items.find((i) => i.id === itemId);
+        }
+
+        if (item) {
+            this.openQuickSaleModal(item.id);
+        } else {
+            toast.error(
+                `Produto não encontrado para o QR Code: ${cleanData}`,
+                4000
+            );
+            console.error(
+                'Produtos disponíveis:',
+                this.items.map((i) => ({
+                    id: i.id,
+                    name: this.getItemName(i.id),
+                    qrCode: i.qrCodeNumber,
+                }))
+            );
+        }
+    }
+
+    /**
+     * Abre o modal de venda rápida para um produto específico
+     * @param {string} itemId - ID do produto
+     */
+    openQuickSaleModal(itemId) {
+        const item = this.items.find((i) => i.id === itemId);
+        if (!item) {
+            toast.error('Produto não encontrado.', 3000);
+            return;
+        }
+
+        const modal = document.getElementById('quickSaleModal');
+        if (!modal) return;
+
+        // Preencher informações do produto
+        const nameEl = document.getElementById('quickSaleProductName');
+        const categoryEl = document.getElementById('quickSaleProductCategory');
+        const priceEl = document.getElementById('quickSaleProductPrice');
+        const stockInfoEl = document.getElementById('quickSaleStockInfo');
+        const stockQtyEl = document.getElementById('quickSaleStockQty');
+        const itemIdInput = document.getElementById('quickSaleItemId');
+        const priceInput = document.getElementById('quickSalePrice');
+        const quantityInput = document.getElementById('quickSaleQuantity');
+
+        if (nameEl) nameEl.textContent = this.getItemName(itemId);
+        if (categoryEl)
+            categoryEl.textContent = item.category || 'Sem categoria';
+        if (priceEl)
+            priceEl.textContent = `R$ ${(item.price || 0)
+                .toFixed(2)
+                .replace('.', ',')}`;
+        if (itemIdInput) itemIdInput.value = itemId;
+        if (priceInput) priceInput.value = item.price || 0;
+        if (quantityInput) quantityInput.value = 1;
+
+        // Mostrar estoque disponível
+        const isService = item.category === 'Serviços';
+        if (stockInfoEl) {
+            if (isService) {
+                stockInfoEl.style.display = 'none';
+            } else {
+                stockInfoEl.style.display = 'block';
+                const stockQty = this.getAvailableStock(itemId);
+                if (stockQtyEl)
+                    stockQtyEl.textContent =
+                        stockQty !== null ? `${stockQty} un.` : 'Não definido';
+            }
+        }
+
+        // Mostrar campos de variação para roupas/eletrônicos
+        const variationFields = document.getElementById(
+            'quickSaleVariationFields'
+        );
+        if (variationFields) {
+            if (item.category === 'Roupas' || item.category === 'Eletrônicos') {
+                variationFields.style.display = 'block';
+                this.populateQuickSaleVariations(item);
+            } else {
+                variationFields.style.display = 'none';
+            }
+        }
+
+        // Popular select de clientes
+        this.populateQuickSaleClients();
+
+        // Resetar campos de desconto
+        const discountFields = document.getElementById('quickDiscountFields');
+        const discountBtn = document.getElementById('toggleQuickDiscountBtn');
+        if (discountFields) discountFields.style.display = 'none';
+        if (discountBtn) {
+            discountBtn.innerHTML =
+                '<i class="fas fa-plus"></i> Aplicar Desconto';
+        }
+        const discountType = document.getElementById('quickSaleDiscountType');
+        const discountValue = document.getElementById('quickSaleDiscountValue');
+        const couponCode = document.getElementById('quickSaleCouponCode');
+        if (discountType) discountType.value = '';
+        if (discountValue) discountValue.value = '';
+        if (couponCode) couponCode.value = '';
+
+        // Atualizar totais
+        this.updateQuickSaleTotal();
+
+        // Adicionar listener do formulário
+        const form = document.getElementById('quickSaleForm');
+        if (form) {
+            form.onsubmit = (e) => this.processQuickSale(e);
+        }
+
+        modal.classList.add('active');
+    }
+
+    /**
+     * Fecha o modal de venda rápida
+     */
+    closeQuickSaleModal() {
+        const modal = document.getElementById('quickSaleModal');
+        if (modal) modal.classList.remove('active');
+
+        // Limpar cupom aplicado
+        if (window.quickSaleCouponCode) {
+            delete window.quickSaleCouponCode;
+        }
+    }
+
+    /**
+     * Popula as variações (tamanho/cor) no modal de venda rápida
+     */
+    populateQuickSaleVariations(item) {
+        const sizeSelect = document.getElementById('quickSaleSize');
+        const colorSelect = document.getElementById('quickSaleColor');
+
+        if (sizeSelect) {
+            sizeSelect.innerHTML = '<option value="">Selecione...</option>';
+            if (item.variations && item.variations.length > 0) {
+                const sizes = [
+                    ...new Set(
+                        item.variations.map((v) => v.size).filter(Boolean)
+                    ),
+                ];
+                sizes.forEach((size) => {
+                    const option = document.createElement('option');
+                    option.value = size;
+                    option.textContent = size;
+                    sizeSelect.appendChild(option);
+                });
+            }
+        }
+
+        if (colorSelect) {
+            colorSelect.innerHTML = '<option value="">Selecione...</option>';
+            if (item.variations && item.variations.length > 0) {
+                const colors = [
+                    ...new Set(
+                        item.variations.map((v) => v.color).filter(Boolean)
+                    ),
+                ];
+                colors.forEach((color) => {
+                    const option = document.createElement('option');
+                    option.value = color;
+                    option.textContent = color;
+                    colorSelect.appendChild(option);
+                });
+            }
+        }
+    }
+
+    /**
+     * Popula o select de clientes no modal de venda rápida
+     */
+    populateQuickSaleClients() {
+        const select = document.getElementById('quickSaleCustomerSelect');
+        if (!select) return;
+
+        select.innerHTML = '<option value="">Selecione ou digite...</option>';
+
+        if (this.clients && this.clients.length > 0) {
+            this.clients.forEach((client) => {
+                const option = document.createElement('option');
+                option.value = client.name;
+                option.textContent =
+                    client.name +
+                    (client.cpf ? ` (${this.formatCPF(client.cpf)})` : '');
+                select.appendChild(option);
+            });
+        }
+    }
+
+    /**
+     * Callback quando cliente é selecionado no modal de venda rápida
+     */
+    onQuickSaleClientChange() {
+        const select = document.getElementById('quickSaleCustomerSelect');
+        const nameInput = document.getElementById('quickSaleCustomerName');
+
+        if (select && nameInput && select.value) {
+            nameInput.value = select.value;
+        }
+    }
+
+    /**
+     * Alterna a exibição dos campos de desconto
+     */
+    toggleQuickSaleDiscount() {
+        const fields = document.getElementById('quickDiscountFields');
+        const btn = document.getElementById('toggleQuickDiscountBtn');
+
+        if (fields && btn) {
+            const isVisible = fields.style.display !== 'none';
+            fields.style.display = isVisible ? 'none' : 'block';
+            btn.innerHTML = isVisible
+                ? '<i class="fas fa-plus"></i> Aplicar Desconto'
+                : '<i class="fas fa-minus"></i> Remover Desconto';
+
+            if (isVisible) {
+                // Limpar campos ao esconder
+                const discountType = document.getElementById(
+                    'quickSaleDiscountType'
+                );
+                const discountValue = document.getElementById(
+                    'quickSaleDiscountValue'
+                );
+                if (discountType) discountType.value = '';
+                if (discountValue) discountValue.value = '';
+                this.updateQuickSaleTotal();
+            }
+        }
+    }
+
+    /**
+     * Aplica cupom de desconto na venda rápida
+     */
+    applyQuickSaleCoupon() {
+        const couponInput = document.getElementById('quickSaleCouponCode');
+        if (!couponInput || !couponInput.value.trim()) {
+            toast.warning('Digite o código do cupom.', 2000);
+            return;
+        }
+
+        const code = couponInput.value.trim().toUpperCase();
+        const coupon = this.coupons.find(
+            (c) => c.code.toUpperCase() === code && c.active !== false
+        );
+
+        if (!coupon) {
+            toast.error('Cupom inválido ou expirado.', 3000);
+            return;
+        }
+
+        // Verificar limite de uso
+        if (coupon.maxUses && coupon.uses >= coupon.maxUses) {
+            toast.error('Este cupom atingiu o limite de uso.', 3000);
+            return;
+        }
+
+        // Verificar validade
+        if (coupon.expiresAt) {
+            const now = new Date();
+            const expiry = new Date(coupon.expiresAt);
+            if (now > expiry) {
+                toast.error('Este cupom expirou.', 3000);
+                return;
+            }
+        }
+
+        // Aplicar cupom
+        window.quickSaleCouponCode = code;
+
+        const discountType = document.getElementById('quickSaleDiscountType');
+        const discountValue = document.getElementById('quickSaleDiscountValue');
+
+        if (discountType && discountValue) {
+            discountType.value =
+                coupon.type === 'percentage' ? 'percent' : 'fixed';
+            discountValue.value = coupon.value;
+        }
+
+        this.updateQuickSaleTotal();
+        toast.success(`Cupom "${code}" aplicado com sucesso!`, 3000);
+    }
+
+    /**
+     * Atualiza os totais da venda rápida
+     */
+    updateQuickSaleTotal() {
+        const priceInput = document.getElementById('quickSalePrice');
+        const quantityInput = document.getElementById('quickSaleQuantity');
+        const discountType = document.getElementById('quickSaleDiscountType');
+        const discountValueInput = document.getElementById(
+            'quickSaleDiscountValue'
+        );
+
+        const price = parseFloat(priceInput?.value) || 0;
+        const quantity = parseInt(quantityInput?.value) || 1;
+        const subtotal = price * quantity;
+
+        let discount = 0;
+        const type = discountType?.value;
+        const discountValue = parseFloat(discountValueInput?.value) || 0;
+
+        if (type === 'percent' && discountValue > 0) {
+            discount = subtotal * (discountValue / 100);
+        } else if (type === 'fixed' && discountValue > 0) {
+            discount = discountValue;
+        }
+
+        // Garantir que desconto não exceda o subtotal
+        discount = Math.min(discount, subtotal);
+
+        const total = subtotal - discount;
+
+        // Atualizar elementos visuais
+        const subtotalEl = document.getElementById('quickSaleSubtotal');
+        const discountAmountEl = document.getElementById(
+            'quickSaleDiscountAmount'
+        );
+        const discountRow = document.getElementById('quickSaleDiscountRow');
+        const totalEl = document.getElementById('quickSaleTotal');
+
+        if (subtotalEl)
+            subtotalEl.textContent = `R$ ${subtotal
+                .toFixed(2)
+                .replace('.', ',')}`;
+        if (discountAmountEl)
+            discountAmountEl.textContent = `- R$ ${discount
+                .toFixed(2)
+                .replace('.', ',')}`;
+        if (discountRow)
+            discountRow.style.display = discount > 0 ? 'flex' : 'none';
+        if (totalEl)
+            totalEl.textContent = `R$ ${total.toFixed(2).replace('.', ',')}`;
+    }
+
+    /**
+     * Obtém o estoque disponível para um item
+     */
+    getAvailableStock(itemId, size = '', color = '') {
+        // Buscar no grupo/dia atual
+        if (!this.currentGroup || !this.currentSaleDay) {
+            // Se não há grupo/dia selecionado, buscar estoque global
+            const item = this.items.find((i) => i.id === itemId);
+            if (item && item.stock !== undefined) {
+                return item.stock;
+            }
+            return null;
+        }
+
+        const group = this.groups.find((g) => g.id === this.currentGroup.id);
+        if (!group) return null;
+
+        const dayData = group.days.find((d) => d.day === this.currentSaleDay);
+        if (!dayData || !dayData.stock) return null;
+
+        const stockKey = this.getStockKey(itemId, size, color);
+        const stockQuantity = dayData.stock[stockKey] || 0;
+
+        // Calcular já vendido
+        const soldQuantity = dayData.sales
+            .filter((sale) => {
+                const saleStockKey = this.getStockKey(
+                    sale.itemId,
+                    sale.size || '',
+                    sale.color || ''
+                );
+                return saleStockKey === stockKey;
+            })
+            .reduce((sum, sale) => sum + sale.quantity, 0);
+
+        return stockQuantity - soldQuantity;
+    }
+
+    /**
+     * Processa a venda rápida
+     */
+    processQuickSale(e) {
+        e.preventDefault();
+
+        const itemId = document.getElementById('quickSaleItemId')?.value;
+        const customerName = this.formatText(
+            document.getElementById('quickSaleCustomerName')?.value || ''
+        );
+        const quantity =
+            parseInt(document.getElementById('quickSaleQuantity')?.value) || 1;
+        const price =
+            parseFloat(document.getElementById('quickSalePrice')?.value) || 0;
+        const size = document.getElementById('quickSaleSize')?.value || '';
+        const color = document.getElementById('quickSaleColor')?.value || '';
+        const discountType = document.getElementById(
+            'quickSaleDiscountType'
+        )?.value;
+        const discountValue =
+            parseFloat(
+                document.getElementById('quickSaleDiscountValue')?.value
+            ) || 0;
+
+        // Validações
+        if (!itemId) {
+            toast.error('Produto não selecionado.', 3000);
+            return;
+        }
+
+        if (!customerName) {
+            toast.warning('Por favor, informe o nome do cliente.', 3000);
+            return;
+        }
+
+        if (quantity <= 0 || price <= 0) {
+            toast.warning(
+                'Quantidade e preço devem ser maiores que zero.',
+                3000
+            );
+            return;
+        }
+
+        const item = this.items.find((i) => i.id === itemId);
+        if (!item) {
+            toast.error('Produto não encontrado.', 3000);
+            return;
+        }
+
+        // Verificar tamanho para roupas/eletrônicos
+        if (
+            (item.category === 'Roupas' || item.category === 'Eletrônicos') &&
+            !size
+        ) {
+            toast.warning('Por favor, selecione o tamanho.', 3000);
+            return;
+        }
+
+        // Verificar se há grupo e dia selecionados
+        if (!this.currentGroup || !this.currentSaleDay) {
+            toast.warning(
+                'Selecione um mês e dia antes de registrar a venda.',
+                4000
+            );
+            return;
+        }
+
+        const group = this.groups.find((g) => g.id === this.currentGroup.id);
+        if (!group) {
+            toast.error('Grupo não encontrado.', 3000);
+            return;
+        }
+
+        let dayData = group.days.find((d) => d.day === this.currentSaleDay);
+        if (!dayData) {
+            // Criar dia se não existir
+            dayData = { day: this.currentSaleDay, sales: [], stock: {} };
+            group.days.push(dayData);
+        }
+
+        // Verificar estoque (apenas para produtos físicos)
+        const isService = item.category === 'Serviços';
+        if (!isService && dayData.stock) {
+            const stockKey = this.getStockKey(itemId, size, color);
+            const stockQty = dayData.stock[stockKey] || 0;
+            const soldQty = dayData.sales
+                .filter(
+                    (s) =>
+                        this.getStockKey(
+                            s.itemId,
+                            s.size || '',
+                            s.color || ''
+                        ) === stockKey
+                )
+                .reduce((sum, s) => sum + s.quantity, 0);
+            const available = stockQty - soldQty;
+
+            if (stockQty > 0 && quantity > available) {
+                if (
+                    !confirm(
+                        `Estoque disponível: ${available} un. Deseja registrar ${quantity} un. mesmo assim?`
+                    )
+                ) {
+                    return;
+                }
+            }
+        }
+
+        // Calcular desconto
+        const subtotal = price * quantity;
+        let discountAmount = 0;
+
+        if (discountType === 'percent' && discountValue > 0) {
+            discountAmount = subtotal * (discountValue / 100);
+        } else if (discountType === 'fixed' && discountValue > 0) {
+            discountAmount = discountValue;
+        }
+        discountAmount = Math.min(discountAmount, subtotal);
+
+        const totalValue = subtotal - discountAmount;
+
+        // Criar objeto de venda
+        const sale = {
+            itemId: itemId,
+            quantity: quantity,
+            price: price,
+            basePrice: price,
+            discount:
+                discountAmount > 0
+                    ? {
+                          type: discountType,
+                          value: discountValue,
+                          amount: discountAmount,
+                          couponCode: window.quickSaleCouponCode || null,
+                      }
+                    : null,
+        };
+
+        // Adicionar tamanho/cor se aplicável
+        if (item.category === 'Roupas' || item.category === 'Eletrônicos') {
+            if (size) sale.size = size;
+            if (color) sale.color = color;
+        }
+
+        // Adicionar venda ao dia
+        dayData.sales.push(sale);
+
+        // Criar venda completa para histórico
+        const orderCode = this.generateOrderCode();
+        const now = new Date();
+
+        const completedSale = {
+            id: Date.now().toString() + Math.random().toString(36).substr(2, 9),
+            orderCode: orderCode,
+            customerName: customerName,
+            customerCPF: null,
+            items: [
+                {
+                    itemId: itemId,
+                    name: this.getItemName(itemId),
+                    quantity: quantity,
+                    price: price,
+                    size: size || undefined,
+                    color: color || undefined,
+                },
+            ],
+            totalValue: totalValue,
+            discount: sale.discount,
+            notes: 'Venda rápida via QR Code',
+            date: now.toISOString(),
+            timestamp: now.getTime(),
+            groupId: group.id,
+            groupMonth: group.month,
+            day: this.currentSaleDay,
+        };
+
+        this.completedSales.push(completedSale);
+
+        // Incrementar uso do cupom se aplicado
+        if (window.quickSaleCouponCode) {
+            const coupon = this.coupons.find(
+                (c) => c.code === window.quickSaleCouponCode
+            );
+            if (coupon) {
+                coupon.uses = (coupon.uses || 0) + 1;
+            }
+            delete window.quickSaleCouponCode;
+        }
+
+        // Abater estoque automaticamente
+        if (!isService && dayData.stock) {
+            const stockKey = this.getStockKey(itemId, size, color);
+            if (
+                dayData.stock[stockKey] &&
+                dayData.stock[stockKey] >= quantity
+            ) {
+                // O estoque é abatido automaticamente pela lógica de vendas
+                // (estoque disponível = estoque inicial - vendas)
+                console.log(
+                    `✅ Estoque será abatido: ${quantity} un. do item ${this.getItemName(
+                        itemId
+                    )}`
+                );
+            }
+        }
+
+        // Adicionar/atualizar cliente se não existir
+        const existingClient = this.clients.find(
+            (c) => c.name.toLowerCase() === customerName.toLowerCase()
+        );
+        if (!existingClient) {
+            const newClient = {
+                id: Date.now().toString(),
+                name: customerName,
+                cpf: null,
+                phone: null,
+                email: null,
+                loyaltyPoints: Math.floor(totalValue / 10),
+                receiveNotifications: false,
+            };
+            this.clients.push(newClient);
+            console.log(
+                `✅ Cliente "${customerName}" cadastrado automaticamente`
+            );
+        } else {
+            // Adicionar pontos de fidelidade
+            this.addLoyaltyPoints(customerName, totalValue);
+        }
+
+        // Salvar dados
+        this.saveData();
+
+        // Atualizar interface
+        this.renderGroups();
+        this.updateOverallSummary();
+
+        // Fechar modal
+        this.closeQuickSaleModal();
+
+        // Mostrar sucesso
+        toast.success(
+            `Venda registrada com sucesso!\nProduto: ${this.getItemName(
+                itemId
+            )}\nTotal: R$ ${totalValue.toFixed(2).replace('.', ',')}`,
+            4000
+        );
+
+        // Registrar no log
+        this.logAction(
+            'create',
+            'sale',
+            completedSale.id,
+            `Venda rápida via QR - ${this.getItemName(itemId)}`
+        );
+
+        console.log(`✅ Venda rápida concluída:`, completedSale);
     }
 
     // ========================================
@@ -8597,7 +9386,10 @@ class LojaApp {
                 try {
                     this.createReceiptPreviewModal();
                 } catch (createError) {
-                    console.error('❌ [SHOW RECEIPT] Erro ao criar modal:', createError);
+                    console.error(
+                        '❌ [SHOW RECEIPT] Erro ao criar modal:',
+                        createError
+                    );
                     return;
                 }
             }
@@ -8606,37 +9398,48 @@ class LojaApp {
             const receiptContent = document.getElementById('receiptContent');
 
             if (!receiptContent || !modalElement) {
-                console.error('❌ [SHOW RECEIPT] Elementos do modal não encontrados');
+                console.error(
+                    '❌ [SHOW RECEIPT] Elementos do modal não encontrados'
+                );
                 return;
             }
 
             // CORRIGIDO: Salvar estado do viewGroupModal antes de abrir o recibo
             try {
-                const viewGroupModal = document.getElementById('viewGroupModal');
-                if (viewGroupModal && viewGroupModal.classList.contains('active')) {
+                const viewGroupModal =
+                    document.getElementById('viewGroupModal');
+                if (
+                    viewGroupModal &&
+                    viewGroupModal.classList.contains('active')
+                ) {
                     // Marcar que estava ativo antes do recibo abrir
                     viewGroupModal.dataset.wasActive = 'true';
-                    console.log('🔧 [SHOW RECEIPT] viewGroupModal estava ativo - salvando estado');
+                    console.log(
+                        '🔧 [SHOW RECEIPT] viewGroupModal estava ativo - salvando estado'
+                    );
                 }
             } catch (saveStateError) {
-                console.error('❌ [SHOW RECEIPT] Erro ao salvar estado do viewGroupModal:', saveStateError);
+                console.error(
+                    '❌ [SHOW RECEIPT] Erro ao salvar estado do viewGroupModal:',
+                    saveStateError
+                );
                 // Continuar mesmo com erro ao salvar estado
             }
 
-        // Garantir que o modal esteja visível e com z-index correto
-        modalElement.style.display = 'flex';
-        modalElement.style.zIndex = '1003';
+            // Garantir que o modal esteja visível e com z-index correto
+            modalElement.style.display = 'flex';
+            modalElement.style.zIndex = '1003';
 
-        const date = new Date(sale.date);
-        const formattedDate = date.toLocaleDateString('pt-BR', {
-            day: '2-digit',
-            month: '2-digit',
-            year: 'numeric',
-            hour: '2-digit',
-            minute: '2-digit',
-        });
+            const date = new Date(sale.date);
+            const formattedDate = date.toLocaleDateString('pt-BR', {
+                day: '2-digit',
+                month: '2-digit',
+                year: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit',
+            });
 
-        receiptContent.innerHTML = `
+            receiptContent.innerHTML = `
             <div class="receipt-header">
                 <h2>Recibo de Venda</h2>
                 <p class="receipt-order-code">Código: ${this.escapeHtml(
@@ -8694,80 +9497,94 @@ class LojaApp {
             </div>
         `;
 
-        // Garantir que o modal seja exibido corretamente e acima de todos os outros
-        // Mover o modal para o final do body para garantir que apareça acima (ordem no DOM)
-        if (modalElement.parentNode !== document.body) {
-            document.body.appendChild(modalElement);
-        }
-
-        // Desabilitar cliques e reduzir z-index do viewGroupModal quando o recibo estiver aberto
-        const viewGroupModal = document.getElementById('viewGroupModal');
-        if (viewGroupModal && viewGroupModal.classList.contains('active')) {
-            console.log('🔧 [RECEIPT] Reduzindo z-index do viewGroupModal');
-            // Reduzir z-index para garantir que fique atrás do recibo
-            viewGroupModal.style.setProperty('z-index', '999', 'important');
-            viewGroupModal.style.pointerEvents = 'none';
-            // Reduzir opacidade visual para deixar claro que está atrás
-            viewGroupModal.style.opacity = '0.3';
-            // Também reduzir z-index do conteúdo do modal
-            const viewGroupContent =
-                viewGroupModal.querySelector('.modal-content');
-            if (viewGroupContent) {
-                viewGroupContent.style.setProperty(
-                    'z-index',
-                    '999',
-                    'important'
-                );
-            }
-        }
-
-        // Primeiro, garantir que o modal esteja visível e com z-index correto
-        console.log('🔧 [RECEIPT] Configurando z-index do receiptPreviewModal');
-        modalElement.style.setProperty('z-index', '10000', 'important');
-        modalElement.style.display = 'flex';
-        modalElement.style.pointerEvents = 'auto';
-        modalElement.style.opacity = '1';
-        modalElement.style.position = 'fixed';
-
-        requestAnimationFrame(() => {
-            modalElement.classList.add('active');
-
-            const modalContent = modalElement.querySelector('.modal-content');
-            if (modalContent) {
-                modalContent.style.setProperty('z-index', '10001', 'important');
-                modalContent.style.pointerEvents = 'auto';
-                modalContent.style.position = 'relative';
+            // Garantir que o modal seja exibido corretamente e acima de todos os outros
+            // Mover o modal para o final do body para garantir que apareça acima (ordem no DOM)
+            if (modalElement.parentNode !== document.body) {
+                document.body.appendChild(modalElement);
             }
 
-            // Forçar z-index novamente após animação para garantir
-            setTimeout(() => {
-                console.log(
-                    '🔧 [RECEIPT] Forçando z-index novamente após animação'
-                );
-                modalElement.style.setProperty('z-index', '10000', 'important');
-                modalElement.style.position = 'fixed';
+            // Desabilitar cliques e reduzir z-index do viewGroupModal quando o recibo estiver aberto
+            const viewGroupModal = document.getElementById('viewGroupModal');
+            if (viewGroupModal && viewGroupModal.classList.contains('active')) {
+                console.log('🔧 [RECEIPT] Reduzindo z-index do viewGroupModal');
+                // Reduzir z-index para garantir que fique atrás do recibo
+                viewGroupModal.style.setProperty('z-index', '999', 'important');
+                viewGroupModal.style.pointerEvents = 'none';
+                // Reduzir opacidade visual para deixar claro que está atrás
+                viewGroupModal.style.opacity = '0.3';
+                // Também reduzir z-index do conteúdo do modal
+                const viewGroupContent =
+                    viewGroupModal.querySelector('.modal-content');
+                if (viewGroupContent) {
+                    viewGroupContent.style.setProperty(
+                        'z-index',
+                        '999',
+                        'important'
+                    );
+                }
+            }
+
+            // Primeiro, garantir que o modal esteja visível e com z-index correto
+            console.log(
+                '🔧 [RECEIPT] Configurando z-index do receiptPreviewModal'
+            );
+            modalElement.style.setProperty('z-index', '10000', 'important');
+            modalElement.style.display = 'flex';
+            modalElement.style.pointerEvents = 'auto';
+            modalElement.style.opacity = '1';
+            modalElement.style.position = 'fixed';
+
+            requestAnimationFrame(() => {
+                modalElement.classList.add('active');
+
+                const modalContent =
+                    modalElement.querySelector('.modal-content');
                 if (modalContent) {
                     modalContent.style.setProperty(
                         'z-index',
                         '10001',
                         'important'
                     );
+                    modalContent.style.pointerEvents = 'auto';
+                    modalContent.style.position = 'relative';
                 }
-                // Verificar se viewGroupModal ainda está ativo e reduzir novamente
-                if (
-                    viewGroupModal &&
-                    viewGroupModal.classList.contains('active')
-                ) {
-                    viewGroupModal.style.setProperty(
+
+                // Forçar z-index novamente após animação para garantir
+                setTimeout(() => {
+                    console.log(
+                        '🔧 [RECEIPT] Forçando z-index novamente após animação'
+                    );
+                    modalElement.style.setProperty(
                         'z-index',
-                        '999',
+                        '10000',
                         'important'
                     );
-                }
-            }, 100);
-        });
+                    modalElement.style.position = 'fixed';
+                    if (modalContent) {
+                        modalContent.style.setProperty(
+                            'z-index',
+                            '10001',
+                            'important'
+                        );
+                    }
+                    // Verificar se viewGroupModal ainda está ativo e reduzir novamente
+                    if (
+                        viewGroupModal &&
+                        viewGroupModal.classList.contains('active')
+                    ) {
+                        viewGroupModal.style.setProperty(
+                            'z-index',
+                            '999',
+                            'important'
+                        );
+                    }
+                }, 100);
+            });
         } catch (error) {
-            console.error('❌ [SHOW RECEIPT] Erro crítico ao mostrar recibo:', error);
+            console.error(
+                '❌ [SHOW RECEIPT] Erro crítico ao mostrar recibo:',
+                error
+            );
             console.error('❌ [SHOW RECEIPT] Stack:', error.stack);
             console.error('❌ [SHOW RECEIPT] Sale:', sale);
             // Tentar fechar qualquer modal parcialmente aberto
@@ -8835,7 +9652,7 @@ class LojaApp {
             }
 
             console.log('🔧 [CLOSE RECEIPT] Fechando modal de recibo');
-            
+
             // Animação ao fechar modal
             modal.style.opacity = '0';
             modal.style.pointerEvents = 'none'; // Desabilitar cliques durante animação
@@ -8843,8 +9660,12 @@ class LojaApp {
             // CORRIGIDO: Não restaurar viewGroupModal automaticamente
             // Apenas restaurar se o viewGroupModal já estava ativo ANTES do recibo abrir
             try {
-                const viewGroupModal = document.getElementById('viewGroupModal');
-                if (viewGroupModal && viewGroupModal.dataset.wasActive === 'true') {
+                const viewGroupModal =
+                    document.getElementById('viewGroupModal');
+                if (
+                    viewGroupModal &&
+                    viewGroupModal.dataset.wasActive === 'true'
+                ) {
                     console.log(
                         '🔧 [CLOSE RECEIPT] Restaurando viewGroupModal (estava ativo antes do recibo)'
                     );
@@ -8857,7 +9678,7 @@ class LojaApp {
                     viewGroupModal.style.pointerEvents = 'auto';
                     viewGroupModal.style.opacity = '1';
                     viewGroupModal.style.display = 'flex';
-                    
+
                     // Remover flag
                     delete viewGroupModal.dataset.wasActive;
 
@@ -8876,10 +9697,15 @@ class LojaApp {
                     });
                 } else {
                     // Se não estava ativo antes, não fazer nada
-                    console.log('🔧 [CLOSE RECEIPT] viewGroupModal não estava ativo antes - não restaurar');
+                    console.log(
+                        '🔧 [CLOSE RECEIPT] viewGroupModal não estava ativo antes - não restaurar'
+                    );
                 }
             } catch (restoreError) {
-                console.error('❌ [CLOSE RECEIPT] Erro ao restaurar viewGroupModal:', restoreError);
+                console.error(
+                    '❌ [CLOSE RECEIPT] Erro ao restaurar viewGroupModal:',
+                    restoreError
+                );
                 // Continuar mesmo com erro na restauração
             }
 
@@ -8896,11 +9722,17 @@ class LojaApp {
                         modalContent.style.zIndex = '';
                     }
                 } catch (cleanupError) {
-                    console.error('❌ [CLOSE RECEIPT] Erro ao limpar modal:', cleanupError);
+                    console.error(
+                        '❌ [CLOSE RECEIPT] Erro ao limpar modal:',
+                        cleanupError
+                    );
                 }
             }, 300);
         } catch (error) {
-            console.error('❌ [CLOSE RECEIPT] Erro crítico ao fechar recibo:', error);
+            console.error(
+                '❌ [CLOSE RECEIPT] Erro crítico ao fechar recibo:',
+                error
+            );
             console.error('❌ [CLOSE RECEIPT] Stack:', error.stack);
             // Tentar fechar o modal mesmo com erro
             const modal = document.getElementById('receiptPreviewModal');
@@ -13132,7 +13964,25 @@ class LojaApp {
     }
 
     calculateTotalCosts() {
-        return this.costs.reduce((sum, cost) => sum + cost.total, 0);
+        // Custos da seção de custos
+        let totalCosts = this.costs.reduce(
+            (sum, cost) => sum + (cost.total || 0),
+            0
+        );
+
+        // Adicionar custos dos produtos vendidos (baseado em item.cost)
+        this.groups.forEach((group) => {
+            group.days.forEach((day) => {
+                day.sales.forEach((sale) => {
+                    const item = this.items.find((i) => i.id === sale.itemId);
+                    if (item && item.cost && item.cost > 0) {
+                        totalCosts += item.cost * (sale.quantity || 1);
+                    }
+                });
+            });
+        });
+
+        return totalCosts;
     }
 
     updateOverallSummary() {
@@ -15009,31 +15859,48 @@ class LojaApp {
         const filteredGroups = this.getFilteredData();
         const monthlyData = {};
 
-        // CORRIGIDO: Percorrer days -> sales
+        // Percorrer days -> sales e calcular receita + custo do produto
         filteredGroups.forEach((group) => {
             const key = `${group.month.split('-')[1]}/${
                 group.month.split('-')[0]
             }`;
             if (!monthlyData[key]) {
-                monthlyData[key] = { profit: 0, costs: 0 };
+                monthlyData[key] = { profit: 0, costs: 0, productCosts: 0 };
             }
 
             group.days.forEach((day) => {
                 day.sales.forEach((sale) => {
-                    monthlyData[key].profit += this.getSaleTotalValue(sale);
+                    const saleValue = this.getSaleTotalValue(sale);
+                    monthlyData[key].profit += saleValue;
+
+                    // Calcular custo do produto baseado no item.cost
+                    const item = this.items.find((i) => i.id === sale.itemId);
+                    if (item && item.cost && item.cost > 0) {
+                        const productCost = item.cost * (sale.quantity || 1);
+                        monthlyData[key].productCosts += productCost;
+                    }
                 });
             });
         });
 
-        // Adicionar custos
+        // Adicionar custos da seção de custos (custo.total - corrigido de totalCost)
         this.costs.forEach((cost) => {
             const costDate = new Date(cost.date);
             const key = `${costDate.getMonth() + 1}/${costDate.getFullYear()}`;
             if (monthlyData[key]) {
-                monthlyData[key].costs += cost.totalCost;
+                monthlyData[key].costs += cost.total || 0;
             } else {
-                monthlyData[key] = { profit: 0, costs: cost.totalCost };
+                monthlyData[key] = {
+                    profit: 0,
+                    costs: cost.total || 0,
+                    productCosts: 0,
+                };
             }
+        });
+
+        // Combinar custos da seção de custos com custos dos produtos
+        Object.keys(monthlyData).forEach((key) => {
+            monthlyData[key].costs += monthlyData[key].productCosts;
         });
 
         const labels = Object.keys(monthlyData).sort((a, b) => {
@@ -15188,31 +16055,47 @@ class LojaApp {
         const filteredGroups = this.getFilteredData();
         const monthlyData = {};
 
-        // CORRIGIDO: Percorrer days -> sales
+        // Percorrer days -> sales e calcular receita + custo do produto
         filteredGroups.forEach((group) => {
             const key = `${group.month.split('-')[1]}/${
                 group.month.split('-')[0]
             }`;
             if (!monthlyData[key]) {
-                monthlyData[key] = { sales: 0, costs: 0 };
+                monthlyData[key] = { sales: 0, costs: 0, productCosts: 0 };
             }
 
             group.days.forEach((day) => {
                 day.sales.forEach((sale) => {
                     monthlyData[key].sales += this.getSaleTotalValue(sale);
+
+                    // Calcular custo do produto baseado no item.cost
+                    const item = this.items.find((i) => i.id === sale.itemId);
+                    if (item && item.cost && item.cost > 0) {
+                        const productCost = item.cost * (sale.quantity || 1);
+                        monthlyData[key].productCosts += productCost;
+                    }
                 });
             });
         });
 
-        // Adicionar custos
+        // Adicionar custos da seção de custos (corrigido: cost.total em vez de cost.totalCost)
         this.costs.forEach((cost) => {
             const costDate = new Date(cost.date);
             const key = `${costDate.getMonth() + 1}/${costDate.getFullYear()}`;
             if (monthlyData[key]) {
-                monthlyData[key].costs += cost.totalCost;
+                monthlyData[key].costs += cost.total || 0;
             } else {
-                monthlyData[key] = { sales: 0, costs: cost.totalCost };
+                monthlyData[key] = {
+                    sales: 0,
+                    costs: cost.total || 0,
+                    productCosts: 0,
+                };
             }
+        });
+
+        // Combinar custos da seção de custos com custos dos produtos
+        Object.keys(monthlyData).forEach((key) => {
+            monthlyData[key].costs += monthlyData[key].productCosts;
         });
 
         const labels = Object.keys(monthlyData).sort((a, b) => {
@@ -17394,8 +18277,14 @@ class LojaApp {
         }
 
         console.log('✅ [LOAD DATA] Carregamento de dados concluído');
-        console.log(`📊 [LOAD DATA] Estado final: Items: ${this.items?.length || 0} | Grupos: ${this.groups?.length || 0} | Clientes: ${this.clients?.length || 0}`);
-        
+        console.log(
+            `📊 [LOAD DATA] Estado final: Items: ${
+                this.items?.length || 0
+            } | Grupos: ${this.groups?.length || 0} | Clientes: ${
+                this.clients?.length || 0
+            }`
+        );
+
         // SEMPRE retornar Promise resolvida, mesmo se houver erro
         return Promise.resolve();
     }
@@ -23794,7 +24683,7 @@ class LojaApp {
     }
 
     // ========== CRIPTOGRAFIA DE DADOS SENSÍVEIS ==========
-    
+
     /**
      * Carrega configuração de criptografia do servidor
      * Os salts ficam no servidor e nunca são expostos no código do cliente
@@ -23806,39 +24695,44 @@ class LojaApp {
         if (this.cryptoConfig && this.cryptoConfig.username === username) {
             return this.cryptoConfig;
         }
-        
+
         try {
             const response = await fetch('/api/crypto-config', {
                 method: 'GET',
                 headers: {
                     'Content-Type': 'application/json',
-                    'X-Username': username
-                }
+                    'X-Username': username,
+                },
             });
-            
+
             if (!response.ok) {
-                console.warn('⚠️ [CRYPTO] Não foi possível carregar config do servidor, usando fallback local');
+                console.warn(
+                    '⚠️ [CRYPTO] Não foi possível carregar config do servidor, usando fallback local'
+                );
                 return this.getLocalCryptoConfig(username);
             }
-            
+
             const result = await response.json();
-            
+
             if (result.success && result.config) {
                 this.cryptoConfig = {
                     ...result.config,
-                    username: username
+                    username: username,
                 };
                 console.log('✅ [CRYPTO] Configuração carregada do servidor');
                 return this.cryptoConfig;
             }
         } catch (error) {
-            console.warn('⚠️ [CRYPTO] Erro ao carregar config do servidor:', error.message);
+            console.warn(
+                '⚠️ [CRYPTO] Erro ao carregar config do servidor:',
+                error.message
+            );
         }
-        
+
         // Fallback: usar configuração local (apenas para desenvolvimento/offline)
         return this.getLocalCryptoConfig(username);
     }
-    
+
     /**
      * Gera configuração de criptografia local (fallback)
      * Usado apenas quando o servidor não está disponível
@@ -23848,7 +24742,7 @@ class LojaApp {
     getLocalCryptoConfig(username) {
         // Gerar salt derivado único para o usuário (menos seguro que do servidor)
         const derivedSalt = this.generateLocalDerivedSalt(username);
-        
+
         this.cryptoConfig = {
             derivedSalt: derivedSalt,
             algorithm: 'AES-GCM',
@@ -23856,13 +24750,13 @@ class LojaApp {
             iterations: 100000,
             hashAlgorithm: 'SHA-256',
             username: username,
-            isLocal: true // Flag para indicar que é config local
+            isLocal: true, // Flag para indicar que é config local
         };
-        
+
         console.log('ℹ️ [CRYPTO] Usando configuração local (offline)');
         return this.cryptoConfig;
     }
-    
+
     /**
      * Gera um salt derivado local para o usuário
      * @param {string} username - Nome do usuário
@@ -23870,26 +24764,33 @@ class LojaApp {
      */
     generateLocalDerivedSalt(username) {
         // Combinar username com um identificador da sessão/dispositivo
-        const sessionId = sessionStorage.getItem('sessionId') || this.generateSessionId();
-        const combined = `${username}:${sessionId}:${navigator.userAgent.slice(0, 50)}`;
-        
+        const sessionId =
+            sessionStorage.getItem('sessionId') || this.generateSessionId();
+        const combined = `${username}:${sessionId}:${navigator.userAgent.slice(
+            0,
+            50
+        )}`;
+
         // Criar hash simples (não tão seguro quanto do servidor, mas funciona offline)
         let hash = 0;
         for (let i = 0; i < combined.length; i++) {
             const char = combined.charCodeAt(i);
-            hash = ((hash << 5) - hash) + char;
+            hash = (hash << 5) - hash + char;
             hash = hash & hash;
         }
-        
+
         return btoa(Math.abs(hash).toString(16) + combined.slice(0, 20));
     }
-    
+
     /**
      * Gera um ID de sessão único
      * @returns {string} ID de sessão
      */
     generateSessionId() {
-        const id = 'sess_' + Math.random().toString(36).substr(2, 9) + Date.now().toString(36);
+        const id =
+            'sess_' +
+            Math.random().toString(36).substr(2, 9) +
+            Date.now().toString(36);
         sessionStorage.setItem('sessionId', id);
         return id;
     }
@@ -23905,39 +24806,44 @@ class LojaApp {
         if (this.cryptoConfig && this.cryptoConfig.username === username) {
             return this.cryptoConfig;
         }
-        
+
         try {
             const response = await fetch('/api/crypto-config', {
                 method: 'GET',
                 headers: {
                     'Content-Type': 'application/json',
-                    'X-Username': username
-                }
+                    'X-Username': username,
+                },
             });
-            
+
             if (!response.ok) {
-                console.warn('⚠️ [CRYPTO] Não foi possível carregar config do servidor, usando fallback local');
+                console.warn(
+                    '⚠️ [CRYPTO] Não foi possível carregar config do servidor, usando fallback local'
+                );
                 return this.getLocalCryptoConfig(username);
             }
-            
+
             const result = await response.json();
-            
+
             if (result.success && result.config) {
                 this.cryptoConfig = {
                     ...result.config,
-                    username: username
+                    username: username,
                 };
                 console.log('✅ [CRYPTO] Configuração carregada do servidor');
                 return this.cryptoConfig;
             }
         } catch (error) {
-            console.warn('⚠️ [CRYPTO] Erro ao carregar config do servidor:', error.message);
+            console.warn(
+                '⚠️ [CRYPTO] Erro ao carregar config do servidor:',
+                error.message
+            );
         }
-        
+
         // Fallback: usar configuração local (apenas para desenvolvimento/offline)
         return this.getLocalCryptoConfig(username);
     }
-    
+
     /**
      * Gera configuração de criptografia local (fallback)
      * Usado apenas quando o servidor não está disponível
@@ -23947,7 +24853,7 @@ class LojaApp {
     getLocalCryptoConfig(username) {
         // Gerar salt derivado único para o usuário (menos seguro que do servidor)
         const derivedSalt = this.generateLocalDerivedSalt(username);
-        
+
         this.cryptoConfig = {
             derivedSalt: derivedSalt,
             algorithm: 'AES-GCM',
@@ -23955,13 +24861,13 @@ class LojaApp {
             iterations: 100000,
             hashAlgorithm: 'SHA-256',
             username: username,
-            isLocal: true // Flag para indicar que é config local
+            isLocal: true, // Flag para indicar que é config local
         };
-        
+
         console.log('ℹ️ [CRYPTO] Usando configuração local (offline)');
         return this.cryptoConfig;
     }
-    
+
     /**
      * Gera um salt derivado local para o usuário
      * @param {string} username - Nome do usuário
@@ -23969,26 +24875,33 @@ class LojaApp {
      */
     generateLocalDerivedSalt(username) {
         // Combinar username com um identificador da sessão/dispositivo
-        const sessionId = sessionStorage.getItem('sessionId') || this.generateSessionId();
-        const combined = `${username}:${sessionId}:${navigator.userAgent.slice(0, 50)}`;
-        
+        const sessionId =
+            sessionStorage.getItem('sessionId') || this.generateSessionId();
+        const combined = `${username}:${sessionId}:${navigator.userAgent.slice(
+            0,
+            50
+        )}`;
+
         // Criar hash simples (não tão seguro quanto do servidor, mas funciona offline)
         let hash = 0;
         for (let i = 0; i < combined.length; i++) {
             const char = combined.charCodeAt(i);
-            hash = ((hash << 5) - hash) + char;
+            hash = (hash << 5) - hash + char;
             hash = hash & hash;
         }
-        
+
         return btoa(Math.abs(hash).toString(16) + combined.slice(0, 20));
     }
-    
+
     /**
      * Gera um ID de sessão único
      * @returns {string} ID de sessão
      */
     generateSessionId() {
-        const id = 'sess_' + Math.random().toString(36).substr(2, 9) + Date.now().toString(36);
+        const id =
+            'sess_' +
+            Math.random().toString(36).substr(2, 9) +
+            Date.now().toString(36);
         sessionStorage.setItem('sessionId', id);
         return id;
     }
@@ -23998,12 +24911,14 @@ class LojaApp {
         try {
             // Carregar configuração de criptografia do servidor
             const config = await this.loadCryptoConfig(username);
-            
+
             if (!config || !config.derivedSalt) {
-                console.error('❌ [CRYPTO] Não foi possível obter configuração de criptografia');
+                console.error(
+                    '❌ [CRYPTO] Não foi possível obter configuração de criptografia'
+                );
                 return null;
             }
-            
+
             // Usar senha do usuário + username + salt derivado do servidor
             const keyMaterial = await crypto.subtle.importKey(
                 'raw',
@@ -24024,7 +24939,10 @@ class LojaApp {
                     hash: config.hashAlgorithm || 'SHA-256',
                 },
                 keyMaterial,
-                { name: config.algorithm || 'AES-GCM', length: config.keyLength || 256 },
+                {
+                    name: config.algorithm || 'AES-GCM',
+                    length: config.keyLength || 256,
+                },
                 true,
                 ['encrypt', 'decrypt']
             );

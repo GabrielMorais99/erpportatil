@@ -4,6 +4,45 @@
    Foco: Visual mais refinado e profissional
    ======================================== */
 
+/* ========================================
+   SISTEMA TIPOGRÁFICO PADRONIZADO
+   Fonte: Inter - moderna, legível e profissional
+   ======================================== */
+
+:root {
+    /* Fonte principal */
+    --font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+    
+    /* Escala tipográfica harmônica (baseada em 1rem = 16px) */
+    --text-xs: 0.75rem;      /* 12px - labels pequenos */
+    --text-sm: 0.875rem;     /* 14px - texto secundário */
+    --text-base: 1rem;       /* 16px - texto padrão */
+    --text-lg: 1.125rem;     /* 18px - texto destacado */
+    --text-xl: 1.25rem;      /* 20px - subtítulos */
+    --text-2xl: 1.5rem;      /* 24px - títulos de seção */
+    --text-3xl: 1.875rem;    /* 30px - títulos principais */
+    --text-4xl: 2.25rem;     /* 36px - títulos hero */
+    
+    /* Pesos de fonte padronizados */
+    --font-light: 300;
+    --font-normal: 400;
+    --font-medium: 500;
+    --font-semibold: 600;
+    --font-bold: 700;
+    --font-extrabold: 800;
+    
+    /* Line heights padronizados */
+    --leading-tight: 1.25;
+    --leading-snug: 1.375;
+    --leading-normal: 1.5;
+    --leading-relaxed: 1.625;
+    
+    /* Letter spacing */
+    --tracking-tight: -0.025em;
+    --tracking-normal: 0;
+    --tracking-wide: 0.025em;
+}
+
 * {
     margin: 0;
     padding: 0;
@@ -12,6 +51,8 @@
     -moz-user-select: none;
     -ms-user-select: none;
     user-select: none;
+    /* Aplicar fonte padrão a todos os elementos */
+    font-family: var(--font-family);
 }
 
 /* Permitir seleção apenas em campos de input e textarea */
@@ -32,20 +73,80 @@ body.loaded {
 html {
     width: 100%;
     overflow-x: hidden;
-    overflow-y: auto !important; /* Garantir scroll vertical sempre */
+    overflow-y: auto !important;
     position: relative;
     height: 100%;
+    font-size: 16px; /* Base para rem */
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
 }
 
 body {
     width: 100%;
     overflow-x: hidden;
-    overflow-y: auto !important; /* Garantir scroll vertical sempre */
+    overflow-y: auto !important;
     position: relative;
     height: auto !important;
     min-height: 100vh;
-    /* Garantir que o body possa fazer scroll */
     overflow: visible !important;
+    font-family: var(--font-family);
+    font-size: var(--text-base);
+    font-weight: var(--font-normal);
+    line-height: var(--leading-normal);
+    letter-spacing: var(--tracking-normal);
+}
+
+/* Classes utilitárias de tipografia */
+.text-xs { font-size: var(--text-xs); }
+.text-sm { font-size: var(--text-sm); }
+.text-base { font-size: var(--text-base); }
+.text-lg { font-size: var(--text-lg); }
+.text-xl { font-size: var(--text-xl); }
+.text-2xl { font-size: var(--text-2xl); }
+.text-3xl { font-size: var(--text-3xl); }
+.text-4xl { font-size: var(--text-4xl); }
+
+.font-light { font-weight: var(--font-light); }
+.font-normal { font-weight: var(--font-normal); }
+.font-medium { font-weight: var(--font-medium); }
+.font-semibold { font-weight: var(--font-semibold); }
+.font-bold { font-weight: var(--font-bold); }
+.font-extrabold { font-weight: var(--font-extrabold); }
+
+/* Headings padronizados */
+h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-family);
+    font-weight: var(--font-bold);
+    line-height: var(--leading-tight);
+    letter-spacing: var(--tracking-tight);
+}
+
+h1 { font-size: var(--text-3xl); }
+h2 { font-size: var(--text-2xl); }
+h3 { font-size: var(--text-xl); }
+h4 { font-size: var(--text-lg); }
+h5 { font-size: var(--text-base); font-weight: var(--font-semibold); }
+h6 { font-size: var(--text-sm); font-weight: var(--font-semibold); }
+
+/* Parágrafos e texto */
+p {
+    font-family: var(--font-family);
+    font-size: var(--text-base);
+    line-height: var(--leading-relaxed);
+}
+
+/* Labels e textos pequenos */
+label, small, .label {
+    font-family: var(--font-family);
+    font-size: var(--text-sm);
+    font-weight: var(--font-medium);
+}
+
+/* Inputs e selects */
+input, select, textarea, button {
+    font-family: var(--font-family);
+    font-size: var(--text-base);
 }
 
 :root {
@@ -121,6 +222,59 @@ body.theme-blue .login-container {
     background-repeat: no-repeat;
 }
 
+/* ========================================
+   REGRAS GLOBAIS - ESPAÇAMENTO ÍCONE/TEXTO
+   Aplica a todos os botões do projeto
+   ======================================== */
+
+/* Espaçamento global entre ícone e texto em TODOS os botões */
+button,
+.btn-primary,
+.btn-secondary,
+.btn-small,
+.tab-btn,
+[class*='btn'] {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem; /* Espaçamento entre ícone e texto */
+}
+
+/* Garantir que ícones dentro de botões tenham margem adequada */
+button i,
+.btn-primary i,
+.btn-secondary i,
+.btn-small i,
+.tab-btn i,
+[class*='btn'] i {
+    flex-shrink: 0;
+}
+
+/* Espaçamento adicional para ícones Font Awesome */
+button i.fas,
+button i.far,
+button i.fab,
+.btn-primary i.fas,
+.btn-primary i.far,
+.btn-primary i.fab,
+.btn-secondary i.fas,
+.btn-secondary i.far,
+.btn-secondary i.fab,
+.btn-small i.fas,
+.btn-small i.far,
+.btn-small i.fab,
+.tab-btn i.fas,
+.tab-btn i.far,
+.tab-btn i.fab {
+    margin-right: 0; /* Removido porque usamos gap */
+}
+
+/* Centralizar content-tabs */
+.content-tabs {
+    justify-content: center !important;
+    align-items: center;
+}
+
 /* Padronizar cores da tela de login para preto e branco */
 .login-container .logo h1 {
     color: #000000;
@@ -176,8 +330,8 @@ body.theme-blue .login-container {
 }
 
 body {
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    font-size: 0.95rem;
+    font-family: var(--font-family);
+    font-size: var(--text-base);
     /* TEMA PADRÃO: BRANCO - Sempre começa em tema claro */
     background-color: #ffffff !important;
     background: #ffffff !important;
@@ -296,10 +450,10 @@ body:not(.dark-mode) .main-content {
 }
 
 .header h1 {
-    font-size: 1.75rem;
-    font-family: 'Dancing Script', cursive;
-    font-weight: 600;
-    letter-spacing: 0.5px;
+    font-size: var(--text-2xl);
+    font-family: var(--font-family);
+    font-weight: var(--font-bold);
+    letter-spacing: var(--tracking-tight);
     position: relative;
     z-index: 1;
     text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
@@ -327,20 +481,31 @@ body:not(.dark-mode) .main-content {
     color: var(--white);
     border: none;
     border-radius: var(--radius-md);
-    font-size: 0.95rem;
-    font-weight: 600;
+    font-family: var(--font-family);
+    font-size: var(--text-sm);
+    font-weight: var(--font-semibold);
     cursor: pointer;
     transition: all var(--transition-base);
     white-space: nowrap;
     min-width: 140px;
     max-width: 220px;
     position: relative;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 0.5rem;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 0.625rem !important; /* Espaçamento entre ícone e texto */
     box-shadow: var(--shadow-md);
     overflow: hidden;
+    letter-spacing: var(--tracking-normal);
+}
+
+/* Garantir espaçamento do ícone dentro do btn-primary */
+.btn-primary > i,
+.btn-primary > .fas,
+.btn-primary > .far,
+.btn-primary > .fab {
+    flex-shrink: 0;
+    font-size: 1em;
 }
 
 /* ========================================
@@ -566,17 +731,28 @@ body.theme-blue .login-container #entrarBtn:focus {
     color: var(--primary-color);
     border: 2px solid rgba(255, 255, 255, 0.8);
     border-radius: var(--radius-md);
-    font-size: 0.9rem;
-    font-weight: 600;
+    font-family: var(--font-family);
+    font-size: var(--text-sm);
+    font-weight: var(--font-semibold);
     cursor: pointer;
     transition: all var(--transition-base);
     position: relative;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 0.4rem;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 0.625rem !important; /* Espaçamento entre ícone e texto */
     box-shadow: var(--shadow-sm);
     backdrop-filter: blur(10px);
+    letter-spacing: var(--tracking-normal);
+}
+
+/* Garantir espaçamento do ícone dentro do btn-secondary */
+.btn-secondary > i,
+.btn-secondary > .fas,
+.btn-secondary > .far,
+.btn-secondary > .fab {
+    flex-shrink: 0;
+    font-size: 1em;
 }
 
 .btn-secondary:hover:not(:disabled) {
@@ -703,9 +879,9 @@ body.theme-blue .login-container #entrarBtn:focus {
     padding: 0.875rem 1.125rem; /* Padrão Emergente */
     border: 2px solid var(--gray-200);
     border-radius: var(--radius-md);
-    font-size: 1rem;
-    font-weight: normal;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    font-size: var(--text-base);
+    font-weight: var(--font-normal);
+    font-family: var(--font-family);
     background: var(--white);
     color: var(--dark-gray);
     transition: all var(--transition-base);
@@ -742,9 +918,9 @@ body.theme-blue .login-container #entrarBtn:focus {
     padding: 0.875rem 1.125rem 0.875rem 2.5rem !important; /* Padrão Emergente - padding com espaço para ícone */
     border: 2px solid var(--gray-200);
     border-radius: var(--radius-md);
-    font-size: 1rem;
-    font-weight: normal;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    font-size: var(--text-base);
+    font-weight: var(--font-normal);
+    font-family: var(--font-family);
     background: var(--white);
     color: var(--dark-gray);
     transition: all var(--transition-base);
@@ -937,24 +1113,26 @@ body.theme-blue .login-container #entrarBtn:focus {
 .content-tabs {
     display: flex;
     flex-wrap: wrap;
-    gap: 0.5rem;
+    gap: 0.75rem; /* Aumentado para mais espaço entre tabs */
     margin-bottom: 2rem;
     background: var(--white);
-    padding: 0.75rem 1rem;
+    padding: 1rem 1.5rem;
     border-radius: var(--radius-lg);
     box-shadow: var(--shadow-md);
     border: 1px solid var(--gray-200);
     overflow: hidden;
-    justify-content: center;
+    justify-content: center !important;
+    align-items: center;
 }
 
 .tab-btn {
-    padding: 0.65rem 1.25rem;
+    padding: 0.75rem 1.5rem;
     background: transparent;
     border: none;
     cursor: pointer;
-    font-size: 0.9rem;
-    font-weight: 600;
+    font-family: var(--font-family);
+    font-size: var(--text-sm);
+    font-weight: var(--font-semibold);
     color: #000000;
     transition: all var(--transition-base);
     border-radius: var(--radius-md);
@@ -962,9 +1140,11 @@ body.theme-blue .login-container #entrarBtn:focus {
     white-space: nowrap;
     flex: 0 1 auto;
     min-width: fit-content;
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center;
+    gap: 0.625rem !important; /* Espaçamento entre ícone e texto */
+    letter-spacing: var(--tracking-normal);
 }
 
 /* Ícones dos botões de navegação em preto por padrão */
@@ -1111,9 +1291,10 @@ body.theme-blue .login-container #entrarBtn:focus {
 .goal-card h3 {
     color: var(--primary-color);
     margin-bottom: 0.75rem;
-    font-size: 1.1rem;
-    font-weight: 700;
-    letter-spacing: -0.02em;
+    font-family: var(--font-family);
+    font-size: var(--text-lg);
+    font-weight: var(--font-bold);
+    letter-spacing: var(--tracking-tight);
     padding-top: 2.5rem;
     padding-right: 0;
     margin-top: 0;
@@ -1627,12 +1808,13 @@ body.theme-blue .login-container #entrarBtn:focus {
 
 .stat-item h4 {
     color: var(--gray-600);
-    font-size: 0.75rem;
+    font-family: var(--font-family);
+    font-size: var(--text-xs);
     margin-bottom: 0.625rem;
-    font-weight: 500;
+    font-weight: var(--font-medium);
     text-transform: uppercase;
-    letter-spacing: 0.3px;
-    line-height: 1.3;
+    letter-spacing: var(--tracking-wide);
+    line-height: var(--leading-snug);
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
@@ -1640,11 +1822,12 @@ body.theme-blue .login-container #entrarBtn:focus {
 
 .stat-item p {
     color: var(--primary-color);
-    font-size: 1.35rem;
-    font-weight: 600;
+    font-family: var(--font-family);
+    font-size: var(--text-2xl);
+    font-weight: var(--font-semibold);
     margin: 0;
-    letter-spacing: -0.02em;
-    line-height: 1.2;
+    letter-spacing: var(--tracking-tight);
+    line-height: var(--leading-tight);
     overflow: hidden;
     text-overflow: ellipsis;
     word-wrap: break-word;
@@ -2336,9 +2519,10 @@ body.theme-blue .login-container #entrarBtn:focus {
 
 .modal-header h2 {
     margin: 0;
-    font-size: 1.5rem;
-    font-weight: 700;
-    letter-spacing: -0.02em;
+    font-family: var(--font-family);
+    font-size: var(--text-xl);
+    font-weight: var(--font-bold);
+    letter-spacing: var(--tracking-tight);
 }
 
 .close {
@@ -2389,9 +2573,10 @@ body.theme-blue .login-container #entrarBtn:focus {
     display: block;
     margin-bottom: 0.5rem;
     color: var(--dark-gray);
-    font-weight: 600;
-    font-size: 0.95rem;
-    letter-spacing: -0.01em;
+    font-family: var(--font-family);
+    font-weight: var(--font-semibold);
+    font-size: var(--text-sm);
+    letter-spacing: var(--tracking-normal);
 }
 
 .form-group input,
@@ -2401,10 +2586,11 @@ body.theme-blue .login-container #entrarBtn:focus {
     padding: 0.875rem 1.125rem;
     border: 2px solid var(--gray-200);
     border-radius: var(--radius-md);
-    font-size: 1rem;
+    font-family: var(--font-family);
+    font-size: var(--text-base);
+    font-weight: var(--font-medium);
     transition: all var(--transition-base);
     background: var(--white);
-    font-weight: 500;
 }
 
 .form-group input:focus,
@@ -2567,9 +2753,9 @@ body.theme-blue .login-container #entrarBtn:focus {
 }
 
 .footer-text-cursive {
-    font-family: 'Dancing Script', cursive;
-    font-size: 1.5rem;
-    font-weight: 600;
+    font-family: var(--font-family);
+    font-size: var(--text-2xl);
+    font-weight: var(--font-semibold);
     color: #ffffff !important;
 }
 
@@ -3573,6 +3759,27 @@ body.theme-blue .login-container #entrarBtn:focus {
     align-items: center;
     margin-bottom: 1.5rem;
     padding: 1rem 0;
+}
+
+/* Centralizar todas as toolbars */
+.toolbar,
+.toolbar-goals,
+.groups-content .toolbar,
+.goals-content .toolbar-goals,
+.panel-section .toolbar {
+    justify-content: center;
+}
+
+/* Garantir espaçamento em botões com ícones em todas as toolbars */
+.toolbar button,
+.toolbar-goals button,
+.panel-header button,
+.panel-actions button,
+.modal-actions button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
 }
 
 /* ========================================

@@ -1,21 +1,23 @@
-// Service Worker para PWA - Versão 6.0
+// Service Worker para PWA - Versão 7.1
 // Suporte a cache, notificações push e sincronização em background
 // Estratégia: Network First (sempre busca da rede primeiro, cache como fallback)
-// ATUALIZADO: 2024-12-03 - Forçar limpeza de cache
-const CACHE_NAME = 'loja-vendas-v14';
-const RUNTIME_CACHE = 'loja-vendas-runtime-v14';
+// ATUALIZADO: 2024-12-04 - Cache bust agressivo + skipWaiting + purge total
+const ASSET_VERSION = '20251205-files';
+const CACHE_NAME = `loja-vendas-v16-${ASSET_VERSION}`;
+const RUNTIME_CACHE = `loja-vendas-runtime-v16-${ASSET_VERSION}`;
 const MAX_CACHE_SIZE = 50 * 1024 * 1024; // 50MB
 const urlsToCache = [
     '/',
-    '/index.html',
-    '/gerenciamento.html',
-    '/css/style.css',
-    '/css/style-mobile-fix.css',
-    '/js/login.js',
-    '/js/app.js',
-    '/js/skeleton-manager.js',
-    '/manifest.json',
-    '/images/icone-e-transicao.jpg',
+    `/index.html?v=${ASSET_VERSION}`,
+    `/gerenciamento.html?v=${ASSET_VERSION}`,
+    `/css/style.css?v=${ASSET_VERSION}`,
+    `/css/style-mobile-fix.css?v=${ASSET_VERSION}`,
+    `/css/tailwind.css?v=${ASSET_VERSION}`,
+    `/js/login.js?v=${ASSET_VERSION}`,
+    `/js/app.js?v=${ASSET_VERSION}`,
+    `/js/skeleton-manager.js?v=${ASSET_VERSION}`,
+    `/manifest.json?v=${ASSET_VERSION}`,
+    `/images/icone-e-transicao.jpg?v=${ASSET_VERSION}`,
 ];
 
 // Instalar Service Worker
@@ -41,31 +43,23 @@ self.addEventListener('install', (event) => {
                         // Continuar mesmo se alguns recursos falharem
                     });
             })
-        // NÃO usar skipWaiting() para evitar loop de reload
+            .then(() => {
+                // Forçar ativação imediata para limpar cache antigo
+                return self.skipWaiting();
+            })
     );
 });
 
 // Ativar Service Worker
 self.addEventListener('activate', (event) => {
-    console.log('[SW] Ativando Service Worker v5.0 (Network First)...');
+    console.log('[SW] Ativando Service Worker v8.1 (Network First)...');
     event.waitUntil(
         caches
             .keys()
             .then((cacheNames) => {
+                // Remover TODOS os caches anteriores (purge total)
                 return Promise.all(
-                    cacheNames.map((cacheName) => {
-                        // Limpar TODOS os caches antigos (v4 e anteriores)
-                        if (
-                            cacheName !== CACHE_NAME &&
-                            cacheName !== RUNTIME_CACHE
-                        ) {
-                            console.log(
-                                '[SW] Removendo cache antigo:',
-                                cacheName
-                            );
-                            return caches.delete(cacheName);
-                        }
-                    })
+                    cacheNames.map((cacheName) => caches.delete(cacheName))
                 );
             })
             .then(() => {
@@ -74,7 +68,7 @@ self.addEventListener('activate', (event) => {
             })
             .then(() => {
                 console.log(
-                    '[SW] Service Worker ativado com estratégia Network First'
+                    '[SW] Service Worker ativado com estratégia Network First + purge total'
                 );
             })
     );
@@ -129,69 +123,20 @@ self.addEventListener('fetch', (event) => {
         url.pathname.endsWith('.png')
     ) {
         event.respondWith(
-            // NETWORK FIRST: Buscar da rede primeiro
-            fetch(event.request)
+            fetch(new Request(event.request, { cache: 'no-store' }))
                 .then((response) => {
-                    // Verificar se a resposta é válida
-                    if (
-                        !response ||
-                        response.status !== 200 ||
-                        response.type !== 'basic'
-                    ) {
-                        // Se resposta inválida, tentar cache
-                        return caches
-                            .match(event.request)
-                            .then((cachedResponse) => {
-                                return cachedResponse || response;
-                            });
-                    }
-
-                    // Verificar se o header Vary não contém * (não permitido pelo Cache API)
-                    const varyHeader = response.headers.get('Vary');
-                    if (varyHeader && varyHeader.includes('*')) {
-                        // Não fazer cache se Vary contém *
-                        console.warn(
-                            '[SW] Resposta com Vary: * não será cacheada:',
-                            event.request.url
-                        );
-                        return response;
-                    }
-
-                    // Clonar a resposta para cache (em background)
-                    const responseToCache = response.clone();
-                    caches
-                        .open(RUNTIME_CACHE)
-                        .then((cache) => {
-                            cache.put(event.request, responseToCache);
-                        })
-                        .catch((err) => {
-                            // Ignorar erros de cache (pode ser por headers inválidos)
-                            console.warn(
-                                '[SW] Erro ao fazer cache:',
-                                err.message
-                            );
-                        });
-
-                    // Retornar resposta da rede (sempre a mais recente)
+                    // Retornar sempre rede; não cachear HTML/CSS/JS para evitar versões antigas
                     return response;
                 })
                 .catch((error) => {
-                    // Se rede falhar, tentar cache como fallback
-                    console.log(
-                        '[SW] Rede falhou, usando cache:',
-                        event.request.url
-                    );
+                    // Fallback: tentar cache se rede falhar
                     return caches
                         .match(event.request)
                         .then((cachedResponse) => {
-                            if (cachedResponse) {
-                                return cachedResponse;
-                            }
-                            // Se não houver cache e for HTML, retornar página offline
+                            if (cachedResponse) return cachedResponse;
                             if (event.request.destination === 'document') {
                                 return caches.match('/index.html');
                             }
-                            // Se não houver cache, retornar erro
                             throw error;
                         });
                 })
