@@ -4946,6 +4946,7 @@ class LojaApp {
                 .then((devices) => {
                     if (!devices || !devices.length) {
                         toast.error('Nenhuma câmera encontrada. Verifique permissões.', 3000);
+                        this.notifyModalDebug('getCameras', new Error('No cameras'));
                         this.quickSaleQRScanner = null;
                         return;
                     }
@@ -4980,6 +4981,7 @@ class LojaApp {
                                 'Erro ao acessar a câmera. Verifique as permissões e tente novamente.',
                                 3000
                             );
+                            this.notifyModalDebug('start', err);
                             // Mantém o modal aberto para tentar novamente
                             this.quickSaleQRScanner = null;
                         });
@@ -4987,12 +4989,14 @@ class LojaApp {
                 .catch((err) => {
                     console.error('Erro ao obter câmeras:', err);
                     toast.error('Não foi possível acessar a câmera. Tente novamente.', 3000);
+                    this.notifyModalDebug('getCameras.catch', err);
                     this.quickSaleQRScanner = null;
                 });
         } catch (err) {
             console.error('Erro ao criar scanner:', err);
             this.quickSaleQRScanner = null;
             toast.error('Não foi possível inicializar o scanner. Tente novamente.', 3000);
+            this.notifyModalDebug('createScanner', err);
         }
     }
 
@@ -14618,14 +14622,22 @@ class LojaApp {
     // ========== TUTORIAL ==========
 
     checkFirstTimeUser() {
-        // Não mostrar tutorial para admin
-        const username = sessionStorage.getItem('username');
-        if (username === 'admin') {
-            return;
-        }
-
-        // Desativar auto-abertura para evitar fechar rápido em mobile
+        // Desativar auto-abertura (evita fechar rápido em mobile)
         return;
+    }
+
+    // Utilitário de debug de modais (ativa com ?debug=1)
+    notifyModalDebug(context, err) {
+        if (!window.__modalDebug) return;
+        const name = err?.name || 'Erro';
+        const msg = err?.message || String(err);
+        const txt = `[MODAL DEBUG] ${context}: ${name} - ${msg}`;
+        console.error(txt, err);
+        if (typeof toast !== 'undefined' && toast?.error) {
+            toast.error(txt, 4000);
+        } else {
+            alert(txt);
+        }
     }
 
     openTutorialModal() {
