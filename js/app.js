@@ -4941,40 +4941,53 @@ class LojaApp {
             const html5QrCode = new Html5Qrcode('quickSaleQrReader');
             this.quickSaleQRScanner = html5QrCode;
 
-            // Iniciar scanner
-            html5QrCode
-                .start(
-                    { facingMode: 'environment' },
-                    { fps: 10, qrbox: { width: 250, height: 250 } },
-                    (decodedText) => {
-                        // QR Code detectado
-                        this.handleQuickSaleQRScanned(decodedText);
-                        html5QrCode
-                            .stop()
-                            .then(() => {
-                                modal.classList.remove('active');
-                                this.quickSaleQRScanner = null;
-                            })
-                            .catch((stopErr) => {
-                                console.error(stopErr);
-                                modal.classList.remove('active');
-                                this.quickSaleQRScanner = null;
-                            });
-                    },
-                    (errorMessage) => {
-                        // Silencioso durante escaneamento
-                    }
-                )
-                .catch((err) => {
-                    console.error('Erro ao iniciar scanner:', err);
-                    toast.error(
-                    'Erro ao acessar a câmera. Verifique as permissões e tente novamente.',
-                        3000
-                    );
-                // Mantém o modal aberto para o usuário tentar novamente
-                    if (this.quickSaleQRScanner) {
+            // Obter câmeras disponíveis antes de iniciar
+            Html5Qrcode.getCameras()
+                .then((devices) => {
+                    if (!devices || !devices.length) {
+                        toast.error('Nenhuma câmera encontrada. Verifique permissões.', 3000);
                         this.quickSaleQRScanner = null;
+                        return;
                     }
+                    // Usa a primeira câmera disponível (geralmente traseira)
+                    const cameraId = devices[0].id;
+                    html5QrCode
+                        .start(
+                            { deviceId: { exact: cameraId } },
+                            { fps: 10, qrbox: { width: 250, height: 250 } },
+                            (decodedText) => {
+                                // QR Code detectado
+                                this.handleQuickSaleQRScanned(decodedText);
+                                html5QrCode
+                                    .stop()
+                                    .then(() => {
+                                        modal.classList.remove('active');
+                                        this.quickSaleQRScanner = null;
+                                    })
+                                    .catch((stopErr) => {
+                                        console.error(stopErr);
+                                        modal.classList.remove('active');
+                                        this.quickSaleQRScanner = null;
+                                    });
+                            },
+                            (errorMessage) => {
+                                // Silencioso durante escaneamento
+                            }
+                        )
+                        .catch((err) => {
+                            console.error('Erro ao iniciar scanner:', err);
+                            toast.error(
+                                'Erro ao acessar a câmera. Verifique as permissões e tente novamente.',
+                                3000
+                            );
+                            // Mantém o modal aberto para tentar novamente
+                            this.quickSaleQRScanner = null;
+                        });
+                })
+                .catch((err) => {
+                    console.error('Erro ao obter câmeras:', err);
+                    toast.error('Não foi possível acessar a câmera. Tente novamente.', 3000);
+                    this.quickSaleQRScanner = null;
                 });
         } catch (err) {
             console.error('Erro ao criar scanner:', err);
