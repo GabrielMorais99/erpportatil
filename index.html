@@ -26,8 +26,8 @@
             rel="stylesheet"
         />
         <!-- Preload CSS para evitar FOUC -->
-        <link rel="preload" href="/css/style.css?v=20251219" as="style" />
-        <link rel="stylesheet" href="/css/style.css?v=20251219" />
+        <link rel="preload" href="/css/style.css?v=20251220" as="style" />
+        <link rel="stylesheet" href="/css/style.css?v=20251220" />
         <!-- Tailwind CSS (compilado) -->
         <link rel="stylesheet" href="/css/tailwind.css?v=20251205" />
         <link
@@ -60,6 +60,15 @@
             window.addEventListener('load', function () {
                 document.body.classList.add('loaded');
             });
+        </script>
+        <script>
+            // Se acessar com ?test=1, guardar flag para carregar painel de testes depois do login
+            (function () {
+                const params = new URLSearchParams(window.location.search);
+                if (params.get('test') === '1') {
+                    sessionStorage.setItem('enableTestPanel', '1');
+                }
+            })();
         </script>
     </head>
     <body>
