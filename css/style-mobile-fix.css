@@ -493,7 +493,7 @@ a i {
     }
 
     .btn-plus::after {
-        content: '' !important; /* desativa fallback */
+        content: '+' !important; /* desativa fallback */
     }
 
     /* Touch targets adequados */
