@@ -4921,6 +4921,9 @@ class LojaApp {
             return;
         }
 
+        // Alerta forçado para debug mobile
+        alert('DEBUG: iniciando QR (openQuickSaleScanner)');
+
         if (!window.__modalDebug) {
             window.__modalDebug = true;
             this.createModalDebugBadge();
