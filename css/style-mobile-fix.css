@@ -10,6 +10,13 @@
  * <link rel="stylesheet" href="/css/style-mobile-fix.css" />
  */
 
+/* Desktop: esconder FAB de venda rápida (apenas mobile deve exibir) */
+@media (min-width: 769px) {
+    #quickSaleFAB {
+        display: none !important;
+    }
+}
+
 /* ========================================
    VARIÁVEIS - DESIGN SYSTEM MOBILE
    ======================================== */
@@ -498,6 +505,13 @@ a i {
     .btn-plus::after {
         content: '' !important; /* desativa fallback/ripple */
         display: none !important;
+    }
+
+    /* Mostrar FAB de venda rápida apenas no mobile */
+    #quickSaleFAB {
+        display: flex !important;
+        align-items: center;
+        justify-content: center;
     }
 
     /* Touch targets adequados */
