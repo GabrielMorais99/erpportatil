@@ -2,7 +2,7 @@
 // Suporte a cache, notificações push e sincronização em background
 // Estratégia: Network First (sempre busca da rede primeiro, cache como fallback)
 // ATUALIZADO: 2024-12-04 - Cache bust agressivo + skipWaiting + purge total
-const ASSET_VERSION = '20251215-cssfix10';
+const ASSET_VERSION = '20251216-cssfix11';
 const CACHE_NAME = `loja-vendas-v16-${ASSET_VERSION}`;
 const RUNTIME_CACHE = `loja-vendas-runtime-v16-${ASSET_VERSION}`;
 const MAX_CACHE_SIZE = 50 * 1024 * 1024; // 50MB
