@@ -6762,3 +6762,13 @@ body.dark-mode .skeleton-line {
         font-size: clamp(0.85rem, 3vw, 1rem) !important;
     }
 }
+
+/* ===============================
+   LISTAGEM DE PRODUTOS EM 1 COLUNA
+   (desktop e mobile)
+   =============================== */
+#itemsGrid,
+.items-grid {
+    display: grid;
+    grid-template-columns: 1fr !important;
+}
