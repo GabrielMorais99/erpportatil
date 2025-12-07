@@ -446,7 +446,7 @@ a i {
    ======================================== */
 
 @media (max-width: 768px) {
-    /* Botões de ação principal: mostrar apenas "+" no mobile para economizar espaço */
+    /* Botões de ação principal: no mobile mostrar só "+" */
     .btn-plus {
         display: inline-flex;
         align-items: center;
@@ -455,11 +455,11 @@ a i {
         min-width: 44px;
         min-height: 44px;
         padding: 0 12px;
-        font-size: 0;
-        text-indent: -9999px;
-        overflow: hidden;
         position: relative;
-        color: #ffffff !important;
+        font-size: 0;           /* esconde texto */
+        text-indent: -9999px;   /* esconde texto */
+        overflow: hidden;
+        color: inherit;
     }
 
     .btn-plus i,
