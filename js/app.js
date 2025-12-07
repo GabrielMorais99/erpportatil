@@ -4931,6 +4931,11 @@ class LojaApp {
         this.notifyModalDebug('openQuickSaleScanner:init', new Error('abrindo QR'));
         this.pushModalDebug('QR: abrindo modal');
         modal.classList.add('active');
+        modal.style.display = 'flex';
+        modal.style.opacity = '1';
+        modal.style.visibility = 'visible';
+        modal.style.pointerEvents = 'auto';
+        modal.style.zIndex = '9999';
 
         // Verificar se a biblioteca Html5Qrcode está disponível
         if (!window.Html5Qrcode) {
@@ -4941,6 +4946,11 @@ class LojaApp {
             );
             this.notifyModalDebug('Html5Qrcode.missing', err);
             modal.classList.remove('active');
+            modal.style.display = 'none';
+            modal.style.opacity = '0';
+            modal.style.visibility = 'hidden';
+            modal.style.pointerEvents = 'none';
+            modal.style.zIndex = '';
             return;
         }
 
@@ -4964,6 +4974,11 @@ class LojaApp {
                         this.notifyModalDebug('getCameras', new Error('No cameras'));
                         this.quickSaleQRScanner = null;
                         modal.classList.remove('active');
+                        modal.style.display = 'none';
+                        modal.style.opacity = '0';
+                        modal.style.visibility = 'hidden';
+                        modal.style.pointerEvents = 'none';
+                        modal.style.zIndex = '';
                         return;
                     }
                     // Usa a primeira câmera disponível (geralmente traseira)
@@ -5004,6 +5019,11 @@ class LojaApp {
                             this.notifyModalDebug('start', err);
                             this.pushModalDebug(`QR: start erro ${err?.name} ${err?.message}`);
                             modal.classList.remove('active');
+                            modal.style.display = 'none';
+                            modal.style.opacity = '0';
+                            modal.style.visibility = 'hidden';
+                            modal.style.pointerEvents = 'none';
+                            modal.style.zIndex = '';
                             // Mantém o modal aberto para tentar novamente
                             this.quickSaleQRScanner = null;
                         });
@@ -5014,6 +5034,11 @@ class LojaApp {
                     this.notifyModalDebug('getCameras.catch', err);
                     this.pushModalDebug(`QR: getCameras catch ${err?.name} ${err?.message}`);
                     modal.classList.remove('active');
+                    modal.style.display = 'none';
+                    modal.style.opacity = '0';
+                    modal.style.visibility = 'hidden';
+                    modal.style.pointerEvents = 'none';
+                    modal.style.zIndex = '';
                     this.quickSaleQRScanner = null;
                 });
         } catch (err) {
@@ -5023,6 +5048,11 @@ class LojaApp {
             this.notifyModalDebug('createScanner', err);
             this.pushModalDebug(`QR: createScanner erro ${err?.name} ${err?.message}`);
             modal.classList.remove('active');
+            modal.style.display = 'none';
+            modal.style.opacity = '0';
+            modal.style.visibility = 'hidden';
+            modal.style.pointerEvents = 'none';
+            modal.style.zIndex = '';
         }
     }
 
@@ -5031,7 +5061,14 @@ class LojaApp {
      */
     closeQuickSaleScanner() {
         const modal = document.getElementById('quickSaleScannerModal');
-        if (modal) modal.classList.remove('active');
+        if (modal) {
+            modal.classList.remove('active');
+            modal.style.display = 'none';
+            modal.style.opacity = '0';
+            modal.style.visibility = 'hidden';
+            modal.style.pointerEvents = 'none';
+            modal.style.zIndex = '';
+        }
 
         if (this.quickSaleQRScanner) {
             this.quickSaleQRScanner
