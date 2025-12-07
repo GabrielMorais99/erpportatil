@@ -23,12 +23,12 @@
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
         <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
         <!-- Preload CSS para evitar FOUC -->
-        <link rel="preload" href="/css/style.css?v=20251238" as="style" />
-        <link rel="stylesheet" href="/css/style.css?v=20251238" />
+        <link rel="preload" href="/css/style.css?v=20251240" as="style" />
+        <link rel="stylesheet" href="/css/style.css?v=20251240" />
         <!-- Tailwind CSS (compilado) -->
         <link rel="stylesheet" href="/css/tailwind.css?v=20251205" />
         <!-- Correções Mobile + Componentes Modernos -->
-        <link rel="stylesheet" href="/css/style-mobile-fix.css?v=20251238" />
+        <link rel="stylesheet" href="/css/style-mobile-fix.css?v=20251240" />
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
         <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js" onload="window.chartJsLoaded = true;" onerror="console.error('Erro ao carregar Chart.js');"></script>
         <!-- Bibliotecas para exportação avançada -->
@@ -3311,26 +3311,42 @@
                 function loadScript(filename, onSuccess, onError) {
                     if (config.loadedScripts.has(filename)) { if (onSuccess) onSuccess(); return; }
                     
-                    const path = getPath(filename);
-                    const fullUrl = path + '?v=' + Date.now();
-                    log('Carregando:', fullUrl);
-                    
-                    const script = document.createElement('script');
-                    script.src = fullUrl;
-                    script.async = false;
-                    
-                    script.onload = function() {
-                        config.loadedScripts.add(filename);
-                        log('✅ Carregado:', filename);
-                        if (onSuccess) onSuccess();
+                    const candidates = [];
+                    const primaryPath = getPath(filename);
+                    candidates.push(primaryPath);
+                    // Fallback: se produção falhar, tentar /js/ direto
+                    const devPath = config.paths.development + filename;
+                    if (!candidates.includes(devPath)) candidates.push(devPath);
+
+                    const tryLoad = (index) => {
+                        const path = candidates[index];
+                        const fullUrl = path + '?v=' + Date.now();
+                        log('Carregando:', fullUrl);
+
+                        const script = document.createElement('script');
+                        script.src = fullUrl;
+                        script.async = false;
+
+                        script.onload = function() {
+                            config.loadedScripts.add(filename);
+                            log('✅ Carregado:', filename, 'via', path);
+                            if (onSuccess) onSuccess();
+                        };
+
+                        script.onerror = function(e) {
+                            console.error('❌ [ScriptLoader] Falha ao carregar:', path, e?.message);
+                            if (index + 1 < candidates.length) {
+                                log('🔁 Tentando fallback para:', candidates[index + 1]);
+                                tryLoad(index + 1);
+                                return;
+                            }
+                            if (onError) onError(e);
+                        };
+
+                        document.head.appendChild(script);
                     };
-                    
-                    script.onerror = function(e) {
-                        console.error('❌ [ScriptLoader] Falha ao carregar:', path);
-                        if (onError) onError(e);
-                    };
-                    
-                    document.head.appendChild(script);
+
+                    tryLoad(0);
                 }
                 
                 return {
@@ -3426,7 +3442,7 @@
             
             // Registrar Service Worker para PWA (com versão forçada)
             if ('serviceWorker' in navigator) {
-                const SW_VERSION = '20251204213000';
+                const SW_VERSION = '20251226220000';
                 window.addEventListener('load', async () => {
                     try {
                         const registrations = await navigator.serviceWorker.getRegistrations();
