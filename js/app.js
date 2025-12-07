@@ -14644,6 +14644,13 @@ class LojaApp {
         modal.style.pointerEvents = 'auto';
         modal.style.zIndex = '999';
 
+        // Prevenir fechamento imediato por propagação de clique
+        const modalContent = modal.querySelector('.modal-content');
+        if (modalContent) {
+            modalContent.addEventListener('click', (e) => e.stopPropagation(), true);
+        }
+        modal.addEventListener('click', (e) => e.stopPropagation(), true);
+
         const content = document.getElementById('tutorialContent');
         if (content) {
             content.innerHTML = `
@@ -14905,13 +14912,7 @@ class LojaApp {
             modal.style.opacity = '0';
             modal.style.visibility = 'hidden';
             modal.style.pointerEvents = 'none';
-            modal.style.zIndex = '-1';
-
-            // Garantir que o modal-content também está escondido
-            const modalContent = modal.querySelector('.modal-content');
-            if (modalContent) {
-                modalContent.style.display = 'none';
-            }
+            modal.style.zIndex = '';
 
             // Salvar que o usuário viu o tutorial
             localStorage.setItem('hasSeenTutorial', 'true');
