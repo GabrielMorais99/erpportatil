@@ -23,12 +23,12 @@
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
         <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
         <!-- Preload CSS para evitar FOUC -->
-        <link rel="preload" href="/css/style.css?v=20251233" as="style" />
-        <link rel="stylesheet" href="/css/style.css?v=20251233" />
+        <link rel="preload" href="/css/style.css?v=20251234" as="style" />
+        <link rel="stylesheet" href="/css/style.css?v=20251234" />
         <!-- Tailwind CSS (compilado) -->
         <link rel="stylesheet" href="/css/tailwind.css?v=20251205" />
         <!-- Correções Mobile + Componentes Modernos -->
-        <link rel="stylesheet" href="/css/style-mobile-fix.css?v=20251233" />
+        <link rel="stylesheet" href="/css/style-mobile-fix.css?v=20251234" />
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
         <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js" onload="window.chartJsLoaded = true;" onerror="console.error('Erro ao carregar Chart.js');"></script>
         <!-- Bibliotecas para exportação avançada -->
@@ -4403,7 +4403,62 @@
                 document.body.appendChild(panel);
             })();
         </script>
-    </body>
+    <script>
+        // Fallback: força badge e log de debug caso o app não inicialize a tempo
+        (function () {
+            const params = new URLSearchParams(window.location.search);
+            if (params.get('debug') === '1' || sessionStorage.getItem('__modalDebug') === '1') {
+                sessionStorage.setItem('__modalDebug', '1');
+                window.__modalDebug = true;
+
+                const ensureBadge = () => {
+                    if (document.getElementById('modalDebugBadge')) return;
+                    const badge = document.createElement('div');
+                    badge.id = 'modalDebugBadge';
+                    badge.textContent = 'DEBUG ON';
+                    badge.style.position = 'fixed';
+                    badge.style.top = '12px';
+                    badge.style.left = '12px';
+                    badge.style.zIndex = '99999';
+                    badge.style.background = '#d32f2f';
+                    badge.style.color = '#fff';
+                    badge.style.padding = '6px 10px';
+                    badge.style.borderRadius = '6px';
+                    badge.style.fontSize = '12px';
+                    badge.style.boxShadow = '0 2px 8px rgba(0,0,0,0.25)';
+                    document.body.appendChild(badge);
+                };
+
+                const ensureLog = () => {
+                    if (document.getElementById('modalDebugLog')) return;
+                    const logEl = document.createElement('div');
+                    logEl.id = 'modalDebugLog';
+                    logEl.style.position = 'fixed';
+                    logEl.style.bottom = '12px';
+                    logEl.style.left = '12px';
+                    logEl.style.right = '12px';
+                    logEl.style.maxHeight = '30vh';
+                    logEl.style.overflowY = 'auto';
+                    logEl.style.zIndex = '99999';
+                    logEl.style.background = 'rgba(0,0,0,0.85)';
+                    logEl.style.color = '#fff';
+                    logEl.style.fontSize = '12px';
+                    logEl.style.lineHeight = '1.4';
+                    logEl.style.padding = '10px';
+                    logEl.style.borderRadius = '8px';
+                    logEl.style.boxShadow = '0 4px 12px rgba(0,0,0,0.3)';
+                    document.body.appendChild(logEl);
+                    const row = document.createElement('div');
+                    row.textContent = `[${new Date().toLocaleTimeString()}] DEBUG de modais ativo (fallback)`;
+                    logEl.appendChild(row);
+                };
+
+                ensureBadge();
+                ensureLog();
+            }
+        })();
+    </script>
+  </body>
 </html>
 
 
