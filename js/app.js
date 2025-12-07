@@ -4922,14 +4922,18 @@ class LojaApp {
         }
 
         this.notifyModalDebug('openQuickSaleScanner:init', new Error('abrindo QR'));
+        this.pushModalDebug('QR: abrindo modal');
         modal.classList.add('active');
 
         // Verificar se a biblioteca Html5Qrcode está disponível
         if (!window.Html5Qrcode) {
+            const err = new Error('Html5Qrcode indisponível');
             toast.error(
                 'Biblioteca de scanner não carregada. Verifique sua conexão.',
                 3000
             );
+            this.notifyModalDebug('Html5Qrcode.missing', err);
+            modal.classList.remove('active');
             return;
         }
 
@@ -4943,6 +4947,7 @@ class LojaApp {
             // Criar instância do scanner
             const html5QrCode = new Html5Qrcode('quickSaleQrReader');
             this.quickSaleQRScanner = html5QrCode;
+            this.pushModalDebug('QR: scanner criado');
 
             // Obter câmeras disponíveis antes de iniciar
             Html5Qrcode.getCameras()
@@ -4957,6 +4962,7 @@ class LojaApp {
                     // Usa a primeira câmera disponível (geralmente traseira)
                     const cameraId = devices[0].id;
                     this.notifyModalDebug('start:init', new Error(`Câmera selecionada: ${cameraId}`));
+                    this.pushModalDebug(`QR: start com camera ${cameraId}`);
                     html5QrCode
                         .start(
                             { deviceId: { exact: cameraId } },
@@ -4964,6 +4970,7 @@ class LojaApp {
                             (decodedText) => {
                                 this.notifyModalDebug('start:decoded', new Error(decodedText));
                                 // QR Code detectado
+                                this.pushModalDebug(`QR: decoded ${decodedText}`);
                                 this.handleQuickSaleQRScanned(decodedText);
                                 html5QrCode
                                     .stop()
@@ -4988,6 +4995,7 @@ class LojaApp {
                                 3000
                             );
                             this.notifyModalDebug('start', err);
+                            this.pushModalDebug(`QR: start erro ${err?.name} ${err?.message}`);
                             modal.classList.remove('active');
                             // Mantém o modal aberto para tentar novamente
                             this.quickSaleQRScanner = null;
@@ -4997,6 +5005,7 @@ class LojaApp {
                     console.error('Erro ao obter câmeras:', err);
                     toast.error('Não foi possível acessar a câmera. Tente novamente.', 3000);
                     this.notifyModalDebug('getCameras.catch', err);
+                    this.pushModalDebug(`QR: getCameras catch ${err?.name} ${err?.message}`);
                     modal.classList.remove('active');
                     this.quickSaleQRScanner = null;
                 });
@@ -5005,6 +5014,7 @@ class LojaApp {
             this.quickSaleQRScanner = null;
             toast.error('Não foi possível inicializar o scanner. Tente novamente.', 3000);
             this.notifyModalDebug('createScanner', err);
+            this.pushModalDebug(`QR: createScanner erro ${err?.name} ${err?.message}`);
             modal.classList.remove('active');
         }
     }
@@ -14657,6 +14667,38 @@ class LojaApp {
         }
     }
 
+    // Log visual no DOM para depuração mobile
+    pushModalDebug(message) {
+        try {
+            if (!window.__modalDebug) return;
+            let logEl = document.getElementById('modalDebugLog');
+            if (!logEl) {
+                logEl = document.createElement('div');
+                logEl.id = 'modalDebugLog';
+                logEl.style.position = 'fixed';
+                logEl.style.bottom = '12px';
+                logEl.style.left = '12px';
+                logEl.style.right = '12px';
+                logEl.style.maxHeight = '30vh';
+                logEl.style.overflowY = 'auto';
+                logEl.style.zIndex = '99999';
+                logEl.style.background = 'rgba(0,0,0,0.85)';
+                logEl.style.color = '#fff';
+                logEl.style.fontSize = '12px';
+                logEl.style.lineHeight = '1.4';
+                logEl.style.padding = '10px';
+                logEl.style.borderRadius = '8px';
+                logEl.style.boxShadow = '0 4px 12px rgba(0,0,0,0.3)';
+                document.body.appendChild(logEl);
+            }
+            const row = document.createElement('div');
+            row.textContent = `[${new Date().toLocaleTimeString()}] ${message}`;
+            logEl.appendChild(row);
+        } catch (err) {
+            console.error('Falha ao logar debug modal', err);
+        }
+    }
+
     // Utilitário de debug de modais (ativa com ?debug=1)
     notifyModalDebug(context, err) {
         if (!window.__modalDebug) return;
@@ -14664,6 +14706,7 @@ class LojaApp {
         const msg = err?.message || String(err);
         const txt = `[MODAL DEBUG] ${context}: ${name} - ${msg}`;
         console.error(txt, err);
+        this.pushModalDebug(txt);
         if (typeof toast !== 'undefined' && toast?.error) {
             toast.error(txt, 4000);
         } else {
