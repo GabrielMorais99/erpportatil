@@ -4921,6 +4921,10 @@ class LojaApp {
             return;
         }
 
+        if (!window.__modalDebug) {
+            window.__modalDebug = true;
+            this.createModalDebugBadge();
+        }
         this.notifyModalDebug('openQuickSaleScanner:init', new Error('abrindo QR'));
         this.pushModalDebug('QR: abrindo modal');
         modal.classList.add('active');
@@ -14659,8 +14663,12 @@ class LojaApp {
             if (!window.__modalDebug) {
                 window.__modalDebug = true;
             }
-            if (window.__modalDebug && typeof toast !== 'undefined' && toast?.info) {
-                toast.info('DEBUG de modais ativo', 2000);
+            if (window.__modalDebug) {
+                this.createModalDebugBadge();
+                this.pushModalDebug('DEBUG de modais ativo');
+                if (typeof toast !== 'undefined' && toast?.info) {
+                    toast.info('DEBUG de modais ativo', 2000);
+                }
             }
         } catch (err) {
             console.error('Erro ao definir flag de debug de modal', err);
@@ -14696,6 +14704,29 @@ class LojaApp {
             logEl.appendChild(row);
         } catch (err) {
             console.error('Falha ao logar debug modal', err);
+        }
+    }
+
+    // Badge visual simples para indicar que o debug está ativo
+    createModalDebugBadge() {
+        try {
+            if (document.getElementById('modalDebugBadge')) return;
+            const badge = document.createElement('div');
+            badge.id = 'modalDebugBadge';
+            badge.textContent = 'DEBUG ON';
+            badge.style.position = 'fixed';
+            badge.style.top = '12px';
+            badge.style.left = '12px';
+            badge.style.zIndex = '99999';
+            badge.style.background = '#d32f2f';
+            badge.style.color = '#fff';
+            badge.style.padding = '6px 10px';
+            badge.style.borderRadius = '6px';
+            badge.style.fontSize = '12px';
+            badge.style.boxShadow = '0 2px 8px rgba(0,0,0,0.25)';
+            document.body.appendChild(badge);
+        } catch (err) {
+            console.error('Falha ao criar badge de debug', err);
         }
     }
 
