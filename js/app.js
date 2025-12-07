@@ -4921,6 +4921,7 @@ class LojaApp {
             return;
         }
 
+        this.notifyModalDebug('openQuickSaleScanner:init', new Error('abrindo QR'));
         modal.classList.add('active');
 
         // Verificar se a biblioteca Html5Qrcode está disponível
@@ -4961,6 +4962,7 @@ class LojaApp {
                             { deviceId: { exact: cameraId } },
                             { fps: 10, qrbox: { width: 250, height: 250 } },
                             (decodedText) => {
+                                this.notifyModalDebug('start:decoded', new Error(decodedText));
                                 // QR Code detectado
                                 this.handleQuickSaleQRScanned(decodedText);
                                 html5QrCode
@@ -14642,6 +14644,13 @@ class LojaApp {
                 sessionStorage.setItem('__modalDebug', '1');
             } else if (sessionStorage.getItem('__modalDebug') === '1') {
                 window.__modalDebug = true;
+            }
+            // Forçar debug habilitado temporariamente para diagnosticar mobile
+            if (!window.__modalDebug) {
+                window.__modalDebug = true;
+            }
+            if (window.__modalDebug && typeof toast !== 'undefined' && toast?.info) {
+                toast.info('DEBUG de modais ativo', 2000);
             }
         } catch (err) {
             console.error('Erro ao definir flag de debug de modal', err);
