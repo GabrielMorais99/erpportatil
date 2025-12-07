@@ -452,9 +452,9 @@ a i {
         align-items: center;
         justify-content: center;
         gap: 0;
-        min-width: 40px;
-        min-height: 40px;
-        padding: 10px 12px;
+        min-width: 44px;
+        min-height: 44px;
+        padding: 0 12px;
         font-size: 0;
         text-indent: -9999px;
         overflow: hidden;
@@ -469,11 +469,11 @@ a i {
     }
 
     .btn-plus::after {
-        content: '+';
-        font-size: 18px;
-        font-weight: 700;
+        content: '+' !important;
+        font-family: 'Inter', 'Roboto', sans-serif;
+        font-size: 20px;
+        font-weight: 800;
         line-height: 1;
-        display: inline-block;
         color: #ffffff;
         text-indent: 0;
         position: absolute;
