@@ -458,6 +458,8 @@ a i {
         font-size: 0;
         text-indent: -9999px;
         overflow: hidden;
+        position: relative;
+        color: #ffffff !important;
     }
 
     .btn-plus i,
@@ -472,8 +474,13 @@ a i {
         font-weight: 700;
         line-height: 1;
         display: inline-block;
-        color: inherit;
+        color: #ffffff;
         text-indent: 0;
+        position: absolute;
+        inset: 0;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
     }
 
     /* Touch targets adequados */
