@@ -4928,6 +4928,7 @@ class LojaApp {
             window.__modalDebug = true;
             this.createModalDebugBadge();
         }
+        const isDebug = window.__modalDebug === true;
         this.notifyModalDebug('openQuickSaleScanner:init', new Error('abrindo QR'));
         this.pushModalDebug('QR: abrindo modal');
         modal.classList.add('active');
@@ -4936,6 +4937,18 @@ class LojaApp {
         modal.style.visibility = 'visible';
         modal.style.pointerEvents = 'auto';
         modal.style.zIndex = '9999';
+        if (isDebug) {
+            // Forçar fundo claro e sem blur no debug
+            modal.classList.add('debug-force-visible');
+            modal.style.background = 'rgba(0,0,0,0.05)';
+            // Remover qualquer backdrop global
+            document.querySelectorAll('.modal-backdrop, .modal-overlay').forEach((el) => {
+                el.style.display = 'none';
+                el.style.opacity = '0';
+                el.style.visibility = 'hidden';
+                el.style.pointerEvents = 'none';
+            });
+        }
 
         // Verificar se a biblioteca Html5Qrcode está disponível
         if (!window.Html5Qrcode) {
@@ -4951,6 +4964,10 @@ class LojaApp {
             modal.style.visibility = 'hidden';
             modal.style.pointerEvents = 'none';
             modal.style.zIndex = '';
+            if (isDebug) {
+                modal.classList.remove('debug-force-visible');
+                modal.style.background = '';
+            }
             return;
         }
 
@@ -4979,6 +4996,10 @@ class LojaApp {
                         modal.style.visibility = 'hidden';
                         modal.style.pointerEvents = 'none';
                         modal.style.zIndex = '';
+                        if (isDebug) {
+                            modal.classList.remove('debug-force-visible');
+                            modal.style.background = '';
+                        }
                         return;
                     }
                     // Usa a primeira câmera disponível (geralmente traseira)
@@ -5024,6 +5045,10 @@ class LojaApp {
                             modal.style.visibility = 'hidden';
                             modal.style.pointerEvents = 'none';
                             modal.style.zIndex = '';
+                            if (isDebug) {
+                                modal.classList.remove('debug-force-visible');
+                                modal.style.background = '';
+                            }
                             // Mantém o modal aberto para tentar novamente
                             this.quickSaleQRScanner = null;
                         });
@@ -5039,6 +5064,10 @@ class LojaApp {
                     modal.style.visibility = 'hidden';
                     modal.style.pointerEvents = 'none';
                     modal.style.zIndex = '';
+                    if (isDebug) {
+                        modal.classList.remove('debug-force-visible');
+                        modal.style.background = '';
+                    }
                     this.quickSaleQRScanner = null;
                 });
         } catch (err) {
@@ -5053,6 +5082,10 @@ class LojaApp {
             modal.style.visibility = 'hidden';
             modal.style.pointerEvents = 'none';
             modal.style.zIndex = '';
+            if (isDebug) {
+                modal.classList.remove('debug-force-visible');
+                modal.style.background = '';
+            }
         }
     }
 
@@ -5068,6 +5101,8 @@ class LojaApp {
             modal.style.visibility = 'hidden';
             modal.style.pointerEvents = 'none';
             modal.style.zIndex = '';
+            modal.classList.remove('debug-force-visible');
+            modal.style.background = '';
         }
 
         if (this.quickSaleQRScanner) {
