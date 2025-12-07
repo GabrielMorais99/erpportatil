@@ -23,12 +23,12 @@
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
         <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
         <!-- Preload CSS para evitar FOUC -->
-        <link rel="preload" href="/css/style.css?v=20251220" as="style" />
-        <link rel="stylesheet" href="/css/style.css?v=20251220" />
+        <link rel="preload" href="/css/style.css?v=20251221" as="style" />
+        <link rel="stylesheet" href="/css/style.css?v=20251221" />
         <!-- Tailwind CSS (compilado) -->
         <link rel="stylesheet" href="/css/tailwind.css?v=20251205" />
         <!-- Correções Mobile + Componentes Modernos -->
-        <link rel="stylesheet" href="/css/style-mobile-fix.css?v=20251220" />
+        <link rel="stylesheet" href="/css/style-mobile-fix.css?v=20251221" />
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
         <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js" onload="window.chartJsLoaded = true;" onerror="console.error('Erro ao carregar Chart.js');"></script>
         <!-- Bibliotecas para exportação avançada -->
@@ -4284,13 +4284,43 @@
                 const hasTestFlag = sessionStorage.getItem('enableTestPanel') === '1';
                 if (!hasTestParam && !hasTestFlag) return;
 
+                const resolveGroupDay = () => {
+                    try {
+                        // Tenta contexto atual
+                        const gid = app?.currentGroupId || app?.currentGroup?.id || app?.currentSaleGroup?.id;
+                        const day = app?.currentDay || app?.currentSaleDay || app?.selectedDay;
+                        if (gid && day != null) return { groupId: gid, day };
+
+                        // Fallback: primeiro grupo com dia
+                        const gs = app?.groups || [];
+                        if (!gs.length) return null;
+                        const g = gs.find((x) => x.days && x.days.length) || gs[0];
+                        const fallbackDay = g?.days?.[0]?.day;
+                        if (!g?.id || fallbackDay == null) return null;
+                        return { groupId: g.id, day: fallbackDay };
+                    } catch (e) {
+                        return null;
+                    }
+                };
+
                 const actions = [
                     { id: 'qr-flow', label: 'Compra via QR (FAB)', run: () => {
-                        const fab = document.getElementById('quickSaleFAB');
-                        if (fab) { fab.click(); return; }
-                        alert('FAB não encontrado.');
+                        try {
+                            const fab = document.getElementById('quickSaleFAB');
+                            if (fab) { fab.click(); return; }
+                            alert('FAB não encontrado.');
+                        } catch (err) {
+                            alert('Erro ao iniciar QR: ' + err.message);
+                        }
                     }},
-                    { id: 'sale-modal', label: 'Nova venda (modal)', run: () => app?.openSaleModal && app.openSaleModal() },
+                    { id: 'sale-modal', label: 'Nova venda (modal)', run: () => {
+                        const ctx = resolveGroupDay();
+                        if (!ctx) {
+                            alert('Selecione/abra um Grupo Mensal com dia válido antes de abrir a venda.');
+                            return;
+                        }
+                        app?.openSaleModal && app.openSaleModal(ctx.groupId, ctx.day);
+                    }},
                     { id: 'item-modal', label: 'Novo produto', run: () => app?.openItemModal && app.openItemModal() },
                     { id: 'client-modal', label: 'Novo cliente', run: () => app?.openClientModal && app.openClientModal() },
                     { id: 'supplier-modal', label: 'Novo fornecedor', run: () => app?.openSupplierModal && app.openSupplierModal() },
