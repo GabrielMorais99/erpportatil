@@ -660,6 +660,7 @@ class LojaApp {
         this.currentEditingSupplier = null;
         // Debug de modais (ativa com ?debug=1 ou sessionStorage)
         this.initModalDebugFlag();
+        this.initModalDebugClickHook();
         this.currentGroup = null;
         this.currentServiceGroup = null;
         this.currentServiceDay = null;
@@ -14747,6 +14748,60 @@ class LojaApp {
             }
         } catch (err) {
             console.error('Erro ao definir flag de debug de modal', err);
+        }
+    }
+
+    // Hook global: se debug=1, captura cliques em botões de QR e dispara manualmente
+    initModalDebugClickHook() {
+        try {
+            if (!window.__modalDebug) return;
+            if (this._qrDebugHookAdded) return;
+            this._qrDebugHookAdded = true;
+
+            const matchesQR = (el) => {
+                if (!el) return false;
+                const txt = (el.innerText || '').toLowerCase();
+                const id = (el.id || '').toLowerCase();
+                const cls = (el.className || '').toLowerCase();
+                const ds = JSON.stringify(el.dataset || {}).toLowerCase();
+                return (
+                    id.includes('qr') ||
+                    id.includes('scanner') ||
+                    cls.includes('qr') ||
+                    cls.includes('scanner') ||
+                    ds.includes('qr') ||
+                    ds.includes('scanner') ||
+                    txt.includes('qr') ||
+                    (el.tagName === 'I' && cls.includes('fa-qrcode'))
+                );
+            };
+
+            document.addEventListener(
+                'click',
+                (e) => {
+                    if (!window.__modalDebug) return;
+                    let target = e.target;
+                    const btn = target.closest ? target.closest('button, a, div, span') : null;
+                    if (btn && matchesQR(btn)) target = btn;
+                    if (!matchesQR(target)) return;
+
+                    this.pushModalDebug(`QR DEBUG: clique capturado em ${target.tagName}#${target.id || ''}.${(target.className || '').toString()}`);
+                    this.notifyModalDebug('qr-debug-click', new Error('Intercept clique QR (debug)'));
+                    e.preventDefault();
+                    e.stopPropagation();
+                    // dispara manualmente o scanner
+                    setTimeout(() => {
+                        try {
+                            this.openQuickSaleScanner();
+                        } catch (err) {
+                            this.notifyModalDebug('qr-debug-open', err);
+                        }
+                    }, 0);
+                },
+                true
+            );
+        } catch (err) {
+            console.error('Erro ao registrar hook de debug de QR', err);
         }
     }
 
