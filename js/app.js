@@ -658,6 +658,8 @@ class LojaApp {
         this.currentEditingClient = null;
         this.currentEditingCoupon = null;
         this.currentEditingSupplier = null;
+        // Debug de modais (ativa com ?debug=1 ou sessionStorage)
+        this.initModalDebugFlag();
         this.currentGroup = null;
         this.currentServiceGroup = null;
         this.currentServiceDay = null;
@@ -4948,10 +4950,12 @@ class LojaApp {
                         toast.error('Nenhuma câmera encontrada. Verifique permissões.', 3000);
                         this.notifyModalDebug('getCameras', new Error('No cameras'));
                         this.quickSaleQRScanner = null;
+                        modal.classList.remove('active');
                         return;
                     }
                     // Usa a primeira câmera disponível (geralmente traseira)
                     const cameraId = devices[0].id;
+                    this.notifyModalDebug('start:init', new Error(`Câmera selecionada: ${cameraId}`));
                     html5QrCode
                         .start(
                             { deviceId: { exact: cameraId } },
@@ -4982,6 +4986,7 @@ class LojaApp {
                                 3000
                             );
                             this.notifyModalDebug('start', err);
+                            modal.classList.remove('active');
                             // Mantém o modal aberto para tentar novamente
                             this.quickSaleQRScanner = null;
                         });
@@ -4990,6 +4995,7 @@ class LojaApp {
                     console.error('Erro ao obter câmeras:', err);
                     toast.error('Não foi possível acessar a câmera. Tente novamente.', 3000);
                     this.notifyModalDebug('getCameras.catch', err);
+                    modal.classList.remove('active');
                     this.quickSaleQRScanner = null;
                 });
         } catch (err) {
@@ -4997,6 +5003,7 @@ class LojaApp {
             this.quickSaleQRScanner = null;
             toast.error('Não foi possível inicializar o scanner. Tente novamente.', 3000);
             this.notifyModalDebug('createScanner', err);
+            modal.classList.remove('active');
         }
     }
 
@@ -14624,6 +14631,21 @@ class LojaApp {
     checkFirstTimeUser() {
         // Desativar auto-abertura (evita fechar rápido em mobile)
         return;
+    }
+
+    // Habilita debug de modais via ?debug=1 (persistência em sessionStorage)
+    initModalDebugFlag() {
+        try {
+            const params = new URLSearchParams(window.location.search);
+            if (params.get('debug') === '1') {
+                window.__modalDebug = true;
+                sessionStorage.setItem('__modalDebug', '1');
+            } else if (sessionStorage.getItem('__modalDebug') === '1') {
+                window.__modalDebug = true;
+            }
+        } catch (err) {
+            console.error('Erro ao definir flag de debug de modal', err);
+        }
     }
 
     // Utilitário de debug de modais (ativa com ?debug=1)
