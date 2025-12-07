@@ -456,10 +456,14 @@ a i {
         min-height: 40px;
         padding: 10px 12px;
         font-size: 0;
+        color: transparent !important;
+        text-indent: -9999px;
+        overflow: hidden;
     }
 
     .btn-plus i,
-    .btn-plus .btn-text {
+    .btn-plus .btn-text,
+    .btn-plus span {
         display: none !important;
     }
 
@@ -469,6 +473,8 @@ a i {
         font-weight: 700;
         line-height: 1;
         display: inline-block;
+        color: inherit;
+        text-indent: 0;
     }
 
     /* Touch targets adequados */
