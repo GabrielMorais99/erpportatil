@@ -456,7 +456,6 @@ a i {
         min-height: 40px;
         padding: 10px 12px;
         font-size: 0;
-        color: transparent !important;
         text-indent: -9999px;
         overflow: hidden;
     }
