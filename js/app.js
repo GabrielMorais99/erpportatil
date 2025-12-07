@@ -4968,20 +4968,18 @@ class LojaApp {
                 .catch((err) => {
                     console.error('Erro ao iniciar scanner:', err);
                     toast.error(
-                        'Erro ao acessar a câmera. Verifique as permissões.',
+                    'Erro ao acessar a câmera. Verifique as permissões e tente novamente.',
                         3000
                     );
-                    // Garantir que o modal/overlay seja fechado e o estado resetado
-                    modal.classList.remove('active');
+                // Mantém o modal aberto para o usuário tentar novamente
                     if (this.quickSaleQRScanner) {
                         this.quickSaleQRScanner = null;
                     }
                 });
         } catch (err) {
             console.error('Erro ao criar scanner:', err);
-            modal.classList.remove('active');
             this.quickSaleQRScanner = null;
-            toast.error('Não foi possível inicializar o scanner.', 3000);
+            toast.error('Não foi possível inicializar o scanner. Tente novamente.', 3000);
         }
     }
 
