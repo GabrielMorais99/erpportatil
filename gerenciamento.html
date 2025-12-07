@@ -23,12 +23,12 @@
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
         <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
         <!-- Preload CSS para evitar FOUC -->
-        <link rel="preload" href="/css/style.css?v=20251218" as="style" />
-        <link rel="stylesheet" href="/css/style.css?v=20251218" />
+        <link rel="preload" href="/css/style.css?v=20251219" as="style" />
+        <link rel="stylesheet" href="/css/style.css?v=20251219" />
         <!-- Tailwind CSS (compilado) -->
         <link rel="stylesheet" href="/css/tailwind.css?v=20251205" />
         <!-- Correções Mobile + Componentes Modernos -->
-        <link rel="stylesheet" href="/css/style-mobile-fix.css?v=20251218" />
+        <link rel="stylesheet" href="/css/style-mobile-fix.css?v=20251219" />
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
         <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js" onload="window.chartJsLoaded = true;" onerror="console.error('Erro ao carregar Chart.js');"></script>
         <!-- Bibliotecas para exportação avançada -->
@@ -4275,6 +4275,102 @@
         >
             <i class="fas fa-qrcode"></i>
         </button>
+
+        <!-- Painel de testes (apenas quando ?test=1) -->
+        <script>
+            (function () {
+                const params = new URLSearchParams(window.location.search);
+                if (params.get('test') !== '1') return;
+
+                const actions = [
+                    { id: 'qr-flow', label: 'Compra via QR (FAB)', run: () => {
+                        const fab = document.getElementById('quickSaleFAB');
+                        if (fab) { fab.click(); return; }
+                        alert('FAB não encontrado.');
+                    }},
+                    { id: 'sale-modal', label: 'Nova venda (modal)', run: () => app?.openSaleModal && app.openSaleModal() },
+                    { id: 'item-modal', label: 'Novo produto', run: () => app?.openItemModal && app.openItemModal() },
+                    { id: 'client-modal', label: 'Novo cliente', run: () => app?.openClientModal && app.openClientModal() },
+                    { id: 'supplier-modal', label: 'Novo fornecedor', run: () => app?.openSupplierModal && app.openSupplierModal() },
+                    { id: 'template-modal', label: 'Novo template', run: () => app?.openTemplateModal && app.openTemplateModal() },
+                    { id: 'coupon-modal', label: 'Novo cupom', run: () => app?.openCouponModal && app.openCouponModal() },
+                    { id: 'pending-order-modal', label: 'Novo pedido', run: () => app?.openPendingOrderModal && app.openPendingOrderModal() },
+                    { id: 'cost-modal', label: 'Novo custo', run: () => app?.openCostModal && app.openCostModal() },
+                    { id: 'goal-modal', label: 'Nova meta', run: () => app?.openGoalModal && app.openGoalModal() },
+                    { id: 'group-modal', label: 'Novo mês/grupo', run: () => app?.openGroupModal && app.openGroupModal() },
+                    { id: 'service-appointment-modal', label: 'Novo serviço', run: () => app?.openServiceAppointmentModal && app.openServiceAppointmentModal() },
+                    { id: 'message-template-modal', label: 'Template mensagem', run: () => app?.openMessageTemplateModal && app.openMessageTemplateModal() },
+                    { id: 'tutorial-modal', label: 'Abrir Como usar', run: () => app?.openTutorialModal && app.openTutorialModal() },
+                    { id: 'stock-modal', label: 'Controle de estoque', run: () => app?.openStockModal && app.openStockModal() },
+                    { id: 'export-modal', label: 'Exportar dados', run: () => app?.openExportModal && app.openExportModal() },
+                    { id: 'advanced-search', label: 'Busca avançada', run: () => app?.openAdvancedSearchModal && app.openAdvancedSearchModal() },
+                ];
+
+                const panel = document.createElement('div');
+                panel.id = 'testFlowPanel';
+                panel.innerHTML = `
+                    <style>
+                        #testFlowPanel {
+                            position: fixed;
+                            top: 80px;
+                            right: 12px;
+                            width: 240px;
+                            max-height: 70vh;
+                            overflow: auto;
+                            background: rgba(0,0,0,0.82);
+                            color: #fff;
+                            padding: 12px;
+                            border-radius: 12px;
+                            box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+                            z-index: 9999;
+                            font-family: 'Inter', sans-serif;
+                        }
+                        #testFlowPanel h3 {
+                            margin: 0 0 8px 0;
+                            font-size: 14px;
+                            font-weight: 700;
+                            text-transform: uppercase;
+                            letter-spacing: 0.5px;
+                        }
+                        #testFlowPanel button {
+                            width: 100%;
+                            margin: 4px 0;
+                            padding: 8px 10px;
+                            border: none;
+                            border-radius: 8px;
+                            background: #2563eb;
+                            color: #fff;
+                            cursor: pointer;
+                            font-weight: 600;
+                            transition: transform 0.1s ease, box-shadow 0.1s ease;
+                        }
+                        #testFlowPanel button:hover {
+                            transform: translateY(-1px);
+                            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+                        }
+                    </style>
+                    <h3>Testes rápidos</h3>
+                    ${actions.map(a => `<button data-action="${a.id}">${a.label}</button>`).join('')}
+                `;
+
+                panel.addEventListener('click', (e) => {
+                    const btn = e.target.closest('button[data-action]');
+                    if (!btn) return;
+                    const actionId = btn.getAttribute('data-action');
+                    const action = actions.find(a => a.id === actionId);
+                    if (action && typeof action.run === 'function') {
+                        try {
+                            action.run();
+                        } catch (err) {
+                            alert('Erro ao executar ação: ' + actionId + '\\n' + err.message);
+                            console.error(err);
+                        }
+                    }
+                });
+
+                document.body.appendChild(panel);
+            })();
+        </script>
     </body>
 </html>
 
