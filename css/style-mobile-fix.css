@@ -462,25 +462,28 @@ a i {
         color: inherit;
     }
 
-    .btn-plus i,
     .btn-plus .btn-text,
     .btn-plus span {
         display: none !important;
     }
 
-    .btn-plus::after {
-        content: '+' !important;
+    .btn-plus i {
+        display: inline-flex !important;
+        align-items: center;
+        justify-content: center;
+        font-style: normal;
+        width: 100%;
+        height: 100%;
+        color: #ffffff;
         font-family: 'Inter', 'Roboto', sans-serif;
         font-size: 20px;
         font-weight: 800;
         line-height: 1;
-        color: #ffffff;
-        text-indent: 0;
-        position: absolute;
-        inset: 0;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
+        content: '+';
+    }
+
+    .btn-plus::after {
+        content: '' !important; /* desativa fallback */
     }
 
     /* Touch targets adequados */
