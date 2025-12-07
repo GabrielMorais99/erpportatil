@@ -14611,13 +14611,8 @@ class LojaApp {
             return;
         }
 
-        const hasSeenTutorial = localStorage.getItem('hasSeenTutorial');
-        if (!hasSeenTutorial) {
-            // Aguardar um pouco para a página carregar completamente
-            setTimeout(() => {
-                this.openTutorialModal();
-            }, 2000);
-        }
+        // Desativar auto-abertura para evitar fechar rápido em mobile
+        return;
     }
 
     openTutorialModal() {
@@ -14644,12 +14639,15 @@ class LojaApp {
         modal.style.pointerEvents = 'auto';
         modal.style.zIndex = '999';
 
-        // Prevenir fechamento imediato por propagação de clique
+        // Prevenir fechamento por propagação/overlay
         const modalContent = modal.querySelector('.modal-content');
         if (modalContent) {
             modalContent.addEventListener('click', (e) => e.stopPropagation(), true);
         }
-        modal.addEventListener('click', (e) => e.stopPropagation(), true);
+        modal.onclick = (e) => {
+            // bloqueia fechamento por clique no backdrop
+            e.stopPropagation();
+        };
 
         const content = document.getElementById('tutorialContent');
         if (content) {
