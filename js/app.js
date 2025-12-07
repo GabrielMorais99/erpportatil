@@ -4936,37 +4936,53 @@ class LojaApp {
         // Limpar conteúdo anterior
         readerDiv.innerHTML = '';
 
-        // Criar instância do scanner
-        const html5QrCode = new Html5Qrcode('quickSaleQrReader');
-        this.quickSaleQRScanner = html5QrCode;
+        try {
+            // Criar instância do scanner
+            const html5QrCode = new Html5Qrcode('quickSaleQrReader');
+            this.quickSaleQRScanner = html5QrCode;
 
-        // Iniciar scanner
-        html5QrCode
-            .start(
-                { facingMode: 'environment' },
-                { fps: 10, qrbox: { width: 250, height: 250 } },
-                (decodedText) => {
-                    // QR Code detectado
-                    this.handleQuickSaleQRScanned(decodedText);
-                    html5QrCode
-                        .stop()
-                        .then(() => {
-                            modal.classList.remove('active');
-                            this.quickSaleQRScanner = null;
-                        })
-                        .catch(console.error);
-                },
-                (errorMessage) => {
-                    // Silencioso durante escaneamento
-                }
-            )
-            .catch((err) => {
-                console.error('Erro ao iniciar scanner:', err);
-                toast.error(
-                    'Erro ao acessar a câmera. Verifique as permissões.',
-                    3000
-                );
-            });
+            // Iniciar scanner
+            html5QrCode
+                .start(
+                    { facingMode: 'environment' },
+                    { fps: 10, qrbox: { width: 250, height: 250 } },
+                    (decodedText) => {
+                        // QR Code detectado
+                        this.handleQuickSaleQRScanned(decodedText);
+                        html5QrCode
+                            .stop()
+                            .then(() => {
+                                modal.classList.remove('active');
+                                this.quickSaleQRScanner = null;
+                            })
+                            .catch((stopErr) => {
+                                console.error(stopErr);
+                                modal.classList.remove('active');
+                                this.quickSaleQRScanner = null;
+                            });
+                    },
+                    (errorMessage) => {
+                        // Silencioso durante escaneamento
+                    }
+                )
+                .catch((err) => {
+                    console.error('Erro ao iniciar scanner:', err);
+                    toast.error(
+                        'Erro ao acessar a câmera. Verifique as permissões.',
+                        3000
+                    );
+                    // Garantir que o modal/overlay seja fechado e o estado resetado
+                    modal.classList.remove('active');
+                    if (this.quickSaleQRScanner) {
+                        this.quickSaleQRScanner = null;
+                    }
+                });
+        } catch (err) {
+            console.error('Erro ao criar scanner:', err);
+            modal.classList.remove('active');
+            this.quickSaleQRScanner = null;
+            toast.error('Não foi possível inicializar o scanner.', 3000);
+        }
     }
 
     /**
@@ -4982,7 +4998,10 @@ class LojaApp {
                 .then(() => {
                     this.quickSaleQRScanner = null;
                 })
-                .catch(console.error);
+                .catch((err) => {
+                    console.error(err);
+                    this.quickSaleQRScanner = null;
+                });
         }
     }
 
