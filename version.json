@@ -1,10 +1,10 @@
 {
   "version": "2025120815",
   "buildDate": "2025-12-08",
-  "buildTime": "15:29:54",
-  "commit": "d9ff828",
+  "buildTime": "15:45:51",
+  "commit": "42c72cb",
   "branch": "main",
-  "commitMessage": "fix: HTML nunca é cacheado - sempre busca da rede com cache busting",
+  "commitMessage": "fix: corrige problema de modal causado pelo FAB QR code",
   "description": "ERP Portátil - Sistema de Gestão Financeira",
-  "updatedAt": "2025-12-08T18:29:54.556Z"
+  "updatedAt": "2025-12-08T18:45:51.988Z"
 }
