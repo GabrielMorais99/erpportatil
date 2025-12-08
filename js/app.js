@@ -4919,11 +4919,16 @@ class LojaApp {
         const modal = document.getElementById('quickSaleScannerModal');
         if (!modal) {
             console.error('Modal de scanner não encontrado');
+            console.log('[QR-DEBUG] quickSaleScannerModal não encontrado');
+            if (window.__modalDebug && typeof toast !== 'undefined') toast.error('[QR-DEBUG] Modal ausente', 4000);
             return;
         }
 
-        // Alerta forçado para debug mobile
-        alert('DEBUG: iniciando QR (openQuickSaleScanner)');
+        // Log/alert imediato para saber se o clique disparou no mobile
+        console.log('[QR-DEBUG] openQuickSaleScanner disparado');
+        if (typeof alert !== 'undefined') {
+            alert('DEBUG: iniciando QR (openQuickSaleScanner)');
+        }
 
         if (!window.__modalDebug) {
             window.__modalDebug = true;

@@ -4356,6 +4356,37 @@
         >
             <i class="fas fa-qrcode"></i>
         </button>
+        <script>
+            // Gancho extra para debug no FAB (mobile Chrome)
+            (function () {
+                const params = new URLSearchParams(window.location.search);
+                const enableDbg = params.get('debug') === '1';
+                if (!enableDbg) return;
+                const fab = document.getElementById('quickSaleFAB');
+                if (!fab) return;
+                fab.addEventListener(
+                    'click',
+                    (e) => {
+                        console.log('[QR-DEBUG] Click capturado no FAB');
+                        alert('DEBUG: clique no FAB QR');
+                        if (window.app && typeof window.app.openQuickSaleScanner === 'function') {
+                            try {
+                                window.app.openQuickSaleScanner();
+                            } catch (err) {
+                                console.error('[QR-DEBUG] Erro ao chamar openQuickSaleScanner', err);
+                                alert('Erro ao abrir scanner: ' + err.message);
+                            }
+                        } else {
+                            console.warn('[QR-DEBUG] app não disponível no FAB');
+                            alert('app não disponível no FAB');
+                        }
+                        // evita propagação extra
+                        e.stopPropagation();
+                    },
+                    true
+                );
+            })();
+        </script>
 
         <!-- Painel de testes (apenas quando ?test=1) -->
         <script>
