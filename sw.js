@@ -145,31 +145,48 @@ self.addEventListener('fetch', (event) => {
         return;
     }
     
-    // Para arquivos estáticos (HTML, CSS, JS), usar NETWORK FIRST
+    // HTML - SEMPRE buscar da rede, NUNCA usar cache
+    if (url.pathname.endsWith('.html') || url.pathname === '/' || url.pathname === '/index.html') {
+        event.respondWith(
+            fetch(new Request(event.request.url + '?t=' + Date.now(), { 
+                cache: 'no-store',
+                headers: {
+                    'Cache-Control': 'no-cache, no-store, must-revalidate',
+                    'Pragma': 'no-cache'
+                }
+            }))
+                .then((response) => {
+                    // NUNCA cachear HTML
+                    return response;
+                })
+                .catch((error) => {
+                    // Se falhar, retornar erro (não usar cache de HTML)
+                    throw error;
+                })
+        );
+        return;
+    }
+    
+    // Para arquivos estáticos (CSS, JS), usar NETWORK FIRST
     // Sempre buscar da rede primeiro, usar cache apenas se rede falhar
     if (
-        url.pathname.endsWith('.html') ||
         url.pathname.endsWith('.css') ||
         url.pathname.endsWith('.js') ||
-        url.pathname.endsWith('.json') ||
         url.pathname.endsWith('.jpg') ||
         url.pathname.endsWith('.png')
     ) {
         event.respondWith(
             fetch(new Request(event.request, { cache: 'no-store' }))
                 .then((response) => {
-                    // Retornar sempre rede; não cachear HTML/CSS/JS para evitar versões antigas
+                    // Retornar sempre rede; não cachear CSS/JS para evitar versões antigas
                     return response;
                 })
                 .catch((error) => {
-                    // Fallback: tentar cache se rede falhar (exceto version.json)
+                    // Fallback: tentar cache se rede falhar
                     return caches
                         .match(event.request)
                         .then((cachedResponse) => {
                             if (cachedResponse) return cachedResponse;
-                            if (event.request.destination === 'document') {
-                                return caches.match('/index.html');
-                            }
                             throw error;
                         });
                 })
