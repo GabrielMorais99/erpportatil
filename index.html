@@ -25,9 +25,33 @@
             href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
             rel="stylesheet"
         />
+        <!-- Versão dinâmica do sistema -->
+        <script>
+            // Carregar versão do arquivo version.json
+            let APP_VERSION = '20251250'; // Fallback
+            let SW_VERSION = '20251226234000'; // Fallback
+            fetch('/version.json')
+                .then(res => res.json())
+                .then(data => {
+                    APP_VERSION = data.version;
+                    // Atualizar links CSS com versão dinâmica
+                    const styleLink = document.querySelector('link[href*="style.css"]');
+                    const preloadLink = document.querySelector('link[rel="preload"][href*="style.css"]');
+                    if (styleLink) styleLink.href = `/css/style.css?v=${APP_VERSION}`;
+                    if (preloadLink) preloadLink.href = `/css/style.css?v=${APP_VERSION}`;
+                    // Atualizar versão na tela de login
+                    const versionElement = document.querySelector('.signature p:last-child');
+                    if (versionElement) {
+                        versionElement.textContent = `Versão: ${APP_VERSION}`;
+                    }
+                })
+                .catch(err => {
+                    console.warn('⚠️ Não foi possível carregar version.json, usando versão padrão');
+                });
+        </script>
         <!-- Preload CSS para evitar FOUC -->
-        <link rel="preload" href="/css/style.css?v=20251249" as="style" />
-        <link rel="stylesheet" href="/css/style.css?v=20251249" />
+        <link rel="preload" href="/css/style.css?v=20251250" as="style" />
+        <link rel="stylesheet" href="/css/style.css?v=20251250" />
         <!-- Tailwind CSS (compilado) -->
         <link rel="stylesheet" href="/css/tailwind.css?v=20251205" />
         <link
@@ -319,8 +343,51 @@
                 <div class="signature text-center mt-6 text-gray-600 text-sm">
                     <p>© Gabriel Dev</p>
                     <p>2025</p>
-                    <p style="margin-top: 6px; font-weight: 600; font-size: 0.9rem;">Versão: 20251249</p>
+                    <div id="version-display" style="margin-top: 6px; font-weight: 600; font-size: 0.9rem; line-height: 1.4;">
+                        <div style="color: var(--primary-color);">Versão: Carregando...</div>
+                        <div id="version-details" style="font-size: 0.75rem; font-weight: 400; margin-top: 2px; opacity: 0.8; display: none;">
+                            <span id="version-commit"></span>
+                        </div>
+                    </div>
                 </div>
+                <script>
+                    // Atualizar versão na tela de login
+                    fetch('/version.json')
+                        .then(res => res.json())
+                        .then(data => {
+                            const versionEl = document.getElementById('version-display');
+                            const versionDetails = document.getElementById('version-details');
+                            const versionCommit = document.getElementById('version-commit');
+                            
+                            if (versionEl) {
+                                const versionText = versionEl.querySelector('div:first-child');
+                                if (versionText) {
+                                    versionText.textContent = `Versão: ${data.version}`;
+                                }
+                            }
+                            
+                            // Mostrar detalhes adicionais (commit, data)
+                            if (data.commit && data.commit !== 'unknown') {
+                                if (versionDetails) {
+                                    versionDetails.style.display = 'block';
+                                    const commitShort = data.commit.substring(0, 7);
+                                    const buildInfo = data.buildDate ? ` • ${data.buildDate}` : '';
+                                    if (versionCommit) {
+                                        versionCommit.textContent = `${commitShort}${buildInfo}`;
+                                    }
+                                }
+                            }
+                        })
+                        .catch(err => {
+                            const versionEl = document.getElementById('version-display');
+                            if (versionEl) {
+                                const versionText = versionEl.querySelector('div:first-child');
+                                if (versionText) {
+                                    versionText.textContent = 'Versão: 2025120800';
+                                }
+                            }
+                        });
+                </script>
             </div>
         </div>
         <script>
@@ -461,10 +528,61 @@
             );
         </script>
         <script>
-            // Registrar Service Worker para PWA (com versão forçada)
+            // Registrar Service Worker para PWA (com versão dinâmica)
             if ('serviceWorker' in navigator) {
-                const SW_VERSION = '20251226234000';
-                window.addEventListener('load', async () => {
+                let SW_VERSION = '20251226234000'; // Fallback
+                // Carregar versão do arquivo version.json
+                fetch('/version.json')
+                    .then(res => res.json())
+                    .then(data => {
+                        SW_VERSION = data.version + '000000'; // Formato: YYYYMMDDHHMMSS
+                        registerServiceWorker();
+                    })
+                    .catch(err => {
+                        console.warn('⚠️ Não foi possível carregar version.json para SW, usando versão padrão');
+                        registerServiceWorker();
+                    });
+                
+                function registerServiceWorker() {
+                    window.addEventListener('load', async () => {
+                        try {
+                            const registrations =
+                                await navigator.serviceWorker.getRegistrations();
+                            await Promise.all(
+                                registrations.map((reg) => {
+                                    if (
+                                        !reg.active ||
+                                        !reg.active.scriptURL.includes(SW_VERSION)
+                                    ) {
+                                        return reg.unregister();
+                                    }
+                                })
+                            );
+
+                            navigator.serviceWorker
+                                .register(`/sw.js?v=${SW_VERSION}`, { scope: '/' })
+                                .then((registration) => {
+                                    console.log(
+                                        '✅ [PWA] Service Worker registrado:',
+                                        registration.scope,
+                                        'Versão:',
+                                        SW_VERSION
+                                    );
+                                })
+                                .catch((error) => {
+                                    console.error(
+                                        '❌ [PWA] Erro ao registrar Service Worker:',
+                                        error
+                                    );
+                                });
+                        } catch (error) {
+                            console.error(
+                                '❌ [PWA] Erro ao gerenciar Service Workers:',
+                                error
+                            );
+                        }
+                    });
+                }
                     try {
                         const registrations =
                             await navigator.serviceWorker.getRegistrations();
