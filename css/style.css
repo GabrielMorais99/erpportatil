@@ -2434,6 +2434,21 @@ body.theme-blue .login-container #entrarBtn:focus {
     -webkit-backdrop-filter: blur(0px) !important;
     pointer-events: none !important;
     visibility: hidden !important;
+    z-index: -1 !important;
+}
+
+/* CORREÇÃO ESPECÍFICA ANDROID - Remover backdrop-filter completamente */
+.android-chrome .modal:not(.active) {
+    display: none !important;
+    opacity: 0 !important;
+    background: transparent !important;
+    background-color: transparent !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    pointer-events: none !important;
+    visibility: hidden !important;
+    z-index: -1 !important;
+    transform: none !important;
 }
 
 /* Modal de tutorial com z-index maior e garantia de cliques */
