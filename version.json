@@ -1,10 +1,10 @@
 {
-  "version": "2025120801",
+  "version": "2025120815",
   "buildDate": "2025-12-08",
-  "buildTime": "01:50:34",
-  "commit": "3d760c7",
+  "buildTime": "15:29:54",
+  "commit": "d9ff828",
   "branch": "main",
-  "commitMessage": "chore: atualiza version.json para 2025120803",
+  "commitMessage": "fix: HTML nunca é cacheado - sempre busca da rede com cache busting",
   "description": "ERP Portátil - Sistema de Gestão Financeira",
-  "updatedAt": "2025-12-08T04:50:34.961Z"
+  "updatedAt": "2025-12-08T18:29:54.556Z"
 }
