@@ -5072,29 +5072,20 @@ class LojaApp {
                                 3000
                             );
                             this.notifyModalDebug('start', err);
-                            this.pushModalDebug(`QR: start erro ${err?.name} ${err?.message}`);
-                            if (window.__modalDebug && typeof alert !== 'undefined') {
-                                alert(`QR DEBUG start: ${err?.name || 'Erro'} - ${err?.message || err}`);
-                            }
-                            if (!isDebug) {
-                                modal.classList.remove('active');
-                                modal.style.display = 'none';
-                                modal.style.opacity = '0';
-                                modal.style.visibility = 'hidden';
-                                modal.style.pointerEvents = 'none';
-                                modal.style.zIndex = '';
-                            } else {
-                                this.pushModalDebug('QR: manter modal aberto (debug) após erro start');
-                                modal.classList.add('debug-force-visible');
-                                modal.style.display = 'flex';
-                                modal.style.opacity = '1';
-                                modal.style.visibility = 'visible';
-                                modal.style.pointerEvents = 'auto';
-                                modal.style.zIndex = '9999';
-                                modal.style.background = 'rgba(0,0,0,0.05)';
-                            }
-                            // Mantém o modal aberto para tentar novamente
-                            this.quickSaleQRScanner = null;
+                    this.pushModalDebug(`QR: start erro ${err?.name} ${err?.message}`);
+                    if (window.__modalDebug && typeof alert !== 'undefined') {
+                        alert(`QR DEBUG start: ${err?.name || 'Erro'} - ${err?.message || err}`);
+                    }
+                    // Manter modal aberto sempre (tanto debug quanto normal), para tentar novamente
+                    modal.classList.add('debug-force-visible');
+                    modal.style.display = 'flex';
+                    modal.style.opacity = '1';
+                    modal.style.visibility = 'visible';
+                    modal.style.pointerEvents = 'auto';
+                    modal.style.zIndex = '9999';
+                    modal.style.background = 'rgba(0,0,0,0.05)';
+                    // Mantém o modal aberto para tentar novamente
+                    this.quickSaleQRScanner = null;
                         });
                 })
                 .catch((err) => {
@@ -5105,15 +5096,15 @@ class LojaApp {
                     if (window.__modalDebug && typeof alert !== 'undefined') {
                         alert(`QR DEBUG getCameras: ${err?.name || 'Erro'} - ${err?.message || err}`);
                     }
-                    // Em qualquer caso de erro, mantemos o modal aberto (inclusive fora do debug)
-                    modal.classList.add('debug-force-visible');
-                    modal.style.display = 'flex';
-                    modal.style.opacity = '1';
-                    modal.style.visibility = 'visible';
-                    modal.style.pointerEvents = 'auto';
-                    modal.style.zIndex = '9999';
-                    modal.style.background = 'rgba(0,0,0,0.05)';
-                    this.quickSaleQRScanner = null;
+            // Em qualquer caso de erro, mantemos o modal aberto (inclusive fora do debug)
+            modal.classList.add('debug-force-visible');
+            modal.style.display = 'flex';
+            modal.style.opacity = '1';
+            modal.style.visibility = 'visible';
+            modal.style.pointerEvents = 'auto';
+            modal.style.zIndex = '9999';
+            modal.style.background = 'rgba(0,0,0,0.05)';
+            this.quickSaleQRScanner = null;
                 });
         } catch (err) {
             console.error('Erro ao criar scanner:', err);

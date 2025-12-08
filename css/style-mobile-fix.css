@@ -172,6 +172,16 @@ a i {
     -webkit-backdrop-filter: blur(8px);
 }
 
+/* Estado de debug para modais específicos */
+.debug-force-visible {
+    display: flex !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+    pointer-events: auto !important;
+    z-index: 9999 !important;
+    background: rgba(0, 0, 0, 0.05) !important;
+}
+
 /* Modal content modernizado */
 .modal-content {
     border-radius: var(--radius-xl);
