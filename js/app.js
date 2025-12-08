@@ -4924,29 +4924,26 @@ class LojaApp {
             return;
         }
 
-        // Log/alert imediato para saber se o clique disparou no mobile
-        console.log('[QR-DEBUG] openQuickSaleScanner disparado');
-        if (typeof alert !== 'undefined') {
-            alert('DEBUG: iniciando QR (openQuickSaleScanner)');
-        }
-
-        if (!window.__modalDebug) {
-            window.__modalDebug = true;
-            this.createModalDebugBadge();
-        }
         const isDebug = window.__modalDebug === true;
+        if (isDebug) {
+            console.log('[QR-DEBUG] openQuickSaleScanner disparado');
+            if (typeof alert !== 'undefined') {
+                alert('DEBUG: iniciando QR (openQuickSaleScanner)');
+            }
+        }
         this.notifyModalDebug('openQuickSaleScanner:init', new Error('abrindo QR'));
         this.pushModalDebug('QR: abrindo modal (quickSaleFAB clique)');
         // Forçar visibilidade imediata para evitar fechamento instantâneo no mobile
-        modal.classList.add('active', 'debug-force-visible');
+        modal.classList.add('active');
         modal.style.display = 'flex';
         modal.style.opacity = '1';
         modal.style.visibility = 'visible';
         modal.style.pointerEvents = 'auto';
         modal.style.zIndex = '9999';
-        modal.style.background = 'rgba(0,0,0,0.05)';
         modal.setAttribute('data-force-open', '1');
         if (isDebug) {
+            modal.classList.add('debug-force-visible');
+            modal.style.background = 'rgba(0,0,0,0.05)';
             this.pushModalDebug('QR: modal forçado visível (debug)');
             if (typeof alert !== 'undefined') {
                 alert('DEBUG: modal QR ativo - aguardando câmera');
@@ -14765,11 +14762,10 @@ class LojaApp {
             if (params.get('debug') === '1') {
                 window.__modalDebug = true;
                 sessionStorage.setItem('__modalDebug', '1');
+            } else if (params.get('debug') === '0') {
+                window.__modalDebug = false;
+                sessionStorage.removeItem('__modalDebug');
             } else if (sessionStorage.getItem('__modalDebug') === '1') {
-                window.__modalDebug = true;
-            }
-            // Forçar debug habilitado temporariamente para diagnosticar mobile
-            if (!window.__modalDebug) {
                 window.__modalDebug = true;
             }
             if (window.__modalDebug) {

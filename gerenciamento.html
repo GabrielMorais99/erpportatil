@@ -23,12 +23,12 @@
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
         <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
         <!-- Preload CSS para evitar FOUC -->
-        <link rel="preload" href="/css/style.css?v=20251248" as="style" />
-        <link rel="stylesheet" href="/css/style.css?v=20251248" />
+        <link rel="preload" href="/css/style.css?v=20251249" as="style" />
+        <link rel="stylesheet" href="/css/style.css?v=20251249" />
         <!-- Tailwind CSS (compilado) -->
         <link rel="stylesheet" href="/css/tailwind.css?v=20251205" />
         <!-- Correções Mobile + Componentes Modernos -->
-        <link rel="stylesheet" href="/css/style-mobile-fix.css?v=20251248" />
+        <link rel="stylesheet" href="/css/style-mobile-fix.css?v=20251249" />
         <!-- Kill switch temporário de Service Worker para bust de cache (ativo só com debug=1|clearCache=1|killsw=1) -->
         <script>
             (function () {
@@ -4513,88 +4513,6 @@
                 });
 
                 document.body.appendChild(panel);
-            })();
-        </script>
-        <script>
-            // Guardião de modais em debug: mantém visíveis e loga tentativas de ocultar
-            (function () {
-                const params = new URLSearchParams(window.location.search);
-                const isDebug =
-                    params.get('debug') === '1' ||
-                    sessionStorage.getItem('__modalDebug') === '1';
-                if (!isDebug) return;
-
-                const ensureLogDom = () => {
-                    let logEl = document.getElementById('modalDebugLog');
-                    if (!logEl) {
-                        logEl = document.createElement('div');
-                        logEl.id = 'modalDebugLog';
-                        logEl.style.position = 'fixed';
-                        logEl.style.bottom = '12px';
-                        logEl.style.left = '12px';
-                        logEl.style.right = '12px';
-                        logEl.style.maxHeight = '30vh';
-                        logEl.style.overflowY = 'auto';
-                        logEl.style.zIndex = '99999';
-                        logEl.style.background = 'rgba(0,0,0,0.85)';
-                        logEl.style.color = '#fff';
-                        logEl.style.fontSize = '12px';
-                        logEl.style.lineHeight = '1.4';
-                        logEl.style.padding = '10px';
-                        logEl.style.borderRadius = '8px';
-                        logEl.style.boxShadow = '0 4px 12px rgba(0,0,0,0.3)';
-                        document.body.appendChild(logEl);
-                    }
-                    return logEl;
-                };
-
-                const log = (msg) => {
-                    console.log('[MODAL-GUARD]', msg);
-                    const logEl = ensureLogDom();
-                    const row = document.createElement('div');
-                    row.textContent = `[${new Date().toLocaleTimeString()}] ${msg}`;
-                    logEl.appendChild(row);
-                };
-
-                const forceVisible = (modal) => {
-                    modal.classList.add('debug-force-visible');
-                    modal.style.display = 'flex';
-                    modal.style.opacity = '1';
-                    modal.style.visibility = 'visible';
-                    modal.style.pointerEvents = 'auto';
-                    modal.style.zIndex = '9999';
-                    modal.style.background = 'rgba(0,0,0,0.05)';
-                };
-
-                const guardModal = (modal) => {
-                    if (!modal || modal.dataset.modalGuard === '1') return;
-                    modal.dataset.modalGuard = '1';
-                    forceVisible(modal);
-                    log(`Guardando modal ${modal.id || '(sem id)'}`);
-                    const observer = new MutationObserver(() => {
-                        const cs = getComputedStyle(modal);
-                        if (
-                            cs.display === 'none' ||
-                            cs.visibility === 'hidden' ||
-                            Number(cs.opacity) === 0
-                        ) {
-                            forceVisible(modal);
-                            log(`Reativado modal ${modal.id || '(sem id)'}`);
-                        }
-                    });
-                    observer.observe(modal, {
-                        attributes: true,
-                        attributeFilter: ['style', 'class'],
-                    });
-                };
-
-                const scan = () => {
-                    document.querySelectorAll('.modal').forEach(guardModal);
-                };
-
-                setTimeout(scan, 200);
-                setTimeout(scan, 1000);
-                setInterval(scan, 3000);
             })();
         </script>
     <script>
