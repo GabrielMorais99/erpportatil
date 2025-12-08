@@ -25,35 +25,77 @@
             href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
             rel="stylesheet"
         />
-        <!-- Versão dinâmica do sistema -->
+        <!-- Versão dinâmica do sistema - CARREGAR PRIMEIRO -->
         <script>
-            // Carregar versão do arquivo version.json
-            let APP_VERSION = '20251250'; // Fallback
-            let SW_VERSION = '20251226234000'; // Fallback
-            fetch('/version.json')
-                .then(res => res.json())
-                .then(data => {
-                    APP_VERSION = data.version;
-                    // Atualizar links CSS com versão dinâmica
-                    const styleLink = document.querySelector('link[href*="style.css"]');
-                    const preloadLink = document.querySelector('link[rel="preload"][href*="style.css"]');
-                    if (styleLink) styleLink.href = `/css/style.css?v=${APP_VERSION}`;
-                    if (preloadLink) preloadLink.href = `/css/style.css?v=${APP_VERSION}`;
-                    // Atualizar versão na tela de login
-                    const versionElement = document.querySelector('.signature p:last-child');
-                    if (versionElement) {
-                        versionElement.textContent = `Versão: ${APP_VERSION}`;
-                    }
-                })
-                .catch(err => {
-                    console.warn('⚠️ Não foi possível carregar version.json, usando versão padrão');
-                });
+            // Carregar versão ANTES de carregar CSS para garantir cache busting
+            (function() {
+                let APP_VERSION = '2025120800'; // Fallback atualizado
+                let SW_VERSION = '2025120800000000'; // Fallback atualizado
+                
+                // Tentar carregar versão do arquivo version.json
+                fetch('/version.json?t=' + Date.now())
+                    .then(res => res.json())
+                    .then(data => {
+                        APP_VERSION = data.version || APP_VERSION;
+                        SW_VERSION = (data.version || '2025120800') + '000000';
+                        
+                        // Atualizar TODOS os links CSS com versão dinâmica
+                        const updateCSSLinks = () => {
+                            // Buscar TODOS os links CSS (incluindo preload)
+                            const allCSSLinks = document.querySelectorAll('link[rel="stylesheet"], link[rel="preload"][as="style"]');
+                            
+                            allCSSLinks.forEach(link => {
+                                const href = link.getAttribute('href');
+                                if (!href) return;
+                                
+                                // Atualizar apenas links CSS locais (não CDN)
+                                if (href.startsWith('/css/') || href.startsWith('./css/') || href.includes('/css/')) {
+                                    // Remover query string antiga se existir
+                                    const baseHref = href.split('?')[0];
+                                    // Atualizar com nova versão
+                                    link.setAttribute('href', `${baseHref}?v=${APP_VERSION}`);
+                                }
+                            });
+                            
+                            // Log para debug (apenas em desenvolvimento)
+                            if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+                                console.log(`✅ [VERSION] CSS atualizados para versão: ${APP_VERSION}`);
+                            }
+                        };
+                        
+                        // Atualizar links CSS imediatamente
+                        updateCSSLinks();
+                        
+                        // Atualizar novamente após DOM estar completo (para CSS carregados dinamicamente)
+                        if (document.readyState === 'loading') {
+                            document.addEventListener('DOMContentLoaded', updateCSSLinks);
+                        } else {
+                            // DOM já está pronto, atualizar novamente após um pequeno delay
+                            setTimeout(updateCSSLinks, 100);
+                        }
+                        
+                        // Atualizar versão na tela de login
+                        const versionElement = document.querySelector('.signature p:last-child');
+                        if (versionElement) {
+                            versionElement.textContent = `Versão: ${APP_VERSION}`;
+                        }
+                        
+                        // Armazenar versão globalmente
+                        window.APP_VERSION = APP_VERSION;
+                        window.SW_VERSION = SW_VERSION;
+                    })
+                    .catch(err => {
+                        console.warn('⚠️ Não foi possível carregar version.json, usando versão padrão:', APP_VERSION);
+                        window.APP_VERSION = APP_VERSION;
+                        window.SW_VERSION = SW_VERSION;
+                    });
+            })();
         </script>
-        <!-- Preload CSS para evitar FOUC -->
-        <link rel="preload" href="/css/style.css?v=20251250" as="style" />
-        <link rel="stylesheet" href="/css/style.css?v=20251250" />
-        <!-- Tailwind CSS (compilado) -->
-        <link rel="stylesheet" href="/css/tailwind.css?v=20251205" />
+        <!-- Preload CSS para evitar FOUC - Versão será atualizada dinamicamente -->
+        <link rel="preload" href="/css/style.css?v=2025120800" as="style" />
+        <link rel="stylesheet" href="/css/style.css?v=2025120800" />
+        <!-- Tailwind CSS (compilado) - Versão será atualizada dinamicamente -->
+        <link rel="stylesheet" href="/css/tailwind.css?v=2025120800" />
         <link
             rel="stylesheet"
             href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"

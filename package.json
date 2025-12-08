@@ -34,7 +34,7 @@
     "tailwindcss": "^3.4.1",
     "terser": "^5.44.1"
   },
-  "buildVersion": "2025120800",
+  "buildVersion": "2025120801",
   "buildDate": "2025-12-08",
-  "buildTime": "00:41:24"
+  "buildTime": "01:05:41"
 }

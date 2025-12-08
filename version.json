@@ -1,10 +1,10 @@
 {
-  "version": "2025120800",
+  "version": "2025120801",
   "buildDate": "2025-12-08",
-  "buildTime": "00:41:24",
-  "commit": "0ce10f3",
+  "buildTime": "01:05:41",
+  "commit": "22f6778",
   "branch": "main",
-  "commitMessage": "fix: corrige problema de tela transparente após fechar modais",
+  "commitMessage": "fix: corrige definitivamente problema de tela transparente após fechar modais",
   "description": "ERP Portátil - Sistema de Gestão Financeira",
-  "updatedAt": "2025-12-08T03:41:24.251Z"
+  "updatedAt": "2025-12-08T04:05:42.026Z"
 }
