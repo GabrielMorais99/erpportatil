@@ -1,10 +1,10 @@
 {
   "version": "2025120801",
   "buildDate": "2025-12-08",
-  "buildTime": "01:38:55",
-  "commit": "336684e",
+  "buildTime": "01:46:38",
+  "commit": "54fe7e2",
   "branch": "main",
-  "commitMessage": "chore: atualiza version.json para 2025120802",
+  "commitMessage": "fix: corrige exibição de versão na tela de login",
   "description": "ERP Portátil - Sistema de Gestão Financeira",
-  "updatedAt": "2025-12-08T04:38:56.215Z"
+  "updatedAt": "2025-12-08T04:46:38.628Z"
 }

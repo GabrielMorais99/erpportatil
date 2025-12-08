@@ -29,12 +29,15 @@
         <script>
             // Carregar versão ANTES de carregar CSS para garantir cache busting
             (function() {
-                let APP_VERSION = '2025120802'; // Fallback atualizado
-                let SW_VERSION = '2025120800000000'; // Fallback atualizado
+                let APP_VERSION = '2025120803'; // Fallback atualizado
+                let SW_VERSION = '2025120803000000'; // Fallback atualizado
                 
-                // Tentar carregar versão do arquivo version.json
-                fetch('/version.json?t=' + Date.now())
-                    .then(res => res.json())
+                // Tentar carregar versão do arquivo version.json (com cache busting agressivo)
+                fetch('/version.json?t=' + Date.now() + '&v=' + Math.random())
+                    .then(res => {
+                        if (!res.ok) throw new Error('HTTP ' + res.status);
+                        return res.json();
+                    })
                     .then(data => {
                         APP_VERSION = data.version || APP_VERSION;
                         SW_VERSION = (data.version || '2025120800') + '000000';
@@ -398,9 +401,12 @@
                     </div>
                 </div>
                 <script>
-                    // Atualizar versão na tela de login
-                    fetch('/version.json')
-                        .then(res => res.json())
+                    // Atualizar versão na tela de login (com cache busting agressivo)
+                    fetch('/version.json?t=' + Date.now() + '&v=' + Math.random())
+                        .then(res => {
+                            if (!res.ok) throw new Error('HTTP ' + res.status);
+                            return res.json();
+                        })
                         .then(data => {
                             const versionEl = document.getElementById('version-display');
                             const versionDetails = document.getElementById('version-details');
@@ -410,6 +416,7 @@
                                 const versionText = versionEl.querySelector('div:first-child');
                                 if (versionText) {
                                     versionText.textContent = `Versão: ${data.version}`;
+                                    console.log('✅ [VERSION] Versão atualizada para:', data.version);
                                 }
                             }
                             
@@ -432,7 +439,7 @@
                                 const versionText = versionEl.querySelector('div:first-child');
                                 if (versionText) {
                                     // Usar fallback do primeiro script se disponível
-                                    versionText.textContent = `Versão: ${window.APP_VERSION || '2025120802'}`;
+                                    versionText.textContent = `Versão: ${window.APP_VERSION || '2025120803'}`;
                                 }
                             }
                         });
