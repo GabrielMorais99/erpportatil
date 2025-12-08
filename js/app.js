@@ -658,9 +658,6 @@ class LojaApp {
         this.currentEditingClient = null;
         this.currentEditingCoupon = null;
         this.currentEditingSupplier = null;
-        // Debug de modais (ativa com ?debug=1 ou sessionStorage)
-        this.initModalDebugFlag();
-        this.initModalDebugClickHook();
         this.currentGroup = null;
         this.currentServiceGroup = null;
         this.currentServiceDay = null;
@@ -4919,205 +4916,57 @@ class LojaApp {
         const modal = document.getElementById('quickSaleScannerModal');
         if (!modal) {
             console.error('Modal de scanner não encontrado');
-            console.log('[QR-DEBUG] quickSaleScannerModal não encontrado');
-            if (window.__modalDebug && typeof toast !== 'undefined') toast.error('[QR-DEBUG] Modal ausente', 4000);
             return;
         }
 
-        const isDebug = window.__modalDebug === true;
-        if (isDebug) {
-            console.log('[QR-DEBUG] openQuickSaleScanner disparado');
-            if (typeof alert !== 'undefined') {
-                alert('DEBUG: iniciando QR (openQuickSaleScanner)');
-            }
-        }
-        this.notifyModalDebug('openQuickSaleScanner:init', new Error('abrindo QR'));
-        this.pushModalDebug('QR: abrindo modal (quickSaleFAB clique)');
-        // Forçar visibilidade imediata para evitar fechamento instantâneo no mobile
         modal.classList.add('active');
-        modal.style.display = 'flex';
-        modal.style.opacity = '1';
-        modal.style.visibility = 'visible';
-        modal.style.pointerEvents = 'auto';
-        modal.style.zIndex = '9999';
-        modal.setAttribute('data-force-open', '1');
-        if (isDebug) {
-            modal.classList.add('debug-force-visible');
-            modal.style.background = 'rgba(0,0,0,0.05)';
-            this.pushModalDebug('QR: modal forçado visível (debug)');
-            if (typeof alert !== 'undefined') {
-                alert('DEBUG: modal QR ativo - aguardando câmera');
-            }
-            // Remover qualquer backdrop global
-            document.querySelectorAll('.modal-backdrop, .modal-overlay').forEach((el) => {
-                el.style.display = 'none';
-                el.style.opacity = '0';
-                el.style.visibility = 'hidden';
-                el.style.pointerEvents = 'none';
-            });
-        }
 
         // Verificar se a biblioteca Html5Qrcode está disponível
         if (!window.Html5Qrcode) {
-            const err = new Error('Html5Qrcode indisponível');
             toast.error(
                 'Biblioteca de scanner não carregada. Verifique sua conexão.',
                 3000
             );
-            this.notifyModalDebug('Html5Qrcode.missing', err);
-            modal.classList.remove('active');
-            modal.style.display = 'none';
-            modal.style.opacity = '0';
-            modal.style.visibility = 'hidden';
-            modal.style.pointerEvents = 'none';
-            modal.style.zIndex = '';
-            if (isDebug) {
-                modal.classList.remove('debug-force-visible');
-                modal.style.background = '';
-            }
             return;
         }
 
         const readerDiv = document.getElementById('quickSaleQrReader');
         if (!readerDiv) return;
 
-        // Limpar conteúdo anterior e garantir área visível
+        // Limpar conteúdo anterior
         readerDiv.innerHTML = '';
-        readerDiv.style.minHeight = '260px';
-        readerDiv.style.background = '#000';
-        readerDiv.style.display = 'block';
 
-        try {
-            // Pré-verificação de permissão (log mais cedo)
-            if (navigator.mediaDevices?.getUserMedia) {
-                navigator.mediaDevices
-                    .getUserMedia({ video: { facingMode: 'environment' } })
-                    .then((stream) => {
-                        stream.getTracks().forEach((t) => t.stop());
-                        this.pushModalDebug('QR: getUserMedia ok (pré-checagem)');
-                    })
-                    .catch((err) => {
-                        this.pushModalDebug(`QR: getUserMedia falhou ${err?.name} ${err?.message}`);
-                        this.notifyModalDebug('getUserMedia', err);
-                    });
-            }
+        // Criar instância do scanner
+        const html5QrCode = new Html5Qrcode('quickSaleQrReader');
+        this.quickSaleQRScanner = html5QrCode;
 
-            // Criar instância do scanner
-            const html5QrCode = new Html5Qrcode('quickSaleQrReader');
-            this.quickSaleQRScanner = html5QrCode;
-            this.pushModalDebug('QR: scanner criado');
-
-            // Obter câmeras disponíveis antes de iniciar
-            Html5Qrcode.getCameras()
-                .then((devices) => {
-                    if (!devices || !devices.length) {
-                        toast.error('Nenhuma câmera encontrada. Verifique permissões.', 3000);
-                        this.notifyModalDebug('getCameras', new Error('No cameras'));
-                        this.quickSaleQRScanner = null;
-                        if (!isDebug) {
-                            modal.classList.remove('active');
-                            modal.style.display = 'none';
-                            modal.style.opacity = '0';
-                            modal.style.visibility = 'hidden';
-                            modal.style.pointerEvents = 'none';
-                            modal.style.zIndex = '';
-                        } else {
-                            this.pushModalDebug('QR: manter modal aberto (debug) após no cameras');
-                            modal.classList.add('debug-force-visible');
-                            modal.style.display = 'flex';
-                            modal.style.opacity = '1';
-                            modal.style.visibility = 'visible';
-                            modal.style.pointerEvents = 'auto';
-                            modal.style.zIndex = '9999';
-                            modal.style.background = 'rgba(0,0,0,0.05)';
-                        }
-                        return;
-                    }
-                    // Usa a primeira câmera disponível (geralmente traseira)
-                    const cameraId = devices[0].id;
-                    this.notifyModalDebug('start:init', new Error(`Câmera selecionada: ${cameraId}`));
-                    this.pushModalDebug(`QR: start com camera ${cameraId}`);
+        // Iniciar scanner
+        html5QrCode
+            .start(
+                { facingMode: 'environment' },
+                { fps: 10, qrbox: { width: 250, height: 250 } },
+                (decodedText) => {
+                    // QR Code detectado
+                    this.handleQuickSaleQRScanned(decodedText);
                     html5QrCode
-                        .start(
-                            { deviceId: { exact: cameraId } },
-                            { fps: 10, qrbox: { width: 250, height: 250 } },
-                            (decodedText) => {
-                                this.notifyModalDebug('start:decoded', new Error(decodedText));
-                                // QR Code detectado
-                                this.pushModalDebug(`QR: decoded ${decodedText}`);
-                                this.handleQuickSaleQRScanned(decodedText);
-                                html5QrCode
-                                    .stop()
-                                    .then(() => {
-                                        modal.classList.remove('active');
-                                        this.quickSaleQRScanner = null;
-                                    })
-                                    .catch((stopErr) => {
-                                        console.error(stopErr);
-                                        modal.classList.remove('active');
-                                        this.quickSaleQRScanner = null;
-                                    });
-                            },
-                            (errorMessage) => {
-                                // Silencioso durante escaneamento
-                            }
-                        )
-                        .catch((err) => {
-                            console.error('Erro ao iniciar scanner:', err);
-                            toast.error(
-                                'Erro ao acessar a câmera. Verifique as permissões e tente novamente.',
-                                3000
-                            );
-                            this.notifyModalDebug('start', err);
-                    this.pushModalDebug(`QR: start erro ${err?.name} ${err?.message}`);
-                    if (window.__modalDebug && typeof alert !== 'undefined') {
-                        alert(`QR DEBUG start: ${err?.name || 'Erro'} - ${err?.message || err}`);
-                    }
-                    // Manter modal aberto sempre (tanto debug quanto normal), para tentar novamente
-                    modal.classList.add('debug-force-visible');
-                    modal.style.display = 'flex';
-                    modal.style.opacity = '1';
-                    modal.style.visibility = 'visible';
-                    modal.style.pointerEvents = 'auto';
-                    modal.style.zIndex = '9999';
-                    modal.style.background = 'rgba(0,0,0,0.05)';
-                    // Mantém o modal aberto para tentar novamente
-                    this.quickSaleQRScanner = null;
-                        });
-                })
-                .catch((err) => {
-                    console.error('Erro ao obter câmeras:', err);
-                    toast.error('Não foi possível acessar a câmera. Tente novamente.', 3000);
-                    this.notifyModalDebug('getCameras.catch', err);
-                    this.pushModalDebug(`QR: getCameras catch ${err?.name} ${err?.message}`);
-                    if (window.__modalDebug && typeof alert !== 'undefined') {
-                        alert(`QR DEBUG getCameras: ${err?.name || 'Erro'} - ${err?.message || err}`);
-                    }
-            // Em qualquer caso de erro, mantemos o modal aberto (inclusive fora do debug)
-            modal.classList.add('debug-force-visible');
-            modal.style.display = 'flex';
-            modal.style.opacity = '1';
-            modal.style.visibility = 'visible';
-            modal.style.pointerEvents = 'auto';
-            modal.style.zIndex = '9999';
-            modal.style.background = 'rgba(0,0,0,0.05)';
-            this.quickSaleQRScanner = null;
-                });
-        } catch (err) {
-            console.error('Erro ao criar scanner:', err);
-            this.quickSaleQRScanner = null;
-            toast.error('Não foi possível inicializar o scanner. Tente novamente.', 3000);
-            this.notifyModalDebug('createScanner', err);
-            this.pushModalDebug(`QR: createScanner erro ${err?.name} ${err?.message}`);
-            // Sempre manter modal aberto após erro geral para visibilidade
-            modal.classList.add('debug-force-visible');
-            modal.style.display = 'flex';
-            modal.style.opacity = '1';
-            modal.style.visibility = 'visible';
-            modal.style.pointerEvents = 'auto';
-            modal.style.zIndex = '9999';
-            modal.style.background = 'rgba(0,0,0,0.05)';
-        }
+                        .stop()
+                        .then(() => {
+                            modal.classList.remove('active');
+                            this.quickSaleQRScanner = null;
+                        })
+                        .catch(console.error);
+                },
+                (errorMessage) => {
+                    // Silencioso durante escaneamento
+                }
+            )
+            .catch((err) => {
+                console.error('Erro ao iniciar scanner:', err);
+                toast.error(
+                    'Erro ao acessar a câmera. Verifique as permissões.',
+                    3000
+                );
+            });
     }
 
     /**
@@ -5125,16 +4974,7 @@ class LojaApp {
      */
     closeQuickSaleScanner() {
         const modal = document.getElementById('quickSaleScannerModal');
-        if (modal) {
-            modal.classList.remove('active');
-            modal.style.display = 'none';
-            modal.style.opacity = '0';
-            modal.style.visibility = 'hidden';
-            modal.style.pointerEvents = 'none';
-            modal.style.zIndex = '';
-            modal.classList.remove('debug-force-visible');
-            modal.style.background = '';
-        }
+        if (modal) modal.classList.remove('active');
 
         if (this.quickSaleQRScanner) {
             this.quickSaleQRScanner
@@ -5142,10 +4982,7 @@ class LojaApp {
                 .then(() => {
                     this.quickSaleQRScanner = null;
                 })
-                .catch((err) => {
-                    console.error(err);
-                    this.quickSaleQRScanner = null;
-                });
+                .catch(console.error);
         }
     }
 
@@ -14751,156 +14588,18 @@ class LojaApp {
     // ========== TUTORIAL ==========
 
     checkFirstTimeUser() {
-        // Desativar auto-abertura (evita fechar rápido em mobile)
-        return;
-    }
-
-    // Habilita debug de modais via ?debug=1 (persistência em sessionStorage)
-    initModalDebugFlag() {
-        try {
-            const params = new URLSearchParams(window.location.search);
-            if (params.get('debug') === '1') {
-                window.__modalDebug = true;
-                sessionStorage.setItem('__modalDebug', '1');
-            } else if (params.get('debug') === '0') {
-                window.__modalDebug = false;
-                sessionStorage.removeItem('__modalDebug');
-            } else if (sessionStorage.getItem('__modalDebug') === '1') {
-                window.__modalDebug = true;
-            }
-            if (window.__modalDebug) {
-                this.createModalDebugBadge();
-                this.pushModalDebug('DEBUG de modais ativo');
-                if (typeof toast !== 'undefined' && toast?.info) {
-                    toast.info('DEBUG de modais ativo', 2000);
-                }
-            }
-        } catch (err) {
-            console.error('Erro ao definir flag de debug de modal', err);
+        // Não mostrar tutorial para admin
+        const username = sessionStorage.getItem('username');
+        if (username === 'admin') {
+            return;
         }
-    }
 
-    // Hook global: se debug=1, captura cliques em botões de QR e dispara manualmente
-    initModalDebugClickHook() {
-        try {
-            if (!window.__modalDebug) return;
-            if (this._qrDebugHookAdded) return;
-            this._qrDebugHookAdded = true;
-
-            const matchesQR = (el) => {
-                if (!el) return false;
-                const txt = (el.innerText || '').toLowerCase();
-                const id = (el.id || '').toLowerCase();
-                const cls = (el.className || '').toLowerCase();
-                const ds = JSON.stringify(el.dataset || {}).toLowerCase();
-                return (
-                    id.includes('qr') ||
-                    id.includes('scanner') ||
-                    cls.includes('qr') ||
-                    cls.includes('scanner') ||
-                    ds.includes('qr') ||
-                    ds.includes('scanner') ||
-                    txt.includes('qr') ||
-                    (el.tagName === 'I' && cls.includes('fa-qrcode'))
-                );
-            };
-
-            document.addEventListener(
-                'click',
-                (e) => {
-                    if (!window.__modalDebug) return;
-                    let target = e.target;
-                    const btn = target.closest ? target.closest('button, a, div, span') : null;
-                    if (btn && matchesQR(btn)) target = btn;
-                    if (!matchesQR(target)) return;
-
-                    this.pushModalDebug(`QR DEBUG: clique capturado em ${target.tagName}#${target.id || ''}.${(target.className || '').toString()}`);
-                    this.notifyModalDebug('qr-debug-click', new Error('Intercept clique QR (debug)'));
-                    e.preventDefault();
-                    e.stopPropagation();
-                    // dispara manualmente o scanner
-                    setTimeout(() => {
-                        try {
-                            this.openQuickSaleScanner();
-                        } catch (err) {
-                            this.notifyModalDebug('qr-debug-open', err);
-                        }
-                    }, 0);
-                },
-                true
-            );
-        } catch (err) {
-            console.error('Erro ao registrar hook de debug de QR', err);
-        }
-    }
-
-    // Log visual no DOM para depuração mobile
-    pushModalDebug(message) {
-        try {
-            if (!window.__modalDebug) return;
-            let logEl = document.getElementById('modalDebugLog');
-            if (!logEl) {
-                logEl = document.createElement('div');
-                logEl.id = 'modalDebugLog';
-                logEl.style.position = 'fixed';
-                logEl.style.bottom = '12px';
-                logEl.style.left = '12px';
-                logEl.style.right = '12px';
-                logEl.style.maxHeight = '30vh';
-                logEl.style.overflowY = 'auto';
-                logEl.style.zIndex = '99999';
-                logEl.style.background = 'rgba(0,0,0,0.85)';
-                logEl.style.color = '#fff';
-                logEl.style.fontSize = '12px';
-                logEl.style.lineHeight = '1.4';
-                logEl.style.padding = '10px';
-                logEl.style.borderRadius = '8px';
-                logEl.style.boxShadow = '0 4px 12px rgba(0,0,0,0.3)';
-                document.body.appendChild(logEl);
-            }
-            const row = document.createElement('div');
-            row.textContent = `[${new Date().toLocaleTimeString()}] ${message}`;
-            logEl.appendChild(row);
-        } catch (err) {
-            console.error('Falha ao logar debug modal', err);
-        }
-    }
-
-    // Badge visual simples para indicar que o debug está ativo
-    createModalDebugBadge() {
-        try {
-            if (document.getElementById('modalDebugBadge')) return;
-            const badge = document.createElement('div');
-            badge.id = 'modalDebugBadge';
-            badge.textContent = 'DEBUG ON';
-            badge.style.position = 'fixed';
-            badge.style.top = '12px';
-            badge.style.left = '12px';
-            badge.style.zIndex = '99999';
-            badge.style.background = '#d32f2f';
-            badge.style.color = '#fff';
-            badge.style.padding = '6px 10px';
-            badge.style.borderRadius = '6px';
-            badge.style.fontSize = '12px';
-            badge.style.boxShadow = '0 2px 8px rgba(0,0,0,0.25)';
-            document.body.appendChild(badge);
-        } catch (err) {
-            console.error('Falha ao criar badge de debug', err);
-        }
-    }
-
-    // Utilitário de debug de modais (ativa com ?debug=1)
-    notifyModalDebug(context, err) {
-        if (!window.__modalDebug) return;
-        const name = err?.name || 'Erro';
-        const msg = err?.message || String(err);
-        const txt = `[MODAL DEBUG] ${context}: ${name} - ${msg}`;
-        console.error(txt, err);
-        this.pushModalDebug(txt);
-        if (typeof toast !== 'undefined' && toast?.error) {
-            toast.error(txt, 4000);
-        } else {
-            alert(txt);
+        const hasSeenTutorial = localStorage.getItem('hasSeenTutorial');
+        if (!hasSeenTutorial) {
+            // Aguardar um pouco para a página carregar completamente
+            setTimeout(() => {
+                this.openTutorialModal();
+            }, 2000);
         }
     }
 
@@ -14921,22 +14620,7 @@ class LojaApp {
         if (!modal) return;
 
         // Garantir que o modal está visível
-        modal.classList.add('active');
         modal.style.display = 'flex';
-        modal.style.opacity = '1';
-        modal.style.visibility = 'visible';
-        modal.style.pointerEvents = 'auto';
-        modal.style.zIndex = '999';
-
-        // Prevenir fechamento por propagação/overlay
-        const modalContent = modal.querySelector('.modal-content');
-        if (modalContent) {
-            modalContent.addEventListener('click', (e) => e.stopPropagation(), true);
-        }
-        modal.onclick = (e) => {
-            // bloqueia fechamento por clique no backdrop
-            e.stopPropagation();
-        };
 
         const content = document.getElementById('tutorialContent');
         if (content) {
@@ -15199,7 +14883,13 @@ class LojaApp {
             modal.style.opacity = '0';
             modal.style.visibility = 'hidden';
             modal.style.pointerEvents = 'none';
-            modal.style.zIndex = '';
+            modal.style.zIndex = '-1';
+
+            // Garantir que o modal-content também está escondido
+            const modalContent = modal.querySelector('.modal-content');
+            if (modalContent) {
+                modalContent.style.display = 'none';
+            }
 
             // Salvar que o usuário viu o tutorial
             localStorage.setItem('hasSeenTutorial', 'true');
