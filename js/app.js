@@ -4975,10 +4975,26 @@ class LojaApp {
         const readerDiv = document.getElementById('quickSaleQrReader');
         if (!readerDiv) return;
 
-        // Limpar conteúdo anterior
+        // Limpar conteúdo anterior e garantir área visível
         readerDiv.innerHTML = '';
+        readerDiv.style.minHeight = '260px';
+        readerDiv.style.background = '#000';
 
         try {
+            // Pré-verificação de permissão (log mais cedo)
+            if (navigator.mediaDevices?.getUserMedia) {
+                navigator.mediaDevices
+                    .getUserMedia({ video: { facingMode: 'environment' } })
+                    .then((stream) => {
+                        stream.getTracks().forEach((t) => t.stop());
+                        this.pushModalDebug('QR: getUserMedia ok (pré-checagem)');
+                    })
+                    .catch((err) => {
+                        this.pushModalDebug(`QR: getUserMedia falhou ${err?.name} ${err?.message}`);
+                        this.notifyModalDebug('getUserMedia', err);
+                    });
+            }
+
             // Criar instância do scanner
             const html5QrCode = new Html5Qrcode('quickSaleQrReader');
             this.quickSaleQRScanner = html5QrCode;
@@ -4991,15 +5007,22 @@ class LojaApp {
                         toast.error('Nenhuma câmera encontrada. Verifique permissões.', 3000);
                         this.notifyModalDebug('getCameras', new Error('No cameras'));
                         this.quickSaleQRScanner = null;
-                        modal.classList.remove('active');
-                        modal.style.display = 'none';
-                        modal.style.opacity = '0';
-                        modal.style.visibility = 'hidden';
-                        modal.style.pointerEvents = 'none';
-                        modal.style.zIndex = '';
-                        if (isDebug) {
-                            modal.classList.remove('debug-force-visible');
-                            modal.style.background = '';
+                        if (!isDebug) {
+                            modal.classList.remove('active');
+                            modal.style.display = 'none';
+                            modal.style.opacity = '0';
+                            modal.style.visibility = 'hidden';
+                            modal.style.pointerEvents = 'none';
+                            modal.style.zIndex = '';
+                        } else {
+                            this.pushModalDebug('QR: manter modal aberto (debug) após no cameras');
+                            modal.classList.add('debug-force-visible');
+                            modal.style.display = 'flex';
+                            modal.style.opacity = '1';
+                            modal.style.visibility = 'visible';
+                            modal.style.pointerEvents = 'auto';
+                            modal.style.zIndex = '9999';
+                            modal.style.background = 'rgba(0,0,0,0.05)';
                         }
                         return;
                     }
@@ -5040,15 +5063,22 @@ class LojaApp {
                             );
                             this.notifyModalDebug('start', err);
                             this.pushModalDebug(`QR: start erro ${err?.name} ${err?.message}`);
-                            modal.classList.remove('active');
-                            modal.style.display = 'none';
-                            modal.style.opacity = '0';
-                            modal.style.visibility = 'hidden';
-                            modal.style.pointerEvents = 'none';
-                            modal.style.zIndex = '';
-                            if (isDebug) {
-                                modal.classList.remove('debug-force-visible');
-                                modal.style.background = '';
+                            if (!isDebug) {
+                                modal.classList.remove('active');
+                                modal.style.display = 'none';
+                                modal.style.opacity = '0';
+                                modal.style.visibility = 'hidden';
+                                modal.style.pointerEvents = 'none';
+                                modal.style.zIndex = '';
+                            } else {
+                                this.pushModalDebug('QR: manter modal aberto (debug) após erro start');
+                                modal.classList.add('debug-force-visible');
+                                modal.style.display = 'flex';
+                                modal.style.opacity = '1';
+                                modal.style.visibility = 'visible';
+                                modal.style.pointerEvents = 'auto';
+                                modal.style.zIndex = '9999';
+                                modal.style.background = 'rgba(0,0,0,0.05)';
                             }
                             // Mantém o modal aberto para tentar novamente
                             this.quickSaleQRScanner = null;
@@ -5059,15 +5089,22 @@ class LojaApp {
                     toast.error('Não foi possível acessar a câmera. Tente novamente.', 3000);
                     this.notifyModalDebug('getCameras.catch', err);
                     this.pushModalDebug(`QR: getCameras catch ${err?.name} ${err?.message}`);
-                    modal.classList.remove('active');
-                    modal.style.display = 'none';
-                    modal.style.opacity = '0';
-                    modal.style.visibility = 'hidden';
-                    modal.style.pointerEvents = 'none';
-                    modal.style.zIndex = '';
-                    if (isDebug) {
-                        modal.classList.remove('debug-force-visible');
-                        modal.style.background = '';
+                    if (!isDebug) {
+                        modal.classList.remove('active');
+                        modal.style.display = 'none';
+                        modal.style.opacity = '0';
+                        modal.style.visibility = 'hidden';
+                        modal.style.pointerEvents = 'none';
+                        modal.style.zIndex = '';
+                    } else {
+                        this.pushModalDebug('QR: manter modal aberto (debug) após getCameras catch');
+                        modal.classList.add('debug-force-visible');
+                        modal.style.display = 'flex';
+                        modal.style.opacity = '1';
+                        modal.style.visibility = 'visible';
+                        modal.style.pointerEvents = 'auto';
+                        modal.style.zIndex = '9999';
+                        modal.style.background = 'rgba(0,0,0,0.05)';
                     }
                     this.quickSaleQRScanner = null;
                 });
@@ -5077,15 +5114,22 @@ class LojaApp {
             toast.error('Não foi possível inicializar o scanner. Tente novamente.', 3000);
             this.notifyModalDebug('createScanner', err);
             this.pushModalDebug(`QR: createScanner erro ${err?.name} ${err?.message}`);
-            modal.classList.remove('active');
-            modal.style.display = 'none';
-            modal.style.opacity = '0';
-            modal.style.visibility = 'hidden';
-            modal.style.pointerEvents = 'none';
-            modal.style.zIndex = '';
-            if (isDebug) {
-                modal.classList.remove('debug-force-visible');
-                modal.style.background = '';
+            if (!isDebug) {
+                modal.classList.remove('active');
+                modal.style.display = 'none';
+                modal.style.opacity = '0';
+                modal.style.visibility = 'hidden';
+                modal.style.pointerEvents = 'none';
+                modal.style.zIndex = '';
+            } else {
+                this.pushModalDebug('QR: manter modal aberto (debug) após catch geral');
+                modal.classList.add('debug-force-visible');
+                modal.style.display = 'flex';
+                modal.style.opacity = '1';
+                modal.style.visibility = 'visible';
+                modal.style.pointerEvents = 'auto';
+                modal.style.zIndex = '9999';
+                modal.style.background = 'rgba(0,0,0,0.05)';
             }
         }
     }
