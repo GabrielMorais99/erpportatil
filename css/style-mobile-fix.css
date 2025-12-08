@@ -547,6 +547,13 @@ a i {
         display: flex !important;
         align-items: center;
         justify-content: center;
+        z-index: 999 !important; /* Menor que modais (1000+) para não conflitar */
+    }
+    
+    /* Esconder FAB quando há modal aberto */
+    body:has(.modal.active) #quickSaleFAB,
+    .modal.active ~ #quickSaleFAB {
+        display: none !important;
     }
 
     /* Touch targets adequados */

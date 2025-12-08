@@ -3410,6 +3410,19 @@ class LojaApp {
             }
         });
         
+        // Verificar se não há mais modais ativos e mostrar FAB novamente
+        const activeModals = document.querySelectorAll('.modal.active');
+        if (activeModals.length === 0) {
+            const fab = document.getElementById('quickSaleFAB');
+            if (fab) {
+                // Mostrar FAB apenas em mobile (se estiver em media query mobile)
+                const isMobile = window.matchMedia('(max-width: 768px)').matches;
+                if (isMobile) {
+                    fab.style.display = 'flex';
+                }
+            }
+        }
+        
         // Após transição, garantir que display seja none e limpar tudo
         setTimeout(() => {
             modalElement.style.setProperty('display', 'none', 'important');
@@ -4989,6 +5002,12 @@ class LojaApp {
             return;
         }
 
+        // Esconder FAB quando modal abrir
+        const fab = document.getElementById('quickSaleFAB');
+        if (fab) {
+            fab.style.display = 'none';
+        }
+
         modal.classList.add('active');
 
         // Verificar se a biblioteca Html5Qrcode está disponível
@@ -5021,10 +5040,16 @@ class LojaApp {
                     html5QrCode
                         .stop()
                         .then(() => {
-                            modal.classList.remove('active');
                             this.quickSaleQRScanner = null;
+                            // Fechar modal usando closeModalSafely para garantir limpeza correta
+                            this.closeModalSafely(modal);
                         })
-                        .catch(console.error);
+                        .catch((err) => {
+                            console.error('Erro ao parar scanner após escanear:', err);
+                            this.quickSaleQRScanner = null;
+                            // Mesmo com erro, fechar o modal
+                            this.closeModalSafely(modal);
+                        });
                 },
                 (errorMessage) => {
                     // Silencioso durante escaneamento
@@ -5044,15 +5069,25 @@ class LojaApp {
      */
     closeQuickSaleScanner() {
         const modal = document.getElementById('quickSaleScannerModal');
-        if (modal) modal.classList.remove('active');
+        if (!modal) return;
 
+        // Parar scanner primeiro
         if (this.quickSaleQRScanner) {
             this.quickSaleQRScanner
                 .stop()
                 .then(() => {
                     this.quickSaleQRScanner = null;
+                    // Fechar modal usando closeModalSafely para garantir limpeza correta
+                    this.closeModalSafely(modal);
                 })
-                .catch(console.error);
+                .catch((err) => {
+                    console.error('Erro ao parar scanner:', err);
+                    // Mesmo com erro, fechar o modal
+                    this.closeModalSafely(modal);
+                });
+        } else {
+            // Se não há scanner, apenas fechar o modal
+            this.closeModalSafely(modal);
         }
     }
 
