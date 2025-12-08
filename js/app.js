@@ -5068,6 +5068,9 @@ class LojaApp {
                             );
                             this.notifyModalDebug('start', err);
                             this.pushModalDebug(`QR: start erro ${err?.name} ${err?.message}`);
+                            if (window.__modalDebug && typeof alert !== 'undefined') {
+                                alert(`QR DEBUG start: ${err?.name || 'Erro'} - ${err?.message || err}`);
+                            }
                             if (!isDebug) {
                                 modal.classList.remove('active');
                                 modal.style.display = 'none';
@@ -5094,6 +5097,9 @@ class LojaApp {
                     toast.error('Não foi possível acessar a câmera. Tente novamente.', 3000);
                     this.notifyModalDebug('getCameras.catch', err);
                     this.pushModalDebug(`QR: getCameras catch ${err?.name} ${err?.message}`);
+                    if (window.__modalDebug && typeof alert !== 'undefined') {
+                        alert(`QR DEBUG getCameras: ${err?.name || 'Erro'} - ${err?.message || err}`);
+                    }
                     if (!isDebug) {
                         modal.classList.remove('active');
                         modal.style.display = 'none';
