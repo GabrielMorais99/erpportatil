@@ -3348,16 +3348,41 @@ class LojaApp {
         }
     }
 
+    /**
+     * Função helper genérica para fechar modais corretamente
+     * Garante limpeza completa do backdrop e transições
+     */
+    closeModalSafely(modalElement) {
+        if (!modalElement) return;
+        
+        // Remover classe active primeiro para iniciar transição
+        modalElement.classList.remove('active');
+        
+        // Forçar reset imediato de todas as propriedades críticas
+        modalElement.style.pointerEvents = 'none';
+        modalElement.style.backdropFilter = 'blur(0px)';
+        modalElement.style.webkitBackdropFilter = 'blur(0px)';
+        modalElement.style.background = 'rgba(0, 0, 0, 0)';
+        modalElement.style.backgroundColor = 'rgba(0, 0, 0, 0)';
+        
+        // Após transição, garantir que display seja none
+        setTimeout(() => {
+            modalElement.style.display = 'none';
+            modalElement.style.opacity = '';
+            // Limpar todos os estilos inline para garantir reset completo
+            modalElement.style.background = '';
+            modalElement.style.backgroundColor = '';
+            modalElement.style.backdropFilter = '';
+            modalElement.style.webkitBackdropFilter = '';
+            modalElement.style.pointerEvents = '';
+            modalElement.style.visibility = '';
+        }, 300); // Tempo igual à transição CSS
+    }
+
     closeItemModal() {
         const modal = document.getElementById('itemModal');
         if (modal) {
-            // Animação ao fechar modal
-            modal.style.opacity = '0';
-            setTimeout(() => {
-                modal.classList.remove('active');
-                modal.style.display = 'none';
-                modal.style.opacity = '';
-            }, 300);
+            this.closeModalSafely(modal);
         }
         this.currentEditingItem = null;
 

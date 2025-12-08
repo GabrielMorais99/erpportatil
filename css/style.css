@@ -2420,7 +2420,20 @@ body.theme-blue .login-container #entrarBtn:focus {
     opacity: 1;
     background-color: rgba(0, 0, 0, 0.5);
     backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
     animation: modalFadeIn 0.2s ease-out;
+}
+
+/* FORÇAR reset completo quando não está ativo - PRIORIDADE MÁXIMA */
+.modal:not(.active) {
+    display: none !important;
+    opacity: 0 !important;
+    background-color: rgba(0, 0, 0, 0) !important;
+    background: rgba(0, 0, 0, 0) !important;
+    backdrop-filter: blur(0px) !important;
+    -webkit-backdrop-filter: blur(0px) !important;
+    pointer-events: none !important;
+    visibility: hidden !important;
 }
 
 /* Modal de tutorial com z-index maior e garantia de cliques */

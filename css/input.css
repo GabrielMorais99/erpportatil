@@ -142,12 +142,27 @@
   
   .modal {
     @apply fixed inset-0 z-50 hidden items-center justify-center;
-    background: rgba(0, 0, 0, 0.4);
-    backdrop-filter: blur(8px);
+    background: rgba(0, 0, 0, 0);
+    backdrop-filter: blur(0px);
+    -webkit-backdrop-filter: blur(0px);
+    pointer-events: none;
   }
 
   .modal.active {
     @apply flex;
+    background: rgba(0, 0, 0, 0.4);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    pointer-events: auto;
+  }
+
+  /* Garantir reset quando não está ativo */
+  .modal:not(.active) {
+    display: none !important;
+    background: rgba(0, 0, 0, 0) !important;
+    backdrop-filter: blur(0px) !important;
+    -webkit-backdrop-filter: blur(0px) !important;
+    pointer-events: none !important;
   }
 
   .modal-content {

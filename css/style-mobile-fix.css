@@ -172,6 +172,18 @@ a i {
     -webkit-backdrop-filter: blur(8px);
 }
 
+/* FORÇAR reset completo quando não está ativo - PRIORIDADE MÁXIMA */
+.modal:not(.active) {
+    display: none !important;
+    opacity: 0 !important;
+    background: rgba(0, 0, 0, 0) !important;
+    background-color: rgba(0, 0, 0, 0) !important;
+    backdrop-filter: blur(0px) !important;
+    -webkit-backdrop-filter: blur(0px) !important;
+    pointer-events: none !important;
+    visibility: hidden !important;
+}
+
 /* Estado de debug para modais específicos */
 .debug-force-visible {
     display: flex !important;
