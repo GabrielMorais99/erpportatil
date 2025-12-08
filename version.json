@@ -1,10 +1,10 @@
 {
   "version": "2025120801",
   "buildDate": "2025-12-08",
-  "buildTime": "01:24:25",
-  "commit": "d43c66a",
+  "buildTime": "01:32:32",
+  "commit": "80367f0",
   "branch": "main",
-  "commitMessage": "fix: correção ULTRA AGRESSIVA para Chrome Android - v2",
+  "commitMessage": "chore: atualiza versão para verificar deploy na Vercel",
   "description": "ERP Portátil - Sistema de Gestão Financeira",
-  "updatedAt": "2025-12-08T04:24:26.087Z"
+  "updatedAt": "2025-12-08T04:32:32.444Z"
 }
