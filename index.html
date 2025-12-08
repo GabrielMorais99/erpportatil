@@ -74,10 +74,13 @@
                             setTimeout(updateCSSLinks, 100);
                         }
                         
-                        // Atualizar versão na tela de login
-                        const versionElement = document.querySelector('.signature p:last-child');
-                        if (versionElement) {
-                            versionElement.textContent = `Versão: ${APP_VERSION}`;
+                        // Atualizar versão na tela de login (elemento correto)
+                        const versionEl = document.getElementById('version-display');
+                        if (versionEl) {
+                            const versionText = versionEl.querySelector('div:first-child');
+                            if (versionText) {
+                                versionText.textContent = `Versão: ${APP_VERSION}`;
+                            }
                         }
                         
                         // Armazenar versão globalmente
@@ -423,11 +426,13 @@
                             }
                         })
                         .catch(err => {
+                            console.warn('⚠️ Erro ao carregar version.json no segundo script:', err);
                             const versionEl = document.getElementById('version-display');
                             if (versionEl) {
                                 const versionText = versionEl.querySelector('div:first-child');
                                 if (versionText) {
-                                    versionText.textContent = 'Versão: 2025120800';
+                                    // Usar fallback do primeiro script se disponível
+                                    versionText.textContent = `Versão: ${window.APP_VERSION || '2025120802'}`;
                                 }
                             }
                         });

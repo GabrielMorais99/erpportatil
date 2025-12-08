@@ -1,10 +1,10 @@
 {
   "version": "2025120801",
   "buildDate": "2025-12-08",
-  "buildTime": "01:36:11",
-  "commit": "e5f3203",
+  "buildTime": "01:38:55",
+  "commit": "336684e",
   "branch": "main",
-  "commitMessage": "chore: atualiza fallback de versão no index.html para 2025120802",
+  "commitMessage": "chore: atualiza version.json para 2025120802",
   "description": "ERP Portátil - Sistema de Gestão Financeira",
-  "updatedAt": "2025-12-08T04:36:11.520Z"
+  "updatedAt": "2025-12-08T04:38:56.215Z"
 }
