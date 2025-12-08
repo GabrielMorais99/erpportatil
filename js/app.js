@@ -1602,6 +1602,30 @@ class LojaApp {
                 }
             }
 
+            // Listener global para garantir limpeza de modais
+            // Fechar todos os modais quando clicar fora ou pressionar ESC
+            document.addEventListener('click', (e) => {
+                // Se clicar em um modal que está ativo mas não no conteúdo
+                const clickedModal = e.target.closest('.modal.active');
+                if (clickedModal && e.target === clickedModal) {
+                    // Clicou diretamente no backdrop do modal
+                    this.closeModalSafely(clickedModal);
+                }
+            }, true);
+            
+            // Listener global para ESC - fechar qualquer modal ativo
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape') {
+                    const activeModal = document.querySelector('.modal.active');
+                    if (activeModal) {
+                        this.closeModalSafely(activeModal);
+                    }
+                }
+            });
+            
+            // Expor função de limpeza de emergência globalmente
+            window.forceCleanModals = () => this.forceCleanAllModals();
+            
             // Aguardar um pouco para garantir que o DOM está totalmente pronto
             setTimeout(() => {
                 addDebugLog('Iniciando setup...');
@@ -3351,31 +3375,52 @@ class LojaApp {
     /**
      * Função helper genérica para fechar modais corretamente
      * Garante limpeza completa do backdrop e transições
+     * VERSÃO ROBUSTA: Limpa TODOS os modais e garante reset completo
      */
     closeModalSafely(modalElement) {
         if (!modalElement) return;
         
-        // Remover classe active primeiro para iniciar transição
+        // REMOVER CLASSE ACTIVE IMEDIATAMENTE
         modalElement.classList.remove('active');
         
-        // Forçar reset imediato de todas as propriedades críticas
-        modalElement.style.pointerEvents = 'none';
-        modalElement.style.backdropFilter = 'blur(0px)';
-        modalElement.style.webkitBackdropFilter = 'blur(0px)';
-        modalElement.style.background = 'rgba(0, 0, 0, 0)';
-        modalElement.style.backgroundColor = 'rgba(0, 0, 0, 0)';
+        // FORÇAR RESET IMEDIATO DE TODAS AS PROPRIEDADES CRÍTICAS
+        modalElement.style.setProperty('pointer-events', 'none', 'important');
+        modalElement.style.setProperty('backdrop-filter', 'blur(0px)', 'important');
+        modalElement.style.setProperty('-webkit-backdrop-filter', 'blur(0px)', 'important');
+        modalElement.style.setProperty('background', 'rgba(0, 0, 0, 0)', 'important');
+        modalElement.style.setProperty('background-color', 'rgba(0, 0, 0, 0)', 'important');
+        modalElement.style.setProperty('opacity', '0', 'important');
+        modalElement.style.setProperty('visibility', 'hidden', 'important');
         
-        // Após transição, garantir que display seja none
+        // GARANTIR QUE BODY E HTML NÃO TENHAM BACKDROP
+        document.body.style.setProperty('backdrop-filter', '', 'important');
+        document.body.style.setProperty('-webkit-backdrop-filter', '', 'important');
+        document.documentElement.style.setProperty('backdrop-filter', '', 'important');
+        document.documentElement.style.setProperty('-webkit-backdrop-filter', '', 'important');
+        
+        // LIMPAR TODOS OS OUTROS MODAIS TAMBÉM (caso algum esteja "preso")
+        document.querySelectorAll('.modal.active').forEach(modal => {
+            if (modal !== modalElement) {
+                modal.classList.remove('active');
+                modal.style.setProperty('pointer-events', 'none', 'important');
+                modal.style.setProperty('backdrop-filter', 'blur(0px)', 'important');
+                modal.style.setProperty('-webkit-backdrop-filter', 'blur(0px)', 'important');
+                modal.style.setProperty('background', 'rgba(0, 0, 0, 0)', 'important');
+                modal.style.setProperty('display', 'none', 'important');
+            }
+        });
+        
+        // Após transição, garantir que display seja none e limpar tudo
         setTimeout(() => {
-            modalElement.style.display = 'none';
-            modalElement.style.opacity = '';
+            modalElement.style.setProperty('display', 'none', 'important');
             // Limpar todos os estilos inline para garantir reset completo
-            modalElement.style.background = '';
-            modalElement.style.backgroundColor = '';
-            modalElement.style.backdropFilter = '';
-            modalElement.style.webkitBackdropFilter = '';
-            modalElement.style.pointerEvents = '';
-            modalElement.style.visibility = '';
+            modalElement.style.removeProperty('background');
+            modalElement.style.removeProperty('background-color');
+            modalElement.style.removeProperty('backdrop-filter');
+            modalElement.style.removeProperty('-webkit-backdrop-filter');
+            modalElement.style.removeProperty('pointer-events');
+            modalElement.style.removeProperty('opacity');
+            modalElement.style.removeProperty('visibility');
         }, 300); // Tempo igual à transição CSS
     }
 
