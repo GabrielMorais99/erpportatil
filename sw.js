@@ -112,6 +112,28 @@ self.addEventListener('fetch', (event) => {
         return; // Deixar o navegador lidar com requisições externas
     }
 
+    // version.json - SEMPRE buscar da rede, NUNCA usar cache
+    if (url.pathname === '/version.json' || url.pathname.endsWith('/version.json')) {
+        event.respondWith(
+            fetch(new Request(event.request.url + '?t=' + Date.now() + '&v=' + Math.random(), { 
+                cache: 'no-store',
+                headers: {
+                    'Cache-Control': 'no-cache, no-store, must-revalidate',
+                    'Pragma': 'no-cache'
+                }
+            }))
+                .then((response) => {
+                    // NUNCA cachear version.json
+                    return response;
+                })
+                .catch((error) => {
+                    // Se falhar, retornar erro (não usar cache)
+                    throw error;
+                })
+        );
+        return;
+    }
+    
     // Para arquivos estáticos (HTML, CSS, JS), usar NETWORK FIRST
     // Sempre buscar da rede primeiro, usar cache apenas se rede falhar
     if (
@@ -129,7 +151,7 @@ self.addEventListener('fetch', (event) => {
                     return response;
                 })
                 .catch((error) => {
-                    // Fallback: tentar cache se rede falhar
+                    // Fallback: tentar cache se rede falhar (exceto version.json)
                     return caches
                         .match(event.request)
                         .then((cachedResponse) => {
