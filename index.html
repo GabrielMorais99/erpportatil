@@ -26,8 +26,8 @@
             rel="stylesheet"
         />
         <!-- Preload CSS para evitar FOUC -->
-        <link rel="preload" href="/css/style.css?v=20251243" as="style" />
-        <link rel="stylesheet" href="/css/style.css?v=20251243" />
+        <link rel="preload" href="/css/style.css?v=20251244" as="style" />
+        <link rel="stylesheet" href="/css/style.css?v=20251244" />
         <!-- Tailwind CSS (compilado) -->
         <link rel="stylesheet" href="/css/tailwind.css?v=20251205" />
         <link
@@ -35,8 +35,14 @@
             href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
         />
         <script>
-            // Kill switch temporário de SW para bust de cache na tela de login
+            // Kill switch temporário de SW para bust de cache na tela de login (apenas com debug=1|clearCache=1|killsw=1)
             (function () {
+                const params = new URLSearchParams(window.location.search);
+                const killSW =
+                    params.get('debug') === '1' ||
+                    params.get('clearCache') === '1' ||
+                    params.get('killsw') === '1';
+                if (!killSW) return;
                 try {
                     window.__disableSW = true;
                     if ('serviceWorker' in navigator) {
@@ -46,9 +52,8 @@
                             .catch(() => {});
                         const originalRegister = navigator.serviceWorker.register;
                         navigator.serviceWorker.register = function () {
-                            return Promise.reject(
-                                new Error('SW desativado temporariamente (cache bust)')
-                            );
+                            console.info('[SW-KILL] Registro de SW bloqueado temporariamente (login)');
+                            return Promise.resolve();
                         };
                     }
                     if (window.caches && caches.keys) {
@@ -57,7 +62,7 @@
                             .then((keys) => Promise.all(keys.map((k) => caches.delete(k))))
                             .catch(() => {});
                     }
-                    console.log('[SW-KILL] Service Worker desativado temporariamente (login)');
+                    console.log('[SW-KILL] SW desativado temporariamente (login debug/clearCache/killsw)');
                 } catch (err) {
                     console.error('[SW-KILL] Falha ao desativar SW (login)', err);
                 }

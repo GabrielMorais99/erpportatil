@@ -23,15 +23,21 @@
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
         <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
         <!-- Preload CSS para evitar FOUC -->
-        <link rel="preload" href="/css/style.css?v=20251243" as="style" />
-        <link rel="stylesheet" href="/css/style.css?v=20251243" />
+        <link rel="preload" href="/css/style.css?v=20251244" as="style" />
+        <link rel="stylesheet" href="/css/style.css?v=20251244" />
         <!-- Tailwind CSS (compilado) -->
         <link rel="stylesheet" href="/css/tailwind.css?v=20251205" />
         <!-- Correções Mobile + Componentes Modernos -->
-        <link rel="stylesheet" href="/css/style-mobile-fix.css?v=20251243" />
-        <!-- Kill switch temporário de Service Worker para bust de cache -->
+        <link rel="stylesheet" href="/css/style-mobile-fix.css?v=20251244" />
+        <!-- Kill switch temporário de Service Worker para bust de cache (ativo só com debug=1|clearCache=1|killsw=1) -->
         <script>
             (function () {
+                const params = new URLSearchParams(window.location.search);
+                const killSW =
+                    params.get('debug') === '1' ||
+                    params.get('clearCache') === '1' ||
+                    params.get('killsw') === '1';
+                if (!killSW) return;
                 try {
                     window.__disableSW = true;
                     if ('serviceWorker' in navigator) {
@@ -41,9 +47,8 @@
                             .catch(() => {});
                         const originalRegister = navigator.serviceWorker.register;
                         navigator.serviceWorker.register = function () {
-                            return Promise.reject(
-                                new Error('SW desativado temporariamente (cache bust)')
-                            );
+                            console.info('[SW-KILL] Registro de SW bloqueado temporariamente');
+                            return Promise.resolve();
                         };
                     }
                     if (window.caches && caches.keys) {
@@ -52,7 +57,7 @@
                             .then((keys) => Promise.all(keys.map((k) => caches.delete(k))))
                             .catch(() => {});
                     }
-                    console.log('[SW-KILL] Service Worker desativado temporariamente para bust de cache');
+                    console.log('[SW-KILL] SW desativado temporariamente (debug/clearCache/killsw)');
                 } catch (err) {
                     console.error('[SW-KILL] Falha ao desativar SW', err);
                 }
@@ -3497,7 +3502,7 @@
             
             // Registrar Service Worker para PWA (com versão forçada)
             if ('serviceWorker' in navigator) {
-                const SW_VERSION = '20251226230000';
+                const SW_VERSION = '20251226232000';
                 window.addEventListener('load', async () => {
                     try {
                         const registrations = await navigator.serviceWorker.getRegistrations();
