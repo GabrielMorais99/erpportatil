@@ -23,12 +23,12 @@
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
         <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
         <!-- Preload CSS para evitar FOUC -->
-        <link rel="preload" href="/css/style.css?v=20251244" as="style" />
-        <link rel="stylesheet" href="/css/style.css?v=20251244" />
+        <link rel="preload" href="/css/style.css?v=20251245" as="style" />
+        <link rel="stylesheet" href="/css/style.css?v=20251245" />
         <!-- Tailwind CSS (compilado) -->
         <link rel="stylesheet" href="/css/tailwind.css?v=20251205" />
         <!-- Correções Mobile + Componentes Modernos -->
-        <link rel="stylesheet" href="/css/style-mobile-fix.css?v=20251244" />
+        <link rel="stylesheet" href="/css/style-mobile-fix.css?v=20251245" />
         <!-- Kill switch temporário de Service Worker para bust de cache (ativo só com debug=1|clearCache=1|killsw=1) -->
         <script>
             (function () {
@@ -48,7 +48,8 @@
                         const originalRegister = navigator.serviceWorker.register;
                         navigator.serviceWorker.register = function () {
                             console.info('[SW-KILL] Registro de SW bloqueado temporariamente');
-                            return Promise.resolve();
+                            // retorna objeto mock para evitar erro ao acessar scope
+                            return Promise.resolve({ scope: '/sw-kill-mock' });
                         };
                     }
                     if (window.caches && caches.keys) {
@@ -3502,7 +3503,7 @@
             
             // Registrar Service Worker para PWA (com versão forçada)
             if ('serviceWorker' in navigator) {
-                const SW_VERSION = '20251226232000';
+                const SW_VERSION = '20251226234000';
                 window.addEventListener('load', async () => {
                     try {
                         const registrations = await navigator.serviceWorker.getRegistrations();
@@ -3522,6 +3523,10 @@
                         
                         navigator.serviceWorker.register(`/sw.js?v=${SW_VERSION}`, { scope: '/' })
                             .then((registration) => {
+                                if (!registration || !registration.scope) {
+                                    console.warn('⚠️ [PWA] Registro de SW sem scope (possível kill switch)');
+                                    return;
+                                }
                                 console.log('✅ [PWA] Service Worker registrado:', registration.scope);
                                 
                                 if (isLocalhost) {

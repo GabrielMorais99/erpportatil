@@ -26,8 +26,8 @@
             rel="stylesheet"
         />
         <!-- Preload CSS para evitar FOUC -->
-        <link rel="preload" href="/css/style.css?v=20251244" as="style" />
-        <link rel="stylesheet" href="/css/style.css?v=20251244" />
+        <link rel="preload" href="/css/style.css?v=20251245" as="style" />
+        <link rel="stylesheet" href="/css/style.css?v=20251245" />
         <!-- Tailwind CSS (compilado) -->
         <link rel="stylesheet" href="/css/tailwind.css?v=20251205" />
         <link
@@ -53,7 +53,7 @@
                         const originalRegister = navigator.serviceWorker.register;
                         navigator.serviceWorker.register = function () {
                             console.info('[SW-KILL] Registro de SW bloqueado temporariamente (login)');
-                            return Promise.resolve();
+                            return Promise.resolve({ scope: '/sw-kill-mock' });
                         };
                     }
                     if (window.caches && caches.keys) {
