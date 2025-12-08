@@ -26,14 +26,43 @@
             rel="stylesheet"
         />
         <!-- Preload CSS para evitar FOUC -->
-        <link rel="preload" href="/css/style.css?v=20251242" as="style" />
-        <link rel="stylesheet" href="/css/style.css?v=20251242" />
+        <link rel="preload" href="/css/style.css?v=20251243" as="style" />
+        <link rel="stylesheet" href="/css/style.css?v=20251243" />
         <!-- Tailwind CSS (compilado) -->
         <link rel="stylesheet" href="/css/tailwind.css?v=20251205" />
         <link
             rel="stylesheet"
             href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
         />
+        <script>
+            // Kill switch temporário de SW para bust de cache na tela de login
+            (function () {
+                try {
+                    window.__disableSW = true;
+                    if ('serviceWorker' in navigator) {
+                        navigator.serviceWorker
+                            .getRegistrations()
+                            .then((regs) => regs.forEach((r) => r.unregister()))
+                            .catch(() => {});
+                        const originalRegister = navigator.serviceWorker.register;
+                        navigator.serviceWorker.register = function () {
+                            return Promise.reject(
+                                new Error('SW desativado temporariamente (cache bust)')
+                            );
+                        };
+                    }
+                    if (window.caches && caches.keys) {
+                        caches
+                            .keys()
+                            .then((keys) => Promise.all(keys.map((k) => caches.delete(k))))
+                            .catch(() => {});
+                    }
+                    console.log('[SW-KILL] Service Worker desativado temporariamente (login)');
+                } catch (err) {
+                    console.error('[SW-KILL] Falha ao desativar SW (login)', err);
+                }
+            })();
+        </script>
         <!-- Proteção de Código Fonte -->
         <link rel="manifest" href="/manifest.json" />
         <link

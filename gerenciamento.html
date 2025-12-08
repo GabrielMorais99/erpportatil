@@ -23,12 +23,41 @@
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
         <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
         <!-- Preload CSS para evitar FOUC -->
-        <link rel="preload" href="/css/style.css?v=20251242" as="style" />
-        <link rel="stylesheet" href="/css/style.css?v=20251242" />
+        <link rel="preload" href="/css/style.css?v=20251243" as="style" />
+        <link rel="stylesheet" href="/css/style.css?v=20251243" />
         <!-- Tailwind CSS (compilado) -->
         <link rel="stylesheet" href="/css/tailwind.css?v=20251205" />
         <!-- Correções Mobile + Componentes Modernos -->
-        <link rel="stylesheet" href="/css/style-mobile-fix.css?v=20251242" />
+        <link rel="stylesheet" href="/css/style-mobile-fix.css?v=20251243" />
+        <!-- Kill switch temporário de Service Worker para bust de cache -->
+        <script>
+            (function () {
+                try {
+                    window.__disableSW = true;
+                    if ('serviceWorker' in navigator) {
+                        navigator.serviceWorker
+                            .getRegistrations()
+                            .then((regs) => regs.forEach((r) => r.unregister()))
+                            .catch(() => {});
+                        const originalRegister = navigator.serviceWorker.register;
+                        navigator.serviceWorker.register = function () {
+                            return Promise.reject(
+                                new Error('SW desativado temporariamente (cache bust)')
+                            );
+                        };
+                    }
+                    if (window.caches && caches.keys) {
+                        caches
+                            .keys()
+                            .then((keys) => Promise.all(keys.map((k) => caches.delete(k))))
+                            .catch(() => {});
+                    }
+                    console.log('[SW-KILL] Service Worker desativado temporariamente para bust de cache');
+                } catch (err) {
+                    console.error('[SW-KILL] Falha ao desativar SW', err);
+                }
+            })();
+        </script>
         <script>
             // Limpa SW e caches em debug=1 ou clearCache=1 (evita pegar versão antiga 38)
             (function () {
@@ -3468,7 +3497,7 @@
             
             // Registrar Service Worker para PWA (com versão forçada)
             if ('serviceWorker' in navigator) {
-                const SW_VERSION = '20251226224500';
+                const SW_VERSION = '20251226230000';
                 window.addEventListener('load', async () => {
                     try {
                         const registrations = await navigator.serviceWorker.getRegistrations();
