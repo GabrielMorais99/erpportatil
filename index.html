@@ -100,6 +100,8 @@
             rel="stylesheet"
             href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
         />
+        <!-- Correção específica para Chrome Android - CARREGAR PRIMEIRO -->
+        <script src="/js/android-modal-fix.js"></script>
         <script>
             // Kill switch temporário de SW para bust de cache na tela de login (apenas com debug=1|clearCache=1|killsw=1)
             (function () {
