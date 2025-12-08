@@ -4936,17 +4936,21 @@ class LojaApp {
         }
         const isDebug = window.__modalDebug === true;
         this.notifyModalDebug('openQuickSaleScanner:init', new Error('abrindo QR'));
-        this.pushModalDebug('QR: abrindo modal');
-        modal.classList.add('active');
+        this.pushModalDebug('QR: abrindo modal (quickSaleFAB clique)');
+        // Forçar visibilidade imediata para evitar fechamento instantâneo no mobile
+        modal.classList.add('active', 'debug-force-visible');
         modal.style.display = 'flex';
         modal.style.opacity = '1';
         modal.style.visibility = 'visible';
         modal.style.pointerEvents = 'auto';
         modal.style.zIndex = '9999';
+        modal.style.background = 'rgba(0,0,0,0.05)';
+        modal.setAttribute('data-force-open', '1');
         if (isDebug) {
-            // Forçar fundo claro e sem blur no debug
-            modal.classList.add('debug-force-visible');
-            modal.style.background = 'rgba(0,0,0,0.05)';
+            this.pushModalDebug('QR: modal forçado visível (debug)');
+            if (typeof alert !== 'undefined') {
+                alert('DEBUG: modal QR ativo - aguardando câmera');
+            }
             // Remover qualquer backdrop global
             document.querySelectorAll('.modal-backdrop, .modal-overlay').forEach((el) => {
                 el.style.display = 'none';
@@ -4984,6 +4988,7 @@ class LojaApp {
         readerDiv.innerHTML = '';
         readerDiv.style.minHeight = '260px';
         readerDiv.style.background = '#000';
+        readerDiv.style.display = 'block';
 
         try {
             // Pré-verificação de permissão (log mais cedo)
@@ -5100,23 +5105,14 @@ class LojaApp {
                     if (window.__modalDebug && typeof alert !== 'undefined') {
                         alert(`QR DEBUG getCameras: ${err?.name || 'Erro'} - ${err?.message || err}`);
                     }
-                    if (!isDebug) {
-                        modal.classList.remove('active');
-                        modal.style.display = 'none';
-                        modal.style.opacity = '0';
-                        modal.style.visibility = 'hidden';
-                        modal.style.pointerEvents = 'none';
-                        modal.style.zIndex = '';
-                    } else {
-                        this.pushModalDebug('QR: manter modal aberto (debug) após getCameras catch');
-                        modal.classList.add('debug-force-visible');
-                        modal.style.display = 'flex';
-                        modal.style.opacity = '1';
-                        modal.style.visibility = 'visible';
-                        modal.style.pointerEvents = 'auto';
-                        modal.style.zIndex = '9999';
-                        modal.style.background = 'rgba(0,0,0,0.05)';
-                    }
+                    // Em qualquer caso de erro, mantemos o modal aberto (inclusive fora do debug)
+                    modal.classList.add('debug-force-visible');
+                    modal.style.display = 'flex';
+                    modal.style.opacity = '1';
+                    modal.style.visibility = 'visible';
+                    modal.style.pointerEvents = 'auto';
+                    modal.style.zIndex = '9999';
+                    modal.style.background = 'rgba(0,0,0,0.05)';
                     this.quickSaleQRScanner = null;
                 });
         } catch (err) {
@@ -5125,23 +5121,14 @@ class LojaApp {
             toast.error('Não foi possível inicializar o scanner. Tente novamente.', 3000);
             this.notifyModalDebug('createScanner', err);
             this.pushModalDebug(`QR: createScanner erro ${err?.name} ${err?.message}`);
-            if (!isDebug) {
-                modal.classList.remove('active');
-                modal.style.display = 'none';
-                modal.style.opacity = '0';
-                modal.style.visibility = 'hidden';
-                modal.style.pointerEvents = 'none';
-                modal.style.zIndex = '';
-            } else {
-                this.pushModalDebug('QR: manter modal aberto (debug) após catch geral');
-                modal.classList.add('debug-force-visible');
-                modal.style.display = 'flex';
-                modal.style.opacity = '1';
-                modal.style.visibility = 'visible';
-                modal.style.pointerEvents = 'auto';
-                modal.style.zIndex = '9999';
-                modal.style.background = 'rgba(0,0,0,0.05)';
-            }
+            // Sempre manter modal aberto após erro geral para visibilidade
+            modal.classList.add('debug-force-visible');
+            modal.style.display = 'flex';
+            modal.style.opacity = '1';
+            modal.style.visibility = 'visible';
+            modal.style.pointerEvents = 'auto';
+            modal.style.zIndex = '9999';
+            modal.style.background = 'rgba(0,0,0,0.05)';
         }
     }
 
