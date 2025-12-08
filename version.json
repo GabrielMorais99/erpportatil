@@ -1,10 +1,10 @@
 {
-  "version": "2025120815",
+  "version": "2025120818",
   "buildDate": "2025-12-08",
-  "buildTime": "15:45:51",
-  "commit": "42c72cb",
+  "buildTime": "18:15:52",
+  "commit": "45fa89c",
   "branch": "main",
-  "commitMessage": "fix: corrige problema de modal causado pelo FAB QR code",
+  "commitMessage": "chore: atualiza versao para 2025120816",
   "description": "ERP Portátil - Sistema de Gestão Financeira",
-  "updatedAt": "2025-12-08T18:45:51.988Z"
+  "updatedAt": "2025-12-08T21:15:52.760Z"
 }

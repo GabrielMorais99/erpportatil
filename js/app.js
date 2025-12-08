@@ -3380,6 +3380,10 @@ class LojaApp {
     closeModalSafely(modalElement) {
         if (!modalElement) return;
         
+        // VERIFICAR SE É O ÚLTIMO MODAL ANTES DE REMOVER (para mostrar FAB)
+        const allActiveModals = document.querySelectorAll('.modal.active');
+        const isLastModal = allActiveModals.length === 1 && allActiveModals[0] === modalElement;
+        
         // REMOVER CLASSE ACTIVE IMEDIATAMENTE
         modalElement.classList.remove('active');
         
@@ -3410,17 +3414,22 @@ class LojaApp {
             }
         });
         
-        // Verificar se não há mais modais ativos e mostrar FAB novamente
-        const activeModals = document.querySelectorAll('.modal.active');
-        if (activeModals.length === 0) {
-            const fab = document.getElementById('quickSaleFAB');
-            if (fab) {
-                // Mostrar FAB apenas em mobile (se estiver em media query mobile)
-                const isMobile = window.matchMedia('(max-width: 768px)').matches;
-                if (isMobile) {
-                    fab.style.display = 'flex';
+        // Se era o último modal, mostrar FAB novamente após um pequeno delay
+        if (isLastModal) {
+            setTimeout(() => {
+                // Verificar novamente se realmente não há modais ativos
+                const stillActive = document.querySelectorAll('.modal.active');
+                if (stillActive.length === 0) {
+                    const fab = document.getElementById('quickSaleFAB');
+                    if (fab) {
+                        // Mostrar FAB apenas em mobile
+                        const isMobile = window.matchMedia('(max-width: 768px)').matches;
+                        if (isMobile) {
+                            fab.style.display = 'flex';
+                        }
+                    }
                 }
-            }
+            }, 350); // Um pouco mais que a transição CSS (300ms)
         }
         
         // Após transição, garantir que display seja none e limpar tudo
