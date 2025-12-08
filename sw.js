@@ -2,7 +2,7 @@
 // Suporte a cache, notificações push e sincronização em background
 // Estratégia: Network First (sempre busca da rede primeiro, cache como fallback)
 // ATUALIZADO: 2024-12-04 - Cache bust agressivo + skipWaiting + purge total
-const ASSET_VERSION = '20251208-modal-fix-v2';
+const ASSET_VERSION = '20251208-version-fix-v5';
 const CACHE_NAME = `loja-vendas-v16-${ASSET_VERSION}`;
 const RUNTIME_CACHE = `loja-vendas-runtime-v16-${ASSET_VERSION}`;
 const MAX_CACHE_SIZE = 50 * 1024 * 1024; // 50MB
@@ -52,14 +52,17 @@ self.addEventListener('install', (event) => {
 
 // Ativar Service Worker
 self.addEventListener('activate', (event) => {
-    console.log('[SW] Ativando Service Worker v8.1 (Network First)...');
+    console.log('[SW] Ativando Service Worker v8.2 (Network First + Force Update)...');
     event.waitUntil(
         caches
             .keys()
             .then((cacheNames) => {
                 // Remover TODOS os caches anteriores (purge total)
                 return Promise.all(
-                    cacheNames.map((cacheName) => caches.delete(cacheName))
+                    cacheNames.map((cacheName) => {
+                        console.log('[SW] Removendo cache:', cacheName);
+                        return caches.delete(cacheName);
+                    })
                 );
             })
             .then(() => {
@@ -67,8 +70,16 @@ self.addEventListener('activate', (event) => {
                 return self.clients.claim();
             })
             .then(() => {
+                // Notificar todos os clientes para recarregar
+                return self.clients.matchAll().then(clients => {
+                    clients.forEach(client => {
+                        client.postMessage({ type: 'SW_UPDATED', action: 'reload' });
+                    });
+                });
+            })
+            .then(() => {
                 console.log(
-                    '[SW] Service Worker ativado com estratégia Network First + purge total'
+                    '[SW] Service Worker ativado - todos os caches removidos, forçando atualização'
                 );
             })
     );
