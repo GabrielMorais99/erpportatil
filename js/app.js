@@ -5017,7 +5017,11 @@ class LojaApp {
             fab.style.display = 'none';
         }
 
+        // Detectar se é Android Chrome
+        const isAndroidChrome = /Android/i.test(navigator.userAgent) && /Chrome/i.test(navigator.userAgent);
+        
         // FORÇAR display e visibilidade ANTES de adicionar classe active
+        // No Android, precisamos ser mais agressivos devido ao android-modal-fix.js
         modal.style.setProperty('display', 'flex', 'important');
         modal.style.setProperty('visibility', 'visible', 'important');
         modal.style.setProperty('opacity', '1', 'important');
@@ -5028,12 +5032,24 @@ class LojaApp {
         modal.classList.add('active');
         
         // Garantir que backdrop-filter funcione (exceto no Android)
-        const isAndroidChrome = /Android/i.test(navigator.userAgent) && /Chrome/i.test(navigator.userAgent);
         if (!isAndroidChrome) {
             modal.style.setProperty('backdrop-filter', 'blur(8px)', 'important');
             modal.style.setProperty('-webkit-backdrop-filter', 'blur(8px)', 'important');
+            modal.style.setProperty('background-color', 'rgba(0, 0, 0, 0.5)', 'important');
         } else {
+            // No Android, usar background sólido (backdrop-filter não funciona)
             modal.style.setProperty('background-color', 'rgba(0, 0, 0, 0.85)', 'important');
+            modal.style.setProperty('background', 'rgba(0, 0, 0, 0.85)', 'important');
+            modal.style.setProperty('backdrop-filter', 'none', 'important');
+            modal.style.setProperty('-webkit-backdrop-filter', 'none', 'important');
+            
+            // Forçar novamente após um pequeno delay para garantir que sobrescreve o CSS
+            setTimeout(() => {
+                modal.style.setProperty('display', 'flex', 'important');
+                modal.style.setProperty('visibility', 'visible', 'important');
+                modal.style.setProperty('opacity', '1', 'important');
+                modal.style.setProperty('pointer-events', 'auto', 'important');
+            }, 10);
         }
 
         // Verificar se a biblioteca Html5Qrcode está disponível

@@ -160,21 +160,27 @@
         forceRepaint();
     };
     
-    // MutationObserver para detectar quando modais são fechados
+    // MutationObserver para detectar quando modais são abertos/fechados
     const observer = new MutationObserver((mutations) => {
         mutations.forEach((mutation) => {
             if (mutation.type === 'attributes' && mutation.attributeName === 'class') {
                 const target = mutation.target;
                 if (target.classList && target.classList.contains('modal')) {
-                    if (!target.classList.contains('active')) {
+                    if (target.classList.contains('active')) {
+                        // Modal foi aberto - FORÇAR propriedades visíveis
+                        target.style.setProperty('display', 'flex', 'important');
+                        target.style.setProperty('visibility', 'visible', 'important');
+                        target.style.setProperty('opacity', '1', 'important');
+                        target.style.setProperty('pointer-events', 'auto', 'important');
+                        target.style.setProperty('z-index', '10000', 'important');
+                        target.style.setProperty('background-color', 'rgba(0, 0, 0, 0.85)', 'important');
+                        document.body.classList.add('modal-open');
+                    } else {
                         // Modal foi fechado
                         setTimeout(() => {
                             cleanAndroidModals();
                             forceRepaint();
                         }, 50);
-                    } else {
-                        // Modal foi aberto
-                        document.body.classList.add('modal-open');
                     }
                 }
             }
