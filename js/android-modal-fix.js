@@ -60,6 +60,11 @@
         
         /* Usar background sólido ESCURO ao invés de backdrop-filter */
         .android-chrome .modal.active {
+            display: flex !important;
+            visibility: visible !important;
+            opacity: 1 !important;
+            pointer-events: auto !important;
+            z-index: 10000 !important;
             background-color: rgba(0, 0, 0, 0.85) !important;
             background: rgba(0, 0, 0, 0.85) !important;
             backdrop-filter: none !important;

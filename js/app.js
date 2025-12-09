@@ -5017,7 +5017,24 @@ class LojaApp {
             fab.style.display = 'none';
         }
 
+        // FORÇAR display e visibilidade ANTES de adicionar classe active
+        modal.style.setProperty('display', 'flex', 'important');
+        modal.style.setProperty('visibility', 'visible', 'important');
+        modal.style.setProperty('opacity', '1', 'important');
+        modal.style.setProperty('pointer-events', 'auto', 'important');
+        modal.style.setProperty('z-index', '10000', 'important');
+        
+        // Adicionar classe active
         modal.classList.add('active');
+        
+        // Garantir que backdrop-filter funcione (exceto no Android)
+        const isAndroidChrome = /Android/i.test(navigator.userAgent) && /Chrome/i.test(navigator.userAgent);
+        if (!isAndroidChrome) {
+            modal.style.setProperty('backdrop-filter', 'blur(8px)', 'important');
+            modal.style.setProperty('-webkit-backdrop-filter', 'blur(8px)', 'important');
+        } else {
+            modal.style.setProperty('background-color', 'rgba(0, 0, 0, 0.85)', 'important');
+        }
 
         // Verificar se a biblioteca Html5Qrcode está disponível
         if (!window.Html5Qrcode) {

@@ -1,10 +1,10 @@
 {
-  "version": "2025120818",
+  "version": "2025120823",
   "buildDate": "2025-12-08",
-  "buildTime": "18:19:30",
-  "commit": "bd19a5f",
+  "buildTime": "23:04:42",
+  "commit": "7885683",
   "branch": "main",
-  "commitMessage": "fix: corrige logica de verificacao de modais ativos em closeModalSafely",
+  "commitMessage": "chore: atualiza versao para 2025120817",
   "description": "ERP Portátil - Sistema de Gestão Financeira",
-  "updatedAt": "2025-12-08T21:19:31.014Z"
+  "updatedAt": "2025-12-09T02:04:43.188Z"
 }
