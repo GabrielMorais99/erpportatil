@@ -167,14 +167,44 @@
                 const target = mutation.target;
                 if (target.classList && target.classList.contains('modal')) {
                     if (target.classList.contains('active')) {
-                        // Modal foi aberto - FORÇAR propriedades visíveis
-                        target.style.setProperty('display', 'flex', 'important');
-                        target.style.setProperty('visibility', 'visible', 'important');
-                        target.style.setProperty('opacity', '1', 'important');
-                        target.style.setProperty('pointer-events', 'auto', 'important');
-                        target.style.setProperty('z-index', '10000', 'important');
-                        target.style.setProperty('background-color', 'rgba(0, 0, 0, 0.85)', 'important');
+                        // Modal foi aberto - FORÇAR propriedades visíveis com cssText (sobrescreve TUDO)
+                        target.style.cssText = `
+                            display: flex !important;
+                            visibility: visible !important;
+                            opacity: 1 !important;
+                            pointer-events: auto !important;
+                            z-index: 10000 !important;
+                            position: fixed !important;
+                            left: 0 !important;
+                            top: 0 !important;
+                            width: 100% !important;
+                            height: 100% !important;
+                            background-color: rgba(0, 0, 0, 0.85) !important;
+                            background: rgba(0, 0, 0, 0.85) !important;
+                            backdrop-filter: none !important;
+                            -webkit-backdrop-filter: none !important;
+                        `;
                         document.body.classList.add('modal-open');
+                        
+                        // Forçar novamente após um pequeno delay
+                        setTimeout(() => {
+                            target.style.cssText = `
+                                display: flex !important;
+                                visibility: visible !important;
+                                opacity: 1 !important;
+                                pointer-events: auto !important;
+                                z-index: 10000 !important;
+                                position: fixed !important;
+                                left: 0 !important;
+                                top: 0 !important;
+                                width: 100% !important;
+                                height: 100% !important;
+                                background-color: rgba(0, 0, 0, 0.85) !important;
+                                background: rgba(0, 0, 0, 0.85) !important;
+                                backdrop-filter: none !important;
+                                -webkit-backdrop-filter: none !important;
+                            `;
+                        }, 10);
                     } else {
                         // Modal foi fechado
                         setTimeout(() => {

@@ -5020,36 +5020,78 @@ class LojaApp {
         // Detectar se é Android Chrome
         const isAndroidChrome = /Android/i.test(navigator.userAgent) && /Chrome/i.test(navigator.userAgent);
         
+        // REMOVER TODAS AS PROPRIEDADES PROBLEMÁTICAS PRIMEIRO
+        modal.style.removeProperty('display');
+        modal.style.removeProperty('visibility');
+        modal.style.removeProperty('opacity');
+        modal.style.removeProperty('pointer-events');
+        modal.style.removeProperty('z-index');
+        modal.style.removeProperty('background');
+        modal.style.removeProperty('background-color');
+        modal.style.removeProperty('backdrop-filter');
+        modal.style.removeProperty('-webkit-backdrop-filter');
+        
         // FORÇAR display e visibilidade ANTES de adicionar classe active
         // No Android, precisamos ser mais agressivos devido ao android-modal-fix.js
-        modal.style.setProperty('display', 'flex', 'important');
-        modal.style.setProperty('visibility', 'visible', 'important');
-        modal.style.setProperty('opacity', '1', 'important');
-        modal.style.setProperty('pointer-events', 'auto', 'important');
-        modal.style.setProperty('z-index', '10000', 'important');
+        modal.style.cssText = `
+            display: flex !important;
+            visibility: visible !important;
+            opacity: 1 !important;
+            pointer-events: auto !important;
+            z-index: 10000 !important;
+            position: fixed !important;
+            left: 0 !important;
+            top: 0 !important;
+            width: 100% !important;
+            height: 100% !important;
+            ${isAndroidChrome ? 
+                'background-color: rgba(0, 0, 0, 0.85) !important; background: rgba(0, 0, 0, 0.85) !important; backdrop-filter: none !important; -webkit-backdrop-filter: none !important;' :
+                'background-color: rgba(0, 0, 0, 0.5) !important; backdrop-filter: blur(8px) !important; -webkit-backdrop-filter: blur(8px) !important;'
+            }
+        `;
         
         // Adicionar classe active
         modal.classList.add('active');
         
-        // Garantir que backdrop-filter funcione (exceto no Android)
-        if (!isAndroidChrome) {
-            modal.style.setProperty('backdrop-filter', 'blur(8px)', 'important');
-            modal.style.setProperty('-webkit-backdrop-filter', 'blur(8px)', 'important');
-            modal.style.setProperty('background-color', 'rgba(0, 0, 0, 0.5)', 'important');
-        } else {
-            // No Android, usar background sólido (backdrop-filter não funciona)
-            modal.style.setProperty('background-color', 'rgba(0, 0, 0, 0.85)', 'important');
-            modal.style.setProperty('background', 'rgba(0, 0, 0, 0.85)', 'important');
-            modal.style.setProperty('backdrop-filter', 'none', 'important');
-            modal.style.setProperty('-webkit-backdrop-filter', 'none', 'important');
-            
-            // Forçar novamente após um pequeno delay para garantir que sobrescreve o CSS
+        // No Android, forçar novamente após múltiplos delays para garantir
+        if (isAndroidChrome) {
             setTimeout(() => {
-                modal.style.setProperty('display', 'flex', 'important');
-                modal.style.setProperty('visibility', 'visible', 'important');
-                modal.style.setProperty('opacity', '1', 'important');
-                modal.style.setProperty('pointer-events', 'auto', 'important');
+                modal.style.cssText = `
+                    display: flex !important;
+                    visibility: visible !important;
+                    opacity: 1 !important;
+                    pointer-events: auto !important;
+                    z-index: 10000 !important;
+                    position: fixed !important;
+                    left: 0 !important;
+                    top: 0 !important;
+                    width: 100% !important;
+                    height: 100% !important;
+                    background-color: rgba(0, 0, 0, 0.85) !important;
+                    background: rgba(0, 0, 0, 0.85) !important;
+                    backdrop-filter: none !important;
+                    -webkit-backdrop-filter: none !important;
+                `;
             }, 10);
+            
+            setTimeout(() => {
+                modal.style.cssText = `
+                    display: flex !important;
+                    visibility: visible !important;
+                    opacity: 1 !important;
+                    pointer-events: auto !important;
+                    z-index: 10000 !important;
+                    position: fixed !important;
+                    left: 0 !important;
+                    top: 0 !important;
+                    width: 100% !important;
+                    height: 100% !important;
+                    background-color: rgba(0, 0, 0, 0.85) !important;
+                    background: rgba(0, 0, 0, 0.85) !important;
+                    backdrop-filter: none !important;
+                    -webkit-backdrop-filter: none !important;
+                `;
+            }, 50);
         }
 
         // Verificar se a biblioteca Html5Qrcode está disponível
