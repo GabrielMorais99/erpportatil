@@ -59,6 +59,7 @@
         }
         
         /* Usar background sólido ESCURO ao invés de backdrop-filter */
+        /* IMPORTANTE: NÃO usar !important em display/visibility aqui para permitir que JS sobrescreva */
         .android-chrome .modal.active {
             display: flex !important;
             visibility: visible !important;
@@ -69,6 +70,11 @@
             background: rgba(0, 0, 0, 0.85) !important;
             backdrop-filter: none !important;
             -webkit-backdrop-filter: none !important;
+            position: fixed !important;
+            left: 0 !important;
+            top: 0 !important;
+            width: 100% !important;
+            height: 100% !important;
         }
         
         /* GARANTIR reset COMPLETO quando fechado */
@@ -101,6 +107,57 @@
         }
     `;
     document.head.appendChild(style);
+    
+    // Expor função global para forçar abertura de modal (bypass das proteções)
+    window.forceOpenModal = function(modalElement) {
+        if (!modalElement) return;
+        
+        // Remover todas as propriedades inline primeiro
+        modalElement.style.cssText = '';
+        
+        // Forçar propriedades com cssText (sobrescreve TUDO)
+        modalElement.style.cssText = `
+            display: flex !important;
+            visibility: visible !important;
+            opacity: 1 !important;
+            pointer-events: auto !important;
+            z-index: 10000 !important;
+            position: fixed !important;
+            left: 0 !important;
+            top: 0 !important;
+            width: 100% !important;
+            height: 100% !important;
+            background-color: rgba(0, 0, 0, 0.85) !important;
+            background: rgba(0, 0, 0, 0.85) !important;
+            backdrop-filter: none !important;
+            -webkit-backdrop-filter: none !important;
+        `;
+        
+        // Adicionar classe active
+        modalElement.classList.add('active');
+        
+        // Forçar novamente após delay
+        setTimeout(() => {
+            modalElement.style.cssText = `
+                display: flex !important;
+                visibility: visible !important;
+                opacity: 1 !important;
+                pointer-events: auto !important;
+                z-index: 10000 !important;
+                position: fixed !important;
+                left: 0 !important;
+                top: 0 !important;
+                width: 100% !important;
+                height: 100% !important;
+                background-color: rgba(0, 0, 0, 0.85) !important;
+                background: rgba(0, 0, 0, 0.85) !important;
+                backdrop-filter: none !important;
+                -webkit-backdrop-filter: none !important;
+            `;
+        }, 10);
+        
+        document.body.classList.add('modal-open');
+    };
     
     // Função para forçar repaint do body
     const forceRepaint = () => {
