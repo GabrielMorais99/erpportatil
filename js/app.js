@@ -5021,8 +5021,33 @@ class LojaApp {
         const isAndroidChrome = /Android/i.test(navigator.userAgent) && /Chrome/i.test(navigator.userAgent);
         
         // No Android, usar função global do android-modal-fix.js que bypassa todas as proteções
-        if (isAndroidChrome && typeof window.forceOpenModal === 'function') {
-            window.forceOpenModal(modal);
+        if (isAndroidChrome) {
+            // Tentar usar forceOpenModal se disponível
+            if (typeof window.forceOpenModal === 'function') {
+                window.forceOpenModal(modal);
+            } else {
+                // Fallback: desabilitar o fix completamente e abrir normalmente
+                if (typeof window.disableAndroidModalFix === 'function') {
+                    window.disableAndroidModalFix();
+                }
+                
+                // Abrir modal normalmente após desabilitar o fix
+                modal.style.cssText = `
+                    display: flex !important;
+                    visibility: visible !important;
+                    opacity: 1 !important;
+                    pointer-events: auto !important;
+                    z-index: 10000 !important;
+                    position: fixed !important;
+                    left: 0 !important;
+                    top: 0 !important;
+                    width: 100% !important;
+                    height: 100% !important;
+                    background-color: rgba(0, 0, 0, 0.85) !important;
+                    background: rgba(0, 0, 0, 0.85) !important;
+                `;
+                modal.classList.add('active');
+            }
         } else {
             // Desktop: comportamento normal
             modal.style.setProperty('display', 'flex', 'important');

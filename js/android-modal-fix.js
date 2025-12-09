@@ -112,6 +112,12 @@
     window.forceOpenModal = function(modalElement) {
         if (!modalElement) return;
         
+        // DESABILITAR TEMPORARIAMENTE o CSS do android-modal-fix
+        const styleElement = document.getElementById('android-modal-fix');
+        if (styleElement) {
+            styleElement.disabled = true;
+        }
+        
         // Remover todas as propriedades inline primeiro
         modalElement.style.cssText = '';
         
@@ -156,7 +162,23 @@
             `;
         }, 10);
         
+        // Reabilitar o CSS após um delay maior para garantir que o modal está visível
+        setTimeout(() => {
+            if (styleElement) {
+                styleElement.disabled = false;
+            }
+        }, 100);
+        
         document.body.classList.add('modal-open');
+    };
+    
+    // Expor função para desabilitar completamente o fix (último recurso)
+    window.disableAndroidModalFix = function() {
+        const styleElement = document.getElementById('android-modal-fix');
+        if (styleElement) {
+            styleElement.remove();
+            console.log('🔧 [ANDROID FIX] CSS removido completamente');
+        }
     };
     
     // Função para forçar repaint do body

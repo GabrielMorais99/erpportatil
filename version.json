@@ -1,10 +1,10 @@
 {
-  "version": "2025120823",
-  "buildDate": "2025-12-08",
-  "buildTime": "23:27:09",
-  "commit": "ca52dc7",
+  "version": "20251209",
+  "buildDate": "2025-12-09",
+  "buildTime": "00:03:40",
+  "commit": "92c079a",
   "branch": "main",
-  "commitMessage": "fix: cria funcao forceOpenModal para bypass das protecoes do android-modal-fix",
+  "commitMessage": "chore: atualiza versao para 2025120827",
   "description": "ERP Portátil - Sistema de Gestão Financeira",
-  "updatedAt": "2025-12-09T02:27:09.620Z"
+  "updatedAt": "2025-12-09T03:03:40.639Z"
 }
