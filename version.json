@@ -1,10 +1,10 @@
 {
   "version": "2025120823",
   "buildDate": "2025-12-08",
-  "buildTime": "23:04:42",
-  "commit": "7885683",
+  "buildTime": "23:08:26",
+  "commit": "11d2d37",
   "branch": "main",
-  "commitMessage": "chore: atualiza versao para 2025120817",
+  "commitMessage": "fix: força display e visibilidade do modal ao abrir - corrige modal que nao abre",
   "description": "ERP Portátil - Sistema de Gestão Financeira",
-  "updatedAt": "2025-12-09T02:04:43.188Z"
+  "updatedAt": "2025-12-09T02:08:26.202Z"
 }
