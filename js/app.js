@@ -3380,6 +3380,9 @@ class LojaApp {
     closeModalSafely(modalElement) {
         if (!modalElement) return;
         
+        // Detectar se é Android Chrome
+        const isAndroidChrome = /Android/i.test(navigator.userAgent) && /Chrome/i.test(navigator.userAgent);
+        
         // VERIFICAR SE É O ÚLTIMO MODAL ANTES DE REMOVER (para mostrar FAB)
         const allActiveModals = document.querySelectorAll('.modal.active');
         const isLastModal = allActiveModals.length === 1 && allActiveModals[0] === modalElement;
@@ -3396,11 +3399,24 @@ class LojaApp {
         modalElement.style.setProperty('opacity', '0', 'important');
         modalElement.style.setProperty('visibility', 'hidden', 'important');
         
-        // GARANTIR QUE BODY E HTML NÃO TENHAM BACKDROP
-        document.body.style.setProperty('backdrop-filter', '', 'important');
-        document.body.style.setProperty('-webkit-backdrop-filter', '', 'important');
-        document.documentElement.style.setProperty('backdrop-filter', '', 'important');
-        document.documentElement.style.setProperty('-webkit-backdrop-filter', '', 'important');
+        // No Android, limpar backdrop do body/html de forma mais agressiva
+        if (isAndroidChrome) {
+            document.body.style.cssText = document.body.style.cssText.replace(/backdrop-filter[^;]*;?/gi, '');
+            document.body.style.cssText = document.body.style.cssText.replace(/-webkit-backdrop-filter[^;]*;?/gi, '');
+            document.documentElement.style.cssText = document.documentElement.style.cssText.replace(/backdrop-filter[^;]*;?/gi, '');
+            document.documentElement.style.cssText = document.documentElement.style.cssText.replace(/-webkit-backdrop-filter[^;]*;?/gi, '');
+            
+            // Forçar repaint no Android
+            document.body.style.display = 'none';
+            document.body.offsetHeight; // Trigger reflow
+            document.body.style.display = '';
+        } else {
+            // GARANTIR QUE BODY E HTML NÃO TENHAM BACKDROP (desktop)
+            document.body.style.setProperty('backdrop-filter', '', 'important');
+            document.body.style.setProperty('-webkit-backdrop-filter', '', 'important');
+            document.documentElement.style.setProperty('backdrop-filter', '', 'important');
+            document.documentElement.style.setProperty('-webkit-backdrop-filter', '', 'important');
+        }
         
         // LIMPAR TODOS OS OUTROS MODAIS TAMBÉM (caso algum esteja "preso")
         document.querySelectorAll('.modal.active').forEach(modal => {
@@ -5020,46 +5036,51 @@ class LojaApp {
         // Detectar se é Android Chrome
         const isAndroidChrome = /Android/i.test(navigator.userAgent) && /Chrome/i.test(navigator.userAgent);
         
-        // No Android, usar função global do android-modal-fix.js que bypassa todas as proteções
-        if (isAndroidChrome) {
-            // Tentar usar forceOpenModal se disponível
-            if (typeof window.forceOpenModal === 'function') {
-                window.forceOpenModal(modal);
-            } else {
-                // Fallback: desabilitar o fix completamente e abrir normalmente
-                if (typeof window.disableAndroidModalFix === 'function') {
-                    window.disableAndroidModalFix();
-                }
-                
-                // Abrir modal normalmente após desabilitar o fix
-                modal.style.cssText = `
-                    display: flex !important;
-                    visibility: visible !important;
-                    opacity: 1 !important;
-                    pointer-events: auto !important;
-                    z-index: 10000 !important;
-                    position: fixed !important;
-                    left: 0 !important;
-                    top: 0 !important;
-                    width: 100% !important;
-                    height: 100% !important;
-                    background-color: rgba(0, 0, 0, 0.85) !important;
-                    background: rgba(0, 0, 0, 0.85) !important;
-                `;
-                modal.classList.add('active');
-            }
-        } else {
-            // Desktop: comportamento normal
-            modal.style.setProperty('display', 'flex', 'important');
-            modal.style.setProperty('visibility', 'visible', 'important');
-            modal.style.setProperty('opacity', '1', 'important');
-            modal.style.setProperty('pointer-events', 'auto', 'important');
-            modal.style.setProperty('z-index', '10000', 'important');
-            modal.style.setProperty('backdrop-filter', 'blur(8px)', 'important');
-            modal.style.setProperty('-webkit-backdrop-filter', 'blur(8px)', 'important');
-            modal.style.setProperty('background-color', 'rgba(0, 0, 0, 0.5)', 'important');
-            modal.classList.add('active');
+        // REMOVER QUALQUER INTERFERÊNCIA DO android-modal-fix.js
+        const androidFixStyle = document.getElementById('android-modal-fix');
+        if (androidFixStyle) {
+            androidFixStyle.remove(); // Remove completamente o CSS problemático
         }
+        
+        // Abrir modal de forma simples e direta - SEM interferências
+        modal.style.cssText = ''; // Limpar tudo primeiro
+        
+        if (isAndroidChrome) {
+            // Android: usar background sólido (backdrop-filter não funciona)
+            modal.style.cssText = `
+                display: flex !important;
+                visibility: visible !important;
+                opacity: 1 !important;
+                pointer-events: auto !important;
+                z-index: 10000 !important;
+                position: fixed !important;
+                left: 0 !important;
+                top: 0 !important;
+                width: 100% !important;
+                height: 100% !important;
+                background-color: rgba(0, 0, 0, 0.85) !important;
+                background: rgba(0, 0, 0, 0.85) !important;
+            `;
+        } else {
+            // Desktop: usar backdrop-filter
+            modal.style.cssText = `
+                display: flex !important;
+                visibility: visible !important;
+                opacity: 1 !important;
+                pointer-events: auto !important;
+                z-index: 10000 !important;
+                position: fixed !important;
+                left: 0 !important;
+                top: 0 !important;
+                width: 100% !important;
+                height: 100% !important;
+                background-color: rgba(0, 0, 0, 0.5) !important;
+                backdrop-filter: blur(8px) !important;
+                -webkit-backdrop-filter: blur(8px) !important;
+            `;
+        }
+        
+        modal.classList.add('active');
 
         // Verificar se a biblioteca Html5Qrcode está disponível
         if (!window.Html5Qrcode) {

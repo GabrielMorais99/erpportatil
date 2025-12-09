@@ -92,7 +92,8 @@
         </script>
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
         <!-- Correção específica para Chrome Android - CARREGAR PRIMEIRO -->
-        <script src="/js/android-modal-fix.js"></script>
+        <!-- android-modal-fix.js REMOVIDO - estava impedindo modais de abrirem no Android -->
+        <!-- <script src="/js/android-modal-fix.js"></script> -->
         <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js" onload="window.chartJsLoaded = true;" onerror="console.error('Erro ao carregar Chart.js');"></script>
         <!-- Bibliotecas para exportação avançada -->
         <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
@@ -622,7 +623,7 @@
                                     />
                                 </div>
                             </div>
-                            <div id="suppliersList" class="items-grid">
+                            <div id="suppliersList">
                                 <!-- Fornecedores serão inseridos aqui via JavaScript -->
                             </div>
                         </div>

@@ -1,10 +1,10 @@
 {
-  "version": "20251209",
+  "version": "2025120900",
   "buildDate": "2025-12-09",
-  "buildTime": "00:04:00",
-  "commit": "628be54",
+  "buildTime": "00:50:46",
+  "commit": "7082ec1",
   "branch": "main",
-  "commitMessage": "fix: desabilita temporariamente CSS do android-modal-fix ao abrir modal",
+  "commitMessage": "chore: atualiza versao para 2025120828",
   "description": "ERP Portátil - Sistema de Gestão Financeira",
-  "updatedAt": "2025-12-09T03:04:00.188Z"
+  "updatedAt": "2025-12-09T03:50:46.477Z"
 }
