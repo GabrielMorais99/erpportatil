@@ -5208,12 +5208,46 @@ class LojaApp {
                 })
                 .catch((err) => {
                     console.error('Erro ao parar scanner:', err);
+                    this.quickSaleQRScanner = null;
                     // Mesmo com erro, fechar o modal
                     this.closeModalSafely(modal);
                 });
         } else {
-            // Se não há scanner, apenas fechar o modal
+            // Se não há scanner ativo, apenas fechar o modal
             this.closeModalSafely(modal);
+        }
+        
+        // GARANTIR limpeza adicional após um delay (para Android Chrome)
+        const isAndroidChrome = /Android/i.test(navigator.userAgent) && /Chrome/i.test(navigator.userAgent);
+        if (isAndroidChrome) {
+            // Limpeza imediata
+            setTimeout(() => {
+                // Forçar limpeza completa do backdrop novamente
+                document.body.style.removeProperty('backdrop-filter');
+                document.body.style.removeProperty('-webkit-backdrop-filter');
+                document.documentElement.style.removeProperty('backdrop-filter');
+                document.documentElement.style.removeProperty('-webkit-backdrop-filter');
+                document.body.style.removeProperty('background');
+                document.body.style.removeProperty('background-color');
+                document.documentElement.style.removeProperty('background');
+                document.documentElement.style.removeProperty('background-color');
+                
+                // Verificar se ainda há modais ativos
+                const activeModals = document.querySelectorAll('.modal.active');
+                if (activeModals.length === 0) {
+                    // Nenhum modal ativo, garantir que tudo está limpo
+                    document.body.style.setProperty('opacity', '1', 'important');
+                    document.body.style.setProperty('visibility', 'visible', 'important');
+                }
+            }, 100);
+            
+            // Limpeza adicional após transição CSS
+            setTimeout(() => {
+                document.body.style.removeProperty('backdrop-filter');
+                document.body.style.removeProperty('-webkit-backdrop-filter');
+                document.documentElement.style.removeProperty('backdrop-filter');
+                document.documentElement.style.removeProperty('-webkit-backdrop-filter');
+            }, 500);
         }
     }
 
