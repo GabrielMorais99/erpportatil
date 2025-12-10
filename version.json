@@ -1,10 +1,10 @@
 {
   "version": "2025120923",
   "buildDate": "2025-12-09",
-  "buildTime": "23:17:45",
-  "commit": "1158003",
+  "buildTime": "23:36:36",
+  "commit": "5bbbf90",
   "branch": "main",
-  "commitMessage": "fix: solucao definitiva para modais no Android Chrome - remove backdrop-filter",
+  "commitMessage": "fix: adiciona limpeza adicional de backdrop no closeQuickSaleScanner para Android",
   "description": "ERP Portátil - Sistema de Gestão Financeira",
-  "updatedAt": "2025-12-10T02:17:45.536Z"
+  "updatedAt": "2025-12-10T02:36:36.698Z"
 }
