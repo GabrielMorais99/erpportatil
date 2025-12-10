@@ -1,10 +1,10 @@
 {
-  "version": "2025120900",
+  "version": "2025120921",
   "buildDate": "2025-12-09",
-  "buildTime": "00:54:48",
-  "commit": "bf4ed73",
+  "buildTime": "21:37:04",
+  "commit": "20dcede",
   "branch": "main",
-  "commitMessage": "fix: remove android-modal-fix.js que estava impedindo modais de abrirem no Android",
+  "commitMessage": "chore: atualiza versao para 2025120901",
   "description": "ERP Portátil - Sistema de Gestão Financeira",
-  "updatedAt": "2025-12-09T03:54:48.833Z"
+  "updatedAt": "2025-12-10T00:37:04.645Z"
 }

@@ -29,8 +29,8 @@
         <script>
             // Carregar versão ANTES de carregar CSS para garantir cache busting
             (function() {
-                let APP_VERSION = '2025120901'; // Fallback atualizado
-                let SW_VERSION = '2025120901000000'; // Fallback atualizado
+                let APP_VERSION = '2025120900'; // Fallback atualizado
+                let SW_VERSION = '2025120900000000'; // Fallback atualizado
                 
                 // Tentar carregar versão do arquivo version.json (com cache busting agressivo)
                 fetch('/version.json?t=' + Date.now() + '&v=' + Math.random())
@@ -40,7 +40,7 @@
                     })
                     .then(data => {
                         APP_VERSION = data.version || APP_VERSION;
-                        SW_VERSION = (data.version || '2025120901') + '000000';
+                        SW_VERSION = (data.version || '2025120900') + '000000';
                         
                         // Atualizar TODOS os links CSS com versão dinâmica
                         const updateCSSLinks = () => {
@@ -98,10 +98,10 @@
             })();
         </script>
         <!-- Preload CSS para evitar FOUC - Versão será atualizada dinamicamente -->
-        <link rel="preload" href="/css/style.css?v=2025120901" as="style" />
-        <link rel="stylesheet" href="/css/style.css?v=2025120901" />
+        <link rel="preload" href="/css/style.css?v=2025120900" as="style" />
+        <link rel="stylesheet" href="/css/style.css?v=2025120900" />
         <!-- Tailwind CSS (compilado) - Versão será atualizada dinamicamente -->
-        <link rel="stylesheet" href="/css/tailwind.css?v=2025120901" />
+        <link rel="stylesheet" href="/css/tailwind.css?v=2025120900" />
         <link
             rel="stylesheet"
             href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
@@ -394,7 +394,7 @@
                     <p>© Gabriel Dev</p>
                     <p>2025</p>
                     <div id="version-display" style="margin-top: 6px; font-weight: 600; font-size: 0.9rem; line-height: 1.4;">
-                        <div style="color: var(--primary-color);">Versão: 2025120901</div>
+                        <div style="color: var(--primary-color);">Versão: 2025120900</div>
                         <div id="version-details" style="font-size: 0.75rem; font-weight: 400; margin-top: 2px; opacity: 0.8; display: none;">
                             <span id="version-commit"></span>
                         </div>
@@ -439,7 +439,7 @@
                                 const versionText = versionEl.querySelector('div:first-child');
                                 if (versionText) {
                                     // Usar fallback do primeiro script se disponível
-                                    versionText.textContent = `Versão: ${window.APP_VERSION || '2025120901'}`;
+                                    versionText.textContent = `Versão: ${window.APP_VERSION || '2025120900'}`;
                                 }
                             }
                         });
@@ -586,16 +586,27 @@
         <script>
             // Registrar Service Worker para PWA (com versão dinâmica)
             if ('serviceWorker' in navigator) {
-                let SW_VERSION = '20251226234000'; // Fallback
-                // Carregar versão do arquivo version.json
-                fetch('/version.json')
-                    .then(res => res.json())
+                let SW_VERSION = '2025120900000000'; // Fallback atualizado
+                // Carregar versão do arquivo version.json (com cache busting)
+                fetch('/version.json?t=' + Date.now() + '&v=' + Math.random(), {
+                    cache: 'no-store',
+                    headers: {
+                        'Cache-Control': 'no-cache, no-store, must-revalidate',
+                        'Pragma': 'no-cache'
+                    }
+                })
+                    .then(res => {
+                        if (!res.ok) {
+                            throw new Error(`HTTP ${res.status}`);
+                        }
+                        return res.json();
+                    })
                     .then(data => {
-                        SW_VERSION = data.version + '000000'; // Formato: YYYYMMDDHHMMSS
+                        SW_VERSION = (data.version || '2025120900') + '000000'; // Formato: YYYYMMDDHHMMSS
                         registerServiceWorker();
                     })
                     .catch(err => {
-                        console.warn('⚠️ Não foi possível carregar version.json para SW, usando versão padrão');
+                        console.warn('⚠️ Não foi possível carregar version.json para SW, usando versão padrão:', err.message);
                         registerServiceWorker();
                     });
                 
@@ -624,6 +635,30 @@
                                         'Versão:',
                                         SW_VERSION
                                     );
+
+                                    // Verificar atualizações (sem reload automático para evitar loop)
+                                    registration.addEventListener(
+                                        'updatefound',
+                                        () => {
+                                            const newWorker =
+                                                registration.installing;
+                                            newWorker.addEventListener(
+                                                'statechange',
+                                                () => {
+                                                    if (
+                                                        newWorker.state ===
+                                                            'installed' &&
+                                                        navigator.serviceWorker
+                                                            .controller
+                                                    ) {
+                                                        console.log(
+                                                            '🔄 [PWA] Nova versão disponível - atualize manualmente (Ctrl+Shift+R)'
+                                                        );
+                                                    }
+                                                }
+                                            );
+                                        }
+                                    );
                                 })
                                 .catch((error) => {
                                     console.error(
@@ -639,65 +674,6 @@
                         }
                     });
                 }
-                    try {
-                        const registrations =
-                            await navigator.serviceWorker.getRegistrations();
-                        await Promise.all(
-                            registrations.map((reg) => {
-                                if (
-                                    !reg.active ||
-                                    !reg.active.scriptURL.includes(SW_VERSION)
-                                ) {
-                                    return reg.unregister();
-                                }
-                            })
-                        );
-
-                        navigator.serviceWorker
-                            .register(`/sw.js?v=${SW_VERSION}`, { scope: '/' })
-                            .then((registration) => {
-                                console.log(
-                                    '✅ [PWA] Service Worker registrado:',
-                                    registration.scope
-                                );
-
-                                // Verificar atualizações (sem reload automático para evitar loop)
-                                registration.addEventListener(
-                                    'updatefound',
-                                    () => {
-                                        const newWorker =
-                                            registration.installing;
-                                        newWorker.addEventListener(
-                                            'statechange',
-                                            () => {
-                                                if (
-                                                    newWorker.state ===
-                                                        'installed' &&
-                                                    navigator.serviceWorker
-                                                        .controller
-                                                ) {
-                                                    console.log(
-                                                        '🔄 [PWA] Nova versão disponível - atualize manualmente (Ctrl+Shift+R)'
-                                                    );
-                                                }
-                                            }
-                                        );
-                                    }
-                                );
-                            })
-                            .catch((error) => {
-                                console.error(
-                                    '❌ [PWA] Erro ao registrar Service Worker:',
-                                    error
-                                );
-                            });
-                    } catch (err) {
-                        console.error(
-                            '❌ [PWA] Erro ao limpar/registrar Service Worker:',
-                            err
-                        );
-                    }
-                });
             }
         </script>
     </body>
