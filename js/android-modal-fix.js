@@ -345,12 +345,18 @@
         });
         
         // Executar limpeza periodicamente (a cada 200ms) quando não há modais ativos
-        setInterval(() => {
-            const activeModals = document.querySelectorAll('.modal.active');
-            if (activeModals.length === 0) {
-                cleanAndroidModals();
-            }
-        }, 200);
+        // IMPORTANTE: Só executar se houver modais na página (não executar na página de login)
+        let modalCleanupInterval = null;
+        const modalsOnPage = document.querySelectorAll('.modal');
+        if (modalsOnPage.length > 0) {
+            // Só criar interval se houver modais na página
+            modalCleanupInterval = setInterval(() => {
+                const activeModals = document.querySelectorAll('.modal.active');
+                if (activeModals.length === 0) {
+                    cleanAndroidModals();
+                }
+            }, 200);
+        }
         
         // Interceptar TODOS os eventos de fechamento
         document.addEventListener('click', (e) => {
@@ -388,10 +394,13 @@
             return result;
         };
         
-        // Limpar ao fechar página/app
-        window.addEventListener('beforeunload', () => {
-            cleanAndroidModals();
-        });
+    // Limpar ao fechar página/app
+    window.addEventListener('beforeunload', () => {
+        if (modalCleanupInterval) {
+            clearInterval(modalCleanupInterval);
+        }
+        cleanAndroidModals();
+    });
         
         // Limpar quando página fica visível novamente
         document.addEventListener('visibilitychange', () => {

@@ -1,10 +1,10 @@
 {
   "version": "2025120921",
   "buildDate": "2025-12-09",
-  "buildTime": "21:44:31",
-  "commit": "fe82bc9",
+  "buildTime": "21:47:30",
+  "commit": "f673285",
   "branch": "main",
-  "commitMessage": "chore: atualiza versao para 2025120902",
+  "commitMessage": "fix: corrige erro Cannot read properties of null no android-modal-fix.js e adiciona version.json ao ",
   "description": "ERP Portátil - Sistema de Gestão Financeira",
-  "updatedAt": "2025-12-10T00:44:32.000Z"
+  "updatedAt": "2025-12-10T00:47:31.106Z"
 }
