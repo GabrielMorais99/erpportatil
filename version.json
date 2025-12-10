@@ -1,10 +1,10 @@
 {
-  "version": "2025120922",
+  "version": "2025120923",
   "buildDate": "2025-12-09",
-  "buildTime": "22:05:41",
-  "commit": "5aea12f",
+  "buildTime": "23:17:45",
+  "commit": "1158003",
   "branch": "main",
-  "commitMessage": "fix: bypass total do Service Worker para version.json e cache bust ultra agressivo",
+  "commitMessage": "fix: solucao definitiva para modais no Android Chrome - remove backdrop-filter",
   "description": "ERP Portátil - Sistema de Gestão Financeira",
-  "updatedAt": "2025-12-10T01:05:41.452Z"
+  "updatedAt": "2025-12-10T02:17:45.536Z"
 }
