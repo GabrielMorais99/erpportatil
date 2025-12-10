@@ -3459,17 +3459,36 @@ class LojaApp {
         modalElement.style.setProperty('opacity', '0', 'important');
         modalElement.style.setProperty('visibility', 'hidden', 'important');
         
-        // No Android, limpar backdrop do body/html de forma mais agressiva
+        // No Android, limpar backdrop do body/html de forma ULTRA AGRESSIVA
         if (isAndroidChrome) {
-            document.body.style.cssText = document.body.style.cssText.replace(/backdrop-filter[^;]*;?/gi, '');
-            document.body.style.cssText = document.body.style.cssText.replace(/-webkit-backdrop-filter[^;]*;?/gi, '');
-            document.documentElement.style.cssText = document.documentElement.style.cssText.replace(/backdrop-filter[^;]*;?/gi, '');
-            document.documentElement.style.cssText = document.documentElement.style.cssText.replace(/-webkit-backdrop-filter[^;]*;?/gi, '');
+            // Limpar backdrop-filter de TODAS as formas possíveis
+            document.body.style.removeProperty('backdrop-filter');
+            document.body.style.removeProperty('-webkit-backdrop-filter');
+            document.documentElement.style.removeProperty('backdrop-filter');
+            document.documentElement.style.removeProperty('-webkit-backdrop-filter');
             
-            // Forçar repaint no Android
-            document.body.style.display = 'none';
-            document.body.offsetHeight; // Trigger reflow
-            document.body.style.display = '';
+            // Limpar via cssText também
+            const bodyCssText = document.body.style.cssText || '';
+            const htmlCssText = document.documentElement.style.cssText || '';
+            document.body.style.cssText = bodyCssText.replace(/backdrop-filter[^;]*;?/gi, '').replace(/-webkit-backdrop-filter[^;]*;?/gi, '');
+            document.documentElement.style.cssText = htmlCssText.replace(/backdrop-filter[^;]*;?/gi, '').replace(/-webkit-backdrop-filter[^;]*;?/gi, '');
+            
+            // Forçar reset completo do background no body/html
+            document.body.style.setProperty('background', '', 'important');
+            document.body.style.setProperty('background-color', '', 'important');
+            document.documentElement.style.setProperty('background', '', 'important');
+            document.documentElement.style.setProperty('background-color', '', 'important');
+            
+            // Forçar repaint no Android com múltiplas técnicas
+            requestAnimationFrame(() => {
+                document.body.style.display = 'none';
+                void document.body.offsetHeight; // Trigger reflow
+                document.body.style.display = '';
+                // Forçar outro repaint após um frame
+                requestAnimationFrame(() => {
+                    void document.body.offsetHeight;
+                });
+            });
         } else {
             // GARANTIR QUE BODY E HTML NÃO TENHAM BACKDROP (desktop)
             document.body.style.setProperty('backdrop-filter', '', 'important');
@@ -3517,6 +3536,20 @@ class LojaApp {
             modalElement.style.removeProperty('backdrop-filter');
             modalElement.style.removeProperty('-webkit-backdrop-filter');
             modalElement.style.removeProperty('pointer-events');
+            modalElement.style.removeProperty('opacity');
+            modalElement.style.removeProperty('visibility');
+            
+            // No Android, limpar CSS completamente via cssText
+            if (isAndroidChrome) {
+                // Manter apenas propriedades essenciais, remover tudo relacionado a backdrop
+                const currentCss = modalElement.style.cssText || '';
+                const cleanedCss = currentCss
+                    .replace(/backdrop-filter[^;]*;?/gi, '')
+                    .replace(/-webkit-backdrop-filter[^;]*;?/gi, '')
+                    .replace(/background[^;]*;?/gi, '')
+                    .replace(/background-color[^;]*;?/gi, '');
+                modalElement.style.cssText = cleanedCss + 'display: none !important;';
+            }
             modalElement.style.removeProperty('opacity');
             modalElement.style.removeProperty('visibility');
         }, 300); // Tempo igual à transição CSS
@@ -5137,10 +5170,23 @@ class LojaApp {
             )
             .catch((err) => {
                 console.error('Erro ao iniciar scanner:', err);
+                // NÃO fechar o modal automaticamente - deixar usuário fechar manualmente
+                // Apenas mostrar erro e manter modal aberto
                 toast.error(
                     'Erro ao acessar a câmera. Verifique as permissões.',
-                    3000
+                    5000
                 );
+                // Limpar instância do scanner para permitir nova tentativa
+                this.quickSaleQRScanner = null;
+                
+                // Limpar conteúdo do reader para evitar confusão
+                const readerDiv = document.getElementById('quickSaleQrReader');
+                if (readerDiv) {
+                    readerDiv.innerHTML = '<p style="text-align: center; color: var(--gray-600); padding: 2rem;">Erro ao acessar câmera. Verifique as permissões do navegador.</p>';
+                }
+                
+                // NÃO chamar closeModalSafely aqui - modal deve permanecer aberto
+                // O usuário pode fechar manualmente usando o botão X ou "Fechar Scanner"
             });
     }
 
