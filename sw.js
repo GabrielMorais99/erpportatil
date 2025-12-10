@@ -22,31 +22,42 @@ const urlsToCache = [
 
 // Instalar Service Worker
 self.addEventListener('install', (event) => {
-    console.log('[SW] Instalando Service Worker...');
+    console.log('[SW] Instalando Service Worker v10...');
     event.waitUntil(
-        caches
-            .open(CACHE_NAME)
-            .then((cache) => {
-                console.log('[SW] Cache aberto:', CACHE_NAME);
-                // Cachear recursos críticos
-                return cache
-                    .addAll(
-                        urlsToCache.map(
-                            (url) => new Request(url, { cache: 'reload' })
-                        )
+        // PRIMEIRO: Limpar TODOS os caches antigos
+        caches.keys().then((cacheNames) => {
+            return Promise.all(
+                cacheNames.map((cacheName) => {
+                    console.log('[SW] Removendo cache antigo:', cacheName);
+                    return caches.delete(cacheName);
+                })
+            );
+        })
+        .then(() => {
+            // DEPOIS: Criar novo cache
+            return caches.open(CACHE_NAME);
+        })
+        .then((cache) => {
+            console.log('[SW] Cache aberto:', CACHE_NAME);
+            // Cachear recursos críticos
+            return cache
+                .addAll(
+                    urlsToCache.map(
+                        (url) => new Request(url, { cache: 'reload' })
                     )
-                    .catch((error) => {
-                        console.warn(
-                            '[SW] Erro ao cachear alguns recursos:',
-                            error
-                        );
-                        // Continuar mesmo se alguns recursos falharem
-                    });
-            })
-            .then(() => {
-                // Forçar ativação imediata para limpar cache antigo
-                return self.skipWaiting();
-            })
+                )
+                .catch((error) => {
+                    console.warn(
+                        '[SW] Erro ao cachear alguns recursos:',
+                        error
+                    );
+                    // Continuar mesmo se alguns recursos falharem
+                });
+        })
+        .then(() => {
+            // Forçar ativação imediata para limpar cache antigo
+            return self.skipWaiting();
+        })
     );
 });
 

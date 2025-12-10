@@ -1,10 +1,10 @@
 {
   "version": "2025120921",
   "buildDate": "2025-12-09",
-  "buildTime": "21:50:27",
-  "commit": "6a2753d",
+  "buildTime": "21:52:51",
+  "commit": "a919fd1",
   "branch": "main",
-  "commitMessage": "fix: corrige loop infinito na animacao do login",
+  "commitMessage": "fix: atualiza Service Worker e version.json para forcar cache bust",
   "description": "ERP Portátil - Sistema de Gestão Financeira",
-  "updatedAt": "2025-12-10T00:50:27.579Z"
+  "updatedAt": "2025-12-10T00:52:52.108Z"
 }

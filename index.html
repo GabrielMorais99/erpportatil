@@ -614,21 +614,34 @@
                 function registerServiceWorker() {
                     window.addEventListener('load', async () => {
                         try {
+                            // FORÇAR LIMPEZA TOTAL DE TODOS OS SERVICE WORKERS E CACHES
                             const registrations =
                                 await navigator.serviceWorker.getRegistrations();
+                            
+                            // Desregistrar TODOS os Service Workers antigos
                             await Promise.all(
                                 registrations.map((reg) => {
-                                    if (
-                                        !reg.active ||
-                                        !reg.active.scriptURL.includes(SW_VERSION)
-                                    ) {
-                                        return reg.unregister();
-                                    }
+                                    console.log('[SW] Desregistrando SW antigo:', reg.scope);
+                                    return reg.unregister();
                                 })
                             );
+                            
+                            // Limpar TODOS os caches
+                            if ('caches' in window) {
+                                const cacheNames = await caches.keys();
+                                await Promise.all(
+                                    cacheNames.map((cacheName) => {
+                                        console.log('[SW] Removendo cache:', cacheName);
+                                        return caches.delete(cacheName);
+                                    })
+                                );
+                            }
 
+                            // Aguardar um pouco antes de registrar novo SW para garantir limpeza
+                            await new Promise(resolve => setTimeout(resolve, 100));
+                            
                             navigator.serviceWorker
-                                .register(`/sw.js?v=${SW_VERSION}`, { scope: '/' })
+                                .register(`/sw.js?v=${SW_VERSION}&t=${Date.now()}`, { scope: '/' })
                                 .then((registration) => {
                                     console.log(
                                         '✅ [PWA] Service Worker registrado:',
