@@ -91,9 +91,29 @@
             })();
         </script>
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
-        <!-- Correção específica para Chrome Android - CARREGAR PRIMEIRO -->
-        <!-- android-modal-fix.js REMOVIDO - estava impedindo modais de abrirem no Android -->
-        <!-- <script src="/js/android-modal-fix.js"></script> -->
+        <!-- Detecção Android Chrome e aplicação de classe para CSS -->
+        <script>
+            (function() {
+                // Detectar Android Chrome
+                const ua = navigator.userAgent;
+                const isAndroid = /Android/i.test(ua);
+                const isChrome = /Chrome/i.test(ua) && !/Edge|Opera|OPR/i.test(ua);
+                const isAndroidChrome = isAndroid && isChrome;
+                
+                if (isAndroidChrome) {
+                    // Aplicar classe ao HTML e body para CSS específico
+                    document.documentElement.classList.add('android-chrome');
+                    if (document.body) {
+                        document.body.classList.add('android-chrome');
+                    } else {
+                        document.addEventListener('DOMContentLoaded', function() {
+                            document.body.classList.add('android-chrome');
+                        });
+                    }
+                    console.log('🔧 [ANDROID] Chrome Android detectado - backdrop-filter desabilitado');
+                }
+            })();
+        </script>
         <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js" onload="window.chartJsLoaded = true;" onerror="console.error('Erro ao carregar Chart.js');"></script>
         <!-- Bibliotecas para exportação avançada -->
         <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>

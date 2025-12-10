@@ -3373,6 +3373,66 @@ class LojaApp {
     }
 
     /**
+     * Função helper para abrir modais de forma compatível com Android Chrome
+     * Remove backdrop-filter no Android e usa background sólido
+     */
+    openModalSafely(modalElement) {
+        if (!modalElement) return;
+        
+        // Detectar Android Chrome
+        const isAndroidChrome = /Android/i.test(navigator.userAgent) && /Chrome/i.test(navigator.userAgent);
+        
+        // Esconder FAB quando modal abrir
+        const fab = document.getElementById('quickSaleFAB');
+        if (fab) {
+            fab.style.display = 'none';
+        }
+        
+        // Limpar estilos inline primeiro
+        modalElement.style.cssText = '';
+        
+        if (isAndroidChrome) {
+            // Android: usar background sólido (backdrop-filter não funciona)
+            modalElement.style.cssText = `
+                display: flex !important;
+                visibility: visible !important;
+                opacity: 1 !important;
+                pointer-events: auto !important;
+                z-index: 10000 !important;
+                position: fixed !important;
+                left: 0 !important;
+                top: 0 !important;
+                width: 100% !important;
+                height: 100% !important;
+                background-color: rgba(0, 0, 0, 0.85) !important;
+                background: rgba(0, 0, 0, 0.85) !important;
+                backdrop-filter: none !important;
+                -webkit-backdrop-filter: none !important;
+            `;
+        } else {
+            // Desktop: usar backdrop-filter normalmente
+            modalElement.style.cssText = `
+                display: flex !important;
+                visibility: visible !important;
+                opacity: 1 !important;
+                pointer-events: auto !important;
+                z-index: 10000 !important;
+                position: fixed !important;
+                left: 0 !important;
+                top: 0 !important;
+                width: 100% !important;
+                height: 100% !important;
+                background-color: rgba(0, 0, 0, 0.5) !important;
+                backdrop-filter: blur(8px) !important;
+                -webkit-backdrop-filter: blur(8px) !important;
+            `;
+        }
+        
+        // Adicionar classe active
+        modalElement.classList.add('active');
+    }
+
+    /**
      * Função helper genérica para fechar modais corretamente
      * Garante limpeza completa do backdrop e transições
      * VERSÃO ROBUSTA: Limpa TODOS os modais e garante reset completo
@@ -5027,60 +5087,8 @@ class LojaApp {
             return;
         }
 
-        // Esconder FAB quando modal abrir
-        const fab = document.getElementById('quickSaleFAB');
-        if (fab) {
-            fab.style.display = 'none';
-        }
-
-        // Detectar se é Android Chrome
-        const isAndroidChrome = /Android/i.test(navigator.userAgent) && /Chrome/i.test(navigator.userAgent);
-        
-        // REMOVER QUALQUER INTERFERÊNCIA DO android-modal-fix.js
-        const androidFixStyle = document.getElementById('android-modal-fix');
-        if (androidFixStyle) {
-            androidFixStyle.remove(); // Remove completamente o CSS problemático
-        }
-        
-        // Abrir modal de forma simples e direta - SEM interferências
-        modal.style.cssText = ''; // Limpar tudo primeiro
-        
-        if (isAndroidChrome) {
-            // Android: usar background sólido (backdrop-filter não funciona)
-            modal.style.cssText = `
-                display: flex !important;
-                visibility: visible !important;
-                opacity: 1 !important;
-                pointer-events: auto !important;
-                z-index: 10000 !important;
-                position: fixed !important;
-                left: 0 !important;
-                top: 0 !important;
-                width: 100% !important;
-                height: 100% !important;
-                background-color: rgba(0, 0, 0, 0.85) !important;
-                background: rgba(0, 0, 0, 0.85) !important;
-            `;
-        } else {
-            // Desktop: usar backdrop-filter
-            modal.style.cssText = `
-                display: flex !important;
-                visibility: visible !important;
-                opacity: 1 !important;
-                pointer-events: auto !important;
-                z-index: 10000 !important;
-                position: fixed !important;
-                left: 0 !important;
-                top: 0 !important;
-                width: 100% !important;
-                height: 100% !important;
-                background-color: rgba(0, 0, 0, 0.5) !important;
-                backdrop-filter: blur(8px) !important;
-                -webkit-backdrop-filter: blur(8px) !important;
-            `;
-        }
-        
-        modal.classList.add('active');
+        // Usar função helper para abrir modal de forma compatível
+        this.openModalSafely(modal);
 
         // Verificar se a biblioteca Html5Qrcode está disponível
         if (!window.Html5Qrcode) {
