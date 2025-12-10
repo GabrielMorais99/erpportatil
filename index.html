@@ -32,13 +32,25 @@
                 let APP_VERSION = '2025120924'; // Fallback atualizado
                 let SW_VERSION = '2025120924000000'; // Fallback atualizado
                 
-                // Tentar carregar versão do arquivo version.json (com cache busting agressivo)
-                fetch('/version.json?t=' + Date.now() + '&v=' + Math.random())
+                // Tentar carregar versão do arquivo version.json (com cache busting ULTRA AGRESSIVO)
+                // BYPASS TOTAL: não usar cache, sempre buscar da rede
+                const versionUrl = '/version.json?t=' + Date.now() + '&v=' + Math.random() + '&_=' + performance.now();
+                fetch(versionUrl, {
+                    method: 'GET',
+                    cache: 'no-store',
+                    headers: {
+                        'Cache-Control': 'no-cache, no-store, must-revalidate, max-age=0',
+                        'Pragma': 'no-cache',
+                        'Expires': '0'
+                    }
+                })
                     .then(res => {
                         if (!res.ok) throw new Error('HTTP ' + res.status);
-                        return res.json();
+                        // Clonar response para garantir que não está cacheado
+                        return res.clone().json();
                     })
                     .then(data => {
+                        console.log('✅ [VERSION] Versão carregada do servidor:', data.version);
                         APP_VERSION = data.version || APP_VERSION;
                         SW_VERSION = (data.version || '2025120924') + '000000';
                         
@@ -402,13 +414,25 @@
                     </div>
                 </div>
                 <script>
-                    // Atualizar versão na tela de login (com cache busting agressivo)
-                    fetch('/version.json?t=' + Date.now() + '&v=' + Math.random())
+                    // Atualizar versão na tela de login (com cache busting ULTRA AGRESSIVO)
+                    const versionEl = document.getElementById('version-display');
+                    const versionUrl2 = '/version.json?t=' + Date.now() + '&v=' + Math.random() + '&_=' + performance.now();
+                    fetch(versionUrl2, {
+                        method: 'GET',
+                        cache: 'no-store',
+                        headers: {
+                            'Cache-Control': 'no-cache, no-store, must-revalidate, max-age=0',
+                            'Pragma': 'no-cache',
+                            'Expires': '0'
+                        }
+                    })
                         .then(res => {
                             if (!res.ok) throw new Error('HTTP ' + res.status);
-                            return res.json();
+                            // Clonar response para garantir que não está cacheado
+                            return res.clone().json();
                         })
                         .then(data => {
+                            console.log('✅ [VERSION] Versão atualizada na tela:', data.version);
                             const versionEl = document.getElementById('version-display');
                             const versionDetails = document.getElementById('version-details');
                             const versionCommit = document.getElementById('version-commit');

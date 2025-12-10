@@ -135,21 +135,38 @@ self.addEventListener('fetch', (event) => {
     }
 
     // version.json - SEMPRE buscar da rede, NUNCA usar cache
+    // BYPASS TOTAL DO SERVICE WORKER para version.json
     if (url.pathname === '/version.json' || url.pathname.endsWith('/version.json')) {
+        // IGNORAR COMPLETAMENTE o Service Worker para version.json
+        // Deixar o navegador buscar diretamente da rede
         event.respondWith(
-            fetch(new Request(event.request.url + '?t=' + Date.now() + '&v=' + Math.random(), { 
+            fetch(new Request(event.request.url, { 
+                method: 'GET',
                 cache: 'no-store',
                 headers: {
-                    'Cache-Control': 'no-cache, no-store, must-revalidate',
-                    'Pragma': 'no-cache'
+                    'Cache-Control': 'no-cache, no-store, must-revalidate, max-age=0',
+                    'Pragma': 'no-cache',
+                    'Expires': '0'
                 }
             }))
                 .then((response) => {
+                    // Criar nova response sem cache
+                    const newResponse = new Response(response.body, {
+                        status: response.status,
+                        statusText: response.statusText,
+                        headers: {
+                            'Cache-Control': 'no-cache, no-store, must-revalidate, max-age=0',
+                            'Pragma': 'no-cache',
+                            'Expires': '0',
+                            'Content-Type': response.headers.get('Content-Type') || 'application/json'
+                        }
+                    });
                     // NUNCA cachear version.json
-                    return response;
+                    return newResponse;
                 })
                 .catch((error) => {
                     // Se falhar, retornar erro (não usar cache)
+                    console.error('[SW] Erro ao buscar version.json:', error);
                     throw error;
                 })
         );
