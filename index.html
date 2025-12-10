@@ -29,8 +29,8 @@
         <script>
             // Carregar versão ANTES de carregar CSS para garantir cache busting
             (function() {
-                let APP_VERSION = '2025120902'; // Fallback atualizado
-                let SW_VERSION = '2025120902000000'; // Fallback atualizado
+                let APP_VERSION = '2025120922'; // Fallback atualizado
+                let SW_VERSION = '2025120922000000'; // Fallback atualizado
                 
                 // Tentar carregar versão do arquivo version.json (com cache busting agressivo)
                 fetch('/version.json?t=' + Date.now() + '&v=' + Math.random())
@@ -40,7 +40,7 @@
                     })
                     .then(data => {
                         APP_VERSION = data.version || APP_VERSION;
-                        SW_VERSION = (data.version || '2025120902') + '000000';
+                        SW_VERSION = (data.version || '2025120922') + '000000';
                         
                         // Atualizar TODOS os links CSS com versão dinâmica
                         const updateCSSLinks = () => {
@@ -98,10 +98,10 @@
             })();
         </script>
         <!-- Preload CSS para evitar FOUC - Versão será atualizada dinamicamente -->
-        <link rel="preload" href="/css/style.css?v=2025120902" as="style" />
-        <link rel="stylesheet" href="/css/style.css?v=2025120902" />
+        <link rel="preload" href="/css/style.css?v=2025120922" as="style" />
+        <link rel="stylesheet" href="/css/style.css?v=2025120922" />
         <!-- Tailwind CSS (compilado) - Versão será atualizada dinamicamente -->
-        <link rel="stylesheet" href="/css/tailwind.css?v=2025120902" />
+        <link rel="stylesheet" href="/css/tailwind.css?v=2025120922" />
         <link
             rel="stylesheet"
             href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
@@ -394,7 +394,7 @@
                     <p>© Gabriel Dev</p>
                     <p>2025</p>
                     <div id="version-display" style="margin-top: 6px; font-weight: 600; font-size: 0.9rem; line-height: 1.4;">
-                        <div style="color: var(--primary-color);">Versão: 2025120902</div>
+                        <div style="color: var(--primary-color);">Versão: 2025120922</div>
                         <div id="version-details" style="font-size: 0.75rem; font-weight: 400; margin-top: 2px; opacity: 0.8; display: none;">
                             <span id="version-commit"></span>
                         </div>
@@ -439,7 +439,7 @@
                                 const versionText = versionEl.querySelector('div:first-child');
                                 if (versionText) {
                                     // Usar fallback do primeiro script se disponível
-                                    versionText.textContent = `Versão: ${window.APP_VERSION || '2025120902'}`;
+                                    versionText.textContent = `Versão: ${window.APP_VERSION || '2025120922'}`;
                                 }
                             }
                         });
@@ -586,7 +586,7 @@
         <script>
             // Registrar Service Worker para PWA (com versão dinâmica)
             if ('serviceWorker' in navigator) {
-                let SW_VERSION = '2025120902000000'; // Fallback atualizado
+                let SW_VERSION = '2025120922000000'; // Fallback atualizado
                 // Carregar versão do arquivo version.json (com cache busting)
                 fetch('/version.json?t=' + Date.now() + '&v=' + Math.random(), {
                     cache: 'no-store',
@@ -602,7 +602,7 @@
                         return res.json();
                     })
                     .then(data => {
-                        SW_VERSION = (data.version || '2025120902') + '000000'; // Formato: YYYYMMDDHHMMSS
+                        SW_VERSION = (data.version || '2025120922') + '000000'; // Formato: YYYYMMDDHHMMSS
                         registerServiceWorker();
                     })
                     .catch(err => {

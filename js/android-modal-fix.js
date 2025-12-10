@@ -31,14 +31,36 @@
     
     console.log('🔧 [ANDROID FIX] Chrome Android detectado - Aplicando correções ULTRA AGRESSIVAS');
     
-    // Adicionar classe ao body para CSS específico
-    document.documentElement.classList.add('android-chrome');
-    document.body.classList.add('android-chrome');
+    // Função para inicializar quando DOM estiver pronto
+    const initAndroidFix = () => {
+        if (!document.body) {
+            // DOM ainda não está pronto, tentar novamente
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', initAndroidFix);
+                return;
+            } else {
+                // Timeout de segurança
+                setTimeout(initAndroidFix, 100);
+                return;
+            }
+        }
+        
+        // Adicionar classe ao body para CSS específico
+        document.documentElement.classList.add('android-chrome');
+        document.body.classList.add('android-chrome');
+        
+        // Continuar com o resto da inicialização
+        continueInit();
+    };
     
-    // CSS ULTRA AGRESSIVO - Remove TUDO relacionado a backdrop
-    const style = document.createElement('style');
-    style.id = 'android-modal-fix';
-    style.textContent = `
+    // Continuar inicialização após DOM estar pronto
+    const continueInit = () => {
+        if (!document.body) return; // Segurança extra
+        
+        // CSS ULTRA AGRESSIVO - Remove TUDO relacionado a backdrop
+        const style = document.createElement('style');
+        style.id = 'android-modal-fix';
+        style.textContent = `
         /* REMOVER COMPLETAMENTE backdrop-filter no Android Chrome */
         .android-chrome .modal,
         .android-chrome .modal.active,
@@ -105,11 +127,11 @@
             opacity: 1 !important;
             visibility: visible !important;
         }
-    `;
-    document.head.appendChild(style);
-    
-    // Expor função global para forçar abertura de modal (bypass das proteções)
-    window.forceOpenModal = function(modalElement) {
+        `;
+        document.head.appendChild(style);
+        
+        // Expor função global para forçar abertura de modal (bypass das proteções)
+        window.forceOpenModal = function(modalElement) {
         if (!modalElement) return;
         
         // DESABILITAR TEMPORARIAMENTE o CSS do android-modal-fix
@@ -169,11 +191,11 @@
             }
         }, 100);
         
-        document.body.classList.add('modal-open');
-    };
-    
-    // Expor função para desabilitar completamente o fix (último recurso)
-    window.disableAndroidModalFix = function() {
+            document.body.classList.add('modal-open');
+        };
+        
+        // Expor função para desabilitar completamente o fix (último recurso)
+        window.disableAndroidModalFix = function() {
         const styleElement = document.getElementById('android-modal-fix');
         if (styleElement) {
             styleElement.remove();
@@ -181,8 +203,8 @@
         }
     };
     
-    // Função para forçar repaint do body
-    const forceRepaint = () => {
+        // Função para forçar repaint do body
+        const forceRepaint = () => {
         // Forçar reflow/repaint
         document.body.style.display = 'none';
         document.body.offsetHeight; // Trigger reflow
@@ -197,8 +219,8 @@
         }
     };
     
-    // Função ULTRA AGRESSIVA para limpar modais no Android
-    const cleanAndroidModals = () => {
+        // Função ULTRA AGRESSIVA para limpar modais no Android
+        const cleanAndroidModals = () => {
         // Remover classe modal-open do body
         document.body.classList.remove('modal-open');
         
@@ -239,8 +261,8 @@
         forceRepaint();
     };
     
-    // MutationObserver para detectar quando modais são abertos/fechados
-    const observer = new MutationObserver((mutations) => {
+        // MutationObserver para detectar quando modais são abertos/fechados
+        const observer = new MutationObserver((mutations) => {
         mutations.forEach((mutation) => {
             if (mutation.type === 'attributes' && mutation.attributeName === 'class') {
                 const target = mutation.target;
@@ -296,8 +318,8 @@
         });
     });
     
-    // Observar TODOS os modais
-    const observeModals = () => {
+        // Observar TODOS os modais
+        const observeModals = () => {
         document.querySelectorAll('.modal').forEach(modal => {
             observer.observe(modal, {
                 attributes: true,
@@ -306,84 +328,92 @@
         });
     };
     
-    // Iniciar observação
-    if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', observeModals);
-    } else {
-        observeModals();
-    }
-    
-    // Observar novos modais adicionados ao DOM
-    const domObserver = new MutationObserver(() => {
-        observeModals();
-    });
-    domObserver.observe(document.body, {
-        childList: true,
-        subtree: true
-    });
-    
-    // Executar limpeza periodicamente (a cada 200ms) quando não há modais ativos
-    setInterval(() => {
-        const activeModals = document.querySelectorAll('.modal.active');
-        if (activeModals.length === 0) {
+        // Iniciar observação
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', observeModals);
+        } else {
+            observeModals();
+        }
+        
+        // Observar novos modais adicionados ao DOM
+        const domObserver = new MutationObserver(() => {
+            observeModals();
+        });
+        domObserver.observe(document.body, {
+            childList: true,
+            subtree: true
+        });
+        
+        // Executar limpeza periodicamente (a cada 200ms) quando não há modais ativos
+        setInterval(() => {
+            const activeModals = document.querySelectorAll('.modal.active');
+            if (activeModals.length === 0) {
+                cleanAndroidModals();
+            }
+        }, 200);
+        
+        // Interceptar TODOS os eventos de fechamento
+        document.addEventListener('click', (e) => {
+            const modal = e.target.closest('.modal');
+            if (modal && e.target === modal) {
+                // Clicou no backdrop
+                setTimeout(() => {
+                    cleanAndroidModals();
+                    forceRepaint();
+                }, 100);
+            }
+        }, true);
+        
+        // Limpar ao pressionar ESC
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                setTimeout(() => {
+                    cleanAndroidModals();
+                    forceRepaint();
+                }, 100);
+            }
+        });
+        
+        // Interceptar remove de classe active
+        const originalRemove = DOMTokenList.prototype.remove;
+        DOMTokenList.prototype.remove = function(...args) {
+            const result = originalRemove.apply(this, args);
+            if (this.contains && !this.contains('active') && args.includes('active')) {
+                // Modal foi fechado
+                setTimeout(() => {
+                    cleanAndroidModals();
+                    forceRepaint();
+                }, 50);
+            }
+            return result;
+        };
+        
+        // Limpar ao fechar página/app
+        window.addEventListener('beforeunload', () => {
             cleanAndroidModals();
-        }
-    }, 200);
-    
-    // Interceptar TODOS os eventos de fechamento
-    document.addEventListener('click', (e) => {
-        const modal = e.target.closest('.modal');
-        if (modal && e.target === modal) {
-            // Clicou no backdrop
-            setTimeout(() => {
-                cleanAndroidModals();
-                forceRepaint();
-            }, 100);
-        }
-    }, true);
-    
-    // Limpar ao pressionar ESC
-    document.addEventListener('keydown', (e) => {
-        if (e.key === 'Escape') {
-            setTimeout(() => {
-                cleanAndroidModals();
-                forceRepaint();
-            }, 100);
-        }
-    });
-    
-    // Interceptar remove de classe active
-    const originalRemove = DOMTokenList.prototype.remove;
-    DOMTokenList.prototype.remove = function(...args) {
-        const result = originalRemove.apply(this, args);
-        if (this.contains && !this.contains('active') && args.includes('active')) {
-            // Modal foi fechado
-            setTimeout(() => {
-                cleanAndroidModals();
-                forceRepaint();
-            }, 50);
-        }
-        return result;
+        });
+        
+        // Limpar quando página fica visível novamente
+        document.addEventListener('visibilitychange', () => {
+            if (!document.hidden) {
+                setTimeout(cleanAndroidModals, 100);
+            }
+        });
+        
+        // Expor função global para limpeza manual
+        window.cleanAndroidModals = () => {
+            cleanAndroidModals();
+            forceRepaint();
+        };
+        
+        console.log('✅ [ANDROID FIX] Correções ULTRA AGRESSIVAS aplicadas');
+        console.log('✅ [ANDROID FIX] Use window.cleanAndroidModals() para limpeza manual');
     };
     
-    // Limpar ao fechar página/app
-    window.addEventListener('beforeunload', () => {
-        cleanAndroidModals();
-    });
-    
-    // Limpar quando página fica visível novamente
-    document.addEventListener('visibilitychange', () => {
-        if (!document.hidden) {
-            setTimeout(cleanAndroidModals, 100);
-        }
-    });
-    
-    // Expor função global para limpeza manual
-    window.cleanAndroidModals = () => {
-        cleanAndroidModals();
-        forceRepaint();
-    };
-    
-    console.log('✅ [ANDROID FIX] Correções ULTRA AGRESSIVAS aplicadas');
-    console.log('✅ [ANDROID FIX] Use window.cleanAndroidModals() para limpeza manual');
+    // Iniciar quando DOM estiver pronto
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initAndroidFix);
+    } else {
+        initAndroidFix();
+    }
 })();
