@@ -1,10 +1,10 @@
 {
-  "version": "2025120923",
-  "buildDate": "2025-12-09",
-  "buildTime": "23:36:36",
-  "commit": "5bbbf90",
+  "version": "20251221",
+  "buildDate": "2025-12-21",
+  "buildTime": "12:29:49",
+  "commit": "5a98b57",
   "branch": "main",
-  "commitMessage": "fix: adiciona limpeza adicional de backdrop no closeQuickSaleScanner para Android",
+  "commitMessage": "fix: atualiza versao para 2025120927 - limpeza backdrop Android",
   "description": "ERP Portátil - Sistema de Gestão Financeira",
-  "updatedAt": "2025-12-10T02:36:36.698Z"
+  "updatedAt": "2025-12-21T15:29:49.254Z"
 }

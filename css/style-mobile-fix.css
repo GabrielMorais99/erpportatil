@@ -17,29 +17,32 @@
     }
 }
 
-/* ========================================
+/* ======================================== 
    VARIÁVEIS - DESIGN SYSTEM MOBILE
-   ======================================== */
+   ======================================== 
+   NOTA: Não redefinir :root aqui para evitar conflitos.
+   As variáveis de radius, shadow, etc. já estão definidas em style.css.
+   Apenas adicionamos variáveis específicas para mobile que não existem.
+*/
 :root {
-    /* Touch targets mínimos (Google Material) */
+    /* Touch targets mínimos (Google Material) - APENAS MOBILE */
     --touch-min: 48px;
     --touch-comfortable: 56px;
 
-    /* Espaçamentos mobile */
+    /* Espaçamentos mobile - APENAS SE NÃO EXISTIREM EM style.css */
     --space-xs: 0.5rem; /* 8px */
     --space-sm: 0.75rem; /* 12px */
     --space-md: 1rem; /* 16px */
     --space-lg: 1.5rem; /* 24px */
     --space-xl: 2rem; /* 32px */
+    --space-icon: 0.5rem; /* Espaçamento padrão ícone-texto */
 
-    /* Bordas mais suaves */
-    --radius-sm: 8px;
-    --radius-md: 12px;
-    --radius-lg: 16px;
-    --radius-xl: 20px;
+    /* Variáveis adicionais para mobile (não conflitam com style.css) */
     --radius-full: 9999px;
 
-    /* Sombras modernas */
+    /* Sombras modernas - APENAS SE NÃO EXISTIREM */
+    /* Usar as sombras de style.css (--shadow-sm, --shadow-md, etc.) */
+    /* Adicionar apenas sombras específicas mobile se necessário */
     --shadow-soft: 0 2px 8px rgba(0, 0, 0, 0.08);
     --shadow-medium: 0 4px 16px rgba(0, 0, 0, 0.12);
     --shadow-strong: 0 8px 32px rgba(0, 0, 0, 0.16);
@@ -102,26 +105,14 @@ span + i.fa,
     margin-left: var(--space-icon, 0.5rem);
 }
 
-/* Botões com flexbox - usar gap */
-button,
-.btn,
-.btn-primary,
-.btn-secondary,
-.btn-small,
-.tab-btn {
-    display: inline-flex;
-    align-items: center;
-    gap: var(--space-icon, 0.5rem);
-}
-
-/* Reset margin quando usando gap */
+/* Botões com flexbox - usar gap (APENAS AJUSTE, não sobrescreve style.css) */
+/* style.css já define display: inline-flex e gap, apenas garantimos consistência */
 button i,
 .btn i,
 .btn-primary i,
 .btn-secondary i,
 .btn-small i,
 .tab-btn i {
-    margin: 0 !important;
     flex-shrink: 0;
 }
 
@@ -221,15 +212,21 @@ a i {
     background: rgba(0, 0, 0, 0.05) !important;
 }
 
-/* Modal content modernizado */
+/* ========================================
+   MODAIS - AJUSTES MOBILE
+   ========================================
+   NOTA: Estes estilos complementam/adjustam os modais de style.css.
+   Não são conflitos, são melhorias específicas para mobile.
+*/
+
+/* Modal content modernizado - AJUSTE MOBILE */
 .modal-content {
     border-radius: var(--radius-xl);
     box-shadow: var(--shadow-float);
-    border: none;
-    overflow: hidden;
+    /* border e overflow já podem estar definidos em style.css, mas ajustamos para mobile */
 }
 
-/* Header do modal mais clean */
+/* Header do modal mais clean - AJUSTE MOBILE */
 .modal-header {
     background: linear-gradient(
         135deg,
@@ -341,28 +338,13 @@ a i {
 }
 
 /* ========================================
-   BOTÕES - TOUCH FRIENDLY
-   ======================================== */
+   BOTÕES - TOUCH FRIENDLY (MOBILE)
+   ======================================== 
+   NOTA: Não sobrescrever completamente .btn-primary/.btn-secondary de style.css.
+   Apenas adicionar propriedades mobile específicas via media query.
+*/
 
-.btn-primary,
-.btn-secondary {
-    min-height: var(--touch-min);
-    padding: var(--space-sm) var(--space-lg);
-    border-radius: var(--radius-md);
-    font-weight: 600;
-    font-size: 0.95rem;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: var(--space-xs);
-    transition: all 0.2s ease;
-    cursor: pointer;
-    border: none;
-    position: relative;
-    overflow: hidden;
-}
-
-/* Efeito ripple no toque */
+/* Efeito ripple no toque - ADICIONA ao que já existe em style.css */
 .btn-primary::after,
 .btn-secondary::after {
     content: '';
@@ -375,6 +357,7 @@ a i {
     border-radius: 50%;
     transform: translate(-50%, -50%);
     transition: width 0.3s ease, height 0.3s ease;
+    pointer-events: none;
 }
 
 .btn-primary:active::after,
@@ -383,30 +366,21 @@ a i {
     height: 200%;
 }
 
-.btn-primary {
-    background: var(--primary-color);
-    color: white;
-    box-shadow: var(--shadow-soft);
-}
-
-.btn-primary:hover {
-    transform: translateY(-1px);
-    box-shadow: var(--shadow-medium);
-}
-
-.btn-primary:active {
-    transform: translateY(0);
-}
-
-.btn-secondary {
-    background: var(--gray-100);
-    color: var(--gray-700);
-    border: 2px solid var(--gray-200);
-}
-
-.btn-secondary:hover {
-    background: var(--gray-200);
-    border-color: var(--gray-300);
+/* Ajustes mobile para touch targets */
+@media (max-width: 768px) {
+    .btn-primary,
+    .btn-secondary {
+        min-height: var(--touch-min);
+        padding: var(--space-sm) var(--space-lg);
+    }
+    
+    .btn-primary:hover {
+        transform: translateY(-1px);
+    }
+    
+    .btn-primary:active {
+        transform: translateY(0);
+    }
 }
 
 /* ========================================
