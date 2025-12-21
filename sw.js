@@ -1,10 +1,10 @@
-// Service Worker para PWA - Versão 7.1
+// Service Worker para PWA - Versão 7.2
 // Suporte a cache, notificações push e sincronização em background
 // Estratégia: Network First (sempre busca da rede primeiro, cache como fallback)
-// ATUALIZADO: 2024-12-04 - Cache bust agressivo + skipWaiting + purge total
-const ASSET_VERSION = '2025120927-cache-bust-v13';
-const CACHE_NAME = `loja-vendas-v16-${ASSET_VERSION}`;
-const RUNTIME_CACHE = `loja-vendas-runtime-v16-${ASSET_VERSION}`;
+// ATUALIZADO: 2025-12-21 - Versão atualizada para v20251250 (correção modais Android)
+const ASSET_VERSION = '20251250-cache-bust-v14';
+const CACHE_NAME = `loja-vendas-v17-${ASSET_VERSION}`;
+const RUNTIME_CACHE = `loja-vendas-runtime-v17-${ASSET_VERSION}`;
 const MAX_CACHE_SIZE = 50 * 1024 * 1024; // 50MB
 const urlsToCache = [
     '/',
@@ -197,20 +197,53 @@ self.addEventListener('fetch', (event) => {
     
     // Para arquivos estáticos (CSS, JS), usar NETWORK FIRST
     // Sempre buscar da rede primeiro, usar cache apenas se rede falhar
+    // CRÍTICO: CSS/JS com versão na URL (v=) devem SEMPRE buscar da rede, nunca usar cache
     if (
         url.pathname.endsWith('.css') ||
         url.pathname.endsWith('.js') ||
         url.pathname.endsWith('.jpg') ||
         url.pathname.endsWith('.png')
     ) {
+        // Se a URL contém parâmetro de versão, SEMPRE buscar da rede e NUNCA usar cache
+        const hasVersion = url.search.includes('v=') || url.search.includes('version=');
+        
         event.respondWith(
-            fetch(new Request(event.request, { cache: 'no-store' }))
+            fetch(new Request(event.request.url, { 
+                method: 'GET',
+                cache: hasVersion ? 'no-store' : 'no-cache',
+                headers: hasVersion ? {
+                    'Cache-Control': 'no-cache, no-store, must-revalidate, max-age=0',
+                    'Pragma': 'no-cache',
+                    'Expires': '0'
+                } : {}
+            }))
                 .then((response) => {
+                    // Se tem versão na URL, criar response sem cache headers
+                    if (hasVersion) {
+                        const newResponse = new Response(response.body, {
+                            status: response.status,
+                            statusText: response.statusText,
+                            headers: {
+                                'Cache-Control': 'no-cache, no-store, must-revalidate, max-age=0',
+                                'Pragma': 'no-cache',
+                                'Expires': '0',
+                                'Content-Type': response.headers.get('Content-Type') || 
+                                    (url.pathname.endsWith('.css') ? 'text/css' : 'application/javascript')
+                            }
+                        });
+                        // NUNCA cachear CSS/JS com versão na URL
+                        return newResponse;
+                    }
                     // Retornar sempre rede; não cachear CSS/JS para evitar versões antigas
                     return response;
                 })
                 .catch((error) => {
-                    // Fallback: tentar cache se rede falhar
+                    // Se tem versão na URL e falhou, NÃO usar cache (pode ser versão antiga)
+                    if (hasVersion) {
+                        console.warn('[SW] Erro ao buscar CSS/JS com versão da rede:', error);
+                        throw error; // Não usar cache para versões específicas
+                    }
+                    // Fallback: tentar cache se rede falhar (apenas para URLs sem versão)
                     return caches
                         .match(event.request)
                         .then((cachedResponse) => {
