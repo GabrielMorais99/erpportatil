@@ -1,10 +1,10 @@
 {
-  "version": "20251221",
+  "version": "2025122113",
   "buildDate": "2025-12-21",
-  "buildTime": "12:29:49",
-  "commit": "5a98b57",
+  "buildTime": "13:16:01",
+  "commit": "877da11",
   "branch": "main",
-  "commitMessage": "fix: atualiza versao para 2025120927 - limpeza backdrop Android",
+  "commitMessage": "fix(css): corrigir conflitos de classes CSS entre style.css e style-mobile-fix.css",
   "description": "ERP Portátil - Sistema de Gestão Financeira",
-  "updatedAt": "2025-12-21T15:29:49.254Z"
+  "updatedAt": "2025-12-21T16:16:01.244Z"
 }

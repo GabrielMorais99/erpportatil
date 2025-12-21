@@ -23,12 +23,12 @@
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
         <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
         <!-- Preload CSS para evitar FOUC -->
-        <link rel="preload" href="/css/style.css?v=20251249" as="style" />
-        <link rel="stylesheet" href="/css/style.css?v=20251249" />
+        <link rel="preload" href="/css/style.css?v=20251250" as="style" />
+        <link rel="stylesheet" href="/css/style.css?v=20251250" />
         <!-- Tailwind CSS (compilado) -->
         <link rel="stylesheet" href="/css/tailwind.css?v=20251205" />
         <!-- Correções Mobile + Componentes Modernos -->
-        <link rel="stylesheet" href="/css/style-mobile-fix.css?v=20251249" />
+        <link rel="stylesheet" href="/css/style-mobile-fix.css?v=20251250" />
         <!-- Kill switch temporário de Service Worker para bust de cache (ativo só com debug=1|clearCache=1|killsw=1) -->
         <script>
             (function () {
@@ -111,6 +111,80 @@
                         });
                     }
                     console.log('🔧 [ANDROID] Chrome Android detectado - backdrop-filter desabilitado');
+                    
+                    // Observar mudanças na classe 'active' dos modais para forçar abertura
+                    const forceModalOpen = function(modal) {
+                        if (modal.classList.contains('active')) {
+                            // Forçar estilo inline quando modal fica ativo
+                            modal.style.setProperty('display', 'flex', 'important');
+                            modal.style.setProperty('visibility', 'visible', 'important');
+                            modal.style.setProperty('opacity', '1', 'important');
+                            modal.style.setProperty('pointer-events', 'auto', 'important');
+                            modal.style.setProperty('z-index', '10000', 'important');
+                            modal.style.setProperty('position', 'fixed', 'important');
+                            modal.style.setProperty('left', '0', 'important');
+                            modal.style.setProperty('top', '0', 'important');
+                            modal.style.setProperty('width', '100%', 'important');
+                            modal.style.setProperty('height', '100%', 'important');
+                            modal.style.setProperty('justify-content', 'center', 'important');
+                            modal.style.setProperty('align-items', 'center', 'important');
+                            modal.style.setProperty('background', 'rgba(0, 0, 0, 0.85)', 'important');
+                            modal.style.setProperty('backdrop-filter', 'none', 'important');
+                            modal.style.setProperty('-webkit-backdrop-filter', 'none', 'important');
+                            console.log('✅ [ANDROID] Modal forçado a abrir:', modal.id || modal.className);
+                        }
+                    };
+                    
+                    // Observar mudanças na classe 'active' dos modais
+                    const observer = new MutationObserver(function(mutations) {
+                        mutations.forEach(function(mutation) {
+                            if (mutation.type === 'attributes' && mutation.attributeName === 'class') {
+                                const modal = mutation.target;
+                                if (modal.classList.contains('modal')) {
+                                    forceModalOpen(modal);
+                                }
+                            }
+                        });
+                    });
+                    
+                    // Observar todos os modais quando DOM estiver pronto
+                    const observeModals = function() {
+                        document.querySelectorAll('.modal').forEach(function(modal) {
+                            observer.observe(modal, { attributes: true, attributeFilter: ['class'] });
+                            // Forçar abertura se já estiver ativo
+                            if (modal.classList.contains('active')) {
+                                forceModalOpen(modal);
+                            }
+                        });
+                    };
+                    
+                    if (document.readyState === 'loading') {
+                        document.addEventListener('DOMContentLoaded', observeModals);
+                    } else {
+                        observeModals();
+                    }
+                    
+                    // Também observar novos modais adicionados dinamicamente
+                    const bodyObserver = new MutationObserver(function(mutations) {
+                        mutations.forEach(function(mutation) {
+                            mutation.addedNodes.forEach(function(node) {
+                                if (node.nodeType === 1 && node.classList && node.classList.contains('modal')) {
+                                    observer.observe(node, { attributes: true, attributeFilter: ['class'] });
+                                    if (node.classList.contains('active')) {
+                                        forceModalOpen(node);
+                                    }
+                                }
+                            });
+                        });
+                    });
+                    
+                    if (document.body) {
+                        bodyObserver.observe(document.body, { childList: true, subtree: true });
+                    } else {
+                        document.addEventListener('DOMContentLoaded', function() {
+                            bodyObserver.observe(document.body, { childList: true, subtree: true });
+                        });
+                    }
                 }
             })();
         </script>
@@ -642,7 +716,7 @@
                                         placeholder="Buscar fornecedor por nome, CNPJ ou telefone..."
                                     />
                                 </div>
-                            </div>
+                            </div>.......
                             <div id="suppliersList">
                                 <!-- Fornecedores serão inseridos aqui via JavaScript -->
                             </div>
