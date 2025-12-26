@@ -2,12 +2,12 @@
  * ========================================
  * SCRIPT DE BUILD PARA PRODUÇÃO
  * ========================================
- * 
+ *
  * Este script:
  * 1. Minifica o JavaScript (remove espaços, comentários)
  * 2. Ofusca o código (torna difícil de ler)
  * 3. Gera arquivos otimizados na pasta /dist
- * 
+ *
  * Uso: npm run build:js
  */
 
@@ -20,31 +20,33 @@ let Terser, JavaScriptObfuscator;
 try {
     Terser = require('terser');
 } catch (e) {
-    console.error('❌ Terser não instalado. Execute: npm install terser --save-dev');
+    console.error(
+        '❌ Terser não instalado. Execute: npm install terser --save-dev'
+    );
     process.exit(1);
 }
 
 try {
     JavaScriptObfuscator = require('javascript-obfuscator');
 } catch (e) {
-    console.error('❌ javascript-obfuscator não instalado. Execute: npm install javascript-obfuscator --save-dev');
+    console.error(
+        '❌ javascript-obfuscator não instalado. Execute: npm install javascript-obfuscator --save-dev'
+    );
     process.exit(1);
 }
 
 // Configuração
 const config = {
-    // Arquivos JS para processar
-    inputFiles: [
-        'js/app.js',
-        'js/login.js',
-        'js/skeleton-manager.js'
-    ],
+    // Arquivos JS para processar (ofuscar/minificar)
+    inputFiles: ['js/app.js', 'js/login.js', 'js/skeleton-manager.js'],
+    // Arquivos JS para copiar sem processar (já estão otimizados ou não precisam)
+    copyFiles: ['js/android-modal-fix.js'],
     // Pasta de saída
     outputDir: 'dist/js',
     // Nível de ofuscação: 'low', 'medium', 'high', 'none' (só minifica)
     // Em produção estamos preservando API global (app.openItemModal etc),
     // então deixamos sem ofuscação para não quebrar handlers inline.
-    obfuscationLevel: 'none'
+    obfuscationLevel: 'none',
 };
 
 // Configurações de ofuscação por nível
@@ -74,7 +76,7 @@ const obfuscationConfigs = {
         stringArrayWrappersParametersMaxCount: 2,
         stringArrayWrappersType: 'variable',
         stringArrayThreshold: 0.75,
-        unicodeEscapeSequence: false
+        unicodeEscapeSequence: false,
     },
     medium: {
         compact: true,
@@ -105,7 +107,7 @@ const obfuscationConfigs = {
         stringArrayWrappersType: 'function',
         stringArrayThreshold: 0.75,
         transformObjectKeys: true,
-        unicodeEscapeSequence: false
+        unicodeEscapeSequence: false,
     },
     high: {
         compact: true,
@@ -137,8 +139,8 @@ const obfuscationConfigs = {
         stringArrayWrappersType: 'function',
         stringArrayThreshold: 1,
         transformObjectKeys: true,
-        unicodeEscapeSequence: true
-    }
+        unicodeEscapeSequence: true,
+    },
 };
 
 // Criar pasta de saída
@@ -149,24 +151,55 @@ function ensureDir(dir) {
     }
 }
 
-// Processar arquivo
-async function processFile(inputPath) {
+// Copiar arquivo sem processar
+function copyFile(inputPath) {
     const fileName = path.basename(inputPath);
     const outputPath = path.join(config.outputDir, fileName);
-    
-    console.log(`\n🔧 Processando: ${inputPath}`);
-    
+
+    console.log(`\n📋 Copiando: ${inputPath}`);
+
     // Verificar se arquivo existe
     if (!fs.existsSync(inputPath)) {
         console.log(`   ⚠️  Arquivo não encontrado: ${inputPath}`);
         return null;
     }
-    
+
+    // Ler e copiar arquivo
+    const fileContent = fs.readFileSync(inputPath, 'utf8');
+    const fileSize = Buffer.byteLength(fileContent, 'utf8');
+
+    // Salvar arquivo
+    fs.writeFileSync(outputPath, fileContent);
+
+    console.log(`   ✅ Copiado: ${outputPath}`);
+    console.log(`   📊 Tamanho: ${formatBytes(fileSize)}`);
+
+    return {
+        file: fileName,
+        originalSize: fileSize,
+        finalSize: fileSize,
+        reduction: '0.0',
+    };
+}
+
+// Processar arquivo
+async function processFile(inputPath) {
+    const fileName = path.basename(inputPath);
+    const outputPath = path.join(config.outputDir, fileName);
+
+    console.log(`\n🔧 Processando: ${inputPath}`);
+
+    // Verificar se arquivo existe
+    if (!fs.existsSync(inputPath)) {
+        console.log(`   ⚠️  Arquivo não encontrado: ${inputPath}`);
+        return null;
+    }
+
     // Ler arquivo original
     const originalCode = fs.readFileSync(inputPath, 'utf8');
     const originalSize = Buffer.byteLength(originalCode, 'utf8');
     console.log(`   📄 Tamanho original: ${formatBytes(originalSize)}`);
-    
+
     try {
         // Passo 1: Minificar com Terser
         console.log(`   ⚡ Minificando...`);
@@ -176,29 +209,39 @@ async function processFile(inputPath) {
                 drop_debugger: true,
                 dead_code: true,
                 unused: true,
-                passes: 2
+                passes: 2,
             },
             mangle: {
                 toplevel: false,
-                reserved: ['app', 'LojaApp', 'initApp'] // Preservar nomes importantes
+                reserved: ['app', 'LojaApp', 'initApp'], // Preservar nomes importantes
             },
             format: {
-                comments: false
-            }
+                comments: false,
+            },
         });
-        
+
         if (minified.error) {
             throw minified.error;
         }
-        
+
         const minifiedSize = Buffer.byteLength(minified.code, 'utf8');
-        console.log(`   📦 Após minificação: ${formatBytes(minifiedSize)} (${((1 - minifiedSize/originalSize) * 100).toFixed(1)}% menor)`);
-        
+        console.log(
+            `   📦 Após minificação: ${formatBytes(minifiedSize)} (${(
+                (1 - minifiedSize / originalSize) *
+                100
+            ).toFixed(1)}% menor)`
+        );
+
         let finalCode = minified.code;
-        
+
         // Passo 2: Ofuscar (se não for 'none')
-        if (config.obfuscationLevel !== 'none' && obfuscationConfigs[config.obfuscationLevel]) {
-            console.log(`   🔒 Ofuscando (nível: ${config.obfuscationLevel})...`);
+        if (
+            config.obfuscationLevel !== 'none' &&
+            obfuscationConfigs[config.obfuscationLevel]
+        ) {
+            console.log(
+                `   🔒 Ofuscando (nível: ${config.obfuscationLevel})...`
+            );
             const obfuscationResult = JavaScriptObfuscator.obfuscate(
                 minified.code,
                 obfuscationConfigs[config.obfuscationLevel]
@@ -207,23 +250,22 @@ async function processFile(inputPath) {
         } else {
             console.log(`   ⚡ Só minificação (sem ofuscação)`);
         }
-        
+
         const finalSize = Buffer.byteLength(finalCode, 'utf8');
-        
+
         // Salvar arquivo
         fs.writeFileSync(outputPath, finalCode);
-        
+
         console.log(`   ✅ Salvo: ${outputPath}`);
         console.log(`   📊 Tamanho final: ${formatBytes(finalSize)}`);
-        
+
         return {
             file: fileName,
             originalSize,
             minifiedSize,
             finalSize,
-            reduction: ((1 - minifiedSize/originalSize) * 100).toFixed(1)
+            reduction: ((1 - minifiedSize / originalSize) * 100).toFixed(1),
         };
-        
     } catch (error) {
         console.error(`   ❌ Erro: ${error.message}`);
         return null;
@@ -244,10 +286,19 @@ async function main() {
     console.log('╠════════════════════════════════════════════╣');
     console.log('║  Minificação + Ofuscação de JavaScript     ║');
     console.log('╚════════════════════════════════════════════╝\n');
-    
+
     // Criar pasta de saída
     ensureDir(config.outputDir);
-    
+
+    // Copiar arquivos que não precisam ser processados
+    const copyResults = [];
+    for (const file of config.copyFiles) {
+        const result = copyFile(file);
+        if (result) {
+            copyResults.push(result);
+        }
+    }
+
     // Processar todos os arquivos
     const results = [];
     for (const file of config.inputFiles) {
@@ -256,26 +307,45 @@ async function main() {
             results.push(result);
         }
     }
-    
+
+    // Combinar resultados
+    const allResults = [...copyResults, ...results];
+
     // Resumo
     console.log('\n════════════════════════════════════════════');
     console.log('📊 RESUMO DO BUILD');
     console.log('════════════════════════════════════════════');
-    
+
     let totalOriginal = 0;
     let totalFinal = 0;
-    
-    for (const r of results) {
+
+    for (const r of allResults) {
         totalOriginal += r.originalSize;
         totalFinal += r.finalSize;
-        console.log(`   ${r.file}: ${formatBytes(r.originalSize)} → ${formatBytes(r.finalSize)} (-${r.reduction}%)`);
+        const reduction = parseFloat(r.reduction);
+        if (reduction > 0) {
+            console.log(
+                `   ${r.file}: ${formatBytes(r.originalSize)} → ${formatBytes(
+                    r.finalSize
+                )} (-${r.reduction}%)`
+            );
+        } else {
+            console.log(
+                `   ${r.file}: ${formatBytes(r.originalSize)} (copiado)`
+            );
+        }
     }
-    
+
     console.log('────────────────────────────────────────────');
-    console.log(`   TOTAL: ${formatBytes(totalOriginal)} → ${formatBytes(totalFinal)}`);
-    console.log(`   Redução: ${((1 - totalFinal/totalOriginal) * 100).toFixed(1)}%`);
+    console.log(
+        `   TOTAL: ${formatBytes(totalOriginal)} → ${formatBytes(totalFinal)}`
+    );
+    const totalReduction = ((1 - totalFinal / totalOriginal) * 100).toFixed(1);
+    if (totalReduction > 0) {
+        console.log(`   Redução: ${totalReduction}%`);
+    }
     console.log('════════════════════════════════════════════\n');
-    
+
     console.log('✅ Build concluído!');
     console.log('📁 Arquivos de produção em: ' + config.outputDir);
     console.log('\n⚠️  IMPORTANTE:');
@@ -285,4 +355,3 @@ async function main() {
 
 // Executar
 main().catch(console.error);
-

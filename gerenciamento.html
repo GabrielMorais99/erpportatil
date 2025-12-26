@@ -3373,6 +3373,8 @@
                     isProduction: !['localhost', '127.0.0.1', ''].includes(window.location.hostname.split(':')[0]),
                     paths: { development: '/js/', production: '/dist/js/' },
                     obfuscatedFiles: ['app.js', 'login.js', 'skeleton-manager.js'],
+                    // Arquivos que sempre vêm de /js/ (não são ofuscados)
+                    alwaysFromJs: ['android-modal-fix.js', 'protection.js', 'script-loader.js'],
                     loadedScripts: new Set(),
                     debug: false
                 };
@@ -3380,6 +3382,10 @@
                 function log(...args) { if (config.debug) console.log('🔧 [ScriptLoader]', ...args); }
                 
                 function getPath(filename) {
+                    // Se o arquivo está na lista de sempre de /js/, usar /js/ independente do ambiente
+                    if (config.alwaysFromJs.includes(filename)) {
+                        return config.paths.development + filename;
+                    }
                     return (config.isProduction ? config.paths.production : config.paths.development) + filename;
                 }
                 
