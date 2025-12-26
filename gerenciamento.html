@@ -324,6 +324,8 @@
         <style>
             body { visibility: hidden; opacity: 0; }
             body.loaded { visibility: visible; opacity: 1; transition: opacity 0.2s; }
+            /* Prevenir piscar evitando múltiplas transições */
+            body.loaded * { transition: none !important; }
         </style>
         
         <!-- DEBUG: Verificar se JS está executando -->
@@ -437,19 +439,52 @@
             }
         </style>
         <script>
-            // Mostrar conteúdo quando CSS carregar e aplicar animação de entrada
-            window.addEventListener('load', function() {
-                document.body.classList.add('loaded');
+            // Mostrar conteúdo assim que DOM estiver pronto (mais rápido que 'load')
+            // Isso previne o piscar causado por esperar todos os recursos
+            (function() {
+                let bodyShown = false;
                 
-                // Aplicar animação de entrada na página de gerenciamento
-                const appContainer = document.querySelector('.app-container');
-                if (appContainer) {
-                    // Pequeno delay para garantir que o CSS está carregado
-                    setTimeout(() => {
-                        appContainer.classList.add('animate-in');
-                    }, 50);
+                function showBody() {
+                    if (bodyShown) return; // Prevenir múltiplas chamadas
+                    bodyShown = true;
+                    
+                    // Usar requestAnimationFrame para garantir que o CSS está aplicado
+                    requestAnimationFrame(() => {
+                        document.body.classList.add('loaded');
+                    });
                 }
-            });
+                
+                // Tentar mostrar assim que DOM estiver pronto (mais rápido)
+                if (document.readyState === 'loading') {
+                    document.addEventListener('DOMContentLoaded', showBody);
+                } else {
+                    // DOM já está pronto
+                    showBody();
+                }
+                
+                // Fallback: mostrar no load se ainda não mostrou (máximo 2 segundos)
+                const fallbackTimeout = setTimeout(() => {
+                    if (!bodyShown) {
+                        showBody();
+                    }
+                }, 2000);
+                
+                window.addEventListener('load', function() {
+                    clearTimeout(fallbackTimeout);
+                    if (!bodyShown) {
+                        showBody();
+                    }
+                    
+                    // Aplicar animação de entrada na página de gerenciamento
+                    const appContainer = document.querySelector('.app-container');
+                    if (appContainer) {
+                        // Pequeno delay para garantir que o CSS está carregado
+                        setTimeout(() => {
+                            appContainer.classList.add('animate-in');
+                        }, 50);
+                    }
+                });
+            })();
         </script>
         
     </head>
