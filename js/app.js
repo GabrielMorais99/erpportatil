@@ -3343,6 +3343,11 @@ class LojaApp {
         }
 
         modal.classList.add('active');
+        
+        // Forçar abertura no Android se forceOpenModal estiver disponível
+        if (typeof window.forceOpenModal === 'function') {
+            window.forceOpenModal(modal);
+        }
 
         // Configurar validação em tempo real
         if (typeof fieldValidator !== 'undefined') {
@@ -6430,6 +6435,11 @@ class LojaApp {
         }
 
         modal.classList.add('active');
+        
+        // Forçar abertura no Android se forceOpenModal estiver disponível
+        if (typeof window.forceOpenModal === 'function') {
+            window.forceOpenModal(modal);
+        }
 
         // Configurar validação em tempo real
         if (typeof fieldValidator !== 'undefined') {
@@ -6471,7 +6481,7 @@ class LojaApp {
         const modal = document.getElementById('clientModal');
         const form = document.getElementById('clientForm');
         if (modal) {
-            modal.classList.remove('active');
+            this.closeModalSafely(modal);
         }
         if (form) {
             form.reset();

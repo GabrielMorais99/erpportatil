@@ -1,10 +1,10 @@
 {
-  "version": "2025122113",
-  "buildDate": "2025-12-21",
-  "buildTime": "13:16:01",
-  "commit": "877da11",
+  "version": "20251226",
+  "buildDate": "2025-12-26",
+  "buildTime": "20:32:31",
+  "commit": "066d774",
   "branch": "main",
-  "commitMessage": "fix(css): corrigir conflitos de classes CSS entre style.css e style-mobile-fix.css",
+  "commitMessage": "fix(sw): corrigir cache Service Worker e versÃ£o desatualizada",
   "description": "ERP Portátil - Sistema de Gestão Financeira",
-  "updatedAt": "2025-12-21T16:16:01.244Z"
+  "updatedAt": "2025-12-26T23:32:32.061Z"
 }

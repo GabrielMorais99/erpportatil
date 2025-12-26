@@ -134,38 +134,12 @@
         window.forceOpenModal = function(modalElement) {
         if (!modalElement) return;
         
-        // DESABILITAR TEMPORARIAMENTE o CSS do android-modal-fix
-        const styleElement = document.getElementById('android-modal-fix');
-        if (styleElement) {
-            styleElement.disabled = true;
-        }
-        
-        // Remover todas as propriedades inline primeiro
-        modalElement.style.cssText = '';
-        
-        // Forçar propriedades com cssText (sobrescreve TUDO)
-        modalElement.style.cssText = `
-            display: flex !important;
-            visibility: visible !important;
-            opacity: 1 !important;
-            pointer-events: auto !important;
-            z-index: 10000 !important;
-            position: fixed !important;
-            left: 0 !important;
-            top: 0 !important;
-            width: 100% !important;
-            height: 100% !important;
-            background-color: rgba(0, 0, 0, 0.85) !important;
-            background: rgba(0, 0, 0, 0.85) !important;
-            backdrop-filter: none !important;
-            -webkit-backdrop-filter: none !important;
-        `;
-        
-        // Adicionar classe active
+        // Adicionar classe active primeiro
         modalElement.classList.add('active');
         
-        // Forçar novamente após delay
-        setTimeout(() => {
+        // Usar requestAnimationFrame para garantir que o DOM processou a mudança
+        requestAnimationFrame(() => {
+            // Forçar propriedades com cssText (sobrescreve TUDO)
             modalElement.style.cssText = `
                 display: flex !important;
                 visibility: visible !important;
@@ -182,16 +156,53 @@
                 backdrop-filter: none !important;
                 -webkit-backdrop-filter: none !important;
             `;
-        }, 10);
-        
-        // Reabilitar o CSS após um delay maior para garantir que o modal está visível
-        setTimeout(() => {
-            if (styleElement) {
-                styleElement.disabled = false;
-            }
-        }, 100);
-        
+            
             document.body.classList.add('modal-open');
+            
+            // Forçar novamente após pequenos delays
+            setTimeout(() => {
+                if (modalElement.classList.contains('active')) {
+                    modalElement.style.cssText = `
+                        display: flex !important;
+                        visibility: visible !important;
+                        opacity: 1 !important;
+                        pointer-events: auto !important;
+                        z-index: 10000 !important;
+                        position: fixed !important;
+                        left: 0 !important;
+                        top: 0 !important;
+                        width: 100% !important;
+                        height: 100% !important;
+                        background-color: rgba(0, 0, 0, 0.85) !important;
+                        background: rgba(0, 0, 0, 0.85) !important;
+                        backdrop-filter: none !important;
+                        -webkit-backdrop-filter: none !important;
+                    `;
+                }
+            }, 10);
+            
+            setTimeout(() => {
+                // Última verificação
+                if (modalElement.classList.contains('active')) {
+                    modalElement.style.cssText = `
+                        display: flex !important;
+                        visibility: visible !important;
+                        opacity: 1 !important;
+                        pointer-events: auto !important;
+                        z-index: 10000 !important;
+                        position: fixed !important;
+                        left: 0 !important;
+                        top: 0 !important;
+                        width: 100% !important;
+                        height: 100% !important;
+                        background-color: rgba(0, 0, 0, 0.85) !important;
+                        background: rgba(0, 0, 0, 0.85) !important;
+                        backdrop-filter: none !important;
+                        -webkit-backdrop-filter: none !important;
+                    `;
+                }
+            }, 50);
+        });
         };
         
         // Expor função para desabilitar completamente o fix (último recurso)
@@ -269,26 +280,8 @@
                 if (target.classList && target.classList.contains('modal')) {
                     if (target.classList.contains('active')) {
                         // Modal foi aberto - FORÇAR propriedades visíveis com cssText (sobrescreve TUDO)
-                        target.style.cssText = `
-                            display: flex !important;
-                            visibility: visible !important;
-                            opacity: 1 !important;
-                            pointer-events: auto !important;
-                            z-index: 10000 !important;
-                            position: fixed !important;
-                            left: 0 !important;
-                            top: 0 !important;
-                            width: 100% !important;
-                            height: 100% !important;
-                            background-color: rgba(0, 0, 0, 0.85) !important;
-                            background: rgba(0, 0, 0, 0.85) !important;
-                            backdrop-filter: none !important;
-                            -webkit-backdrop-filter: none !important;
-                        `;
-                        document.body.classList.add('modal-open');
-                        
-                        // Forçar novamente após um pequeno delay
-                        setTimeout(() => {
+                        // Usar requestAnimationFrame para garantir que o DOM está pronto
+                        requestAnimationFrame(() => {
                             target.style.cssText = `
                                 display: flex !important;
                                 visibility: visible !important;
@@ -305,7 +298,50 @@
                                 backdrop-filter: none !important;
                                 -webkit-backdrop-filter: none !important;
                             `;
-                        }, 10);
+                            document.body.classList.add('modal-open');
+                            
+                            // Forçar novamente após pequenos delays para garantir renderização
+                            setTimeout(() => {
+                                target.style.cssText = `
+                                    display: flex !important;
+                                    visibility: visible !important;
+                                    opacity: 1 !important;
+                                    pointer-events: auto !important;
+                                    z-index: 10000 !important;
+                                    position: fixed !important;
+                                    left: 0 !important;
+                                    top: 0 !important;
+                                    width: 100% !important;
+                                    height: 100% !important;
+                                    background-color: rgba(0, 0, 0, 0.85) !important;
+                                    background: rgba(0, 0, 0, 0.85) !important;
+                                    backdrop-filter: none !important;
+                                    -webkit-backdrop-filter: none !important;
+                                `;
+                            }, 10);
+                            
+                            setTimeout(() => {
+                                // Última verificação - garantir que ainda está ativo
+                                if (target.classList.contains('active')) {
+                                    target.style.cssText = `
+                                        display: flex !important;
+                                        visibility: visible !important;
+                                        opacity: 1 !important;
+                                        pointer-events: auto !important;
+                                        z-index: 10000 !important;
+                                        position: fixed !important;
+                                        left: 0 !important;
+                                        top: 0 !important;
+                                        width: 100% !important;
+                                        height: 100% !important;
+                                        background-color: rgba(0, 0, 0, 0.85) !important;
+                                        background: rgba(0, 0, 0, 0.85) !important;
+                                        backdrop-filter: none !important;
+                                        -webkit-backdrop-filter: none !important;
+                                    `;
+                                }
+                            }, 50);
+                        });
                     } else {
                         // Modal foi fechado
                         setTimeout(() => {

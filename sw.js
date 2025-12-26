@@ -25,45 +25,49 @@ self.addEventListener('install', (event) => {
     console.log('[SW] Instalando Service Worker v10...');
     event.waitUntil(
         // PRIMEIRO: Limpar TODOS os caches antigos
-        caches.keys().then((cacheNames) => {
-            return Promise.all(
-                cacheNames.map((cacheName) => {
-                    console.log('[SW] Removendo cache antigo:', cacheName);
-                    return caches.delete(cacheName);
-                })
-            );
-        })
-        .then(() => {
-            // DEPOIS: Criar novo cache
-            return caches.open(CACHE_NAME);
-        })
-        .then((cache) => {
-            console.log('[SW] Cache aberto:', CACHE_NAME);
-            // Cachear recursos críticos
-            return cache
-                .addAll(
-                    urlsToCache.map(
-                        (url) => new Request(url, { cache: 'reload' })
+        caches
+            .keys()
+            .then((cacheNames) => {
+                return Promise.all(
+                    cacheNames.map((cacheName) => {
+                        console.log('[SW] Removendo cache antigo:', cacheName);
+                        return caches.delete(cacheName);
+                    })
+                );
+            })
+            .then(() => {
+                // DEPOIS: Criar novo cache
+                return caches.open(CACHE_NAME);
+            })
+            .then((cache) => {
+                console.log('[SW] Cache aberto:', CACHE_NAME);
+                // Cachear recursos críticos
+                return cache
+                    .addAll(
+                        urlsToCache.map(
+                            (url) => new Request(url, { cache: 'reload' })
+                        )
                     )
-                )
-                .catch((error) => {
-                    console.warn(
-                        '[SW] Erro ao cachear alguns recursos:',
-                        error
-                    );
-                    // Continuar mesmo se alguns recursos falharem
-                });
-        })
-        .then(() => {
-            // Forçar ativação imediata para limpar cache antigo
-            return self.skipWaiting();
-        })
+                    .catch((error) => {
+                        console.warn(
+                            '[SW] Erro ao cachear alguns recursos:',
+                            error
+                        );
+                        // Continuar mesmo se alguns recursos falharem
+                    });
+            })
+            .then(() => {
+                // Forçar ativação imediata para limpar cache antigo
+                return self.skipWaiting();
+            })
     );
 });
 
 // Ativar Service Worker
 self.addEventListener('activate', (event) => {
-    console.log('[SW] Ativando Service Worker v8.2 (Network First + Force Update)...');
+    console.log(
+        '[SW] Ativando Service Worker v8.2 (Network First + Force Update)...'
+    );
     event.waitUntil(
         caches
             .keys()
@@ -82,9 +86,12 @@ self.addEventListener('activate', (event) => {
             })
             .then(() => {
                 // Notificar todos os clientes para recarregar
-                return self.clients.matchAll().then(clients => {
-                    clients.forEach(client => {
-                        client.postMessage({ type: 'SW_UPDATED', action: 'reload' });
+                return self.clients.matchAll().then((clients) => {
+                    clients.forEach((client) => {
+                        client.postMessage({
+                            type: 'SW_UPDATED',
+                            action: 'reload',
+                        });
                     });
                 });
             })
@@ -136,30 +143,39 @@ self.addEventListener('fetch', (event) => {
 
     // version.json - SEMPRE buscar da rede, NUNCA usar cache
     // BYPASS TOTAL DO SERVICE WORKER para version.json
-    if (url.pathname === '/version.json' || url.pathname.endsWith('/version.json')) {
+    if (
+        url.pathname === '/version.json' ||
+        url.pathname.endsWith('/version.json')
+    ) {
         // IGNORAR COMPLETAMENTE o Service Worker para version.json
         // Deixar o navegador buscar diretamente da rede
         event.respondWith(
-            fetch(new Request(event.request.url, { 
-                method: 'GET',
-                cache: 'no-store',
-                headers: {
-                    'Cache-Control': 'no-cache, no-store, must-revalidate, max-age=0',
-                    'Pragma': 'no-cache',
-                    'Expires': '0'
-                }
-            }))
+            fetch(
+                new Request(event.request.url, {
+                    method: 'GET',
+                    cache: 'no-store',
+                    headers: {
+                        'Cache-Control':
+                            'no-cache, no-store, must-revalidate, max-age=0',
+                        Pragma: 'no-cache',
+                        Expires: '0',
+                    },
+                })
+            )
                 .then((response) => {
                     // Criar nova response sem cache
                     const newResponse = new Response(response.body, {
                         status: response.status,
                         statusText: response.statusText,
                         headers: {
-                            'Cache-Control': 'no-cache, no-store, must-revalidate, max-age=0',
-                            'Pragma': 'no-cache',
-                            'Expires': '0',
-                            'Content-Type': response.headers.get('Content-Type') || 'application/json'
-                        }
+                            'Cache-Control':
+                                'no-cache, no-store, must-revalidate, max-age=0',
+                            Pragma: 'no-cache',
+                            Expires: '0',
+                            'Content-Type':
+                                response.headers.get('Content-Type') ||
+                                'application/json',
+                        },
                     });
                     // NUNCA cachear version.json
                     return newResponse;
@@ -172,17 +188,23 @@ self.addEventListener('fetch', (event) => {
         );
         return;
     }
-    
+
     // HTML - SEMPRE buscar da rede, NUNCA usar cache
-    if (url.pathname.endsWith('.html') || url.pathname === '/' || url.pathname === '/index.html') {
+    if (
+        url.pathname.endsWith('.html') ||
+        url.pathname === '/' ||
+        url.pathname === '/index.html'
+    ) {
         event.respondWith(
-            fetch(new Request(event.request.url + '?t=' + Date.now(), { 
-                cache: 'no-store',
-                headers: {
-                    'Cache-Control': 'no-cache, no-store, must-revalidate',
-                    'Pragma': 'no-cache'
-                }
-            }))
+            fetch(
+                new Request(event.request.url + '?t=' + Date.now(), {
+                    cache: 'no-store',
+                    headers: {
+                        'Cache-Control': 'no-cache, no-store, must-revalidate',
+                        Pragma: 'no-cache',
+                    },
+                })
+            )
                 .then((response) => {
                     // NUNCA cachear HTML
                     return response;
@@ -194,7 +216,7 @@ self.addEventListener('fetch', (event) => {
         );
         return;
     }
-    
+
     // Para arquivos estáticos (CSS, JS), usar NETWORK FIRST
     // Sempre buscar da rede primeiro, usar cache apenas se rede falhar
     // CRÍTICO: CSS/JS com versão na URL (v=) devem SEMPRE buscar da rede, nunca usar cache
@@ -205,18 +227,24 @@ self.addEventListener('fetch', (event) => {
         url.pathname.endsWith('.png')
     ) {
         // Se a URL contém parâmetro de versão, SEMPRE buscar da rede e NUNCA usar cache
-        const hasVersion = url.search.includes('v=') || url.search.includes('version=');
-        
+        const hasVersion =
+            url.search.includes('v=') || url.search.includes('version=');
+
         event.respondWith(
-            fetch(new Request(event.request.url, { 
-                method: 'GET',
-                cache: hasVersion ? 'no-store' : 'no-cache',
-                headers: hasVersion ? {
-                    'Cache-Control': 'no-cache, no-store, must-revalidate, max-age=0',
-                    'Pragma': 'no-cache',
-                    'Expires': '0'
-                } : {}
-            }))
+            fetch(
+                new Request(event.request.url, {
+                    method: 'GET',
+                    cache: hasVersion ? 'no-store' : 'no-cache',
+                    headers: hasVersion
+                        ? {
+                              'Cache-Control':
+                                  'no-cache, no-store, must-revalidate, max-age=0',
+                              Pragma: 'no-cache',
+                              Expires: '0',
+                          }
+                        : {},
+                })
+            )
                 .then((response) => {
                     // Se tem versão na URL, criar response sem cache headers
                     if (hasVersion) {
@@ -224,12 +252,16 @@ self.addEventListener('fetch', (event) => {
                             status: response.status,
                             statusText: response.statusText,
                             headers: {
-                                'Cache-Control': 'no-cache, no-store, must-revalidate, max-age=0',
-                                'Pragma': 'no-cache',
-                                'Expires': '0',
-                                'Content-Type': response.headers.get('Content-Type') || 
-                                    (url.pathname.endsWith('.css') ? 'text/css' : 'application/javascript')
-                            }
+                                'Cache-Control':
+                                    'no-cache, no-store, must-revalidate, max-age=0',
+                                Pragma: 'no-cache',
+                                Expires: '0',
+                                'Content-Type':
+                                    response.headers.get('Content-Type') ||
+                                    (url.pathname.endsWith('.css')
+                                        ? 'text/css'
+                                        : 'application/javascript'),
+                            },
                         });
                         // NUNCA cachear CSS/JS com versão na URL
                         return newResponse;
@@ -240,7 +272,10 @@ self.addEventListener('fetch', (event) => {
                 .catch((error) => {
                     // Se tem versão na URL e falhou, NÃO usar cache (pode ser versão antiga)
                     if (hasVersion) {
-                        console.warn('[SW] Erro ao buscar CSS/JS com versão da rede:', error);
+                        console.warn(
+                            '[SW] Erro ao buscar CSS/JS com versão da rede:',
+                            error
+                        );
                         throw error; // Não usar cache para versões específicas
                     }
                     // Fallback: tentar cache se rede falhar (apenas para URLs sem versão)

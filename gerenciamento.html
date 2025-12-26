@@ -100,92 +100,9 @@
                 const isChrome = /Chrome/i.test(ua) && !/Edge|Opera|OPR/i.test(ua);
                 const isAndroidChrome = isAndroid && isChrome;
                 
-                if (isAndroidChrome) {
-                    // Aplicar classe ao HTML e body para CSS específico
-                    document.documentElement.classList.add('android-chrome');
-                    if (document.body) {
-                        document.body.classList.add('android-chrome');
-                    } else {
-                        document.addEventListener('DOMContentLoaded', function() {
-                            document.body.classList.add('android-chrome');
-                        });
-                    }
-                    console.log('🔧 [ANDROID] Chrome Android detectado - backdrop-filter desabilitado');
-                    
-                    // Observar mudanças na classe 'active' dos modais para forçar abertura
-                    const forceModalOpen = function(modal) {
-                        if (modal.classList.contains('active')) {
-                            // Forçar estilo inline quando modal fica ativo
-                            modal.style.setProperty('display', 'flex', 'important');
-                            modal.style.setProperty('visibility', 'visible', 'important');
-                            modal.style.setProperty('opacity', '1', 'important');
-                            modal.style.setProperty('pointer-events', 'auto', 'important');
-                            modal.style.setProperty('z-index', '10000', 'important');
-                            modal.style.setProperty('position', 'fixed', 'important');
-                            modal.style.setProperty('left', '0', 'important');
-                            modal.style.setProperty('top', '0', 'important');
-                            modal.style.setProperty('width', '100%', 'important');
-                            modal.style.setProperty('height', '100%', 'important');
-                            modal.style.setProperty('justify-content', 'center', 'important');
-                            modal.style.setProperty('align-items', 'center', 'important');
-                            modal.style.setProperty('background', 'rgba(0, 0, 0, 0.85)', 'important');
-                            modal.style.setProperty('backdrop-filter', 'none', 'important');
-                            modal.style.setProperty('-webkit-backdrop-filter', 'none', 'important');
-                            console.log('✅ [ANDROID] Modal forçado a abrir:', modal.id || modal.className);
-                        }
-                    };
-                    
-                    // Observar mudanças na classe 'active' dos modais
-                    const observer = new MutationObserver(function(mutations) {
-                        mutations.forEach(function(mutation) {
-                            if (mutation.type === 'attributes' && mutation.attributeName === 'class') {
-                                const modal = mutation.target;
-                                if (modal.classList.contains('modal')) {
-                                    forceModalOpen(modal);
-                                }
-                            }
-                        });
-                    });
-                    
-                    // Observar todos os modais quando DOM estiver pronto
-                    const observeModals = function() {
-                        document.querySelectorAll('.modal').forEach(function(modal) {
-                            observer.observe(modal, { attributes: true, attributeFilter: ['class'] });
-                            // Forçar abertura se já estiver ativo
-                            if (modal.classList.contains('active')) {
-                                forceModalOpen(modal);
-                            }
-                        });
-                    };
-                    
-                    if (document.readyState === 'loading') {
-                        document.addEventListener('DOMContentLoaded', observeModals);
-                    } else {
-                        observeModals();
-                    }
-                    
-                    // Também observar novos modais adicionados dinamicamente
-                    const bodyObserver = new MutationObserver(function(mutations) {
-                        mutations.forEach(function(mutation) {
-                            mutation.addedNodes.forEach(function(node) {
-                                if (node.nodeType === 1 && node.classList && node.classList.contains('modal')) {
-                                    observer.observe(node, { attributes: true, attributeFilter: ['class'] });
-                                    if (node.classList.contains('active')) {
-                                        forceModalOpen(node);
-                                    }
-                                }
-                            });
-                        });
-                    });
-                    
-                    if (document.body) {
-                        bodyObserver.observe(document.body, { childList: true, subtree: true });
-                    } else {
-                        document.addEventListener('DOMContentLoaded', function() {
-                            bodyObserver.observe(document.body, { childList: true, subtree: true });
-                        });
-                    }
-                }
+                // NOTA: O código de correção Android foi movido para android-modal-fix.js
+                // para evitar duplicação e conflitos. O android-modal-fix.js será carregado
+                // ANTES do app.js para garantir que as correções estejam ativas.
             })();
         </script>
         <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js" onload="window.chartJsLoaded = true;" onerror="console.error('Erro ao carregar Chart.js');"></script>
@@ -3524,12 +3441,16 @@
                 username: sessionStorage.getItem('username'),
             });
 
-            // Carregar skeleton-manager primeiro, depois app.js
-            ScriptLoader.load('skeleton-manager.js', function() {
-                console.log('✅ [GERENCIAMENTO.HTML] skeleton-manager.js carregado!');
+            // Carregar android-modal-fix.js PRIMEIRO (para Android), depois skeleton-manager, depois app.js
+            ScriptLoader.load('android-modal-fix.js', function() {
+                console.log('✅ [GERENCIAMENTO.HTML] android-modal-fix.js carregado!');
                 
-                // Agora carregar app.js
-                ScriptLoader.load('app.js', function() {
+                // Agora carregar skeleton-manager
+                ScriptLoader.load('skeleton-manager.js', function() {
+                    console.log('✅ [GERENCIAMENTO.HTML] skeleton-manager.js carregado!');
+                    
+                    // Agora carregar app.js
+                    ScriptLoader.load('app.js', function() {
                     console.log('✅ [GERENCIAMENTO.HTML] app.js carregado com sucesso!');
                     console.log('✅ [GERENCIAMENTO.HTML] LojaApp definido?', typeof LojaApp !== 'undefined');
                     
@@ -3562,8 +3483,19 @@
                         document.addEventListener('DOMContentLoaded', tentarInicializarApp);
                     }
                     
+                    }, function(error) {
+                        console.error('❌ [GERENCIAMENTO.HTML] Falha ao carregar app.js:', error);
+                    });
                 }, function(error) {
-                    console.error('❌ [GERENCIAMENTO.HTML] Falha ao carregar app.js:', error);
+                    console.error('❌ [GERENCIAMENTO.HTML] Falha ao carregar skeleton-manager.js:', error);
+                });
+            }, function(error) {
+                console.error('❌ [GERENCIAMENTO.HTML] Falha ao carregar android-modal-fix.js:', error);
+                // Continuar mesmo se o fix falhar (não é crítico)
+                ScriptLoader.load('skeleton-manager.js', function() {
+                    ScriptLoader.load('app.js', function() {
+                        console.log('✅ [GERENCIAMENTO.HTML] Scripts carregados sem android-modal-fix.js');
+                    });
                 });
             });
         </script>
