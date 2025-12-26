@@ -3390,8 +3390,37 @@
                 }
                 
                 function loadScript(filename, onSuccess, onError) {
-                    if (config.loadedScripts.has(filename)) { if (onSuccess) onSuccess(); return; }
+                    if (config.loadedScripts.has(filename)) { 
+                        if (onSuccess) onSuccess(); 
+                        return; 
+                    }
                     
+                    // Para arquivos em alwaysFromJs, usar apenas /js/ (sem fallback)
+                    if (config.alwaysFromJs.includes(filename)) {
+                        const path = config.paths.development + filename;
+                        const fullUrl = path + '?v=' + Date.now();
+                        log('Carregando (alwaysFromJs):', fullUrl);
+                        
+                        const script = document.createElement('script');
+                        script.src = fullUrl;
+                        script.async = false;
+                        
+                        script.onload = function() {
+                            config.loadedScripts.add(filename);
+                            log('✅ Carregado:', filename, 'via', path);
+                            if (onSuccess) onSuccess();
+                        };
+                        
+                        script.onerror = function(e) {
+                            console.error('❌ [ScriptLoader] Falha ao carregar:', path, e?.message);
+                            if (onError) onError(e);
+                        };
+                        
+                        document.head.appendChild(script);
+                        return;
+                    }
+                    
+                    // Para outros arquivos, usar lógica normal com fallback
                     const candidates = [];
                     const primaryPath = getPath(filename);
                     candidates.push(primaryPath);
