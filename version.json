@@ -1,10 +1,10 @@
 {
-  "version": "2025122620",
+  "version": "2025122621",
   "buildDate": "2025-12-26",
-  "buildTime": "20:33:26",
-  "commit": "7153047",
+  "buildTime": "21:03:55",
+  "commit": "26de216",
   "branch": "main",
-  "commitMessage": "refactor: implementar Clean Architecture e corrigir modais Android",
+  "commitMessage": "fix: corrigir piscar do layout no gerenciamento.html",
   "description": "ERP Portátil - Sistema de Gestão Financeira",
-  "updatedAt": "2025-12-26T23:33:26.185Z"
+  "updatedAt": "2025-12-27T00:03:55.499Z"
 }

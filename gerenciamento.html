@@ -322,10 +322,31 @@
         <link rel="apple-touch-icon" href="/images/icone-e-transicao.jpg" />
         <!-- Estilo inline para evitar FOUC - esconde conteúdo até CSS carregar -->
         <style>
-            body { visibility: hidden; opacity: 0; }
-            body.loaded { visibility: visible; opacity: 1; transition: opacity 0.2s; }
-            /* Prevenir piscar evitando múltiplas transições */
-            body.loaded * { transition: none !important; }
+            body { 
+                visibility: hidden; 
+                opacity: 0; 
+                /* Prevenir reflow/repaint desnecessários */
+                will-change: opacity;
+            }
+            body.loaded { 
+                visibility: visible !important; 
+                opacity: 1 !important; 
+                /* Transição rápida apenas para opacity */
+                transition: opacity 0.15s ease-in !important;
+            }
+            /* Prevenir piscar evitando múltiplas transições em elementos filhos */
+            body.loaded * { 
+                transition: none !important;
+                animation: none !important;
+            }
+            /* Garantir que não haja flash de conteúdo não estilizado */
+            /* Garantir que html também seja controlado */
+            html:not(.loaded) { 
+                visibility: hidden; 
+            }
+            html.loaded {
+                visibility: visible;
+            }
         </style>
         
         <!-- DEBUG: Verificar se JS está executando -->
@@ -439,51 +460,46 @@
             }
         </style>
         <script>
-            // Mostrar conteúdo assim que DOM estiver pronto (mais rápido que 'load')
-            // Isso previne o piscar causado por esperar todos os recursos
+            // Mostrar conteúdo de forma mais agressiva e rápida
+            // Prevenir piscar completamente
             (function() {
-                let bodyShown = false;
+                let shown = false;
                 
-                function showBody() {
-                    if (bodyShown) return; // Prevenir múltiplas chamadas
-                    bodyShown = true;
+                function showContent() {
+                    if (shown) return; // Prevenir múltiplas chamadas
+                    shown = true;
                     
-                    // Usar requestAnimationFrame para garantir que o CSS está aplicado
-                    requestAnimationFrame(() => {
-                        document.body.classList.add('loaded');
-                    });
+                    // Mostrar html e body simultaneamente com estilos inline (mais rápido)
+                    document.documentElement.classList.add('loaded');
+                    document.documentElement.style.visibility = 'visible';
+                    
+                    document.body.classList.add('loaded');
+                    document.body.style.visibility = 'visible';
+                    document.body.style.opacity = '1';
                 }
                 
-                // Tentar mostrar assim que DOM estiver pronto (mais rápido)
-                if (document.readyState === 'loading') {
-                    document.addEventListener('DOMContentLoaded', showBody);
+                // Mostrar o mais rápido possível - assim que o script executar
+                // Isso é seguro porque o CSS inline já está no head
+                if (document.readyState === 'complete' || document.readyState === 'interactive') {
+                    // Já está pronto, mostrar imediatamente
+                    showContent();
                 } else {
-                    // DOM já está pronto
-                    showBody();
+                    // Esperar DOMContentLoaded (mais rápido que load)
+                    document.addEventListener('DOMContentLoaded', showContent, { once: true });
                 }
                 
-                // Fallback: mostrar no load se ainda não mostrou (máximo 2 segundos)
-                const fallbackTimeout = setTimeout(() => {
-                    if (!bodyShown) {
-                        showBody();
-                    }
-                }, 2000);
+                // Fallback absoluto: mostrar após 100ms no máximo
+                setTimeout(showContent, 100);
                 
+                // Aplicar animação de entrada quando tudo carregar
                 window.addEventListener('load', function() {
-                    clearTimeout(fallbackTimeout);
-                    if (!bodyShown) {
-                        showBody();
-                    }
-                    
-                    // Aplicar animação de entrada na página de gerenciamento
                     const appContainer = document.querySelector('.app-container');
                     if (appContainer) {
-                        // Pequeno delay para garantir que o CSS está carregado
-                        setTimeout(() => {
+                        requestAnimationFrame(() => {
                             appContainer.classList.add('animate-in');
-                        }, 50);
+                        });
                     }
-                });
+                }, { once: true });
             })();
         </script>
         
