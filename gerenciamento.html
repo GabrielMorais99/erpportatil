@@ -17,6 +17,8 @@
             content="black-translucent"
         />
         <meta name="apple-mobile-web-app-title" content="Loja Vendas" />
+        <!-- CSP: permite 'unsafe-eval' para Chart.js, jsPDF e libs que usam eval/Function -->
+        <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://unpkg.com https://fonts.googleapis.com https://fonts.gstatic.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com; font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com; img-src 'self' data: blob:; connect-src 'self'">
         <title>Gestão Financeira</title>
         <!-- Google Fonts - Inter (fonte principal padronizada) -->
         <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -538,6 +540,7 @@
                         id="importFile"
                         accept=".txt"
                         class="hidden"
+                        aria-label="Arquivo para importar dados"
                     />
                     <button type="button" id="logoutBtn" class="btn-secondary inline-flex items-center justify-center gap-2" title="Sair" aria-label="Fazer logout e sair do sistema">
                         <i class="fas fa-sign-out-alt"></i> <span class="btn-text">Sair</span>
@@ -555,9 +558,11 @@
                                 id="globalSearchInput"
                                 class="search-input-with-icon"
                                 placeholder="Pesquisar..."
+                                aria-label="Pesquisar no sistema"
                             />
                         </div>
-                        <select id="monthFilter">
+                        <label for="monthFilter" class="sr-only">Filtrar por mês</label>
+                        <select id="monthFilter" aria-label="Filtrar por mês">
                             <option value="">Todos os meses</option>
                         </select>
                         <button class="btn-secondary" onclick="app.openAdvancedSearchModal()" title="Busca Avançada" style="white-space: nowrap;">
@@ -621,7 +626,7 @@
                             <div class="panel-filters" style="margin-bottom: 1rem; display: flex; gap: 1rem; align-items: center; flex-wrap: wrap;">
                                 <div class="filter-group" style="display: flex; align-items: center; gap: 0.5rem; flex: 1; min-width: 250px;">
                                     <i class="fas fa-search" style="color: var(--gray-400);"></i>
-                                    <input type="text" id="productSearchInput" class="search-input-with-icon" placeholder="Buscar produtos (inclui notas)..." style="flex: 1;">
+                                    <input type="text" id="productSearchInput" class="search-input-with-icon" placeholder="Buscar produtos (inclui notas)..." style="flex: 1;" aria-label="Buscar produtos (inclui notas)">
                                 </div>
                                 <div class="filter-group" style="display: flex; align-items: center; gap: 0.5rem;">
                                     <label for="tagFilter" style="font-size: 0.875rem; color: var(--gray-600); white-space: nowrap;">
@@ -682,6 +687,7 @@
                                         id="supplierSearch" 
                                         class="search-input-with-icon" 
                                         placeholder="Buscar fornecedor por nome, CNPJ ou telefone..."
+                                        aria-label="Buscar fornecedor por nome, CNPJ ou telefone"
                                     />
                                 </div>
                             </div>.......
@@ -701,7 +707,7 @@
                                     <button class="btn-secondary" onclick="document.getElementById('importTemplatesFile').click()" title="Importar Templates">
                                         <i class="fas fa-upload"></i> <span class="btn-text">Importar</span>
                                     </button>
-                                    <input type="file" id="importTemplatesFile" accept=".json,.txt" style="display: none;" onchange="app.importTemplates(event)" />
+                                    <input type="file" id="importTemplatesFile" accept=".json,.txt" style="display: none;" onchange="app.importTemplates(event)" aria-label="Arquivo para importar templates" />
                                     <button class="btn-primary btn-plus" onclick="app.openTemplateModal()">
                                         <i class="fas fa-plus"></i> Novo Template
                                     </button>
@@ -1450,36 +1456,22 @@
                                 <!-- Painel será preenchido via JavaScript -->
                             </div>
                         </div>
-                                    <h3 style="margin: 0 0 0.5rem 0; font-size: 1rem; color: var(--dark-gray);">
-                                        <i class="fas fa-info-circle"></i> Status das Integrações
-                                    </h3>
-                                    <div id="integrationsStatus" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 0.75rem;">
-                                        <!-- Status será preenchido via JavaScript -->
-                                    </div>
-                                </div>
-                                
-                                <div style="margin-top: 1rem; padding: 1rem; background: #e7f3ff; border-radius: var(--radius-sm);">
-                                    <p style="margin: 0; font-size: 0.9rem; color: #0c5460;">
-                                        <i class="fas fa-book"></i> 
-                                        <strong>Dica:</strong> Consulte o <a href="GUIA-CONFIGURACAO-INTEGRACOES.md" target="_blank" style="color: #0066cc; text-decoration: underline;">Guia de Configuração de Integrações</a> para obter as credenciais de cada serviço.
-                                    </p>
-                                </div>
-                            </div>
-                        </div>
 
                         <!-- Histórico de Atividades (Audit Log) -->
                         <div class="panel-section">
                             <div class="panel-header">
                                 <h2><i class="fas fa-history"></i> Histórico de Atividades</h2>
                                 <div style="display: flex; gap: 0.5rem;">
-                                    <select id="auditLogFilter" class="search-input-with-icon" style="min-width: 150px;">
+                                    <label for="auditLogFilter" class="sr-only">Filtrar por ação</label>
+                                    <select id="auditLogFilter" class="search-input-with-icon" style="min-width: 150px;" aria-label="Filtrar por ação">
                                         <option value="all">Todas as ações</option>
                                         <option value="create">Criar</option>
                                         <option value="update">Atualizar</option>
                                         <option value="delete">Excluir</option>
                                         <option value="export">Exportar</option>
                                     </select>
-                                    <select id="auditLogEntityFilter" class="search-input-with-icon" style="min-width: 150px;">
+                                    <label for="auditLogEntityFilter" class="sr-only">Filtrar por entidade</label>
+                                    <select id="auditLogEntityFilter" class="search-input-with-icon" style="min-width: 150px;" aria-label="Filtrar por entidade">
                                         <option value="all">Todas as entidades</option>
                                         <option value="item">Produtos</option>
                                         <option value="client">Clientes</option>
@@ -1942,11 +1934,13 @@
                         </div>
                         <div id="discountFields" style="display: none;">
                             <div style="display: flex; gap: 0.5rem; margin-bottom: 0.75rem;">
-                                <select id="saleDiscountType" style="flex: 1;">
+                                <label for="saleDiscountType" class="sr-only">Tipo de desconto</label>
+                                <select id="saleDiscountType" style="flex: 1;" aria-label="Tipo de desconto">
                                     <option value="">Tipo de desconto</option>
                                     <option value="percent">Percentual (%)</option>
                                     <option value="fixed">Valor fixo (R$)</option>
                                 </select>
+                                <label for="saleDiscountValue" class="sr-only">Valor do desconto</label>
                                 <input
                                     type="number"
                                     id="saleDiscountValue"
@@ -1954,6 +1948,7 @@
                                     min="0"
                                     placeholder="0.00"
                                     style="flex: 1;"
+                                    aria-label="Valor do desconto"
                                 />
                             </div>
                             <div class="form-group" style="margin-bottom: 0;">
