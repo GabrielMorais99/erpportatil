@@ -4849,15 +4849,40 @@
             }
         });
     </script>
+
+    <script>
+        (function blockLoadingOverlay() {
+            const removeLoaders = () => {
+                document.querySelectorAll(
+                    '#loadingOverlay, .loading-overlay, .loading-overlay-content, .loading-overlay-spinner, .loading-overlay-message'
+                ).forEach(el => el.remove());
+            };
+
+            // Remove agora
+            removeLoaders();
+
+            // Observa recriação futura
+            const observer = new MutationObserver(() => {
+                removeLoaders();
+            });
+
+            observer.observe(document.body, {
+                childList: true,
+                subtree: true
+            });
+        })();
+    </script>
     <script>
         window.addEventListener('load', () => {
-            const loaders = document.querySelectorAll(
-                '#loadingOverlay, .loading-overlay, .loading-overlay-content, .loading-overlay-spinner, .loading-overlay-message'
-            );
-            loaders.forEach(el => el.remove());
+            const appContainer = document.querySelector('.app-container');
+            if (!appContainer) return;
+
+            appContainer.style.opacity = '1';
+            appContainer.style.transform = 'none';
+            appContainer.style.pointerEvents = 'auto';
+            appContainer.classList.remove('animate-in');
         });
     </script>
-
 
 </body>
 
