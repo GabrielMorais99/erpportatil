@@ -12,17 +12,25 @@
 :root {
     /* Fonte principal */
     --font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-    
+
     /* Escala tipográfica harmônica (baseada em 1rem = 16px) */
-    --text-xs: 0.75rem;      /* 12px - labels pequenos */
-    --text-sm: 0.875rem;     /* 14px - texto secundário */
-    --text-base: 1rem;       /* 16px - texto padrão */
-    --text-lg: 1.125rem;     /* 18px - texto destacado */
-    --text-xl: 1.25rem;      /* 20px - subtítulos */
-    --text-2xl: 1.5rem;      /* 24px - títulos de seção */
-    --text-3xl: 1.875rem;    /* 30px - títulos principais */
-    --text-4xl: 2.25rem;     /* 36px - títulos hero */
-    
+    --text-xs: 0.75rem;
+    /* 12px - labels pequenos */
+    --text-sm: 0.875rem;
+    /* 14px - texto secundário */
+    --text-base: 1rem;
+    /* 16px - texto padrão */
+    --text-lg: 1.125rem;
+    /* 18px - texto destacado */
+    --text-xl: 1.25rem;
+    /* 20px - subtítulos */
+    --text-2xl: 1.5rem;
+    /* 24px - títulos de seção */
+    --text-3xl: 1.875rem;
+    /* 30px - títulos principais */
+    --text-4xl: 2.25rem;
+    /* 36px - títulos hero */
+
     /* Pesos de fonte padronizados */
     --font-light: 300;
     --font-normal: 400;
@@ -30,13 +38,13 @@
     --font-semibold: 600;
     --font-bold: 700;
     --font-extrabold: 800;
-    
+
     /* Line heights padronizados */
     --leading-tight: 1.25;
     --leading-snug: 1.375;
     --leading-normal: 1.5;
     --leading-relaxed: 1.625;
-    
+
     /* Letter spacing */
     --tracking-tight: -0.025em;
     --tracking-normal: 0;
@@ -76,7 +84,8 @@ html {
     overflow-y: auto !important;
     position: relative;
     height: 100%;
-    font-size: 16px; /* Base para rem */
+    font-size: 16px;
+    /* Base para rem */
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     text-rendering: optimizeLegibility;
@@ -98,36 +107,100 @@ body {
 }
 
 /* Classes utilitárias de tipografia */
-.text-xs { font-size: var(--text-xs); }
-.text-sm { font-size: var(--text-sm); }
-.text-base { font-size: var(--text-base); }
-.text-lg { font-size: var(--text-lg); }
-.text-xl { font-size: var(--text-xl); }
-.text-2xl { font-size: var(--text-2xl); }
-.text-3xl { font-size: var(--text-3xl); }
-.text-4xl { font-size: var(--text-4xl); }
+.text-xs {
+    font-size: var(--text-xs);
+}
 
-.font-light { font-weight: var(--font-light); }
-.font-normal { font-weight: var(--font-normal); }
-.font-medium { font-weight: var(--font-medium); }
-.font-semibold { font-weight: var(--font-semibold); }
-.font-bold { font-weight: var(--font-bold); }
-.font-extrabold { font-weight: var(--font-extrabold); }
+.text-sm {
+    font-size: var(--text-sm);
+}
+
+.text-base {
+    font-size: var(--text-base);
+}
+
+.text-lg {
+    font-size: var(--text-lg);
+}
+
+.text-xl {
+    font-size: var(--text-xl);
+}
+
+.text-2xl {
+    font-size: var(--text-2xl);
+}
+
+.text-3xl {
+    font-size: var(--text-3xl);
+}
+
+.text-4xl {
+    font-size: var(--text-4xl);
+}
+
+.font-light {
+    font-weight: var(--font-light);
+}
+
+.font-normal {
+    font-weight: var(--font-normal);
+}
+
+.font-medium {
+    font-weight: var(--font-medium);
+}
+
+.font-semibold {
+    font-weight: var(--font-semibold);
+}
+
+.font-bold {
+    font-weight: var(--font-bold);
+}
+
+.font-extrabold {
+    font-weight: var(--font-extrabold);
+}
 
 /* Headings padronizados */
-h1, h2, h3, h4, h5, h6 {
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
     font-family: var(--font-family);
     font-weight: var(--font-bold);
     line-height: var(--leading-tight);
     letter-spacing: var(--tracking-tight);
 }
 
-h1 { font-size: var(--text-3xl); }
-h2 { font-size: var(--text-2xl); }
-h3 { font-size: var(--text-xl); }
-h4 { font-size: var(--text-lg); }
-h5 { font-size: var(--text-base); font-weight: var(--font-semibold); }
-h6 { font-size: var(--text-sm); font-weight: var(--font-semibold); }
+h1 {
+    font-size: var(--text-3xl);
+}
+
+h2 {
+    font-size: var(--text-2xl);
+}
+
+h3 {
+    font-size: var(--text-xl);
+}
+
+h4 {
+    font-size: var(--text-lg);
+}
+
+h5 {
+    font-size: var(--text-base);
+    font-weight: var(--font-semibold);
+}
+
+h6 {
+    font-size: var(--text-sm);
+    font-weight: var(--font-semibold);
+}
 
 /* Parágrafos e texto */
 p {
@@ -137,14 +210,19 @@ p {
 }
 
 /* Labels e textos pequenos */
-label, small, .label {
+label,
+small,
+.label {
     font-family: var(--font-family);
     font-size: var(--text-sm);
     font-weight: var(--font-medium);
 }
 
 /* Inputs e selects */
-input, select, textarea, button {
+input,
+select,
+textarea,
+button {
     font-family: var(--font-family);
     font-size: var(--text-base);
 }
@@ -211,12 +289,10 @@ body.theme-blue {
 /* Ajustar background do login para tema azul (mantém preto) */
 body.theme-blue .login-container {
     background-image: url('/images/background-financial.svg'),
-        linear-gradient(
-            to bottom,
+        linear-gradient(to bottom,
             rgba(0, 0, 0, 0.1) 0%,
             rgba(0, 0, 0, 0.2) 50%,
-            rgba(0, 0, 0, 0.3) 100%
-        );
+            rgba(0, 0, 0, 0.3) 100%);
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
@@ -237,7 +313,8 @@ button,
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    gap: 0.5rem; /* Espaçamento entre ícone e texto */
+    gap: 0.5rem;
+    /* Espaçamento entre ícone e texto */
 }
 
 /* Garantir que ícones dentro de botões tenham margem adequada */
@@ -266,7 +343,8 @@ button i.fab,
 .tab-btn i.fas,
 .tab-btn i.far,
 .tab-btn i.fab {
-    margin-right: 0; /* Removido porque usamos gap */
+    margin-right: 0;
+    /* Removido porque usamos gap */
 }
 
 /* Centralizar content-tabs */
@@ -338,7 +416,8 @@ body {
     color: var(--dark-gray) !important;
     line-height: 1.5;
     overflow-x: hidden;
-    overflow-y: auto !important; /* CRÍTICO: Garantir scroll vertical */
+    overflow-y: auto !important;
+    /* CRÍTICO: Garantir scroll vertical */
     width: 100%;
     max-width: 100vw;
     height: auto !important;
@@ -349,8 +428,10 @@ body {
 .app-container {
     background-color: var(--gray-50) !important;
     background: var(--gray-50) !important;
-    overflow-y: visible !important; /* Permitir scroll vertical */
-    height: auto !important; /* Altura automática para permitir scroll */
+    overflow-y: visible !important;
+    /* Permitir scroll vertical */
+    height: auto !important;
+    /* Altura automática para permitir scroll */
 }
 
 /* Garantir que elementos principais sejam brancos por padrão */
@@ -362,8 +443,10 @@ body:not(.dark-mode) .app-container {
 body:not(.dark-mode) .main-content {
     background-color: transparent !important;
     background: transparent !important;
-    overflow-y: visible !important; /* Permitir scroll */
-    height: auto !important; /* Altura automática */
+    overflow-y: visible !important;
+    /* Permitir scroll */
+    height: auto !important;
+    /* Altura automática */
 }
 
 /* ========================================
@@ -373,8 +456,10 @@ body:not(.dark-mode) .main-content {
 
 /* Firefox - Esconder scrollbar */
 * {
-    scrollbar-width: none; /* Firefox */
-    -ms-overflow-style: none; /* IE e Edge */
+    scrollbar-width: none;
+    /* Firefox */
+    -ms-overflow-style: none;
+    /* IE e Edge */
 }
 
 /* Chrome, Edge, Safari - Esconder scrollbar */
@@ -409,8 +494,10 @@ body:not(.dark-mode) .main-content {
 .items-grid,
 .content-tabs,
 .receipt-carousel {
-    scrollbar-width: none; /* Firefox */
-    -ms-overflow-style: none; /* IE e Edge */
+    scrollbar-width: none;
+    /* Firefox */
+    -ms-overflow-style: none;
+    /* IE e Edge */
 }
 
 /* ========================================
@@ -418,11 +505,9 @@ body:not(.dark-mode) .main-content {
    ======================================== */
 
 .header {
-    background: linear-gradient(
-        135deg,
-        var(--primary-color) 0%,
-        var(--primary-color-dark) 100%
-    );
+    background: linear-gradient(135deg,
+            var(--primary-color) 0%,
+            var(--primary-color-dark) 100%);
     color: var(--white);
     padding: 1.25rem 2rem;
     display: flex;
@@ -440,12 +525,10 @@ body:not(.dark-mode) .main-content {
     left: 0;
     right: 0;
     bottom: 0;
-    background: linear-gradient(
-        135deg,
-        rgba(255, 255, 255, 0.1) 0%,
-        rgba(255, 255, 255, 0) 50%,
-        rgba(0, 0, 0, 0.05) 100%
-    );
+    background: linear-gradient(135deg,
+            rgba(255, 255, 255, 0.1) 0%,
+            rgba(255, 255, 255, 0) 50%,
+            rgba(0, 0, 0, 0.05) 100%);
     pointer-events: none;
 }
 
@@ -473,11 +556,9 @@ body:not(.dark-mode) .main-content {
 
 .btn-primary {
     padding: 0.65rem 1.5rem;
-    background: linear-gradient(
-        135deg,
-        var(--primary-color) 0%,
-        var(--primary-color-dark) 100%
-    );
+    background: linear-gradient(135deg,
+            var(--primary-color) 0%,
+            var(--primary-color-dark) 100%);
     color: var(--white);
     border: none;
     border-radius: var(--radius-md);
@@ -493,17 +574,18 @@ body:not(.dark-mode) .main-content {
     display: inline-flex !important;
     align-items: center !important;
     justify-content: center !important;
-    gap: 0.625rem !important; /* Espaçamento entre ícone e texto */
+    gap: 0.625rem !important;
+    /* Espaçamento entre ícone e texto */
     box-shadow: var(--shadow-md);
     overflow: hidden;
     letter-spacing: var(--tracking-normal);
 }
 
 /* Garantir espaçamento do ícone dentro do btn-primary */
-.btn-primary > i,
-.btn-primary > .fas,
-.btn-primary > .far,
-.btn-primary > .fab {
+.btn-primary>i,
+.btn-primary>.fas,
+.btn-primary>.far,
+.btn-primary>.fab {
     flex-shrink: 0;
     font-size: 1em;
 }
@@ -649,12 +731,10 @@ body.theme-blue .login-container #entrarBtn:focus {
     left: -100%;
     width: 100%;
     height: 100%;
-    background: linear-gradient(
-        90deg,
-        transparent,
-        rgba(255, 255, 255, 0.2),
-        transparent
-    );
+    background: linear-gradient(90deg,
+            transparent,
+            rgba(255, 255, 255, 0.2),
+            transparent);
     transition: left 0.5s;
 }
 
@@ -740,17 +820,18 @@ body.theme-blue .login-container #entrarBtn:focus {
     display: inline-flex !important;
     align-items: center !important;
     justify-content: center !important;
-    gap: 0.625rem !important; /* Espaçamento entre ícone e texto */
+    gap: 0.625rem !important;
+    /* Espaçamento entre ícone e texto */
     box-shadow: var(--shadow-sm);
     backdrop-filter: blur(10px);
     letter-spacing: var(--tracking-normal);
 }
 
 /* Garantir espaçamento do ícone dentro do btn-secondary */
-.btn-secondary > i,
-.btn-secondary > .fas,
-.btn-secondary > .far,
-.btn-secondary > .fab {
+.btn-secondary>i,
+.btn-secondary>.fas,
+.btn-secondary>.far,
+.btn-secondary>.fab {
     flex-shrink: 0;
     font-size: 1em;
 }
@@ -838,9 +919,11 @@ body.theme-blue .login-container #entrarBtn:focus {
     width: 100%;
     box-sizing: border-box;
     overflow-x: hidden;
-    overflow-y: visible !important; /* Permitir scroll vertical no desktop */
+    overflow-y: visible !important;
+    /* Permitir scroll vertical no desktop */
     background-color: #ebebeb;
-    height: auto !important; /* Altura automática para permitir scroll */
+    height: auto !important;
+    /* Altura automática para permitir scroll */
     min-height: auto !important;
 }
 
@@ -876,7 +959,8 @@ body.theme-blue .login-container #entrarBtn:focus {
 /* Padrões do Emergente para inputs e selects */
 .search-filter input,
 .search-filter select {
-    padding: 0.875rem 1.125rem; /* Padrão Emergente */
+    padding: 0.875rem 1.125rem;
+    /* Padrão Emergente */
     border: 2px solid var(--gray-200);
     border-radius: var(--radius-md);
     font-size: var(--text-base);
@@ -915,7 +999,8 @@ body.theme-blue .login-container #entrarBtn:focus {
 }
 
 .search-input-with-icon {
-    padding: 0.875rem 1.125rem 0.875rem 2.5rem !important; /* Padrão Emergente - padding com espaço para ícone */
+    padding: 0.875rem 1.125rem 0.875rem 2.5rem !important;
+    /* Padrão Emergente - padding com espaço para ícone */
     border: 2px solid var(--gray-200);
     border-radius: var(--radius-md);
     font-size: var(--text-base);
@@ -930,7 +1015,8 @@ body.theme-blue .login-container #entrarBtn:focus {
 .search-input-with-icon:focus {
     outline: none;
     border-color: var(--primary-color);
-    box-shadow: 0 0 0 3px rgba(220, 53, 69, 0.1); /* Padrão Emergente */
+    box-shadow: 0 0 0 3px rgba(220, 53, 69, 0.1);
+    /* Padrão Emergente */
 }
 
 /* ========================================
@@ -1086,7 +1172,8 @@ body.theme-blue .login-container #entrarBtn:focus {
 
 .stock-input {
     width: 80px;
-    padding: 0.875rem 1.125rem; /* Padrão Emergente */
+    padding: 0.875rem 1.125rem;
+    /* Padrão Emergente */
     border: 2px solid var(--border-color);
     border-radius: var(--radius-md);
     font-size: 0.9rem;
@@ -1097,7 +1184,8 @@ body.theme-blue .login-container #entrarBtn:focus {
 .stock-input:focus {
     outline: none;
     border-color: var(--primary-color);
-    box-shadow: 0 0 0 4px rgba(220, 53, 69, 0.12); /* Padrão Emergente */
+    box-shadow: 0 0 0 4px rgba(220, 53, 69, 0.12);
+    /* Padrão Emergente */
     transform: translateY(-1px);
 }
 
@@ -1113,7 +1201,8 @@ body.theme-blue .login-container #entrarBtn:focus {
 .content-tabs {
     display: flex;
     flex-wrap: wrap;
-    gap: 0.75rem; /* Aumentado para mais espaço entre tabs */
+    gap: 0.75rem;
+    /* Aumentado para mais espaço entre tabs */
     margin-bottom: 2rem;
     background: var(--white);
     padding: 1rem 1.5rem;
@@ -1143,7 +1232,8 @@ body.theme-blue .login-container #entrarBtn:focus {
     display: inline-flex !important;
     align-items: center !important;
     justify-content: center;
-    gap: 0.625rem !important; /* Espaçamento entre ícone e texto */
+    gap: 0.625rem !important;
+    /* Espaçamento entre ícone e texto */
     letter-spacing: var(--tracking-normal);
 }
 
@@ -1223,6 +1313,7 @@ body.theme-blue .login-container #entrarBtn:focus {
         opacity: 0;
         transform: translateY(10px);
     }
+
     to {
         opacity: 1;
         transform: translateY(0);
@@ -1241,7 +1332,8 @@ body.theme-blue .login-container #entrarBtn:focus {
     background: var(--white);
     border: 1px solid var(--gray-200);
     border-radius: var(--radius-lg);
-    padding: 1.25rem; /* Padrão desktop - consistente */
+    padding: 1.25rem;
+    /* Padrão desktop - consistente */
     transition: all var(--transition-base);
     position: relative;
     box-shadow: var(--shadow-sm);
@@ -1320,7 +1412,7 @@ body.theme-blue .login-container #entrarBtn:focus {
     line-height: 1.6;
 }
 
-.group-info > div {
+.group-info>div {
     margin-bottom: 0.5rem;
 }
 
@@ -1329,13 +1421,13 @@ body.theme-blue .login-container #entrarBtn:focus {
     font-weight: 600;
 }
 
-.group-info > div:last-child {
+.group-info>div:last-child {
     margin-top: 0.75rem;
     padding-top: 0.75rem;
     border-top: 1px solid var(--gray-200);
 }
 
-.group-info > div:last-child > div {
+.group-info>div:last-child>div {
     margin-bottom: 0.4rem;
     font-size: 0.85rem;
 }
@@ -1489,7 +1581,7 @@ body.theme-blue .login-container #entrarBtn:focus {
     border-top: 1px solid var(--gray-200);
 }
 
-.stock-section > div {
+.stock-section>div {
     margin-bottom: 0.4rem;
     font-size: 0.85rem;
 }
@@ -1623,11 +1715,9 @@ body.theme-blue .login-container #entrarBtn:focus {
         height: 44px !important;
         padding: 0 !important;
         flex: 0 0 44px !important;
-        background: linear-gradient(
-            135deg,
-            var(--primary-color) 0%,
-            var(--primary-color-dark) 100%
-        ) !important;
+        background: linear-gradient(135deg,
+                var(--primary-color) 0%,
+                var(--primary-color-dark) 100%) !important;
     }
 
     .item-actions-row .btn-edit i,
@@ -1749,7 +1839,8 @@ body.theme-blue .login-container #entrarBtn:focus {
 .items-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
-    gap: 1.5rem; /* Padrão desktop - padronizado */
+    gap: 1.5rem;
+    /* Padrão desktop - padronizado */
 }
 
 /* ========================================
@@ -1852,9 +1943,11 @@ body.theme-blue .login-container #entrarBtn:focus {
 #viewServiceGroupModal .service-group-summary .summary-card,
 #viewGroupModal .group-summary .summary-card {
     flex: 0 0 auto;
-    min-width: 200px; /* Mínimo ao invés de fixo */
+    min-width: 200px;
+    /* Mínimo ao invés de fixo */
     max-width: 220px;
-    width: auto; /* Flexível ao invés de fixo */
+    width: auto;
+    /* Flexível ao invés de fixo */
     margin: 0;
 }
 
@@ -2100,7 +2193,7 @@ body.theme-blue .login-container #entrarBtn:focus {
     text-align: center;
 }
 
-.days-container > div:first-child {
+.days-container>div:first-child {
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -2145,7 +2238,7 @@ body.theme-blue .login-container #entrarBtn:focus {
 }
 
 /* Botão de gerenciar estoque centralizado */
-#viewGroupModal .days-container > div:first-child {
+#viewGroupModal .days-container>div:first-child {
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -2182,7 +2275,8 @@ body.theme-blue .login-container #entrarBtn:focus {
 /* Padrões do Emergente - Day cards com border padronizado */
 .day-card {
     background: var(--white);
-    border: 1px solid var(--gray-200); /* Padronizado de 2px para 1px */
+    border: 1px solid var(--gray-200);
+    /* Padronizado de 2px para 1px */
     border-radius: var(--radius-md);
     padding: 1.25rem;
     text-align: center;
@@ -2244,7 +2338,8 @@ body.theme-blue .login-container #entrarBtn:focus {
     position: relative;
     z-index: 1002;
     pointer-events: auto;
-    transform: translateZ(0); /* Força aceleração de hardware */
+    transform: translateZ(0);
+    /* Força aceleração de hardware */
 }
 
 /* Garantir que o conteúdo do modal não sobreponha os botões */
@@ -2484,6 +2579,7 @@ body.theme-blue .login-container #entrarBtn:focus {
         opacity: 0;
         backdrop-filter: blur(0px);
     }
+
     to {
         opacity: 1;
         backdrop-filter: blur(8px);
@@ -2512,6 +2608,7 @@ body.theme-blue .login-container #entrarBtn:focus {
         opacity: 0;
         transform: translateY(-20px) scale(0.95);
     }
+
     to {
         opacity: 1;
         transform: translateY(0) scale(1);
@@ -2536,11 +2633,9 @@ body.theme-blue .login-container #entrarBtn:focus {
     align-items: center;
     padding: 1.5rem 2rem;
     border-bottom: 1px solid var(--gray-200);
-    background: linear-gradient(
-        135deg,
-        var(--primary-color) 0%,
-        var(--primary-color-dark) 100%
-    );
+    background: linear-gradient(135deg,
+            var(--primary-color) 0%,
+            var(--primary-color-dark) 100%);
     color: var(--white);
     border-radius: var(--radius-xl) var(--radius-xl) 0 0;
 }
@@ -2717,7 +2812,8 @@ body.theme-blue .login-container #entrarBtn:focus {
 .dashboard-stats {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 1.5rem; /* Padrão desktop - padronizado */
+    gap: 1.5rem;
+    /* Padrão desktop - padronizado */
 }
 
 .stat-card {
@@ -2795,6 +2891,7 @@ body.theme-blue .login-container #entrarBtn:focus {
     from {
         opacity: 0;
     }
+
     to {
         opacity: 1;
     }
@@ -2805,6 +2902,7 @@ body.theme-blue .login-container #entrarBtn:focus {
         opacity: 0;
         transform: translateX(100%);
     }
+
     to {
         opacity: 1;
         transform: translateX(0);
@@ -2816,6 +2914,7 @@ body.theme-blue .login-container #entrarBtn:focus {
         opacity: 0;
         transform: translateY(20px);
     }
+
     to {
         opacity: 1;
         transform: translateY(0);
@@ -2827,6 +2926,7 @@ body.theme-blue .login-container #entrarBtn:focus {
    ======================================== */
 
 @media (max-width: 768px) {
+
     /* Prevenir overflow horizontal em mobile */
     body,
     html {
@@ -2878,7 +2978,8 @@ body.theme-blue .login-container #entrarBtn:focus {
 
     /* Padrões do Emergente - Font scaling responsivo */
     .header h1 {
-        font-size: clamp(1.1rem, 3vw, 1.5rem); /* Responsivo com clamp */
+        font-size: clamp(1.1rem, 3vw, 1.5rem);
+        /* Responsivo com clamp */
         width: 100%;
     }
 
@@ -2890,11 +2991,14 @@ body.theme-blue .login-container #entrarBtn:focus {
 
     .header .btn-secondary {
         font-size: 0.8rem;
-        padding: 0.75rem !important; /* Padding adequado para toque */
+        padding: 0.75rem !important;
+        /* Padding adequado para toque */
         white-space: nowrap;
         flex: 1;
-        min-width: 44px !important; /* Tamanho mínimo para toque */
-        height: 44px !important; /* Altura fixa para toque */
+        min-width: 44px !important;
+        /* Tamanho mínimo para toque */
+        height: 44px !important;
+        /* Altura fixa para toque */
         text-align: center;
         justify-content: center;
     }
@@ -2905,7 +3009,8 @@ body.theme-blue .login-container #entrarBtn:focus {
 
     .header .btn-secondary i {
         margin: 0;
-        font-size: 1.2rem !important; /* Tamanho maior para melhor visibilidade */
+        font-size: 1.2rem !important;
+        /* Tamanho maior para melhor visibilidade */
     }
 
     .theme-toggle-btn {
@@ -2927,10 +3032,12 @@ body.theme-blue .login-container #entrarBtn:focus {
 
     .toolbar .btn-primary,
     .toolbar button.btn-primary {
-        min-width: 44px !important; /* Tamanho mínimo para toque */
+        min-width: 44px !important;
+        /* Tamanho mínimo para toque */
         max-width: none !important;
         width: auto !important;
-        height: 44px !important; /* Altura mínima para toque */
+        height: 44px !important;
+        /* Altura mínima para toque */
         font-size: 0.9rem;
         padding: 0.75rem !important;
         gap: 0 !important;
@@ -2959,11 +3066,14 @@ body.theme-blue .login-container #entrarBtn:focus {
     .panel-header .btn-primary,
     .panel-section .btn-primary,
     .panel-actions .btn-primary {
-        padding: 0.75rem !important; /* Padding adequado para toque */
-        min-width: 44px !important; /* Tamanho mínimo para toque */
+        padding: 0.75rem !important;
+        /* Padding adequado para toque */
+        min-width: 44px !important;
+        /* Tamanho mínimo para toque */
         max-width: none !important;
         width: auto !important;
-        height: 44px !important; /* Altura fixa para toque */
+        height: 44px !important;
+        /* Altura fixa para toque */
     }
 
     .panel-header .btn-primary .btn-text,
@@ -2996,25 +3106,30 @@ body.theme-blue .login-container #entrarBtn:focus {
     /* Padrões do Emergente - Items grid com gap padronizado em mobile */
     .items-grid {
         grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-        gap: 1rem; /* Padrão mobile - padronizado */
+        gap: 1rem;
+        /* Padrão mobile - padronizado */
     }
 
     .charts-grid {
         grid-template-columns: 1fr;
         gap: 1rem;
-        justify-items: center; /* Centralizar cards em mobile */
+        justify-items: center;
+        /* Centralizar cards em mobile */
     }
 
     .dashboard-container {
-        align-items: center; /* Centralizar conteúdo em mobile */
+        align-items: center;
+        /* Centralizar conteúdo em mobile */
     }
 
     .dashboard-filters {
-        justify-content: center; /* Centralizar filtros em mobile */
+        justify-content: center;
+        /* Centralizar filtros em mobile */
     }
 
     .dashboard-stats {
-        justify-items: center; /* Centralizar cards em mobile */
+        justify-items: center;
+        /* Centralizar cards em mobile */
     }
 
     .chart-card {
@@ -3048,21 +3163,26 @@ body.theme-blue .login-container #entrarBtn:focus {
     /* Padrões do Emergente - Dashboard stats com gap padronizado em mobile */
     .dashboard-stats {
         grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-        gap: 1rem; /* Padrão mobile - padronizado */
+        gap: 1rem;
+        /* Padrão mobile - padronizado */
     }
 
     .stat-card {
         padding: 1rem;
         min-width: 0;
-        overflow: hidden; /* Prevenir overflow */
-        word-wrap: break-word; /* Quebrar palavras longas */
-        word-break: break-word; /* Quebrar palavras se necessário */
+        overflow: hidden;
+        /* Prevenir overflow */
+        word-wrap: break-word;
+        /* Quebrar palavras longas */
+        word-break: break-word;
+        /* Quebrar palavras se necessário */
     }
 
     .stat-card p {
         font-size: clamp(0.9rem, 3.5vw, 1.5rem);
         padding: 0 0.25rem;
-        overflow-wrap: break-word; /* Quebrar palavras longas */
+        overflow-wrap: break-word;
+        /* Quebrar palavras longas */
         word-wrap: break-word;
     }
 
@@ -3116,7 +3236,8 @@ body.theme-blue .login-container #entrarBtn:focus {
     .costs-summary-card h3,
     .goals-summary-card h3,
     .services-summary-card h3 {
-        font-size: clamp(0.9rem, 2.5vw, 1.2rem); /* Responsivo com clamp */
+        font-size: clamp(0.9rem, 2.5vw, 1.2rem);
+        /* Responsivo com clamp */
         margin-bottom: 0.75rem;
     }
 
@@ -3126,7 +3247,8 @@ body.theme-blue .login-container #entrarBtn:focus {
 
     /* Padrões do Emergente - Font scaling responsivo em stat items */
     .stat-item p {
-        font-size: clamp(1rem, 4vw, 1.5rem); /* Responsivo com clamp */
+        font-size: clamp(1rem, 4vw, 1.5rem);
+        /* Responsivo com clamp */
     }
 
     .stat-item h4 {
@@ -3157,7 +3279,8 @@ body.theme-blue .login-container #entrarBtn:focus {
 
     /* Padrões do Emergente - Font scaling responsivo em modais */
     .modal-header h2 {
-        font-size: clamp(1.1rem, 3vw, 1.5rem); /* Responsivo com clamp */
+        font-size: clamp(1.1rem, 3vw, 1.5rem);
+        /* Responsivo com clamp */
     }
 
     .form-group {
@@ -3215,14 +3338,18 @@ body.theme-blue .login-container #entrarBtn:focus {
 
     /* Padrões do Emergente - Font scaling responsivo em mobile pequeno */
     .header h1 {
-        font-size: clamp(1.1rem, 4vw, 1.3rem); /* Responsivo com clamp */
+        font-size: clamp(1.1rem, 4vw, 1.3rem);
+        /* Responsivo com clamp */
     }
 
     .header .btn-secondary {
         font-size: 0.75rem;
-        padding: 0.7rem !important; /* Padding adequado para toque */
-        min-width: 44px !important; /* Tamanho mínimo para toque */
-        height: 44px !important; /* Altura fixa para toque */
+        padding: 0.7rem !important;
+        /* Padding adequado para toque */
+        min-width: 44px !important;
+        /* Tamanho mínimo para toque */
+        height: 44px !important;
+        /* Altura fixa para toque */
     }
 
     .header .btn-secondary .btn-text {
@@ -3231,7 +3358,8 @@ body.theme-blue .login-container #entrarBtn:focus {
 
     .header .btn-secondary i {
         margin: 0;
-        font-size: 1.2rem !important; /* Tamanho maior para melhor visibilidade */
+        font-size: 1.2rem !important;
+        /* Tamanho maior para melhor visibilidade */
     }
 
     .main-content {
@@ -3264,7 +3392,8 @@ body.theme-blue .login-container #entrarBtn:focus {
     .costs-list,
     .goals-list {
         grid-template-columns: 1fr;
-        gap: 1rem; /* Padrão mobile - padronizado */
+        gap: 1rem;
+        /* Padrão mobile - padronizado */
     }
 
     /* Padrões do Emergente - Cards com padding padronizado em mobile */
@@ -3272,7 +3401,8 @@ body.theme-blue .login-container #entrarBtn:focus {
     .group-card,
     .cost-card,
     .goal-card {
-        padding: 1rem; /* Padrão mobile - consistente */
+        padding: 1rem;
+        /* Padrão mobile - consistente */
     }
 
     .goal-card {
@@ -3306,7 +3436,7 @@ body.theme-blue .login-container #entrarBtn:focus {
         margin-bottom: 0.6rem;
     }
 
-    .group-info > div,
+    .group-info>div,
     .cost-info,
     .goal-info {
         margin-bottom: 0.35rem;
@@ -3493,11 +3623,9 @@ body.theme-blue .login-container #entrarBtn:focus {
     position: absolute;
     top: 0.75rem;
     right: 0.75rem;
-    background: linear-gradient(
-        135deg,
-        var(--primary-color) 0%,
-        var(--primary-color-dark) 100%
-    );
+    background: linear-gradient(135deg,
+            var(--primary-color) 0%,
+            var(--primary-color-dark) 100%);
     color: var(--white);
     padding: 0.4rem 0.875rem;
     border-radius: 20px;
@@ -3543,11 +3671,9 @@ body.theme-blue .login-container #entrarBtn:focus {
 }
 
 .btn-edit {
-    background: linear-gradient(
-        135deg,
-        var(--primary-color) 0%,
-        var(--primary-color-dark) 100%
-    );
+    background: linear-gradient(135deg,
+            var(--primary-color) 0%,
+            var(--primary-color-dark) 100%);
     color: var(--white);
 }
 
@@ -3641,6 +3767,7 @@ body.theme-blue .login-container #entrarBtn:focus {
         opacity: 0;
         transform: translateY(-10px);
     }
+
     to {
         opacity: 1;
         transform: translateY(0);
@@ -3658,12 +3785,10 @@ body.theme-blue .login-container #entrarBtn:focus {
     align-items: center;
     background-color: #000000;
     background-image: url('/images/background-financial.svg'),
-        linear-gradient(
-            to bottom,
+        linear-gradient(to bottom,
             rgba(0, 0, 0, 0.1) 0%,
             rgba(0, 0, 0, 0.2) 50%,
-            rgba(0, 0, 0, 0.3) 100%
-        );
+            rgba(0, 0, 0, 0.3) 100%);
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
@@ -3696,12 +3821,10 @@ body.theme-blue .login-container #entrarBtn:focus {
     left: 0;
     right: 0;
     height: 4px;
-    background: linear-gradient(
-        90deg,
-        transparent 0%,
-        #000000 50%,
-        transparent 100%
-    );
+    background: linear-gradient(90deg,
+            transparent 0%,
+            #000000 50%,
+            transparent 100%);
     opacity: 0.8;
 }
 
@@ -3729,12 +3852,10 @@ body.theme-blue .login-container #entrarBtn:focus {
     display: block;
     width: 60px;
     height: 3px;
-    background: linear-gradient(
-        90deg,
-        transparent 0%,
-        #000000 50%,
-        transparent 100%
-    );
+    background: linear-gradient(90deg,
+            transparent 0%,
+            #000000 50%,
+            transparent 100%);
     margin: 1rem auto 0;
     border-radius: 2px;
 }
@@ -3759,7 +3880,8 @@ body.theme-blue .login-container #entrarBtn:focus {
     width: 100%;
     max-width: 100vw;
     overflow-x: hidden;
-    overflow-y: visible !important; /* Permitir scroll vertical no desktop */
+    overflow-y: visible !important;
+    /* Permitir scroll vertical no desktop */
     position: relative;
     opacity: 0;
     transform: translateY(20px);
@@ -3832,7 +3954,7 @@ body.theme-blue .login-container #entrarBtn:focus {
     align-items: stretch;
 }
 
-.panel-section > * {
+.panel-section>* {
     width: 100%;
 }
 
@@ -3897,9 +4019,11 @@ body.theme-blue .login-container #entrarBtn:focus {
 
 /* Padrões do Emergente para filter-select */
 .filter-select {
-    padding: 0.875rem 1.125rem; /* Padrão Emergente */
+    padding: 0.875rem 1.125rem;
+    /* Padrão Emergente */
     border-radius: var(--radius-md);
-    border: 2px solid var(--gray-200); /* Consistente com outros inputs */
+    border: 2px solid var(--gray-200);
+    /* Consistente com outros inputs */
     background: var(--white);
     color: var(--dark-gray);
     font-size: 0.9rem;
@@ -3916,7 +4040,8 @@ body.theme-blue .login-container #entrarBtn:focus {
 .filter-select:focus {
     outline: none;
     border-color: var(--primary-color);
-    box-shadow: 0 0 0 4px rgba(220, 53, 69, 0.12); /* Padrão Emergente */
+    box-shadow: 0 0 0 4px rgba(220, 53, 69, 0.12);
+    /* Padrão Emergente */
     transform: translateY(-1px);
 }
 
@@ -3932,7 +4057,8 @@ body.theme-blue .login-container #entrarBtn:focus {
 .goals-list {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
-    gap: 1.5rem; /* Padrão desktop - padronizado */
+    gap: 1.5rem;
+    /* Padrão desktop - padronizado */
 }
 
 /* ========================================
@@ -4037,9 +4163,11 @@ body.theme-blue .login-container #entrarBtn:focus {
     .receipt-content {
         padding: 1rem;
     }
+
     .receipt-header h2 {
         font-size: 1.25rem;
     }
+
     .receipt-total-value {
         font-size: 1.5rem;
     }
@@ -4053,27 +4181,32 @@ body.theme-blue .login-container #entrarBtn:focus {
     display: flex;
     flex-direction: column;
     gap: 1rem;
-    align-items: center; /* Centralizar cards */
+    align-items: center;
+    /* Centralizar cards */
     max-width: 100%;
 }
 
 /* Cards de agendamentos - tamanho fixo e centralizado */
 .service-appointment-card {
     width: 100%;
-    max-width: 600px; /* Tamanho fixo máximo */
-    margin: 0 auto; /* Centralizar */
+    max-width: 600px;
+    /* Tamanho fixo máximo */
+    margin: 0 auto;
+    /* Centralizar */
 }
 
 /* Em resoluções maiores, manter tamanho fixo */
 @media (min-width: 1024px) {
     .service-appointment-card {
-        max-width: 500px; /* Tamanho menor em telas grandes */
+        max-width: 500px;
+        /* Tamanho menor em telas grandes */
     }
 }
 
 @media (min-width: 1440px) {
     .service-appointment-card {
-        max-width: 450px; /* Ainda menor em telas muito grandes */
+        max-width: 450px;
+        /* Ainda menor em telas muito grandes */
     }
 }
 
@@ -4152,11 +4285,9 @@ body.theme-blue .login-container #entrarBtn:focus {
     left: -50%;
     width: 200%;
     height: 200%;
-    background: radial-gradient(
-        circle,
-        rgba(255, 255, 255, 0.3) 0%,
-        transparent 70%
-    );
+    background: radial-gradient(circle,
+            rgba(255, 255, 255, 0.3) 0%,
+            transparent 70%);
     opacity: 0;
     transition: opacity 0.3s;
 }
@@ -4244,11 +4375,9 @@ body.theme-blue .login-container #entrarBtn:focus {
 }
 
 .mini-calendar-day.today {
-    background: linear-gradient(
-        135deg,
-        var(--primary-color) 0%,
-        var(--primary-color-dark) 100%
-    );
+    background: linear-gradient(135deg,
+            var(--primary-color) 0%,
+            var(--primary-color-dark) 100%);
     color: white;
     font-weight: 700;
     border-color: var(--primary-color-dark);
@@ -4286,6 +4415,7 @@ body.theme-blue .login-container #entrarBtn:focus {
         opacity: 0;
         transform: scale(0.8) translateY(20px);
     }
+
     to {
         opacity: 1;
         transform: scale(1) translateY(0);
@@ -4293,11 +4423,13 @@ body.theme-blue .login-container #entrarBtn:focus {
 }
 
 @keyframes dotPulse {
+
     0%,
     100% {
         transform: scale(1);
         opacity: 1;
     }
+
     50% {
         transform: scale(1.3);
         opacity: 0.7;
@@ -4314,11 +4446,9 @@ body.theme-blue .login-container #entrarBtn:focus {
 }
 
 .calendar-header {
-    background: linear-gradient(
-        135deg,
-        var(--primary-color) 0%,
-        var(--primary-color-dark) 100%
-    );
+    background: linear-gradient(135deg,
+            var(--primary-color) 0%,
+            var(--primary-color-dark) 100%);
     color: white;
     border-radius: var(--radius-lg) var(--radius-lg) 0 0;
     margin: -1.5rem -1.5rem 1.5rem -1.5rem;
@@ -4429,11 +4559,9 @@ body.theme-blue .login-container #entrarBtn:focus {
 }
 
 .calendar-day.today {
-    background: linear-gradient(
-        135deg,
-        var(--primary-color) 0%,
-        var(--primary-color-dark) 100%
-    );
+    background: linear-gradient(135deg,
+            var(--primary-color) 0%,
+            var(--primary-color-dark) 100%);
     border-color: var(--primary-color-dark);
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
 }
@@ -4556,10 +4684,12 @@ body.theme-blue .login-container #entrarBtn:focus {
 }
 
 @keyframes appointmentDayGlow {
+
     0%,
     100% {
         box-shadow: 0 0 0 0 rgba(255, 193, 7, 0.4);
     }
+
     50% {
         box-shadow: 0 0 0 4px rgba(255, 193, 7, 0);
     }
@@ -4569,19 +4699,23 @@ body.theme-blue .login-container #entrarBtn:focus {
     0% {
         transform: scale(0);
     }
+
     50% {
         transform: scale(1.2);
     }
+
     100% {
         transform: scale(1);
     }
 }
 
 @media (max-width: 768px) {
+
     .pending-order-card,
     .service-appointment-card {
         padding: 1rem;
     }
+
     .pending-order-card h3,
     .service-appointment-card h3 {
         font-size: 1rem;
@@ -4696,6 +4830,7 @@ body.theme-blue .login-container #entrarBtn:focus {
         transform: translateX(100%);
         opacity: 0;
     }
+
     to {
         transform: translateX(0);
         opacity: 1;
@@ -4707,6 +4842,7 @@ body.theme-blue .login-container #entrarBtn:focus {
         transform: translateX(0);
         opacity: 1;
     }
+
     to {
         transform: translateX(100%);
         opacity: 0;
@@ -4718,6 +4854,7 @@ body.theme-blue .login-container #entrarBtn:focus {
    ======================================== */
 
 @media (max-width: 1024px) {
+
     .groups-layout,
     .costs-layout,
     .goals-layout,
@@ -4763,6 +4900,7 @@ body.theme-blue .login-container #entrarBtn:focus {
 }
 
 @media (max-width: 768px) {
+
     .groups-layout,
     .costs-layout,
     .goals-layout,
@@ -4821,6 +4959,7 @@ body.theme-blue .login-container #entrarBtn:focus {
         transform: translateY(20px);
         opacity: 0;
     }
+
     to {
         transform: translateY(0);
         opacity: 1;
@@ -4832,6 +4971,7 @@ body.theme-blue .login-container #entrarBtn:focus {
         transform: translateX(-20px);
         opacity: 0;
     }
+
     to {
         transform: translateX(0);
         opacity: 1;
@@ -4843,6 +4983,7 @@ body.theme-blue .login-container #entrarBtn:focus {
         transform: translateX(20px);
         opacity: 0;
     }
+
     to {
         transform: translateX(0);
         opacity: 1;
@@ -4866,9 +5007,12 @@ body.theme-blue .login-container #entrarBtn:focus {
     overflow-y: hidden;
     padding: 0.5rem;
     scroll-behavior: smooth;
-    -webkit-overflow-scrolling: touch; /* Suporte a scroll suave no iOS */
-    scrollbar-width: none; /* Firefox */
-    -ms-overflow-style: none; /* IE e Edge */
+    -webkit-overflow-scrolling: touch;
+    /* Suporte a scroll suave no iOS */
+    scrollbar-width: none;
+    /* Firefox */
+    -ms-overflow-style: none;
+    /* IE e Edge */
     cursor: grab;
 }
 
@@ -4897,9 +5041,12 @@ body.theme-blue .login-container #entrarBtn:focus {
     overflow-y: hidden;
     padding: 0.5rem;
     scroll-behavior: smooth;
-    -webkit-overflow-scrolling: touch; /* Suporte a scroll suave no iOS */
-    scrollbar-width: none; /* Firefox */
-    -ms-overflow-style: none; /* IE e Edge */
+    -webkit-overflow-scrolling: touch;
+    /* Suporte a scroll suave no iOS */
+    scrollbar-width: none;
+    /* Firefox */
+    -ms-overflow-style: none;
+    /* IE e Edge */
 }
 
 .last-receipts-carousel::-webkit-scrollbar {
@@ -5142,7 +5289,8 @@ a:focus-visible {
 /* Contraste adequado - Garantir WCAG AA */
 /* Textos devem ter contraste mínimo de 4.5:1 para texto normal e 3:1 para texto grande */
 .text-low-contrast {
-    color: var(--gray-600); /* Contraste adequado */
+    color: var(--gray-600);
+    /* Contraste adequado */
 }
 
 /* ========================================
@@ -5333,12 +5481,10 @@ body.spacing-comfortable * {
 
 .skeleton-line {
     height: 1rem;
-    background: linear-gradient(
-        90deg,
-        var(--gray-200) 0%,
-        var(--gray-100) 50%,
-        var(--gray-200) 100%
-    );
+    background: linear-gradient(90deg,
+            var(--gray-200) 0%,
+            var(--gray-100) 50%,
+            var(--gray-200) 100%);
     background-size: 200% 100%;
     border-radius: var(--radius-md);
     margin-bottom: 0.75rem;
@@ -5368,6 +5514,7 @@ body.spacing-comfortable * {
     0% {
         background-position: 200% 0;
     }
+
     100% {
         background-position: -200% 0;
     }
@@ -5744,8 +5891,8 @@ body.spacing-comfortable * {
     opacity: 0;
 }
 
-.form-group input:not(:placeholder-shown) + .field-status,
-.form-group textarea:not(:placeholder-shown) + .field-status {
+.form-group input:not(:placeholder-shown)+.field-status,
+.form-group textarea:not(:placeholder-shown)+.field-status {
     opacity: 1;
 }
 
@@ -5810,7 +5957,8 @@ body.spacing-comfortable * {
 .field-wrapper input,
 .field-wrapper select,
 .field-wrapper textarea {
-    padding-right: 2.5rem; /* Espaço para ícone de status */
+    padding-right: 2.5rem;
+    /* Espaço para ícone de status */
 }
 
 .field-wrapper .field-status {
@@ -5840,11 +5988,9 @@ body.spacing-comfortable * {
 
 .progress-bar-fill {
     height: 100%;
-    background: linear-gradient(
-        90deg,
-        var(--primary-color) 0%,
-        var(--primary-color-light) 100%
-    );
+    background: linear-gradient(90deg,
+            var(--primary-color) 0%,
+            var(--primary-color-light) 100%);
     border-radius: var(--radius-md);
     transition: width var(--transition-base);
     position: relative;
@@ -5858,12 +6004,10 @@ body.spacing-comfortable * {
     left: 0;
     bottom: 0;
     right: 0;
-    background: linear-gradient(
-        90deg,
-        transparent 0%,
-        rgba(255, 255, 255, 0.3) 50%,
-        transparent 100%
-    );
+    background: linear-gradient(90deg,
+            transparent 0%,
+            rgba(255, 255, 255, 0.3) 50%,
+            transparent 100%);
     animation: progress-shimmer 1.5s infinite;
 }
 
@@ -5871,6 +6015,7 @@ body.spacing-comfortable * {
     0% {
         transform: translateX(-100%);
     }
+
     100% {
         transform: translateX(100%);
     }
@@ -5935,12 +6080,10 @@ body.spacing-comfortable * {
 
 /* Shimmer Effect (padrão emergente.sh) */
 .shimmer {
-    background: linear-gradient(
-        90deg,
-        var(--gray-200) 0%,
-        var(--gray-100) 50%,
-        var(--gray-200) 100%
-    );
+    background: linear-gradient(90deg,
+            var(--gray-200) 0%,
+            var(--gray-100) 50%,
+            var(--gray-200) 100%);
     background-size: 200% 100%;
     animation: shimmer 1.5s ease-in-out infinite;
     border-radius: var(--radius-md);
@@ -5950,6 +6093,7 @@ body.spacing-comfortable * {
     0% {
         background-position: 200% 0;
     }
+
     100% {
         background-position: -200% 0;
     }
@@ -5959,12 +6103,10 @@ body.spacing-comfortable * {
     display: inline-block;
     height: 1rem;
     width: 100%;
-    background: linear-gradient(
-        90deg,
-        var(--gray-200) 0%,
-        var(--gray-100) 50%,
-        var(--gray-200) 100%
-    );
+    background: linear-gradient(90deg,
+            var(--gray-200) 0%,
+            var(--gray-100) 50%,
+            var(--gray-200) 100%);
     background-size: 200% 100%;
     animation: shimmer 1.5s ease-in-out infinite;
     border-radius: var(--radius-sm);
@@ -6044,8 +6186,8 @@ body.spacing-comfortable * {
 }
 
 /* Garantir que texto dos botões em empty-state sempre seja visível, mesmo no mobile */
-.empty-state .btn-primary > *:not(i),
-.empty-state button.btn-primary > *:not(i) {
+.empty-state .btn-primary>*:not(i),
+.empty-state button.btn-primary>*:not(i) {
     display: inline !important;
     visibility: visible !important;
     opacity: 1 !important;
@@ -6291,11 +6433,9 @@ body.dark-mode .toast-warning {
 }
 
 body.dark-mode .toast-info {
-    background: linear-gradient(
-        135deg,
-        var(--gray-100) 0%,
-        var(--gray-50) 100%
-    );
+    background: linear-gradient(135deg,
+            var(--gray-100) 0%,
+            var(--gray-50) 100%);
 }
 
 body.dark-mode .confirm-modal-content {
@@ -6327,12 +6467,10 @@ body.dark-mode .skeleton-card {
 }
 
 body.dark-mode .skeleton-line {
-    background: linear-gradient(
-        90deg,
-        var(--gray-200) 0%,
-        var(--gray-100) 50%,
-        var(--gray-200) 100%
-    );
+    background: linear-gradient(90deg,
+            var(--gray-200) 0%,
+            var(--gray-100) 50%,
+            var(--gray-200) 100%);
 }
 
 /* Toggle de Dark Mode no header */
@@ -6404,6 +6542,7 @@ body.dark-mode .skeleton-line {
 
 /* Breakpoint principal: tablets e mobile (até 768px) */
 @media (max-width: 768px) {
+
     /* Garantir que todos os botões mostrem apenas ícones - ESPECIFICIDADE MÁXIMA */
     /* Esconder spans e elementos com classe btn-text */
     .btn-primary .btn-text,
@@ -6435,16 +6574,19 @@ body.dark-mode .skeleton-line {
     .btn-primary:not(.dark-mode-toggle):not(.theme-toggle-btn),
     button.btn-primary:not(.dark-mode-toggle):not(.theme-toggle-btn) {
         position: relative !important;
-        min-width: 44px !important; /* Tamanho mínimo para touch (padrão mobile) */
-        min-height: 44px !important; /* Tamanho mínimo para touch */
-        height: 44px !important; /* Altura fixa para toque */
-        padding: 0.75rem !important; /* Padding adequado para toque */
+        min-width: 44px !important;
+        /* Tamanho mínimo para touch (padrão mobile) */
+        min-height: 44px !important;
+        /* Tamanho mínimo para touch */
+        height: 44px !important;
+        /* Altura fixa para toque */
+        padding: 0.75rem !important;
+        /* Padding adequado para toque */
     }
 
     /* Esconder texto usando text-indent e overflow */
-    .btn-primary:not(.dark-mode-toggle):not(.theme-toggle-btn) > *:not(i),
-    button.btn-primary:not(.dark-mode-toggle):not(.theme-toggle-btn)
-        > *:not(i) {
+    .btn-primary:not(.dark-mode-toggle):not(.theme-toggle-btn)>*:not(i),
+    button.btn-primary:not(.dark-mode-toggle):not(.theme-toggle-btn)>*:not(i) {
         text-indent: -9999px !important;
         overflow: hidden !important;
         width: 0 !important;
@@ -6455,8 +6597,8 @@ body.dark-mode .skeleton-line {
     /* Mostrar apenas ícones - garantir tamanho adequado */
     .btn-primary i,
     button.btn-primary i,
-    .btn-primary > i,
-    button.btn-primary > i,
+    .btn-primary>i,
+    button.btn-primary>i,
     .btn-primary i.fas,
     button.btn-primary i.fas,
     .btn-primary i.far,
@@ -6481,9 +6623,12 @@ body.dark-mode .skeleton-line {
     button.btn-secondary:not(.dark-mode-toggle):not(.theme-toggle-btn),
     .btn-small:not(.dark-mode-toggle):not(.theme-toggle-btn),
     button.btn-small:not(.dark-mode-toggle):not(.theme-toggle-btn) {
-        padding: 0.75rem !important; /* Aumentar padding para melhor toque */
-        min-width: 44px !important; /* Tamanho mínimo para touch (padrão mobile) */
-        min-height: 44px !important; /* Tamanho mínimo para touch */
+        padding: 0.75rem !important;
+        /* Aumentar padding para melhor toque */
+        min-width: 44px !important;
+        /* Tamanho mínimo para touch (padrão mobile) */
+        min-height: 44px !important;
+        /* Tamanho mínimo para touch */
         max-width: none !important;
         width: auto !important;
         height: auto !important;
@@ -6497,8 +6642,8 @@ body.dark-mode .skeleton-line {
     /* Ajustar ícones nos botões - GARANTIR QUE APARECEM E TENHAM TAMANHO ADEQUADO */
     .btn-primary i,
     button.btn-primary i,
-    .btn-primary > i,
-    button.btn-primary > i,
+    .btn-primary>i,
+    button.btn-primary>i,
     .btn-secondary i,
     button.btn-secondary i,
     .btn-small i,
@@ -6507,7 +6652,8 @@ body.dark-mode .skeleton-line {
     button:not(.dark-mode-toggle):not(.theme-toggle-btn) i,
     .btn:not(.dark-mode-toggle):not(.theme-toggle-btn) i {
         margin: 0 !important;
-        font-size: 1.2rem !important; /* Tamanho maior para melhor visibilidade */
+        font-size: 1.2rem !important;
+        /* Tamanho maior para melhor visibilidade */
         display: inline-block !important;
         visibility: visible !important;
         opacity: 1 !important;
@@ -6529,8 +6675,8 @@ body.dark-mode .skeleton-line {
         gap: 0.5rem !important;
     }
 
-    .empty-state .btn-primary > *:not(i),
-    .empty-state button.btn-primary > *:not(i) {
+    .empty-state .btn-primary>*:not(i),
+    .empty-state button.btn-primary>*:not(i) {
         display: inline !important;
         visibility: visible !important;
         opacity: 1 !important;
@@ -6590,7 +6736,8 @@ body.dark-mode .skeleton-line {
         width: 100% !important;
         max-width: 100% !important;
         box-sizing: border-box !important;
-        font-size: 16px !important; /* Prevenir zoom no iOS */
+        font-size: 16px !important;
+        /* Prevenir zoom no iOS */
         padding: 0.75rem !important;
         border-radius: var(--radius-md) !important;
     }
@@ -6641,11 +6788,14 @@ body.dark-mode .skeleton-line {
     .panel-header .btn-primary,
     .panel-section .btn-primary,
     .panel-actions .btn-primary {
-        padding: 0.75rem !important; /* Padding adequado para toque */
-        min-width: 44px !important; /* Tamanho mínimo para toque */
+        padding: 0.75rem !important;
+        /* Padding adequado para toque */
+        min-width: 44px !important;
+        /* Tamanho mínimo para toque */
         max-width: none !important;
         width: auto !important;
-        height: 44px !important; /* Altura fixa para toque */
+        height: 44px !important;
+        /* Altura fixa para toque */
     }
 
     .panel-header .btn-primary .btn-text,
@@ -6658,27 +6808,34 @@ body.dark-mode .skeleton-line {
     .panel-section .btn-primary i,
     .panel-actions .btn-primary i {
         margin: 0 !important;
-        font-size: 1.2rem !important; /* Tamanho maior para melhor visibilidade */
+        font-size: 1.2rem !important;
+        /* Tamanho maior para melhor visibilidade */
     }
 }
 
 /* Breakpoint para telas muito pequenas (até 480px) */
 @media (max-width: 480px) {
+
     /* Ajustes adicionais para telas muito pequenas - MANTER TAMANHO MÍNIMO PARA TOQUE */
     .btn-primary:not(.dark-mode-toggle):not(.theme-toggle-btn),
     .btn-secondary:not(.dark-mode-toggle):not(.theme-toggle-btn),
     .btn-small:not(.dark-mode-toggle):not(.theme-toggle-btn) {
-        padding: 0.7rem !important; /* Padding adequado mesmo em telas pequenas */
-        min-width: 44px !important; /* Manter tamanho mínimo para toque (padrão mobile) */
-        min-height: 44px !important; /* Altura mínima para toque */
-        height: 44px !important; /* Altura fixa para consistência */
+        padding: 0.7rem !important;
+        /* Padding adequado mesmo em telas pequenas */
+        min-width: 44px !important;
+        /* Manter tamanho mínimo para toque (padrão mobile) */
+        min-height: 44px !important;
+        /* Altura mínima para toque */
+        height: 44px !important;
+        /* Altura fixa para consistência */
     }
 
     .btn-primary i,
     .btn-secondary i,
     .btn-small i,
     .tab-btn i {
-        font-size: 1.15rem !important; /* Tamanho adequado mesmo em telas pequenas */
+        font-size: 1.15rem !important;
+        /* Tamanho adequado mesmo em telas pequenas */
     }
 
     /* Reduzir padding em cards */

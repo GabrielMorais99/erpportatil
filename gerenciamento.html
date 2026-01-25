@@ -10,8 +10,13 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
     <meta name="apple-mobile-web-app-title" content="Loja Vendas" />
     <!-- CSP: permite 'unsafe-eval' para Chart.js, jsPDF e libs que usam eval/Function -->
-    <meta http-equiv="Content-Security-Policy"
+    <!-- meta http-equiv="Content-Security-Policy"
         content="default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://unpkg.com https://fonts.googleapis.com https://fonts.gstatic.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com; font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com; img-src 'self' data: blob:; connect-src 'self' https://cdn.jsdelivr.net">
+    -->
+
+
+
+
     <title>Gestão Financeira</title>
     <!-- Google Fonts - Inter (fonte principal padronizada) -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -26,6 +31,13 @@
     <!-- Correções Mobile + Componentes Modernos -->
     <link rel="stylesheet" href="/css/style-mobile-fix.css?v=20251250" />
     <!-- Kill switch temporário de Service Worker para bust de cache (ativo só com debug=1|clearCache=1|killsw=1) -->
+
+    <script>
+        // 🔥 Desativar tutorial no gerenciamento (chave correta)
+        localStorage.setItem('hasSeenTutorial', 'true');
+    </script>
+
+
     <script>
         (function () {
             const params = new URLSearchParams(window.location.search);
@@ -4819,6 +4831,34 @@
             <div id="qrContainer"></div>
         </div>
     </div>
+
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            document.body.classList.add('loaded');
+            document.documentElement.classList.add('loaded');
+        });
+    </script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const tutorial = document.getElementById('tutorialModal');
+            if (tutorial) {
+                tutorial.classList.remove('active');
+                tutorial.style.display = 'none';
+            }
+        });
+    </script>
+    <script>
+        window.addEventListener('load', () => {
+            const loaders = document.querySelectorAll(
+                '#loadingOverlay, .loading-overlay, .loading-overlay-content, .loading-overlay-spinner, .loading-overlay-message'
+            );
+            loaders.forEach(el => el.remove());
+        });
+    </script>
+
+
 </body>
 
 
