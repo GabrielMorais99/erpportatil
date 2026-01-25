@@ -4883,6 +4883,20 @@
             appContainer.classList.remove('animate-in');
         });
     </script>
+    <script>
+        window.addEventListener('load', () => {
+            const appContainer = document.querySelector('.app-container');
+            if (!appContainer) return;
+
+            appContainer.style.opacity = '1';
+            appContainer.style.transform = 'none';
+            appContainer.style.pointerEvents = 'auto';
+            appContainer.classList.remove('animate-in');
+
+            console.log('✅ [BOOT] App liberado visualmente');
+        });
+    </script>
+
 
 </body>
 
