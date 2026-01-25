@@ -41,6 +41,14 @@ console.log('🟣 [APP.JS] Script carregado e executando...');
 // ========================================
 // SISTEMA DE NOTIFICAÇÕES TOAST
 // ========================================
+
+
+if (window.__APP_INITIALIZED__) {
+    console.warn('[APP] Inicialização duplicada evitada');
+} else {
+    window.__APP_INITIALIZED__ = true;
+}
+
 class ToastSystem {
     constructor() {
         this.container = this.createContainer();
@@ -271,9 +279,8 @@ class ConfirmSystem {
                     danger: 'exclamation-circle',
                     info: 'info-circle',
                 };
-                iconEl.innerHTML = `<i class="fas fa-${
-                    defaultIcons[type] || 'exclamation-triangle'
-                }"></i>`;
+                iconEl.innerHTML = `<i class="fas fa-${defaultIcons[type] || 'exclamation-triangle'
+                    }"></i>`;
             }
 
             // Configurar conteúdo
@@ -1126,13 +1133,12 @@ class LojaApp {
                             <i class="fas ${icon}" style="color: ${color}; font-size: 1.1rem;"></i>
                             <div style="flex: 1;">
                                 <h3 style="margin: 0; font-size: 0.95rem; font-weight: 600;">${actionName} ${entityName}</h3>
-                                ${
-                                    log.entityName
-                                        ? `<p style="margin: 0.25rem 0 0 0; font-size: 0.85rem; color: var(--gray-600);"><i class="fas fa-tag"></i> ${this.escapeHtml(
-                                              log.entityName
-                                          )}</p>`
-                                        : ''
-                                }
+                                ${log.entityName
+                        ? `<p style="margin: 0.25rem 0 0 0; font-size: 0.85rem; color: var(--gray-600);"><i class="fas fa-tag"></i> ${this.escapeHtml(
+                            log.entityName
+                        )}</p>`
+                        : ''
+                    }
                             </div>
                         </div>
                         <div style="display: flex; flex-direction: column; align-items: flex-end; gap: 0.25rem;">
@@ -1146,42 +1152,40 @@ class LojaApp {
                     </div>
                     <div class="item-details" style="padding-top: 0.75rem; border-top: 1px solid var(--border-color); margin-top: 0.75rem;">
                         <p style="margin: 0.5rem 0;"><i class="fas fa-user" style="color: var(--primary-color);"></i> <strong>Usuário:</strong> ${this.escapeHtml(
-                            log.username
-                        )}</p>
-                        ${
-                            log.details && Object.keys(log.details).length > 0
-                                ? `
+                        log.username
+                    )}</p>
+                        ${log.details && Object.keys(log.details).length > 0
+                        ? `
                             <details style="margin-top: 0.5rem;">
                                 <summary style="cursor: pointer; color: var(--primary-color); font-size: 0.85rem; font-weight: 500;">
                                     <i class="fas fa-info-circle"></i> Ver Detalhes
                                 </summary>
                                 <div style="margin-top: 0.5rem; padding: 0.75rem; background: var(--light-gray); border-radius: var(--radius-sm); font-size: 0.85rem;">
                                     ${Object.entries(log.details)
-                                        .map(
-                                            ([key, value]) =>
-                                                `<p style="margin: 0.25rem 0;"><strong>${this.escapeHtml(
-                                                    key
-                                                )}:</strong> ${this.escapeHtml(
-                                                    String(value)
-                                                )}</p>`
-                                        )
-                                        .join('')}
+                            .map(
+                                ([key, value]) =>
+                                    `<p style="margin: 0.25rem 0;"><strong>${this.escapeHtml(
+                                        key
+                                    )}:</strong> ${this.escapeHtml(
+                                        String(value)
+                                    )}</p>`
+                            )
+                            .join('')}
                                 </div>
                             </details>
                         `
-                                : ''
-                        }
-                        ${
-                            canRevert
-                                ? `
+                        : ''
+                    }
+                        ${canRevert
+                        ? `
                             <div style="margin-top: 0.75rem; padding-top: 0.75rem; border-top: 1px solid var(--border-color);">
                                 <button class="btn-small btn-secondary" onclick="app.revertAuditLogAction('${log.id}')" style="font-size: 0.8rem;">
                                     <i class="fas fa-undo"></i> Reverter Ação
                                 </button>
                             </div>
                         `
-                                : ''
-                        }
+                        : ''
+                    }
                     </div>
                 </div>
             `;
@@ -1258,8 +1262,7 @@ class LojaApp {
 
                             if (typeof toast !== 'undefined' && toast) {
                                 toast.success(
-                                    `Ação revertida com sucesso! ${
-                                        log.entityName || log.entityType
+                                    `Ação revertida com sucesso! ${log.entityName || log.entityType
                                     } restaurado.`,
                                     3000
                                 );
@@ -1304,8 +1307,7 @@ class LojaApp {
 
                         if (typeof toast !== 'undefined' && toast) {
                             toast.success(
-                                `Criação revertida. ${
-                                    log.entityName || log.entityType
+                                `Criação revertida. ${log.entityName || log.entityType
                                 } removido.`,
                                 3000
                             );
@@ -1333,8 +1335,7 @@ class LojaApp {
         if (typeof confirmDialog !== 'undefined' && confirmDialog) {
             confirmDialog
                 .confirm(
-                    `Tem certeza que deseja reverter a ação "${
-                        log.action
+                    `Tem certeza que deseja reverter a ação "${log.action
                     }" em "${log.entityName || log.entityType}"?`,
                     'Reverter Ação',
                     { type: 'warning' }
@@ -1612,7 +1613,7 @@ class LojaApp {
                     this.closeModalSafely(clickedModal);
                 }
             }, true);
-            
+
             // Listener global para ESC - fechar qualquer modal ativo
             document.addEventListener('keydown', (e) => {
                 if (e.key === 'Escape') {
@@ -1622,10 +1623,10 @@ class LojaApp {
                     }
                 }
             });
-            
+
             // Expor função de limpeza de emergência globalmente
             window.forceCleanModals = () => this.forceCleanAllModals();
-            
+
             // Aguardar um pouco para garantir que o DOM está totalmente pronto
             setTimeout(() => {
                 addDebugLog('Iniciando setup...');
@@ -1973,9 +1974,9 @@ class LojaApp {
 
         addDebugLog(
             'Elementos encontrados: logoutBtn=' +
-                !!logoutBtn +
-                ', themeToggleBtn=' +
-                !!themeToggleBtn
+            !!logoutBtn +
+            ', themeToggleBtn=' +
+            !!themeToggleBtn
         );
 
         if (logoutBtn) {
@@ -2218,8 +2219,8 @@ class LojaApp {
             });
             console.log(
                 '✅ [APP.JS] Listeners anexados aos tabs (' +
-                    tabBtns.length +
-                    ' tabs)'
+                tabBtns.length +
+                ' tabs)'
             );
         } else {
             console.error('❌ [APP.JS] Nenhum tab-btn encontrado!');
@@ -3343,7 +3344,7 @@ class LojaApp {
         }
 
         modal.classList.add('active');
-        
+
         // Forçar abertura no Android se forceOpenModal estiver disponível
         if (typeof window.forceOpenModal === 'function') {
             window.forceOpenModal(modal);
@@ -3383,19 +3384,19 @@ class LojaApp {
      */
     openModalSafely(modalElement) {
         if (!modalElement) return;
-        
+
         // Detectar Android Chrome
         const isAndroidChrome = /Android/i.test(navigator.userAgent) && /Chrome/i.test(navigator.userAgent);
-        
+
         // Esconder FAB quando modal abrir
         const fab = document.getElementById('quickSaleFAB');
         if (fab) {
             fab.style.display = 'none';
         }
-        
+
         // Limpar estilos inline primeiro
         modalElement.style.cssText = '';
-        
+
         if (isAndroidChrome) {
             // Android: usar background sólido (backdrop-filter não funciona)
             modalElement.style.cssText = `
@@ -3432,7 +3433,7 @@ class LojaApp {
                 -webkit-backdrop-filter: blur(8px) !important;
             `;
         }
-        
+
         // Adicionar classe active
         modalElement.classList.add('active');
     }
@@ -3444,17 +3445,17 @@ class LojaApp {
      */
     closeModalSafely(modalElement) {
         if (!modalElement) return;
-        
+
         // Detectar se é Android Chrome
         const isAndroidChrome = /Android/i.test(navigator.userAgent) && /Chrome/i.test(navigator.userAgent);
-        
+
         // VERIFICAR SE É O ÚLTIMO MODAL ANTES DE REMOVER (para mostrar FAB)
         const allActiveModals = document.querySelectorAll('.modal.active');
         const isLastModal = allActiveModals.length === 1 && allActiveModals[0] === modalElement;
-        
+
         // REMOVER CLASSE ACTIVE IMEDIATAMENTE
         modalElement.classList.remove('active');
-        
+
         // FORÇAR RESET IMEDIATO DE TODAS AS PROPRIEDADES CRÍTICAS
         modalElement.style.setProperty('pointer-events', 'none', 'important');
         modalElement.style.setProperty('backdrop-filter', 'blur(0px)', 'important');
@@ -3463,7 +3464,7 @@ class LojaApp {
         modalElement.style.setProperty('background-color', 'rgba(0, 0, 0, 0)', 'important');
         modalElement.style.setProperty('opacity', '0', 'important');
         modalElement.style.setProperty('visibility', 'hidden', 'important');
-        
+
         // No Android, limpar backdrop do body/html de forma ULTRA AGRESSIVA
         if (isAndroidChrome) {
             // Limpar backdrop-filter de TODAS as formas possíveis
@@ -3471,19 +3472,19 @@ class LojaApp {
             document.body.style.removeProperty('-webkit-backdrop-filter');
             document.documentElement.style.removeProperty('backdrop-filter');
             document.documentElement.style.removeProperty('-webkit-backdrop-filter');
-            
+
             // Limpar via cssText também
             const bodyCssText = document.body.style.cssText || '';
             const htmlCssText = document.documentElement.style.cssText || '';
             document.body.style.cssText = bodyCssText.replace(/backdrop-filter[^;]*;?/gi, '').replace(/-webkit-backdrop-filter[^;]*;?/gi, '');
             document.documentElement.style.cssText = htmlCssText.replace(/backdrop-filter[^;]*;?/gi, '').replace(/-webkit-backdrop-filter[^;]*;?/gi, '');
-            
+
             // Forçar reset completo do background no body/html
             document.body.style.setProperty('background', '', 'important');
             document.body.style.setProperty('background-color', '', 'important');
             document.documentElement.style.setProperty('background', '', 'important');
             document.documentElement.style.setProperty('background-color', '', 'important');
-            
+
             // Forçar repaint no Android com múltiplas técnicas
             requestAnimationFrame(() => {
                 document.body.style.display = 'none';
@@ -3501,7 +3502,7 @@ class LojaApp {
             document.documentElement.style.setProperty('backdrop-filter', '', 'important');
             document.documentElement.style.setProperty('-webkit-backdrop-filter', '', 'important');
         }
-        
+
         // LIMPAR TODOS OS OUTROS MODAIS TAMBÉM (caso algum esteja "preso")
         document.querySelectorAll('.modal.active').forEach(modal => {
             if (modal !== modalElement) {
@@ -3513,7 +3514,7 @@ class LojaApp {
                 modal.style.setProperty('display', 'none', 'important');
             }
         });
-        
+
         // Se era o último modal, mostrar FAB novamente após um pequeno delay
         if (isLastModal) {
             setTimeout(() => {
@@ -3531,7 +3532,7 @@ class LojaApp {
                 }
             }, 350); // Um pouco mais que a transição CSS (300ms)
         }
-        
+
         // Após transição, garantir que display seja none e limpar tudo
         setTimeout(() => {
             modalElement.style.setProperty('display', 'none', 'important');
@@ -3543,7 +3544,7 @@ class LojaApp {
             modalElement.style.removeProperty('pointer-events');
             modalElement.style.removeProperty('opacity');
             modalElement.style.removeProperty('visibility');
-            
+
             // No Android, limpar CSS completamente via cssText
             if (isAndroidChrome) {
                 // Manter apenas propriedades essenciais, remover tudo relacionado a backdrop
@@ -3645,9 +3646,9 @@ class LojaApp {
         const tags =
             tagsInput && tagsInput.value
                 ? tagsInput.value
-                      .split(',')
-                      .map((t) => t.trim())
-                      .filter((t) => t)
+                    .split(',')
+                    .map((t) => t.trim())
+                    .filter((t) => t)
                 : [];
         const notesInput = document.getElementById('itemNotes');
         const notes =
@@ -3764,16 +3765,14 @@ class LojaApp {
             // Manter código existente ao editar (preservar identificação única)
             item.qrCodeNumber = this.currentEditingItem.qrCodeNumber;
             console.log(
-                `✅ Mantendo QR Code existente: ${
-                    item.qrCodeNumber
+                `✅ Mantendo QR Code existente: ${item.qrCodeNumber
                 } para produto ${item.name || item.id}`
             );
         } else {
             // Gerar novo código único ao criar produto
             item.qrCodeNumber = this.generateQRCodeNumber();
             console.log(
-                `✅ Novo QR Code gerado: ${item.qrCodeNumber} para produto ${
-                    item.name || 'novo'
+                `✅ Novo QR Code gerado: ${item.qrCodeNumber} para produto ${item.name || 'novo'
                 }`
             );
         }
@@ -3784,8 +3783,7 @@ class LojaApp {
         );
         if (duplicateItem) {
             console.error(
-                `❌ ERRO: QR Code duplicado detectado! Produto ${
-                    item.name
+                `❌ ERRO: QR Code duplicado detectado! Produto ${item.name
                 } tem o mesmo QR Code que ${this.getItemName(duplicateItem.id)}`
             );
             // Gerar novo código único
@@ -5022,9 +5020,8 @@ class LojaApp {
                 saleDayInfo.innerHTML = `<strong style="color: white;">✓ Produto identificado: ${itemName}</strong>`;
                 setTimeout(() => {
                     saleDayInfo.style.background = originalBg;
-                    saleDayInfo.innerHTML = `<strong>Dia: <span id="saleDayDisplay">${
-                        this.currentSaleDay || '-'
-                    }</span></strong>`;
+                    saleDayInfo.innerHTML = `<strong>Dia: <span id="saleDayDisplay">${this.currentSaleDay || '-'
+                        }</span></strong>`;
                 }, 3000);
             }
 
@@ -5183,13 +5180,13 @@ class LojaApp {
                 );
                 // Limpar instância do scanner para permitir nova tentativa
                 this.quickSaleQRScanner = null;
-                
+
                 // Limpar conteúdo do reader para evitar confusão
                 const readerDiv = document.getElementById('quickSaleQrReader');
                 if (readerDiv) {
                     readerDiv.innerHTML = '<p style="text-align: center; color: var(--gray-600); padding: 2rem;">Erro ao acessar câmera. Verifique as permissões do navegador.</p>';
                 }
-                
+
                 // NÃO chamar closeModalSafely aqui - modal deve permanecer aberto
                 // O usuário pode fechar manualmente usando o botão X ou "Fechar Scanner"
             });
@@ -5221,7 +5218,7 @@ class LojaApp {
             // Se não há scanner ativo, apenas fechar o modal
             this.closeModalSafely(modal);
         }
-        
+
         // GARANTIR limpeza adicional após um delay (para Android Chrome)
         const isAndroidChrome = /Android/i.test(navigator.userAgent) && /Chrome/i.test(navigator.userAgent);
         if (isAndroidChrome) {
@@ -5236,7 +5233,7 @@ class LojaApp {
                 document.body.style.removeProperty('background-color');
                 document.documentElement.style.removeProperty('background');
                 document.documentElement.style.removeProperty('background-color');
-                
+
                 // Verificar se ainda há modais ativos
                 const activeModals = document.querySelectorAll('.modal.active');
                 if (activeModals.length === 0) {
@@ -5245,7 +5242,7 @@ class LojaApp {
                     document.body.style.setProperty('visibility', 'visible', 'important');
                 }
             }, 100);
-            
+
             // Limpeza adicional após transição CSS
             setTimeout(() => {
                 document.body.style.removeProperty('backdrop-filter');
@@ -5774,11 +5771,11 @@ class LojaApp {
             discount:
                 discountAmount > 0
                     ? {
-                          type: discountType,
-                          value: discountValue,
-                          amount: discountAmount,
-                          couponCode: window.quickSaleCouponCode || null,
-                      }
+                        type: discountType,
+                        value: discountValue,
+                        amount: discountAmount,
+                        couponCode: window.quickSaleCouponCode || null,
+                    }
                     : null,
         };
 
@@ -5985,8 +5982,8 @@ class LojaApp {
             </div>
             <div class="search-history-list">
                 ${this.searchHistory
-                    .map(
-                        (term) => `
+                .map(
+                    (term) => `
                     <button class="search-history-item" onclick="app.selectSearchHistory('${term.replace(
                         /'/g,
                         "\\'"
@@ -5995,8 +5992,8 @@ class LojaApp {
                         <span>${this.escapeHtml(term)}</span>
                     </button>
                 `
-                    )
-                    .join('')}
+                )
+                .join('')}
             </div>
         `;
 
@@ -6088,23 +6085,23 @@ class LojaApp {
         return `
             <div class="item-tags" style="display: flex; flex-wrap: wrap; gap: 0.5rem; margin: 0.75rem 0;">
                 ${tags
-                    .map((tag) => {
-                        const color = getTagColor(tag);
-                        const textColor = this.getContrastColor(color);
-                        return `
+                .map((tag) => {
+                    const color = getTagColor(tag);
+                    const textColor = this.getContrastColor(color);
+                    return `
                         <span class="item-tag" 
                               style="background-color: ${color}; color: ${textColor}; padding: 0.25rem 0.5rem; border-radius: 12px; font-size: 0.75rem; font-weight: 500; display: inline-flex; align-items: center; gap: 0.25rem; cursor: pointer; transition: all 0.2s;"
                               onclick="app.filterByTag('${tag.replace(
-                                  /'/g,
-                                  "\\'"
-                              )}')"
+                        /'/g,
+                        "\\'"
+                    )}')"
                               title="Clique para filtrar por esta tag">
                             <i class="fas fa-tag" style="font-size: 0.65rem;"></i>
                             ${this.escapeHtml(tag)}
                         </span>
                     `;
-                    })
-                    .join('')}
+                })
+                .join('')}
             </div>
         `;
     }
@@ -6244,29 +6241,26 @@ class LojaApp {
                     <div class="empty-state-icon">
                         <i class="fas fa-box-open"></i>
                     </div>
-                    <h3 class="empty-state-title">${
-                        searchTerm
-                            ? 'Nenhum item encontrado'
-                            : 'Nenhum produto cadastrado'
-                    }</h3>
+                    <h3 class="empty-state-title">${searchTerm
+                    ? 'Nenhum item encontrado'
+                    : 'Nenhum produto cadastrado'
+                }</h3>
                     <p class="empty-state-message">
-                        ${
-                            searchTerm
-                                ? 'Tente ajustar os filtros de pesquisa ou adicionar um novo produto.'
-                                : 'Comece adicionando seu primeiro produto ao sistema. Clique no botão abaixo para começar!'
-                        }
+                        ${searchTerm
+                    ? 'Tente ajustar os filtros de pesquisa ou adicionar um novo produto.'
+                    : 'Comece adicionando seu primeiro produto ao sistema. Clique no botão abaixo para começar!'
+                }
                     </p>
-                    ${
-                        !searchTerm
-                            ? `
+                    ${!searchTerm
+                    ? `
                         <div class="empty-state-action">
                             <button class="btn-primary" onclick="app.openItemModal()">
                                 <i class="fas fa-plus"></i> Adicionar Primeiro Produto
                             </button>
                         </div>
                     `
-                            : ''
-                    }
+                    : ''
+                }
                 </div>`;
             return;
         }
@@ -6278,51 +6272,45 @@ class LojaApp {
 
                 if (category === 'Roupas') {
                     categoryInfo = `
-                    ${
-                        item.style
+                    ${item.style
                             ? `<div class="item-info">Estilo: ${this.escapeHtml(
-                                  item.style
-                              )}</div>`
+                                item.style
+                            )}</div>`
                             : ''
-                    }
-                    ${
-                        item.size
+                        }
+                    ${item.size
                             ? `<div class="item-info">Tamanho: ${this.escapeHtml(
-                                  item.size
-                              )}</div>`
+                                item.size
+                            )}</div>`
                             : ''
-                    }
-                    ${
-                        item.gender
+                        }
+                    ${item.gender
                             ? `<div class="item-info">Gênero: ${this.escapeHtml(
-                                  item.gender
-                              )}</div>`
+                                item.gender
+                            )}</div>`
                             : ''
-                    }
+                        }
                 `;
                 } else if (category === 'Eletrônicos') {
                     categoryInfo = `
-                    ${
-                        item.model
+                    ${item.model
                             ? `<div class="item-info">Modelo: ${this.escapeHtml(
-                                  item.model
-                              )}</div>`
+                                item.model
+                            )}</div>`
                             : ''
-                    }
-                    ${
-                        item.capacity
+                        }
+                    ${item.capacity
                             ? `<div class="item-info">Capacidade: ${this.escapeHtml(
-                                  item.capacity
-                              )}</div>`
+                                item.capacity
+                            )}</div>`
                             : ''
-                    }
-                    ${
-                        item.color
+                        }
+                    ${item.color
                             ? `<div class="item-info">Cor: ${this.escapeHtml(
-                                  item.color
-                              )}</div>`
+                                item.color
+                            )}</div>`
                             : ''
-                    }
+                        }
                 `;
                 }
 
@@ -6364,35 +6352,32 @@ class LojaApp {
                     category
                 )}</div>
                 <h3>${this.escapeHtml(displayName)}</h3>
-                ${
-                    category === 'Roupas' && item.name
+                ${category === 'Roupas' && item.name
                         ? `<div class="item-info">Marca: ${this.escapeHtml(
-                              item.brand
-                          )}</div>`
+                            item.brand
+                        )}</div>`
                         : ''
-                }
+                    }
                 ${categoryInfo}
                 ${this.renderItemTags(item.id)}
                 <div class="item-price">R$ ${item.price
-                    .toFixed(2)
-                    .replace('.', ',')}</div>
+                        .toFixed(2)
+                        .replace('.', ',')}</div>
                 <div class="item-actions">
-                    ${
-                        category !== 'Serviços'
-                            ? `<button class="btn-small btn-secondary btn-qr" onclick="app.showQRCodeModal('${item.id}')" title="Ver QR Code">
+                    ${category !== 'Serviços'
+                        ? `<button class="btn-small btn-secondary btn-qr" onclick="app.showQRCodeModal('${item.id}')" title="Ver QR Code">
                             <i class="fas fa-qrcode"></i><span class="btn-text">QR Code</span>
                         </button>`
-                            : ''
+                        : ''
                     }
                     <div class="item-actions-row">
                         <button class="btn-small btn-edit" onclick="app.openItemModal(${JSON.stringify(
-                            item
-                        ).replace(/"/g, '&quot;')})" title="Editar">
+                        item
+                    ).replace(/"/g, '&quot;')})" title="Editar">
                             <i class="fas fa-pen"></i><span class="btn-text">Editar</span>
                         </button>
-                        <button class="btn-small btn-delete" onclick="app.deleteItem('${
-                            item.id
-                        }')" title="Excluir"><i class="fas fa-times"></i></button>
+                        <button class="btn-small btn-delete" onclick="app.deleteItem('${item.id
+                    }')" title="Excluir"><i class="fas fa-times"></i></button>
                     </div>
                 </div>
             </div>
@@ -6435,7 +6420,7 @@ class LojaApp {
         }
 
         modal.classList.add('active');
-        
+
         // Forçar abertura no Android se forceOpenModal estiver disponível
         if (typeof window.forceOpenModal === 'function') {
             window.forceOpenModal(modal);
@@ -6574,8 +6559,7 @@ class LojaApp {
             this.currentEditingClient ? 'update' : 'create',
             'client',
             client.id,
-            `${
-                this.currentEditingClient ? 'Atualização' : 'Criação'
+            `${this.currentEditingClient ? 'Atualização' : 'Criação'
             } de cliente: ${client.name}`
         );
 
@@ -6676,29 +6660,26 @@ class LojaApp {
                     <div class="empty-state-icon">
                         <i class="fas fa-users"></i>
                     </div>
-                    <h3 class="empty-state-title">${
-                        searchTerm
-                            ? 'Nenhum cliente encontrado'
-                            : 'Nenhum cliente cadastrado'
-                    }</h3>
+                    <h3 class="empty-state-title">${searchTerm
+                    ? 'Nenhum cliente encontrado'
+                    : 'Nenhum cliente cadastrado'
+                }</h3>
                     <p class="empty-state-message">
-                        ${
-                            searchTerm
-                                ? 'Tente ajustar os termos de busca ou cadastrar um novo cliente.'
-                                : 'Comece cadastrando seus clientes para facilitar o controle de vendas e histórico de compras.'
-                        }
+                        ${searchTerm
+                    ? 'Tente ajustar os termos de busca ou cadastrar um novo cliente.'
+                    : 'Comece cadastrando seus clientes para facilitar o controle de vendas e histórico de compras.'
+                }
                     </p>
-                    ${
-                        !searchTerm
-                            ? `
+                    ${!searchTerm
+                    ? `
                         <div class="empty-state-action">
                             <button class="btn-primary" onclick="app.openClientModal()">
                                 <i class="fas fa-user-plus"></i> Cadastrar Primeiro Cliente
                             </button>
                         </div>
                     `
-                            : ''
-                    }
+                    : ''
+                }
                 </div>`;
             return;
         }
@@ -6717,64 +6698,54 @@ class LojaApp {
                     <div class="item-header">
                         <h3>${this.escapeHtml(client.name)}</h3>
                         <div class="item-actions">
-                            <button class="btn-small btn-edit" onclick="app.openClientModal('${
-                                client.id
-                            }')" title="Editar">
+                            <button class="btn-small btn-edit" onclick="app.openClientModal('${client.id
+                    }')" title="Editar">
                                 <i class="fas fa-edit"></i>
                             </button>
-                            <button class="btn-small btn-delete" onclick="app.deleteClient('${
-                                client.id
-                            }')" title="Excluir">
+                            <button class="btn-small btn-delete" onclick="app.deleteClient('${client.id
+                    }')" title="Excluir">
                                 <i class="fas fa-times"></i>
                             </button>
                         </div>
                     </div>
                     <div class="item-details">
-                        ${
+                        ${client.cpf
+                        ? `<p><i class="fas fa-id-card"></i> CPF: ${this.escapeHtml(
                             client.cpf
-                                ? `<p><i class="fas fa-id-card"></i> CPF: ${this.escapeHtml(
-                                      client.cpf
-                                  )}</p>`
-                                : ''
-                        }
-                        ${
+                        )}</p>`
+                        : ''
+                    }
+                        ${client.phone
+                        ? `<p><i class="fas fa-phone"></i> ${this.escapeHtml(
                             client.phone
-                                ? `<p><i class="fas fa-phone"></i> ${this.escapeHtml(
-                                      client.phone
-                                  )}</p>`
-                                : ''
-                        }
-                        ${
+                        )}</p>`
+                        : ''
+                    }
+                        ${client.email
+                        ? `<p><i class="fas fa-envelope"></i> ${this.escapeHtml(
                             client.email
-                                ? `<p><i class="fas fa-envelope"></i> ${this.escapeHtml(
-                                      client.email
-                                  )}</p>`
-                                : ''
-                        }
-                        ${
-                            purchaseCount > 0
-                                ? `<p><i class="fas fa-shopping-cart"></i> ${purchaseCount} compra${
-                                      purchaseCount > 1 ? 's' : ''
-                                  }</p>`
-                                : ''
-                        }
-                        ${
-                            totalSpent > 0
-                                ? `<p><i class="fas fa-dollar-sign"></i> Total: R$ ${totalSpent
-                                      .toFixed(2)
-                                      .replace('.', ',')}</p>`
-                                : ''
-                        }
-                        ${
-                            client.loyaltyPoints > 0
-                                ? `<p><i class="fas fa-star" style="color: #ffc107;"></i> ${client.loyaltyPoints} pontos de fidelidade</p>`
-                                : ''
-                        }
-                        ${
-                            client.receiveNotifications
-                                ? `<p><i class="fas fa-bell" style="color: #28a745;"></i> Recebe notificações</p>`
-                                : ''
-                        }
+                        )}</p>`
+                        : ''
+                    }
+                        ${purchaseCount > 0
+                        ? `<p><i class="fas fa-shopping-cart"></i> ${purchaseCount} compra${purchaseCount > 1 ? 's' : ''
+                        }</p>`
+                        : ''
+                    }
+                        ${totalSpent > 0
+                        ? `<p><i class="fas fa-dollar-sign"></i> Total: R$ ${totalSpent
+                            .toFixed(2)
+                            .replace('.', ',')}</p>`
+                        : ''
+                    }
+                        ${client.loyaltyPoints > 0
+                        ? `<p><i class="fas fa-star" style="color: #ffc107;"></i> ${client.loyaltyPoints} pontos de fidelidade</p>`
+                        : ''
+                    }
+                        ${client.receiveNotifications
+                        ? `<p><i class="fas fa-bell" style="color: #28a745;"></i> Recebe notificações</p>`
+                        : ''
+                    }
                     </div>
                 </div>
             `;
@@ -6924,8 +6895,7 @@ class LojaApp {
             this.currentEditingSupplier ? 'update' : 'create',
             'supplier',
             supplier.id,
-            `${
-                this.currentEditingSupplier ? 'Atualização' : 'Criação'
+            `${this.currentEditingSupplier ? 'Atualização' : 'Criação'
             } de fornecedor: ${supplier.name}`
         );
 
@@ -7033,29 +7003,26 @@ class LojaApp {
                     <div class="empty-state-icon">
                         <i class="fas fa-truck"></i>
                     </div>
-                    <h3 class="empty-state-title">${
-                        searchTerm
-                            ? 'Nenhum fornecedor encontrado'
-                            : 'Nenhum fornecedor cadastrado'
-                    }</h3>
+                    <h3 class="empty-state-title">${searchTerm
+                    ? 'Nenhum fornecedor encontrado'
+                    : 'Nenhum fornecedor cadastrado'
+                }</h3>
                     <p class="empty-state-message">
-                        ${
-                            searchTerm
-                                ? 'Tente ajustar os termos de busca ou cadastrar um novo fornecedor.'
-                                : 'Comece cadastrando seus fornecedores para facilitar o controle de compras e custos.'
-                        }
+                        ${searchTerm
+                    ? 'Tente ajustar os termos de busca ou cadastrar um novo fornecedor.'
+                    : 'Comece cadastrando seus fornecedores para facilitar o controle de compras e custos.'
+                }
                     </p>
-                    ${
-                        !searchTerm
-                            ? `
+                    ${!searchTerm
+                    ? `
                         <div class="empty-state-action">
                             <button class="btn-primary" onclick="app.openSupplierModal()">
                                 <i class="fas fa-truck"></i> Cadastrar Primeiro Fornecedor
                             </button>
                         </div>
                     `
-                            : ''
-                    }
+                    : ''
+                }
                 </div>`;
             return;
         }
@@ -7075,64 +7042,55 @@ class LojaApp {
                     <div class="item-header">
                         <h3>${this.escapeHtml(supplier.name)}</h3>
                         <div class="item-actions">
-                            <button class="btn-small btn-edit" onclick="app.openSupplierModal('${
-                                supplier.id
-                            }')" title="Editar">
+                            <button class="btn-small btn-edit" onclick="app.openSupplierModal('${supplier.id
+                    }')" title="Editar">
                                 <i class="fas fa-edit"></i>
                             </button>
-                            <button class="btn-small btn-delete" onclick="app.deleteSupplier('${
-                                supplier.id
-                            }')" title="Excluir">
+                            <button class="btn-small btn-delete" onclick="app.deleteSupplier('${supplier.id
+                    }')" title="Excluir">
                                 <i class="fas fa-times"></i>
                             </button>
                         </div>
                     </div>
                     <div class="item-details">
-                        ${
+                        ${supplier.cnpj
+                        ? `<p><i class="fas fa-id-card"></i> CNPJ: ${this.escapeHtml(
                             supplier.cnpj
-                                ? `<p><i class="fas fa-id-card"></i> CNPJ: ${this.escapeHtml(
-                                      supplier.cnpj
-                                  )}</p>`
-                                : ''
-                        }
-                        ${
+                        )}</p>`
+                        : ''
+                    }
+                        ${supplier.contactName
+                        ? `<p><i class="fas fa-user"></i> Contato: ${this.escapeHtml(
                             supplier.contactName
-                                ? `<p><i class="fas fa-user"></i> Contato: ${this.escapeHtml(
-                                      supplier.contactName
-                                  )}</p>`
-                                : ''
-                        }
-                        ${
+                        )}</p>`
+                        : ''
+                    }
+                        ${supplier.phone
+                        ? `<p><i class="fas fa-phone"></i> ${this.escapeHtml(
                             supplier.phone
-                                ? `<p><i class="fas fa-phone"></i> ${this.escapeHtml(
-                                      supplier.phone
-                                  )}</p>`
-                                : ''
-                        }
-                        ${
+                        )}</p>`
+                        : ''
+                    }
+                        ${supplier.email
+                        ? `<p><i class="fas fa-envelope"></i> ${this.escapeHtml(
                             supplier.email
-                                ? `<p><i class="fas fa-envelope"></i> ${this.escapeHtml(
-                                      supplier.email
-                                  )}</p>`
-                                : ''
-                        }
+                        )}</p>`
+                        : ''
+                    }
                         <p><i class="fas fa-star" style="color: #ffc107;"></i> Avaliação: ${'⭐'.repeat(
-                            supplier.rating || 3
-                        )} (${supplier.rating || 3}/5)</p>
-                        ${
-                            purchaseCount > 0
-                                ? `<p><i class="fas fa-shopping-cart"></i> ${purchaseCount} compra${
-                                      purchaseCount > 1 ? 's' : ''
-                                  }</p>`
-                                : ''
-                        }
-                        ${
-                            totalPurchases > 0
-                                ? `<p><i class="fas fa-dollar-sign"></i> Total: R$ ${totalPurchases
-                                      .toFixed(2)
-                                      .replace('.', ',')}</p>`
-                                : ''
-                        }
+                        supplier.rating || 3
+                    )} (${supplier.rating || 3}/5)</p>
+                        ${purchaseCount > 0
+                        ? `<p><i class="fas fa-shopping-cart"></i> ${purchaseCount} compra${purchaseCount > 1 ? 's' : ''
+                        }</p>`
+                        : ''
+                    }
+                        ${totalPurchases > 0
+                        ? `<p><i class="fas fa-dollar-sign"></i> Total: R$ ${totalPurchases
+                            .toFixed(2)
+                            .replace('.', ',')}</p>`
+                        : ''
+                    }
                     </div>
                 </div>
             `;
@@ -7432,80 +7390,66 @@ class LojaApp {
                     <div class="item-header">
                         <h3>${this.escapeHtml(coupon.code)}</h3>
                         <div class="item-actions">
-                            <button class="btn-small btn-edit" onclick="app.openCouponModal('${
-                                coupon.id
-                            }')" title="Editar">
+                            <button class="btn-small btn-edit" onclick="app.openCouponModal('${coupon.id
+                    }')" title="Editar">
                                 <i class="fas fa-edit"></i>
                             </button>
-                            <button class="btn-small btn-delete" onclick="app.deleteCoupon('${
-                                coupon.id
-                            }')" title="Excluir">
+                            <button class="btn-small btn-delete" onclick="app.deleteCoupon('${coupon.id
+                    }')" title="Excluir">
                                 <i class="fas fa-times"></i>
                             </button>
                         </div>
                     </div>
                     <div class="item-details">
-                        <p><i class="fas fa-percent"></i> Tipo: ${
-                            coupon.type === 'percent'
-                                ? 'Percentual'
-                                : 'Valor Fixo'
-                        }</p>
-                        <p><i class="fas fa-dollar-sign"></i> Desconto: ${
-                            coupon.type === 'percent'
-                                ? `${coupon.value}%`
-                                : `R$ ${coupon.value
-                                      .toFixed(2)
-                                      .replace('.', ',')}`
-                        }</p>
-                        ${
+                        <p><i class="fas fa-percent"></i> Tipo: ${coupon.type === 'percent'
+                        ? 'Percentual'
+                        : 'Valor Fixo'
+                    }</p>
+                        <p><i class="fas fa-dollar-sign"></i> Desconto: ${coupon.type === 'percent'
+                        ? `${coupon.value}%`
+                        : `R$ ${coupon.value
+                            .toFixed(2)
+                            .replace('.', ',')}`
+                    }</p>
+                        ${coupon.description
+                        ? `<p><i class="fas fa-info-circle"></i> ${this.escapeHtml(
                             coupon.description
-                                ? `<p><i class="fas fa-info-circle"></i> ${this.escapeHtml(
-                                      coupon.description
-                                  )}</p>`
-                                : ''
-                        }
-                        ${
+                        )}</p>`
+                        : ''
+                    }
+                        ${coupon.startsAt
+                        ? `<p><i class="fas fa-calendar-check"></i> Início: ${new Date(
                             coupon.startsAt
-                                ? `<p><i class="fas fa-calendar-check"></i> Início: ${new Date(
-                                      coupon.startsAt
-                                  ).toLocaleDateString('pt-BR')}</p>`
-                                : ''
-                        }
-                        ${
+                        ).toLocaleDateString('pt-BR')}</p>`
+                        : ''
+                    }
+                        ${coupon.expiresAt
+                        ? `<p><i class="fas fa-calendar-times"></i> Expira em: ${new Date(
                             coupon.expiresAt
-                                ? `<p><i class="fas fa-calendar-times"></i> Expira em: ${new Date(
-                                      coupon.expiresAt
-                                  ).toLocaleDateString('pt-BR')}</p>`
-                                : ''
-                        }
-                        ${
-                            coupon.minQuantity
-                                ? `<p><i class="fas fa-shopping-bag"></i> Qtd. mínima: ${coupon.minQuantity} unidade(s)</p>`
-                                : ''
-                        }
-                        ${
-                            coupon.maxUses
-                                ? `<p><i class="fas fa-times-circle"></i> Limite: ${
-                                      coupon.maxUses
-                                  } uso${coupon.maxUses > 1 ? 's' : ''}</p>`
-                                : ''
-                        }
-                        <p><i class="fas fa-chart-line"></i> Usado: ${
-                            coupon.uses || 0
-                        } vez${(coupon.uses || 0) !== 1 ? 'es' : ''}</p>
-                        <p><i class="fas fa-${
-                            isActive ? 'check-circle' : 'times-circle'
-                        }" style="color: ${
-                    isActive ? '#28a745' : '#dc3545'
-                };"></i> Status: ${
-                    isActive
+                        ).toLocaleDateString('pt-BR')}</p>`
+                        : ''
+                    }
+                        ${coupon.minQuantity
+                        ? `<p><i class="fas fa-shopping-bag"></i> Qtd. mínima: ${coupon.minQuantity} unidade(s)</p>`
+                        : ''
+                    }
+                        ${coupon.maxUses
+                        ? `<p><i class="fas fa-times-circle"></i> Limite: ${coupon.maxUses
+                        } uso${coupon.maxUses > 1 ? 's' : ''}</p>`
+                        : ''
+                    }
+                        <p><i class="fas fa-chart-line"></i> Usado: ${coupon.uses || 0
+                    } vez${(coupon.uses || 0) !== 1 ? 'es' : ''}</p>
+                        <p><i class="fas fa-${isActive ? 'check-circle' : 'times-circle'
+                    }" style="color: ${isActive ? '#28a745' : '#dc3545'
+                    };"></i> Status: ${isActive
                         ? 'Ativo'
                         : isExpired
-                        ? 'Expirado'
-                        : isMaxUsesReached
-                        ? 'Limite atingido'
-                        : 'Inativo'
-                }</p>
+                            ? 'Expirado'
+                            : isMaxUsesReached
+                                ? 'Limite atingido'
+                                : 'Inativo'
+                    }</p>
                     </div>
                 </div>
             `;
@@ -7932,25 +7876,22 @@ class LojaApp {
             .map((template) => {
                 let details = '';
                 if (template.type === 'product' && template.data) {
-                    details = `<p><i class="fas fa-tag"></i> Categoria: ${
-                        template.data.category || 'N/A'
-                    }</p>
+                    details = `<p><i class="fas fa-tag"></i> Categoria: ${template.data.category || 'N/A'
+                        }</p>
                                <p><i class="fas fa-dollar-sign"></i> Preço: R$ ${(
-                                   template.data.price || 0
-                               )
-                                   .toFixed(2)
-                                   .replace('.', ',')}</p>`;
+                            template.data.price || 0
+                        )
+                            .toFixed(2)
+                            .replace('.', ',')}</p>`;
                 } else if (template.type === 'sale' && template.data) {
-                    details = `<p><i class="fas fa-shopping-bag"></i> Qtd. padrão: ${
-                        template.data.quantity || 1
-                    }</p>
+                    details = `<p><i class="fas fa-shopping-bag"></i> Qtd. padrão: ${template.data.quantity || 1
+                        }</p>
                                <p><i class="fas fa-percent"></i> Desconto: ${(
-                                   template.data.discount || 0
-                               ).toFixed(1)}%</p>`;
+                            template.data.discount || 0
+                        ).toFixed(1)}%</p>`;
                 } else if (template.type === 'service' && template.data) {
-                    details = `<p><i class="fas fa-clock"></i> Duração: ${
-                        template.data.hours || 0
-                    }h ${template.data.minutes || 0}min</p>`;
+                    details = `<p><i class="fas fa-clock"></i> Duração: ${template.data.hours || 0
+                        }h ${template.data.minutes || 0}min</p>`;
                 } else if (template.type === 'report' && template.data) {
                     const reportTypeNames = {
                         sales: 'Vendas',
@@ -7960,56 +7901,47 @@ class LojaApp {
                         financial: 'Financeiro',
                         custom: 'Personalizado',
                     };
-                    details = `<p><i class="fas fa-chart-line"></i> Tipo: ${
-                        reportTypeNames[template.data.reportType] ||
+                    details = `<p><i class="fas fa-chart-line"></i> Tipo: ${reportTypeNames[template.data.reportType] ||
                         template.data.reportType
-                    }</p>
-                               <p><i class="fas fa-calendar"></i> Período: ${
-                                   template.data.period || 'Este Mês'
-                               }</p>
-                               <p><i class="fas fa-file"></i> Formato: ${
-                                   template.data.format?.toUpperCase() || 'PDF'
-                               }</p>`;
+                        }</p>
+                               <p><i class="fas fa-calendar"></i> Período: ${template.data.period || 'Este Mês'
+                        }</p>
+                               <p><i class="fas fa-file"></i> Formato: ${template.data.format?.toUpperCase() || 'PDF'
+                        }</p>`;
                 }
 
                 return `
                 <div class="item-card">
                     <div class="item-header">
                         <div style="display: flex; align-items: center; gap: 0.5rem;">
-                            <i class="fas ${
-                                typeIcons[template.type] || 'fa-file'
-                            }" style="color: var(--primary-color);"></i>
+                            <i class="fas ${typeIcons[template.type] || 'fa-file'
+                    }" style="color: var(--primary-color);"></i>
                             <h3>${this.escapeHtml(template.name)}</h3>
                         </div>
                         <div class="item-actions">
-                            <button class="btn-small btn-secondary" onclick="app.useTemplate('${
-                                template.id
-                            }')" title="Usar Template">
+                            <button class="btn-small btn-secondary" onclick="app.useTemplate('${template.id
+                    }')" title="Usar Template">
                                 <i class="fas fa-check"></i>
                             </button>
-                            <button class="btn-small btn-edit" onclick="app.openTemplateModal('${
-                                template.id
-                            }')" title="Editar">
+                            <button class="btn-small btn-edit" onclick="app.openTemplateModal('${template.id
+                    }')" title="Editar">
                                 <i class="fas fa-edit"></i>
                             </button>
-                            <button class="btn-small btn-delete" onclick="app.deleteTemplate('${
-                                template.id
-                            }')" title="Excluir">
+                            <button class="btn-small btn-delete" onclick="app.deleteTemplate('${template.id
+                    }')" title="Excluir">
                                 <i class="fas fa-times"></i>
                             </button>
                         </div>
                     </div>
                     <div class="item-details">
-                        <p><i class="fas fa-file-alt"></i> Tipo: ${
-                            typeNames[template.type] || template.type
-                        }</p>
-                        ${
+                        <p><i class="fas fa-file-alt"></i> Tipo: ${typeNames[template.type] || template.type
+                    }</p>
+                        ${template.description
+                        ? `<p><i class="fas fa-info-circle"></i> ${this.escapeHtml(
                             template.description
-                                ? `<p><i class="fas fa-info-circle"></i> ${this.escapeHtml(
-                                      template.description
-                                  )}</p>`
-                                : ''
-                        }
+                        )}</p>`
+                        : ''
+                    }
                         ${details}
                     </div>
                 </div>
@@ -8180,9 +8112,8 @@ class LojaApp {
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
-        a.download = `templates_export_${
-            new Date().toISOString().split('T')[0]
-        }.json`;
+        a.download = `templates_export_${new Date().toISOString().split('T')[0]
+            }.json`;
         document.body.appendChild(a);
         a.click();
         document.body.removeChild(a);
@@ -8317,10 +8248,9 @@ class LojaApp {
                     }
                 } else {
                     alert(
-                        `${importedCount} template(s) importado(s)${
-                            skippedCount > 0
-                                ? `, ${skippedCount} ignorado(s)`
-                                : ''
+                        `${importedCount} template(s) importado(s)${skippedCount > 0
+                            ? `, ${skippedCount} ignorado(s)`
+                            : ''
                         }.`
                     );
                 }
@@ -8361,14 +8291,14 @@ class LojaApp {
             type === 'sale'
                 ? 'saleCustomerSelect'
                 : type === 'pending'
-                ? 'pendingOrderCustomerSelect'
-                : 'appointmentCustomerSelect';
+                    ? 'pendingOrderCustomerSelect'
+                    : 'appointmentCustomerSelect';
         const inputId =
             type === 'sale'
                 ? 'saleCustomerName'
                 : type === 'pending'
-                ? 'pendingOrderCustomerName'
-                : 'appointmentCustomerName';
+                    ? 'pendingOrderCustomerName'
+                    : 'appointmentCustomerName';
 
         const select = document.getElementById(selectId);
         const input = document.getElementById(inputId);
@@ -8386,8 +8316,8 @@ class LojaApp {
                         type === 'sale'
                             ? 'saleCustomerCPF'
                             : type === 'pending'
-                            ? 'pendingOrderCustomerCPF'
-                            : null
+                                ? 'pendingOrderCustomerCPF'
+                                : null
                     );
                     if (cpfField && client.cpf) {
                         cpfField.value = client.cpf;
@@ -8484,9 +8414,8 @@ class LojaApp {
             'Dezembro',
         ];
 
-        document.getElementById('groupTitle').textContent = `${
-            monthNames[parseInt(month) - 1]
-        } ${year}`;
+        document.getElementById('groupTitle').textContent = `${monthNames[parseInt(month) - 1]
+            } ${year}`;
 
         this.renderGroupView(group);
 
@@ -8619,9 +8548,8 @@ class LojaApp {
                         .toFixed(2)
                         .replace('.', ',')}</div>
                     <button class="btn-small btn-edit" style="margin-top: 0.5rem; width: 100%;" 
-                            onclick="app.openSaleModal('${group.id}', ${
-                    day.day
-                })">
+                            onclick="app.openSaleModal('${group.id}', ${day.day
+                    })">
                         ${daySales > 0 ? 'Editar' : 'Registrar'}
                     </button>
                 </div>
@@ -8656,8 +8584,8 @@ class LojaApp {
                     )}</span>
                     <span class="summary-item-total">
                         ${item.quantity} un. - R$ ${item.total
-                        .toFixed(2)
-                        .replace('.', ',')}
+                            .toFixed(2)
+                            .replace('.', ',')}
                     </span>
                 </div>
             `
@@ -8714,11 +8642,10 @@ class LojaApp {
                     .map((client) => {
                         return `<option value="${this.escapeHtml(
                             client.name
-                        )}">${this.escapeHtml(client.name)}${
-                            client.phone
+                        )}">${this.escapeHtml(client.name)}${client.phone
                                 ? ` - ${this.escapeHtml(client.phone)}`
                                 : ''
-                        }</option>`;
+                            }</option>`;
                     })
                     .join('');
         }
@@ -9038,8 +8965,7 @@ class LojaApp {
         salesList.style.border = '2px solid var(--border-color)';
 
         salesList.innerHTML = `
-            <h4 style="color: var(--primary-red); margin-bottom: 1rem;">Vendas do Dia ${
-                dayData.day
+            <h4 style="color: var(--primary-red); margin-bottom: 1rem;">Vendas do Dia ${dayData.day
             }</h4>
             ${dayData.sales
                 .map((sale, index) => {
@@ -9048,30 +8974,25 @@ class LojaApp {
                     <div style="display: flex; justify-content: space-between; align-items: center; padding: 0.75rem; background: white; margin-bottom: 0.5rem; border-radius: 5px; border: 1px solid var(--border-color);">
                         <div>
                             <strong>${this.escapeHtml(
-                                item ? item.name : 'Item não encontrado'
-                            )}</strong>${
-                        sale.size || sale.color
-                            ? ` <span style="color: var(--primary-color); font-weight: 600;">(${
-                                  sale.size
-                                      ? `Tamanho: ${this.escapeHtml(sale.size)}`
-                                      : ''
-                              }${sale.size && sale.color ? ', ' : ''}${
-                                  sale.color
-                                      ? `Cor: ${this.escapeHtml(sale.color)}`
-                                      : ''
-                              })</span>`
+                        item ? item.name : 'Item não encontrado'
+                    )}</strong>${sale.size || sale.color
+                            ? ` <span style="color: var(--primary-color); font-weight: 600;">(${sale.size
+                                ? `Tamanho: ${this.escapeHtml(sale.size)}`
+                                : ''
+                            }${sale.size && sale.color ? ', ' : ''}${sale.color
+                                ? `Cor: ${this.escapeHtml(sale.color)}`
+                                : ''
+                            })</span>`
                             : ''
-                    }<br>
-                            <small style="color: var(--gray);">${
-                                sale.quantity
-                            } un. × R$ ${sale.price
-                        .toFixed(2)
-                        .replace('.', ',')} = R$ ${(sale.quantity * sale.price)
-                        .toFixed(2)
-                        .replace('.', ',')}</small>
+                        }<br>
+                            <small style="color: var(--gray);">${sale.quantity
+                        } un. × R$ ${sale.price
+                            .toFixed(2)
+                            .replace('.', ',')} = R$ ${(sale.quantity * sale.price)
+                                .toFixed(2)
+                                .replace('.', ',')}</small>
                         </div>
-                        <button class="btn-small btn-delete" onclick="app.deleteSale(${
-                            this.currentSaleDay
+                        <button class="btn-small btn-delete" onclick="app.deleteSale(${this.currentSaleDay
                         }, ${index})" title="Excluir"><i class="fas fa-times"></i></button>
                     </div>
                 `;
@@ -9311,8 +9232,7 @@ class LojaApp {
             !size
         ) {
             toast.warning(
-                `Por favor, informe o tamanho do ${
-                    item.category === 'Roupas' ? 'roupa' : 'eletrônico'
+                `Por favor, informe o tamanho do ${item.category === 'Roupas' ? 'roupa' : 'eletrônico'
                 }.`,
                 3000
             );
@@ -9427,13 +9347,13 @@ class LojaApp {
             discount:
                 totalDiscount > 0
                     ? {
-                          type: discountInfo.discountType || 'loyalty',
-                          value: discountInfo.discountValue || loyaltyDiscount,
-                          amount: totalDiscount,
-                          couponCode: discountInfo.couponCode || null,
-                          loyaltyDiscount: loyaltyDiscount,
-                          loyaltyPointsUsed: loyaltyPointsUsed,
-                      }
+                        type: discountInfo.discountType || 'loyalty',
+                        value: discountInfo.discountValue || loyaltyDiscount,
+                        amount: totalDiscount,
+                        couponCode: discountInfo.couponCode || null,
+                        loyaltyDiscount: loyaltyDiscount,
+                        loyaltyPointsUsed: loyaltyPointsUsed,
+                    }
                     : null,
         };
 
@@ -9483,16 +9403,16 @@ class LojaApp {
                     price: basePrice, // Preço unitário original
                     size:
                         item &&
-                        (item.category === 'Roupas' ||
-                            item.category === 'Eletrônicos') &&
-                        size
+                            (item.category === 'Roupas' ||
+                                item.category === 'Eletrônicos') &&
+                            size
                             ? size
                             : undefined,
                     color:
                         item &&
-                        (item.category === 'Roupas' ||
-                            item.category === 'Eletrônicos') &&
-                        color
+                            (item.category === 'Roupas' ||
+                                item.category === 'Eletrônicos') &&
+                            color
                             ? color
                             : undefined,
                 },
@@ -9546,10 +9466,9 @@ class LojaApp {
                     'Nova Compra Registrada',
                     `Sua compra de R$ ${totalValue
                         .toFixed(2)
-                        .replace('.', ',')} foi registrada com sucesso!${
-                        loyaltyPointsUsed > 0
-                            ? ` Você usou ${loyaltyPointsUsed} ponto(s) de fidelidade.`
-                            : ''
+                        .replace('.', ',')} foi registrada com sucesso!${loyaltyPointsUsed > 0
+                        ? ` Você usou ${loyaltyPointsUsed} ponto(s) de fidelidade.`
+                        : ''
                     }`,
                     'success'
                 );
@@ -9718,22 +9637,21 @@ class LojaApp {
             <div class="receipt-header">
                 <h2>Recibo de Venda</h2>
                 <p class="receipt-order-code">Código: ${this.escapeHtml(
-                    sale.orderCode
-                )}</p>
+                sale.orderCode
+            )}</p>
             </div>
             <div class="receipt-info">
                 <div class="receipt-section">
                     <h3>Dados do Cliente</h3>
                     <p><strong>Nome:</strong> ${this.escapeHtml(
-                        sale.customerName
-                    )}</p>
-                    ${
+                sale.customerName
+            )}</p>
+                    ${sale.customerCPF
+                    ? `<p><strong>CPF:</strong> ${this.formatCPF(
                         sale.customerCPF
-                            ? `<p><strong>CPF:</strong> ${this.formatCPF(
-                                  sale.customerCPF
-                              )}</p>`
-                            : ''
-                    }
+                    )}</p>`
+                    : ''
+                }
                 </div>
                 <div class="receipt-section">
                     <h3>Data e Horário</h3>
@@ -9743,31 +9661,31 @@ class LojaApp {
                     <h3>Itens Comprados</h3>
                     <div class="receipt-items">
                         ${sale.items
-                            .map(
-                                (item) => `
+                    .map(
+                        (item) => `
                             <div class="receipt-item">
                                 <div class="receipt-item-name">${this.escapeHtml(
-                                    item.name
-                                )}</div>
+                            item.name
+                        )}</div>
                                 <div class="receipt-item-details">
                                     ${item.quantity} un. × R$ ${item.price
-                                    .toFixed(2)
-                                    .replace('.', ',')} = 
+                                .toFixed(2)
+                                .replace('.', ',')} = 
                                     <strong>R$ ${(item.quantity * item.price)
-                                        .toFixed(2)
-                                        .replace('.', ',')}</strong>
+                                .toFixed(2)
+                                .replace('.', ',')}</strong>
                                 </div>
                             </div>
                         `
-                            )
-                            .join('')}
+                    )
+                    .join('')}
                     </div>
                 </div>
                 <div class="receipt-total">
                     <h3>Valor Total</h3>
                     <p class="receipt-total-value">R$ ${sale.totalValue
-                        .toFixed(2)
-                        .replace('.', ',')}</p>
+                    .toFixed(2)
+                    .replace('.', ',')}</p>
                 </div>
             </div>
         `;
@@ -10213,9 +10131,8 @@ class LojaApp {
                          box-shadow: var(--shadow-sm);
                          cursor: pointer;
                          transition: all var(--transition-base);
-                         animation: slideInUp 0.3s ease-out ${
-                             index * 0.1
-                         }s both;
+                         animation: slideInUp 0.3s ease-out ${index * 0.1
+                        }s both;
                      "
                      onclick="app.viewFullReceipt('${sale.id}')"
                      onmouseover="this.style.transform='translateY(-4px)'; this.style.boxShadow='var(--shadow-md)'; this.style.borderColor='var(--primary-color)';"
@@ -10227,12 +10144,11 @@ class LojaApp {
                         <p style="margin: 0; color: var(--gray-600); font-size: 0.85rem;">
                             📅 ${formattedDate}
                         </p>
-                        ${
-                            sale.customerCPF
-                                ? `<p style="margin: 0.25rem 0 0 0; color: var(--gray-500); font-size: 0.8rem;">
+                        ${sale.customerCPF
+                            ? `<p style="margin: 0.25rem 0 0 0; color: var(--gray-500); font-size: 0.8rem;">
                                     🆔 ${this.formatCPF(sale.customerCPF)}
                                 </p>`
-                                : ''
+                            : ''
                         }
                     </div>
                     <div style="border-top: 1px solid var(--gray-200); padding-top: 0.75rem;">
@@ -10240,9 +10156,8 @@ class LojaApp {
                             R$ ${sale.totalValue.toFixed(2).replace('.', ',')}
                         </p>
                         <p style="margin: 0.25rem 0 0 0; color: var(--gray-500); font-size: 0.75rem;">
-                            ${sale.items.length} ${
-                        sale.items.length === 1 ? 'item' : 'itens'
-                    }
+                            ${sale.items.length} ${sale.items.length === 1 ? 'item' : 'itens'
+                        }
                         </p>
                     </div>
                 </div>
@@ -10333,9 +10248,8 @@ class LojaApp {
                          box-shadow: var(--shadow-sm);
                          cursor: pointer;
                          transition: all var(--transition-base);
-                         animation: slideInLeft 0.3s ease-out ${
-                             index * 0.05
-                         }s both;
+                         animation: slideInLeft 0.3s ease-out ${index * 0.05
+                    }s both;
                      "
                      onclick="app.viewFullReceipt('${sale.id}')"
                      onmouseover="this.style.transform='translateX(4px)'; this.style.boxShadow='var(--shadow-md)'; this.style.borderColor='var(--primary-color)';"
@@ -10348,21 +10262,20 @@ class LojaApp {
                             <p style="margin: 0; color: var(--gray-600); font-size: 0.9rem;">
                                 📅 ${formattedDate}
                             </p>
-                            ${
-                                sale.customerCPF
-                                    ? `
+                            ${sale.customerCPF
+                        ? `
                                 <p style="margin: 0.25rem 0 0 0; color: var(--gray-600); font-size: 0.85rem;">
                                     🆔 ${this.formatCPF(sale.customerCPF)}
                                 </p>
                             `
-                                    : ''
-                            }
+                        : ''
+                    }
                         </div>
                         <div style="text-align: right;">
                             <p style="margin: 0; color: var(--primary-color); font-weight: 600; font-size: 1.2rem;">
                                 R$ ${sale.totalValue
-                                    .toFixed(2)
-                                    .replace('.', ',')}
+                        .toFixed(2)
+                        .replace('.', ',')}
                             </p>
                             <p style="margin: 0.25rem 0 0 0; color: var(--gray-500); font-size: 0.85rem;">
                                 Código: ${this.escapeHtml(sale.orderCode)}
@@ -10372,13 +10285,13 @@ class LojaApp {
                     <div style="border-top: 1px solid var(--gray-200); padding-top: 0.75rem;">
                         <p style="margin: 0; color: var(--gray-600); font-size: 0.9rem;">
                             <strong>Itens:</strong> ${sale.items
-                                .map(
-                                    (item) =>
-                                        `${item.quantity}x ${this.escapeHtml(
-                                            item.name
-                                        )}`
-                                )
-                                .join(', ')}
+                        .map(
+                            (item) =>
+                                `${item.quantity}x ${this.escapeHtml(
+                                    item.name
+                                )}`
+                        )
+                        .join(', ')}
                         </p>
                     </div>
                 </div>
@@ -10766,8 +10679,8 @@ class LojaApp {
             dueDate: dueDate || null,
             createdAt: this.currentEditingPendingOrder
                 ? this.pendingOrders.find(
-                      (o) => o.id === this.currentEditingPendingOrder
-                  )?.createdAt || new Date().toISOString()
+                    (o) => o.id === this.currentEditingPendingOrder
+                )?.createdAt || new Date().toISOString()
                 : new Date().toISOString(),
             updatedAt: new Date().toISOString(),
         };
@@ -10843,8 +10756,8 @@ class LojaApp {
                         dueDateAlert = `<div style="padding: 0.75rem; background: #fee; border: 2px solid #dc3545; border-radius: var(--radius-sm); margin-bottom: 0.75rem;">
                             <p style="margin: 0; color: #721c24; font-weight: 600;">
                                 <i class="fas fa-exclamation-triangle"></i> VENCIDO há ${Math.abs(
-                                    daysUntilDue
-                                )} dia(s)
+                            daysUntilDue
+                        )} dia(s)
                             </p>
                         </div>`;
                         cardBorderColor = '#dc3545';
@@ -10865,15 +10778,14 @@ class LojaApp {
                     <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1rem;">
                         <div>
                             <h3 style="margin: 0 0 0.5rem 0; color: var(--dark-gray);">${this.escapeHtml(
-                                order.customerName
-                            )}</h3>
-                            ${
-                                order.customerCPF
-                                    ? `<p style="margin: 0; color: var(--gray-600); font-size: 0.9rem;">CPF: ${this.formatCPF(
-                                          order.customerCPF
-                                      )}</p>`
-                                    : ''
-                            }
+                    order.customerName
+                )}</h3>
+                            ${order.customerCPF
+                        ? `<p style="margin: 0; color: var(--gray-600); font-size: 0.9rem;">CPF: ${this.formatCPF(
+                            order.customerCPF
+                        )}</p>`
+                        : ''
+                    }
                         </div>
                         <span class="order-status ${statusClass}">${statusText}</span>
                     </div>
@@ -10881,49 +10793,44 @@ class LojaApp {
                         <p style="margin: 0 0 0.5rem 0; color: var(--gray-600); font-size: 0.9rem;"><strong>Itens:</strong></p>
                         <ul style="margin: 0; padding-left: 1.25rem; color: var(--dark-gray);">
                             ${order.items
-                                .map(
-                                    (item) =>
-                                        `<li>${this.escapeHtml(item.name)} - ${
-                                            item.quantity
-                                        } un. × R$ ${item.price
-                                            .toFixed(2)
-                                            .replace('.', ',')}</li>`
-                                )
-                                .join('')}
+                        .map(
+                            (item) =>
+                                `<li>${this.escapeHtml(item.name)} - ${item.quantity
+                                } un. × R$ ${item.price
+                                    .toFixed(2)
+                                    .replace('.', ',')}</li>`
+                        )
+                        .join('')}
                         </ul>
                     </div>
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
                         <p style="margin: 0; color: var(--dark-gray);"><strong>Total:</strong> R$ ${order.totalValue
-                            .toFixed(2)
-                            .replace('.', ',')}</p>
+                        .toFixed(2)
+                        .replace('.', ',')}</p>
                         <p style="margin: 0; color: var(--gray-600); font-size: 0.85rem;">${formattedDate}</p>
                     </div>
-                    ${
-                        order.dueDate
-                            ? `<p style="margin: 0 0 0.75rem 0; color: var(--gray-600); font-size: 0.85rem;"><strong>Vencimento:</strong> ${new Date(
-                                  order.dueDate
-                              ).toLocaleDateString('pt-BR')}</p>`
-                            : ''
+                    ${order.dueDate
+                        ? `<p style="margin: 0 0 0.75rem 0; color: var(--gray-600); font-size: 0.85rem;"><strong>Vencimento:</strong> ${new Date(
+                            order.dueDate
+                        ).toLocaleDateString('pt-BR')}</p>`
+                        : ''
                     }
                     <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
-                        <button type="button" class="btn-secondary" onclick="app.editPendingOrder('${
-                            order.id
-                        }')" style="flex: 1; min-width: 80px;">
+                        <button type="button" class="btn-secondary" onclick="app.editPendingOrder('${order.id
+                    }')" style="flex: 1; min-width: 80px;">
                             <i class="fas fa-edit"></i> Editar
                         </button>
-                        ${
-                            order.status !== 'cancelled' &&
-                            order.status !== 'completed'
-                                ? `
+                        ${order.status !== 'cancelled' &&
+                        order.status !== 'completed'
+                        ? `
                             <button type="button" class="btn-primary" onclick="app.completePendingOrder('${order.id}')" style="flex: 1; min-width: 120px;">
                                 <i class="fas fa-check"></i> Finalizar
                             </button>
                         `
-                                : ''
-                        }
-                        <button type="button" class="btn-delete" onclick="app.deletePendingOrder('${
-                            order.id
-                        }')" style="min-width: 36px; padding: 0.5rem;">
+                        : ''
+                    }
+                        <button type="button" class="btn-delete" onclick="app.deletePendingOrder('${order.id
+                    }')" style="min-width: 36px; padding: 0.5rem;">
                             <i class="fas fa-times"></i>
                         </button>
                     </div>
@@ -11221,8 +11128,8 @@ class LojaApp {
             notes: notes || null,
             createdAt: this.currentEditingServiceAppointment
                 ? this.serviceAppointments.find(
-                      (a) => a.id === this.currentEditingServiceAppointment
-                  )?.createdAt || new Date().toISOString()
+                    (a) => a.id === this.currentEditingServiceAppointment
+                )?.createdAt || new Date().toISOString()
                 : new Date().toISOString(),
             updatedAt: new Date().toISOString(),
         };
@@ -11356,17 +11263,17 @@ class LojaApp {
             <div class="mini-calendar" onclick="app.openCalendarModal()">
                 <div class="mini-calendar-header">
                     <span class="mini-calendar-month">${this.getMonthName(
-                        currentMonth
-                    )}</span>
+            currentMonth
+        )}</span>
                     <span class="mini-calendar-year">${currentYear}</span>
                 </div>
                 <div class="mini-calendar-weekdays">
                     ${weekDays
-                        .map(
-                            (day) =>
-                                `<span class="mini-calendar-weekday">${day}</span>`
-                        )
-                        .join('')}
+                .map(
+                    (day) =>
+                        `<span class="mini-calendar-weekday">${day}</span>`
+                )
+                .join('')}
                 </div>
                 <div class="mini-calendar-days">
         `;
@@ -11386,16 +11293,14 @@ class LojaApp {
             const isToday = day === currentDate;
 
             html += `
-                <div class="mini-calendar-day ${
-                    hasAppointment ? 'has-appointment' : ''
+                <div class="mini-calendar-day ${hasAppointment ? 'has-appointment' : ''
                 } ${isToday ? 'today' : ''}" 
                      data-day="${day}">
                     <span class="day-number">${day}</span>
-                    ${
-                        hasAppointment
-                            ? '<span class="appointment-dot"></span>'
-                            : ''
-                    }
+                    ${hasAppointment
+                    ? '<span class="appointment-dot"></span>'
+                    : ''
+                }
                 </div>
             `;
         }
@@ -11530,33 +11435,30 @@ class LojaApp {
             const dayAppointments = appointmentsByDay[day] || [];
 
             html += `
-                <div class="calendar-day ${
-                    hasAppointment ? 'has-appointment' : ''
+                <div class="calendar-day ${hasAppointment ? 'has-appointment' : ''
                 } ${isToday ? 'today' : ''}" 
                      data-day="${day}" data-date="${dateStr}">
                     <span class="calendar-day-number">${day}</span>
-                    ${
-                        hasAppointment
-                            ? `<div class="calendar-appointment-indicator">${dayAppointments.length}</div>`
-                            : ''
-                    }
-                    ${
-                        dayAppointments.length > 0
-                            ? `
+                    ${hasAppointment
+                    ? `<div class="calendar-appointment-indicator">${dayAppointments.length}</div>`
+                    : ''
+                }
+                    ${dayAppointments.length > 0
+                    ? `
                         <div class="calendar-day-tooltip">
                             ${dayAppointments
-                                .map(
-                                    (apt) => `
+                        .map(
+                            (apt) => `
                                 <div class="tooltip-item">
                                     <strong>${apt.time}</strong> - ${apt.customerName}
                                 </div>
                             `
-                                )
-                                .join('')}
+                        )
+                        .join('')}
                         </div>
                     `
-                            : ''
-                    }
+                    : ''
+                }
                 </div>
             `;
         }
@@ -11716,59 +11618,49 @@ class LojaApp {
         return `
             <div class="service-appointment-card" style="${cardStyle}; border: 2px solid ${cardBorderColor};">
                 ${reminderAlert}
-                <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: ${
-                    isPast ? '0.75rem' : '1rem'
-                };">
+                <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: ${isPast ? '0.75rem' : '1rem'
+            };">
                     <div style="flex: 1; min-width: 0;">
                         <h3 style="${titleStyle}">${this.escapeHtml(
-            serviceName
-        )}</h3>
+                serviceName
+            )}</h3>
                         <p style="${textStyle}">${this.escapeHtml(
-            appointment.customerName
-        )}</p>
-                        ${
-                            appointment.customerContact
-                                ? `<p style="margin: 0.2rem 0 0 0; color: var(--gray-600); font-size: 0.8rem;">📞 ${this.escapeHtml(
-                                      appointment.customerContact
-                                  )}</p>`
-                                : ''
-                        }
+                appointment.customerName
+            )}</p>
+                        ${appointment.customerContact
+                ? `<p style="margin: 0.2rem 0 0 0; color: var(--gray-600); font-size: 0.8rem;">📞 ${this.escapeHtml(
+                    appointment.customerContact
+                )}</p>`
+                : ''
+            }
                     </div>
                     <span class="appointment-status ${statusClass}" style="flex-shrink: 0; margin-left: 0.5rem;">${statusText}</span>
                 </div>
                 <div style="margin-bottom: ${isPast ? '0.5rem' : '0.75rem'};">
                     <p style="${detailStyle}"><strong>📅 Data:</strong> ${formattedDate}</p>
                     <p style="${detailStyle}"><strong>🕐 Horário:</strong> ${formattedTime}</p>
-                    <p style="margin: 0; color: var(--dark-gray); font-size: ${
-                        isPast ? '0.85rem' : '1rem'
-                    };"><strong>💰 Preço:</strong> R$ ${appointment.price
-            .toFixed(2)
-            .replace('.', ',')}</p>
+                    <p style="margin: 0; color: var(--dark-gray); font-size: ${isPast ? '0.85rem' : '1rem'
+            };"><strong>💰 Preço:</strong> R$ ${appointment.price
+                .toFixed(2)
+                .replace('.', ',')}</p>
                 </div>
-                ${
+                ${appointment.notes
+                ? `<p style="margin: 0 0 ${isPast ? '0.5rem' : '0.75rem'
+                } 0; color: var(--gray-600); font-size: ${isPast ? '0.8rem' : '0.9rem'
+                }; font-style: italic;">${this.escapeHtml(
                     appointment.notes
-                        ? `<p style="margin: 0 0 ${
-                              isPast ? '0.5rem' : '0.75rem'
-                          } 0; color: var(--gray-600); font-size: ${
-                              isPast ? '0.8rem' : '0.9rem'
-                          }; font-style: italic;">${this.escapeHtml(
-                              appointment.notes
-                          )}</p>`
-                        : ''
-                }
+                )}</p>`
+                : ''
+            }
                 <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
-                    <button type="button" class="btn-secondary" onclick="app.editServiceAppointment('${
-                        appointment.id
-                    }')" style="flex: 1; min-width: 80px; font-size: ${
-            isPast ? '0.85rem' : '0.95rem'
-        }; padding: ${isPast ? '0.5rem' : '0.625rem'};">
+                    <button type="button" class="btn-secondary" onclick="app.editServiceAppointment('${appointment.id
+            }')" style="flex: 1; min-width: 80px; font-size: ${isPast ? '0.85rem' : '0.95rem'
+            }; padding: ${isPast ? '0.5rem' : '0.625rem'};">
                         <i class="fas fa-edit"></i> Editar
                     </button>
-                    <button type="button" class="btn-delete" onclick="app.deleteServiceAppointment('${
-                        appointment.id
-                    }')" style="min-width: 36px; padding: ${
-            isPast ? '0.4rem' : '0.5rem'
-        }; font-size: ${isPast ? '0.85rem' : '0.95rem'};">
+                    <button type="button" class="btn-delete" onclick="app.deleteServiceAppointment('${appointment.id
+            }')" style="min-width: 36px; padding: ${isPast ? '0.4rem' : '0.5rem'
+            }; font-size: ${isPast ? '0.85rem' : '0.95rem'};">
                         <i class="fas fa-times"></i>
                     </button>
                 </div>
@@ -12053,17 +11945,15 @@ class LojaApp {
                     <div class="empty-state-icon">
                         <i class="fas fa-calendar-alt"></i>
                     </div>
-                    <h3 class="empty-state-title">${
-                        yearFilter
-                            ? `Nenhum grupo encontrado para ${yearFilter}`
-                            : 'Nenhum grupo mensal criado ainda'
-                    }</h3>
+                    <h3 class="empty-state-title">${yearFilter
+                    ? `Nenhum grupo encontrado para ${yearFilter}`
+                    : 'Nenhum grupo mensal criado ainda'
+                }</h3>
                     <p class="empty-state-message">
-                        ${
-                            yearFilter
-                                ? 'Tente selecionar outro ano ou criar um novo grupo mensal.'
-                                : 'Comece criando um grupo mensal para organizar suas vendas por mês.'
-                        }
+                        ${yearFilter
+                    ? 'Tente selecionar outro ano ou criar um novo grupo mensal.'
+                    : 'Comece criando um grupo mensal para organizar suas vendas por mês.'
+                }
                     </p>
                 </div>`;
             return;
@@ -12151,27 +12041,24 @@ class LojaApp {
                     <div class="group-info">
                         <div><strong>Total de Vendas:</strong> ${totalSales}</div>
                         <div><strong>Valor Total:</strong> R$ ${totalValue
-                            .toFixed(2)
-                            .replace('.', ',')}</div>
+                        .toFixed(2)
+                        .replace('.', ',')}</div>
                         <div class="stock-section">
                             <div class="stock-total"><strong>Estoque Total:</strong> ${totalStock} un.</div>
                             <div class="stock-sold"><strong>Estoque Vendido:</strong> ${totalStockSold} un.</div>
-                            <div class="stock-available ${
-                                totalStockAvailable < 0
-                                    ? 'danger'
-                                    : totalStockAvailable === 0
-                                    ? 'warning'
-                                    : ''
-                            }"><strong>Estoque Disponível:</strong> ${totalStockAvailable} un.</div>
+                            <div class="stock-available ${totalStockAvailable < 0
+                        ? 'danger'
+                        : totalStockAvailable === 0
+                            ? 'warning'
+                            : ''
+                    }"><strong>Estoque Disponível:</strong> ${totalStockAvailable} un.</div>
                         </div>
                     </div>
                     <div class="group-actions">
-                        <button class="btn-small btn-edit" onclick="app.viewGroup('${
-                            group.id
-                        }')">Ver Detalhes</button>
-                        <button class="btn-small btn-delete" onclick="app.deleteGroup('${
-                            group.id
-                        }')" title="Excluir"><i class="fas fa-times"></i></button>
+                        <button class="btn-small btn-edit" onclick="app.viewGroup('${group.id
+                    }')">Ver Detalhes</button>
+                        <button class="btn-small btn-delete" onclick="app.deleteGroup('${group.id
+                    }')" title="Excluir"><i class="fas fa-times"></i></button>
                     </div>
                 </div>
             `;
@@ -12206,9 +12093,8 @@ class LojaApp {
                 ];
                 const option = document.createElement('option');
                 option.value = group.month;
-                option.textContent = `${
-                    monthNames[parseInt(month) - 1]
-                } ${year}`;
+                option.textContent = `${monthNames[parseInt(month) - 1]
+                    } ${year}`;
                 select.appendChild(option);
             }
         });
@@ -12445,16 +12331,15 @@ class LojaApp {
                     <div style="display: flex; justify-content: space-between; align-items: center; padding: 0.75rem; background: white; margin-bottom: 0.5rem; border-radius: 5px; border: 1px solid var(--border-color);">
                         <div>
                             <strong>${this.escapeHtml(
-                                this.getItemName(service.itemId)
-                            )}</strong>
+                        this.getItemName(service.itemId)
+                    )}</strong>
                             <div style="font-size: 0.85rem; color: var(--gray); margin-top: 0.25rem;">
                                 ${hours}h ${minutes}min - R$ ${total
-                        .toFixed(2)
-                        .replace('.', ',')}
+                            .toFixed(2)
+                            .replace('.', ',')}
                             </div>
                         </div>
-                        <button type="button" class="btn-small btn-delete" onclick="app.deleteServiceRecord(${
-                            this.currentServiceDay
+                        <button type="button" class="btn-small btn-delete" onclick="app.deleteServiceRecord(${this.currentServiceDay
                         }, ${index})" title="Excluir">
                             <i class="fas fa-times"></i>
                         </button>
@@ -12690,8 +12575,7 @@ class LojaApp {
                         <span>${dayHours}h ${dayMinutes}min</span>
                         <span>R$ ${dayTotal.toFixed(2).replace('.', ',')}</span>
                     </div>
-                    <button type="button" class="btn-small btn-primary" onclick="app.openServiceRecordModal('${
-                        serviceGroup.id
+                    <button type="button" class="btn-small btn-primary" onclick="app.openServiceRecordModal('${serviceGroup.id
                     }', ${day.day})">
                         ${dayServices > 0 ? 'Editar' : 'Registrar'}
                     </button>
@@ -12731,8 +12615,8 @@ class LojaApp {
                             <strong>${this.escapeHtml(data.name)}</strong>
                             <div style="font-size: 0.85rem; color: var(--gray); margin-top: 0.25rem;">
                                 ${totalHours}h ${totalMinutes}min - R$ ${data.total
-                        .toFixed(2)
-                        .replace('.', ',')}
+                            .toFixed(2)
+                            .replace('.', ',')}
                             </div>
                         </div>
                     </div>
@@ -12841,17 +12725,15 @@ class LojaApp {
                     <div class="group-info">
                         <div><strong>Total de Horas:</strong> ${totalHours}h ${totalMinutes}min</div>
                         <div><strong>Total Faturado:</strong> R$ ${totalRevenue
-                            .toFixed(2)
-                            .replace('.', ',')}</div>
+                        .toFixed(2)
+                        .replace('.', ',')}</div>
                         <div><strong>Serviços Registrados:</strong> ${totalServices}</div>
                     </div>
                     <div class="group-actions">
-                        <button class="btn-small btn-edit" onclick="app.viewServiceGroup('${
-                            serviceGroup.id
-                        }')">Ver Detalhes</button>
-                        <button class="btn-small btn-delete" onclick="app.deleteServiceGroup('${
-                            serviceGroup.id
-                        }')" title="Excluir"><i class="fas fa-times"></i></button>
+                        <button class="btn-small btn-edit" onclick="app.viewServiceGroup('${serviceGroup.id
+                    }')">Ver Detalhes</button>
+                        <button class="btn-small btn-delete" onclick="app.deleteServiceGroup('${serviceGroup.id
+                    }')" title="Excluir"><i class="fas fa-times"></i></button>
                     </div>
                 </div>
             `;
@@ -13171,11 +13053,10 @@ class LojaApp {
                 return `
                 <div class="cost-card">
                     <h3>${this.escapeHtml(
-                        item ? item.name : 'Item não encontrado'
-                    )}</h3>
+                    item ? item.name : 'Item não encontrado'
+                )}</h3>
                     <div class="cost-info"><strong>Data:</strong> ${formattedDate}</div>
-                    <div class="cost-info"><strong>Quantidade:</strong> ${
-                        cost.quantity
+                    <div class="cost-info"><strong>Quantidade:</strong> ${cost.quantity
                     } un.</div>
                     <div class="cost-info"><strong>Custo Unitário:</strong> R$ ${cost.price
                         .toFixed(2)
@@ -13187,9 +13068,8 @@ class LojaApp {
                         <button class="btn-small btn-edit" onclick="app.openCostModal(${JSON.stringify(
                             cost
                         ).replace(/"/g, '&quot;')})">Editar</button>
-                        <button class="btn-small btn-delete" onclick="app.deleteCost('${
-                            cost.id
-                        }')" title="Excluir"><i class="fas fa-times"></i></button>
+                        <button class="btn-small btn-delete" onclick="app.deleteCost('${cost.id
+                    }')" title="Excluir"><i class="fas fa-times"></i></button>
                     </div>
                 </div>
             `;
@@ -13409,29 +13289,26 @@ class LojaApp {
                     <div class="empty-state-icon">
                         <i class="fas fa-bullseye"></i>
                     </div>
-                    <h3 class="empty-state-title">${
-                        goalsYearFilter
-                            ? `Nenhuma meta encontrada para ${goalsYearFilter}`
-                            : 'Nenhuma meta cadastrada ainda'
-                    }</h3>
+                    <h3 class="empty-state-title">${goalsYearFilter
+                    ? `Nenhuma meta encontrada para ${goalsYearFilter}`
+                    : 'Nenhuma meta cadastrada ainda'
+                }</h3>
                     <p class="empty-state-message">
-                        ${
-                            goalsYearFilter
-                                ? 'Tente selecionar outro ano ou criar uma nova meta.'
-                                : 'Comece definindo suas metas financeiras para acompanhar o desempenho do negócio.'
-                        }
+                        ${goalsYearFilter
+                    ? 'Tente selecionar outro ano ou criar uma nova meta.'
+                    : 'Comece definindo suas metas financeiras para acompanhar o desempenho do negócio.'
+                }
                     </p>
-                    ${
-                        !goalsYearFilter
-                            ? `
+                    ${!goalsYearFilter
+                    ? `
                         <div class="empty-state-action">
                             <button class="btn-primary" onclick="app.openGoalModal()">
                                 <i class="fas fa-bullseye"></i> Criar Primeira Meta
                             </button>
                         </div>
                     `
-                            : ''
-                    }
+                    : ''
+                }
                 </div>`;
             ('</p>');
             return;
@@ -13469,8 +13346,8 @@ class LojaApp {
                     progress >= 100
                         ? 'success'
                         : progress >= 75
-                        ? 'warning'
-                        : 'danger';
+                            ? 'warning'
+                            : 'danger';
 
                 // Verificar se está próximo de atingir (75-95%)
                 const isNearGoal = progress >= 75 && progress < 100;
@@ -13495,44 +13372,40 @@ class LojaApp {
                     daysRemaining <= 7;
 
                 return `
-                <div class="goal-card" ${
-                    isNearGoal || isNearEndOfMonth
+                <div class="goal-card" ${isNearGoal || isNearEndOfMonth
                         ? 'style="border: 2px solid #ffc107;"'
                         : ''
-                }>
-                    ${
-                        isNearGoal
-                            ? `
+                    }>
+                    ${isNearGoal
+                        ? `
                         <div style="padding: 0.75rem; background: #fff3cd; border: 2px solid #ffc107; border-radius: var(--radius-sm); margin-bottom: 1rem;">
                             <p style="margin: 0; color: #856404; font-weight: 600;">
                                 <i class="fas fa-bullseye"></i> Meta quase atingida! ${progress.toFixed(
-                                    1
-                                )}% concluído
+                            1
+                        )}% concluído
                             </p>
                         </div>
                     `
-                            : ''
+                        : ''
                     }
-                    ${
-                        isNearEndOfMonth && progress < 100
-                            ? `
+                    ${isNearEndOfMonth && progress < 100
+                        ? `
                         <div style="padding: 0.75rem; background: #fff3cd; border: 2px solid #ffc107; border-radius: var(--radius-sm); margin-bottom: 1rem;">
                             <p style="margin: 0; color: #856404; font-weight: 600;">
                                 <i class="fas fa-clock"></i> Faltam ${daysRemaining} dia(s) para o fim do mês! Progresso: ${progress.toFixed(
-                                  1
-                              )}%
+                            1
+                        )}%
                             </p>
                         </div>
                     `
-                            : ''
+                        : ''
                     }
                     <h3>${monthName}/${year}</h3>
-                    ${
-                        goal.description
-                            ? `<div class="goal-info"><strong>Descrição:</strong> ${this.escapeHtml(
-                                  goal.description
-                              )}</div>`
-                            : ''
+                    ${goal.description
+                        ? `<div class="goal-info"><strong>Descrição:</strong> ${this.escapeHtml(
+                            goal.description
+                        )}</div>`
+                        : ''
                     }
                     <div class="goal-info"><strong>Meta:</strong> R$ ${goal.amount
                         .toFixed(2)
@@ -13542,9 +13415,9 @@ class LojaApp {
                         .replace('.', ',')}</div>
                     <div class="goal-progress-bar">
                         <div class="goal-progress-fill ${progressClass}" style="width: ${Math.min(
-                    progress,
-                    100
-                )}%">
+                            progress,
+                            100
+                        )}%">
                             ${Math.min(progress, 100).toFixed(1)}%
                         </div>
                     </div>
@@ -13552,9 +13425,8 @@ class LojaApp {
                         <button class="btn-small btn-edit" onclick="app.openGoalModal(${JSON.stringify(
                             goal
                         ).replace(/"/g, '&quot;')})">Editar</button>
-                        <button class="btn-small btn-delete" onclick="app.deleteGoal('${
-                            goal.id
-                        }')" title="Excluir"><i class="fas fa-times"></i></button>
+                        <button class="btn-small btn-delete" onclick="app.deleteGoal('${goal.id
+                    }')" title="Excluir"><i class="fas fa-times"></i></button>
                     </div>
                 </div>
             `;
@@ -14365,7 +14237,7 @@ class LojaApp {
                 const avgStock =
                     data.stockValues.length > 0
                         ? data.stockValues.reduce((sum, val) => sum + val, 0) /
-                          data.stockValues.length
+                        data.stockValues.length
                         : 0;
 
                 if (!stockByMonth[monthKey][sku]) {
@@ -14583,32 +14455,30 @@ class LojaApp {
                     suggestion.priority === 'high'
                         ? '#dc3545'
                         : suggestion.priority === 'medium'
-                        ? '#ffc107'
-                        : '#28a745';
+                            ? '#ffc107'
+                            : '#28a745';
                 const priorityText =
                     suggestion.priority === 'high'
                         ? 'Urgente'
                         : suggestion.priority === 'medium'
-                        ? 'Atenção'
-                        : 'Sugestão';
+                            ? 'Atenção'
+                            : 'Sugestão';
 
                 return `
                 <div style="display: flex; justify-content: space-between; align-items: center; padding: 0.75rem; background: white; margin-bottom: 0.5rem; border-radius: 5px; border-left: 3px solid ${priorityColor};">
                     <div style="flex: 1;">
                         <strong style="font-size: 0.9rem;">${this.escapeHtml(
-                            suggestion.itemName
-                        )}</strong>
+                    suggestion.itemName
+                )}</strong>
                         <div style="font-size: 0.75rem; color: var(--gray-600); margin-top: 0.25rem;">
-                            Estoque atual: ${
-                                suggestion.currentStock
-                            } un. | Vendas/mês: ${suggestion.monthlySales} un.
+                            Estoque atual: ${suggestion.currentStock
+                    } un. | Vendas/mês: ${suggestion.monthlySales} un.
                         </div>
                     </div>
                     <div style="text-align: right;">
                         <div style="font-size: 0.75rem; color: ${priorityColor}; font-weight: 600; margin-bottom: 0.25rem;">${priorityText}</div>
-                        <div style="font-size: 0.85rem; color: var(--gray-700);">Sugerido: ${
-                            suggestion.suggestedQty
-                        } un.</div>
+                        <div style="font-size: 0.85rem; color: var(--gray-700);">Sugerido: ${suggestion.suggestedQty
+                    } un.</div>
                     </div>
                 </div>
             `;
@@ -15454,9 +15324,8 @@ class LojaApp {
 
         document.getElementById(
             'stockModalTitle'
-        ).textContent = `Gerenciar Estoque do Mês - ${
-            monthNames[parseInt(month) - 1]
-        } ${year}`;
+        ).textContent = `Gerenciar Estoque do Mês - ${monthNames[parseInt(month) - 1]
+            } ${year}`;
 
         // Definir dia padrão como 1
         document.getElementById('stockDay').value = 1;
@@ -15589,14 +15458,12 @@ class LojaApp {
                     <div class="stock-variation-item">
                         <div class="stock-variation-info">
                             <div class="stock-variation-name">${this.escapeHtml(
-                                item.name || item.model || item.brand
-                            )}${
-                        item.brand ? ' - ' + this.escapeHtml(item.brand) : ''
-                    }</div>
+                        item.name || item.model || item.brand
+                    )}${item.brand ? ' - ' + this.escapeHtml(item.brand) : ''
+                        }</div>
                             <div class="stock-variation-details">
-                                Tamanho: ${this.escapeHtml(sizeLabel)}${
-                        color ? ` | Cor: ${this.escapeHtml(colorLabel)}` : ''
-                    }
+                                Tamanho: ${this.escapeHtml(sizeLabel)}${color ? ` | Cor: ${this.escapeHtml(colorLabel)}` : ''
+                        }
                             </div>
                             <div class="stock-variation-stats">
                                 Estoque: ${stockQuantity} un. | Vendido: ${soldQuantity} un. | Disponível: ${availableStock} un.
@@ -15646,10 +15513,9 @@ class LojaApp {
             <div style="display: flex; justify-content: space-between; align-items: center; padding: 1rem; background: white; margin-bottom: 0.5rem; border-radius: 5px; border: 1px solid var(--border-color);">
                 <div style="flex: 1;">
                     <strong>${this.escapeHtml(
-                        item.name || item.model || 'Item'
-                    )}</strong>${
-                item.brand ? ' - ' + this.escapeHtml(item.brand) : ''
-            }
+                item.name || item.model || 'Item'
+            )}</strong>${item.brand ? ' - ' + this.escapeHtml(item.brand) : ''
+                }
                     <div style="font-size: 0.85rem; color: var(--gray); margin-top: 0.25rem;">
                         Estoque: ${stockQuantity} un. | Vendido: ${soldQuantity} un. | Disponível: ${availableStock} un.
                     </div>
@@ -15986,9 +15852,8 @@ class LojaApp {
 
         // CORRIGIDO: Percorrer days -> sales
         filteredGroups.forEach((group) => {
-            const key = `${group.month.split('-')[1]}/${
-                group.month.split('-')[0]
-            }`;
+            const key = `${group.month.split('-')[1]}/${group.month.split('-')[0]
+                }`;
             if (!monthlyData[key]) {
                 monthlyData[key] = { sales: 0, value: 0 };
             }
@@ -16136,9 +16001,8 @@ class LojaApp {
 
         // Percorrer days -> sales e calcular receita + custo do produto
         filteredGroups.forEach((group) => {
-            const key = `${group.month.split('-')[1]}/${
-                group.month.split('-')[0]
-            }`;
+            const key = `${group.month.split('-')[1]}/${group.month.split('-')[0]
+                }`;
             if (!monthlyData[key]) {
                 monthlyData[key] = { profit: 0, costs: 0, productCosts: 0 };
             }
@@ -16332,9 +16196,8 @@ class LojaApp {
 
         // Percorrer days -> sales e calcular receita + custo do produto
         filteredGroups.forEach((group) => {
-            const key = `${group.month.split('-')[1]}/${
-                group.month.split('-')[0]
-            }`;
+            const key = `${group.month.split('-')[1]}/${group.month.split('-')[0]
+                }`;
             if (!monthlyData[key]) {
                 monthlyData[key] = { sales: 0, costs: 0, productCosts: 0 };
             }
@@ -16430,9 +16293,8 @@ class LojaApp {
 
         // CORRIGIDO: Percorrer days -> sales
         filteredGroups.forEach((group) => {
-            const key = `${group.month.split('-')[1]}/${
-                group.month.split('-')[0]
-            }`;
+            const key = `${group.month.split('-')[1]}/${group.month.split('-')[0]
+                }`;
             if (!monthlyTotals[key]) {
                 monthlyTotals[key] = 0;
                 monthCount++;
@@ -16599,8 +16461,7 @@ class LojaApp {
                 groupLowStockItemsEl.innerHTML = lowStockItems
                     .map(
                         (item) =>
-                            `<strong>${this.escapeHtml(item.name)}</strong>: ${
-                                item.available
+                            `<strong>${this.escapeHtml(item.name)}</strong>: ${item.available
                             } un.`
                     )
                     .join('<br>');
@@ -16631,9 +16492,8 @@ class LojaApp {
 
         // Calcular consumo de estoque (quantidade vendida) por mês
         filteredGroups.forEach((group) => {
-            const key = `${group.month.split('-')[1]}/${
-                group.month.split('-')[0]
-            }`;
+            const key = `${group.month.split('-')[1]}/${group.month.split('-')[0]
+                }`;
             if (!monthlyData[key]) {
                 monthlyData[key] = 0;
             }
@@ -17688,19 +17548,19 @@ class LojaApp {
         const bestMonthHours =
             monthStats.length > 0
                 ? monthStats.reduce(
-                      (best, current) =>
-                          current.hours > best.hours ? current : best,
-                      monthStats[0]
-                  )
+                    (best, current) =>
+                        current.hours > best.hours ? current : best,
+                    monthStats[0]
+                )
                 : null;
 
         const bestMonthRevenue =
             monthStats.length > 0
                 ? monthStats.reduce(
-                      (best, current) =>
-                          current.revenue > best.revenue ? current : best,
-                      monthStats[0]
-                  )
+                    (best, current) =>
+                        current.revenue > best.revenue ? current : best,
+                    monthStats[0]
+                )
                 : null;
 
         const totalHoursDecimal = totalHours + totalMinutes / 60;
@@ -17737,9 +17597,8 @@ class LojaApp {
             bestMonthHoursEl.textContent = monthText;
             // Adicionar tooltip com o valor completo
             if (bestMonthHours) {
-                const tooltipText = `${
-                    bestMonthHours.month
-                } - ${bestMonthHours.hours.toFixed(1)}h`;
+                const tooltipText = `${bestMonthHours.month
+                    } - ${bestMonthHours.hours.toFixed(1)}h`;
                 bestMonthHoursEl.setAttribute('title', tooltipText);
             } else {
                 bestMonthHoursEl.removeAttribute('title');
@@ -17755,11 +17614,10 @@ class LojaApp {
             bestMonthRevenueEl.textContent = monthText;
             // Adicionar tooltip com o valor completo
             if (bestMonthRevenue) {
-                const tooltipText = `${
-                    bestMonthRevenue.month
-                } - R$ ${bestMonthRevenue.revenue
-                    .toFixed(2)
-                    .replace('.', ',')}`;
+                const tooltipText = `${bestMonthRevenue.month
+                    } - R$ ${bestMonthRevenue.revenue
+                        .toFixed(2)
+                        .replace('.', ',')}`;
                 bestMonthRevenueEl.setAttribute('title', tooltipText);
             } else {
                 bestMonthRevenueEl.removeAttribute('title');
@@ -18061,8 +17919,7 @@ class LojaApp {
                     // Verificar se a resposta é JSON antes de fazer parse
                     const contentType = response.headers.get('content-type');
                     console.log(
-                        `📋 [LOAD DATA] Content-Type: ${
-                            contentType || 'não especificado'
+                        `📋 [LOAD DATA] Content-Type: ${contentType || 'não especificado'
                         }`
                     );
 
@@ -18300,12 +18157,9 @@ class LojaApp {
                                 'ℹ️ [LOAD DATA] Nenhum dado encontrado na nuvem (bin vazio ou apenas estrutura vazia)'
                             );
                             console.log(
-                                `📊 [LOAD DATA] Estrutura: Items: ${
-                                    cloudData.items?.length || 0
-                                } | Grupos: ${
-                                    cloudData.groups?.length || 0
-                                } | Custos: ${
-                                    cloudData.costs?.length || 0
+                                `📊 [LOAD DATA] Estrutura: Items: ${cloudData.items?.length || 0
+                                } | Grupos: ${cloudData.groups?.length || 0
+                                } | Custos: ${cloudData.costs?.length || 0
                                 } | Metas: ${cloudData.goals?.length || 0}`
                             );
                         }
@@ -18553,10 +18407,8 @@ class LojaApp {
 
         console.log('✅ [LOAD DATA] Carregamento de dados concluído');
         console.log(
-            `📊 [LOAD DATA] Estado final: Items: ${
-                this.items?.length || 0
-            } | Grupos: ${this.groups?.length || 0} | Clientes: ${
-                this.clients?.length || 0
+            `📊 [LOAD DATA] Estado final: Items: ${this.items?.length || 0
+            } | Grupos: ${this.groups?.length || 0} | Clientes: ${this.clients?.length || 0
             }`
         );
 
@@ -18593,9 +18445,8 @@ class LojaApp {
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
-        a.download = `loja_backup_${
-            new Date().toISOString().split('T')[0]
-        }.txt`;
+        a.download = `loja_backup_${new Date().toISOString().split('T')[0]
+            }.txt`;
         document.body.appendChild(a);
         a.click();
         document.body.removeChild(a);
@@ -18761,8 +18612,7 @@ class LojaApp {
 
         if (typeof toast !== 'undefined' && toast) {
             toast.info(
-                `Backup automático ${
-                    frequency === 'daily' ? 'diário' : 'semanal'
+                `Backup automático ${frequency === 'daily' ? 'diário' : 'semanal'
                 } ativado!`,
                 3000
             );
@@ -19003,9 +18853,8 @@ class LojaApp {
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
-        a.download = `backup_${backupId}_${
-            new Date().toISOString().split('T')[0]
-        }.json`;
+        a.download = `backup_${backupId}_${new Date().toISOString().split('T')[0]
+            }.json`;
         document.body.appendChild(a);
         a.click();
         document.body.removeChild(a);
@@ -19155,91 +19004,77 @@ class LojaApp {
                 const pointsText =
                     storagePoints.length > 0
                         ? storagePoints
-                              .map((p) => pointsLabels[p] || p)
-                              .join(', ')
+                            .map((p) => pointsLabels[p] || p)
+                            .join(', ')
                         : 'Local';
                 const pointsCount = storagePoints.length || 1;
 
                 return `
-                    <div class="item-card" style="margin-bottom: 1rem; border-left: 4px solid ${
-                        backup.type === 'auto' ? '#28a745' : '#007bff'
+                    <div class="item-card" style="margin-bottom: 1rem; border-left: 4px solid ${backup.type === 'auto' ? '#28a745' : '#007bff'
                     };">
                         <div class="item-header">
                             <div style="display: flex; align-items: center; gap: 0.5rem; flex: 1;">
-                                <i class="fas ${
-                                    backup.type === 'auto'
-                                        ? 'fa-clock'
-                                        : 'fa-save'
-                                }" style="color: ${
-                    backup.type === 'auto' ? '#28a745' : '#007bff'
-                };"></i>
+                                <i class="fas ${backup.type === 'auto'
+                        ? 'fa-clock'
+                        : 'fa-save'
+                    }" style="color: ${backup.type === 'auto' ? '#28a745' : '#007bff'
+                    };"></i>
                                 <div style="flex: 1;">
                                     <h3 style="margin: 0; font-size: 0.95rem; font-weight: 600;">
-                                        ${
-                                            backup.type === 'auto'
-                                                ? 'Backup Automático'
-                                                : 'Backup Manual'
-                                        }
+                                        ${backup.type === 'auto'
+                        ? 'Backup Automático'
+                        : 'Backup Manual'
+                    }
                                     </h3>
                                     <p style="margin: 0.25rem 0 0 0; font-size: 0.85rem; color: var(--gray-600);">
                                         <i class="fas fa-calendar"></i> ${dateStr}
                                     </p>
-                                    ${
-                                        pointsCount > 1
-                                            ? `
+                                    ${pointsCount > 1
+                        ? `
                                         <p style="margin: 0.25rem 0 0 0; font-size: 0.8rem; color: var(--primary-color);">
                                             <i class="fas fa-database"></i> Armazenado em ${pointsCount} locais: ${pointsText}
                                         </p>
                                     `
-                                            : ''
-                                    }
+                        : ''
+                    }
                                 </div>
                             </div>
                             <div style="display: flex; gap: 0.5rem; flex-direction: column; align-items: flex-end;">
-                                ${
-                                    isIntegrityOk
-                                        ? '<span style="color: #28a745; font-size: 0.75rem;"><i class="fas fa-check-circle"></i> Íntegro</span>'
-                                        : '<span style="color: #dc3545; font-size: 0.75rem;"><i class="fas fa-exclamation-circle"></i> Corrompido</span>'
-                                }
-                                ${
-                                    pointsCount > 1
-                                        ? `
+                                ${isIntegrityOk
+                        ? '<span style="color: #28a745; font-size: 0.75rem;"><i class="fas fa-check-circle"></i> Íntegro</span>'
+                        : '<span style="color: #dc3545; font-size: 0.75rem;"><i class="fas fa-exclamation-circle"></i> Corrompido</span>'
+                    }
+                                ${pointsCount > 1
+                        ? `
                                     <span style="color: var(--primary-color); font-size: 0.7rem;" title="Múltiplos pontos de backup">
                                         <i class="fas fa-shield-alt"></i> ${pointsCount}x
                                     </span>
                                 `
-                                        : ''
-                                }
+                        : ''
+                    }
                             </div>
                         </div>
                         <div class="item-details" style="padding-top: 0.75rem; border-top: 1px solid var(--border-color); margin-top: 0.75rem;">
                             <p style="margin: 0.5rem 0; font-size: 0.85rem;">
-                                <i class="fas fa-box"></i> <strong>Itens:</strong> ${
-                                    backup.data.items?.length || 0
-                                } | 
-                                <i class="fas fa-users"></i> <strong>Clientes:</strong> ${
-                                    backup.data.clients?.length || 0
-                                } | 
-                                <i class="fas fa-shopping-cart"></i> <strong>Vendas:</strong> ${
-                                    backup.data.completedSales?.length || 0
-                                }
+                                <i class="fas fa-box"></i> <strong>Itens:</strong> ${backup.data.items?.length || 0
+                    } | 
+                                <i class="fas fa-users"></i> <strong>Clientes:</strong> ${backup.data.clients?.length || 0
+                    } | 
+                                <i class="fas fa-shopping-cart"></i> <strong>Vendas:</strong> ${backup.data.completedSales?.length || 0
+                    }
                             </p>
                             <div style="display: flex; gap: 0.5rem; margin-top: 0.75rem;">
-                                <button class="btn-small btn-secondary" onclick="app.restoreBackup('${
-                                    backup.id
-                                }')" ${
-                    !isIntegrityOk ? 'disabled title="Backup corrompido"' : ''
-                }>
+                                <button class="btn-small btn-secondary" onclick="app.restoreBackup('${backup.id
+                    }')" ${!isIntegrityOk ? 'disabled title="Backup corrompido"' : ''
+                    }>
                                     <i class="fas fa-undo"></i> Restaurar
                                 </button>
-                                <button class="btn-small btn-secondary" onclick="app.downloadBackup('${
-                                    backup.id
-                                }')">
+                                <button class="btn-small btn-secondary" onclick="app.downloadBackup('${backup.id
+                    }')">
                                     <i class="fas fa-download"></i> Baixar
                                 </button>
-                                <button class="btn-small btn-delete" onclick="app.deleteBackup('${
-                                    backup.id
-                                }')">
+                                <button class="btn-small btn-delete" onclick="app.deleteBackup('${backup.id
+                    }')">
                                     <i class="fas fa-times"></i> Excluir
                                 </button>
                             </div>
@@ -19377,9 +19212,8 @@ class LojaApp {
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
-        a.download = `backup_${backupId}_${
-            new Date(backup.timestamp).toISOString().split('T')[0]
-        }.json`;
+        a.download = `backup_${backupId}_${new Date(backup.timestamp).toISOString().split('T')[0]
+            }.json`;
         document.body.appendChild(a);
         a.click();
         document.body.removeChild(a);
@@ -19714,20 +19548,19 @@ class LojaApp {
                 <div>
                     <div style="font-size: 0.75rem; color: var(--gray-600); margin-bottom: 0.25rem;">Subtotal</div>
                     <div style="font-weight: 600; color: var(--gray-800);">R$ ${baseTotal
-                        .toFixed(2)
-                        .replace('.', ',')}</div>
+                .toFixed(2)
+                .replace('.', ',')}</div>
                 </div>
                 <div>
                     <div style="font-size: 0.75rem; color: var(--gray-600); margin-bottom: 0.25rem;">Desconto</div>
-                    <div style="font-weight: 600; color: ${
-                        discount > 0 ? '#28a745' : 'var(--gray-800)'
-                    };">R$ ${discount.toFixed(2).replace('.', ',')}</div>
+                    <div style="font-weight: 600; color: ${discount > 0 ? '#28a745' : 'var(--gray-800)'
+            };">R$ ${discount.toFixed(2).replace('.', ',')}</div>
                 </div>
                 <div>
                     <div style="font-size: 0.75rem; color: var(--gray-600); margin-bottom: 0.25rem;">Total</div>
                     <div style="font-weight: 700; font-size: 1.1rem; color: var(--primary-color);">R$ ${total
-                        .toFixed(2)
-                        .replace('.', ',')}</div>
+                .toFixed(2)
+                .replace('.', ',')}</div>
                 </div>
             </div>
         `;
@@ -19943,8 +19776,8 @@ class LojaApp {
             totalUsage.usagePercent > 80
                 ? '#dc3545'
                 : totalUsage.usagePercent > 60
-                ? '#ffc107'
-                : '#28a745';
+                    ? '#ffc107'
+                    : '#28a745';
 
         container.innerHTML = `
             <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.5rem; margin-bottom: 2rem;">
@@ -19953,33 +19786,28 @@ class LojaApp {
                         <h3 style="margin: 0; color: var(--gray-600); font-size: 0.9rem; font-weight: 600;">Espaço Utilizado</h3>
                         <i class="fas fa-database" style="color: ${usageColor}; font-size: 1.5rem;"></i>
                     </div>
-                    <p style="margin: 0; font-size: 2rem; font-weight: 700; color: var(--dark-gray);">${
-                        totalUsage.binSizeMB
-                    } MB</p>
-                    <p style="margin: 0.25rem 0 0 0; font-size: 0.75rem; color: var(--gray-500);">${
-                        totalUsage.binSizeKB
-                    } KB</p>
+                    <p style="margin: 0; font-size: 2rem; font-weight: 700; color: var(--dark-gray);">${totalUsage.binSizeMB
+            } MB</p>
+                    <p style="margin: 0.25rem 0 0 0; font-size: 0.75rem; color: var(--gray-500);">${totalUsage.binSizeKB
+            } KB</p>
                 </div>
                 <div class="admin-stat-card" style="background: var(--white); padding: 1.5rem; border-radius: var(--radius-md); box-shadow: var(--shadow-sm); border-left: 4px solid #28a745;">
                     <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.5rem;">
                         <h3 style="margin: 0; color: var(--gray-600); font-size: 0.9rem; font-weight: 600;">Espaço Restante</h3>
                         <i class="fas fa-hdd" style="color: #28a745; font-size: 1.5rem;"></i>
                     </div>
-                    <p style="margin: 0; font-size: 2rem; font-weight: 700; color: var(--dark-gray);">${
-                        totalUsage.remainingMB
-                    } MB</p>
-                    <p style="margin: 0.25rem 0 0 0; font-size: 0.75rem; color: var(--gray-500);">${
-                        totalUsage.remainingKB
-                    } KB</p>
+                    <p style="margin: 0; font-size: 2rem; font-weight: 700; color: var(--dark-gray);">${totalUsage.remainingMB
+            } MB</p>
+                    <p style="margin: 0.25rem 0 0 0; font-size: 0.75rem; color: var(--gray-500);">${totalUsage.remainingKB
+            } KB</p>
                 </div>
                 <div class="admin-stat-card" style="background: var(--white); padding: 1.5rem; border-radius: var(--radius-md); box-shadow: var(--shadow-sm); border-left: 4px solid #007bff;">
                     <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.5rem;">
                         <h3 style="margin: 0; color: var(--gray-600); font-size: 0.9rem; font-weight: 600;">Limite do Plano</h3>
                         <i class="fas fa-chart-pie" style="color: #007bff; font-size: 1.5rem;"></i>
                     </div>
-                    <p style="margin: 0; font-size: 2rem; font-weight: 700; color: var(--dark-gray);">${
-                        totalUsage.freePlanLimitMB
-                    } MB</p>
+                    <p style="margin: 0; font-size: 2rem; font-weight: 700; color: var(--dark-gray);">${totalUsage.freePlanLimitMB
+            } MB</p>
                     <p style="margin: 0.25rem 0 0 0; font-size: 0.75rem; color: var(--gray-500);">Plano gratuito JSONBin</p>
                 </div>
                 <div class="admin-stat-card" style="background: var(--white); padding: 1.5rem; border-radius: var(--radius-md); box-shadow: var(--shadow-sm); border-left: 4px solid ${usageColor};">
@@ -19987,17 +19815,14 @@ class LojaApp {
                         <h3 style="margin: 0; color: var(--gray-600); font-size: 0.9rem; font-weight: 600;">Percentual de Uso</h3>
                         <i class="fas fa-percentage" style="color: ${usageColor}; font-size: 1.5rem;"></i>
                     </div>
-                    <p style="margin: 0; font-size: 2rem; font-weight: 700; color: var(--dark-gray);">${
-                        totalUsage.usagePercent
-                    }%</p>
-                    <p style="margin: 0.25rem 0 0 0; font-size: 0.75rem; color: ${
-                        totalUsage.isNearLimit ? '#dc3545' : 'var(--gray-500)'
-                    };">
-                        ${
-                            totalUsage.isNearLimit
-                                ? '⚠️ Próximo do limite!'
-                                : 'Disponível'
-                        }
+                    <p style="margin: 0; font-size: 2rem; font-weight: 700; color: var(--dark-gray);">${totalUsage.usagePercent
+            }%</p>
+                    <p style="margin: 0.25rem 0 0 0; font-size: 0.75rem; color: ${totalUsage.isNearLimit ? '#dc3545' : 'var(--gray-500)'
+            };">
+                        ${totalUsage.isNearLimit
+                ? '⚠️ Próximo do limite!'
+                : 'Disponível'
+            }
                     </p>
                 </div>
             </div>
@@ -20043,8 +19868,8 @@ class LojaApp {
                             totalUsage.usagePercent > 80
                                 ? '#dc3545'
                                 : totalUsage.usagePercent > 60
-                                ? '#ffc107'
-                                : '#28a745',
+                                    ? '#ffc107'
+                                    : '#28a745',
                             '#e9ecef',
                         ],
                         borderColor: ['#fff', '#fff'],
@@ -20113,52 +19938,47 @@ class LojaApp {
                         </thead>
                         <tbody>
                             ${sortedUsers
-                                .map((user) => {
-                                    const usagePercent = parseFloat(
-                                        user.usagePercent
-                                    );
-                                    const rowColor =
-                                        usagePercent > 30
-                                            ? '#fff5f5'
-                                            : usagePercent > 15
-                                            ? '#fffbf0'
-                                            : 'transparent';
-                                    return `
+                .map((user) => {
+                    const usagePercent = parseFloat(
+                        user.usagePercent
+                    );
+                    const rowColor =
+                        usagePercent > 30
+                            ? '#fff5f5'
+                            : usagePercent > 15
+                                ? '#fffbf0'
+                                : 'transparent';
+                    return `
                                 <tr style="border-bottom: 1px solid var(--gray-200); background: ${rowColor};">
                                     <td style="padding: 0.75rem; font-weight: 600; color: var(--dark-gray);">
                                         <i class="fas fa-user" style="margin-right: 0.5rem; color: var(--primary-color);"></i>
                                         ${this.escapeHtml(user.username)}
                                     </td>
-                                    <td style="padding: 0.75rem; text-align: center; color: var(--gray-700); font-weight: 600;">${
-                                        user.dataSizeKB
-                                    } KB</td>
-                                    <td style="padding: 0.75rem; text-align: center; color: var(--gray-700); font-weight: 600;">${
-                                        user.dataSizeMB
-                                    } MB</td>
+                                    <td style="padding: 0.75rem; text-align: center; color: var(--gray-700); font-weight: 600;">${user.dataSizeKB
+                        } KB</td>
+                                    <td style="padding: 0.75rem; text-align: center; color: var(--gray-700); font-weight: 600;">${user.dataSizeMB
+                        } MB</td>
                                     <td style="padding: 0.75rem; text-align: center; color: var(--gray-700); font-weight: 600;">
-                                        <span style="padding: 0.25rem 0.5rem; border-radius: var(--radius-sm); background: ${
-                                            usagePercent > 30
-                                                ? '#fee'
-                                                : usagePercent > 15
-                                                ? '#fff3cd'
-                                                : '#d4edda'
-                                        }; color: ${
-                                        usagePercent > 30
-                                            ? '#721c24'
-                                            : usagePercent > 15
-                                            ? '#856404'
-                                            : '#155724'
-                                    };">
+                                        <span style="padding: 0.25rem 0.5rem; border-radius: var(--radius-sm); background: ${usagePercent > 30
+                            ? '#fee'
+                            : usagePercent > 15
+                                ? '#fff3cd'
+                                : '#d4edda'
+                        }; color: ${usagePercent > 30
+                            ? '#721c24'
+                            : usagePercent > 15
+                                ? '#856404'
+                                : '#155724'
+                        };">
                                             ${usagePercent}%
                                         </span>
                                     </td>
-                                    <td style="padding: 0.75rem; text-align: center; color: var(--gray-600); font-size: 0.85rem;">${
-                                        user.lastUpdateFormatted
-                                    }</td>
+                                    <td style="padding: 0.75rem; text-align: center; color: var(--gray-600); font-size: 0.85rem;">${user.lastUpdateFormatted
+                        }</td>
                                 </tr>
                             `;
-                                })
-                                .join('')}
+                })
+                .join('')}
                         </tbody>
                     </table>
                 </div>
@@ -20189,8 +20009,8 @@ class LojaApp {
             return percent > 30
                 ? 'rgba(220, 53, 69, 0.7)'
                 : percent > 15
-                ? 'rgba(255, 193, 7, 0.7)'
-                : 'rgba(40, 167, 69, 0.7)';
+                    ? 'rgba(255, 193, 7, 0.7)'
+                    : 'rgba(40, 167, 69, 0.7)';
         });
 
         this.adminUsersUsageChart = new Chart(ctx, {
@@ -20207,8 +20027,8 @@ class LojaApp {
                             return percent > 30
                                 ? '#dc3545'
                                 : percent > 15
-                                ? '#ffc107'
-                                : '#28a745';
+                                    ? '#ffc107'
+                                    : '#28a745';
                         }),
                         borderWidth: 2,
                     },
@@ -20591,8 +20411,8 @@ class LojaApp {
                     <h3 class="empty-state-title">Nenhum resultado encontrado</h3>
                     <p class="empty-state-message">
                         Não foram encontradas notas contendo "${this.escapeHtml(
-                            searchTerm
-                        )}"
+                searchTerm
+            )}"
                     </p>
                 </div>
             `;
@@ -20602,8 +20422,8 @@ class LojaApp {
         let html = `<div style="grid-column: 1/-1; margin-bottom: 1rem; padding: 1rem; background: var(--light-gray); border-radius: var(--radius-md);">
             <h3 style="margin: 0 0 0.5rem 0; color: var(--primary-color);">
                 <i class="fas fa-search"></i> Resultados da busca: "${this.escapeHtml(
-                    searchTerm
-                )}"
+            searchTerm
+        )}"
             </h3>
             <p style="margin: 0; color: var(--gray-600); font-size: 0.9rem;">
                 Encontrados ${totalResults} resultado(s)
@@ -20626,8 +20446,8 @@ class LojaApp {
                         </div>
                         <div class="item-details">
                             <p><i class="fas fa-sticky-note"></i> <strong>Nota:</strong> ${this.escapeHtml(
-                                item.notes
-                            )}</p>
+                    item.notes
+                )}</p>
                         </div>
                     </div>
                 `;
@@ -20650,8 +20470,8 @@ class LojaApp {
                         </div>
                         <div class="item-details">
                             <p><i class="fas fa-sticky-note"></i> <strong>Nota:</strong> ${this.escapeHtml(
-                                client.notes
-                            )}</p>
+                    client.notes
+                )}</p>
                         </div>
                     </div>
                 `;
@@ -20674,8 +20494,8 @@ class LojaApp {
                         </div>
                         <div class="item-details">
                             <p><i class="fas fa-sticky-note"></i> <strong>Nota:</strong> ${this.escapeHtml(
-                                supplier.notes
-                            )}</p>
+                    supplier.notes
+                )}</p>
                         </div>
                     </div>
                 `;
@@ -20701,8 +20521,8 @@ class LojaApp {
                         </div>
                         <div class="item-details">
                             <p><i class="fas fa-sticky-note"></i> <strong>Nota:</strong> ${this.escapeHtml(
-                                sale.notes
-                            )}</p>
+                    sale.notes
+                )}</p>
                         </div>
                     </div>
                 `;
@@ -20728,8 +20548,8 @@ class LojaApp {
                         </div>
                         <div class="item-details">
                             <p><i class="fas fa-sticky-note"></i> <strong>Nota:</strong> ${this.escapeHtml(
-                                appointment.notes
-                            )}</p>
+                    appointment.notes
+                )}</p>
                         </div>
                     </div>
                 `;
@@ -21299,8 +21119,8 @@ class LojaApp {
                     <h3 class="empty-state-title">Nenhum resultado encontrado</h3>
                     <p class="empty-state-message">
                         Não foram encontrados resultados para "${this.escapeHtml(
-                            searchTerm
-                        )}"
+                searchTerm
+            )}"
                     </p>
                 </div>
             `;
@@ -21310,8 +21130,8 @@ class LojaApp {
         let html = `<div style="grid-column: 1/-1; margin-bottom: 1rem; padding: 1rem; background: var(--light-gray); border-radius: var(--radius-md);">
             <h3 style="margin: 0 0 0.5rem 0; color: var(--primary-color);">
                 <i class="fas fa-search"></i> Resultados da busca: "${this.escapeHtml(
-                    searchTerm
-                )}"
+            searchTerm
+        )}"
             </h3>
             <p style="margin: 0; color: var(--gray-600); font-size: 0.9rem;">
                 Encontrados ${totalResults} resultado(s)
@@ -21330,16 +21150,15 @@ class LojaApp {
                     <div class="item-card">
                         <div class="item-header">
                             <h3>${this.escapeHtml(item.name)}</h3>
-                            <span style="font-size: 0.75rem; color: var(--gray-600);">${
-                                item.category || 'Produto'
-                            }</span>
+                            <span style="font-size: 0.75rem; color: var(--gray-600);">${item.category || 'Produto'
+                    }</span>
                         </div>
                         <div class="item-details">
                             <p><i class="fas fa-dollar-sign"></i> Preço: R$ ${(
-                                item.price || 0
-                            )
-                                .toFixed(2)
-                                .replace('.', ',')}</p>
+                        item.price || 0
+                    )
+                        .toFixed(2)
+                        .replace('.', ',')}</p>
                         </div>
                     </div>
                 `;
@@ -21361,20 +21180,18 @@ class LojaApp {
                             <span style="font-size: 0.75rem; color: var(--gray-600);">Cliente</span>
                         </div>
                         <div class="item-details">
-                            ${
-                                client.cpf
-                                    ? `<p><i class="fas fa-id-card"></i> CPF: ${this.escapeHtml(
-                                          client.cpf
-                                      )}</p>`
-                                    : ''
-                            }
-                            ${
-                                client.email
-                                    ? `<p><i class="fas fa-envelope"></i> ${this.escapeHtml(
-                                          client.email
-                                      )}</p>`
-                                    : ''
-                            }
+                            ${client.cpf
+                        ? `<p><i class="fas fa-id-card"></i> CPF: ${this.escapeHtml(
+                            client.cpf
+                        )}</p>`
+                        : ''
+                    }
+                            ${client.email
+                        ? `<p><i class="fas fa-envelope"></i> ${this.escapeHtml(
+                            client.email
+                        )}</p>`
+                        : ''
+                    }
                         </div>
                     </div>
                 `;
@@ -21396,13 +21213,12 @@ class LojaApp {
                             <span style="font-size: 0.75rem; color: var(--gray-600);">Fornecedor</span>
                         </div>
                         <div class="item-details">
-                            ${
-                                supplier.cnpj
-                                    ? `<p><i class="fas fa-building"></i> CNPJ: ${this.escapeHtml(
-                                          supplier.cnpj
-                                      )}</p>`
-                                    : ''
-                            }
+                            ${supplier.cnpj
+                        ? `<p><i class="fas fa-building"></i> CNPJ: ${this.escapeHtml(
+                            supplier.cnpj
+                        )}</p>`
+                        : ''
+                    }
                         </div>
                     </div>
                 `;
@@ -21427,18 +21243,17 @@ class LojaApp {
                             <span style="font-size: 0.75rem; color: var(--gray-600);">Venda - ${saleDate}</span>
                         </div>
                         <div class="item-details">
-                            ${
-                                sale.orderCode
-                                    ? `<p><i class="fas fa-barcode"></i> Código: ${this.escapeHtml(
-                                          sale.orderCode
-                                      )}</p>`
-                                    : ''
-                            }
+                            ${sale.orderCode
+                        ? `<p><i class="fas fa-barcode"></i> Código: ${this.escapeHtml(
+                            sale.orderCode
+                        )}</p>`
+                        : ''
+                    }
                             <p><i class="fas fa-dollar-sign"></i> Total: R$ ${(
-                                sale.totalValue || 0
-                            )
-                                .toFixed(2)
-                                .replace('.', ',')}</p>
+                        sale.totalValue || 0
+                    )
+                        .toFixed(2)
+                        .replace('.', ',')}</p>
                         </div>
                     </div>
                 `;
@@ -21469,24 +21284,21 @@ class LojaApp {
                             <span style="font-size: 0.75rem; color: var(--gray-600);">Agendamento - ${appointmentDate}</span>
                         </div>
                         <div class="item-details">
-                            ${
-                                appointment.serviceName
-                                    ? `<p><i class="fas fa-tools"></i> Serviço: ${this.escapeHtml(
-                                          appointment.serviceName
-                                      )}</p>`
-                                    : ''
-                            }
-                            ${
-                                appointment.time
-                                    ? `<p><i class="fas fa-clock"></i> Horário: ${this.escapeHtml(
-                                          appointment.time
-                                      )}</p>`
-                                    : ''
-                            }
-                            <p><i class="fas fa-info-circle"></i> Status: ${
-                                statusNames[appointment.status] ||
-                                appointment.status
-                            }</p>
+                            ${appointment.serviceName
+                        ? `<p><i class="fas fa-tools"></i> Serviço: ${this.escapeHtml(
+                            appointment.serviceName
+                        )}</p>`
+                        : ''
+                    }
+                            ${appointment.time
+                        ? `<p><i class="fas fa-clock"></i> Horário: ${this.escapeHtml(
+                            appointment.time
+                        )}</p>`
+                        : ''
+                    }
+                            <p><i class="fas fa-info-circle"></i> Status: ${statusNames[appointment.status] ||
+                    appointment.status
+                    }</p>
                         </div>
                     </div>
                 `;
@@ -21533,9 +21345,8 @@ class LojaApp {
         this.coupons.forEach((coupon) => {
             const option = document.createElement('option');
             option.value = coupon.code;
-            option.textContent = `${coupon.code} - ${
-                coupon.description || 'Sem descrição'
-            }`;
+            option.textContent = `${coupon.code} - ${coupon.description || 'Sem descrição'
+                }`;
             filter.appendChild(option);
         });
     }
@@ -21566,11 +21377,10 @@ class LojaApp {
                     </div>
                     <h3 class="empty-state-title">Nenhum uso de cupom encontrado</h3>
                     <p class="empty-state-message">
-                        ${
-                            selectedCouponCode
-                                ? 'Este cupom ainda não foi usado em nenhuma venda.'
-                                : 'Ainda não há vendas que utilizaram cupons de desconto.'
-                        }
+                        ${selectedCouponCode
+                    ? 'Este cupom ainda não foi usado em nenhuma venda.'
+                    : 'Ainda não há vendas que utilizaram cupons de desconto.'
+                }
                     </p>
                 </div>
             `;
@@ -21609,31 +21419,28 @@ class LojaApp {
                         <div>
                             <h3 style="margin: 0; color: var(--primary-color);">
                                 <i class="fas fa-tag"></i> ${this.escapeHtml(
-                                    couponCode
-                                )}
+                couponCode
+            )}
                             </h3>
-                            ${
-                                coupon
-                                    ? `
+                            ${coupon
+                    ? `
                                 <p style="margin: 0.5rem 0 0 0; color: var(--gray-600); font-size: 0.9rem;">
-                                    ${
-                                        coupon.type === 'percent'
-                                            ? `${coupon.value}%`
-                                            : `R$ ${coupon.value
-                                                  .toFixed(2)
-                                                  .replace('.', ',')}`
-                                    } de desconto
-                                    ${
-                                        coupon.description
-                                            ? ` - ${this.escapeHtml(
-                                                  coupon.description
-                                              )}`
-                                            : ''
-                                    }
+                                    ${coupon.type === 'percent'
+                        ? `${coupon.value}%`
+                        : `R$ ${coupon.value
+                            .toFixed(2)
+                            .replace('.', ',')}`
+                    } de desconto
+                                    ${coupon.description
+                        ? ` - ${this.escapeHtml(
+                            coupon.description
+                        )}`
+                        : ''
+                    }
                                 </p>
                             `
-                                    : ''
-                            }
+                    : ''
+                }
                         </div>
                         <div style="text-align: right;">
                             <p style="margin: 0; font-size: 0.85rem; color: var(--gray-600);">Total de usos</p>
@@ -21648,88 +21455,85 @@ class LojaApp {
                             <p style="margin: 0; font-size: 0.85rem; color: var(--gray-600);">Total em Descontos</p>
                             <p style="margin: 0.25rem 0 0 0; font-size: 1.2rem; font-weight: 600; color: #28a745;">
                                 R$ ${history.totalDiscount
-                                    .toFixed(2)
-                                    .replace('.', ',')}
+                    .toFixed(2)
+                    .replace('.', ',')}
                             </p>
                         </div>
                         <div style="padding: 1rem; background: var(--light-gray); border-radius: var(--radius-sm);">
                             <p style="margin: 0; font-size: 0.85rem; color: var(--gray-600);">Valor Total das Vendas</p>
                             <p style="margin: 0.25rem 0 0 0; font-size: 1.2rem; font-weight: 600; color: var(--primary-color);">
                                 R$ ${history.totalValue
-                                    .toFixed(2)
-                                    .replace('.', ',')}
+                    .toFixed(2)
+                    .replace('.', ',')}
                             </p>
                         </div>
                     </div>
                     
                     <div>
                         <h4 style="margin: 0 0 1rem 0; color: var(--dark-gray); font-size: 1rem;">
-                            <i class="fas fa-shopping-cart"></i> Vendas que usaram este cupom (${
-                                history.sales.length
-                            })
+                            <i class="fas fa-shopping-cart"></i> Vendas que usaram este cupom (${history.sales.length
+                })
                         </h4>
                         <div style="display: flex; flex-direction: column; gap: 0.75rem;">
                             ${history.sales
-                                .map((sale) => {
-                                    const saleDate = sale.date
-                                        ? new Date(
-                                              sale.date
-                                          ).toLocaleDateString('pt-BR')
-                                        : 'N/A';
-                                    const saleTime = sale.date
-                                        ? new Date(
-                                              sale.date
-                                          ).toLocaleTimeString('pt-BR', {
-                                              hour: '2-digit',
-                                              minute: '2-digit',
-                                          })
-                                        : '';
-                                    return `
+                    .map((sale) => {
+                        const saleDate = sale.date
+                            ? new Date(
+                                sale.date
+                            ).toLocaleDateString('pt-BR')
+                            : 'N/A';
+                        const saleTime = sale.date
+                            ? new Date(
+                                sale.date
+                            ).toLocaleTimeString('pt-BR', {
+                                hour: '2-digit',
+                                minute: '2-digit',
+                            })
+                            : '';
+                        return `
                                     <div style="padding: 1rem; background: var(--light-gray); border-radius: var(--radius-sm); border-left: 3px solid var(--primary-color);">
                                         <div style="display: flex; justify-content: space-between; align-items: start; flex-wrap: wrap; gap: 0.5rem;">
                                             <div style="flex: 1;">
                                                 <p style="margin: 0; font-weight: 600; color: var(--dark-gray);">
                                                     ${this.escapeHtml(
-                                                        sale.customerName ||
-                                                            'Cliente não informado'
-                                                    )}
+                            sale.customerName ||
+                            'Cliente não informado'
+                        )}
                                                 </p>
                                                 <p style="margin: 0.25rem 0 0 0; font-size: 0.85rem; color: var(--gray-600);">
-                                                    <i class="fas fa-calendar"></i> ${saleDate} ${
-                                        saleTime ? `às ${saleTime}` : ''
-                                    }
-                                                    ${
-                                                        sale.orderCode
-                                                            ? ` | <i class="fas fa-barcode"></i> ${this.escapeHtml(
-                                                                  sale.orderCode
-                                                              )}`
-                                                            : ''
-                                                    }
+                                                    <i class="fas fa-calendar"></i> ${saleDate} ${saleTime ? `às ${saleTime}` : ''
+                            }
+                                                    ${sale.orderCode
+                                ? ` | <i class="fas fa-barcode"></i> ${this.escapeHtml(
+                                    sale.orderCode
+                                )}`
+                                : ''
+                            }
                                                 </p>
                                             </div>
                                             <div style="text-align: right;">
                                                 <p style="margin: 0; font-size: 0.85rem; color: var(--gray-600);">Desconto aplicado</p>
                                                 <p style="margin: 0.25rem 0 0 0; font-weight: 600; color: #28a745;">
                                                     - R$ ${(
-                                                        sale.discount.amount ||
-                                                        0
-                                                    )
-                                                        .toFixed(2)
-                                                        .replace('.', ',')}
+                                sale.discount.amount ||
+                                0
+                            )
+                                .toFixed(2)
+                                .replace('.', ',')}
                                                 </p>
                                                 <p style="margin: 0.25rem 0 0 0; font-size: 0.85rem; color: var(--gray-600);">
                                                     Total: R$ ${(
-                                                        sale.totalValue || 0
-                                                    )
-                                                        .toFixed(2)
-                                                        .replace('.', ',')}
+                                sale.totalValue || 0
+                            )
+                                .toFixed(2)
+                                .replace('.', ',')}
                                                 </p>
                                             </div>
                                         </div>
                                     </div>
                                 `;
-                                })
-                                .join('')}
+                    })
+                    .join('')}
                         </div>
                     </div>
                 </div>
@@ -22746,9 +22550,8 @@ class LojaApp {
 
     // Exportar relatório no formato selecionado
     exportReport(reportData, title, format, includeCharts, includeSummary) {
-        const filename = `${title.replace(/\s+/g, '_')}_${
-            new Date().toISOString().split('T')[0]
-        }`;
+        const filename = `${title.replace(/\s+/g, '_')}_${new Date().toISOString().split('T')[0]
+            }`;
 
         switch (format) {
             case 'html':
@@ -22806,13 +22609,13 @@ class LojaApp {
 <body>
     <h1>${title}</h1>
     <p><strong>Período:</strong> ${new Date(
-        reportData.period.start
-    ).toLocaleDateString('pt-BR')} a ${new Date(
+            reportData.period.start
+        ).toLocaleDateString('pt-BR')} a ${new Date(
             reportData.period.end
         ).toLocaleDateString('pt-BR')}</p>
     <p><strong>Gerado em:</strong> ${new Date(
-        reportData.generatedAt
-    ).toLocaleString('pt-BR')}</p>
+            reportData.generatedAt
+        ).toLocaleString('pt-BR')}</p>
 `;
 
         if (includeSummary && reportData.summary) {
@@ -23114,9 +22917,8 @@ class LojaApp {
         // Se não for agendamento, exportar imediatamente
         if (!isScheduled) {
             // Exportar no formato selecionado
-            const filename = `loja_export_${dataType}_${
-                new Date().toISOString().split('T')[0]
-            }`;
+            const filename = `loja_export_${dataType}_${new Date().toISOString().split('T')[0]
+                }`;
 
             switch (format) {
                 case 'json':
@@ -23228,7 +23030,7 @@ class LojaApp {
                 : null,
             emailSubject: sendEmail
                 ? document.getElementById('exportEmailSubject')?.value ||
-                  'Exportação de Dados - Loja'
+                'Exportação de Dados - Loja'
                 : null,
             createdAt: new Date().toISOString(),
             lastRun: null,
@@ -23265,9 +23067,8 @@ class LojaApp {
         }
 
         // Preparar dados para exportação
-        const filename = `loja_export_${config.dataType}_${
-            new Date().toISOString().split('T')[0]
-        }`;
+        const filename = `loja_export_${config.dataType}_${new Date().toISOString().split('T')[0]
+            }`;
 
         // Simular envio (em produção, isso chamaria a API de email configurada)
         console.log(
@@ -23362,9 +23163,8 @@ class LojaApp {
     // Executar exportação agendada
     executeScheduledExport(scheduled) {
         const { config } = scheduled;
-        const filename = `loja_export_${config.dataType}_${
-            new Date().toISOString().split('T')[0]
-        }`;
+        const filename = `loja_export_${config.dataType}_${new Date().toISOString().split('T')[0]
+            }`;
 
         // Exportar no formato configurado
         switch (config.format) {
@@ -23736,9 +23536,8 @@ class LojaApp {
             data.items.forEach((item) => {
                 csv += `"${(item.name || '').replace(/"/g, '""')}","${(
                     item.category || ''
-                ).replace(/"/g, '""')}",${(item.price || 0).toFixed(2)},${
-                    item.stock || 0
-                },"${(item.description || '').replace(/"/g, '""')}"\n`;
+                ).replace(/"/g, '""')}",${(item.price || 0).toFixed(2)},${item.stock || 0
+                    },"${(item.description || '').replace(/"/g, '""')}"\n`;
             });
             csv += '\n';
         }
@@ -23752,8 +23551,8 @@ class LojaApp {
                 const date = sale.date
                     ? new Date(sale.date).toLocaleDateString('pt-BR')
                     : sale.timestamp
-                    ? new Date(sale.timestamp).toLocaleDateString('pt-BR')
-                    : '';
+                        ? new Date(sale.timestamp).toLocaleDateString('pt-BR')
+                        : '';
                 const clientName =
                     sale.clientName ||
                     sale.customerName ||
@@ -23767,9 +23566,8 @@ class LojaApp {
                     '""'
                 )}","${clientCPF.replace(/"/g, '""')}",${(
                     sale.totalValue || 0
-                ).toFixed(2)},${discount.toFixed(2)},${
-                    (sale.items || []).length
-                },"${paymentMethod.replace(/"/g, '""')}"\n`;
+                ).toFixed(2)},${discount.toFixed(2)},${(sale.items || []).length
+                    },"${paymentMethod.replace(/"/g, '""')}"\n`;
             });
             csv += '\n';
         }
@@ -23789,9 +23587,8 @@ class LojaApp {
                     '""'
                 )}","${(client.email || '').replace(/"/g, '""')}","${(
                     client.address || ''
-                ).replace(/"/g, '""')}",${
-                    client.loyaltyPoints || 0
-                },${totalSpent.toFixed(2)},${totalPurchases}\n`;
+                ).replace(/"/g, '""')}",${client.loyaltyPoints || 0
+                    },${totalSpent.toFixed(2)},${totalPurchases}\n`;
             });
             csv += '\n';
         }
@@ -23827,8 +23624,8 @@ class LojaApp {
                     percent >= 100
                         ? 'Atingida'
                         : percent >= 75
-                        ? 'Em andamento'
-                        : 'Abaixo do esperado';
+                            ? 'Em andamento'
+                            : 'Abaixo do esperado';
                 csv += `"${month}",${target.toFixed(2)},${achieved.toFixed(
                     2
                 )},${percent.toFixed(2)}%,"${status}"\n`;
@@ -23920,16 +23717,15 @@ class LojaApp {
                 forecast.confidence >= 70
                     ? '🟢'
                     : forecast.confidence >= 50
-                    ? '🟡'
-                    : '🔴';
+                        ? '🟡'
+                        : '🔴';
             forecastEl.innerHTML = `R$ ${forecast.value
                 .toFixed(2)
                 .replace(
                     '.',
                     ','
-                )} <span style="font-size: 0.8em; color: var(--gray-600);" title="Confiança: ${
-                forecast.confidence
-            }%">${confidenceBadge}</span>`;
+                )} <span style="font-size: 0.8em; color: var(--gray-600);" title="Confiança: ${forecast.confidence
+                }%">${confidenceBadge}</span>`;
         }
 
         // Mostrar detalhes da previsão se disponível
@@ -23939,14 +23735,12 @@ class LojaApp {
         if (forecastDetailsEl && forecast.method) {
             let details = `Confiança: ${forecast.confidence}%`;
             if (forecast.trend) {
-                details += ` | Tendência: ${
-                    forecast.trend > 0 ? '+' : ''
-                }${forecast.trend.toFixed(2)}`;
+                details += ` | Tendência: ${forecast.trend > 0 ? '+' : ''
+                    }${forecast.trend.toFixed(2)}`;
             }
             if (forecast.seasonalAdjustment) {
-                details += ` | Ajuste sazonal: ${
-                    forecast.seasonalAdjustment > 0 ? '+' : ''
-                }${forecast.seasonalAdjustment.toFixed(2)}`;
+                details += ` | Ajuste sazonal: ${forecast.seasonalAdjustment > 0 ? '+' : ''
+                    }${forecast.seasonalAdjustment.toFixed(2)}`;
             }
             forecastDetailsEl.textContent = details;
             forecastDetailsEl.style.display = 'block';
@@ -23960,39 +23754,36 @@ class LojaApp {
                 trend.direction === 'up'
                     ? '📈'
                     : trend.direction === 'down'
-                    ? '📉'
-                    : '➡️';
+                        ? '📉'
+                        : '➡️';
             const trendColor =
                 trend.direction === 'up'
                     ? '#28a745'
                     : trend.direction === 'down'
-                    ? '#dc3545'
-                    : '#6c757d';
+                        ? '#dc3545'
+                        : '#6c757d';
             const strengthIcon =
                 trend.strength === 'strong'
                     ? '💪'
                     : trend.strength === 'moderate'
-                    ? '👍'
-                    : '👎';
-            trendEl.innerHTML = `${trendIcon} <span style="color: ${trendColor};">${
-                trend.percentage > 0 ? '+' : ''
-            }${trend.percentage.toFixed(
-                1
-            )}%</span> <span style="font-size: 0.8em;" title="Força da tendência: ${
-                trend.strength
-            } (R²=${trend.rSquared})">${strengthIcon}</span>`;
+                        ? '👍'
+                        : '👎';
+            trendEl.innerHTML = `${trendIcon} <span style="color: ${trendColor};">${trend.percentage > 0 ? '+' : ''
+                }${trend.percentage.toFixed(
+                    1
+                )}%</span> <span style="font-size: 0.8em;" title="Força da tendência: ${trend.strength
+                } (R²=${trend.rSquared})">${strengthIcon}</span>`;
         }
 
         // Mostrar detalhes da tendência
         const trendDetailsEl = document.getElementById('salesTrendDetails');
         if (trendDetailsEl && trend.strength) {
-            trendDetailsEl.innerHTML = `Força: <strong>${
-                trend.strength === 'strong'
+            trendDetailsEl.innerHTML = `Força: <strong>${trend.strength === 'strong'
                     ? 'Forte'
                     : trend.strength === 'moderate'
-                    ? 'Moderada'
-                    : 'Fraca'
-            }</strong> (R²=${trend.rSquared})`;
+                        ? 'Moderada'
+                        : 'Fraca'
+                }</strong> (R²=${trend.rSquared})`;
             trendDetailsEl.style.display = 'block';
         }
 
@@ -24002,9 +23793,8 @@ class LojaApp {
         if (growthEl) {
             const growthColor =
                 growth > 0 ? '#28a745' : growth < 0 ? '#dc3545' : '#6c757d';
-            growthEl.innerHTML = `<span style="color: ${growthColor};">${
-                growth > 0 ? '+' : ''
-            }${growth.toFixed(1)}%</span>`;
+            growthEl.innerHTML = `<span style="color: ${growthColor};">${growth > 0 ? '+' : ''
+                }${growth.toFixed(1)}%</span>`;
         }
 
         // Gerar insights
@@ -24251,28 +24041,24 @@ class LojaApp {
         container.innerHTML = insights
             .map(
                 (insight) => `
-            <div style="padding: 1rem; background: ${
-                insight.type === 'success'
-                    ? '#d4edda'
-                    : insight.type === 'warning'
-                    ? '#fff3cd'
-                    : '#d1ecf1'
-            }; border-left: 4px solid ${
-                    insight.type === 'success'
+            <div style="padding: 1rem; background: ${insight.type === 'success'
+                        ? '#d4edda'
+                        : insight.type === 'warning'
+                            ? '#fff3cd'
+                            : '#d1ecf1'
+                    }; border-left: 4px solid ${insight.type === 'success'
                         ? '#28a745'
                         : insight.type === 'warning'
-                        ? '#ffc107'
-                        : '#17a2b8'
-                }; border-radius: var(--radius-sm); margin-bottom: 0.75rem;">
+                            ? '#ffc107'
+                            : '#17a2b8'
+                    }; border-radius: var(--radius-sm); margin-bottom: 0.75rem;">
                 <div style="display: flex; align-items: start; gap: 0.75rem;">
                     <span style="font-size: 1.5rem;">${insight.icon}</span>
                     <div style="flex: 1;">
-                        <h4 style="margin: 0 0 0.25rem 0; color: var(--dark-gray); font-size: 0.95rem; font-weight: 600;">${
-                            insight.title
-                        }</h4>
-                        <p style="margin: 0; color: var(--gray-700); font-size: 0.9rem;">${
-                            insight.message
-                        }</p>
+                        <h4 style="margin: 0 0 0.25rem 0; color: var(--dark-gray); font-size: 0.95rem; font-weight: 600;">${insight.title
+                    }</h4>
+                        <p style="margin: 0; color: var(--gray-700); font-size: 0.9rem;">${insight.message
+                    }</p>
                     </div>
                 </div>
             </div>
@@ -24358,25 +24144,21 @@ class LojaApp {
             container.innerHTML = recommendations
                 .map(
                     (rec) => `
-                <div style="padding: 1rem; background: ${
-                    rec.priority === 'high'
-                        ? '#fee'
-                        : rec.priority === 'medium'
-                        ? '#fff3cd'
-                        : '#f8f9fa'
-                }; border-left: 4px solid ${
-                        rec.priority === 'high'
+                <div style="padding: 1rem; background: ${rec.priority === 'high'
+                            ? '#fee'
+                            : rec.priority === 'medium'
+                                ? '#fff3cd'
+                                : '#f8f9fa'
+                        }; border-left: 4px solid ${rec.priority === 'high'
                             ? '#dc3545'
                             : rec.priority === 'medium'
-                            ? '#ffc107'
-                            : '#6c757d'
-                    }; border-radius: var(--radius-sm); margin-bottom: 0.75rem;">
-                    <h4 style="margin: 0 0 0.5rem 0; color: var(--dark-gray); font-size: 0.95rem; font-weight: 600;">${
-                        rec.title
-                    }</h4>
-                    <p style="margin: 0; color: var(--gray-700); font-size: 0.9rem;">${
-                        rec.message
-                    }</p>
+                                ? '#ffc107'
+                                : '#6c757d'
+                        }; border-radius: var(--radius-sm); margin-bottom: 0.75rem;">
+                    <h4 style="margin: 0 0 0.5rem 0; color: var(--dark-gray); font-size: 0.95rem; font-weight: 600;">${rec.title
+                        }</h4>
+                    <p style="margin: 0; color: var(--gray-700); font-size: 0.9rem;">${rec.message
+                        }</p>
                 </div>
             `
                 )
@@ -24596,9 +24378,8 @@ class LojaApp {
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
-        a.download = `politica_privacidade_${
-            new Date().toISOString().split('T')[0]
-        }.txt`;
+        a.download = `politica_privacidade_${new Date().toISOString().split('T')[0]
+            }.txt`;
         document.body.appendChild(a);
         a.click();
         document.body.removeChild(a);
@@ -24655,9 +24436,8 @@ class LojaApp {
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
-        a.download = `meus_dados_${username}_${
-            new Date().toISOString().split('T')[0]
-        }.json`;
+        a.download = `meus_dados_${username}_${new Date().toISOString().split('T')[0]
+            }.json`;
         document.body.appendChild(a);
         a.click();
         document.body.removeChild(a);
@@ -24845,49 +24625,45 @@ class LojaApp {
                         <div style="flex: 1;">
                             <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 0.25rem;">
                                 <h4 style="margin: 0; color: var(--dark-gray); font-size: 0.95rem; font-weight: 600;">
-                                    ${
-                                        log.action === 'view'
-                                            ? 'Visualização'
-                                            : log.action === 'export'
-                                            ? 'Exportação'
-                                            : log.action === 'delete'
-                                            ? 'Exclusão'
-                                            : log.action === 'delete_request'
-                                            ? 'Solicitação de Exclusão'
-                                            : log.action === 'update'
-                                            ? 'Atualização'
-                                            : log.action === 'create'
+                                    ${log.action === 'view'
+                        ? 'Visualização'
+                        : log.action === 'export'
+                            ? 'Exportação'
+                            : log.action === 'delete'
+                                ? 'Exclusão'
+                                : log.action === 'delete_request'
+                                    ? 'Solicitação de Exclusão'
+                                    : log.action === 'update'
+                                        ? 'Atualização'
+                                        : log.action === 'create'
                                             ? 'Criação'
                                             : log.action
-                                    }
+                    }
                                 </h4>
                                 <span style="font-size: 0.85rem; color: var(--gray-600);">
                                     ${date.toLocaleDateString(
-                                        'pt-BR'
-                                    )} ${date.toLocaleTimeString('pt-BR')}
+                        'pt-BR'
+                    )} ${date.toLocaleTimeString('pt-BR')}
                                 </span>
                             </div>
                             <p style="margin: 0 0 0.25rem 0; color: var(--gray-700); font-size: 0.9rem;">
-                                <strong>Tipo:</strong> ${
-                                    log.entityType === 'client'
-                                        ? 'Cliente'
-                                        : log.entityType === 'supplier'
-                                        ? 'Fornecedor'
-                                        : log.entityType === 'personal_data'
-                                        ? 'Dados Pessoais'
-                                        : log.entityType || 'N/A'
-                                }
+                                <strong>Tipo:</strong> ${log.entityType === 'client'
+                        ? 'Cliente'
+                        : log.entityType === 'supplier'
+                            ? 'Fornecedor'
+                            : log.entityType === 'personal_data'
+                                ? 'Dados Pessoais'
+                                : log.entityType || 'N/A'
+                    }
                             </p>
                             <p style="margin: 0 0 0.25rem 0; color: var(--gray-700); font-size: 0.9rem;">
-                                <strong>Usuário:</strong> ${
-                                    log.username || 'N/A'
-                                }
+                                <strong>Usuário:</strong> ${log.username || 'N/A'
+                    }
                             </p>
-                            ${
-                                log.description
-                                    ? `<p style="margin: 0; color: var(--gray-600); font-size: 0.85rem; font-style: italic;">${log.description}</p>`
-                                    : ''
-                            }
+                            ${log.description
+                        ? `<p style="margin: 0; color: var(--gray-600); font-size: 0.85rem; font-style: italic;">${log.description}</p>`
+                        : ''
+                    }
                         </div>
                     </div>
                 </div>
@@ -24912,9 +24688,8 @@ class LojaApp {
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
-        a.download = `logs_acesso_dados_${
-            new Date().toISOString().split('T')[0]
-        }.json`;
+        a.download = `logs_acesso_dados_${new Date().toISOString().split('T')[0]
+            }.json`;
         document.body.appendChild(a);
         a.click();
         document.body.removeChild(a);
@@ -25831,12 +25606,11 @@ class LojaApp {
                 bairro: data.bairro || '',
                 cidade: data.localidade || '',
                 estado: data.uf || '',
-                enderecoCompleto: `${data.logradouro || ''}, ${
-                    data.bairro || ''
-                }, ${data.localidade || ''} - ${data.uf || ''}`.replace(
-                    /^,\s*|,\s*$/g,
-                    ''
-                ),
+                enderecoCompleto: `${data.logradouro || ''}, ${data.bairro || ''
+                    }, ${data.localidade || ''} - ${data.uf || ''}`.replace(
+                        /^,\s*|,\s*$/g,
+                        ''
+                    ),
             };
         } catch (error) {
             console.error('Erro ao buscar CEP:', error);
@@ -26074,9 +25848,9 @@ class LojaApp {
         const a =
             Math.sin(dLat / 2) * Math.sin(dLat / 2) +
             Math.cos(this.toRad(lat1)) *
-                Math.cos(this.toRad(lat2)) *
-                Math.sin(dLon / 2) *
-                Math.sin(dLon / 2);
+            Math.cos(this.toRad(lat2)) *
+            Math.sin(dLon / 2) *
+            Math.sin(dLon / 2);
         const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
         return R * c; // Distância em km
     }
@@ -26621,9 +26395,9 @@ class LojaApp {
                 );
                 return product
                     ? {
-                          price: item.price || product.price,
-                          cost: product.cost || 0,
-                      }
+                        price: item.price || product.price,
+                        cost: product.cost || 0,
+                    }
                     : null;
             })
             .filter((item) => item !== null);
@@ -26631,18 +26405,18 @@ class LojaApp {
         const avgPrice =
             soldItems.length > 0
                 ? soldItems.reduce((sum, item) => sum + (item.price || 0), 0) /
-                  soldItems.length
+                soldItems.length
                 : 0;
 
         const avgMargin =
             soldItems.length > 0
                 ? soldItems.reduce((sum, item) => {
-                      const margin =
-                          item.cost > 0
-                              ? ((item.price - item.cost) / item.price) * 100
-                              : 0;
-                      return sum + margin;
-                  }, 0) / soldItems.length
+                    const margin =
+                        item.cost > 0
+                            ? ((item.price - item.cost) / item.price) * 100
+                            : 0;
+                    return sum + margin;
+                }, 0) / soldItems.length
                 : 0;
 
         // Comparar com benchmarks do mercado (valores simulados - em produção, usar dados reais)
@@ -26661,8 +26435,8 @@ class LojaApp {
                 avgPrice < marketAvgPrice
                     ? 'competitivo'
                     : avgPrice > marketAvgPrice
-                    ? 'acima'
-                    : 'similar',
+                        ? 'acima'
+                        : 'similar',
         };
     }
 
@@ -26771,8 +26545,8 @@ class LojaApp {
             secondAvg > firstAvg
                 ? 'crescimento'
                 : secondAvg < firstAvg
-                ? 'declínio'
-                : 'estável';
+                    ? 'declínio'
+                    : 'estável';
         const trendPercentage =
             firstAvg > 0 ? ((secondAvg - firstAvg) / firstAvg) * 100 : 0;
 
@@ -26878,7 +26652,7 @@ class LojaApp {
 
         return growthRates.length > 0
             ? growthRates.reduce((sum, rate) => sum + rate, 0) /
-                  growthRates.length
+            growthRates.length
             : 0;
     }
 
@@ -26914,7 +26688,7 @@ class LojaApp {
         return {
             hasSeasonality:
                 Math.max(...Object.values(seasonality)) -
-                    Math.min(...Object.values(seasonality)) >
+                Math.min(...Object.values(seasonality)) >
                 20,
             monthVariations: seasonality,
             peakMonth: Object.keys(monthAverages).reduce((a, b) =>
@@ -27051,9 +26825,8 @@ class LojaApp {
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
-        a.download = `analise_concorrencia_${
-            new Date().toISOString().split('T')[0]
-        }.json`;
+        a.download = `analise_concorrencia_${new Date().toISOString().split('T')[0]
+            }.json`;
         document.body.appendChild(a);
         a.click();
         document.body.removeChild(a);
@@ -27080,93 +26853,83 @@ class LojaApp {
             <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1rem; margin-bottom: 1.5rem;">
                 <div style="padding: 1rem; background: var(--light-gray); border-radius: var(--radius-sm);">
                     <h3 style="margin: 0 0 0.5rem 0; font-size: 0.9rem; color: var(--gray-600);">Competitividade de Preços</h3>
-                    <p style="margin: 0; font-size: 1.2rem; font-weight: 600; color: ${
-                        analysis.priceComparison.competitiveness ===
-                        'competitivo'
-                            ? '#28a745'
-                            : analysis.priceComparison.competitiveness ===
-                              'acima'
-                            ? '#dc3545'
-                            : '#6c757d'
-                    };">
-                        ${
-                            analysis.priceComparison.competitiveness ===
-                            'competitivo'
-                                ? '✓ Competitivo'
-                                : analysis.priceComparison.competitiveness ===
-                                  'acima'
-                                ? '↑ Acima'
-                                : '→ Similar'
-                        }
+                    <p style="margin: 0; font-size: 1.2rem; font-weight: 600; color: ${analysis.priceComparison.competitiveness ===
+                'competitivo'
+                ? '#28a745'
+                : analysis.priceComparison.competitiveness ===
+                    'acima'
+                    ? '#dc3545'
+                    : '#6c757d'
+            };">
+                        ${analysis.priceComparison.competitiveness ===
+                'competitivo'
+                ? '✓ Competitivo'
+                : analysis.priceComparison.competitiveness ===
+                    'acima'
+                    ? '↑ Acima'
+                    : '→ Similar'
+            }
                     </p>
                     <p style="margin: 0.25rem 0 0 0; font-size: 0.85rem; color: var(--gray-600);">
-                        ${
-                            analysis.priceComparison.priceDifference > 0
-                                ? '+'
-                                : ''
-                        }${analysis.priceComparison.priceDifference.toFixed(
-            1
-        )}% vs mercado
+                        ${analysis.priceComparison.priceDifference > 0
+                ? '+'
+                : ''
+            }${analysis.priceComparison.priceDifference.toFixed(
+                1
+            )}% vs mercado
                     </p>
                 </div>
                 <div style="padding: 1rem; background: var(--light-gray); border-radius: var(--radius-sm);">
                     <h3 style="margin: 0 0 0.5rem 0; font-size: 0.9rem; color: var(--gray-600);">Margem de Lucro</h3>
-                    <p style="margin: 0; font-size: 1.2rem; font-weight: 600; color: ${
-                        analysis.priceComparison.ourAvgMargin >
-                        analysis.priceComparison.marketAvgMargin
-                            ? '#28a745'
-                            : '#dc3545'
-                    };">
+                    <p style="margin: 0; font-size: 1.2rem; font-weight: 600; color: ${analysis.priceComparison.ourAvgMargin >
+                analysis.priceComparison.marketAvgMargin
+                ? '#28a745'
+                : '#dc3545'
+            };">
                         ${analysis.priceComparison.ourAvgMargin.toFixed(1)}%
                     </p>
                     <p style="margin: 0.25rem 0 0 0; font-size: 0.85rem; color: var(--gray-600);">
-                        ${
-                            analysis.priceComparison.marginDifference > 0
-                                ? '+'
-                                : ''
-                        }${analysis.priceComparison.marginDifference.toFixed(
-            1
-        )}% vs mercado
+                        ${analysis.priceComparison.marginDifference > 0
+                ? '+'
+                : ''
+            }${analysis.priceComparison.marginDifference.toFixed(
+                1
+            )}% vs mercado
                     </p>
                 </div>
                 <div style="padding: 1rem; background: var(--light-gray); border-radius: var(--radius-sm);">
                     <h3 style="margin: 0 0 0.5rem 0; font-size: 0.9rem; color: var(--gray-600);">Diversidade de Produtos</h3>
-                    <p style="margin: 0; font-size: 1.2rem; font-weight: 600; color: ${
-                        analysis.productComparison.diversityScore > 70
-                            ? '#28a745'
-                            : analysis.productComparison.diversityScore > 50
-                            ? '#ffc107'
-                            : '#dc3545'
-                    };">
+                    <p style="margin: 0; font-size: 1.2rem; font-weight: 600; color: ${analysis.productComparison.diversityScore > 70
+                ? '#28a745'
+                : analysis.productComparison.diversityScore > 50
+                    ? '#ffc107'
+                    : '#dc3545'
+            };">
                         ${analysis.productComparison.diversityScore.toFixed(1)}%
                     </p>
                     <p style="margin: 0.25rem 0 0 0; font-size: 0.85rem; color: var(--gray-600);">
-                        ${
-                            analysis.productComparison.productDiversity
-                        } produtos únicos
+                        ${analysis.productComparison.productDiversity
+            } produtos únicos
                     </p>
                 </div>
                 <div style="padding: 1rem; background: var(--light-gray); border-radius: var(--radius-sm);">
                     <h3 style="margin: 0 0 0.5rem 0; font-size: 0.9rem; color: var(--gray-600);">Tendência de Mercado</h3>
-                    <p style="margin: 0; font-size: 1.2rem; font-weight: 600; color: ${
-                        analysis.marketTrends.trend === 'crescimento'
-                            ? '#28a745'
-                            : analysis.marketTrends.trend === 'declínio'
-                            ? '#dc3545'
-                            : '#6c757d'
-                    };">
-                        ${
-                            analysis.marketTrends.trend === 'crescimento'
-                                ? '📈 Crescimento'
-                                : analysis.marketTrends.trend === 'declínio'
-                                ? '📉 Declínio'
-                                : '➡️ Estável'
-                        }
+                    <p style="margin: 0; font-size: 1.2rem; font-weight: 600; color: ${analysis.marketTrends.trend === 'crescimento'
+                ? '#28a745'
+                : analysis.marketTrends.trend === 'declínio'
+                    ? '#dc3545'
+                    : '#6c757d'
+            };">
+                        ${analysis.marketTrends.trend === 'crescimento'
+                ? '📈 Crescimento'
+                : analysis.marketTrends.trend === 'declínio'
+                    ? '📉 Declínio'
+                    : '➡️ Estável'
+            }
                     </p>
                     <p style="margin: 0.25rem 0 0 0; font-size: 0.85rem; color: var(--gray-600);">
-                        ${
-                            analysis.marketTrends.trendPercentage > 0 ? '+' : ''
-                        }${analysis.marketTrends.trendPercentage.toFixed(1)}%
+                        ${analysis.marketTrends.trendPercentage > 0 ? '+' : ''
+            }${analysis.marketTrends.trendPercentage.toFixed(1)}%
                     </p>
                 </div>
             </div>
@@ -27176,31 +26939,26 @@ class LojaApp {
                     <i class="fas fa-trophy"></i> Vantagens Competitivas
                 </h3>
                 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 0.75rem;">
-                    ${
-                        analysis.competitiveAdvantages.length > 0
-                            ? analysis.competitiveAdvantages
-                                  .map(
-                                      (adv) => `
-                            <div style="padding: 0.75rem; background: ${
-                                adv.impact === 'alto' ? '#d4edda' : '#fff3cd'
-                            }; border-left: 3px solid ${
-                                          adv.impact === 'alto'
-                                              ? '#28a745'
-                                              : '#ffc107'
-                                      }; border-radius: var(--radius-sm);">
-                                <strong style="display: block; margin-bottom: 0.25rem; color: var(--dark-gray);">${
-                                    adv.type.charAt(0).toUpperCase() +
-                                    adv.type.slice(1)
-                                }</strong>
-                                <p style="margin: 0; font-size: 0.85rem; color: var(--gray-700);">${
-                                    adv.description
-                                }</p>
+                    ${analysis.competitiveAdvantages.length > 0
+                ? analysis.competitiveAdvantages
+                    .map(
+                        (adv) => `
+                            <div style="padding: 0.75rem; background: ${adv.impact === 'alto' ? '#d4edda' : '#fff3cd'
+                            }; border-left: 3px solid ${adv.impact === 'alto'
+                                ? '#28a745'
+                                : '#ffc107'
+                            }; border-radius: var(--radius-sm);">
+                                <strong style="display: block; margin-bottom: 0.25rem; color: var(--dark-gray);">${adv.type.charAt(0).toUpperCase() +
+                            adv.type.slice(1)
+                            }</strong>
+                                <p style="margin: 0; font-size: 0.85rem; color: var(--gray-700);">${adv.description
+                            }</p>
                             </div>
                         `
-                                  )
-                                  .join('')
-                            : '<p style="color: var(--gray-600);">Nenhuma vantagem competitiva identificada no período.</p>'
-                    }
+                    )
+                    .join('')
+                : '<p style="color: var(--gray-600);">Nenhuma vantagem competitiva identificada no período.</p>'
+            }
                 </div>
             </div>
 
@@ -27210,39 +26968,32 @@ class LojaApp {
                 </h3>
                 <div style="display: flex; flex-direction: column; gap: 0.75rem;">
                     ${analysis.recommendations
-                        .map(
-                            (rec) => `
-                        <div style="padding: 1rem; background: ${
-                            rec.priority === 'alta' ? '#f8d7da' : '#fff3cd'
-                        }; border-left: 4px solid ${
-                                rec.priority === 'alta' ? '#dc3545' : '#ffc107'
-                            }; border-radius: var(--radius-sm);">
+                .map(
+                    (rec) => `
+                        <div style="padding: 1rem; background: ${rec.priority === 'alta' ? '#f8d7da' : '#fff3cd'
+                        }; border-left: 4px solid ${rec.priority === 'alta' ? '#dc3545' : '#ffc107'
+                        }; border-radius: var(--radius-sm);">
                             <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 0.5rem;">
-                                <strong style="color: var(--dark-gray);">${
-                                    rec.title
-                                }</strong>
-                                <span style="padding: 0.25rem 0.5rem; background: ${
-                                    rec.priority === 'alta'
-                                        ? '#dc3545'
-                                        : '#ffc107'
-                                }; color: white; border-radius: var(--radius-sm); font-size: 0.75rem;">
-                                    ${
-                                        rec.priority === 'alta'
-                                            ? 'Alta'
-                                            : 'Média'
-                                    }
+                                <strong style="color: var(--dark-gray);">${rec.title
+                        }</strong>
+                                <span style="padding: 0.25rem 0.5rem; background: ${rec.priority === 'alta'
+                            ? '#dc3545'
+                            : '#ffc107'
+                        }; color: white; border-radius: var(--radius-sm); font-size: 0.75rem;">
+                                    ${rec.priority === 'alta'
+                            ? 'Alta'
+                            : 'Média'
+                        }
                                 </span>
                             </div>
-                            <p style="margin: 0 0 0.5rem 0; color: var(--gray-700); font-size: 0.9rem;">${
-                                rec.description
-                            }</p>
-                            <p style="margin: 0; font-size: 0.85rem; color: var(--gray-600);"><strong>Ação:</strong> ${
-                                rec.action
-                            }</p>
+                            <p style="margin: 0 0 0.5rem 0; color: var(--gray-700); font-size: 0.9rem;">${rec.description
+                        }</p>
+                            <p style="margin: 0; font-size: 0.85rem; color: var(--gray-600);"><strong>Ação:</strong> ${rec.action
+                        }</p>
                         </div>
                     `
-                        )
-                        .join('')}
+                )
+                .join('')}
                 </div>
             </div>
         `;
@@ -27890,9 +27641,8 @@ END:VCARD`;
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
-        a.download = `analise_preditiva_${
-            new Date().toISOString().split('T')[0]
-        }.json`;
+        a.download = `analise_preditiva_${new Date().toISOString().split('T')[0]
+            }.json`;
         document.body.appendChild(a);
         a.click();
         document.body.removeChild(a);
@@ -28132,8 +27882,7 @@ END:VCARD`;
                     const data = await response.json();
                     if (typeof toast !== 'undefined' && toast) {
                         toast.success(
-                            `SendGrid conectado! Usuário: ${
-                                data.username || 'N/A'
+                            `SendGrid conectado! Usuário: ${data.username || 'N/A'
                             }`,
                             4000
                         );
@@ -28146,9 +27895,8 @@ END:VCARD`;
                 } else {
                     const error = await response.json();
                     throw new Error(
-                        `SendGrid: ${
-                            error.errors?.[0]?.message ||
-                            'Credenciais inválidas'
+                        `SendGrid: ${error.errors?.[0]?.message ||
+                        'Credenciais inválidas'
                         }`
                     );
                 }
@@ -28339,8 +28087,7 @@ END:VCARD`;
                     const data = await response.json();
                     if (typeof toast !== 'undefined' && toast) {
                         toast.success(
-                            `Twilio conectado! Conta: ${
-                                data.friendly_name || twilio.accountSid
+                            `Twilio conectado! Conta: ${data.friendly_name || twilio.accountSid
                             }`,
                             4000
                         );
@@ -28404,8 +28151,7 @@ END:VCARD`;
                     const data = await response.json();
                     if (typeof toast !== 'undefined' && toast) {
                         toast.success(
-                            `TotalVoice conectado! Conta: ${
-                                data.dados?.nome || 'N/A'
+                            `TotalVoice conectado! Conta: ${data.dados?.nome || 'N/A'
                             }`,
                             4000
                         );
@@ -28418,8 +28164,7 @@ END:VCARD`;
                 } else {
                     const error = await response.json();
                     throw new Error(
-                        `TotalVoice: ${
-                            error.mensagem || 'Credenciais inválidas'
+                        `TotalVoice: ${error.mensagem || 'Credenciais inválidas'
                         }`
                     );
                 }
@@ -28520,8 +28265,7 @@ END:VCARD`;
                 const data = await response.json();
                 if (typeof toast !== 'undefined' && toast) {
                     toast.success(
-                        `WhatsApp conectado! Número: ${
-                            data.display_phone_number || 'N/A'
+                        `WhatsApp conectado! Número: ${data.display_phone_number || 'N/A'
                         }`,
                         4000
                     );
@@ -28530,8 +28274,7 @@ END:VCARD`;
             } else {
                 const error = await response.json();
                 throw new Error(
-                    `WhatsApp: ${
-                        error.error?.message || 'Credenciais inválidas'
+                    `WhatsApp: ${error.error?.message || 'Credenciais inválidas'
                     }`
                 );
             }
@@ -28719,8 +28462,7 @@ END:VCARD`;
                     const data = await response.json();
                     if (typeof toast !== 'undefined' && toast) {
                         toast.success(
-                            `WooCommerce conectado! Versão: ${
-                                data.environment?.version || 'N/A'
+                            `WooCommerce conectado! Versão: ${data.environment?.version || 'N/A'
                             }`,
                             4000
                         );
@@ -28733,9 +28475,8 @@ END:VCARD`;
                 } else {
                     const error = await response.json();
                     throw new Error(
-                        `WooCommerce: ${
-                            error.message ||
-                            'Credenciais inválidas ou URL incorreta'
+                        `WooCommerce: ${error.message ||
+                        'Credenciais inválidas ou URL incorreta'
                         }`
                     );
                 }
@@ -28764,8 +28505,7 @@ END:VCARD`;
                     const data = await response.json();
                     if (typeof toast !== 'undefined' && toast) {
                         toast.success(
-                            `Shopify conectado! Loja: ${
-                                data.shop?.name || shop
+                            `Shopify conectado! Loja: ${data.shop?.name || shop
                             }`,
                             4000
                         );
@@ -28805,8 +28545,7 @@ END:VCARD`;
                     const data = await response.json();
                     if (typeof toast !== 'undefined' && toast) {
                         toast.success(
-                            `Mercado Livre conectado! Usuário: ${
-                                data.nickname || 'N/A'
+                            `Mercado Livre conectado! Usuário: ${data.nickname || 'N/A'
                             }`,
                             4000
                         );
@@ -28819,8 +28558,7 @@ END:VCARD`;
                 } else {
                     const error = await response.json();
                     throw new Error(
-                        `Mercado Livre: ${
-                            error.message || 'Token inválido ou expirado'
+                        `Mercado Livre: ${error.message || 'Token inválido ou expirado'
                         }`
                     );
                 }
@@ -29067,8 +28805,7 @@ END:VCARD`;
                 } else {
                     const error = await response.json();
                     throw new Error(
-                        `SendGrid: ${
-                            error.errors?.[0]?.message || 'Erro ao enviar email'
+                        `SendGrid: ${error.errors?.[0]?.message || 'Erro ao enviar email'
                         }`
                     );
                 }
@@ -29309,8 +29046,7 @@ END:VCARD`;
             } else {
                 const error = await response.json();
                 throw new Error(
-                    `WhatsApp: ${
-                        error.error?.message || 'Erro ao enviar mensagem'
+                    `WhatsApp: ${error.error?.message || 'Erro ao enviar mensagem'
                     }`
                 );
             }
@@ -29636,83 +29372,75 @@ END:VCARD`;
                     <h3>Carregamento da Página</h3>
                     <div class="metric">
                         <span class="metric-label">Tempo Total:</span>
-                        <span class="metric-value">${
-                            report.pageLoad.pageLoadTime
-                        }ms</span>
+                        <span class="metric-value">${report.pageLoad.pageLoadTime
+            }ms</span>
                     </div>
                     <div class="metric">
                         <span class="metric-label">DOM Content Loaded:</span>
-                        <span class="metric-value">${
-                            report.pageLoad.domContentLoaded
-                        }ms</span>
+                        <span class="metric-value">${report.pageLoad.domContentLoaded
+            }ms</span>
                     </div>
                     <div class="metric">
                         <span class="metric-label">First Paint:</span>
                         <span class="metric-value">${report.pageLoad.firstPaint.toFixed(
-                            2
-                        )}ms</span>
+                2
+            )}ms</span>
                     </div>
                     <div class="metric">
                         <span class="metric-label">First Contentful Paint:</span>
                         <span class="metric-value">${report.pageLoad.firstContentfulPaint.toFixed(
-                            2
-                        )}ms</span>
+                2
+            )}ms</span>
                     </div>
                 </div>
 
-                ${
-                    report.memory
-                        ? `
+                ${report.memory
+                ? `
                 <div class="performance-section">
                     <h3>Uso de Memória</h3>
                     <div class="metric">
                         <span class="metric-label">Usado:</span>
-                        <span class="metric-value">${
-                            report.memory.used
-                        } MB</span>
+                        <span class="metric-value">${report.memory.used
+                } MB</span>
                     </div>
                     <div class="metric">
                         <span class="metric-label">Total:</span>
-                        <span class="metric-value">${
-                            report.memory.total
-                        } MB</span>
+                        <span class="metric-value">${report.memory.total
+                } MB</span>
                     </div>
                     <div class="metric">
                         <span class="metric-label">Limite:</span>
-                        <span class="metric-value">${
-                            report.memory.limit
-                        } MB</span>
+                        <span class="metric-value">${report.memory.limit
+                } MB</span>
                     </div>
                     <div class="progress-bar" style="margin-top: 0.5rem;">
                         <div class="progress-fill" style="width: ${(
-                            (report.memory.used / report.memory.limit) *
-                            100
-                        ).toFixed(1)}%"></div>
+                    (report.memory.used / report.memory.limit) *
+                    100
+                ).toFixed(1)}%"></div>
                     </div>
                 </div>
                 `
-                        : ''
-                }
+                : ''
+            }
 
                 <div class="performance-section">
                     <h3>Renderização</h3>
                     <div class="metric">
                         <span class="metric-label">Tempo Médio:</span>
                         <span class="metric-value">${report.rendering.averageRenderTime.toFixed(
-                            2
-                        )}ms</span>
+                2
+            )}ms</span>
                     </div>
                     <div class="metric">
                         <span class="metric-label">Total de Renderizações:</span>
-                        <span class="metric-value">${
-                            report.rendering.totalRenders
-                        }</span>
+                        <span class="metric-value">${report.rendering.totalRenders
+            }</span>
                     </div>
                     <div class="metric">
                         <span class="metric-label">Renderizações Lentas (&gt;100ms):</span>
-                        <span class="metric-value ${
-                            report.rendering.slowRenders > 0 ? 'warning' : ''
-                        }">${report.rendering.slowRenders}</span>
+                        <span class="metric-value ${report.rendering.slowRenders > 0 ? 'warning' : ''
+            }">${report.rendering.slowRenders}</span>
                     </div>
                 </div>
 
@@ -29721,26 +29449,23 @@ END:VCARD`;
                     <div class="metric">
                         <span class="metric-label">Tempo Médio de Resposta:</span>
                         <span class="metric-value">${report.api.averageResponseTime.toFixed(
-                            2
-                        )}ms</span>
+                2
+            )}ms</span>
                     </div>
                     <div class="metric">
                         <span class="metric-label">Total de Chamadas:</span>
-                        <span class="metric-value">${
-                            report.api.totalCalls
-                        }</span>
+                        <span class="metric-value">${report.api.totalCalls
+            }</span>
                     </div>
                     <div class="metric">
                         <span class="metric-label">Chamadas Lentas (&gt;1s):</span>
-                        <span class="metric-value ${
-                            report.api.slowCalls > 0 ? 'warning' : ''
-                        }">${report.api.slowCalls}</span>
+                        <span class="metric-value ${report.api.slowCalls > 0 ? 'warning' : ''
+            }">${report.api.slowCalls}</span>
                     </div>
                     <div class="metric">
                         <span class="metric-label">Taxa de Erro:</span>
-                        <span class="metric-value ${
-                            report.api.errorRate > 0.1 ? 'error' : ''
-                        }">${(report.api.errorRate * 100).toFixed(2)}%</span>
+                        <span class="metric-value ${report.api.errorRate > 0.1 ? 'error' : ''
+            }">${(report.api.errorRate * 100).toFixed(2)}%</span>
                     </div>
                 </div>
 
@@ -29749,8 +29474,8 @@ END:VCARD`;
                     <div class="metric">
                         <span class="metric-label">Taxa de Acerto:</span>
                         <span class="metric-value">${(
-                            report.cache.hitRate * 100
-                        ).toFixed(2)}%</span>
+                report.cache.hitRate * 100
+            ).toFixed(2)}%</span>
                     </div>
                     <div class="metric">
                         <span class="metric-label">Hits:</span>
@@ -30314,41 +30039,36 @@ END:VCARD`;
                             </small>
                         </div>
                         <div style="display: flex; gap: 0.5rem;">
-                            <button class="btn-secondary" onclick="app.openMessageTemplateModal('${
-                                template.id
-                            }')" title="Editar">
+                            <button class="btn-secondary" onclick="app.openMessageTemplateModal('${template.id
+                    }')" title="Editar">
                                 <i class="fas fa-edit"></i>
                             </button>
-                            <button class="btn-secondary" onclick="app.deleteMessageTemplateWithConfirm('${
-                                template.id
-                            }')" title="Deletar">
+                            <button class="btn-secondary" onclick="app.deleteMessageTemplateWithConfirm('${template.id
+                    }')" title="Deletar">
                                 <i class="fas fa-trash"></i>
                             </button>
                         </div>
                     </div>
-                    ${
-                        template.subject
-                            ? `<p style="margin: 0.5rem 0; color: var(--gray-700);"><strong>Assunto:</strong> ${template.subject}</p>`
-                            : ''
+                    ${template.subject
+                        ? `<p style="margin: 0.5rem 0; color: var(--gray-700);"><strong>Assunto:</strong> ${template.subject}</p>`
+                        : ''
                     }
                     <p style="margin: 0; color: var(--gray-600); font-size: 0.9rem;">
-                        ${template.content.substring(0, 100)}${
-                    template.content.length > 100 ? '...' : ''
-                }
+                        ${template.content.substring(0, 100)}${template.content.length > 100 ? '...' : ''
+                    }
                     </p>
-                    ${
-                        template.variables && template.variables.length > 0
-                            ? `
+                    ${template.variables && template.variables.length > 0
+                        ? `
                         <div style="margin-top: 0.5rem; display: flex; flex-wrap: gap: 0.25rem;">
                             ${template.variables
-                                .map(
-                                    (v) =>
-                                        `<span style="background: var(--light-gray); padding: 0.25rem 0.5rem; border-radius: 4px; font-size: 0.8rem;">{{${v}}}</span>`
-                                )
-                                .join('')}
+                            .map(
+                                (v) =>
+                                    `<span style="background: var(--light-gray); padding: 0.25rem 0.5rem; border-radius: 4px; font-size: 0.8rem;">{{${v}}}</span>`
+                            )
+                            .join('')}
                         </div>
                     `
-                            : ''
+                        : ''
                     }
                 </div>
             `;
@@ -30545,9 +30265,8 @@ END:VCARD`;
                 </div>
                 <div style="background: var(--white); padding: 1rem; border-radius: var(--radius-sm); border-left: 4px solid #ffc107;">
                     <div style="font-size: 0.85rem; color: var(--gray-600); margin-bottom: 0.25rem;">Taxa de Sucesso</div>
-                    <div style="font-size: 1.5rem; font-weight: bold; color: #ffc107;">${
-                        total > 0 ? ((success / total) * 100).toFixed(1) : 0
-                    }%</div>
+                    <div style="font-size: 1.5rem; font-weight: bold; color: #ffc107;">${total > 0 ? ((success / total) * 100).toFixed(1) : 0
+                }%</div>
                 </div>
             `;
         }
@@ -30592,31 +30311,27 @@ END:VCARD`;
                                 <strong>${msg.to}</strong>
                                 <i class="fas ${statusIcon}" style="color: ${statusColor};"></i>
                             </div>
-                            ${
-                                msg.subject
-                                    ? `<p style="margin: 0.25rem 0; color: var(--gray-700);"><strong>Assunto:</strong> ${msg.subject}</p>`
-                                    : ''
-                            }
+                            ${msg.subject
+                        ? `<p style="margin: 0.25rem 0; color: var(--gray-700);"><strong>Assunto:</strong> ${msg.subject}</p>`
+                        : ''
+                    }
                             <p style="margin: 0.25rem 0; color: var(--gray-600); font-size: 0.9rem;">
-                                ${msg.content.substring(0, 150)}${
-                    msg.content.length > 150 ? '...' : ''
-                }
+                                ${msg.content.substring(0, 150)}${msg.content.length > 150 ? '...' : ''
+                    }
                             </p>
-                            ${
-                                msg.templateName
-                                    ? `<small style="color: var(--gray-500);">Template: ${msg.templateName}</small>`
-                                    : ''
-                            }
+                            ${msg.templateName
+                        ? `<small style="color: var(--gray-500);">Template: ${msg.templateName}</small>`
+                        : ''
+                    }
                         </div>
                         <div style="text-align: right;">
                             <small style="color: var(--gray-500);">
                                 ${new Date(msg.sentAt).toLocaleString('pt-BR')}
                             </small>
-                            ${
-                                msg.error
-                                    ? `<div style="color: ${statusColor}; font-size: 0.8rem; margin-top: 0.25rem;">${msg.error}</div>`
-                                    : ''
-                            }
+                            ${msg.error
+                        ? `<div style="color: ${statusColor}; font-size: 0.8rem; margin-top: 0.25rem;">${msg.error}</div>`
+                        : ''
+                    }
                         </div>
                     </div>
                 </div>
@@ -30697,9 +30412,8 @@ END:VCARD`;
                         }[msg.type] || '#6c757d';
 
                     return `
-                    <div class="scheduled-message-card" style="border-left: 4px solid ${typeColor}; ${
-                        isPast ? 'opacity: 0.7;' : ''
-                    }">
+                    <div class="scheduled-message-card" style="border-left: 4px solid ${typeColor}; ${isPast ? 'opacity: 0.7;' : ''
+                        }">
                         <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 0.5rem;">
                             <div style="flex: 1;">
                                 <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.25rem;">
@@ -30707,57 +30421,52 @@ END:VCARD`;
                                     <strong>${msg.to}</strong>
                                 </div>
                                 <p style="margin: 0.25rem 0; color: var(--gray-700);">
-                                    <strong>Template:</strong> ${
-                                        template?.name ||
-                                        'Template não encontrado'
-                                    }
+                                    <strong>Template:</strong> ${template?.name ||
+                        'Template não encontrado'
+                        }
                                 </p>
                                 <p style="margin: 0.25rem 0; color: var(--gray-600); font-size: 0.9rem;">
                                     <i class="fas fa-calendar"></i> ${scheduledDate.toLocaleString(
-                                        'pt-BR'
-                                    )}
+                            'pt-BR'
+                        )}
                                 </p>
-                                ${
-                                    isPast
-                                        ? `
+                                ${isPast
+                            ? `
                                     <p style="margin: 0.25rem 0; color: #ffc107; font-size: 0.85rem;">
                                         <i class="fas fa-exclamation-triangle"></i> Agendado para o passado - será enviado na próxima verificação
                                     </p>
                                 `
-                                        : `
+                            : `
                                     <p style="margin: 0.25rem 0; color: var(--gray-600); font-size: 0.85rem;">
-                                        <i class="fas fa-hourglass-half"></i> Envio em ${
-                                            hoursUntil > 0
-                                                ? `${hoursUntil}h `
-                                                : ''
-                                        }${minutesUntil}min
+                                        <i class="fas fa-hourglass-half"></i> Envio em ${hoursUntil > 0
+                                ? `${hoursUntil}h `
+                                : ''
+                            }${minutesUntil}min
                                     </p>
                                 `
-                                }
-                                ${
-                                    msg.error
-                                        ? `
+                        }
+                                ${msg.error
+                            ? `
                                     <p style="margin: 0.25rem 0; color: #dc3545; font-size: 0.85rem;">
                                         <i class="fas fa-exclamation-circle"></i> Erro: ${msg.error}
                                     </p>
                                 `
-                                        : ''
-                                }
+                            : ''
+                        }
                             </div>
                             <div style="display: flex; gap: 0.5rem;">
-                                ${
-                                    !msg.sent
-                                        ? `
+                                ${!msg.sent
+                            ? `
                                     <button class="btn-secondary" onclick="app.cancelScheduledMessage('${msg.id}')" title="Cancelar">
                                         <i class="fas fa-times"></i>
                                     </button>
                                 `
-                                        : `
+                            : `
                                     <span style="color: #28a745; font-size: 0.9rem;">
                                         <i class="fas fa-check-circle"></i> Enviada
                                     </span>
                                 `
-                                }
+                        }
                             </div>
                         </div>
                     </div>
@@ -30807,15 +30516,14 @@ END:VCARD`;
                                     <i class="fas fa-check-circle" style="color: #28a745;"></i>
                                 </div>
                                 <p style="margin: 0.25rem 0; color: var(--gray-700); font-size: 0.9rem;">
-                                    <strong>Template:</strong> ${
-                                        template?.name ||
-                                        'Template não encontrado'
-                                    }
+                                    <strong>Template:</strong> ${template?.name ||
+                        'Template não encontrado'
+                        }
                                 </p>
                                 <p style="margin: 0.25rem 0; color: var(--gray-600); font-size: 0.85rem;">
                                     <i class="fas fa-calendar-check"></i> Enviada em ${sentDate.toLocaleString(
-                                        'pt-BR'
-                                    )}
+                            'pt-BR'
+                        )}
                                 </p>
                             </div>
                         </div>
@@ -30852,9 +30560,8 @@ END:VCARD`;
         this.messageTemplates.forEach((template) => {
             const option = document.createElement('option');
             option.value = template.id;
-            option.textContent = `${
-                template.name
-            } (${template.type.toUpperCase()})`;
+            option.textContent = `${template.name
+                } (${template.type.toUpperCase()})`;
             templateSelect.appendChild(option);
         });
 
@@ -31447,9 +31154,8 @@ END:VCARD`;
                 price: parseFloat(item.price || 0),
             }));
             total = parseFloat(order.total || 0);
-            customerName = `${order.billing?.first_name || ''} ${
-                order.billing?.last_name || ''
-            }`.trim();
+            customerName = `${order.billing?.first_name || ''} ${order.billing?.last_name || ''
+                }`.trim();
             customerEmail = order.billing?.email || '';
         } else if (platform === 'shopify') {
             items = (order.line_items || []).map((item) => ({
@@ -31458,9 +31164,8 @@ END:VCARD`;
                 price: parseFloat(item.price || 0),
             }));
             total = parseFloat(order.total_price || 0);
-            customerName = `${order.customer?.first_name || ''} ${
-                order.customer?.last_name || ''
-            }`.trim();
+            customerName = `${order.customer?.first_name || ''} ${order.customer?.last_name || ''
+                }`.trim();
             customerEmail = order.customer?.email || order.email || '';
         } else if (platform === 'mercadoLivre') {
             items = [
@@ -31623,8 +31328,7 @@ END:VCARD`;
                 .json()
                 .catch(() => ({ message: response.statusText }));
             throw new Error(
-                `Shopify: ${
-                    error.errors || error.message || response.statusText
+                `Shopify: ${error.errors || error.message || response.statusText
                 }`
             );
         }
@@ -31740,9 +31444,8 @@ END:VCARD`;
                 mercadoLivre: 'Mercado Livre',
             };
 
-            container.textContent = `Plataforma ativa: ${
-                platformNames[activePlatform] || activePlatform
-            }`;
+            container.textContent = `Plataforma ativa: ${platformNames[activePlatform] || activePlatform
+                }`;
             const parent = container.parentElement;
             if (parent) {
                 parent.style.background = '#d4edda';
