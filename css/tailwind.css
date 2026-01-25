@@ -413,16 +413,7 @@ body.dark-mode .header {
 }
 
 .modal {
-  position: fixed;
-  inset: 0px;
-  z-index: 50;
-  display: none;
-  align-items: center;
-  justify-content: center;
-  background: rgba(0, 0, 0, 0);
-  backdrop-filter: blur(0px);
-  -webkit-backdrop-filter: blur(0px);
-  pointer-events: none;
+  @apply fixed inset-0 z-50 hidden items-center justify-center;
 }
 
 .\!modal {
