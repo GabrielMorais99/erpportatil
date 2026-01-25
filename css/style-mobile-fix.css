@@ -19,6 +19,27 @@
   display: none;
 }
 
+/* QR Code - FIX ANDROID */
+#qrModal {
+  position: fixed;
+  inset: 0;
+  z-index: 99999;
+  background: rgba(0, 0, 0, 0.85);
+}
+
+#qrModal video {
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: cover;
+}
+
+#qrModal .modal-content {
+  width: 100%;
+  height: 100%;
+  background: transparent;
+}
+
+
 .modal.active {
   display: flex !important;
   position: fixed !important;

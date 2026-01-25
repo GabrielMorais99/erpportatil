@@ -4786,13 +4786,15 @@
             const modal = document.getElementById('qrModal');
             const container = document.getElementById('qrContainer');
 
+            // 🔥 DESATIVAR INTERAÇÃO DO APP
+            document.querySelector('.app-container')?.classList.add('qr-open');
+
             container.innerHTML = '';
             modal.classList.add('active');
 
             const isAndroid = /Android/i.test(navigator.userAgent);
 
-            if (isAndroid && typeof Html5Qrcode !== 'undefined') {
-                // ANDROID → câmera
+            if (isAndroid && window.Html5Qrcode) {
                 qrCameraInstance = new Html5Qrcode("qrContainer");
                 qrCameraInstance.start(
                     { facingMode: "environment" },
@@ -4800,29 +4802,47 @@
                     () => { },
                     () => { }
                 );
-            } else if (window.QRCode) {
-                // WEB → imagem
-                QRCode.toCanvas(container, texto, { width: 240 });
             } else {
-                container.innerHTML = '<p>Erro ao carregar QR Code</p>';
+                QRCode.toCanvas(container, texto, { width: 240 });
             }
         }
 
         function fecharQrCode() {
 
-
+            // Fecha o modal
             const modal = document.getElementById('qrModal');
-            modal.classList.remove('active');
+            if (modal) {
+                modal.classList.remove('active');
+                modal.style.display = 'none';
+            }
 
+            // Para e limpa a câmera (corrige bug no Android)
             if (qrCameraInstance) {
-                qrCameraInstance.stop()
-                    .then(() => qrCameraInstance.clear())
-                    .catch(() => { });
+                try {
+                    qrCameraInstance.stop()
+                        .then(() => qrCameraInstance.clear())
+                        .catch(() => { });
+                } catch (e) { }
                 qrCameraInstance = null;
             }
 
-            document.getElementById('qrContainer').innerHTML = '';
+            // Limpa o vídeo
+            const container = document.getElementById('qrContainer');
+            if (container) {
+                container.innerHTML = '';
+            }
+
+            // 🔴 CORREÇÃO PRINCIPAL (NÃO REMOVER)
+            const app = document.querySelector('.app-container');
+            if (app) {
+                app.style.transform = 'none';
+                app.style.opacity = '1';
+                app.style.pointerEvents = 'auto';
+            }
+
+            document.body.style.overflow = '';
         }
+
     </script>
 
     <div id="qrModal" class="modal">
