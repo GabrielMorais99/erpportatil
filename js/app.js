@@ -8332,14 +8332,47 @@ class LojaApp {
 
     // ========== GRUPOS MENSAIS ==========
 
+    // ========== GRUPOS MENSAIS ==========
+
     openGroupModal() {
-        document.getElementById('groupModal').classList.add('active');
-    }
+        console.log('[MODAL] Abrindo groupModal');
+
+        const modal = document.getElementById('groupModal');
+        if (!modal) {
+            console.error('[MODAL] groupModal não encontrado');
+            return;
+        }
+
+        modal.classList.remove('hidden');
+        modal.classList.add('active');
+
+        modal.style.display = 'flex';
+        modal.style.visibility = 'visible';
+        modal.style.opacity = '1';
+        modal.style.pointerEvents = 'auto';
+
+        document.body.style.overflow = 'hidden';
+    },
 
     closeGroupModal() {
-        document.getElementById('groupModal').classList.remove('active');
-        document.getElementById('groupForm').reset();
-    }
+        console.log('[MODAL] Fechando groupModal');
+
+        const modal = document.getElementById('groupModal');
+        if (!modal) return;
+
+        modal.classList.remove('active');
+        modal.classList.add('hidden');
+
+        modal.style.display = 'none';
+        modal.style.visibility = '';
+        modal.style.opacity = '';
+        modal.style.pointerEvents = '';
+
+        document.body.style.overflow = '';
+
+        document.getElementById('groupForm')?.reset();
+    },
+
 
     createGroup(e) {
         e.preventDefault();
@@ -8449,8 +8482,12 @@ class LojaApp {
         });
 
         requestAnimationFrame(() => {
+            modal.classList.remove('hidden');
             modal.classList.add('active');
+
             modal.style.display = 'flex';
+            modal.style.opacity = '1';
+            modal.style.visibility = 'visible';
             modal.style.pointerEvents = 'auto';
         });
     }
@@ -8643,8 +8680,8 @@ class LojaApp {
                         return `<option value="${this.escapeHtml(
                             client.name
                         )}">${this.escapeHtml(client.name)}${client.phone
-                                ? ` - ${this.escapeHtml(client.phone)}`
-                                : ''
+                            ? ` - ${this.escapeHtml(client.phone)}`
+                            : ''
                             }</option>`;
                     })
                     .join('');
@@ -8976,14 +9013,14 @@ class LojaApp {
                             <strong>${this.escapeHtml(
                         item ? item.name : 'Item não encontrado'
                     )}</strong>${sale.size || sale.color
-                            ? ` <span style="color: var(--primary-color); font-weight: 600;">(${sale.size
-                                ? `Tamanho: ${this.escapeHtml(sale.size)}`
-                                : ''
-                            }${sale.size && sale.color ? ', ' : ''}${sale.color
-                                ? `Cor: ${this.escapeHtml(sale.color)}`
-                                : ''
-                            })</span>`
+                        ? ` <span style="color: var(--primary-color); font-weight: 600;">(${sale.size
+                            ? `Tamanho: ${this.escapeHtml(sale.size)}`
                             : ''
+                        }${sale.size && sale.color ? ', ' : ''}${sale.color
+                            ? `Cor: ${this.escapeHtml(sale.color)}`
+                            : ''
+                        })</span>`
+                        : ''
                         }<br>
                             <small style="color: var(--gray);">${sale.quantity
                         } un. × R$ ${sale.price
@@ -9467,8 +9504,8 @@ class LojaApp {
                     `Sua compra de R$ ${totalValue
                         .toFixed(2)
                         .replace('.', ',')} foi registrada com sucesso!${loyaltyPointsUsed > 0
-                        ? ` Você usou ${loyaltyPointsUsed} ponto(s) de fidelidade.`
-                        : ''
+                            ? ` Você usou ${loyaltyPointsUsed} ponto(s) de fidelidade.`
+                            : ''
                     }`,
                     'success'
                 );
@@ -15325,7 +15362,7 @@ class LojaApp {
         document.getElementById(
             'stockModalTitle'
         ).textContent = `Gerenciar Estoque do Mês - ${monthNames[parseInt(month) - 1]
-            } ${year}`;
+        } ${year}`;
 
         // Definir dia padrão como 1
         document.getElementById('stockDay').value = 1;
@@ -23779,10 +23816,10 @@ class LojaApp {
         const trendDetailsEl = document.getElementById('salesTrendDetails');
         if (trendDetailsEl && trend.strength) {
             trendDetailsEl.innerHTML = `Força: <strong>${trend.strength === 'strong'
-                    ? 'Forte'
-                    : trend.strength === 'moderate'
-                        ? 'Moderada'
-                        : 'Fraca'
+                ? 'Forte'
+                : trend.strength === 'moderate'
+                    ? 'Moderada'
+                    : 'Fraca'
                 }</strong> (R²=${trend.rSquared})`;
             trendDetailsEl.style.display = 'block';
         }
