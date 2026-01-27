@@ -1893,6 +1893,12 @@ class LojaApp {
                 // Marcar como inicializado ao final
                 this._initialized = true;
                 this._initializing = false;
+				
+				requestAnimationFrame(() => {
+				document.body.classList.add('app-ready');
+				console.log('✅ [APP] app-ready marcado');
+			});
+
             }, 100);
 
             // Marcar como inicializado mesmo se houver erro antes do setTimeout

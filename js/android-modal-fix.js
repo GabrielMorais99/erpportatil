@@ -55,7 +55,16 @@
     
     // Continuar inicialização após DOM estar pronto
     const continueInit = () => {
+		
+		
         if (!document.body) return; // Segurança extra
+		
+		  // ⛔ NÃO rodar fix antes do app estar pronto
+	  if (!document.body.classList.contains('app-ready')) {
+		console.warn('⏸️ [ANDROID FIX] aguardando app-ready');
+		setTimeout(continueInit, 100);
+		return;
+	  }
         
         // CSS ULTRA AGRESSIVO - Remove TUDO relacionado a backdrop
         const style = document.createElement('style');
@@ -116,10 +125,10 @@
         /* Garantir que body/html não tenham backdrop NUNCA */
         .android-chrome body,
         .android-chrome html,
-        .android-chrome body *,
-        .android-chrome html * {
-            backdrop-filter: none !important;
-            -webkit-backdrop-filter: none !important;
+        .android-chrome .modal,
+		.android-chrome .modal * {
+		  backdrop-filter: none !important;
+		  -webkit-backdrop-filter: none !important;
         }
         
         /* Forçar opacidade normal no body quando não há modal */
@@ -216,49 +225,33 @@
     
         // Função para forçar repaint do body
         const forceRepaint = () => {
-        // Forçar reflow/repaint
-        document.body.style.display = 'none';
-        document.body.offsetHeight; // Trigger reflow
-        document.body.style.display = '';
-        
-        // Forçar repaint do viewport
-        if (document.body.style) {
-            document.body.style.transform = 'translateZ(0)';
-            setTimeout(() => {
-                document.body.style.transform = '';
-            }, 0);
-        }
-    };
+		  document.body.style.transform = 'translateZ(0)';
+		  requestAnimationFrame(() => {
+			document.body.style.transform = '';
+		  });
+		};
+
     
-        // Função ULTRA AGRESSIVA para limpar modais no Android
-        const cleanAndroidModals = () => {
-        // Remover classe modal-open do body
-        document.body.classList.remove('modal-open');
         
         // Limpar TODOS os modais
-        const modals = document.querySelectorAll('.modal');
-        modals.forEach(modal => {
-            // Remover classe active
-            modal.classList.remove('active');
-            
-            // Remover classes Tailwind problemáticas
-            modal.classList.remove('backdrop-blur-sm', 'backdrop-blur', 'bg-opacity-40');
-            
-            // Forçar reset COMPLETO com cssText (sobrescreve tudo)
-            modal.style.cssText = `
-                display: none !important;
-                opacity: 0 !important;
-                visibility: hidden !important;
-                pointer-events: none !important;
-                background: transparent !important;
-                background-color: transparent !important;
-                backdrop-filter: none !important;
-                -webkit-backdrop-filter: none !important;
-                z-index: -1 !important;
-                transform: none !important;
-                will-change: auto !important;
-            `;
-        });
+        const cleanAndroidModals = () => {
+		document.body.classList.remove('modal-open');
+
+		  const modals = document.querySelectorAll('.modal:not(.active)');
+		  modals.forEach(modal => {
+			modal.style.cssText = `
+			  display: none !important;
+			  opacity: 0 !important;
+			  visibility: hidden !important;
+			  pointer-events: none !important;
+			  background: transparent !important;
+			  z-index: -1 !important;
+			`;
+		  });
+
+		  forceRepaint();
+		};
+
         
         // Limpar body e html COMPLETAMENTE
         document.body.style.removeProperty('backdrop-filter');
@@ -364,6 +357,16 @@
         });
     };
     
+	let lastModalClose = 0;
+
+function scheduleClean() {
+  clearTimeout(lastModalClose);
+  lastModalClose = setTimeout(() => {
+    cleanAndroidModals();
+  }, 300);
+}
+
+	
         // Iniciar observação
         if (document.readyState === 'loading') {
             document.addEventListener('DOMContentLoaded', observeModals);
@@ -382,16 +385,10 @@
         
         // Executar limpeza periodicamente (a cada 200ms) quando não há modais ativos
         // IMPORTANTE: Só executar se houver modais na página (não executar na página de login)
-        let modalCleanupInterval = null;
         const modalsOnPage = document.querySelectorAll('.modal');
         if (modalsOnPage.length > 0) {
             // Só criar interval se houver modais na página
-            modalCleanupInterval = setInterval(() => {
-                const activeModals = document.querySelectorAll('.modal.active');
-                if (activeModals.length === 0) {
-                    cleanAndroidModals();
-                }
-            }, 200);
+            scheduleClean();
         }
         
         // Interceptar TODOS os eventos de fechamento
@@ -399,49 +396,52 @@
             const modal = e.target.closest('.modal');
             if (modal && e.target === modal) {
                 // Clicou no backdrop
-                setTimeout(() => {
-                    cleanAndroidModals();
-                    forceRepaint();
-                }, 100);
+               scheduleClean();
+			   forceRepaint();
+
             }
         }, true);
         
         // Limpar ao pressionar ESC
         document.addEventListener('keydown', (e) => {
             if (e.key === 'Escape') {
-                setTimeout(() => {
-                    cleanAndroidModals();
-                    forceRepaint();
-                }, 100);
+              scheduleClean();
+			  forceRepaint();
+
             }
         });
         
         // Interceptar remove de classe active
         const originalRemove = DOMTokenList.prototype.remove;
         DOMTokenList.prototype.remove = function(...args) {
-            const result = originalRemove.apply(this, args);
-            if (this.contains && !this.contains('active') && args.includes('active')) {
-                // Modal foi fechado
-                setTimeout(() => {
-                    cleanAndroidModals();
-                    forceRepaint();
-                }, 50);
-            }
-            return result;
-        };
+		  const result = originalRemove.apply(this, args);
+
+		  if (
+			this.ownerElement &&
+			this.ownerElement.classList.contains('modal') &&
+			args.includes('active')
+		  ) {
+			scheduleClean();
+			forceRepaint();
+		  }
+
+		  return result;
+		};
+
+
         
     // Limpar ao fechar página/app
-    window.addEventListener('beforeunload', () => {
-        if (modalCleanupInterval) {
-            clearInterval(modalCleanupInterval);
-        }
-        cleanAndroidModals();
-    });
+	  window.addEventListener('beforeunload', () => {
+	  cleanAndroidModals();
+	});
+
         
         // Limpar quando página fica visível novamente
         document.addEventListener('visibilitychange', () => {
             if (!document.hidden) {
-                setTimeout(cleanAndroidModals, 100);
+                scheduleClean();
+                forceRepaint();
+				
             }
         });
         
