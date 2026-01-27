@@ -70,3 +70,25 @@
   border-radius: 12px;
   overflow-y: auto;
 }
+
+/* ===============================
+   FIX DEFINITIVO: TAILWIND + MODAL
+   =============================== */
+
+/* Se o modal estiver active, hidden NÃO pode vencer */
+.modal.active.hidden {
+  display: flex !important;
+}
+
+/* Garantir que o conteúdo apareça */
+.modal.active .modal-content {
+  display: block !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+  transform: none !important;
+}
+
+/* Blindagem de z-index (produção) */
+.modal.active {
+  z-index: 99999 !important;
+}
