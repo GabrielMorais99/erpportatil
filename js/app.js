@@ -35,6 +35,7 @@
  * @since 2025
  */
 
+
 // ========== APP.JS CARREGADO ==========
 console.log('🟣 [APP.JS] Script carregado e executando...');
 
