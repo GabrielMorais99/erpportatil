@@ -618,6 +618,30 @@
                                 <i class="fas fa-plus"></i> Novo Mês
                             </button>
                         </div>
+						<!-- CONTROLES DO MÊS / ESTOQUE -->
+					<div class="month-controls" style="margin: 1rem 0; display: flex; gap: 1rem; align-items: center;">
+
+						<div class="form-group">
+							<label for="mesSelecionado">Mês</label>
+							<select id="mesSelecionado" class="filter-select">
+								<!-- meses serão carregados via JS -->
+							</select>
+						</div>
+
+						<div class="form-group">
+							<label for="estoqueMes">Estoque inicial do mês</label>
+							<input
+								type="number"
+								id="estoqueMes"
+								min="0"
+								placeholder="Ex: 100"
+								class="search-input-with-icon"
+							/>
+						</div>
+
+					</div>
+
+						
                         <div class="panel-filters"
                             style="margin-bottom: 1.5rem; display: flex; gap: 1rem; align-items: center; flex-wrap: wrap;">
                             <div class="filter-group" style="display: flex; align-items: center; gap: 0.5rem;">
@@ -634,6 +658,9 @@
                             <!-- Grupos mensais serão inseridos aqui via JavaScript -->
                         </div>
                     </div>
+					
+					
+					
 
                     <!-- Seção de Produtos -->
                     <div class="panel-section">
@@ -2394,7 +2421,7 @@
                 </div>
                 <div class="days-container">
                     <div>
-                        <h3>Vendas por Dia</h3>
+                        <h3>Vendas por Mês</h3>
                         <button type="button" class="btn-primary" id="manageStockBtn"
                             style="margin-top: 1rem; padding: 0.5rem 1rem; font-size: 0.9rem;">
                             <i class="fas fa-warehouse"></i> Gerenciar Estoque do Mês

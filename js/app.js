@@ -105,6 +105,28 @@ class ToastSystem {
 
         return toast;
     }
+	
+	// ================================
+	// MODELO DE ESTOQUE
+	// ================================
+	function getEstoqueKey(usuario, mes) {
+	  return `estoque_${usuario}_${mes}`;
+	}
+
+	function salvarEstoque(usuario, mes, estoque) {
+	  localStorage.setItem(
+		getEstoqueKey(usuario, mes),
+		JSON.stringify(estoque)
+	  );
+	}
+
+	function carregarEstoque(usuario, mes) {
+	  const dados = localStorage.getItem(getEstoqueKey(usuario, mes));
+	  return dados ? JSON.parse(dados) : null;
+	}
+
+
+
 
     createToast(message, type) {
         const toast = document.createElement('div');
@@ -1681,6 +1703,33 @@ class LojaApp {
                         this.switchTab('adminPanel');
                     }, 100);
                 }
+				
+				// ===============================
+				// ESTOQUE DO MÊS – EVENTOS
+				// ===============================
+				initEstoqueMes() {
+				  const estoqueMesInput = document.getElementById('estoqueMes');
+				  const mesSelect = document.getElementById('mesSelecionado');
+
+				  if (!estoqueMesInput || !mesSelect) return;
+
+				  estoqueMesInput.addEventListener('change', () => {
+					const usuario = sessionStorage.getItem('username');
+					const mes = mesSelect.value;
+					if (!usuario || !mes) return;
+
+					let estoque = this.carregarEstoque(usuario, mes) || {
+					  totalInicial: 0,
+					  movimentacoes: []
+					};
+
+					estoque.totalInicial = Number(estoqueMesInput.value);
+					this.salvarEstoque(usuario, mes, estoque);
+
+					console.log('✅ Estoque salvo via app.js', estoque);
+				  });
+				},
+
 
                 // Carregar tema salvo
                 this.loadTheme();
@@ -1750,6 +1799,9 @@ class LojaApp {
                         this.switchTab('salesPanel');
                     }, 50);
                 }
+				
+				 this.initEstoqueMes();
+
 
                 // Carregar histórico de buscas
                 this.loadSearchHistory();
