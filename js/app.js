@@ -31,7 +31,7 @@
  
  * 
  * @author Sistema ERP - Gabriel Dev
- * @version 2.0
+ * @version 2.0F
  * @since 2025
  */
 
@@ -119,11 +119,98 @@ class ToastSystem {
 		JSON.stringify(estoque)
 	  );
 	}
+	
+	carregarEstoqueDoMesSelecionado() {
+    const usuario = sessionStorage.getItem('username');
+    const mesSelect = document.getElementById('mesSelecionado');
+    const estoqueInput = document.getElementById('estoqueMes');
+
+    if (!usuario || !mesSelect || !estoqueInput) {
+        console.warn('⚠️ Usuário, mês ou input de estoque não encontrado');
+        return;
+    }
+
+    const mes = mesSelect.value;
+    if (!mes) return;
+
+    const estoque = this.carregarEstoque(usuario, mes);
+
+    if (estoque) {
+        // Preencher estoque mensal
+        estoqueInput.value = estoque.totalInicial;
+
+        // Renderizar estoque diário
+        this.renderEstoqueDiario(estoque);
+
+        console.log('📦 Estoque carregado para o mês:', mes, estoque);
+    } else {
+        // Limpar quando não existir estoque
+        estoqueInput.value = '';
+        this.renderEstoqueDiario(null);
+
+        console.log('ℹ️ Nenhum estoque encontrado para o mês:', mes);
+    }
+}
+
+
+// ===============================
+// VENDAS → ABATER ESTOQUE
+// ===============================
+	registrarVenda(qtd) {
+		const usuario = sessionStorage.getItem('username');
+		const mes = document.getElementById('mesSelecionado')?.value;
+
+		if (!usuario || !mes) {
+			console.warn('⚠️ Usuário ou mês não definido');
+			return;
+		}
+
+		let estoque = this.carregarEstoque(usuario, mes);
+
+		if (!estoque) {
+			alert('Estoque do mês não definido');
+			return;
+		}
+
+		estoque.movimentacoes.push({
+			data: new Date().toISOString().slice(0, 10),
+			tipo: 'venda',
+			qtd: -Math.abs(qtd)
+		});
+
+		this.salvarEstoque(usuario, mes, estoque);
+		this.carregarEstoqueDoMesSelecionado();
+
+		console.log('💸 Venda registrada e estoque abatido:', qtd);
+	}
 
 	function carregarEstoque(usuario, mes) {
 	  const dados = localStorage.getItem(getEstoqueKey(usuario, mes));
 	  return dados ? JSON.parse(dados) : null;
 	}
+	
+		// ===============================
+		// ESTOQUE → CÁLCULO DIÁRIO
+		// ===============================
+		calcularEstoquePorDia(estoque) {
+			if (!estoque || !estoque.movimentacoes) return {};
+
+
+			let saldo = estoque.totalInicial;
+			const resultado = {};
+
+			// Ordenar movimentações por data
+			const movsOrdenadas = [...estoque.movimentacoes].sort(
+				(a, b) => a.data.localeCompare(b.data)
+			);
+
+			movsOrdenadas.forEach((mov) => {
+				saldo += mov.qtd;
+				resultado[mov.data] = saldo;
+			});
+
+			return resultado;
+		}
 
 
 
@@ -1708,27 +1795,31 @@ class LojaApp {
 				// ESTOQUE DO MÊS – EVENTOS
 				// ===============================
 				initEstoqueMes() {
-				  const estoqueMesInput = document.getElementById('estoqueMes');
-				  const mesSelect = document.getElementById('mesSelecionado');
+				const estoqueInput = document.getElementById('estoqueMes');
+				const mesSelect = document.getElementById('mesSelecionado');
 
-				  if (!estoqueMesInput || !mesSelect) return;
+				if (!estoqueInput || !mesSelect) return;
 
-				  estoqueMesInput.addEventListener('change', () => {
+				// Salvar estoque ao alterar valor
+				estoqueInput.addEventListener('change', () => {
 					const usuario = sessionStorage.getItem('username');
 					const mes = mesSelect.value;
-					if (!usuario || !mes) return;
 
 					let estoque = this.carregarEstoque(usuario, mes) || {
-					  totalInicial: 0,
-					  movimentacoes: []
+						totalInicial: 0,
+						movimentacoes: []
 					};
 
-					estoque.totalInicial = Number(estoqueMesInput.value);
+					estoque.totalInicial = Number(estoqueInput.value);
 					this.salvarEstoque(usuario, mes, estoque);
+				});
 
-					console.log('✅ Estoque salvo via app.js', estoque);
-				  });
-				},
+				
+				mesSelect.addEventListener('change', () => {
+					this.carregarEstoqueDoMesSelecionado();
+				});
+			}
+
 
 
                 // Carregar tema salvo
@@ -1801,7 +1892,10 @@ class LojaApp {
                 }
 				
 				 this.initEstoqueMes();
+				 				 // 🔥 carregar estoque inicial
+				this.carregarEstoqueDoMesSelecionado();
 
+				this.populateServiceTypes();
 
                 // Carregar histórico de buscas
                 this.loadSearchHistory();
@@ -3404,10 +3498,7 @@ class LojaApp {
 
         modal.classList.add('active');
 
-        // Forçar abertura no Android se forceOpenModal estiver disponível
-        if (typeof window.forceOpenModal === 'function') {
-            window.forceOpenModal(modal);
-        }
+      
 
         // Configurar validação em tempo real
         if (typeof fieldValidator !== 'undefined') {
@@ -4790,7 +4881,7 @@ class LojaApp {
         if (downloadBtn) downloadBtn.dataset.itemId = itemId;
 
         // Abrir modal primeiro para garantir que o canvas esteja visível
-        modal.classList.add('active');
+			this.openModalSafely(modal);
 
         // Aguardar um pouco para o modal renderizar antes de gerar o QR code
         setTimeout(() => {
@@ -5438,7 +5529,8 @@ class LojaApp {
             form.onsubmit = (e) => this.processQuickSale(e);
         }
 
-        modal.classList.add('active');
+        this.openModalSafely(modal);
+
     }
 
     /**
@@ -5928,7 +6020,12 @@ class LojaApp {
             // Adicionar pontos de fidelidade
             this.addLoyaltyPoints(customerName, totalValue);
         }
+		
+		// 🔥 ABATER ESTOQUE MENSAL
+		if (item.category !== 'Serviços') {
 
+        this.registrarVenda(quantity);
+		}
         // Salvar dados
         this.saveData();
 
@@ -6478,13 +6575,10 @@ class LojaApp {
             form.reset();
         }
 
-        modal.classList.add('active');
+        this.openModalSafely(modal);
 
-        // Forçar abertura no Android se forceOpenModal estiver disponível
-        if (typeof window.forceOpenModal === 'function') {
-            window.forceOpenModal(modal);
-        }
 
+      
         // Configurar validação em tempo real
         if (typeof fieldValidator !== 'undefined') {
             const clientName = form.clientName;
@@ -6532,6 +6626,64 @@ class LojaApp {
         }
         this.currentEditingClient = null;
     }
+	// ===============================
+// SERVIÇOS → TIPOS DE SERVIÇO
+// ===============================
+openServiceTypeModal() {
+    const input = document.getElementById('serviceTypeName');
+    if (input) input.value = '';
+    this.openModal('serviceTypeModal');
+},
+
+saveServiceType() {
+    const input = document.getElementById('serviceTypeName');
+
+    if (!input || !input.value.trim()) {
+        toast.error('Informe o nome do tipo de serviço');
+        return;
+    }
+
+    const usuario = sessionStorage.getItem('username');
+    const storageKey = `serviceTypes_${usuario}`;
+
+    const tipos = JSON.parse(localStorage.getItem(storageKey)) || [];
+
+    tipos.push({
+        id: Date.now().toString(),
+        name: input.value.trim()
+    });
+
+    localStorage.setItem(storageKey, JSON.stringify(tipos));
+
+    this.closeModalSafely('serviceTypeModal');
+    this.populateServiceTypes();
+
+    toast.success('Tipo de serviço cadastrado');
+},
+
+		populateServiceTypes() {
+			const usuario = sessionStorage.getItem('username');
+			const storageKey = `serviceTypes_${usuario}`;
+
+			const tipos = JSON.parse(localStorage.getItem(storageKey)) || [];
+			const select = document.getElementById('serviceTypeSelect');
+
+			if (!select) return;
+
+			select.innerHTML = '<option value="">Selecione</option>';
+
+			tipos.forEach((tipo) => {
+				const option = document.createElement('option');
+				option.value = tipo.id;
+				option.textContent = tipo.name;
+				select.appendChild(option);
+			});
+		},
+
+
+
+
+
 
     saveClient(e) {
         if (e) e.preventDefault();
