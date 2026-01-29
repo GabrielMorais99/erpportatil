@@ -54,6 +54,7 @@ class ToastSystem {
     constructor() {
         this.container = this.createContainer();
         this.toasts = [];
+		this.usuario = sessionStorage.getItem('username');
     }
 
     createContainer() {
@@ -122,7 +123,7 @@ class ToastSystem {
 
 
     carregarEstoqueDoMesSelecionado() {
-        const usuario = sessionStorage.getItem('username');
+        const usuario = this.usuario || sessionStorage.getItem('username');
         const mesSelect = document.getElementById('mesSelecionado');
         const estoqueInput = document.getElementById('estoqueMes');
 
