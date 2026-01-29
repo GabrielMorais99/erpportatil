@@ -142,13 +142,13 @@ class ToastSystem {
             estoqueInput.value = estoque.totalInicial;
 
             // Renderizar estoque diário
-            this.renderEstoqueDiario(estoque);
+            //this.renderEstoqueDiario(estoque);
 
             console.log('📦 Estoque carregado para o mês:', mes, estoque);
         } else {
             // Limpar quando não existir estoque
             estoqueInput.value = '';
-            this.renderEstoqueDiario(null);
+            //this.renderEstoqueDiario(null);
 
             console.log('ℹ️ Nenhum estoque encontrado para o mês:', mes);
         }
