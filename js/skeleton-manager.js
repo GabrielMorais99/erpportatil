@@ -217,7 +217,7 @@ const SkeletonManager = {
         for (let i = 0; i < count; i++) {
             const skeleton = document.createElement('div');
             skeleton.className = type === 'line' ? 'skeleton-line' : 'skeleton-card';
-            
+
             if (type === 'card') {
                 skeleton.innerHTML = `
                     <div class="skeleton-line"></div>
@@ -226,7 +226,7 @@ const SkeletonManager = {
                     <div class="skeleton-line"></div>
                 `;
             }
-            
+
             container.appendChild(skeleton);
         }
     }

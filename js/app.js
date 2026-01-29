@@ -54,7 +54,7 @@ class ToastSystem {
     constructor() {
         this.container = this.createContainer();
         this.toasts = [];
-		this.usuario = sessionStorage.getItem('username');
+        this.usuario = sessionStorage.getItem('username');
     }
 
     createContainer() {
@@ -951,7 +951,24 @@ class LojaApp {
         // Padrão: user
         return 'user';
     }
+    closeGroupModal() {
+        console.log('[MODAL] Fechando groupModal');
 
+        const modal = document.getElementById('groupModal');
+        if (!modal) return;
+
+        modal.classList.remove('active');
+        modal.classList.add('hidden');
+
+        modal.style.display = 'none';
+        modal.style.visibility = '';
+        modal.style.opacity = '';
+        modal.style.pointerEvents = '';
+
+        document.body.style.overflow = '';
+
+        document.getElementById('groupForm')?.reset();
+    }
     /**
      * Obtém permissões do usuário baseadas no nível
      * @param {string} level - Nível de acesso
@@ -1625,7 +1642,31 @@ class LojaApp {
         // Atualizar audit log também
         this.renderAuditLog();
     }
+    initEstoqueMes() {
+        const estoqueInput = document.getElementById('estoqueMes');
+        const mesSelect = document.getElementById('mesSelecionado');
 
+        if (!estoqueInput || !mesSelect) return;
+
+        // Salvar estoque ao alterar valor
+        estoqueInput.addEventListener('change', () => {
+            const usuario = sessionStorage.getItem('username');
+            const mes = mesSelect.value;
+
+            let estoque = this.carregarEstoque(usuario, mes) || {
+                totalInicial: 0,
+                movimentacoes: []
+            };
+
+            estoque.totalInicial = Number(estoqueInput.value);
+            this.salvarEstoque(usuario, mes, estoque);
+        });
+
+
+        mesSelect.addEventListener('change', () => {
+            this.carregarEstoqueDoMesSelecionado();
+        });
+    }
     init() {
         // Prevenir inicialização dupla
         if (this._initializing || this._initialized) {
@@ -1796,31 +1837,7 @@ class LojaApp {
                 // ===============================
                 // ESTOQUE DO MÊS – EVENTOS
                 // ===============================
-                initEstoqueMes() {
-                    const estoqueInput = document.getElementById('estoqueMes');
-                    const mesSelect = document.getElementById('mesSelecionado');
 
-                    if (!estoqueInput || !mesSelect) return;
-
-                    // Salvar estoque ao alterar valor
-                    estoqueInput.addEventListener('change', () => {
-                        const usuario = sessionStorage.getItem('username');
-                        const mes = mesSelect.value;
-
-                        let estoque = this.carregarEstoque(usuario, mes) || {
-                            totalInicial: 0,
-                            movimentacoes: []
-                        };
-
-                        estoque.totalInicial = Number(estoqueInput.value);
-                        this.salvarEstoque(usuario, mes, estoque);
-                    });
-
-
-                    mesSelect.addEventListener('change', () => {
-                        this.carregarEstoqueDoMesSelecionado();
-                    });
-                }
 
 
 
@@ -6635,7 +6652,7 @@ class LojaApp {
         const input = document.getElementById('serviceTypeName');
         if (input) input.value = '';
         this.openModal('serviceTypeModal');
-    },
+    }
 
     saveServiceType() {
         const input = document.getElementById('serviceTypeName');
@@ -6661,7 +6678,7 @@ class LojaApp {
         this.populateServiceTypes();
 
         toast.success('Tipo de serviço cadastrado');
-    },
+    }
 
     populateServiceTypes() {
         const usuario = sessionStorage.getItem('username');
@@ -6680,7 +6697,7 @@ class LojaApp {
             option.textContent = tipo.name;
             select.appendChild(option);
         });
-    },
+    }
 
 
 
@@ -8565,26 +8582,9 @@ class LojaApp {
         modal.style.pointerEvents = 'auto';
 
         document.body.style.overflow = 'hidden';
-    },
+    }
 
-    closeGroupModal() {
-        console.log('[MODAL] Fechando groupModal');
 
-        const modal = document.getElementById('groupModal');
-        if (!modal) return;
-
-        modal.classList.remove('active');
-        modal.classList.add('hidden');
-
-        modal.style.display = 'none';
-        modal.style.visibility = '';
-        modal.style.opacity = '';
-        modal.style.pointerEvents = '';
-
-        document.body.style.overflow = '';
-
-        document.getElementById('groupForm')?.reset();
-    },
 
 
     createGroup(e) {
