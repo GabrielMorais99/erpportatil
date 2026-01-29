@@ -190,6 +190,12 @@ class ToastSystem {
         const dados = localStorage.getItem(getEstoqueKey(usuario, mes));
         return dados ? JSON.parse(dados) : null;
     }
+    // ===============================
+    // MOVIMENTAÇÕES DE ESTOQUE (VISUAL)
+    // ===============================
+    abrirMovimentacoesEstoque(mes) {
+
+    }
 
     // ===============================
     // ESTOQUE → CÁLCULO DIÁRIO

@@ -619,27 +619,41 @@
                             </button>
                         </div>
 						<!-- CONTROLES DO MÊS / ESTOQUE -->
-					<div class="month-controls" style="margin: 1rem 0; display: flex; gap: 1rem; align-items: center;">
+				<div class="month-controls" style="margin: 1rem 0; display: flex; gap: 1rem; align-items: flex-end; flex-wrap: wrap;">
 
-						<div class="form-group">
-							<label for="mesSelecionado">Mês</label>
-							<select id="mesSelecionado" class="filter-select">
-								<!-- meses serão carregados via JS -->
-							</select>
-						</div>
 
-						<div class="form-group">
-							<label for="estoqueMes">Estoque inicial do mês</label>
-							<input
-								type="number"
-								id="estoqueMes"
-								min="0"
-								placeholder="Ex: 100"
-								class="search-input-with-icon"
-							/>
-						</div>
+					  <div class="form-group">
+						<label for="mesSelecionado">Mês</label>
+						<select id="mesSelecionado" class="filter-select">
+						  <!-- meses serão carregados via JS -->
+						</select>
+					  </div>
+
+					  <div class="form-group">
+						<label for="estoqueMes">Estoque inicial do mês</label>
+						<input
+						  type="number"
+						  id="estoqueMes"
+						  min="0"
+						  placeholder="Ex: 100"
+						  class="search-input-with-icon"
+						/>
+					  </div>
+
+					  <!-- 🔹 NOVO BOTÃO -->
+					  <div class="form-group">
+						<label style="opacity: 0;">Ações</label>
+						<button
+						  class="btn-secondary"
+						  onclick="abrirMovimentacoesEstoque(document.getElementById('mesSelecionado').value)"
+						>
+						  <i class="fas fa-exchange-alt"></i>
+						  Movimentações
+						</button>
+					  </div>
 
 					</div>
+
 
 						
                         <div class="panel-filters"
@@ -658,19 +672,6 @@
                             <!-- Grupos mensais serão inseridos aqui via JavaScript -->
                         </div>
                     </div>
-					
-					
-					<!-- ESTOQUE DIÁRIO -->
-				<div id="estoqueDiarioContainer" style="margin-top: 1rem;">
-					<h3 style="margin-bottom: 0.5rem;">
-						<i class="fas fa-calendar-day"></i> Estoque por Dia
-					</h3>
-
-					<div id="estoquePorDia" class="simple-list">
-						<p style="opacity: 0.7;">Nenhum movimento no mês.</p>
-					</div>
-				</div>
-
 					
 					
 
