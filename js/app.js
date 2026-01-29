@@ -105,122 +105,122 @@ class ToastSystem {
 
         return toast;
     }
-	
-	// ================================
-	// MODELO DE ESTOQUE
-	// ================================
-	function getEstoqueKey(usuario, mes) {
-	  return `estoque_${usuario}_${mes}`;
-	}
 
-	function salvarEstoque(usuario, mes, estoque) {
-	  localStorage.setItem(
-		getEstoqueKey(usuario, mes),
-		JSON.stringify(estoque)
-	  );
-	}
-	
-	carregarEstoqueDoMesSelecionado() {
-    const usuario = sessionStorage.getItem('username');
-    const mesSelect = document.getElementById('mesSelecionado');
-    const estoqueInput = document.getElementById('estoqueMes');
-
-    if (!usuario || !mesSelect || !estoqueInput) {
-        console.warn('⚠️ Usuário, mês ou input de estoque não encontrado');
-        return;
+    // ================================
+    // MODELO DE ESTOQUE
+    // ================================
+    getEstoqueKey(usuario, mes) {
+        return `estoque_${usuario}_${mes}`;
     }
 
-    const mes = mesSelect.value;
-    if (!mes) return;
-
-    const estoque = this.carregarEstoque(usuario, mes);
-
-    if (estoque) {
-        // Preencher estoque mensal
-        estoqueInput.value = estoque.totalInicial;
-
-        // Renderizar estoque diário
-        this.renderEstoqueDiario(estoque);
-
-        console.log('📦 Estoque carregado para o mês:', mes, estoque);
-    } else {
-        // Limpar quando não existir estoque
-        estoqueInput.value = '';
-        this.renderEstoqueDiario(null);
-
-        console.log('ℹ️ Nenhum estoque encontrado para o mês:', mes);
+    salvarEstoque(usuario, mes, estoque) {
+        localStorage.setItem(
+            getEstoqueKey(usuario, mes),
+            JSON.stringify(estoque)
+        );
     }
+
+    carregarEstoqueDoMesSelecionado() {
+        const usuario = sessionStorage.getItem('username');
+        const mesSelect = document.getElementById('mesSelecionado');
+        const estoqueInput = document.getElementById('estoqueMes');
+
+        if (!usuario || !mesSelect || !estoqueInput) {
+            console.warn('⚠️ Usuário, mês ou input de estoque não encontrado');
+            return;
+        }
+
+        const mes = mesSelect.value;
+        if (!mes) return;
+
+        const estoque = this.carregarEstoque(usuario, mes);
+
+        if (estoque) {
+            // Preencher estoque mensal
+            estoqueInput.value = estoque.totalInicial;
+
+            // Renderizar estoque diário
+            this.renderEstoqueDiario(estoque);
+
+            console.log('📦 Estoque carregado para o mês:', mes, estoque);
+        } else {
+            // Limpar quando não existir estoque
+            estoqueInput.value = '';
+            this.renderEstoqueDiario(null);
+
+            console.log('ℹ️ Nenhum estoque encontrado para o mês:', mes);
+        }
+    }
+
+
+    // ===============================
+    // VENDAS → ABATER ESTOQUE
+    // ===============================
+    registrarVenda(qtd) {
+        const usuario = sessionStorage.getItem('username');
+        const mes = document.getElementById('mesSelecionado')?.value;
+
+        if (!usuario || !mes) {
+            console.warn('⚠️ Usuário ou mês não definido');
+            return;
+        }
+
+        let estoque = this.carregarEstoque(usuario, mes);
+
+        if (!estoque) {
+            alert('Estoque do mês não definido');
+            return;
+        }
+
+        estoque.movimentacoes.push({
+            data: new Date().toISOString().slice(0, 10),
+            tipo: 'venda',
+            qtd: -Math.abs(qtd)
+        });
+
+        this.salvarEstoque(usuario, mes, estoque);
+        this.carregarEstoqueDoMesSelecionado();
+
+        console.log('💸 Venda registrada e estoque abatido:', qtd);
+    }
+
+function carregarEstoque(usuario, mes) {
+    const dados = localStorage.getItem(getEstoqueKey(usuario, mes));
+    return dados ? JSON.parse(dados) : null;
+}
+
+// ===============================
+// ESTOQUE → CÁLCULO DIÁRIO
+// ===============================
+calcularEstoquePorDia(estoque) {
+    if (!estoque || !estoque.movimentacoes) return {};
+
+
+    let saldo = estoque.totalInicial;
+    const resultado = {};
+
+    // Ordenar movimentações por data
+    const movsOrdenadas = [...estoque.movimentacoes].sort(
+        (a, b) => a.data.localeCompare(b.data)
+    );
+
+    movsOrdenadas.forEach((mov) => {
+        saldo += mov.qtd;
+        resultado[mov.data] = saldo;
+    });
+
+    return resultado;
 }
 
 
-// ===============================
-// VENDAS → ABATER ESTOQUE
-// ===============================
-	registrarVenda(qtd) {
-		const usuario = sessionStorage.getItem('username');
-		const mes = document.getElementById('mesSelecionado')?.value;
-
-		if (!usuario || !mes) {
-			console.warn('⚠️ Usuário ou mês não definido');
-			return;
-		}
-
-		let estoque = this.carregarEstoque(usuario, mes);
-
-		if (!estoque) {
-			alert('Estoque do mês não definido');
-			return;
-		}
-
-		estoque.movimentacoes.push({
-			data: new Date().toISOString().slice(0, 10),
-			tipo: 'venda',
-			qtd: -Math.abs(qtd)
-		});
-
-		this.salvarEstoque(usuario, mes, estoque);
-		this.carregarEstoqueDoMesSelecionado();
-
-		console.log('💸 Venda registrada e estoque abatido:', qtd);
-	}
-
-	function carregarEstoque(usuario, mes) {
-	  const dados = localStorage.getItem(getEstoqueKey(usuario, mes));
-	  return dados ? JSON.parse(dados) : null;
-	}
-	
-		// ===============================
-		// ESTOQUE → CÁLCULO DIÁRIO
-		// ===============================
-		calcularEstoquePorDia(estoque) {
-			if (!estoque || !estoque.movimentacoes) return {};
 
 
-			let saldo = estoque.totalInicial;
-			const resultado = {};
+createToast(message, type) {
+    const toast = document.createElement('div');
+    toast.className = `toast toast-${type}`;
 
-			// Ordenar movimentações por data
-			const movsOrdenadas = [...estoque.movimentacoes].sort(
-				(a, b) => a.data.localeCompare(b.data)
-			);
-
-			movsOrdenadas.forEach((mov) => {
-				saldo += mov.qtd;
-				resultado[mov.data] = saldo;
-			});
-
-			return resultado;
-		}
-
-
-
-
-    createToast(message, type) {
-        const toast = document.createElement('div');
-        toast.className = `toast toast-${type}`;
-
-        const icon = this.getIcon(type);
-        toast.innerHTML = `
+    const icon = this.getIcon(type);
+    toast.innerHTML = `
             <div class="toast-icon">
                 <i class="fas fa-${icon}"></i>
             </div>
@@ -230,63 +230,63 @@ class ToastSystem {
             </button>
         `;
 
-        // Adicionar evento de clique no toast para fechar
-        toast.addEventListener('click', (e) => {
-            if (
-                e.target.classList.contains('toast-close') ||
-                e.target.closest('.toast-close')
-            ) {
-                this.hide(toast);
-            }
-        });
+    // Adicionar evento de clique no toast para fechar
+    toast.addEventListener('click', (e) => {
+        if (
+            e.target.classList.contains('toast-close') ||
+            e.target.closest('.toast-close')
+        ) {
+            this.hide(toast);
+        }
+    });
 
-        return toast;
-    }
+    return toast;
+}
 
-    hide(toast) {
-        if (!toast || !toast.parentElement) return;
+hide(toast) {
+    if (!toast || !toast.parentElement) return;
 
-        toast.classList.add('hiding');
-        setTimeout(() => {
-            if (toast.parentElement) {
-                toast.remove();
-            }
-            this.toasts = this.toasts.filter((t) => t !== toast);
-        }, 200);
-    }
+    toast.classList.add('hiding');
+    setTimeout(() => {
+        if (toast.parentElement) {
+            toast.remove();
+        }
+        this.toasts = this.toasts.filter((t) => t !== toast);
+    }, 200);
+}
 
-    getIcon(type) {
-        const icons = {
-            success: 'check-circle',
-            error: 'exclamation-circle',
-            warning: 'exclamation-triangle',
-            info: 'info-circle',
-        };
-        return icons[type] || 'info-circle';
-    }
+getIcon(type) {
+    const icons = {
+        success: 'check-circle',
+        error: 'exclamation-circle',
+        warning: 'exclamation-triangle',
+        info: 'info-circle',
+    };
+    return icons[type] || 'info-circle';
+}
 
-    escapeHtml(text) {
-        const div = document.createElement('div');
-        div.textContent = text;
-        return div.innerHTML;
-    }
+escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+}
 
-    // Métodos de conveniência
-    success(message, duration = 3000) {
-        return this.show(message, 'success', duration);
-    }
+// Métodos de conveniência
+success(message, duration = 3000) {
+    return this.show(message, 'success', duration);
+}
 
-    error(message, duration = 5000) {
-        return this.show(message, 'error', duration);
-    }
+error(message, duration = 5000) {
+    return this.show(message, 'error', duration);
+}
 
-    warning(message, duration = 4000) {
-        return this.show(message, 'warning', duration);
-    }
+warning(message, duration = 4000) {
+    return this.show(message, 'warning', duration);
+}
 
-    info(message, duration = 3000) {
-        return this.show(message, 'info', duration);
-    }
+info(message, duration = 3000) {
+    return this.show(message, 'info', duration);
+}
 }
 
 // ========================================
@@ -1790,35 +1790,35 @@ class LojaApp {
                         this.switchTab('adminPanel');
                     }, 100);
                 }
-				
-				// ===============================
-				// ESTOQUE DO MÊS – EVENTOS
-				// ===============================
-				initEstoqueMes() {
-				const estoqueInput = document.getElementById('estoqueMes');
-				const mesSelect = document.getElementById('mesSelecionado');
 
-				if (!estoqueInput || !mesSelect) return;
+                // ===============================
+                // ESTOQUE DO MÊS – EVENTOS
+                // ===============================
+                initEstoqueMes() {
+                    const estoqueInput = document.getElementById('estoqueMes');
+                    const mesSelect = document.getElementById('mesSelecionado');
 
-				// Salvar estoque ao alterar valor
-				estoqueInput.addEventListener('change', () => {
-					const usuario = sessionStorage.getItem('username');
-					const mes = mesSelect.value;
+                    if (!estoqueInput || !mesSelect) return;
 
-					let estoque = this.carregarEstoque(usuario, mes) || {
-						totalInicial: 0,
-						movimentacoes: []
-					};
+                    // Salvar estoque ao alterar valor
+                    estoqueInput.addEventListener('change', () => {
+                        const usuario = sessionStorage.getItem('username');
+                        const mes = mesSelect.value;
 
-					estoque.totalInicial = Number(estoqueInput.value);
-					this.salvarEstoque(usuario, mes, estoque);
-				});
+                        let estoque = this.carregarEstoque(usuario, mes) || {
+                            totalInicial: 0,
+                            movimentacoes: []
+                        };
 
-				
-				mesSelect.addEventListener('change', () => {
-					this.carregarEstoqueDoMesSelecionado();
-				});
-			}
+                        estoque.totalInicial = Number(estoqueInput.value);
+                        this.salvarEstoque(usuario, mes, estoque);
+                    });
+
+
+                    mesSelect.addEventListener('change', () => {
+                        this.carregarEstoqueDoMesSelecionado();
+                    });
+                }
 
 
 
@@ -1890,12 +1890,12 @@ class LojaApp {
                         this.switchTab('salesPanel');
                     }, 50);
                 }
-				
-				 this.initEstoqueMes();
-				 				 // 🔥 carregar estoque inicial
-				this.carregarEstoqueDoMesSelecionado();
 
-				this.populateServiceTypes();
+                this.initEstoqueMes();
+                // 🔥 carregar estoque inicial
+                this.carregarEstoqueDoMesSelecionado();
+
+                this.populateServiceTypes();
 
                 // Carregar histórico de buscas
                 this.loadSearchHistory();
@@ -2039,11 +2039,11 @@ class LojaApp {
                 // Marcar como inicializado ao final
                 this._initialized = true;
                 this._initializing = false;
-				
-				requestAnimationFrame(() => {
-				document.body.classList.add('app-ready');
-				console.log('✅ [APP] app-ready marcado');
-			});
+
+                requestAnimationFrame(() => {
+                    document.body.classList.add('app-ready');
+                    console.log('✅ [APP] app-ready marcado');
+                });
 
             }, 100);
 
@@ -3498,7 +3498,7 @@ class LojaApp {
 
         modal.classList.add('active');
 
-      
+
 
         // Configurar validação em tempo real
         if (typeof fieldValidator !== 'undefined') {
@@ -4881,7 +4881,7 @@ class LojaApp {
         if (downloadBtn) downloadBtn.dataset.itemId = itemId;
 
         // Abrir modal primeiro para garantir que o canvas esteja visível
-			this.openModalSafely(modal);
+        this.openModalSafely(modal);
 
         // Aguardar um pouco para o modal renderizar antes de gerar o QR code
         setTimeout(() => {
@@ -6020,12 +6020,12 @@ class LojaApp {
             // Adicionar pontos de fidelidade
             this.addLoyaltyPoints(customerName, totalValue);
         }
-		
-		// 🔥 ABATER ESTOQUE MENSAL
-		if (item.category !== 'Serviços') {
 
-        this.registrarVenda(quantity);
-		}
+        // 🔥 ABATER ESTOQUE MENSAL
+        if (item.category !== 'Serviços') {
+
+            this.registrarVenda(quantity);
+        }
         // Salvar dados
         this.saveData();
 
@@ -6578,7 +6578,7 @@ class LojaApp {
         this.openModalSafely(modal);
 
 
-      
+
         // Configurar validação em tempo real
         if (typeof fieldValidator !== 'undefined') {
             const clientName = form.clientName;
@@ -6626,59 +6626,59 @@ class LojaApp {
         }
         this.currentEditingClient = null;
     }
-	// ===============================
-// SERVIÇOS → TIPOS DE SERVIÇO
-// ===============================
-openServiceTypeModal() {
-    const input = document.getElementById('serviceTypeName');
-    if (input) input.value = '';
-    this.openModal('serviceTypeModal');
-},
+    // ===============================
+    // SERVIÇOS → TIPOS DE SERVIÇO
+    // ===============================
+    openServiceTypeModal() {
+        const input = document.getElementById('serviceTypeName');
+        if (input) input.value = '';
+        this.openModal('serviceTypeModal');
+    },
 
-saveServiceType() {
-    const input = document.getElementById('serviceTypeName');
+    saveServiceType() {
+        const input = document.getElementById('serviceTypeName');
 
-    if (!input || !input.value.trim()) {
-        toast.error('Informe o nome do tipo de serviço');
-        return;
-    }
+        if (!input || !input.value.trim()) {
+            toast.error('Informe o nome do tipo de serviço');
+            return;
+        }
 
-    const usuario = sessionStorage.getItem('username');
-    const storageKey = `serviceTypes_${usuario}`;
+        const usuario = sessionStorage.getItem('username');
+        const storageKey = `serviceTypes_${usuario}`;
 
-    const tipos = JSON.parse(localStorage.getItem(storageKey)) || [];
+        const tipos = JSON.parse(localStorage.getItem(storageKey)) || [];
 
-    tipos.push({
-        id: Date.now().toString(),
-        name: input.value.trim()
-    });
+        tipos.push({
+            id: Date.now().toString(),
+            name: input.value.trim()
+        });
 
-    localStorage.setItem(storageKey, JSON.stringify(tipos));
+        localStorage.setItem(storageKey, JSON.stringify(tipos));
 
-    this.closeModalSafely('serviceTypeModal');
-    this.populateServiceTypes();
+        this.closeModalSafely('serviceTypeModal');
+        this.populateServiceTypes();
 
-    toast.success('Tipo de serviço cadastrado');
-},
+        toast.success('Tipo de serviço cadastrado');
+    },
 
-		populateServiceTypes() {
-			const usuario = sessionStorage.getItem('username');
-			const storageKey = `serviceTypes_${usuario}`;
+    populateServiceTypes() {
+        const usuario = sessionStorage.getItem('username');
+        const storageKey = `serviceTypes_${usuario}`;
 
-			const tipos = JSON.parse(localStorage.getItem(storageKey)) || [];
-			const select = document.getElementById('serviceTypeSelect');
+        const tipos = JSON.parse(localStorage.getItem(storageKey)) || [];
+        const select = document.getElementById('serviceTypeSelect');
 
-			if (!select) return;
+        if (!select) return;
 
-			select.innerHTML = '<option value="">Selecione</option>';
+        select.innerHTML = '<option value="">Selecione</option>';
 
-			tipos.forEach((tipo) => {
-				const option = document.createElement('option');
-				option.value = tipo.id;
-				option.textContent = tipo.name;
-				select.appendChild(option);
-			});
-		},
+        tipos.forEach((tipo) => {
+            const option = document.createElement('option');
+            option.value = tipo.id;
+            option.textContent = tipo.name;
+            select.appendChild(option);
+        });
+    },
 
 
 
