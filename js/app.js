@@ -115,10 +115,11 @@ class ToastSystem {
 
     salvarEstoque(usuario, mes, estoque) {
         localStorage.setItem(
-            getEstoqueKey(usuario, mes),
+            this.getEstoqueKey(usuario, mes),
             JSON.stringify(estoque)
         );
     }
+
 
     carregarEstoqueDoMesSelecionado() {
         const usuario = sessionStorage.getItem('username');
