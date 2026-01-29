@@ -184,43 +184,43 @@ class ToastSystem {
         console.log('💸 Venda registrada e estoque abatido:', qtd);
     }
 
-function carregarEstoque(usuario, mes) {
-    const dados = localStorage.getItem(getEstoqueKey(usuario, mes));
-    return dados ? JSON.parse(dados) : null;
-}
+    carregarEstoque(usuario, mes) {
+        const dados = localStorage.getItem(getEstoqueKey(usuario, mes));
+        return dados ? JSON.parse(dados) : null;
+    }
 
-// ===============================
-// ESTOQUE → CÁLCULO DIÁRIO
-// ===============================
-calcularEstoquePorDia(estoque) {
-    if (!estoque || !estoque.movimentacoes) return {};
-
-
-    let saldo = estoque.totalInicial;
-    const resultado = {};
-
-    // Ordenar movimentações por data
-    const movsOrdenadas = [...estoque.movimentacoes].sort(
-        (a, b) => a.data.localeCompare(b.data)
-    );
-
-    movsOrdenadas.forEach((mov) => {
-        saldo += mov.qtd;
-        resultado[mov.data] = saldo;
-    });
-
-    return resultado;
-}
+    // ===============================
+    // ESTOQUE → CÁLCULO DIÁRIO
+    // ===============================
+    calcularEstoquePorDia(estoque) {
+        if (!estoque || !estoque.movimentacoes) return {};
 
 
+        let saldo = estoque.totalInicial;
+        const resultado = {};
+
+        // Ordenar movimentações por data
+        const movsOrdenadas = [...estoque.movimentacoes].sort(
+            (a, b) => a.data.localeCompare(b.data)
+        );
+
+        movsOrdenadas.forEach((mov) => {
+            saldo += mov.qtd;
+            resultado[mov.data] = saldo;
+        });
+
+        return resultado;
+    }
 
 
-createToast(message, type) {
-    const toast = document.createElement('div');
-    toast.className = `toast toast-${type}`;
 
-    const icon = this.getIcon(type);
-    toast.innerHTML = `
+
+    createToast(message, type) {
+        const toast = document.createElement('div');
+        toast.className = `toast toast-${type}`;
+
+        const icon = this.getIcon(type);
+        toast.innerHTML = `
             <div class="toast-icon">
                 <i class="fas fa-${icon}"></i>
             </div>
@@ -230,63 +230,63 @@ createToast(message, type) {
             </button>
         `;
 
-    // Adicionar evento de clique no toast para fechar
-    toast.addEventListener('click', (e) => {
-        if (
-            e.target.classList.contains('toast-close') ||
-            e.target.closest('.toast-close')
-        ) {
-            this.hide(toast);
-        }
-    });
+        // Adicionar evento de clique no toast para fechar
+        toast.addEventListener('click', (e) => {
+            if (
+                e.target.classList.contains('toast-close') ||
+                e.target.closest('.toast-close')
+            ) {
+                this.hide(toast);
+            }
+        });
 
-    return toast;
-}
+        return toast;
+    }
 
-hide(toast) {
-    if (!toast || !toast.parentElement) return;
+    hide(toast) {
+        if (!toast || !toast.parentElement) return;
 
-    toast.classList.add('hiding');
-    setTimeout(() => {
-        if (toast.parentElement) {
-            toast.remove();
-        }
-        this.toasts = this.toasts.filter((t) => t !== toast);
-    }, 200);
-}
+        toast.classList.add('hiding');
+        setTimeout(() => {
+            if (toast.parentElement) {
+                toast.remove();
+            }
+            this.toasts = this.toasts.filter((t) => t !== toast);
+        }, 200);
+    }
 
-getIcon(type) {
-    const icons = {
-        success: 'check-circle',
-        error: 'exclamation-circle',
-        warning: 'exclamation-triangle',
-        info: 'info-circle',
-    };
-    return icons[type] || 'info-circle';
-}
+    getIcon(type) {
+        const icons = {
+            success: 'check-circle',
+            error: 'exclamation-circle',
+            warning: 'exclamation-triangle',
+            info: 'info-circle',
+        };
+        return icons[type] || 'info-circle';
+    }
 
-escapeHtml(text) {
-    const div = document.createElement('div');
-    div.textContent = text;
-    return div.innerHTML;
-}
+    escapeHtml(text) {
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+    }
 
-// Métodos de conveniência
-success(message, duration = 3000) {
-    return this.show(message, 'success', duration);
-}
+    // Métodos de conveniência
+    success(message, duration = 3000) {
+        return this.show(message, 'success', duration);
+    }
 
-error(message, duration = 5000) {
-    return this.show(message, 'error', duration);
-}
+    error(message, duration = 5000) {
+        return this.show(message, 'error', duration);
+    }
 
-warning(message, duration = 4000) {
-    return this.show(message, 'warning', duration);
-}
+    warning(message, duration = 4000) {
+        return this.show(message, 'warning', duration);
+    }
 
-info(message, duration = 3000) {
-    return this.show(message, 'info', duration);
-}
+    info(message, duration = 3000) {
+        return this.show(message, 'info', duration);
+    }
 }
 
 // ========================================
