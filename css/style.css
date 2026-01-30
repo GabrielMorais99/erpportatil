@@ -109,6 +109,15 @@ body {
     letter-spacing: var(--tracking-normal);
 }
 
+@media (max-width: 640px) {
+    .mobile-sticky {
+        position: sticky;
+        top: 0.75rem;
+        z-index: 10;
+        background: var(--white);
+    }
+}
+
 /* Classes utilitárias de tipografia */
 .text-xs {
     font-size: var(--text-xs);

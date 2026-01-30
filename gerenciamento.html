@@ -620,9 +620,7 @@
                         </div>
 						<!-- CONTROLES DO MÊS / ESTOQUE -->
 				<div class="month-controls" style="margin: 1rem 0; display: flex; gap: 1rem; align-items: flex-end; flex-wrap: wrap;">
-
-
-					  <div class="form-group">
+                	<div class="form-group">
 						<label for="mesSelecionado">Mês</label>
 						<select id="mesSelecionado" class="filter-select">
 						  <!-- meses serão carregados via JS -->
@@ -640,6 +638,42 @@
 						/>
 					  </div>
 
+                      <!-- RESUMO DO ESTOQUE DO MÊS -->
+<div id="resumoEstoqueMes" class="estoque-resumo-card mobile-sticky">
+
+    <h4 class="estoque-resumo-titulo">
+    📦 Resumo do Estoque
+  </h4>
+
+  <div class="estoque-resumo-grid">
+    <div class="estoque-resumo-item">
+      <span>Estoque inicial</span>
+      <strong id="resumoEstoqueInicial">0 un</strong>
+    </div>
+
+    <div class="estoque-resumo-item">
+      <span>Total vendido</span>
+      <strong id="resumoEstoqueVendido">0 un</strong>
+    </div>
+
+    <div class="estoque-resumo-item destaque">
+      <span>Estoque disponível</span>
+      <strong id="resumoEstoqueDisponivel">0 un</strong>
+    </div>
+  </div>
+
+  <div class="estoque-resumo-acoes">
+    <button
+      class="btn-secondary"
+      onclick="abrirMovimentacoesEstoque(document.getElementById('mesSelecionado').value)"
+    >
+      ↔ Movimentações
+    </button>
+  </div>
+
+</div>
+
+
 					  <!-- 🔹 NOVO BOTÃO -->
 					  <div class="form-group">
 						<label style="opacity: 0;">Ações</label>
@@ -652,7 +686,7 @@
 						</button>
 					  </div>
 
-					</div>
+					</divv>
 
 
 						

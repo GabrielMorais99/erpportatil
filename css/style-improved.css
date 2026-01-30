@@ -509,6 +509,52 @@ body {
     grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
     gap: 1.25rem;
 }
+/* ===============================
+   RESUMO DO ESTOQUE DO MÊS
+   =============================== */
+
+.estoque-resumo-card {
+    background: var(--white);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    padding: 1rem 1.25rem;
+    margin-top: 1rem;
+    max-width: 420px;
+}
+
+.estoque-resumo-titulo {
+    font-size: 0.95rem;
+    font-weight: 600;
+    margin-bottom: 0.75rem;
+    color: var(--dark-gray);
+}
+
+.estoque-resumo-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 0.5rem;
+}
+
+.estoque-resumo-item {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.9rem;
+    color: var(--gray);
+}
+
+.estoque-resumo-item strong {
+    color: var(--dark-gray);
+}
+
+.estoque-resumo-item.destaque strong {
+    color: var(--primary-red);
+    font-size: 1rem;
+}
+
+.estoque-resumo-acoes {
+    margin-top: 0.75rem;
+    text-align: right;
+}
 
 /* ========================================
    SUMMARY CARDS - DESTAQUE PROFISSIONAL
@@ -876,6 +922,58 @@ body {
     to {
         opacity: 1;
         transform: translateY(0);
+    }
+}
+/* ===============================
+   MOBILE – ESTOQUE DO MÊS
+   =============================== */
+@media (max-width: 640px) {
+    .month-controls {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 0.75rem;
+    }
+
+    .month-controls .form-group {
+        width: 100%;
+    }
+
+    .month-controls select,
+    .month-controls input,
+    .month-controls button {
+        width: 100%;
+    }
+
+    /* Card de resumo ocupa toda a largura */
+    .estoque-resumo-card {
+        max-width: 100%;
+        padding: 0.9rem 1rem;
+    }
+
+    .estoque-resumo-titulo {
+        font-size: 0.9rem;
+    }
+
+    .estoque-resumo-grid {
+        gap: 0.4rem;
+    }
+
+    .estoque-resumo-item {
+        font-size: 0.85rem;
+    }
+
+    .estoque-resumo-item.destaque strong {
+        font-size: 0.95rem;
+    }
+
+    /* Botão de movimentações mais acessível */
+    .estoque-resumo-acoes {
+        margin-top: 0.6rem;
+        text-align: center;
+    }
+
+    .estoque-resumo-acoes button {
+        width: 100%;
     }
 }
 

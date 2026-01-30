@@ -35,14 +35,12 @@
  * @since 2025
  */
 
-
 // ========== APP.JS CARREGADO ==========
 console.log('🟣 [APP.JS] Script carregado e executando...');
 
 // ========================================
 // SISTEMA DE NOTIFICAÇÕES TOAST
 // ========================================
-
 
 if (window.__APP_INITIALIZED__) {
     console.warn('[APP] Inicialização duplicada evitada');
@@ -79,7 +77,7 @@ class ToastSystem {
                 if (document.readyState === 'loading') {
                     document.addEventListener(
                         'DOMContentLoaded',
-                        initContainer
+                        initContainer,
                     );
                 } else {
                     initContainer();
@@ -117,10 +115,9 @@ class ToastSystem {
     salvarEstoque(usuario, mes, estoque) {
         localStorage.setItem(
             this.getEstoqueKey(usuario, mes),
-            JSON.stringify(estoque)
+            JSON.stringify(estoque),
         );
     }
-
 
     carregarEstoqueDoMesSelecionado() {
         const usuario = this.usuario || sessionStorage.getItem('username');
@@ -154,7 +151,6 @@ class ToastSystem {
         }
     }
 
-
     // ===============================
     // VENDAS → ABATER ESTOQUE
     // ===============================
@@ -177,7 +173,7 @@ class ToastSystem {
         estoque.movimentacoes.push({
             data: new Date().toISOString().slice(0, 10),
             tipo: 'venda',
-            qtd: -Math.abs(qtd)
+            qtd: -Math.abs(qtd),
         });
 
         this.salvarEstoque(usuario, mes, estoque);
@@ -193,9 +189,7 @@ class ToastSystem {
     // ===============================
     // MOVIMENTAÇÕES DE ESTOQUE (VISUAL)
     // ===============================
-    abrirMovimentacoesEstoque(mes) {
-
-    }
+    abrirMovimentacoesEstoque(mes) {}
 
     // ===============================
     // ESTOQUE → CÁLCULO DIÁRIO
@@ -203,13 +197,12 @@ class ToastSystem {
     calcularEstoquePorDia(estoque) {
         if (!estoque || !estoque.movimentacoes) return {};
 
-
         let saldo = estoque.totalInicial;
         const resultado = {};
 
         // Ordenar movimentações por data
-        const movsOrdenadas = [...estoque.movimentacoes].sort(
-            (a, b) => a.data.localeCompare(b.data)
+        const movsOrdenadas = [...estoque.movimentacoes].sort((a, b) =>
+            a.data.localeCompare(b.data),
         );
 
         movsOrdenadas.forEach((mov) => {
@@ -219,9 +212,6 @@ class ToastSystem {
 
         return resultado;
     }
-
-
-
 
     createToast(message, type) {
         const toast = document.createElement('div');
@@ -341,7 +331,7 @@ class ConfirmSystem {
                     if (document.readyState === 'loading') {
                         document.addEventListener(
                             'DOMContentLoaded',
-                            appendModal
+                            appendModal,
                         );
                     } else {
                         setTimeout(appendModal, 10);
@@ -383,7 +373,7 @@ class ConfirmSystem {
             const titleEl = this.modal.querySelector('#confirm-modal-title');
             const bodyEl = this.modal.querySelector('#confirm-modal-body');
             const confirmBtn = this.modal.querySelector(
-                '#confirm-modal-confirm'
+                '#confirm-modal-confirm',
             );
             const cancelBtn = this.modal.querySelector('#confirm-modal-cancel');
 
@@ -397,8 +387,9 @@ class ConfirmSystem {
                     danger: 'exclamation-circle',
                     info: 'info-circle',
                 };
-                iconEl.innerHTML = `<i class="fas fa-${defaultIcons[type] || 'exclamation-triangle'
-                    }"></i>`;
+                iconEl.innerHTML = `<i class="fas fa-${
+                    defaultIcons[type] || 'exclamation-triangle'
+                }"></i>`;
             }
 
             // Configurar conteúdo
@@ -506,7 +497,7 @@ class LoadingOverlay {
 
     show(message = 'Carregando...') {
         const messageEl = this.overlay.querySelector(
-            '#loading-overlay-message'
+            '#loading-overlay-message',
         );
         if (messageEl) {
             messageEl.textContent = message;
@@ -673,14 +664,14 @@ class FieldValidator {
             if (field.value.trim() !== '') {
                 statusIcon.classList.add(
                     isValid ? 'fa-check-circle' : 'fa-exclamation-circle',
-                    isValid ? 'valid' : 'invalid'
+                    isValid ? 'valid' : 'invalid',
                 );
             } else {
                 statusIcon.classList.remove(
                     'fa-check-circle',
                     'fa-exclamation-circle',
                     'valid',
-                    'invalid'
+                    'invalid',
                 );
             }
 
@@ -1068,7 +1059,7 @@ class LojaApp {
             // Tentar buscar do histórico de logs (última versão antes desta atualização)
             previousData = this.getPreviousDataFromAuditLog(
                 entityType,
-                entityId
+                entityId,
             );
         }
 
@@ -1122,7 +1113,7 @@ class LojaApp {
                     (log) =>
                         log.entityType === entityType &&
                         log.entityId === entityId &&
-                        (log.action === 'update' || log.action === 'create')
+                        (log.action === 'update' || log.action === 'create'),
                 )
                 .slice(1); // Pular a primeira (que é a atual sendo criada)
 
@@ -1136,7 +1127,7 @@ class LojaApp {
         } catch (error) {
             console.error(
                 'Erro ao buscar dados anteriores do audit log:',
-                error
+                error,
             );
             return null;
         }
@@ -1156,13 +1147,13 @@ class LojaApp {
 
         if (actionFilter !== 'all') {
             filteredLogs = filteredLogs.filter(
-                (log) => log.action === actionFilter
+                (log) => log.action === actionFilter,
             );
         }
 
         if (entityFilter !== 'all') {
             filteredLogs = filteredLogs.filter(
-                (log) => log.entityType === entityFilter
+                (log) => log.entityType === entityFilter,
             );
         }
 
@@ -1268,12 +1259,13 @@ class LojaApp {
                             <i class="fas ${icon}" style="color: ${color}; font-size: 1.1rem;"></i>
                             <div style="flex: 1;">
                                 <h3 style="margin: 0; font-size: 0.95rem; font-weight: 600;">${actionName} ${entityName}</h3>
-                                ${log.entityName
-                        ? `<p style="margin: 0.25rem 0 0 0; font-size: 0.85rem; color: var(--gray-600);"><i class="fas fa-tag"></i> ${this.escapeHtml(
-                            log.entityName
-                        )}</p>`
-                        : ''
-                    }
+                                ${
+                                    log.entityName
+                                        ? `<p style="margin: 0.25rem 0 0 0; font-size: 0.85rem; color: var(--gray-600);"><i class="fas fa-tag"></i> ${this.escapeHtml(
+                                              log.entityName,
+                                          )}</p>`
+                                        : ''
+                                }
                             </div>
                         </div>
                         <div style="display: flex; flex-direction: column; align-items: flex-end; gap: 0.25rem;">
@@ -1287,40 +1279,42 @@ class LojaApp {
                     </div>
                     <div class="item-details" style="padding-top: 0.75rem; border-top: 1px solid var(--border-color); margin-top: 0.75rem;">
                         <p style="margin: 0.5rem 0;"><i class="fas fa-user" style="color: var(--primary-color);"></i> <strong>Usuário:</strong> ${this.escapeHtml(
-                        log.username
-                    )}</p>
-                        ${log.details && Object.keys(log.details).length > 0
-                        ? `
+                            log.username,
+                        )}</p>
+                        ${
+                            log.details && Object.keys(log.details).length > 0
+                                ? `
                             <details style="margin-top: 0.5rem;">
                                 <summary style="cursor: pointer; color: var(--primary-color); font-size: 0.85rem; font-weight: 500;">
                                     <i class="fas fa-info-circle"></i> Ver Detalhes
                                 </summary>
                                 <div style="margin-top: 0.5rem; padding: 0.75rem; background: var(--light-gray); border-radius: var(--radius-sm); font-size: 0.85rem;">
                                     ${Object.entries(log.details)
-                            .map(
-                                ([key, value]) =>
-                                    `<p style="margin: 0.25rem 0;"><strong>${this.escapeHtml(
-                                        key
-                                    )}:</strong> ${this.escapeHtml(
-                                        String(value)
-                                    )}</p>`
-                            )
-                            .join('')}
+                                        .map(
+                                            ([key, value]) =>
+                                                `<p style="margin: 0.25rem 0;"><strong>${this.escapeHtml(
+                                                    key,
+                                                )}:</strong> ${this.escapeHtml(
+                                                    String(value),
+                                                )}</p>`,
+                                        )
+                                        .join('')}
                                 </div>
                             </details>
                         `
-                        : ''
-                    }
-                        ${canRevert
-                        ? `
+                                : ''
+                        }
+                        ${
+                            canRevert
+                                ? `
                             <div style="margin-top: 0.75rem; padding-top: 0.75rem; border-top: 1px solid var(--border-color);">
                                 <button class="btn-small btn-secondary" onclick="app.revertAuditLogAction('${log.id}')" style="font-size: 0.8rem;">
                                     <i class="fas fa-undo"></i> Reverter Ação
                                 </button>
                             </div>
                         `
-                        : ''
-                    }
+                                : ''
+                        }
                     </div>
                 </div>
             `;
@@ -1346,7 +1340,7 @@ class LojaApp {
             if (typeof toast !== 'undefined' && toast) {
                 toast.warning(
                     'Esta ação não pode ser revertida (dados insuficientes).',
-                    3000
+                    3000,
                 );
             }
             return;
@@ -1361,7 +1355,7 @@ class LojaApp {
                     if (typeof toast !== 'undefined' && toast) {
                         toast.warning(
                             'Não é possível reverter exclusões automaticamente. Use o backup para restaurar dados.',
-                            4000
+                            4000,
                         );
                     }
                     return;
@@ -1372,7 +1366,7 @@ class LojaApp {
                         const success = this.restoreEntityData(
                             log.entityType,
                             log.entityId,
-                            previousData
+                            previousData,
                         );
 
                         if (success) {
@@ -1392,21 +1386,22 @@ class LojaApp {
                                     revertedFrom: log.id,
                                     revertedAction: log.action,
                                     revertedAt: log.timestamp,
-                                }
+                                },
                             );
 
                             if (typeof toast !== 'undefined' && toast) {
                                 toast.success(
-                                    `Ação revertida com sucesso! ${log.entityName || log.entityType
+                                    `Ação revertida com sucesso! ${
+                                        log.entityName || log.entityType
                                     } restaurado.`,
-                                    3000
+                                    3000,
                                 );
                             }
                         } else {
                             if (typeof toast !== 'undefined' && toast) {
                                 toast.error(
                                     'Erro ao restaurar dados. A entidade pode não existir mais.',
-                                    4000
+                                    4000,
                                 );
                             }
                         }
@@ -1414,7 +1409,7 @@ class LojaApp {
                         if (typeof toast !== 'undefined' && toast) {
                             toast.warning(
                                 'Dados anteriores não disponíveis para reversão. Esta ação foi registrada antes da implementação de reversão.',
-                                4000
+                                4000,
                             );
                         }
                     }
@@ -1422,7 +1417,7 @@ class LojaApp {
                     // Reverter criação = deletar
                     const success = this.deleteEntityForRevert(
                         log.entityType,
-                        log.entityId
+                        log.entityId,
                     );
 
                     if (success) {
@@ -1437,21 +1432,22 @@ class LojaApp {
                             {
                                 revertedFrom: log.id,
                                 revertedAction: log.action,
-                            }
+                            },
                         );
 
                         if (typeof toast !== 'undefined' && toast) {
                             toast.success(
-                                `Criação revertida. ${log.entityName || log.entityType
+                                `Criação revertida. ${
+                                    log.entityName || log.entityType
                                 } removido.`,
-                                3000
+                                3000,
                             );
                         }
                     } else {
                         if (typeof toast !== 'undefined' && toast) {
                             toast.error(
                                 'Erro ao reverter criação. A entidade pode não existir mais.',
-                                4000
+                                4000,
                             );
                         }
                     }
@@ -1461,7 +1457,7 @@ class LojaApp {
                 if (typeof toast !== 'undefined' && toast) {
                     toast.error(
                         'Erro ao reverter ação. Verifique o console para mais detalhes.',
-                        4000
+                        4000,
                     );
                 }
             }
@@ -1470,16 +1466,17 @@ class LojaApp {
         if (typeof confirmDialog !== 'undefined' && confirmDialog) {
             confirmDialog
                 .confirm(
-                    `Tem certeza que deseja reverter a ação "${log.action
+                    `Tem certeza que deseja reverter a ação "${
+                        log.action
                     }" em "${log.entityName || log.entityType}"?`,
                     'Reverter Ação',
-                    { type: 'warning' }
+                    { type: 'warning' },
                 )
                 .then(performRevert);
         } else {
             if (
                 confirm(
-                    `Tem certeza que deseja reverter a ação "${log.action}"?`
+                    `Tem certeza que deseja reverter a ação "${log.action}"?`,
                 )
             ) {
                 performRevert(true);
@@ -1499,55 +1496,55 @@ class LojaApp {
             switch (entityType) {
                 case 'item':
                     const itemIndex = this.items.findIndex(
-                        (i) => i.id === entityId
+                        (i) => i.id === entityId,
                     );
                     if (itemIndex !== -1) {
                         this.items[itemIndex] = JSON.parse(
-                            JSON.stringify(previousData)
+                            JSON.stringify(previousData),
                         );
                         return true;
                     }
                     break;
                 case 'client':
                     const clientIndex = this.clients.findIndex(
-                        (c) => c.id === entityId
+                        (c) => c.id === entityId,
                     );
                     if (clientIndex !== -1) {
                         this.clients[clientIndex] = JSON.parse(
-                            JSON.stringify(previousData)
+                            JSON.stringify(previousData),
                         );
                         return true;
                     }
                     break;
                 case 'supplier':
                     const supplierIndex = this.suppliers.findIndex(
-                        (s) => s.id === entityId
+                        (s) => s.id === entityId,
                     );
                     if (supplierIndex !== -1) {
                         this.suppliers[supplierIndex] = JSON.parse(
-                            JSON.stringify(previousData)
+                            JSON.stringify(previousData),
                         );
                         return true;
                     }
                     break;
                 case 'cost':
                     const costIndex = this.costs.findIndex(
-                        (c) => c.id === entityId
+                        (c) => c.id === entityId,
                     );
                     if (costIndex !== -1) {
                         this.costs[costIndex] = JSON.parse(
-                            JSON.stringify(previousData)
+                            JSON.stringify(previousData),
                         );
                         return true;
                     }
                     break;
                 case 'goal':
                     const goalIndex = this.goals.findIndex(
-                        (g) => g.id === entityId
+                        (g) => g.id === entityId,
                     );
                     if (goalIndex !== -1) {
                         this.goals[goalIndex] = JSON.parse(
-                            JSON.stringify(previousData)
+                            JSON.stringify(previousData),
                         );
                         return true;
                     }
@@ -1571,7 +1568,7 @@ class LojaApp {
             switch (entityType) {
                 case 'item':
                     const itemIndex = this.items.findIndex(
-                        (i) => i.id === entityId
+                        (i) => i.id === entityId,
                     );
                     if (itemIndex !== -1) {
                         this.items.splice(itemIndex, 1);
@@ -1580,7 +1577,7 @@ class LojaApp {
                     break;
                 case 'client':
                     const clientIndex = this.clients.findIndex(
-                        (c) => c.id === entityId
+                        (c) => c.id === entityId,
                     );
                     if (clientIndex !== -1) {
                         this.clients.splice(clientIndex, 1);
@@ -1589,7 +1586,7 @@ class LojaApp {
                     break;
                 case 'supplier':
                     const supplierIndex = this.suppliers.findIndex(
-                        (s) => s.id === entityId
+                        (s) => s.id === entityId,
                     );
                     if (supplierIndex !== -1) {
                         this.suppliers.splice(supplierIndex, 1);
@@ -1598,7 +1595,7 @@ class LojaApp {
                     break;
                 case 'cost':
                     const costIndex = this.costs.findIndex(
-                        (c) => c.id === entityId
+                        (c) => c.id === entityId,
                     );
                     if (costIndex !== -1) {
                         this.costs.splice(costIndex, 1);
@@ -1607,7 +1604,7 @@ class LojaApp {
                     break;
                 case 'goal':
                     const goalIndex = this.goals.findIndex(
-                        (g) => g.id === entityId
+                        (g) => g.id === entityId,
                     );
                     if (goalIndex !== -1) {
                         this.goals.splice(goalIndex, 1);
@@ -1661,13 +1658,12 @@ class LojaApp {
 
             let estoque = this.carregarEstoque(usuario, mes) || {
                 totalInicial: 0,
-                movimentacoes: []
+                movimentacoes: [],
             };
 
             estoque.totalInicial = Number(estoqueInput.value);
             this.salvarEstoque(usuario, mes, estoque);
         });
-
 
         mesSelect.addEventListener('change', () => {
             this.carregarEstoqueDoMesSelecionado();
@@ -1677,7 +1673,7 @@ class LojaApp {
         // Prevenir inicialização dupla
         if (this._initializing || this._initialized) {
             console.log(
-                'ℹ️ [APP.JS] init() já foi chamado, ignorando chamada duplicada'
+                'ℹ️ [APP.JS] init() já foi chamado, ignorando chamada duplicada',
             );
             return;
         }
@@ -1688,12 +1684,12 @@ class LojaApp {
             const isTestMode = window.TEST_MODE === true;
 
             console.log(
-                '🟣 [APP.JS] ========== INICIALIZANDO APLICAÇÃO =========='
+                '🟣 [APP.JS] ========== INICIALIZANDO APLICAÇÃO ==========',
             );
             console.log('🟣 [APP.JS] URL atual:', window.location.href);
             console.log(
                 '🟣 [APP.JS] Document readyState:',
-                document.readyState
+                document.readyState,
             );
             console.log('🟣 [APP.JS] Modo de teste:', isTestMode);
             console.log('🟣 [APP.JS] SessionStorage:', {
@@ -1711,12 +1707,12 @@ class LojaApp {
                 // Em modo de teste, não redirecionar, apenas avisar
                 if (isTestMode) {
                     console.log(
-                        'ℹ️ [APP.JS] Modo de teste: pulando redirecionamento de autenticação'
+                        'ℹ️ [APP.JS] Modo de teste: pulando redirecionamento de autenticação',
                     );
                 } else {
                     console.warn('⚠️ [APP.JS] Usuário NÃO autenticado!');
                     console.log(
-                        '🟡 [APP.JS] Redirecionando para /index.html...'
+                        '🟡 [APP.JS] Redirecionando para /index.html...',
                     );
                     try {
                         window.location.href = '/index.html';
@@ -1724,7 +1720,7 @@ class LojaApp {
                     } catch (error) {
                         console.error(
                             '❌ [APP.JS] Erro ao redirecionar:',
-                            error
+                            error,
                         );
                         window.location.href = 'index.html';
                     }
@@ -1734,7 +1730,7 @@ class LojaApp {
             }
 
             console.log(
-                '✅ [APP.JS] Usuário autenticado! Continuando inicialização...'
+                '✅ [APP.JS] Usuário autenticado! Continuando inicialização...',
             );
 
             // Função para adicionar log (apenas no console)
@@ -1764,14 +1760,18 @@ class LojaApp {
 
             // Listener global para garantir limpeza de modais
             // Fechar todos os modais quando clicar fora ou pressionar ESC
-            document.addEventListener('click', (e) => {
-                // Se clicar em um modal que está ativo mas não no conteúdo
-                const clickedModal = e.target.closest('.modal.active');
-                if (clickedModal && e.target === clickedModal) {
-                    // Clicou diretamente no backdrop do modal
-                    this.closeModalSafely(clickedModal);
-                }
-            }, true);
+            document.addEventListener(
+                'click',
+                (e) => {
+                    // Se clicar em um modal que está ativo mas não no conteúdo
+                    const clickedModal = e.target.closest('.modal.active');
+                    if (clickedModal && e.target === clickedModal) {
+                        // Clicou diretamente no backdrop do modal
+                        this.closeModalSafely(clickedModal);
+                    }
+                },
+                true,
+            );
 
             // Listener global para ESC - fechar qualquer modal ativo
             document.addEventListener('keydown', (e) => {
@@ -1843,9 +1843,6 @@ class LojaApp {
                 // ===============================
                 // ESTOQUE DO MÊS – EVENTOS
                 // ===============================
-
-
-
 
                 // Carregar tema salvo
                 this.loadTheme();
@@ -1930,7 +1927,7 @@ class LojaApp {
                     // Timeout de segurança: se loadData demorar mais de 3 segundos, continuar mesmo assim
                     const loadDataTimeout = setTimeout(() => {
                         console.warn(
-                            '⚠️ [INIT] Timeout no loadData() após 3 segundos, continuando com renderização...'
+                            '⚠️ [INIT] Timeout no loadData() após 3 segundos, continuando com renderização...',
                         );
                         try {
                             // Forçar remoção de todos os skeletons
@@ -1950,7 +1947,7 @@ class LojaApp {
                         } catch (renderError) {
                             console.error(
                                 '❌ [INIT] Erro ao renderizar após timeout:',
-                                renderError
+                                renderError,
                             );
                         }
                     }, 3000);
@@ -1960,7 +1957,7 @@ class LojaApp {
                         .then(() => {
                             clearTimeout(loadDataTimeout); // Cancelar timeout se carregou com sucesso
                             console.log(
-                                '✅ [INIT] Dados carregados com sucesso, renderizando...'
+                                '✅ [INIT] Dados carregados com sucesso, renderizando...',
                             );
                             // Forçar remoção de todos os skeletons antes de renderizar
                             this.removeAllSkeletons();
@@ -1986,20 +1983,20 @@ class LojaApp {
                             const username = sessionStorage.getItem('username');
                             if (username) {
                                 const configStr = localStorage.getItem(
-                                    `autoBackupConfig_${username}`
+                                    `autoBackupConfig_${username}`,
                                 );
                                 if (configStr) {
                                     try {
                                         const config = JSON.parse(configStr);
                                         if (config.enabled) {
                                             this.startAutoBackup(
-                                                config.frequency || 'daily'
+                                                config.frequency || 'daily',
                                             );
                                         }
                                     } catch (e) {
                                         console.error(
                                             'Erro ao carregar configuração de backup:',
-                                            e
+                                            e,
                                         );
                                     }
                                 }
@@ -2025,13 +2022,13 @@ class LojaApp {
                             clearTimeout(loadDataTimeout); // Cancelar timeout
                             console.error(
                                 '❌ [INIT] Erro ao carregar dados:',
-                                error
+                                error,
                             );
                             console.error('❌ [INIT] Stack:', error.stack);
                             console.error('❌ [INIT] Mensagem:', error.message);
                             // Continuar mesmo com erro - renderizar com dados vazios
                             console.warn(
-                                '⚠️ [INIT] Continuando com dados vazios devido ao erro'
+                                '⚠️ [INIT] Continuando com dados vazios devido ao erro',
                             );
                             try {
                                 // Forçar remoção de todos os skeletons
@@ -2051,11 +2048,11 @@ class LojaApp {
                             } catch (renderError) {
                                 console.error(
                                     '❌ [INIT] Erro ao renderizar após falha no loadData:',
-                                    renderError
+                                    renderError,
                                 );
                                 console.error(
                                     '❌ [INIT] Stack do renderError:',
-                                    renderError.stack
+                                    renderError.stack,
                                 );
                             }
                         });
@@ -2069,14 +2066,13 @@ class LojaApp {
                     document.body.classList.add('app-ready');
                     console.log('✅ [APP] app-ready marcado');
                 });
-
             }, 100);
 
             // Marcar como inicializado mesmo se houver erro antes do setTimeout
             setTimeout(() => {
                 if (this._initializing && !this._initialized) {
                     console.warn(
-                        '⚠️ [INIT] Timeout na inicialização, marcando como inicializado'
+                        '⚠️ [INIT] Timeout na inicialização, marcando como inicializado',
                     );
                     this._initialized = true;
                     this._initializing = false;
@@ -2085,7 +2081,7 @@ class LojaApp {
         } catch (initError) {
             console.error(
                 '❌ [INIT] ERRO CRÍTICO na inicialização:',
-                initError
+                initError,
             );
             console.error('❌ [INIT] Stack:', initError.stack);
             console.error('❌ [INIT] Mensagem:', initError.message);
@@ -2101,7 +2097,7 @@ class LojaApp {
             } catch (renderError) {
                 console.error(
                     '❌ [INIT] Erro ao renderizar após erro crítico:',
-                    renderError
+                    renderError,
                 );
             }
         }
@@ -2152,9 +2148,9 @@ class LojaApp {
 
         addDebugLog(
             'Elementos encontrados: logoutBtn=' +
-            !!logoutBtn +
-            ', themeToggleBtn=' +
-            !!themeToggleBtn
+                !!logoutBtn +
+                ', themeToggleBtn=' +
+                !!themeToggleBtn,
         );
 
         if (logoutBtn) {
@@ -2186,15 +2182,15 @@ class LojaApp {
                         addDebugLog('logout() chamado com sucesso!');
                     } catch (error) {
                         addDebugLog(
-                            'ERRO ao chamar logout(): ' + error.message
+                            'ERRO ao chamar logout(): ' + error.message,
                         );
                     }
                 },
-                true
+                true,
             );
 
             addDebugLog(
-                'Listener anexado ao logoutBtn (onclick + addEventListener)'
+                'Listener anexado ao logoutBtn (onclick + addEventListener)',
             );
         } else {
             addDebugLog('ERRO: logoutBtn não encontrado!');
@@ -2227,7 +2223,7 @@ class LojaApp {
             console.log('✅ [APP.JS] Listener anexado ao importBtn');
         } else {
             console.error(
-                '❌ [APP.JS] importBtn ou importFile não encontrado!'
+                '❌ [APP.JS] importBtn ou importFile não encontrado!',
             );
         }
 
@@ -2255,10 +2251,10 @@ class LojaApp {
         const closeTutorialBtn = document.getElementById('closeTutorialBtn');
         const startTutorialBtn = document.getElementById('startTutorialBtn');
         const tutorialModalClose = document.querySelector(
-            '#tutorialModal .close'
+            '#tutorialModal .close',
         );
         const closeTutorialTooltip = document.getElementById(
-            'closeTutorialTooltip'
+            'closeTutorialTooltip',
         );
         const tutorialNextBtn = document.getElementById('tutorialNextBtn');
         const tutorialPrevBtn = document.getElementById('tutorialPrevBtn');
@@ -2283,7 +2279,7 @@ class LojaApp {
         }
         if (startTutorialBtn) {
             startTutorialBtn.addEventListener('click', () =>
-                this.startInteractiveTutorial()
+                this.startInteractiveTutorial(),
             );
         }
         if (tutorialModalClose) {
@@ -2314,7 +2310,7 @@ class LojaApp {
                         '🟢 [TUTORIAL] Overlay clicado, target:',
                         e.target,
                         'currentTarget:',
-                        e.currentTarget
+                        e.currentTarget,
                     );
                     // Se clicou diretamente no modal (overlay), fechar
                     if (
@@ -2325,7 +2321,7 @@ class LojaApp {
                         this.closeTutorialModal();
                     }
                 },
-                true
+                true,
             ); // Usar capture phase para garantir que o evento seja capturado
 
             // Fechar modal com tecla ESC (usar capture no document)
@@ -2342,29 +2338,29 @@ class LojaApp {
                         this.closeTutorialModal();
                     }
                 },
-                true
+                true,
             );
         } else {
             console.error('❌ [TUTORIAL] tutorialModal não encontrado!');
         }
         if (closeTutorialTooltip) {
             closeTutorialTooltip.addEventListener('click', () =>
-                this.closeTutorialTooltip()
+                this.closeTutorialTooltip(),
             );
         }
         if (tutorialNextBtn) {
             tutorialNextBtn.addEventListener('click', () =>
-                this.nextTutorialStep()
+                this.nextTutorialStep(),
             );
         }
         if (tutorialPrevBtn) {
             tutorialPrevBtn.addEventListener('click', () =>
-                this.prevTutorialStep()
+                this.prevTutorialStep(),
             );
         }
         if (tutorialSkipBtn) {
             tutorialSkipBtn.addEventListener('click', () =>
-                this.skipTutorial()
+                this.skipTutorial(),
             );
         }
 
@@ -2397,8 +2393,8 @@ class LojaApp {
             });
             console.log(
                 '✅ [APP.JS] Listeners anexados aos tabs (' +
-                tabBtns.length +
-                ' tabs)'
+                    tabBtns.length +
+                    ' tabs)',
             );
         } else {
             console.error('❌ [APP.JS] Nenhum tab-btn encontrado!');
@@ -2422,10 +2418,10 @@ class LojaApp {
 
         // Dashboard de Serviços
         const refreshServicesDashboard = document.getElementById(
-            'refreshServicesDashboard'
+            'refreshServicesDashboard',
         );
         const servicesPeriodFilter = document.getElementById(
-            'servicesPeriodFilter'
+            'servicesPeriodFilter',
         );
 
         if (refreshServicesDashboard) {
@@ -2475,7 +2471,7 @@ class LojaApp {
             // Esconder histórico ao clicar fora
             document.addEventListener('click', (e) => {
                 const historyContainer = document.getElementById(
-                    'searchHistoryContainer'
+                    'searchHistoryContainer',
                 );
                 if (
                     historyContainer &&
@@ -2487,7 +2483,7 @@ class LojaApp {
             });
 
             console.log(
-                '✅ [APP.JS] Listener anexado ao searchInput (com debounce)'
+                '✅ [APP.JS] Listener anexado ao searchInput (com debounce)',
             );
         } else {
             console.error('❌ [APP.JS] searchInput não encontrado!');
@@ -2514,7 +2510,7 @@ class LojaApp {
                 }, 300);
             });
             console.log(
-                '✅ [APP.JS] Listener anexado ao productSearchInput (com debounce)'
+                '✅ [APP.JS] Listener anexado ao productSearchInput (com debounce)',
             );
         }
 
@@ -2531,7 +2527,7 @@ class LojaApp {
         const goalsYearFilter = document.getElementById('goalsYearFilter');
         if (goalsYearFilter) {
             goalsYearFilter.addEventListener('change', () =>
-                this.renderGoals()
+                this.renderGoals(),
             );
             console.log('✅ [APP.JS] Listener anexado ao goalsYearFilter');
         } else {
@@ -2555,7 +2551,7 @@ class LojaApp {
         const reportBuilderForm = document.getElementById('reportBuilderForm');
         if (reportBuilderForm) {
             reportBuilderForm.addEventListener('submit', (e) =>
-                this.generateCustomReport(e)
+                this.generateCustomReport(e),
             );
             console.log('✅ [APP.JS] Listener anexado ao reportBuilderForm');
         } else {
@@ -2594,7 +2590,7 @@ class LojaApp {
 
         if (clientModalClose) {
             clientModalClose.addEventListener('click', () =>
-                this.closeClientModal()
+                this.closeClientModal(),
             );
         }
 
@@ -2612,34 +2608,34 @@ class LojaApp {
                 }, 300);
             });
             console.log(
-                '✅ [APP.JS] Listener anexado ao clientSearch (com debounce)'
+                '✅ [APP.JS] Listener anexado ao clientSearch (com debounce)',
             );
         }
 
         // Modal de fornecedor
         const supplierForm = document.getElementById('supplierForm');
         const supplierModalClose = document.querySelector(
-            '#supplierModal .close'
+            '#supplierModal .close',
         );
         const supplierRating = document.getElementById('supplierRating');
 
         if (supplierForm) {
             supplierForm.addEventListener('submit', (e) =>
-                this.saveSupplier(e)
+                this.saveSupplier(e),
             );
             console.log('✅ [APP.JS] Listener anexado ao supplierForm');
         }
 
         if (supplierModalClose) {
             supplierModalClose.addEventListener('click', () =>
-                this.closeSupplierModal()
+                this.closeSupplierModal(),
             );
             console.log('✅ [APP.JS] Listener anexado ao supplierModal .close');
         }
 
         if (supplierRating) {
             supplierRating.addEventListener('input', () =>
-                this.updateSupplierRatingDisplay()
+                this.updateSupplierRatingDisplay(),
             );
             console.log('✅ [APP.JS] Listener anexado ao supplierRating');
         }
@@ -2655,7 +2651,7 @@ class LojaApp {
                 }, 300);
             });
             console.log(
-                '✅ [APP.JS] Listener anexado ao supplierSearch (com debounce)'
+                '✅ [APP.JS] Listener anexado ao supplierSearch (com debounce)',
             );
         }
 
@@ -2670,7 +2666,7 @@ class LojaApp {
 
         if (couponModalClose) {
             couponModalClose.addEventListener('click', () =>
-                this.closeCouponModal()
+                this.closeCouponModal(),
             );
             console.log('✅ [APP.JS] Listener anexado ao couponModal .close');
         }
@@ -2709,7 +2705,7 @@ class LojaApp {
 
         if (itemCategory) {
             itemCategory.addEventListener('change', () =>
-                this.toggleCategoryFields()
+                this.toggleCategoryFields(),
             );
             console.log('✅ [APP.JS] Listener anexado ao itemCategory');
         } else {
@@ -2753,7 +2749,7 @@ class LojaApp {
                 if (this.currentEditingItem) {
                     this.downloadQRCode(
                         'qrcodeCanvas',
-                        `qrcode-${this.currentEditingItem.id}.png`
+                        `qrcode-${this.currentEditingItem.id}.png`,
                     );
                 }
             });
@@ -2801,7 +2797,7 @@ class LojaApp {
                 if (itemId) {
                     this.downloadQRCode(
                         'qrcodeModalCanvas',
-                        `qrcode-${itemId}.png`
+                        `qrcode-${itemId}.png`,
                     );
                 }
             });
@@ -2827,13 +2823,13 @@ class LojaApp {
 
         if (cancelGroupBtn) {
             cancelGroupBtn.addEventListener('click', () =>
-                this.closeGroupModal()
+                this.closeGroupModal(),
             );
         }
 
         if (groupModalClose) {
             groupModalClose.addEventListener('click', () =>
-                this.closeGroupModal()
+                this.closeGroupModal(),
             );
         }
 
@@ -2842,61 +2838,61 @@ class LojaApp {
             document.getElementById('newServiceGroupBtn');
         const serviceGroupForm = document.getElementById('serviceGroupForm');
         const cancelServiceGroupBtn = document.getElementById(
-            'cancelServiceGroupBtn'
+            'cancelServiceGroupBtn',
         );
         const serviceGroupModalClose = document.querySelector(
-            '#serviceGroupModal .close'
+            '#serviceGroupModal .close',
         );
 
         if (newServiceGroupBtn) {
             newServiceGroupBtn.addEventListener('click', () =>
-                this.openServiceGroupModal()
+                this.openServiceGroupModal(),
             );
         }
 
         if (serviceGroupForm) {
             serviceGroupForm.addEventListener('submit', (e) =>
-                this.createServiceGroup(e)
+                this.createServiceGroup(e),
             );
         }
 
         if (cancelServiceGroupBtn) {
             cancelServiceGroupBtn.addEventListener('click', () =>
-                this.closeServiceGroupModal()
+                this.closeServiceGroupModal(),
             );
         }
 
         if (serviceGroupModalClose) {
             serviceGroupModalClose.addEventListener('click', () =>
-                this.closeServiceGroupModal()
+                this.closeServiceGroupModal(),
             );
         }
 
         // Modal de registro de serviço
         const serviceRecordForm = document.getElementById('serviceRecordForm');
         const cancelServiceRecordBtn = document.getElementById(
-            'cancelServiceRecordBtn'
+            'cancelServiceRecordBtn',
         );
         const serviceRecordModalClose = document.querySelector(
-            '#serviceRecordModal .close'
+            '#serviceRecordModal .close',
         );
         const serviceRecordItem = document.getElementById('serviceRecordItem');
 
         if (serviceRecordForm) {
             serviceRecordForm.addEventListener('submit', (e) =>
-                this.saveServiceRecord(e)
+                this.saveServiceRecord(e),
             );
         }
 
         if (cancelServiceRecordBtn) {
             cancelServiceRecordBtn.addEventListener('click', () =>
-                this.closeServiceRecordModal()
+                this.closeServiceRecordModal(),
             );
         }
 
         if (serviceRecordModalClose) {
             serviceRecordModalClose.addEventListener('click', () =>
-                this.closeServiceRecordModal()
+                this.closeServiceRecordModal(),
             );
         }
 
@@ -2910,7 +2906,7 @@ class LojaApp {
                         const hoursInput =
                             document.getElementById('serviceRecordHours');
                         const minutesInput = document.getElementById(
-                            'serviceRecordMinutes'
+                            'serviceRecordMinutes',
                         );
                         const priceInput =
                             document.getElementById('serviceRecordPrice');
@@ -2931,17 +2927,17 @@ class LojaApp {
 
         // Modal de visualização de grupo de serviços
         const viewServiceGroupModalClose = document.querySelector(
-            '#viewServiceGroupModal .close'
+            '#viewServiceGroupModal .close',
         );
         if (viewServiceGroupModalClose) {
             viewServiceGroupModalClose.addEventListener('click', () =>
-                this.closeViewServiceGroupModal()
+                this.closeViewServiceGroupModal(),
             );
         }
 
         if (cancelGroupBtn) {
             cancelGroupBtn.addEventListener('click', () =>
-                this.closeGroupModal()
+                this.closeGroupModal(),
             );
             console.log('✅ [APP.JS] Listener anexado ao cancelGroupBtn');
         } else {
@@ -2950,7 +2946,7 @@ class LojaApp {
 
         if (groupModalClose) {
             groupModalClose.addEventListener('click', () =>
-                this.closeGroupModal()
+                this.closeGroupModal(),
             );
             console.log('✅ [APP.JS] Listener anexado ao groupModal .close');
         } else {
@@ -2971,7 +2967,7 @@ class LojaApp {
 
         if (cancelSaleBtn) {
             cancelSaleBtn.addEventListener('click', () =>
-                this.closeSaleModal()
+                this.closeSaleModal(),
             );
             console.log('✅ [APP.JS] Listener anexado ao cancelSaleBtn');
         } else {
@@ -2980,7 +2976,7 @@ class LojaApp {
 
         if (saleModalClose) {
             saleModalClose.addEventListener('click', () =>
-                this.closeSaleModal()
+                this.closeSaleModal(),
             );
             console.log('✅ [APP.JS] Listener anexado ao saleModal .close');
         } else {
@@ -2991,94 +2987,94 @@ class LojaApp {
         const closeReceiptBtn = document.getElementById('closeReceiptBtn');
         const printReceiptBtn = document.getElementById('printReceiptBtn');
         const receiptModalClose = document.querySelector(
-            '#receiptPreviewModal .close'
+            '#receiptPreviewModal .close',
         );
 
         if (closeReceiptBtn) {
             closeReceiptBtn.addEventListener('click', () =>
-                this.closeReceiptPreview()
+                this.closeReceiptPreview(),
             );
         }
         if (printReceiptBtn) {
             printReceiptBtn.addEventListener('click', () =>
-                this.printReceipt()
+                this.printReceipt(),
             );
         }
         if (receiptModalClose) {
             receiptModalClose.addEventListener('click', () =>
-                this.closeReceiptPreview()
+                this.closeReceiptPreview(),
             );
         }
 
         // Modal de pedido pendente
         const pendingOrderForm = document.getElementById('pendingOrderForm');
         const cancelPendingOrderBtn = document.getElementById(
-            'cancelPendingOrderBtn'
+            'cancelPendingOrderBtn',
         );
         const pendingOrderModalClose = document.querySelector(
-            '#pendingOrderModal .close'
+            '#pendingOrderModal .close',
         );
         const addPendingOrderItemBtn = document.getElementById(
-            'addPendingOrderItemBtn'
+            'addPendingOrderItemBtn',
         );
 
         if (pendingOrderForm) {
             pendingOrderForm.addEventListener('submit', (e) =>
-                this.savePendingOrder(e)
+                this.savePendingOrder(e),
             );
         }
         if (cancelPendingOrderBtn) {
             cancelPendingOrderBtn.addEventListener('click', () =>
-                this.closePendingOrderModal()
+                this.closePendingOrderModal(),
             );
         }
         if (pendingOrderModalClose) {
             pendingOrderModalClose.addEventListener('click', () =>
-                this.closePendingOrderModal()
+                this.closePendingOrderModal(),
             );
         }
         if (addPendingOrderItemBtn) {
             addPendingOrderItemBtn.addEventListener('click', () =>
-                this.addPendingOrderItemRow()
+                this.addPendingOrderItemRow(),
             );
         }
 
         // Modal de agendamento de serviço
         const serviceAppointmentForm = document.getElementById(
-            'serviceAppointmentForm'
+            'serviceAppointmentForm',
         );
         const cancelServiceAppointmentBtn = document.getElementById(
-            'cancelServiceAppointmentBtn'
+            'cancelServiceAppointmentBtn',
         );
         const serviceAppointmentModalClose = document.querySelector(
-            '#serviceAppointmentModal .close'
+            '#serviceAppointmentModal .close',
         );
 
         if (serviceAppointmentForm) {
             serviceAppointmentForm.addEventListener('submit', (e) =>
-                this.saveServiceAppointment(e)
+                this.saveServiceAppointment(e),
             );
         }
         if (cancelServiceAppointmentBtn) {
             cancelServiceAppointmentBtn.addEventListener('click', () =>
-                this.closeServiceAppointmentModal()
+                this.closeServiceAppointmentModal(),
             );
         }
         if (serviceAppointmentModalClose) {
             serviceAppointmentModalClose.addEventListener('click', () =>
-                this.closeServiceAppointmentModal()
+                this.closeServiceAppointmentModal(),
             );
         }
 
         // Modal de calendário
         const calendarModal = document.getElementById('calendarModal');
         const calendarModalClose = document.querySelector(
-            '#calendarModal .close'
+            '#calendarModal .close',
         );
 
         if (calendarModalClose) {
             calendarModalClose.addEventListener('click', () =>
-                this.closeCalendarModal()
+                this.closeCalendarModal(),
             );
         }
 
@@ -3107,14 +3103,14 @@ class LojaApp {
 
         // Modal de visualização de grupo
         const viewGroupModalClose = document.querySelector(
-            '#viewGroupModal .close'
+            '#viewGroupModal .close',
         );
         if (viewGroupModalClose) {
             viewGroupModalClose.addEventListener('click', () =>
-                this.closeViewGroupModal()
+                this.closeViewGroupModal(),
             );
             console.log(
-                '✅ [APP.JS] Listener anexado ao viewGroupModal .close'
+                '✅ [APP.JS] Listener anexado ao viewGroupModal .close',
             );
         } else {
             console.error('❌ [APP.JS] viewGroupModal .close não encontrado!');
@@ -3136,7 +3132,7 @@ class LojaApp {
 
         if (cancelCostBtn) {
             cancelCostBtn.addEventListener('click', () =>
-                this.closeCostModal()
+                this.closeCostModal(),
             );
             console.log('✅ [APP.JS] Listener anexado ao cancelCostBtn');
         } else {
@@ -3145,7 +3141,7 @@ class LojaApp {
 
         if (costModalClose) {
             costModalClose.addEventListener('click', () =>
-                this.closeCostModal()
+                this.closeCostModal(),
             );
             console.log('✅ [APP.JS] Listener anexado ao costModal .close');
         } else {
@@ -3155,7 +3151,7 @@ class LojaApp {
         // Calcular custo total automaticamente
         if (costQuantity) {
             costQuantity.addEventListener('input', () =>
-                this.calculateCostTotal()
+                this.calculateCostTotal(),
             );
             console.log('✅ [APP.JS] Listener anexado ao costQuantity');
         } else {
@@ -3164,7 +3160,7 @@ class LojaApp {
 
         if (costPrice) {
             costPrice.addEventListener('input', () =>
-                this.calculateCostTotal()
+                this.calculateCostTotal(),
             );
             // Converter vírgula em ponto automaticamente
             costPrice.addEventListener('input', (e) => {
@@ -3253,14 +3249,14 @@ class LojaApp {
 
         if (cancelGoalBtn) {
             cancelGoalBtn.addEventListener('click', () =>
-                this.closeGoalModal()
+                this.closeGoalModal(),
             );
             console.log('✅ [APP.JS] Listener anexado ao cancelGoalBtn');
         }
 
         if (goalModalClose) {
             goalModalClose.addEventListener('click', () =>
-                this.closeGoalModal()
+                this.closeGoalModal(),
             );
             console.log('✅ [APP.JS] Listener anexado ao goalModal .close');
         }
@@ -3274,7 +3270,7 @@ class LojaApp {
 
         if (manageStockBtn) {
             manageStockBtn.addEventListener('click', () =>
-                this.openStockModal()
+                this.openStockModal(),
             );
             console.log('✅ [APP.JS] Listener anexado ao manageStockBtn');
         }
@@ -3286,21 +3282,21 @@ class LojaApp {
 
         if (cancelStockBtn) {
             cancelStockBtn.addEventListener('click', () =>
-                this.closeStockModal()
+                this.closeStockModal(),
             );
             console.log('✅ [APP.JS] Listener anexado ao cancelStockBtn');
         }
 
         if (stockModalClose) {
             stockModalClose.addEventListener('click', () =>
-                this.closeStockModal()
+                this.closeStockModal(),
             );
             console.log('✅ [APP.JS] Listener anexado ao stockModal .close');
         }
 
         if (stockDay) {
             stockDay.addEventListener('change', () =>
-                this.updateStockItemsList()
+                this.updateStockItemsList(),
             );
             console.log('✅ [APP.JS] Listener anexado ao stockDay');
         }
@@ -3314,7 +3310,7 @@ class LojaApp {
                 this.updateStockInfo();
             });
             console.log(
-                '✅ [APP.JS] Listener anexado ao saleItem para atualizar estoque'
+                '✅ [APP.JS] Listener anexado ao saleItem para atualizar estoque',
             );
         }
 
@@ -3325,7 +3321,7 @@ class LojaApp {
                 this.updateStockInfo();
             });
             console.log(
-                '✅ [APP.JS] Listener anexado ao saleSize para atualizar estoque'
+                '✅ [APP.JS] Listener anexado ao saleSize para atualizar estoque',
             );
         }
 
@@ -3336,7 +3332,7 @@ class LojaApp {
                 this.updateStockInfo();
             });
             console.log(
-                '✅ [APP.JS] Listener anexado ao saleColor para atualizar estoque'
+                '✅ [APP.JS] Listener anexado ao saleColor para atualizar estoque',
             );
         }
 
@@ -3392,7 +3388,7 @@ class LojaApp {
         const clothingFields = document.getElementById('clothingFields');
         const electronicsFields = document.getElementById('electronicsFields');
         const clothingBasicFields = document.getElementById(
-            'clothingBasicFields'
+            'clothingBasicFields',
         );
         const itemName = document.getElementById('itemName');
         const itemBrand = document.getElementById('itemBrand');
@@ -3511,7 +3507,7 @@ class LojaApp {
 
             // Mostrar campos básicos por padrão (serão escondidos quando categoria for selecionada)
             const clothingBasicFields = document.getElementById(
-                'clothingBasicFields'
+                'clothingBasicFields',
             );
             if (clothingBasicFields)
                 clothingBasicFields.style.display = 'block';
@@ -3522,8 +3518,6 @@ class LojaApp {
         }
 
         modal.classList.add('active');
-
-
 
         // Configurar validação em tempo real
         if (typeof fieldValidator !== 'undefined') {
@@ -3561,7 +3555,9 @@ class LojaApp {
         if (!modalElement) return;
 
         // Detectar Android Chrome
-        const isAndroidChrome = /Android/i.test(navigator.userAgent) && /Chrome/i.test(navigator.userAgent);
+        const isAndroidChrome =
+            /Android/i.test(navigator.userAgent) &&
+            /Chrome/i.test(navigator.userAgent);
 
         // Esconder FAB quando modal abrir
         const fab = document.getElementById('quickSaleFAB');
@@ -3622,21 +3618,40 @@ class LojaApp {
         if (!modalElement) return;
 
         // Detectar se é Android Chrome
-        const isAndroidChrome = /Android/i.test(navigator.userAgent) && /Chrome/i.test(navigator.userAgent);
+        const isAndroidChrome =
+            /Android/i.test(navigator.userAgent) &&
+            /Chrome/i.test(navigator.userAgent);
 
         // VERIFICAR SE É O ÚLTIMO MODAL ANTES DE REMOVER (para mostrar FAB)
         const allActiveModals = document.querySelectorAll('.modal.active');
-        const isLastModal = allActiveModals.length === 1 && allActiveModals[0] === modalElement;
+        const isLastModal =
+            allActiveModals.length === 1 && allActiveModals[0] === modalElement;
 
         // REMOVER CLASSE ACTIVE IMEDIATAMENTE
         modalElement.classList.remove('active');
 
         // FORÇAR RESET IMEDIATO DE TODAS AS PROPRIEDADES CRÍTICAS
         modalElement.style.setProperty('pointer-events', 'none', 'important');
-        modalElement.style.setProperty('backdrop-filter', 'blur(0px)', 'important');
-        modalElement.style.setProperty('-webkit-backdrop-filter', 'blur(0px)', 'important');
-        modalElement.style.setProperty('background', 'rgba(0, 0, 0, 0)', 'important');
-        modalElement.style.setProperty('background-color', 'rgba(0, 0, 0, 0)', 'important');
+        modalElement.style.setProperty(
+            'backdrop-filter',
+            'blur(0px)',
+            'important',
+        );
+        modalElement.style.setProperty(
+            '-webkit-backdrop-filter',
+            'blur(0px)',
+            'important',
+        );
+        modalElement.style.setProperty(
+            'background',
+            'rgba(0, 0, 0, 0)',
+            'important',
+        );
+        modalElement.style.setProperty(
+            'background-color',
+            'rgba(0, 0, 0, 0)',
+            'important',
+        );
         modalElement.style.setProperty('opacity', '0', 'important');
         modalElement.style.setProperty('visibility', 'hidden', 'important');
 
@@ -3646,19 +3661,37 @@ class LojaApp {
             document.body.style.removeProperty('backdrop-filter');
             document.body.style.removeProperty('-webkit-backdrop-filter');
             document.documentElement.style.removeProperty('backdrop-filter');
-            document.documentElement.style.removeProperty('-webkit-backdrop-filter');
+            document.documentElement.style.removeProperty(
+                '-webkit-backdrop-filter',
+            );
 
             // Limpar via cssText também
             const bodyCssText = document.body.style.cssText || '';
             const htmlCssText = document.documentElement.style.cssText || '';
-            document.body.style.cssText = bodyCssText.replace(/backdrop-filter[^;]*;?/gi, '').replace(/-webkit-backdrop-filter[^;]*;?/gi, '');
-            document.documentElement.style.cssText = htmlCssText.replace(/backdrop-filter[^;]*;?/gi, '').replace(/-webkit-backdrop-filter[^;]*;?/gi, '');
+            document.body.style.cssText = bodyCssText
+                .replace(/backdrop-filter[^;]*;?/gi, '')
+                .replace(/-webkit-backdrop-filter[^;]*;?/gi, '');
+            document.documentElement.style.cssText = htmlCssText
+                .replace(/backdrop-filter[^;]*;?/gi, '')
+                .replace(/-webkit-backdrop-filter[^;]*;?/gi, '');
 
             // Forçar reset completo do background no body/html
             document.body.style.setProperty('background', '', 'important');
-            document.body.style.setProperty('background-color', '', 'important');
-            document.documentElement.style.setProperty('background', '', 'important');
-            document.documentElement.style.setProperty('background-color', '', 'important');
+            document.body.style.setProperty(
+                'background-color',
+                '',
+                'important',
+            );
+            document.documentElement.style.setProperty(
+                'background',
+                '',
+                'important',
+            );
+            document.documentElement.style.setProperty(
+                'background-color',
+                '',
+                'important',
+            );
 
             // Forçar repaint no Android com múltiplas técnicas
             requestAnimationFrame(() => {
@@ -3673,19 +3706,43 @@ class LojaApp {
         } else {
             // GARANTIR QUE BODY E HTML NÃO TENHAM BACKDROP (desktop)
             document.body.style.setProperty('backdrop-filter', '', 'important');
-            document.body.style.setProperty('-webkit-backdrop-filter', '', 'important');
-            document.documentElement.style.setProperty('backdrop-filter', '', 'important');
-            document.documentElement.style.setProperty('-webkit-backdrop-filter', '', 'important');
+            document.body.style.setProperty(
+                '-webkit-backdrop-filter',
+                '',
+                'important',
+            );
+            document.documentElement.style.setProperty(
+                'backdrop-filter',
+                '',
+                'important',
+            );
+            document.documentElement.style.setProperty(
+                '-webkit-backdrop-filter',
+                '',
+                'important',
+            );
         }
 
         // LIMPAR TODOS OS OUTROS MODAIS TAMBÉM (caso algum esteja "preso")
-        document.querySelectorAll('.modal.active').forEach(modal => {
+        document.querySelectorAll('.modal.active').forEach((modal) => {
             if (modal !== modalElement) {
                 modal.classList.remove('active');
                 modal.style.setProperty('pointer-events', 'none', 'important');
-                modal.style.setProperty('backdrop-filter', 'blur(0px)', 'important');
-                modal.style.setProperty('-webkit-backdrop-filter', 'blur(0px)', 'important');
-                modal.style.setProperty('background', 'rgba(0, 0, 0, 0)', 'important');
+                modal.style.setProperty(
+                    'backdrop-filter',
+                    'blur(0px)',
+                    'important',
+                );
+                modal.style.setProperty(
+                    '-webkit-backdrop-filter',
+                    'blur(0px)',
+                    'important',
+                );
+                modal.style.setProperty(
+                    'background',
+                    'rgba(0, 0, 0, 0)',
+                    'important',
+                );
                 modal.style.setProperty('display', 'none', 'important');
             }
         });
@@ -3699,7 +3756,8 @@ class LojaApp {
                     const fab = document.getElementById('quickSaleFAB');
                     if (fab) {
                         // Mostrar FAB apenas em mobile
-                        const isMobile = window.matchMedia('(max-width: 768px)').matches;
+                        const isMobile =
+                            window.matchMedia('(max-width: 768px)').matches;
                         if (isMobile) {
                             fab.style.display = 'flex';
                         }
@@ -3729,7 +3787,8 @@ class LojaApp {
                     .replace(/-webkit-backdrop-filter[^;]*;?/gi, '')
                     .replace(/background[^;]*;?/gi, '')
                     .replace(/background-color[^;]*;?/gi, '');
-                modalElement.style.cssText = cleanedCss + 'display: none !important;';
+                modalElement.style.cssText =
+                    cleanedCss + 'display: none !important;';
             }
             modalElement.style.removeProperty('opacity');
             modalElement.style.removeProperty('visibility');
@@ -3762,7 +3821,7 @@ class LojaApp {
             if (typeof toast !== 'undefined' && toast) {
                 toast.error(
                     'Você não tem permissão para criar/editar produtos.',
-                    3000
+                    3000,
                 );
             } else {
                 alert('Você não tem permissão para criar/editar produtos.');
@@ -3774,17 +3833,17 @@ class LojaApp {
         if (this.currentEditingItem) {
             const lockResult = this.checkEntityLock(
                 'item',
-                this.currentEditingItem.id
+                this.currentEditingItem.id,
             );
             if (lockResult.locked && !lockResult.isOwner) {
                 if (typeof toast !== 'undefined' && toast) {
                     toast.warning(
                         `Este item está sendo editado por ${lockResult.lockedBy}. Aguarde alguns minutos.`,
-                        4000
+                        4000,
                     );
                 } else {
                     alert(
-                        `Este item está sendo editado por ${lockResult.lockedBy}. Aguarde alguns minutos.`
+                        `Este item está sendo editado por ${lockResult.lockedBy}. Aguarde alguns minutos.`,
                     );
                 }
                 return;
@@ -3795,7 +3854,7 @@ class LojaApp {
                 if (typeof toast !== 'undefined' && toast) {
                     toast.error(
                         'Não foi possível bloquear o item para edição.',
-                        3000
+                        3000,
                     );
                 }
                 return;
@@ -3821,9 +3880,9 @@ class LojaApp {
         const tags =
             tagsInput && tagsInput.value
                 ? tagsInput.value
-                    .split(',')
-                    .map((t) => t.trim())
-                    .filter((t) => t)
+                      .split(',')
+                      .map((t) => t.trim())
+                      .filter((t) => t)
                 : [];
         const notesInput = document.getElementById('itemNotes');
         const notes =
@@ -3860,7 +3919,7 @@ class LojaApp {
                 this.formatText(document.getElementById('itemName').value) ||
                 '';
             item.brand = this.formatText(
-                document.getElementById('itemBrand').value
+                document.getElementById('itemBrand').value,
             );
             item.style =
                 this.formatText(document.getElementById('itemStyle').value) ||
@@ -3870,13 +3929,13 @@ class LojaApp {
         } else if (category === 'Eletrônicos') {
             // Para eletrônicos, usar modelo como nome (ou modelo + capacidade + cor)
             const model = this.formatText(
-                document.getElementById('itemModel').value
+                document.getElementById('itemModel').value,
             );
             const capacity = this.formatText(
-                document.getElementById('itemCapacity').value
+                document.getElementById('itemCapacity').value,
             );
             const color = this.formatText(
-                document.getElementById('itemColor').value
+                document.getElementById('itemColor').value,
             );
 
             // Criar nome composto para eletrônicos
@@ -3925,7 +3984,7 @@ class LojaApp {
 
         if (item.price <= 0 || isNaN(item.price)) {
             this.showError(
-                'O preço deve ser um valor numérico maior que zero.'
+                'O preço deve ser um valor numérico maior que zero.',
             );
             if (submitBtn) {
                 submitBtn.disabled = false;
@@ -3940,31 +3999,34 @@ class LojaApp {
             // Manter código existente ao editar (preservar identificação única)
             item.qrCodeNumber = this.currentEditingItem.qrCodeNumber;
             console.log(
-                `✅ Mantendo QR Code existente: ${item.qrCodeNumber
-                } para produto ${item.name || item.id}`
+                `✅ Mantendo QR Code existente: ${
+                    item.qrCodeNumber
+                } para produto ${item.name || item.id}`,
             );
         } else {
             // Gerar novo código único ao criar produto
             item.qrCodeNumber = this.generateQRCodeNumber();
             console.log(
-                `✅ Novo QR Code gerado: ${item.qrCodeNumber} para produto ${item.name || 'novo'
-                }`
+                `✅ Novo QR Code gerado: ${item.qrCodeNumber} para produto ${
+                    item.name || 'novo'
+                }`,
             );
         }
 
         // Validação de segurança: garantir que o QR code é único
         const duplicateItem = this.items.find(
-            (i) => i.id !== item.id && i.qrCodeNumber === item.qrCodeNumber
+            (i) => i.id !== item.id && i.qrCodeNumber === item.qrCodeNumber,
         );
         if (duplicateItem) {
             console.error(
-                `❌ ERRO: QR Code duplicado detectado! Produto ${item.name
-                } tem o mesmo QR Code que ${this.getItemName(duplicateItem.id)}`
+                `❌ ERRO: QR Code duplicado detectado! Produto ${
+                    item.name
+                } tem o mesmo QR Code que ${this.getItemName(duplicateItem.id)}`,
             );
             // Gerar novo código único
             item.qrCodeNumber = this.generateQRCodeNumber();
             console.log(
-                `✅ Novo QR Code único gerado após detecção de duplicata: ${item.qrCodeNumber}`
+                `✅ Novo QR Code único gerado após detecção de duplicata: ${item.qrCodeNumber}`,
             );
         }
 
@@ -3972,7 +4034,7 @@ class LojaApp {
         let previousData = null;
         if (this.currentEditingItem) {
             const index = this.items.findIndex(
-                (i) => i.id === this.currentEditingItem.id
+                (i) => i.id === this.currentEditingItem.id,
             );
             if (index !== -1) {
                 // Salvar cópia dos dados anteriores antes de atualizar
@@ -4010,14 +4072,14 @@ class LojaApp {
                 price: item.price,
                 minStock: item.minStock || null,
                 previousData: previousData, // Dados anteriores para reversão
-            }
+            },
         );
 
         // Mostrar mensagem de sucesso
         this.showSuccess(
             this.currentEditingItem
                 ? 'Item atualizado com sucesso!'
-                : 'Item cadastrado com sucesso!'
+                : 'Item cadastrado com sucesso!',
         );
 
         // Gerar QR code após salvar
@@ -4114,29 +4176,29 @@ class LojaApp {
 
             // Verificar se já existe um script carregando
             const existingScript = document.querySelector(
-                'script[src*="qrcode"]'
+                'script[src*="qrcode"]',
             );
             if (existingScript) {
                 console.log(
-                    '📦 Script QRCode já existe no DOM, aguardando carregamento...'
+                    '📦 Script QRCode já existe no DOM, aguardando carregamento...',
                 );
                 console.log(
                     '🔍 Verificando window.QRCode:',
-                    typeof window.QRCode
+                    typeof window.QRCode,
                 );
                 console.log(
                     '🔍 Verificando window.qrcode:',
-                    typeof window.qrcode
+                    typeof window.qrcode,
                 );
                 console.log(
                     '🔍 Verificando window.qrcodeLoaded:',
-                    window.qrcodeLoaded
+                    window.qrcodeLoaded,
                 );
 
                 // Se o script falhou ao carregar (qrcodeLoaded é false), tentar recarregar
                 if (window.qrcodeLoaded === false) {
                     console.warn(
-                        '⚠️ Script QRCode falhou ao carregar anteriormente. Tentando recarregar...'
+                        '⚠️ Script QRCode falhou ao carregar anteriormente. Tentando recarregar...',
                     );
                     // Remover script antigo
                     existingScript.remove();
@@ -4144,21 +4206,21 @@ class LojaApp {
                 } else if (window.qrcodeLoaded === true) {
                     // Script marcado como carregado, mas biblioteca não encontrada
                     console.log(
-                        '📦 Script marcado como carregado, mas biblioteca não encontrada. Verificando formas alternativas...'
+                        '📦 Script marcado como carregado, mas biblioteca não encontrada. Verificando formas alternativas...',
                     );
                     // Tentar acessar diretamente (pode estar em escopo global sem window)
                     try {
                         if (typeof QRCode !== 'undefined') {
                             window.QRCode = QRCode;
                             console.log(
-                                '✅ Biblioteca QRCode encontrada como QRCode global!'
+                                '✅ Biblioteca QRCode encontrada como QRCode global!',
                             );
                             resolve();
                             return;
                         }
                     } catch (e) {
                         console.log(
-                            '⚠️ QRCode não encontrado como variável global'
+                            '⚠️ QRCode não encontrado como variável global',
                         );
                     }
                 }
@@ -4180,7 +4242,7 @@ class LojaApp {
                         window.QRCode = QRCode;
                         QRCodeLib = QRCode;
                         console.log(
-                            '✅ Biblioteca QRCode encontrada como QRCode global!'
+                            '✅ Biblioteca QRCode encontrada como QRCode global!',
                         );
                     }
 
@@ -4189,7 +4251,7 @@ class LojaApp {
                         console.log(
                             '✅ Biblioteca QRCode carregada após',
                             attempts,
-                            'tentativas!'
+                            'tentativas!',
                         );
                         resolve();
                         return;
@@ -4199,7 +4261,7 @@ class LojaApp {
                     if (window.qrcodeLoaded === false) {
                         clearInterval(checkInterval);
                         console.error(
-                            '❌ Script QRCode falhou ao carregar. Tentando recarregar...'
+                            '❌ Script QRCode falhou ao carregar. Tentando recarregar...',
                         );
                         existingScript.remove();
                         shouldContinue = true; // Marcar para continuar
@@ -4209,14 +4271,14 @@ class LojaApp {
                     // Log a cada 10 tentativas
                     if (attempts % 10 === 0) {
                         console.log(
-                            `⏳ Aguardando biblioteca QRCode... (${attempts}/${maxAttempts})`
+                            `⏳ Aguardando biblioteca QRCode... (${attempts}/${maxAttempts})`,
                         );
                         console.log('🔍 window.QRCode:', typeof window.QRCode);
                         console.log('🔍 window.qrcode:', typeof window.qrcode);
                         console.log('🔍 typeof QRCode:', typeof QRCode);
                         console.log(
                             '🔍 window.qrcodeLoaded:',
-                            window.qrcodeLoaded
+                            window.qrcodeLoaded,
                         );
                     }
 
@@ -4225,23 +4287,23 @@ class LojaApp {
                         console.error(
                             '❌ Timeout: Biblioteca QRCode não foi carregada após',
                             maxAttempts,
-                            'tentativas'
+                            'tentativas',
                         );
                         console.error(
                             '🔍 Estado final - window.QRCode:',
-                            typeof window.QRCode
+                            typeof window.QRCode,
                         );
                         console.error(
                             '🔍 Estado final - window.qrcode:',
-                            typeof window.qrcode
+                            typeof window.qrcode,
                         );
                         console.error(
                             '🔍 Estado final - typeof QRCode:',
-                            typeof QRCode
+                            typeof QRCode,
                         );
                         console.error(
                             '🔍 Estado final - window.qrcodeLoaded:',
-                            window.qrcodeLoaded
+                            window.qrcodeLoaded,
                         );
                         console.warn('🔄 Tentando recarregar script QRCode...');
                         // Remover script antigo e tentar recarregar
@@ -4273,7 +4335,7 @@ class LojaApp {
             const tryLoadScript = (urlIndex) => {
                 if (urlIndex >= cdnUrls.length) {
                     console.error(
-                        '❌ Todas as URLs do CDN falharam ao carregar'
+                        '❌ Todas as URLs do CDN falharam ao carregar',
                     );
                     console.error('💡 Possíveis causas:');
                     console.error('   1. Problema de conexão com a internet');
@@ -4283,13 +4345,13 @@ class LojaApp {
                     console.error('💡 Soluções:');
                     console.error('   - Verifique sua conexão com a internet');
                     console.error(
-                        '   - Verifique configurações de firewall/proxy'
+                        '   - Verifique configurações de firewall/proxy',
                     );
                     console.error(
-                        '   - Tente acessar os CDNs diretamente no navegador'
+                        '   - Tente acessar os CDNs diretamente no navegador',
                     );
                     console.error(
-                        '   - Considere usar uma versão local da biblioteca QRCode'
+                        '   - Considere usar uma versão local da biblioteca QRCode',
                     );
 
                     const errorMsg =
@@ -4308,7 +4370,7 @@ class LojaApp {
 
                 newScript.onload = () => {
                     console.log(
-                        '✅ Script QRCode carregado, verificando disponibilidade...'
+                        '✅ Script QRCode carregado, verificando disponibilidade...',
                     );
                     window.qrcodeLoaded = true;
 
@@ -4331,15 +4393,15 @@ class LojaApp {
                             resolve();
                         } else {
                             console.error(
-                                '❌ Biblioteca QRCode não encontrada após carregamento do script'
+                                '❌ Biblioteca QRCode não encontrada após carregamento do script',
                             );
                             console.error(
                                 '🔍 window.QRCode:',
-                                typeof window.QRCode
+                                typeof window.QRCode,
                             );
                             console.error(
                                 '🔍 window.qrcode:',
-                                typeof window.qrcode
+                                typeof window.qrcode,
                             );
                             console.error('🔍 typeof QRCode:', typeof QRCode);
                             // Tentar próxima URL
@@ -4356,7 +4418,7 @@ class LojaApp {
                     // Verificar se é problema de rede
                     if (urlIndex === 0) {
                         console.warn(
-                            '⚠️ Primeira tentativa falhou. Verificando conectividade...'
+                            '⚠️ Primeira tentativa falhou. Verificando conectividade...',
                         );
                         // Tentar fazer uma requisição simples para verificar conectividade
                         fetch('https://www.google.com/favicon.ico', {
@@ -4369,7 +4431,7 @@ class LojaApp {
                             })
                             .catch(() => {
                                 console.error(
-                                    '❌ Problema de conectividade detectado'
+                                    '❌ Problema de conectividade detectado',
                                 );
                             });
                     }
@@ -4437,7 +4499,7 @@ class LojaApp {
     // Remover TODOS os skeletons da página
     removeAllSkeletons() {
         const skeletons = document.querySelectorAll(
-            '[id$="-skeleton"], .skeleton-container, .skeleton-list, .skeleton-card, .skeleton-card-small'
+            '[id$="-skeleton"], .skeleton-container, .skeleton-list, .skeleton-card, .skeleton-card-small',
         );
         skeletons.forEach((skeleton) => {
             skeleton.remove();
@@ -4510,7 +4572,7 @@ class LojaApp {
                     .querySelector('.modal-content')
                     .insertBefore(
                         successDiv,
-                        activeModal.querySelector('.modal-content').firstChild
+                        activeModal.querySelector('.modal-content').firstChild,
                     );
             }
         } else {
@@ -4544,20 +4606,20 @@ class LojaApp {
             // Gerar código de 9 dígitos
             for (let i = 0; i < 9; i++) {
                 code += digits.charAt(
-                    Math.floor(Math.random() * digits.length)
+                    Math.floor(Math.random() * digits.length),
                 );
             }
             attempts++;
 
             // Verificar se o código já existe
             const existingItem = this.items.find(
-                (item) => item.qrCodeNumber === code
+                (item) => item.qrCodeNumber === code,
             );
 
             if (!existingItem) {
                 // Código único encontrado
                 console.log(
-                    `✅ QR Code único gerado: ${code} (tentativa ${attempts})`
+                    `✅ QR Code único gerado: ${code} (tentativa ${attempts})`,
                 );
                 return code;
             }
@@ -4565,18 +4627,18 @@ class LojaApp {
             // Se chegou ao limite de tentativas, adicionar timestamp para garantir unicidade
             if (attempts >= maxAttempts) {
                 console.warn(
-                    `⚠️ Muitas tentativas para gerar QR code único. Adicionando timestamp...`
+                    `⚠️ Muitas tentativas para gerar QR code único. Adicionando timestamp...`,
                 );
                 // Adicionar últimos 4 dígitos do timestamp para garantir unicidade
                 const timestamp = Date.now().toString().slice(-4);
                 code = code.slice(0, 5) + timestamp;
                 // Verificar novamente
                 const stillExists = this.items.find(
-                    (item) => item.qrCodeNumber === code
+                    (item) => item.qrCodeNumber === code,
                 );
                 if (!stillExists) {
                     console.log(
-                        `✅ QR Code único gerado com timestamp: ${code}`
+                        `✅ QR Code único gerado com timestamp: ${code}`,
                     );
                     return code;
                 }
@@ -4586,7 +4648,7 @@ class LojaApp {
         // Último recurso: usar timestamp completo (menos legível, mas garantido único)
         const fallbackCode = Date.now().toString().slice(-9);
         console.warn(
-            `⚠️ Usando código de fallback baseado em timestamp: ${fallbackCode}`
+            `⚠️ Usando código de fallback baseado em timestamp: ${fallbackCode}`,
         );
         return fallbackCode;
     }
@@ -4605,14 +4667,14 @@ class LojaApp {
             this.loadQRCodeLibrary()
                 .then(() => {
                     console.log(
-                        '✅ Biblioteca QRCode carregada, tentando gerar novamente...'
+                        '✅ Biblioteca QRCode carregada, tentando gerar novamente...',
                     );
                     this.generateQRCode(itemId);
                 })
                 .catch((error) => {
                     console.error(
                         '❌ Erro ao carregar biblioteca QRCode:',
-                        error
+                        error,
                     );
                 });
             return;
@@ -4663,7 +4725,7 @@ class LojaApp {
                             0,
                             0,
                             canvas.width,
-                            canvas.height
+                            canvas.height,
                         );
                         // Um QR code válido terá pixels pretos (0,0,0) e brancos (255,255,255)
                         // Verificar se há pixels pretos (que indicam que o QR code foi desenhado)
@@ -4691,19 +4753,19 @@ class LojaApp {
                         // Um QR code válido deve ter pelo menos alguns pixels pretos e brancos
                         if (blackPixels === 0 && whitePixels === 0) {
                             console.warn(
-                                '⚠️ Canvas está completamente vazio após geração'
+                                '⚠️ Canvas está completamente vazio após geração',
                             );
                         } else if (blackPixels === 0) {
                             console.warn(
-                                '⚠️ Canvas não contém pixels pretos (QR code pode estar incorreto)'
+                                '⚠️ Canvas não contém pixels pretos (QR code pode estar incorreto)',
                             );
                         } else {
                             console.log(
                                 `✅ QR code verificado: ${blackPixels} pixels pretos (${blackPercentage.toFixed(
-                                    2
+                                    2,
                                 )}%), ${whitePixels} pixels brancos (${whitePercentage.toFixed(
-                                    2
-                                )}%)`
+                                    2,
+                                )}%)`,
                             );
                         }
                     }, 200);
@@ -4712,7 +4774,7 @@ class LojaApp {
                         section.style.display = 'block';
                     }
                 }
-            }
+            },
         );
     }
 
@@ -4727,11 +4789,11 @@ class LojaApp {
             console.warn('⚠️ Biblioteca QRCode não encontrada imediatamente');
             console.log('📦 Verificando se script está no DOM...');
             const existingScript = document.querySelector(
-                'script[src*="qrcode"]'
+                'script[src*="qrcode"]',
             );
             if (existingScript) {
                 console.log(
-                    '📦 Script encontrado no DOM, aguardando carregamento...'
+                    '📦 Script encontrado no DOM, aguardando carregamento...',
                 );
             }
             console.log('🔄 Tentando carregar biblioteca QRCode...');
@@ -4740,20 +4802,20 @@ class LojaApp {
             this.loadQRCodeLibrary()
                 .then(() => {
                     console.log(
-                        '✅ Biblioteca QRCode carregada, tentando gerar novamente...'
+                        '✅ Biblioteca QRCode carregada, tentando gerar novamente...',
                     );
                     this.generateQRCodeForModal(itemId, canvasId);
                 })
                 .catch((error) => {
                     console.error(
                         '❌ Erro ao carregar biblioteca QRCode:',
-                        error
+                        error,
                     );
                     console.error(
-                        '💡 Dica: Recarregue a página ou verifique sua conexão com a internet.'
+                        '💡 Dica: Recarregue a página ou verifique sua conexão com a internet.',
                     );
                     alert(
-                        'Erro ao carregar biblioteca QRCode. Verifique sua conexão e recarregue a página.'
+                        'Erro ao carregar biblioteca QRCode. Verifique sua conexão e recarregue a página.',
                     );
                 });
             return;
@@ -4785,7 +4847,7 @@ class LojaApp {
             'Gerando QR code no canvas:',
             canvasId,
             'com dados:',
-            qrData
+            qrData,
         );
 
         // Limpar canvas antes de gerar novo QR code
@@ -4818,7 +4880,7 @@ class LojaApp {
                 } else {
                     console.log(
                         '✅ QR code gerado com sucesso no modal:',
-                        qrData
+                        qrData,
                     );
                     // Verificar se o QR code foi realmente desenhado
                     // Aguardar um pouco para garantir que o canvas foi renderizado
@@ -4827,7 +4889,7 @@ class LojaApp {
                             0,
                             0,
                             canvas.width,
-                            canvas.height
+                            canvas.height,
                         );
                         // Um QR code válido terá pixels pretos (0,0,0) e brancos (255,255,255)
                         // Verificar se há pixels pretos (que indicam que o QR code foi desenhado)
@@ -4855,24 +4917,24 @@ class LojaApp {
                         // Um QR code válido deve ter pelo menos alguns pixels pretos e brancos
                         if (blackPixels === 0 && whitePixels === 0) {
                             console.warn(
-                                '⚠️ Canvas está completamente vazio após geração'
+                                '⚠️ Canvas está completamente vazio após geração',
                             );
                         } else if (blackPixels === 0) {
                             console.warn(
-                                '⚠️ Canvas não contém pixels pretos (QR code pode estar incorreto)'
+                                '⚠️ Canvas não contém pixels pretos (QR code pode estar incorreto)',
                             );
                         } else {
                             console.log(
                                 `✅ QR code verificado: ${blackPixels} pixels pretos (${blackPercentage.toFixed(
-                                    2
+                                    2,
                                 )}%), ${whitePixels} pixels brancos (${whitePercentage.toFixed(
-                                    2
-                                )}%)`
+                                    2,
+                                )}%)`,
                             );
                         }
                     }, 200);
                 }
-            }
+            },
         );
     }
 
@@ -4928,7 +4990,7 @@ class LojaApp {
             0,
             0,
             canvas.width,
-            canvas.height
+            canvas.height,
         );
         const hasContent = imageData.data.some((channel) => channel !== 0);
 
@@ -4964,7 +5026,7 @@ class LojaApp {
             } else {
                 toast.error(
                     'Erro: Não foi possível identificar o item para gerar o QR code.',
-                    4000
+                    4000,
                 );
                 return;
             }
@@ -5028,7 +5090,7 @@ class LojaApp {
     startQRScanner() {
         if (!window.Html5Qrcode) {
             alert(
-                'Biblioteca de scanner não carregada. Verifique sua conexão.'
+                'Biblioteca de scanner não carregada. Verifique sua conexão.',
             );
             return;
         }
@@ -5078,13 +5140,13 @@ class LojaApp {
                 (errorMessage) => {
                     // Erro ignorado (continua escaneando)
                     // console.log('Erro de escaneamento:', errorMessage);
-                }
+                },
             )
             .catch((err) => {
                 // Erro ao iniciar scanner (ex: permissão negada)
                 console.error('Erro ao iniciar scanner:', err);
                 alert(
-                    'Erro ao acessar a câmera. Verifique as permissões ou tente novamente.'
+                    'Erro ao acessar a câmera. Verifique as permissões ou tente novamente.',
                 );
                 container.style.display = 'none';
                 this.currentQRScanner = null;
@@ -5128,12 +5190,12 @@ class LojaApp {
         if (item) {
             console.log(
                 `✅ Produto encontrado pelo QR Code: ${this.getItemName(
-                    item.id
-                )} (ID: ${item.id})`
+                    item.id,
+                )} (ID: ${item.id})`,
             );
         } else {
             console.log(
-                `⚠️ Produto não encontrado pelo QR Code "${cleanData}". Tentando compatibilidade com formato antigo...`
+                `⚠️ Produto não encontrado pelo QR Code "${cleanData}". Tentando compatibilidade com formato antigo...`,
             );
 
             // Se não encontrar pelo código numérico, tentar compatibilidade com formato antigo
@@ -5142,7 +5204,7 @@ class LojaApp {
             if (cleanData.startsWith('ITEM:')) {
                 itemId = cleanData.replace('ITEM:', '');
                 console.log(
-                    `🔍 Tentando buscar por ID (formato ITEM:): ${itemId}`
+                    `🔍 Tentando buscar por ID (formato ITEM:): ${itemId}`,
                 );
             } else {
                 // Tentar como ID direto (compatibilidade com QR codes antigos)
@@ -5155,12 +5217,12 @@ class LojaApp {
             if (item) {
                 console.log(
                     `✅ Produto encontrado por ID (formato antigo): ${this.getItemName(
-                        item.id
-                    )}`
+                        item.id,
+                    )}`,
                 );
             } else {
                 console.error(
-                    `❌ Produto não encontrado. QR Code: "${cleanData}"`
+                    `❌ Produto não encontrado. QR Code: "${cleanData}"`,
                 );
             }
         }
@@ -5195,14 +5257,15 @@ class LojaApp {
                 saleDayInfo.innerHTML = `<strong style="color: white;">✓ Produto identificado: ${itemName}</strong>`;
                 setTimeout(() => {
                     saleDayInfo.style.background = originalBg;
-                    saleDayInfo.innerHTML = `<strong>Dia: <span id="saleDayDisplay">${this.currentSaleDay || '-'
-                        }</span></strong>`;
+                    saleDayInfo.innerHTML = `<strong>Dia: <span id="saleDayDisplay">${
+                        this.currentSaleDay || '-'
+                    }</span></strong>`;
                 }, 3000);
             }
 
             // Mostrar notificação de sucesso
             this.showSuccess(
-                `Produto "${itemName}" identificado pelo QR Code!`
+                `Produto "${itemName}" identificado pelo QR Code!`,
             );
         } else {
             // Mensagem de erro mais informativa
@@ -5215,7 +5278,7 @@ class LojaApp {
                     id: i.id,
                     name: this.getItemName(i.id),
                     qrCode: i.qrCodeNumber,
-                }))
+                })),
             );
         }
     }
@@ -5226,7 +5289,7 @@ class LojaApp {
             if (typeof toast !== 'undefined' && toast) {
                 toast.error(
                     'Você não tem permissão para excluir produtos.',
-                    3000
+                    3000,
                 );
             } else {
                 alert('Você não tem permissão para excluir produtos.');
@@ -5261,7 +5324,7 @@ class LojaApp {
             if (typeof toast !== 'undefined' && toast) {
                 toast.success(
                     `Produto "${itemName}" excluído com sucesso!`,
-                    3000
+                    3000,
                 );
             }
         };
@@ -5270,7 +5333,7 @@ class LojaApp {
             confirmDialog
                 .danger(
                     `Tem certeza que deseja excluir "${itemName}"? Esta ação não pode ser desfeita.`,
-                    'Excluir Produto'
+                    'Excluir Produto',
                 )
                 .then(performDelete);
         } else {
@@ -5304,7 +5367,7 @@ class LojaApp {
         if (!window.Html5Qrcode) {
             toast.error(
                 'Biblioteca de scanner não carregada. Verifique sua conexão.',
-                3000
+                3000,
             );
             return;
         }
@@ -5335,7 +5398,10 @@ class LojaApp {
                             this.closeModalSafely(modal);
                         })
                         .catch((err) => {
-                            console.error('Erro ao parar scanner após escanear:', err);
+                            console.error(
+                                'Erro ao parar scanner após escanear:',
+                                err,
+                            );
                             this.quickSaleQRScanner = null;
                             // Mesmo com erro, fechar o modal
                             this.closeModalSafely(modal);
@@ -5343,7 +5409,7 @@ class LojaApp {
                 },
                 (errorMessage) => {
                     // Silencioso durante escaneamento
-                }
+                },
             )
             .catch((err) => {
                 console.error('Erro ao iniciar scanner:', err);
@@ -5351,7 +5417,7 @@ class LojaApp {
                 // Apenas mostrar erro e manter modal aberto
                 toast.error(
                     'Erro ao acessar a câmera. Verifique as permissões.',
-                    5000
+                    5000,
                 );
                 // Limpar instância do scanner para permitir nova tentativa
                 this.quickSaleQRScanner = null;
@@ -5359,7 +5425,8 @@ class LojaApp {
                 // Limpar conteúdo do reader para evitar confusão
                 const readerDiv = document.getElementById('quickSaleQrReader');
                 if (readerDiv) {
-                    readerDiv.innerHTML = '<p style="text-align: center; color: var(--gray-600); padding: 2rem;">Erro ao acessar câmera. Verifique as permissões do navegador.</p>';
+                    readerDiv.innerHTML =
+                        '<p style="text-align: center; color: var(--gray-600); padding: 2rem;">Erro ao acessar câmera. Verifique as permissões do navegador.</p>';
                 }
 
                 // NÃO chamar closeModalSafely aqui - modal deve permanecer aberto
@@ -5395,26 +5462,42 @@ class LojaApp {
         }
 
         // GARANTIR limpeza adicional após um delay (para Android Chrome)
-        const isAndroidChrome = /Android/i.test(navigator.userAgent) && /Chrome/i.test(navigator.userAgent);
+        const isAndroidChrome =
+            /Android/i.test(navigator.userAgent) &&
+            /Chrome/i.test(navigator.userAgent);
         if (isAndroidChrome) {
             // Limpeza imediata
             setTimeout(() => {
                 // Forçar limpeza completa do backdrop novamente
                 document.body.style.removeProperty('backdrop-filter');
                 document.body.style.removeProperty('-webkit-backdrop-filter');
-                document.documentElement.style.removeProperty('backdrop-filter');
-                document.documentElement.style.removeProperty('-webkit-backdrop-filter');
+                document.documentElement.style.removeProperty(
+                    'backdrop-filter',
+                );
+                document.documentElement.style.removeProperty(
+                    '-webkit-backdrop-filter',
+                );
                 document.body.style.removeProperty('background');
                 document.body.style.removeProperty('background-color');
                 document.documentElement.style.removeProperty('background');
-                document.documentElement.style.removeProperty('background-color');
+                document.documentElement.style.removeProperty(
+                    'background-color',
+                );
 
                 // Verificar se ainda há modais ativos
                 const activeModals = document.querySelectorAll('.modal.active');
                 if (activeModals.length === 0) {
                     // Nenhum modal ativo, garantir que tudo está limpo
-                    document.body.style.setProperty('opacity', '1', 'important');
-                    document.body.style.setProperty('visibility', 'visible', 'important');
+                    document.body.style.setProperty(
+                        'opacity',
+                        '1',
+                        'important',
+                    );
+                    document.body.style.setProperty(
+                        'visibility',
+                        'visible',
+                        'important',
+                    );
                 }
             }, 100);
 
@@ -5422,8 +5505,12 @@ class LojaApp {
             setTimeout(() => {
                 document.body.style.removeProperty('backdrop-filter');
                 document.body.style.removeProperty('-webkit-backdrop-filter');
-                document.documentElement.style.removeProperty('backdrop-filter');
-                document.documentElement.style.removeProperty('-webkit-backdrop-filter');
+                document.documentElement.style.removeProperty(
+                    'backdrop-filter',
+                );
+                document.documentElement.style.removeProperty(
+                    '-webkit-backdrop-filter',
+                );
             }, 500);
         }
     }
@@ -5452,7 +5539,7 @@ class LojaApp {
         } else {
             toast.error(
                 `Produto não encontrado para o QR Code: ${cleanData}`,
-                4000
+                4000,
             );
             console.error(
                 'Produtos disponíveis:',
@@ -5460,7 +5547,7 @@ class LojaApp {
                     id: i.id,
                     name: this.getItemName(i.id),
                     qrCode: i.qrCodeNumber,
-                }))
+                })),
             );
         }
     }
@@ -5516,7 +5603,7 @@ class LojaApp {
 
         // Mostrar campos de variação para roupas/eletrônicos
         const variationFields = document.getElementById(
-            'quickSaleVariationFields'
+            'quickSaleVariationFields',
         );
         if (variationFields) {
             if (item.category === 'Roupas' || item.category === 'Eletrônicos') {
@@ -5555,7 +5642,6 @@ class LojaApp {
         }
 
         this.openModalSafely(modal);
-
     }
 
     /**
@@ -5583,7 +5669,7 @@ class LojaApp {
             if (item.variations && item.variations.length > 0) {
                 const sizes = [
                     ...new Set(
-                        item.variations.map((v) => v.size).filter(Boolean)
+                        item.variations.map((v) => v.size).filter(Boolean),
                     ),
                 ];
                 sizes.forEach((size) => {
@@ -5600,7 +5686,7 @@ class LojaApp {
             if (item.variations && item.variations.length > 0) {
                 const colors = [
                     ...new Set(
-                        item.variations.map((v) => v.color).filter(Boolean)
+                        item.variations.map((v) => v.color).filter(Boolean),
                     ),
                 ];
                 colors.forEach((color) => {
@@ -5663,10 +5749,10 @@ class LojaApp {
             if (isVisible) {
                 // Limpar campos ao esconder
                 const discountType = document.getElementById(
-                    'quickSaleDiscountType'
+                    'quickSaleDiscountType',
                 );
                 const discountValue = document.getElementById(
-                    'quickSaleDiscountValue'
+                    'quickSaleDiscountValue',
                 );
                 if (discountType) discountType.value = '';
                 if (discountValue) discountValue.value = '';
@@ -5687,7 +5773,7 @@ class LojaApp {
 
         const code = couponInput.value.trim().toUpperCase();
         const coupon = this.coupons.find(
-            (c) => c.code.toUpperCase() === code && c.active !== false
+            (c) => c.code.toUpperCase() === code && c.active !== false,
         );
 
         if (!coupon) {
@@ -5735,7 +5821,7 @@ class LojaApp {
         const quantityInput = document.getElementById('quickSaleQuantity');
         const discountType = document.getElementById('quickSaleDiscountType');
         const discountValueInput = document.getElementById(
-            'quickSaleDiscountValue'
+            'quickSaleDiscountValue',
         );
 
         const price = parseFloat(priceInput?.value) || 0;
@@ -5760,7 +5846,7 @@ class LojaApp {
         // Atualizar elementos visuais
         const subtotalEl = document.getElementById('quickSaleSubtotal');
         const discountAmountEl = document.getElementById(
-            'quickSaleDiscountAmount'
+            'quickSaleDiscountAmount',
         );
         const discountRow = document.getElementById('quickSaleDiscountRow');
         const totalEl = document.getElementById('quickSaleTotal');
@@ -5808,7 +5894,7 @@ class LojaApp {
                 const saleStockKey = this.getStockKey(
                     sale.itemId,
                     sale.size || '',
-                    sale.color || ''
+                    sale.color || '',
                 );
                 return saleStockKey === stockKey;
             })
@@ -5825,7 +5911,7 @@ class LojaApp {
 
         const itemId = document.getElementById('quickSaleItemId')?.value;
         const customerName = this.formatText(
-            document.getElementById('quickSaleCustomerName')?.value || ''
+            document.getElementById('quickSaleCustomerName')?.value || '',
         );
         const quantity =
             parseInt(document.getElementById('quickSaleQuantity')?.value) || 1;
@@ -5834,11 +5920,11 @@ class LojaApp {
         const size = document.getElementById('quickSaleSize')?.value || '';
         const color = document.getElementById('quickSaleColor')?.value || '';
         const discountType = document.getElementById(
-            'quickSaleDiscountType'
+            'quickSaleDiscountType',
         )?.value;
         const discountValue =
             parseFloat(
-                document.getElementById('quickSaleDiscountValue')?.value
+                document.getElementById('quickSaleDiscountValue')?.value,
             ) || 0;
 
         // Validações
@@ -5855,7 +5941,7 @@ class LojaApp {
         if (quantity <= 0 || price <= 0) {
             toast.warning(
                 'Quantidade e preço devem ser maiores que zero.',
-                3000
+                3000,
             );
             return;
         }
@@ -5879,7 +5965,7 @@ class LojaApp {
         if (!this.currentGroup || !this.currentSaleDay) {
             toast.warning(
                 'Selecione um mês e dia antes de registrar a venda.',
-                4000
+                4000,
             );
             return;
         }
@@ -5908,8 +5994,8 @@ class LojaApp {
                         this.getStockKey(
                             s.itemId,
                             s.size || '',
-                            s.color || ''
-                        ) === stockKey
+                            s.color || '',
+                        ) === stockKey,
                 )
                 .reduce((sum, s) => sum + s.quantity, 0);
             const available = stockQty - soldQty;
@@ -5917,7 +6003,7 @@ class LojaApp {
             if (stockQty > 0 && quantity > available) {
                 if (
                     !confirm(
-                        `Estoque disponível: ${available} un. Deseja registrar ${quantity} un. mesmo assim?`
+                        `Estoque disponível: ${available} un. Deseja registrar ${quantity} un. mesmo assim?`,
                     )
                 ) {
                     return;
@@ -5947,11 +6033,11 @@ class LojaApp {
             discount:
                 discountAmount > 0
                     ? {
-                        type: discountType,
-                        value: discountValue,
-                        amount: discountAmount,
-                        couponCode: window.quickSaleCouponCode || null,
-                    }
+                          type: discountType,
+                          value: discountValue,
+                          amount: discountAmount,
+                          couponCode: window.quickSaleCouponCode || null,
+                      }
                     : null,
         };
 
@@ -5998,7 +6084,7 @@ class LojaApp {
         // Incrementar uso do cupom se aplicado
         if (window.quickSaleCouponCode) {
             const coupon = this.coupons.find(
-                (c) => c.code === window.quickSaleCouponCode
+                (c) => c.code === window.quickSaleCouponCode,
             );
             if (coupon) {
                 coupon.uses = (coupon.uses || 0) + 1;
@@ -6017,15 +6103,15 @@ class LojaApp {
                 // (estoque disponível = estoque inicial - vendas)
                 console.log(
                     `✅ Estoque será abatido: ${quantity} un. do item ${this.getItemName(
-                        itemId
-                    )}`
+                        itemId,
+                    )}`,
                 );
             }
         }
 
         // Adicionar/atualizar cliente se não existir
         const existingClient = this.clients.find(
-            (c) => c.name.toLowerCase() === customerName.toLowerCase()
+            (c) => c.name.toLowerCase() === customerName.toLowerCase(),
         );
         if (!existingClient) {
             const newClient = {
@@ -6039,7 +6125,7 @@ class LojaApp {
             };
             this.clients.push(newClient);
             console.log(
-                `✅ Cliente "${customerName}" cadastrado automaticamente`
+                `✅ Cliente "${customerName}" cadastrado automaticamente`,
             );
         } else {
             // Adicionar pontos de fidelidade
@@ -6048,7 +6134,6 @@ class LojaApp {
 
         // 🔥 ABATER ESTOQUE MENSAL
         if (item.category !== 'Serviços') {
-
             this.registrarVenda(quantity);
         }
         // Salvar dados
@@ -6064,9 +6149,9 @@ class LojaApp {
         // Mostrar sucesso
         toast.success(
             `Venda registrada com sucesso!\nProduto: ${this.getItemName(
-                itemId
+                itemId,
             )}\nTotal: R$ ${totalValue.toFixed(2).replace('.', ',')}`,
-            4000
+            4000,
         );
 
         // Registrar no log
@@ -6074,7 +6159,7 @@ class LojaApp {
             'create',
             'sale',
             completedSale.id,
-            `Venda rápida via QR - ${this.getItemName(itemId)}`
+            `Venda rápida via QR - ${this.getItemName(itemId)}`,
         );
 
         console.log(`✅ Venda rápida concluída:`, completedSale);
@@ -6123,7 +6208,7 @@ class LojaApp {
         // Salvar no localStorage
         localStorage.setItem(
             'searchHistory',
-            JSON.stringify(this.searchHistory)
+            JSON.stringify(this.searchHistory),
         );
     }
 
@@ -6142,7 +6227,7 @@ class LojaApp {
         if (this.searchHistory.length === 0) return;
 
         let historyContainer = document.getElementById(
-            'searchHistoryContainer'
+            'searchHistoryContainer',
         );
         if (!historyContainer) {
             historyContainer = document.createElement('div');
@@ -6163,18 +6248,18 @@ class LojaApp {
             </div>
             <div class="search-history-list">
                 ${this.searchHistory
-                .map(
-                    (term) => `
+                    .map(
+                        (term) => `
                     <button class="search-history-item" onclick="app.selectSearchHistory('${term.replace(
                         /'/g,
-                        "\\'"
+                        "\\'",
                     )}')">
                         <i class="fas fa-history"></i>
                         <span>${this.escapeHtml(term)}</span>
                     </button>
-                `
-                )
-                .join('')}
+                `,
+                    )
+                    .join('')}
             </div>
         `;
 
@@ -6183,7 +6268,7 @@ class LojaApp {
 
     hideSearchHistory() {
         const historyContainer = document.getElementById(
-            'searchHistoryContainer'
+            'searchHistoryContainer',
         );
         if (historyContainer) {
             historyContainer.style.display = 'none';
@@ -6222,7 +6307,7 @@ class LojaApp {
 
         if (clientsList) {
             clientsCount = clientsList.querySelectorAll(
-                '.client-card, .item-card'
+                '.client-card, .item-card',
             ).length;
         }
 
@@ -6266,23 +6351,23 @@ class LojaApp {
         return `
             <div class="item-tags" style="display: flex; flex-wrap: wrap; gap: 0.5rem; margin: 0.75rem 0;">
                 ${tags
-                .map((tag) => {
-                    const color = getTagColor(tag);
-                    const textColor = this.getContrastColor(color);
-                    return `
+                    .map((tag) => {
+                        const color = getTagColor(tag);
+                        const textColor = this.getContrastColor(color);
+                        return `
                         <span class="item-tag" 
                               style="background-color: ${color}; color: ${textColor}; padding: 0.25rem 0.5rem; border-radius: 12px; font-size: 0.75rem; font-weight: 500; display: inline-flex; align-items: center; gap: 0.25rem; cursor: pointer; transition: all 0.2s;"
                               onclick="app.filterByTag('${tag.replace(
-                        /'/g,
-                        "\\'"
-                    )}')"
+                                  /'/g,
+                                  "\\'",
+                              )}')"
                               title="Clique para filtrar por esta tag">
                             <i class="fas fa-tag" style="font-size: 0.65rem;"></i>
                             ${this.escapeHtml(tag)}
                         </span>
                     `;
-                })
-                .join('')}
+                    })
+                    .join('')}
             </div>
         `;
     }
@@ -6359,7 +6444,7 @@ class LojaApp {
 
         // Filtrar apenas produtos físicos (excluir serviços) para o Painel de Vendas
         let filteredItems = this.items.filter(
-            (item) => item.category !== 'Serviços'
+            (item) => item.category !== 'Serviços',
         );
 
         // Filtro de pesquisa
@@ -6400,7 +6485,7 @@ class LojaApp {
                 return this.groups.some((group) => {
                     if (group.month === monthFilter) {
                         return group.days.some((day) =>
-                            day.sales.some((sale) => sale.itemId === item.id)
+                            day.sales.some((sale) => sale.itemId === item.id),
                         );
                     }
                     return false;
@@ -6422,26 +6507,29 @@ class LojaApp {
                     <div class="empty-state-icon">
                         <i class="fas fa-box-open"></i>
                     </div>
-                    <h3 class="empty-state-title">${searchTerm
-                    ? 'Nenhum item encontrado'
-                    : 'Nenhum produto cadastrado'
-                }</h3>
+                    <h3 class="empty-state-title">${
+                        searchTerm
+                            ? 'Nenhum item encontrado'
+                            : 'Nenhum produto cadastrado'
+                    }</h3>
                     <p class="empty-state-message">
-                        ${searchTerm
-                    ? 'Tente ajustar os filtros de pesquisa ou adicionar um novo produto.'
-                    : 'Comece adicionando seu primeiro produto ao sistema. Clique no botão abaixo para começar!'
-                }
+                        ${
+                            searchTerm
+                                ? 'Tente ajustar os filtros de pesquisa ou adicionar um novo produto.'
+                                : 'Comece adicionando seu primeiro produto ao sistema. Clique no botão abaixo para começar!'
+                        }
                     </p>
-                    ${!searchTerm
-                    ? `
+                    ${
+                        !searchTerm
+                            ? `
                         <div class="empty-state-action">
                             <button class="btn-primary" onclick="app.openItemModal()">
                                 <i class="fas fa-plus"></i> Adicionar Primeiro Produto
                             </button>
                         </div>
                     `
-                    : ''
-                }
+                            : ''
+                    }
                 </div>`;
             return;
         }
@@ -6453,45 +6541,51 @@ class LojaApp {
 
                 if (category === 'Roupas') {
                     categoryInfo = `
-                    ${item.style
+                    ${
+                        item.style
                             ? `<div class="item-info">Estilo: ${this.escapeHtml(
-                                item.style
-                            )}</div>`
+                                  item.style,
+                              )}</div>`
                             : ''
-                        }
-                    ${item.size
+                    }
+                    ${
+                        item.size
                             ? `<div class="item-info">Tamanho: ${this.escapeHtml(
-                                item.size
-                            )}</div>`
+                                  item.size,
+                              )}</div>`
                             : ''
-                        }
-                    ${item.gender
+                    }
+                    ${
+                        item.gender
                             ? `<div class="item-info">Gênero: ${this.escapeHtml(
-                                item.gender
-                            )}</div>`
+                                  item.gender,
+                              )}</div>`
                             : ''
-                        }
+                    }
                 `;
                 } else if (category === 'Eletrônicos') {
                     categoryInfo = `
-                    ${item.model
+                    ${
+                        item.model
                             ? `<div class="item-info">Modelo: ${this.escapeHtml(
-                                item.model
-                            )}</div>`
+                                  item.model,
+                              )}</div>`
                             : ''
-                        }
-                    ${item.capacity
+                    }
+                    ${
+                        item.capacity
                             ? `<div class="item-info">Capacidade: ${this.escapeHtml(
-                                item.capacity
-                            )}</div>`
+                                  item.capacity,
+                              )}</div>`
                             : ''
-                        }
-                    ${item.color
+                    }
+                    ${
+                        item.color
                             ? `<div class="item-info">Cor: ${this.escapeHtml(
-                                item.color
-                            )}</div>`
+                                  item.color,
+                              )}</div>`
                             : ''
-                        }
+                    }
                 `;
                 }
 
@@ -6530,35 +6624,38 @@ class LojaApp {
                 return `
             <div class="item-card">
                 <div class="item-category-badge ${badgeClass}">${this.escapeHtml(
-                    category
+                    category,
                 )}</div>
                 <h3>${this.escapeHtml(displayName)}</h3>
-                ${category === 'Roupas' && item.name
+                ${
+                    category === 'Roupas' && item.name
                         ? `<div class="item-info">Marca: ${this.escapeHtml(
-                            item.brand
-                        )}</div>`
+                              item.brand,
+                          )}</div>`
                         : ''
-                    }
+                }
                 ${categoryInfo}
                 ${this.renderItemTags(item.id)}
                 <div class="item-price">R$ ${item.price
-                        .toFixed(2)
-                        .replace('.', ',')}</div>
+                    .toFixed(2)
+                    .replace('.', ',')}</div>
                 <div class="item-actions">
-                    ${category !== 'Serviços'
-                        ? `<button class="btn-small btn-secondary btn-qr" onclick="app.showQRCodeModal('${item.id}')" title="Ver QR Code">
+                    ${
+                        category !== 'Serviços'
+                            ? `<button class="btn-small btn-secondary btn-qr" onclick="app.showQRCodeModal('${item.id}')" title="Ver QR Code">
                             <i class="fas fa-qrcode"></i><span class="btn-text">QR Code</span>
                         </button>`
-                        : ''
+                            : ''
                     }
                     <div class="item-actions-row">
                         <button class="btn-small btn-edit" onclick="app.openItemModal(${JSON.stringify(
-                        item
-                    ).replace(/"/g, '&quot;')})" title="Editar">
+                            item,
+                        ).replace(/"/g, '&quot;')})" title="Editar">
                             <i class="fas fa-pen"></i><span class="btn-text">Editar</span>
                         </button>
-                        <button class="btn-small btn-delete" onclick="app.deleteItem('${item.id
-                    }')" title="Excluir"><i class="fas fa-times"></i></button>
+                        <button class="btn-small btn-delete" onclick="app.deleteItem('${
+                            item.id
+                        }')" title="Excluir"><i class="fas fa-times"></i></button>
                     </div>
                 </div>
             </div>
@@ -6601,8 +6698,6 @@ class LojaApp {
         }
 
         this.openModalSafely(modal);
-
-
 
         // Configurar validação em tempo real
         if (typeof fieldValidator !== 'undefined') {
@@ -6675,7 +6770,7 @@ class LojaApp {
 
         tipos.push({
             id: Date.now().toString(),
-            name: input.value.trim()
+            name: input.value.trim(),
         });
 
         localStorage.setItem(storageKey, JSON.stringify(tipos));
@@ -6705,11 +6800,6 @@ class LojaApp {
         });
     }
 
-
-
-
-
-
     saveClient(e) {
         if (e) e.preventDefault();
 
@@ -6718,7 +6808,7 @@ class LojaApp {
             if (typeof toast !== 'undefined' && toast) {
                 toast.error(
                     'Você não tem permissão para criar/editar clientes.',
-                    3000
+                    3000,
                 );
             }
             return;
@@ -6762,7 +6852,7 @@ class LojaApp {
         let previousData = null;
         if (this.currentEditingClient) {
             const index = this.clients.findIndex(
-                (c) => c.id === this.currentEditingClient.id
+                (c) => c.id === this.currentEditingClient.id,
             );
             if (index !== -1) {
                 // Salvar cópia dos dados anteriores antes de atualizar
@@ -6787,7 +6877,7 @@ class LojaApp {
                 cpf: client.cpf || null,
                 phone: client.phone || null,
                 previousData: previousData, // Dados anteriores para reversão
-            }
+            },
         );
 
         // Registrar acesso a dados pessoais (LGPD)
@@ -6795,8 +6885,9 @@ class LojaApp {
             this.currentEditingClient ? 'update' : 'create',
             'client',
             client.id,
-            `${this.currentEditingClient ? 'Atualização' : 'Criação'
-            } de cliente: ${client.name}`
+            `${
+                this.currentEditingClient ? 'Atualização' : 'Criação'
+            } de cliente: ${client.name}`,
         );
 
         if (typeof toast !== 'undefined' && toast) {
@@ -6804,7 +6895,7 @@ class LojaApp {
                 this.currentEditingClient
                     ? 'Cliente atualizado com sucesso!'
                     : 'Cliente cadastrado com sucesso!',
-                3000
+                3000,
             );
         }
     }
@@ -6815,7 +6906,7 @@ class LojaApp {
             if (typeof toast !== 'undefined' && toast) {
                 toast.error(
                     'Você não tem permissão para excluir clientes.',
-                    3000
+                    3000,
                 );
             }
             return;
@@ -6834,7 +6925,7 @@ class LojaApp {
                 'delete',
                 'client',
                 clientId,
-                `Exclusão de cliente: ${clientName}`
+                `Exclusão de cliente: ${clientName}`,
             );
 
             this.saveData();
@@ -6843,7 +6934,7 @@ class LojaApp {
             if (typeof toast !== 'undefined' && toast) {
                 toast.success(
                     `Cliente "${clientName}" excluído com sucesso!`,
-                    3000
+                    3000,
                 );
             }
         };
@@ -6852,7 +6943,7 @@ class LojaApp {
             confirmDialog
                 .danger(
                     `Tem certeza que deseja excluir "${clientName}"? Esta ação não pode ser desfeita.`,
-                    'Excluir Cliente'
+                    'Excluir Cliente',
                 )
                 .then(performDelete);
         } else {
@@ -6876,7 +6967,7 @@ class LojaApp {
                 (client) =>
                     client.name.toLowerCase().includes(searchTerm) ||
                     (client.cpf && client.cpf.includes(searchTerm)) ||
-                    (client.phone && client.phone.includes(searchTerm))
+                    (client.phone && client.phone.includes(searchTerm)),
             );
         }
 
@@ -6896,26 +6987,29 @@ class LojaApp {
                     <div class="empty-state-icon">
                         <i class="fas fa-users"></i>
                     </div>
-                    <h3 class="empty-state-title">${searchTerm
-                    ? 'Nenhum cliente encontrado'
-                    : 'Nenhum cliente cadastrado'
-                }</h3>
+                    <h3 class="empty-state-title">${
+                        searchTerm
+                            ? 'Nenhum cliente encontrado'
+                            : 'Nenhum cliente cadastrado'
+                    }</h3>
                     <p class="empty-state-message">
-                        ${searchTerm
-                    ? 'Tente ajustar os termos de busca ou cadastrar um novo cliente.'
-                    : 'Comece cadastrando seus clientes para facilitar o controle de vendas e histórico de compras.'
-                }
+                        ${
+                            searchTerm
+                                ? 'Tente ajustar os termos de busca ou cadastrar um novo cliente.'
+                                : 'Comece cadastrando seus clientes para facilitar o controle de vendas e histórico de compras.'
+                        }
                     </p>
-                    ${!searchTerm
-                    ? `
+                    ${
+                        !searchTerm
+                            ? `
                         <div class="empty-state-action">
                             <button class="btn-primary" onclick="app.openClientModal()">
                                 <i class="fas fa-user-plus"></i> Cadastrar Primeiro Cliente
                             </button>
                         </div>
                     `
-                    : ''
-                }
+                            : ''
+                    }
                 </div>`;
             return;
         }
@@ -6923,7 +7017,7 @@ class LojaApp {
         container.innerHTML = filteredClients
             .map((client) => {
                 const purchaseCount = this.completedSales.filter(
-                    (sale) => sale.customerName === client.name
+                    (sale) => sale.customerName === client.name,
                 ).length;
                 const totalSpent = this.completedSales
                     .filter((sale) => sale.customerName === client.name)
@@ -6934,54 +7028,64 @@ class LojaApp {
                     <div class="item-header">
                         <h3>${this.escapeHtml(client.name)}</h3>
                         <div class="item-actions">
-                            <button class="btn-small btn-edit" onclick="app.openClientModal('${client.id
-                    }')" title="Editar">
+                            <button class="btn-small btn-edit" onclick="app.openClientModal('${
+                                client.id
+                            }')" title="Editar">
                                 <i class="fas fa-edit"></i>
                             </button>
-                            <button class="btn-small btn-delete" onclick="app.deleteClient('${client.id
-                    }')" title="Excluir">
+                            <button class="btn-small btn-delete" onclick="app.deleteClient('${
+                                client.id
+                            }')" title="Excluir">
                                 <i class="fas fa-times"></i>
                             </button>
                         </div>
                     </div>
                     <div class="item-details">
-                        ${client.cpf
-                        ? `<p><i class="fas fa-id-card"></i> CPF: ${this.escapeHtml(
+                        ${
                             client.cpf
-                        )}</p>`
-                        : ''
-                    }
-                        ${client.phone
-                        ? `<p><i class="fas fa-phone"></i> ${this.escapeHtml(
+                                ? `<p><i class="fas fa-id-card"></i> CPF: ${this.escapeHtml(
+                                      client.cpf,
+                                  )}</p>`
+                                : ''
+                        }
+                        ${
                             client.phone
-                        )}</p>`
-                        : ''
-                    }
-                        ${client.email
-                        ? `<p><i class="fas fa-envelope"></i> ${this.escapeHtml(
+                                ? `<p><i class="fas fa-phone"></i> ${this.escapeHtml(
+                                      client.phone,
+                                  )}</p>`
+                                : ''
+                        }
+                        ${
                             client.email
-                        )}</p>`
-                        : ''
-                    }
-                        ${purchaseCount > 0
-                        ? `<p><i class="fas fa-shopping-cart"></i> ${purchaseCount} compra${purchaseCount > 1 ? 's' : ''
-                        }</p>`
-                        : ''
-                    }
-                        ${totalSpent > 0
-                        ? `<p><i class="fas fa-dollar-sign"></i> Total: R$ ${totalSpent
-                            .toFixed(2)
-                            .replace('.', ',')}</p>`
-                        : ''
-                    }
-                        ${client.loyaltyPoints > 0
-                        ? `<p><i class="fas fa-star" style="color: #ffc107;"></i> ${client.loyaltyPoints} pontos de fidelidade</p>`
-                        : ''
-                    }
-                        ${client.receiveNotifications
-                        ? `<p><i class="fas fa-bell" style="color: #28a745;"></i> Recebe notificações</p>`
-                        : ''
-                    }
+                                ? `<p><i class="fas fa-envelope"></i> ${this.escapeHtml(
+                                      client.email,
+                                  )}</p>`
+                                : ''
+                        }
+                        ${
+                            purchaseCount > 0
+                                ? `<p><i class="fas fa-shopping-cart"></i> ${purchaseCount} compra${
+                                      purchaseCount > 1 ? 's' : ''
+                                  }</p>`
+                                : ''
+                        }
+                        ${
+                            totalSpent > 0
+                                ? `<p><i class="fas fa-dollar-sign"></i> Total: R$ ${totalSpent
+                                      .toFixed(2)
+                                      .replace('.', ',')}</p>`
+                                : ''
+                        }
+                        ${
+                            client.loyaltyPoints > 0
+                                ? `<p><i class="fas fa-star" style="color: #ffc107;"></i> ${client.loyaltyPoints} pontos de fidelidade</p>`
+                                : ''
+                        }
+                        ${
+                            client.receiveNotifications
+                                ? `<p><i class="fas fa-bell" style="color: #28a745;"></i> Recebe notificações</p>`
+                                : ''
+                        }
                     </div>
                 </div>
             `;
@@ -7057,7 +7161,7 @@ class LojaApp {
             if (typeof toast !== 'undefined' && toast) {
                 toast.error(
                     'Você não tem permissão para criar/editar fornecedores.',
-                    3000
+                    3000,
                 );
             }
             return;
@@ -7096,12 +7200,12 @@ class LojaApp {
         let previousData = null;
         if (this.currentEditingSupplier) {
             const index = this.suppliers.findIndex(
-                (s) => s.id === this.currentEditingSupplier.id
+                (s) => s.id === this.currentEditingSupplier.id,
             );
             if (index !== -1) {
                 // Salvar cópia dos dados anteriores antes de atualizar
                 previousData = JSON.parse(
-                    JSON.stringify(this.suppliers[index])
+                    JSON.stringify(this.suppliers[index]),
                 );
                 this.suppliers[index] = supplier;
             }
@@ -7123,7 +7227,7 @@ class LojaApp {
                 name: supplier.name,
                 rating: supplier.rating,
                 previousData: previousData, // Dados anteriores para reversão
-            }
+            },
         );
 
         // Registrar acesso a dados pessoais (LGPD)
@@ -7131,8 +7235,9 @@ class LojaApp {
             this.currentEditingSupplier ? 'update' : 'create',
             'supplier',
             supplier.id,
-            `${this.currentEditingSupplier ? 'Atualização' : 'Criação'
-            } de fornecedor: ${supplier.name}`
+            `${
+                this.currentEditingSupplier ? 'Atualização' : 'Criação'
+            } de fornecedor: ${supplier.name}`,
         );
 
         if (typeof toast !== 'undefined' && toast) {
@@ -7140,7 +7245,7 @@ class LojaApp {
                 this.currentEditingSupplier
                     ? 'Fornecedor atualizado com sucesso!'
                     : 'Fornecedor cadastrado com sucesso!',
-                3000
+                3000,
             );
         }
     }
@@ -7151,7 +7256,7 @@ class LojaApp {
             if (typeof toast !== 'undefined' && toast) {
                 toast.error(
                     'Você não tem permissão para excluir fornecedores.',
-                    3000
+                    3000,
                 );
             }
             return;
@@ -7170,7 +7275,7 @@ class LojaApp {
                 'delete',
                 'supplier',
                 supplierId,
-                `Exclusão de fornecedor: ${supplierName}`
+                `Exclusão de fornecedor: ${supplierName}`,
             );
 
             this.saveData();
@@ -7182,7 +7287,7 @@ class LojaApp {
             if (typeof toast !== 'undefined' && toast) {
                 toast.success(
                     `Fornecedor "${supplierName}" excluído com sucesso!`,
-                    3000
+                    3000,
                 );
             }
         };
@@ -7191,13 +7296,13 @@ class LojaApp {
             confirmDialog
                 .danger(
                     `Tem certeza que deseja excluir o fornecedor "${supplierName}"? Esta ação não pode ser desfeita.`,
-                    'Excluir Fornecedor'
+                    'Excluir Fornecedor',
                 )
                 .then(performDelete);
         } else {
             if (
                 confirm(
-                    `Tem certeza que deseja excluir o fornecedor "${supplierName}"?`
+                    `Tem certeza que deseja excluir o fornecedor "${supplierName}"?`,
                 )
             ) {
                 performDelete(true);
@@ -7219,7 +7324,7 @@ class LojaApp {
                 (supplier) =>
                     supplier.name.toLowerCase().includes(searchTerm) ||
                     (supplier.cnpj && supplier.cnpj.includes(searchTerm)) ||
-                    (supplier.phone && supplier.phone.includes(searchTerm))
+                    (supplier.phone && supplier.phone.includes(searchTerm)),
             );
         }
 
@@ -7239,26 +7344,29 @@ class LojaApp {
                     <div class="empty-state-icon">
                         <i class="fas fa-truck"></i>
                     </div>
-                    <h3 class="empty-state-title">${searchTerm
-                    ? 'Nenhum fornecedor encontrado'
-                    : 'Nenhum fornecedor cadastrado'
-                }</h3>
+                    <h3 class="empty-state-title">${
+                        searchTerm
+                            ? 'Nenhum fornecedor encontrado'
+                            : 'Nenhum fornecedor cadastrado'
+                    }</h3>
                     <p class="empty-state-message">
-                        ${searchTerm
-                    ? 'Tente ajustar os termos de busca ou cadastrar um novo fornecedor.'
-                    : 'Comece cadastrando seus fornecedores para facilitar o controle de compras e custos.'
-                }
+                        ${
+                            searchTerm
+                                ? 'Tente ajustar os termos de busca ou cadastrar um novo fornecedor.'
+                                : 'Comece cadastrando seus fornecedores para facilitar o controle de compras e custos.'
+                        }
                     </p>
-                    ${!searchTerm
-                    ? `
+                    ${
+                        !searchTerm
+                            ? `
                         <div class="empty-state-action">
                             <button class="btn-primary" onclick="app.openSupplierModal()">
                                 <i class="fas fa-truck"></i> Cadastrar Primeiro Fornecedor
                             </button>
                         </div>
                     `
-                    : ''
-                }
+                            : ''
+                    }
                 </div>`;
             return;
         }
@@ -7267,7 +7375,7 @@ class LojaApp {
             .map((supplier) => {
                 // Calcular histórico de compras (custos relacionados)
                 const purchaseCount = this.costs.filter(
-                    (cost) => cost.supplierId === supplier.id
+                    (cost) => cost.supplierId === supplier.id,
                 ).length;
                 const totalPurchases = this.costs
                     .filter((cost) => cost.supplierId === supplier.id)
@@ -7278,55 +7386,64 @@ class LojaApp {
                     <div class="item-header">
                         <h3>${this.escapeHtml(supplier.name)}</h3>
                         <div class="item-actions">
-                            <button class="btn-small btn-edit" onclick="app.openSupplierModal('${supplier.id
-                    }')" title="Editar">
+                            <button class="btn-small btn-edit" onclick="app.openSupplierModal('${
+                                supplier.id
+                            }')" title="Editar">
                                 <i class="fas fa-edit"></i>
                             </button>
-                            <button class="btn-small btn-delete" onclick="app.deleteSupplier('${supplier.id
-                    }')" title="Excluir">
+                            <button class="btn-small btn-delete" onclick="app.deleteSupplier('${
+                                supplier.id
+                            }')" title="Excluir">
                                 <i class="fas fa-times"></i>
                             </button>
                         </div>
                     </div>
                     <div class="item-details">
-                        ${supplier.cnpj
-                        ? `<p><i class="fas fa-id-card"></i> CNPJ: ${this.escapeHtml(
+                        ${
                             supplier.cnpj
-                        )}</p>`
-                        : ''
-                    }
-                        ${supplier.contactName
-                        ? `<p><i class="fas fa-user"></i> Contato: ${this.escapeHtml(
+                                ? `<p><i class="fas fa-id-card"></i> CNPJ: ${this.escapeHtml(
+                                      supplier.cnpj,
+                                  )}</p>`
+                                : ''
+                        }
+                        ${
                             supplier.contactName
-                        )}</p>`
-                        : ''
-                    }
-                        ${supplier.phone
-                        ? `<p><i class="fas fa-phone"></i> ${this.escapeHtml(
+                                ? `<p><i class="fas fa-user"></i> Contato: ${this.escapeHtml(
+                                      supplier.contactName,
+                                  )}</p>`
+                                : ''
+                        }
+                        ${
                             supplier.phone
-                        )}</p>`
-                        : ''
-                    }
-                        ${supplier.email
-                        ? `<p><i class="fas fa-envelope"></i> ${this.escapeHtml(
+                                ? `<p><i class="fas fa-phone"></i> ${this.escapeHtml(
+                                      supplier.phone,
+                                  )}</p>`
+                                : ''
+                        }
+                        ${
                             supplier.email
-                        )}</p>`
-                        : ''
-                    }
+                                ? `<p><i class="fas fa-envelope"></i> ${this.escapeHtml(
+                                      supplier.email,
+                                  )}</p>`
+                                : ''
+                        }
                         <p><i class="fas fa-star" style="color: #ffc107;"></i> Avaliação: ${'⭐'.repeat(
-                        supplier.rating || 3
-                    )} (${supplier.rating || 3}/5)</p>
-                        ${purchaseCount > 0
-                        ? `<p><i class="fas fa-shopping-cart"></i> ${purchaseCount} compra${purchaseCount > 1 ? 's' : ''
-                        }</p>`
-                        : ''
-                    }
-                        ${totalPurchases > 0
-                        ? `<p><i class="fas fa-dollar-sign"></i> Total: R$ ${totalPurchases
-                            .toFixed(2)
-                            .replace('.', ',')}</p>`
-                        : ''
-                    }
+                            supplier.rating || 3,
+                        )} (${supplier.rating || 3}/5)</p>
+                        ${
+                            purchaseCount > 0
+                                ? `<p><i class="fas fa-shopping-cart"></i> ${purchaseCount} compra${
+                                      purchaseCount > 1 ? 's' : ''
+                                  }</p>`
+                                : ''
+                        }
+                        ${
+                            totalPurchases > 0
+                                ? `<p><i class="fas fa-dollar-sign"></i> Total: R$ ${totalPurchases
+                                      .toFixed(2)
+                                      .replace('.', ',')}</p>`
+                                : ''
+                        }
                     </div>
                 </div>
             `;
@@ -7449,7 +7566,7 @@ class LojaApp {
             if (typeof toast !== 'undefined' && toast) {
                 toast.warning(
                     'Por favor, informe um valor válido para o desconto.',
-                    3000
+                    3000,
                 );
             }
             return;
@@ -7459,7 +7576,7 @@ class LojaApp {
             if (typeof toast !== 'undefined' && toast) {
                 toast.warning(
                     'O desconto percentual não pode ser maior que 100%.',
-                    3000
+                    3000,
                 );
             }
             return;
@@ -7470,7 +7587,7 @@ class LojaApp {
             (c) =>
                 c.code === code &&
                 (!this.currentEditingCoupon ||
-                    c.id !== this.currentEditingCoupon.id)
+                    c.id !== this.currentEditingCoupon.id),
         );
         if (existingCoupon) {
             if (typeof toast !== 'undefined' && toast) {
@@ -7505,7 +7622,7 @@ class LojaApp {
         let previousData = null;
         if (this.currentEditingCoupon) {
             const index = this.coupons.findIndex(
-                (c) => c.id === this.currentEditingCoupon.id
+                (c) => c.id === this.currentEditingCoupon.id,
             );
             if (index !== -1) {
                 // Salvar cópia dos dados anteriores antes de atualizar
@@ -7530,7 +7647,7 @@ class LojaApp {
                 type: coupon.type,
                 value: coupon.value,
                 previousData: previousData, // Dados anteriores para reversão
-            }
+            },
         );
 
         if (typeof toast !== 'undefined' && toast) {
@@ -7538,7 +7655,7 @@ class LojaApp {
                 this.currentEditingCoupon
                     ? 'Cupom atualizado com sucesso!'
                     : 'Cupom cadastrado com sucesso!',
-                3000
+                3000,
             );
         }
     }
@@ -7556,7 +7673,7 @@ class LojaApp {
             if (typeof toast !== 'undefined' && toast) {
                 toast.success(
                     `Cupom "${couponCode}" excluído com sucesso!`,
-                    3000
+                    3000,
                 );
             }
         };
@@ -7565,13 +7682,13 @@ class LojaApp {
             confirmDialog
                 .danger(
                     `Tem certeza que deseja excluir o cupom "${couponCode}"? Esta ação não pode ser desfeita.`,
-                    'Excluir Cupom'
+                    'Excluir Cupom',
                 )
                 .then(performDelete);
         } else {
             if (
                 confirm(
-                    `Tem certeza que deseja excluir o cupom "${couponCode}"?`
+                    `Tem certeza que deseja excluir o cupom "${couponCode}"?`,
                 )
             ) {
                 performDelete(true);
@@ -7626,66 +7743,80 @@ class LojaApp {
                     <div class="item-header">
                         <h3>${this.escapeHtml(coupon.code)}</h3>
                         <div class="item-actions">
-                            <button class="btn-small btn-edit" onclick="app.openCouponModal('${coupon.id
-                    }')" title="Editar">
+                            <button class="btn-small btn-edit" onclick="app.openCouponModal('${
+                                coupon.id
+                            }')" title="Editar">
                                 <i class="fas fa-edit"></i>
                             </button>
-                            <button class="btn-small btn-delete" onclick="app.deleteCoupon('${coupon.id
-                    }')" title="Excluir">
+                            <button class="btn-small btn-delete" onclick="app.deleteCoupon('${
+                                coupon.id
+                            }')" title="Excluir">
                                 <i class="fas fa-times"></i>
                             </button>
                         </div>
                     </div>
                     <div class="item-details">
-                        <p><i class="fas fa-percent"></i> Tipo: ${coupon.type === 'percent'
-                        ? 'Percentual'
-                        : 'Valor Fixo'
-                    }</p>
-                        <p><i class="fas fa-dollar-sign"></i> Desconto: ${coupon.type === 'percent'
-                        ? `${coupon.value}%`
-                        : `R$ ${coupon.value
-                            .toFixed(2)
-                            .replace('.', ',')}`
-                    }</p>
-                        ${coupon.description
-                        ? `<p><i class="fas fa-info-circle"></i> ${this.escapeHtml(
+                        <p><i class="fas fa-percent"></i> Tipo: ${
+                            coupon.type === 'percent'
+                                ? 'Percentual'
+                                : 'Valor Fixo'
+                        }</p>
+                        <p><i class="fas fa-dollar-sign"></i> Desconto: ${
+                            coupon.type === 'percent'
+                                ? `${coupon.value}%`
+                                : `R$ ${coupon.value
+                                      .toFixed(2)
+                                      .replace('.', ',')}`
+                        }</p>
+                        ${
                             coupon.description
-                        )}</p>`
-                        : ''
-                    }
-                        ${coupon.startsAt
-                        ? `<p><i class="fas fa-calendar-check"></i> Início: ${new Date(
+                                ? `<p><i class="fas fa-info-circle"></i> ${this.escapeHtml(
+                                      coupon.description,
+                                  )}</p>`
+                                : ''
+                        }
+                        ${
                             coupon.startsAt
-                        ).toLocaleDateString('pt-BR')}</p>`
-                        : ''
-                    }
-                        ${coupon.expiresAt
-                        ? `<p><i class="fas fa-calendar-times"></i> Expira em: ${new Date(
+                                ? `<p><i class="fas fa-calendar-check"></i> Início: ${new Date(
+                                      coupon.startsAt,
+                                  ).toLocaleDateString('pt-BR')}</p>`
+                                : ''
+                        }
+                        ${
                             coupon.expiresAt
-                        ).toLocaleDateString('pt-BR')}</p>`
-                        : ''
-                    }
-                        ${coupon.minQuantity
-                        ? `<p><i class="fas fa-shopping-bag"></i> Qtd. mínima: ${coupon.minQuantity} unidade(s)</p>`
-                        : ''
-                    }
-                        ${coupon.maxUses
-                        ? `<p><i class="fas fa-times-circle"></i> Limite: ${coupon.maxUses
-                        } uso${coupon.maxUses > 1 ? 's' : ''}</p>`
-                        : ''
-                    }
-                        <p><i class="fas fa-chart-line"></i> Usado: ${coupon.uses || 0
-                    } vez${(coupon.uses || 0) !== 1 ? 'es' : ''}</p>
-                        <p><i class="fas fa-${isActive ? 'check-circle' : 'times-circle'
-                    }" style="color: ${isActive ? '#28a745' : '#dc3545'
-                    };"></i> Status: ${isActive
-                        ? 'Ativo'
-                        : isExpired
-                            ? 'Expirado'
-                            : isMaxUsesReached
-                                ? 'Limite atingido'
-                                : 'Inativo'
-                    }</p>
+                                ? `<p><i class="fas fa-calendar-times"></i> Expira em: ${new Date(
+                                      coupon.expiresAt,
+                                  ).toLocaleDateString('pt-BR')}</p>`
+                                : ''
+                        }
+                        ${
+                            coupon.minQuantity
+                                ? `<p><i class="fas fa-shopping-bag"></i> Qtd. mínima: ${coupon.minQuantity} unidade(s)</p>`
+                                : ''
+                        }
+                        ${
+                            coupon.maxUses
+                                ? `<p><i class="fas fa-times-circle"></i> Limite: ${
+                                      coupon.maxUses
+                                  } uso${coupon.maxUses > 1 ? 's' : ''}</p>`
+                                : ''
+                        }
+                        <p><i class="fas fa-chart-line"></i> Usado: ${
+                            coupon.uses || 0
+                        } vez${(coupon.uses || 0) !== 1 ? 'es' : ''}</p>
+                        <p><i class="fas fa-${
+                            isActive ? 'check-circle' : 'times-circle'
+                        }" style="color: ${
+                            isActive ? '#28a745' : '#dc3545'
+                        };"></i> Status: ${
+                            isActive
+                                ? 'Ativo'
+                                : isExpired
+                                  ? 'Expirado'
+                                  : isMaxUsesReached
+                                    ? 'Limite atingido'
+                                    : 'Inativo'
+                        }</p>
                     </div>
                 </div>
             `;
@@ -7748,9 +7879,9 @@ class LojaApp {
             if (typeof toast !== 'undefined' && toast) {
                 toast.error(
                     `Este cupom ainda não está ativo. Válido a partir de ${new Date(
-                        coupon.startsAt
+                        coupon.startsAt,
                     ).toLocaleDateString('pt-BR')}.`,
-                    4000
+                    4000,
                 );
             }
             return;
@@ -7773,13 +7904,13 @@ class LojaApp {
 
         // Verificar quantidade mínima (desconto por quantidade)
         const saleQuantity = parseInt(
-            document.getElementById('saleQuantity')?.value || 0
+            document.getElementById('saleQuantity')?.value || 0,
         );
         if (coupon.minQuantity && saleQuantity < coupon.minQuantity) {
             if (typeof toast !== 'undefined' && toast) {
                 toast.warning(
                     `Este cupom requer compra mínima de ${coupon.minQuantity} unidade(s). Quantidade atual: ${saleQuantity}.`,
-                    4000
+                    4000,
                 );
             }
             return;
@@ -7807,7 +7938,7 @@ class LojaApp {
             if (typeof toast !== 'undefined' && toast) {
                 toast.success(
                     `Cupom "${coupon.code}" aplicado com sucesso!`,
-                    3000
+                    3000,
                 );
             }
         }
@@ -7954,7 +8085,7 @@ class LojaApp {
                 if (typeof toast !== 'undefined' && toast) {
                     toast.warning(
                         'Por favor, selecione o tipo de relatório.',
-                        3000
+                        3000,
                     );
                 }
                 return;
@@ -7989,7 +8120,7 @@ class LojaApp {
 
         if (this.currentEditingTemplate) {
             const index = this.templates.findIndex(
-                (t) => t.id === this.currentEditingTemplate.id
+                (t) => t.id === this.currentEditingTemplate.id,
             );
             if (index !== -1) {
                 this.templates[index] = template;
@@ -8008,7 +8139,7 @@ class LojaApp {
             'template',
             template.id,
             template.name,
-            { type: template.type }
+            { type: template.type },
         );
 
         if (typeof toast !== 'undefined' && toast) {
@@ -8016,7 +8147,7 @@ class LojaApp {
                 this.currentEditingTemplate
                     ? 'Template atualizado com sucesso!'
                     : 'Template criado com sucesso!',
-                3000
+                3000,
             );
         }
     }
@@ -8038,7 +8169,7 @@ class LojaApp {
             if (typeof toast !== 'undefined' && toast) {
                 toast.success(
                     `Template "${templateName}" excluído com sucesso!`,
-                    3000
+                    3000,
                 );
             }
         };
@@ -8047,13 +8178,13 @@ class LojaApp {
             confirmDialog
                 .danger(
                     `Tem certeza que deseja excluir o template "${templateName}"? Esta ação não pode ser desfeita.`,
-                    'Excluir Template'
+                    'Excluir Template',
                 )
                 .then(performDelete);
         } else {
             if (
                 confirm(
-                    `Tem certeza que deseja excluir o template "${templateName}"?`
+                    `Tem certeza que deseja excluir o template "${templateName}"?`,
                 )
             ) {
                 performDelete(true);
@@ -8112,22 +8243,25 @@ class LojaApp {
             .map((template) => {
                 let details = '';
                 if (template.type === 'product' && template.data) {
-                    details = `<p><i class="fas fa-tag"></i> Categoria: ${template.data.category || 'N/A'
-                        }</p>
+                    details = `<p><i class="fas fa-tag"></i> Categoria: ${
+                        template.data.category || 'N/A'
+                    }</p>
                                <p><i class="fas fa-dollar-sign"></i> Preço: R$ ${(
-                            template.data.price || 0
-                        )
-                            .toFixed(2)
-                            .replace('.', ',')}</p>`;
+                                   template.data.price || 0
+                               )
+                                   .toFixed(2)
+                                   .replace('.', ',')}</p>`;
                 } else if (template.type === 'sale' && template.data) {
-                    details = `<p><i class="fas fa-shopping-bag"></i> Qtd. padrão: ${template.data.quantity || 1
-                        }</p>
+                    details = `<p><i class="fas fa-shopping-bag"></i> Qtd. padrão: ${
+                        template.data.quantity || 1
+                    }</p>
                                <p><i class="fas fa-percent"></i> Desconto: ${(
-                            template.data.discount || 0
-                        ).toFixed(1)}%</p>`;
+                                   template.data.discount || 0
+                               ).toFixed(1)}%</p>`;
                 } else if (template.type === 'service' && template.data) {
-                    details = `<p><i class="fas fa-clock"></i> Duração: ${template.data.hours || 0
-                        }h ${template.data.minutes || 0}min</p>`;
+                    details = `<p><i class="fas fa-clock"></i> Duração: ${
+                        template.data.hours || 0
+                    }h ${template.data.minutes || 0}min</p>`;
                 } else if (template.type === 'report' && template.data) {
                     const reportTypeNames = {
                         sales: 'Vendas',
@@ -8137,47 +8271,56 @@ class LojaApp {
                         financial: 'Financeiro',
                         custom: 'Personalizado',
                     };
-                    details = `<p><i class="fas fa-chart-line"></i> Tipo: ${reportTypeNames[template.data.reportType] ||
+                    details = `<p><i class="fas fa-chart-line"></i> Tipo: ${
+                        reportTypeNames[template.data.reportType] ||
                         template.data.reportType
-                        }</p>
-                               <p><i class="fas fa-calendar"></i> Período: ${template.data.period || 'Este Mês'
-                        }</p>
-                               <p><i class="fas fa-file"></i> Formato: ${template.data.format?.toUpperCase() || 'PDF'
-                        }</p>`;
+                    }</p>
+                               <p><i class="fas fa-calendar"></i> Período: ${
+                                   template.data.period || 'Este Mês'
+                               }</p>
+                               <p><i class="fas fa-file"></i> Formato: ${
+                                   template.data.format?.toUpperCase() || 'PDF'
+                               }</p>`;
                 }
 
                 return `
                 <div class="item-card">
                     <div class="item-header">
                         <div style="display: flex; align-items: center; gap: 0.5rem;">
-                            <i class="fas ${typeIcons[template.type] || 'fa-file'
-                    }" style="color: var(--primary-color);"></i>
+                            <i class="fas ${
+                                typeIcons[template.type] || 'fa-file'
+                            }" style="color: var(--primary-color);"></i>
                             <h3>${this.escapeHtml(template.name)}</h3>
                         </div>
                         <div class="item-actions">
-                            <button class="btn-small btn-secondary" onclick="app.useTemplate('${template.id
-                    }')" title="Usar Template">
+                            <button class="btn-small btn-secondary" onclick="app.useTemplate('${
+                                template.id
+                            }')" title="Usar Template">
                                 <i class="fas fa-check"></i>
                             </button>
-                            <button class="btn-small btn-edit" onclick="app.openTemplateModal('${template.id
-                    }')" title="Editar">
+                            <button class="btn-small btn-edit" onclick="app.openTemplateModal('${
+                                template.id
+                            }')" title="Editar">
                                 <i class="fas fa-edit"></i>
                             </button>
-                            <button class="btn-small btn-delete" onclick="app.deleteTemplate('${template.id
-                    }')" title="Excluir">
+                            <button class="btn-small btn-delete" onclick="app.deleteTemplate('${
+                                template.id
+                            }')" title="Excluir">
                                 <i class="fas fa-times"></i>
                             </button>
                         </div>
                     </div>
                     <div class="item-details">
-                        <p><i class="fas fa-file-alt"></i> Tipo: ${typeNames[template.type] || template.type
-                    }</p>
-                        ${template.description
-                        ? `<p><i class="fas fa-info-circle"></i> ${this.escapeHtml(
+                        <p><i class="fas fa-file-alt"></i> Tipo: ${
+                            typeNames[template.type] || template.type
+                        }</p>
+                        ${
                             template.description
-                        )}</p>`
-                        : ''
-                    }
+                                ? `<p><i class="fas fa-info-circle"></i> ${this.escapeHtml(
+                                      template.description,
+                                  )}</p>`
+                                : ''
+                        }
                         ${details}
                     </div>
                 </div>
@@ -8206,7 +8349,7 @@ class LojaApp {
                 if (typeof toast !== 'undefined' && toast) {
                     toast.success(
                         `Template "${template.name}" aplicado! Preencha os campos restantes.`,
-                        3000
+                        3000,
                     );
                 }
             }, 100);
@@ -8235,7 +8378,7 @@ class LojaApp {
             // Aplicar template em serviço (se modal estiver aberto)
             const serviceHours = document.getElementById('serviceRecordHours');
             const serviceMinutes = document.getElementById(
-                'serviceRecordMinutes'
+                'serviceRecordMinutes',
             );
 
             if (serviceHours && template.data.hours !== undefined) {
@@ -8252,14 +8395,14 @@ class LojaApp {
             if (typeof toast !== 'undefined' && toast) {
                 toast.info(
                     `Gerando relatório com template "${template.name}"...`,
-                    3000
+                    3000,
                 );
             }
 
             // Armazenar configurações do template para uso posterior
             sessionStorage.setItem(
                 'reportTemplate',
-                JSON.stringify(template.data)
+                JSON.stringify(template.data),
             );
 
             // Navegar para a aba de relatórios ou abrir modal de relatórios se existir
@@ -8277,7 +8420,7 @@ class LojaApp {
                 if (typeof toast !== 'undefined' && toast) {
                     toast.success(
                         `Template de relatório "${template.name}" aplicado! Configure o período e gere o relatório.`,
-                        4000
+                        4000,
                     );
                 }
             }, 500);
@@ -8318,7 +8461,7 @@ class LojaApp {
             if (typeof toast !== 'undefined' && toast) {
                 toast.error(
                     'Você não tem permissão para exportar templates.',
-                    3000
+                    3000,
                 );
             } else {
                 alert('Você não tem permissão para exportar templates.');
@@ -8348,8 +8491,9 @@ class LojaApp {
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
-        a.download = `templates_export_${new Date().toISOString().split('T')[0]
-            }.json`;
+        a.download = `templates_export_${
+            new Date().toISOString().split('T')[0]
+        }.json`;
         document.body.appendChild(a);
         a.click();
         document.body.removeChild(a);
@@ -8360,17 +8504,17 @@ class LojaApp {
             'export',
             'template',
             null,
-            `Exportação de ${this.templates.length} template(s)`
+            `Exportação de ${this.templates.length} template(s)`,
         );
 
         if (typeof toast !== 'undefined' && toast) {
             toast.success(
                 `${this.templates.length} template(s) exportado(s) com sucesso!`,
-                3000
+                3000,
             );
         } else {
             alert(
-                `${this.templates.length} template(s) exportado(s) com sucesso!`
+                `${this.templates.length} template(s) exportado(s) com sucesso!`,
             );
         }
     }
@@ -8381,7 +8525,7 @@ class LojaApp {
             if (typeof toast !== 'undefined' && toast) {
                 toast.error(
                     'Você não tem permissão para importar templates.',
-                    3000
+                    3000,
                 );
             } else {
                 alert('Você não tem permissão para importar templates.');
@@ -8401,11 +8545,11 @@ class LojaApp {
                     if (typeof toast !== 'undefined' && toast) {
                         toast.error(
                             'Arquivo inválido. O arquivo deve conter um array de templates.',
-                            3000
+                            3000,
                         );
                     } else {
                         alert(
-                            'Arquivo inválido. O arquivo deve conter um array de templates.'
+                            'Arquivo inválido. O arquivo deve conter um array de templates.',
                         );
                     }
                     return;
@@ -8425,18 +8569,19 @@ class LojaApp {
                     // Verificar se já existe template com mesmo nome e tipo
                     const existing = this.templates.find(
                         (t) =>
-                            t.name === template.name && t.type === template.type
+                            t.name === template.name &&
+                            t.type === template.type,
                     );
 
                     if (existing) {
                         // Perguntar se deseja substituir
                         if (
                             confirm(
-                                `Template "${template.name}" (${template.type}) já existe. Deseja substituir?`
+                                `Template "${template.name}" (${template.type}) já existe. Deseja substituir?`,
                             )
                         ) {
                             const index = this.templates.findIndex(
-                                (t) => t.id === existing.id
+                                (t) => t.id === existing.id,
                             );
                             if (index !== -1) {
                                 // Manter ID original, atualizar dados
@@ -8467,27 +8612,28 @@ class LojaApp {
                     'import',
                     'template',
                     null,
-                    `Importação de ${importedCount} template(s)`
+                    `Importação de ${importedCount} template(s)`,
                 );
 
                 if (typeof toast !== 'undefined' && toast) {
                     if (skippedCount > 0) {
                         toast.success(
                             `${importedCount} template(s) importado(s), ${skippedCount} ignorado(s).`,
-                            4000
+                            4000,
                         );
                     } else {
                         toast.success(
                             `${importedCount} template(s) importado(s) com sucesso!`,
-                            3000
+                            3000,
                         );
                     }
                 } else {
                     alert(
-                        `${importedCount} template(s) importado(s)${skippedCount > 0
-                            ? `, ${skippedCount} ignorado(s)`
-                            : ''
-                        }.`
+                        `${importedCount} template(s) importado(s)${
+                            skippedCount > 0
+                                ? `, ${skippedCount} ignorado(s)`
+                                : ''
+                        }.`,
                     );
                 }
 
@@ -8498,11 +8644,11 @@ class LojaApp {
                 if (typeof toast !== 'undefined' && toast) {
                     toast.error(
                         'Erro ao importar templates. Verifique se o arquivo está no formato correto.',
-                        4000
+                        4000,
                     );
                 } else {
                     alert(
-                        'Erro ao importar templates. Verifique se o arquivo está no formato correto.'
+                        'Erro ao importar templates. Verifique se o arquivo está no formato correto.',
                     );
                 }
                 event.target.value = '';
@@ -8527,14 +8673,14 @@ class LojaApp {
             type === 'sale'
                 ? 'saleCustomerSelect'
                 : type === 'pending'
-                    ? 'pendingOrderCustomerSelect'
-                    : 'appointmentCustomerSelect';
+                  ? 'pendingOrderCustomerSelect'
+                  : 'appointmentCustomerSelect';
         const inputId =
             type === 'sale'
                 ? 'saleCustomerName'
                 : type === 'pending'
-                    ? 'pendingOrderCustomerName'
-                    : 'appointmentCustomerName';
+                  ? 'pendingOrderCustomerName'
+                  : 'appointmentCustomerName';
 
         const select = document.getElementById(selectId);
         const input = document.getElementById(inputId);
@@ -8544,7 +8690,7 @@ class LojaApp {
                 // Cliente selecionado - preencher input e buscar dados do cliente
                 input.value = select.value;
                 const client = this.clients.find(
-                    (c) => c.name === select.value
+                    (c) => c.name === select.value,
                 );
                 if (client) {
                     // Preencher CPF se existir campo
@@ -8552,8 +8698,8 @@ class LojaApp {
                         type === 'sale'
                             ? 'saleCustomerCPF'
                             : type === 'pending'
-                                ? 'pendingOrderCustomerCPF'
-                                : null
+                              ? 'pendingOrderCustomerCPF'
+                              : null,
                     );
                     if (cpfField && client.cpf) {
                         cpfField.value = client.cpf;
@@ -8589,9 +8735,6 @@ class LojaApp {
 
         document.body.style.overflow = 'hidden';
     }
-
-
-
 
     createGroup(e) {
         e.preventDefault();
@@ -8666,8 +8809,9 @@ class LojaApp {
             'Dezembro',
         ];
 
-        document.getElementById('groupTitle').textContent = `${monthNames[parseInt(month) - 1]
-            } ${year}`;
+        document.getElementById('groupTitle').textContent = `${
+            monthNames[parseInt(month) - 1]
+        } ${year}`;
 
         this.renderGroupView(group);
 
@@ -8768,19 +8912,19 @@ class LojaApp {
         this.updateValueWithAnimation(
             'totalValue',
             totalValue,
-            (val) => `R$ ${val.toFixed(2).replace('.', ',')}`
+            (val) => `R$ ${val.toFixed(2).replace('.', ',')}`,
         );
 
         // Calcular e atualizar totais de todos os meses com animação
         const allMonthsTotal = this.calculateTotalAllMonths();
         this.updateValueWithAnimation(
             'totalSalesAll',
-            allMonthsTotal.totalSales
+            allMonthsTotal.totalSales,
         );
         this.updateValueWithAnimation(
             'totalValueAll',
             allMonthsTotal.totalValue,
-            (val) => `R$ ${val.toFixed(2).replace('.', ',')}`
+            (val) => `R$ ${val.toFixed(2).replace('.', ',')}`,
         );
 
         // Renderizar dias
@@ -8789,11 +8933,11 @@ class LojaApp {
             .map((day) => {
                 const daySales = day.sales.reduce(
                     (sum, s) => sum + s.quantity,
-                    0
+                    0,
                 );
                 const dayTotal = day.sales.reduce(
                     (sum, s) => sum + s.price * s.quantity,
-                    0
+                    0,
                 );
 
                 return `
@@ -8804,8 +8948,9 @@ class LojaApp {
                         .toFixed(2)
                         .replace('.', ',')}</div>
                     <button class="btn-small btn-edit" style="margin-top: 0.5rem; width: 100%;" 
-                            onclick="app.openSaleModal('${group.id}', ${day.day
-                    })">
+                            onclick="app.openSaleModal('${group.id}', ${
+                                day.day
+                            })">
                         ${daySales > 0 ? 'Editar' : 'Registrar'}
                     </button>
                 </div>
@@ -8836,7 +8981,7 @@ class LojaApp {
                     (item) => `
                 <div class="summary-item">
                     <span class="summary-item-name">${this.escapeHtml(
-                        item.name
+                        item.name,
                     )}</span>
                     <span class="summary-item-total">
                         ${item.quantity} un. - R$ ${item.total
@@ -8844,7 +8989,7 @@ class LojaApp {
                             .replace('.', ',')}
                     </span>
                 </div>
-            `
+            `,
                 )
                 .join('');
         }
@@ -8868,7 +9013,7 @@ class LojaApp {
 
         if (!saleModal) {
             console.error(
-                '❌ [SALE MODAL] Modal de venda não encontrado no DOM'
+                '❌ [SALE MODAL] Modal de venda não encontrado no DOM',
             );
             return;
         }
@@ -8897,11 +9042,12 @@ class LojaApp {
                 this.clients
                     .map((client) => {
                         return `<option value="${this.escapeHtml(
-                            client.name
-                        )}">${this.escapeHtml(client.name)}${client.phone
-                            ? ` - ${this.escapeHtml(client.phone)}`
-                            : ''
-                            }</option>`;
+                            client.name,
+                        )}">${this.escapeHtml(client.name)}${
+                            client.phone
+                                ? ` - ${this.escapeHtml(client.phone)}`
+                                : ''
+                        }</option>`;
                     })
                     .join('');
         }
@@ -8933,7 +9079,7 @@ class LojaApp {
                         }
                     }
                     return `<option value="${item.id}">${this.escapeHtml(
-                        displayName
+                        displayName,
                     )}</option>`;
                 })
                 .join('');
@@ -8992,7 +9138,7 @@ class LojaApp {
             });
         } else {
             console.error(
-                '❌ [SALE MODAL] Não foi possível abrir o modal - elemento não encontrado'
+                '❌ [SALE MODAL] Não foi possível abrir o modal - elemento não encontrado',
             );
         }
     }
@@ -9128,7 +9274,7 @@ class LojaApp {
         }
 
         const dayData = this.currentGroup.days.find(
-            (d) => d.day === this.currentSaleDay
+            (d) => d.day === this.currentSaleDay,
         );
         if (!dayData) return;
 
@@ -9157,7 +9303,7 @@ class LojaApp {
                     const saleStockKey = this.getStockKey(
                         sale.itemId,
                         saleSize,
-                        saleColor
+                        saleColor,
                     );
                     return saleStockKey === stockKey;
                 }
@@ -9178,7 +9324,7 @@ class LojaApp {
             if (color) details.push(`Cor: ${color}`);
             if (details.length > 0) {
                 stockMessage = `Estoque disponível (${details.join(
-                    ', '
+                    ', ',
                 )}): ${availableStock} un. (Total: ${stockQuantity} un. - Vendido: ${soldQuantity} un.)`;
             } else {
                 stockMessage = `Estoque disponível: ${availableStock} un. (Total: ${stockQuantity} un. - Vendido: ${soldQuantity} un.)`;
@@ -9221,7 +9367,8 @@ class LojaApp {
         salesList.style.border = '2px solid var(--border-color)';
 
         salesList.innerHTML = `
-            <h4 style="color: var(--primary-red); margin-bottom: 1rem;">Vendas do Dia ${dayData.day
+            <h4 style="color: var(--primary-red); margin-bottom: 1rem;">Vendas do Dia ${
+                dayData.day
             }</h4>
             ${dayData.sales
                 .map((sale, index) => {
@@ -9230,25 +9377,32 @@ class LojaApp {
                     <div style="display: flex; justify-content: space-between; align-items: center; padding: 0.75rem; background: white; margin-bottom: 0.5rem; border-radius: 5px; border: 1px solid var(--border-color);">
                         <div>
                             <strong>${this.escapeHtml(
-                        item ? item.name : 'Item não encontrado'
-                    )}</strong>${sale.size || sale.color
-                        ? ` <span style="color: var(--primary-color); font-weight: 600;">(${sale.size
-                            ? `Tamanho: ${this.escapeHtml(sale.size)}`
-                            : ''
-                        }${sale.size && sale.color ? ', ' : ''}${sale.color
-                            ? `Cor: ${this.escapeHtml(sale.color)}`
-                            : ''
-                        })</span>`
-                        : ''
-                        }<br>
-                            <small style="color: var(--gray);">${sale.quantity
-                        } un. × R$ ${sale.price
-                            .toFixed(2)
-                            .replace('.', ',')} = R$ ${(sale.quantity * sale.price)
+                                item ? item.name : 'Item não encontrado',
+                            )}</strong>${
+                                sale.size || sale.color
+                                    ? ` <span style="color: var(--primary-color); font-weight: 600;">(${
+                                          sale.size
+                                              ? `Tamanho: ${this.escapeHtml(sale.size)}`
+                                              : ''
+                                      }${sale.size && sale.color ? ', ' : ''}${
+                                          sale.color
+                                              ? `Cor: ${this.escapeHtml(sale.color)}`
+                                              : ''
+                                      })</span>`
+                                    : ''
+                            }<br>
+                            <small style="color: var(--gray);">${
+                                sale.quantity
+                            } un. × R$ ${sale.price
+                                .toFixed(2)
+                                .replace('.', ',')} = R$ ${(
+                                sale.quantity * sale.price
+                            )
                                 .toFixed(2)
                                 .replace('.', ',')}</small>
                         </div>
-                        <button class="btn-small btn-delete" onclick="app.deleteSale(${this.currentSaleDay
+                        <button class="btn-small btn-delete" onclick="app.deleteSale(${
+                            this.currentSaleDay
                         }, ${index})" title="Excluir"><i class="fas fa-times"></i></button>
                     </div>
                 `;
@@ -9354,7 +9508,7 @@ class LojaApp {
         ) {
             // Buscar o grupo atualizado do array principal
             const group = this.groups.find(
-                (g) => g.id === this.currentGroup.id
+                (g) => g.id === this.currentGroup.id,
             );
             if (group) {
                 this.currentGroup = group;
@@ -9391,11 +9545,11 @@ class LojaApp {
 
         if (!saleItem || !saleQuantity || !salePrice) {
             console.error(
-                '❌ [SAVE SALE] Elementos do formulário não encontrados!'
+                '❌ [SAVE SALE] Elementos do formulário não encontrados!',
             );
             toast.error(
                 'Erro: Formulário incompleto. Por favor, recarregue a página.',
-                5000
+                5000,
             );
             // Remover loading se houver
             if (saveBtn) {
@@ -9443,7 +9597,7 @@ class LojaApp {
             if (typeof toast !== 'undefined' && toast) {
                 toast.warning(
                     'Preço e quantidade devem ser maiores que zero.',
-                    3000
+                    3000,
                 );
             } else {
                 alert('Preço e quantidade devem ser maiores que zero.');
@@ -9488,9 +9642,10 @@ class LojaApp {
             !size
         ) {
             toast.warning(
-                `Por favor, informe o tamanho do ${item.category === 'Roupas' ? 'roupa' : 'eletrônico'
+                `Por favor, informe o tamanho do ${
+                    item.category === 'Roupas' ? 'roupa' : 'eletrônico'
                 }.`,
-                3000
+                3000,
             );
             // Remover loading se houver
             if (saveBtn) {
@@ -9522,7 +9677,7 @@ class LojaApp {
                         const saleStockKey = this.getStockKey(
                             sale.itemId,
                             saleSize,
-                            saleColor
+                            saleColor,
                         );
                         return saleStockKey === stockKey;
                     }
@@ -9535,7 +9690,7 @@ class LojaApp {
             if (stockQuantity > 0 && quantity > availableStock) {
                 if (
                     !confirm(
-                        `Atenção! Estoque disponível: ${availableStock} un. Deseja registrar ${quantity} un. mesmo assim?`
+                        `Atenção! Estoque disponível: ${availableStock} un. Deseja registrar ${quantity} un. mesmo assim?`,
                     )
                 ) {
                     // Remover loading se houver
@@ -9551,7 +9706,7 @@ class LojaApp {
         // Obter dados do cliente
         // Formatar nome do cliente automaticamente
         const customerName = this.formatText(
-            document.getElementById('saleCustomerName').value
+            document.getElementById('saleCustomerName').value,
         );
         const customerCPF = document
             .getElementById('saleCustomerCPF')
@@ -9578,7 +9733,7 @@ class LojaApp {
         if (client && client.loyaltyPoints > 0) {
             const loyaltyDiscountInfo = this.calculateLoyaltyDiscount(
                 customerName,
-                baseTotal
+                baseTotal,
             );
             loyaltyDiscount = loyaltyDiscountInfo.discount;
             loyaltyPointsUsed = loyaltyDiscountInfo.pointsUsed;
@@ -9603,13 +9758,13 @@ class LojaApp {
             discount:
                 totalDiscount > 0
                     ? {
-                        type: discountInfo.discountType || 'loyalty',
-                        value: discountInfo.discountValue || loyaltyDiscount,
-                        amount: totalDiscount,
-                        couponCode: discountInfo.couponCode || null,
-                        loyaltyDiscount: loyaltyDiscount,
-                        loyaltyPointsUsed: loyaltyPointsUsed,
-                    }
+                          type: discountInfo.discountType || 'loyalty',
+                          value: discountInfo.discountValue || loyaltyDiscount,
+                          amount: totalDiscount,
+                          couponCode: discountInfo.couponCode || null,
+                          loyaltyDiscount: loyaltyDiscount,
+                          loyaltyPointsUsed: loyaltyPointsUsed,
+                      }
                     : null,
         };
 
@@ -9659,16 +9814,16 @@ class LojaApp {
                     price: basePrice, // Preço unitário original
                     size:
                         item &&
-                            (item.category === 'Roupas' ||
-                                item.category === 'Eletrônicos') &&
-                            size
+                        (item.category === 'Roupas' ||
+                            item.category === 'Eletrônicos') &&
+                        size
                             ? size
                             : undefined,
                     color:
                         item &&
-                            (item.category === 'Roupas' ||
-                                item.category === 'Eletrônicos') &&
-                            color
+                        (item.category === 'Roupas' ||
+                            item.category === 'Eletrônicos') &&
+                        color
                             ? color
                             : undefined,
                 },
@@ -9689,7 +9844,7 @@ class LojaApp {
         // Incrementar uso do cupom se foi aplicado
         if (completedSale.discount && completedSale.discount.couponCode) {
             const coupon = this.coupons.find(
-                (c) => c.code === completedSale.discount.couponCode
+                (c) => c.code === completedSale.discount.couponCode,
             );
             if (coupon) {
                 coupon.uses = (coupon.uses || 0) + 1;
@@ -9722,11 +9877,12 @@ class LojaApp {
                     'Nova Compra Registrada',
                     `Sua compra de R$ ${totalValue
                         .toFixed(2)
-                        .replace('.', ',')} foi registrada com sucesso!${loyaltyPointsUsed > 0
+                        .replace('.', ',')} foi registrada com sucesso!${
+                        loyaltyPointsUsed > 0
                             ? ` Você usou ${loyaltyPointsUsed} ponto(s) de fidelidade.`
                             : ''
                     }`,
-                    'success'
+                    'success',
                 );
             }
         } else if (customerName) {
@@ -9744,7 +9900,7 @@ class LojaApp {
             if (typeof toast !== 'undefined' && toast) {
                 toast.info(
                     `Cliente "${customerName}" foi cadastrado automaticamente e ganhou ${newClient.loyaltyPoints} ponto(s)!`,
-                    4000
+                    4000,
                 );
             }
         }
@@ -9761,7 +9917,7 @@ class LojaApp {
         const viewGroupModal = document.getElementById('viewGroupModal');
         if (viewGroupModal && viewGroupModal.classList.contains('active')) {
             console.log(
-                '🔧 [SAVE SALE] viewGroupModal está ativo, reduzindo z-index antes de mostrar recibo'
+                '🔧 [SAVE SALE] viewGroupModal está ativo, reduzindo z-index antes de mostrar recibo',
             );
             viewGroupModal.style.setProperty('z-index', '999', 'important');
             viewGroupModal.style.pointerEvents = 'none';
@@ -9772,7 +9928,7 @@ class LojaApp {
                 viewGroupContent.style.setProperty(
                     'z-index',
                     '999',
-                    'important'
+                    'important',
                 );
             }
         }
@@ -9838,7 +9994,7 @@ class LojaApp {
                 } catch (createError) {
                     console.error(
                         '❌ [SHOW RECEIPT] Erro ao criar modal:',
-                        createError
+                        createError,
                     );
                     return;
                 }
@@ -9849,7 +10005,7 @@ class LojaApp {
 
             if (!receiptContent || !modalElement) {
                 console.error(
-                    '❌ [SHOW RECEIPT] Elementos do modal não encontrados'
+                    '❌ [SHOW RECEIPT] Elementos do modal não encontrados',
                 );
                 return;
             }
@@ -9865,13 +10021,13 @@ class LojaApp {
                     // Marcar que estava ativo antes do recibo abrir
                     viewGroupModal.dataset.wasActive = 'true';
                     console.log(
-                        '🔧 [SHOW RECEIPT] viewGroupModal estava ativo - salvando estado'
+                        '🔧 [SHOW RECEIPT] viewGroupModal estava ativo - salvando estado',
                     );
                 }
             } catch (saveStateError) {
                 console.error(
                     '❌ [SHOW RECEIPT] Erro ao salvar estado do viewGroupModal:',
-                    saveStateError
+                    saveStateError,
                 );
                 // Continuar mesmo com erro ao salvar estado
             }
@@ -9893,21 +10049,22 @@ class LojaApp {
             <div class="receipt-header">
                 <h2>Recibo de Venda</h2>
                 <p class="receipt-order-code">Código: ${this.escapeHtml(
-                sale.orderCode
-            )}</p>
+                    sale.orderCode,
+                )}</p>
             </div>
             <div class="receipt-info">
                 <div class="receipt-section">
                     <h3>Dados do Cliente</h3>
                     <p><strong>Nome:</strong> ${this.escapeHtml(
-                sale.customerName
-            )}</p>
-                    ${sale.customerCPF
-                    ? `<p><strong>CPF:</strong> ${this.formatCPF(
+                        sale.customerName,
+                    )}</p>
+                    ${
                         sale.customerCPF
-                    )}</p>`
-                    : ''
-                }
+                            ? `<p><strong>CPF:</strong> ${this.formatCPF(
+                                  sale.customerCPF,
+                              )}</p>`
+                            : ''
+                    }
                 </div>
                 <div class="receipt-section">
                     <h3>Data e Horário</h3>
@@ -9917,31 +10074,31 @@ class LojaApp {
                     <h3>Itens Comprados</h3>
                     <div class="receipt-items">
                         ${sale.items
-                    .map(
-                        (item) => `
+                            .map(
+                                (item) => `
                             <div class="receipt-item">
                                 <div class="receipt-item-name">${this.escapeHtml(
-                            item.name
-                        )}</div>
+                                    item.name,
+                                )}</div>
                                 <div class="receipt-item-details">
                                     ${item.quantity} un. × R$ ${item.price
-                                .toFixed(2)
-                                .replace('.', ',')} = 
+                                        .toFixed(2)
+                                        .replace('.', ',')} = 
                                     <strong>R$ ${(item.quantity * item.price)
-                                .toFixed(2)
-                                .replace('.', ',')}</strong>
+                                        .toFixed(2)
+                                        .replace('.', ',')}</strong>
                                 </div>
                             </div>
-                        `
-                    )
-                    .join('')}
+                        `,
+                            )
+                            .join('')}
                     </div>
                 </div>
                 <div class="receipt-total">
                     <h3>Valor Total</h3>
                     <p class="receipt-total-value">R$ ${sale.totalValue
-                    .toFixed(2)
-                    .replace('.', ',')}</p>
+                        .toFixed(2)
+                        .replace('.', ',')}</p>
                 </div>
             </div>
         `;
@@ -9968,14 +10125,14 @@ class LojaApp {
                     viewGroupContent.style.setProperty(
                         'z-index',
                         '999',
-                        'important'
+                        'important',
                     );
                 }
             }
 
             // Primeiro, garantir que o modal esteja visível e com z-index correto
             console.log(
-                '🔧 [RECEIPT] Configurando z-index do receiptPreviewModal'
+                '🔧 [RECEIPT] Configurando z-index do receiptPreviewModal',
             );
             modalElement.style.setProperty('z-index', '10000', 'important');
             modalElement.style.display = 'flex';
@@ -9992,7 +10149,7 @@ class LojaApp {
                     modalContent.style.setProperty(
                         'z-index',
                         '10001',
-                        'important'
+                        'important',
                     );
                     modalContent.style.pointerEvents = 'auto';
                     modalContent.style.position = 'relative';
@@ -10001,19 +10158,19 @@ class LojaApp {
                 // Forçar z-index novamente após animação para garantir
                 setTimeout(() => {
                     console.log(
-                        '🔧 [RECEIPT] Forçando z-index novamente após animação'
+                        '🔧 [RECEIPT] Forçando z-index novamente após animação',
                     );
                     modalElement.style.setProperty(
                         'z-index',
                         '10000',
-                        'important'
+                        'important',
                     );
                     modalElement.style.position = 'fixed';
                     if (modalContent) {
                         modalContent.style.setProperty(
                             'z-index',
                             '10001',
-                            'important'
+                            'important',
                         );
                     }
                     // Verificar se viewGroupModal ainda está ativo e reduzir novamente
@@ -10024,7 +10181,7 @@ class LojaApp {
                         viewGroupModal.style.setProperty(
                             'z-index',
                             '999',
-                            'important'
+                            'important',
                         );
                     }
                 }, 100);
@@ -10032,7 +10189,7 @@ class LojaApp {
         } catch (error) {
             console.error(
                 '❌ [SHOW RECEIPT] Erro crítico ao mostrar recibo:',
-                error
+                error,
             );
             console.error('❌ [SHOW RECEIPT] Stack:', error.stack);
             console.error('❌ [SHOW RECEIPT] Sale:', sale);
@@ -10078,7 +10235,7 @@ class LojaApp {
 
         if (closeBtn) {
             closeBtn.addEventListener('click', () =>
-                this.closeReceiptPreview()
+                this.closeReceiptPreview(),
             );
         }
         if (printBtn) {
@@ -10086,7 +10243,7 @@ class LojaApp {
         }
         if (closeIcon) {
             closeIcon.addEventListener('click', () =>
-                this.closeReceiptPreview()
+                this.closeReceiptPreview(),
             );
         }
     }
@@ -10116,13 +10273,13 @@ class LojaApp {
                     viewGroupModal.dataset.wasActive === 'true'
                 ) {
                     console.log(
-                        '🔧 [CLOSE RECEIPT] Restaurando viewGroupModal (estava ativo antes do recibo)'
+                        '🔧 [CLOSE RECEIPT] Restaurando viewGroupModal (estava ativo antes do recibo)',
                     );
                     // Restaurar apenas se estava ativo antes
                     viewGroupModal.style.setProperty(
                         'z-index',
                         '1000',
-                        'important'
+                        'important',
                     );
                     viewGroupModal.style.pointerEvents = 'auto';
                     viewGroupModal.style.opacity = '1';
@@ -10147,13 +10304,13 @@ class LojaApp {
                 } else {
                     // Se não estava ativo antes, não fazer nada
                     console.log(
-                        '🔧 [CLOSE RECEIPT] viewGroupModal não estava ativo antes - não restaurar'
+                        '🔧 [CLOSE RECEIPT] viewGroupModal não estava ativo antes - não restaurar',
                     );
                 }
             } catch (restoreError) {
                 console.error(
                     '❌ [CLOSE RECEIPT] Erro ao restaurar viewGroupModal:',
-                    restoreError
+                    restoreError,
                 );
                 // Continuar mesmo com erro na restauração
             }
@@ -10173,14 +10330,14 @@ class LojaApp {
                 } catch (cleanupError) {
                     console.error(
                         '❌ [CLOSE RECEIPT] Erro ao limpar modal:',
-                        cleanupError
+                        cleanupError,
                     );
                 }
             }, 300);
         } catch (error) {
             console.error(
                 '❌ [CLOSE RECEIPT] Erro crítico ao fechar recibo:',
-                error
+                error,
             );
             console.error('❌ [CLOSE RECEIPT] Stack:', error.stack);
             // Tentar fechar o modal mesmo com erro
@@ -10276,20 +10433,20 @@ class LojaApp {
             // Em modo de teste ou com warnings suprimidos, não gerar warnings
             if (!suppressWarnings) {
                 console.warn(
-                    '⚠️ [CARROSSEL] Container do carrossel não encontrado. Tentando novamente em 500ms...'
+                    '⚠️ [CARROSSEL] Container do carrossel não encontrado. Tentando novamente em 500ms...',
                 );
             }
             // Tentar novamente após um delay caso o elemento ainda não esteja no DOM
             setTimeout(() => {
                 const retryCarousel = document.getElementById(
-                    'lastReceiptsCarousel'
+                    'lastReceiptsCarousel',
                 );
                 if (retryCarousel) {
                     this.renderLastReceiptsCarousel(retryCarousel);
                 } else {
                     if (!suppressWarnings) {
                         console.error(
-                            '❌ [CARROSSEL] Container não encontrado após retry'
+                            '❌ [CARROSSEL] Container não encontrado após retry',
                         );
                     }
                 }
@@ -10299,11 +10456,11 @@ class LojaApp {
 
         // Debug: verificar se há comprovantes
         console.log(
-            `📊 [CARROSSEL] Total de comprovantes: ${this.completedSales.length}`
+            `📊 [CARROSSEL] Total de comprovantes: ${this.completedSales.length}`,
         );
         console.log(
             `📊 [CARROSSEL] Array completedSales:`,
-            this.completedSales
+            this.completedSales,
         );
         if (this.completedSales.length > 0) {
             console.log(
@@ -10313,11 +10470,11 @@ class LojaApp {
                     name: s.customerName,
                     date: s.date,
                     total: s.totalValue,
-                }))
+                })),
             );
         } else {
             console.warn(
-                '⚠️ [CARROSSEL] Nenhum comprovante encontrado no array completedSales'
+                '⚠️ [CARROSSEL] Nenhum comprovante encontrado no array completedSales',
             );
         }
 
@@ -10333,7 +10490,7 @@ class LojaApp {
         const lastThree = sortedSales.slice(0, 3);
 
         console.log(
-            `🎯 [CARROSSEL] Renderizando ${lastThree.length} comprovantes`
+            `🎯 [CARROSSEL] Renderizando ${lastThree.length} comprovantes`,
         );
 
         if (lastThree.length === 0) {
@@ -10360,7 +10517,7 @@ class LojaApp {
                         console.error(
                             '❌ [CARROSSEL] Erro ao formatar data:',
                             e,
-                            sale
+                            sale,
                         );
                     }
 
@@ -10368,7 +10525,7 @@ class LojaApp {
                     if (!sale.customerName || !sale.totalValue) {
                         console.error(
                             '❌ [CARROSSEL] Dados incompletos no comprovante:',
-                            sale
+                            sale,
                         );
                         return '';
                     }
@@ -10387,8 +10544,9 @@ class LojaApp {
                          box-shadow: var(--shadow-sm);
                          cursor: pointer;
                          transition: all var(--transition-base);
-                         animation: slideInUp 0.3s ease-out ${index * 0.1
-                        }s both;
+                         animation: slideInUp 0.3s ease-out ${
+                             index * 0.1
+                         }s both;
                      "
                      onclick="app.viewFullReceipt('${sale.id}')"
                      onmouseover="this.style.transform='translateY(-4px)'; this.style.boxShadow='var(--shadow-md)'; this.style.borderColor='var(--primary-color)';"
@@ -10400,11 +10558,12 @@ class LojaApp {
                         <p style="margin: 0; color: var(--gray-600); font-size: 0.85rem;">
                             📅 ${formattedDate}
                         </p>
-                        ${sale.customerCPF
-                            ? `<p style="margin: 0.25rem 0 0 0; color: var(--gray-500); font-size: 0.8rem;">
+                        ${
+                            sale.customerCPF
+                                ? `<p style="margin: 0.25rem 0 0 0; color: var(--gray-500); font-size: 0.8rem;">
                                     🆔 ${this.formatCPF(sale.customerCPF)}
                                 </p>`
-                            : ''
+                                : ''
                         }
                     </div>
                     <div style="border-top: 1px solid var(--gray-200); padding-top: 0.75rem;">
@@ -10412,8 +10571,9 @@ class LojaApp {
                             R$ ${sale.totalValue.toFixed(2).replace('.', ',')}
                         </p>
                         <p style="margin: 0.25rem 0 0 0; color: var(--gray-500); font-size: 0.75rem;">
-                            ${sale.items.length} ${sale.items.length === 1 ? 'item' : 'itens'
-                        }
+                            ${sale.items.length} ${
+                                sale.items.length === 1 ? 'item' : 'itens'
+                            }
                         </p>
                     </div>
                 </div>
@@ -10429,7 +10589,7 @@ class LojaApp {
         } catch (error) {
             console.error(
                 '❌ [CARROSSEL] Erro ao renderizar carrossel:',
-                error
+                error,
             );
             carousel.innerHTML =
                 '<p style="text-align: center; color: var(--gray-600); padding: 2rem; width: 100%;">Erro ao carregar comprovantes.</p>';
@@ -10504,8 +10664,9 @@ class LojaApp {
                          box-shadow: var(--shadow-sm);
                          cursor: pointer;
                          transition: all var(--transition-base);
-                         animation: slideInLeft 0.3s ease-out ${index * 0.05
-                    }s both;
+                         animation: slideInLeft 0.3s ease-out ${
+                             index * 0.05
+                         }s both;
                      "
                      onclick="app.viewFullReceipt('${sale.id}')"
                      onmouseover="this.style.transform='translateX(4px)'; this.style.boxShadow='var(--shadow-md)'; this.style.borderColor='var(--primary-color)';"
@@ -10518,20 +10679,21 @@ class LojaApp {
                             <p style="margin: 0; color: var(--gray-600); font-size: 0.9rem;">
                                 📅 ${formattedDate}
                             </p>
-                            ${sale.customerCPF
-                        ? `
+                            ${
+                                sale.customerCPF
+                                    ? `
                                 <p style="margin: 0.25rem 0 0 0; color: var(--gray-600); font-size: 0.85rem;">
                                     🆔 ${this.formatCPF(sale.customerCPF)}
                                 </p>
                             `
-                        : ''
-                    }
+                                    : ''
+                            }
                         </div>
                         <div style="text-align: right;">
                             <p style="margin: 0; color: var(--primary-color); font-weight: 600; font-size: 1.2rem;">
                                 R$ ${sale.totalValue
-                        .toFixed(2)
-                        .replace('.', ',')}
+                                    .toFixed(2)
+                                    .replace('.', ',')}
                             </p>
                             <p style="margin: 0.25rem 0 0 0; color: var(--gray-500); font-size: 0.85rem;">
                                 Código: ${this.escapeHtml(sale.orderCode)}
@@ -10541,13 +10703,13 @@ class LojaApp {
                     <div style="border-top: 1px solid var(--gray-200); padding-top: 0.75rem;">
                         <p style="margin: 0; color: var(--gray-600); font-size: 0.9rem;">
                             <strong>Itens:</strong> ${sale.items
-                        .map(
-                            (item) =>
-                                `${item.quantity}x ${this.escapeHtml(
-                                    item.name
-                                )}`
-                        )
-                        .join(', ')}
+                                .map(
+                                    (item) =>
+                                        `${item.quantity}x ${this.escapeHtml(
+                                            item.name,
+                                        )}`,
+                                )
+                                .join(', ')}
                         </p>
                     </div>
                 </div>
@@ -10651,7 +10813,7 @@ class LojaApp {
                 touchStartTime = Date.now();
                 touchMoved = false;
             },
-            { passive: true }
+            { passive: true },
         );
 
         carousel.addEventListener(
@@ -10665,7 +10827,7 @@ class LojaApp {
                 }
                 carousel.scrollLeft = touchScrollLeft - walk;
             },
-            { passive: true }
+            { passive: true },
         );
 
         carousel.addEventListener('touchend', (e) => {
@@ -10675,7 +10837,7 @@ class LojaApp {
                 const touch = e.changedTouches[0];
                 const element = document.elementFromPoint(
                     touch.clientX,
-                    touch.clientY
+                    touch.clientY,
                 );
                 const card = element?.closest('.receipt-mini-card');
                 if (card && card.onclick) {
@@ -10702,7 +10864,7 @@ class LojaApp {
             } else {
                 input.value = value.replace(
                     /(\d{3})(\d{3})(\d{3})(\d+)/,
-                    '$1.$2.$3-$4'
+                    '$1.$2.$3-$4',
                 );
             }
         } else {
@@ -10774,7 +10936,7 @@ class LojaApp {
         const cpfInput = document.getElementById('pendingOrderCustomerCPF');
         if (cpfInput) {
             cpfInput.addEventListener('input', () =>
-                this.formatCPFInput(cpfInput)
+                this.formatCPFInput(cpfInput),
             );
         }
 
@@ -10835,7 +10997,7 @@ class LojaApp {
         // Atualizar total quando valores mudarem
         [itemSelect, qtyInput, priceInput].forEach((input) => {
             input.addEventListener('change', () =>
-                this.updatePendingOrderTotal()
+                this.updatePendingOrderTotal(),
             );
         });
 
@@ -10856,12 +11018,12 @@ class LojaApp {
             const qty =
                 parseFloat(
                     row.querySelector('input[type="number"]:nth-of-type(1)')
-                        .value
+                        .value,
                 ) || 0;
             const price =
                 parseFloat(
                     row.querySelector('input[type="number"]:nth-of-type(2)')
-                        .value
+                        .value,
                 ) || 0;
             total += qty * price;
         });
@@ -10874,7 +11036,7 @@ class LojaApp {
 
         // Formatar nome do cliente automaticamente
         const customerName = this.formatText(
-            document.getElementById('pendingOrderCustomerName').value
+            document.getElementById('pendingOrderCustomerName').value,
         );
         const customerCPF = document
             .getElementById('pendingOrderCustomerCPF')
@@ -10895,12 +11057,12 @@ class LojaApp {
             const quantity =
                 parseInt(
                     row.querySelector('input[type="number"]:nth-of-type(1)')
-                        .value
+                        .value,
                 ) || 0;
             const price =
                 parseFloat(
                     row.querySelector('input[type="number"]:nth-of-type(2)')
-                        .value
+                        .value,
                 ) || 0;
 
             if (itemId && quantity > 0 && price > 0) {
@@ -10935,15 +11097,15 @@ class LojaApp {
             dueDate: dueDate || null,
             createdAt: this.currentEditingPendingOrder
                 ? this.pendingOrders.find(
-                    (o) => o.id === this.currentEditingPendingOrder
-                )?.createdAt || new Date().toISOString()
+                      (o) => o.id === this.currentEditingPendingOrder,
+                  )?.createdAt || new Date().toISOString()
                 : new Date().toISOString(),
             updatedAt: new Date().toISOString(),
         };
 
         if (this.currentEditingPendingOrder) {
             const index = this.pendingOrders.findIndex(
-                (o) => o.id === this.currentEditingPendingOrder
+                (o) => o.id === this.currentEditingPendingOrder,
             );
             if (index !== -1) {
                 this.pendingOrders[index] = orderData;
@@ -11004,7 +11166,7 @@ class LojaApp {
                     today.setHours(0, 0, 0, 0);
                     dueDate.setHours(0, 0, 0, 0);
                     const daysUntilDue = Math.ceil(
-                        (dueDate - today) / (1000 * 60 * 60 * 24)
+                        (dueDate - today) / (1000 * 60 * 60 * 24),
                     );
 
                     if (daysUntilDue < 0) {
@@ -11012,8 +11174,8 @@ class LojaApp {
                         dueDateAlert = `<div style="padding: 0.75rem; background: #fee; border: 2px solid #dc3545; border-radius: var(--radius-sm); margin-bottom: 0.75rem;">
                             <p style="margin: 0; color: #721c24; font-weight: 600;">
                                 <i class="fas fa-exclamation-triangle"></i> VENCIDO há ${Math.abs(
-                            daysUntilDue
-                        )} dia(s)
+                                    daysUntilDue,
+                                )} dia(s)
                             </p>
                         </div>`;
                         cardBorderColor = '#dc3545';
@@ -11034,14 +11196,15 @@ class LojaApp {
                     <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1rem;">
                         <div>
                             <h3 style="margin: 0 0 0.5rem 0; color: var(--dark-gray);">${this.escapeHtml(
-                    order.customerName
-                )}</h3>
-                            ${order.customerCPF
-                        ? `<p style="margin: 0; color: var(--gray-600); font-size: 0.9rem;">CPF: ${this.formatCPF(
-                            order.customerCPF
-                        )}</p>`
-                        : ''
-                    }
+                                order.customerName,
+                            )}</h3>
+                            ${
+                                order.customerCPF
+                                    ? `<p style="margin: 0; color: var(--gray-600); font-size: 0.9rem;">CPF: ${this.formatCPF(
+                                          order.customerCPF,
+                                      )}</p>`
+                                    : ''
+                            }
                         </div>
                         <span class="order-status ${statusClass}">${statusText}</span>
                     </div>
@@ -11049,44 +11212,49 @@ class LojaApp {
                         <p style="margin: 0 0 0.5rem 0; color: var(--gray-600); font-size: 0.9rem;"><strong>Itens:</strong></p>
                         <ul style="margin: 0; padding-left: 1.25rem; color: var(--dark-gray);">
                             ${order.items
-                        .map(
-                            (item) =>
-                                `<li>${this.escapeHtml(item.name)} - ${item.quantity
-                                } un. × R$ ${item.price
-                                    .toFixed(2)
-                                    .replace('.', ',')}</li>`
-                        )
-                        .join('')}
+                                .map(
+                                    (item) =>
+                                        `<li>${this.escapeHtml(item.name)} - ${
+                                            item.quantity
+                                        } un. × R$ ${item.price
+                                            .toFixed(2)
+                                            .replace('.', ',')}</li>`,
+                                )
+                                .join('')}
                         </ul>
                     </div>
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
                         <p style="margin: 0; color: var(--dark-gray);"><strong>Total:</strong> R$ ${order.totalValue
-                        .toFixed(2)
-                        .replace('.', ',')}</p>
+                            .toFixed(2)
+                            .replace('.', ',')}</p>
                         <p style="margin: 0; color: var(--gray-600); font-size: 0.85rem;">${formattedDate}</p>
                     </div>
-                    ${order.dueDate
-                        ? `<p style="margin: 0 0 0.75rem 0; color: var(--gray-600); font-size: 0.85rem;"><strong>Vencimento:</strong> ${new Date(
-                            order.dueDate
-                        ).toLocaleDateString('pt-BR')}</p>`
-                        : ''
+                    ${
+                        order.dueDate
+                            ? `<p style="margin: 0 0 0.75rem 0; color: var(--gray-600); font-size: 0.85rem;"><strong>Vencimento:</strong> ${new Date(
+                                  order.dueDate,
+                              ).toLocaleDateString('pt-BR')}</p>`
+                            : ''
                     }
                     <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
-                        <button type="button" class="btn-secondary" onclick="app.editPendingOrder('${order.id
-                    }')" style="flex: 1; min-width: 80px;">
+                        <button type="button" class="btn-secondary" onclick="app.editPendingOrder('${
+                            order.id
+                        }')" style="flex: 1; min-width: 80px;">
                             <i class="fas fa-edit"></i> Editar
                         </button>
-                        ${order.status !== 'cancelled' &&
-                        order.status !== 'completed'
-                        ? `
+                        ${
+                            order.status !== 'cancelled' &&
+                            order.status !== 'completed'
+                                ? `
                             <button type="button" class="btn-primary" onclick="app.completePendingOrder('${order.id}')" style="flex: 1; min-width: 120px;">
                                 <i class="fas fa-check"></i> Finalizar
                             </button>
                         `
-                        : ''
-                    }
-                        <button type="button" class="btn-delete" onclick="app.deletePendingOrder('${order.id
-                    }')" style="min-width: 36px; padding: 0.5rem;">
+                                : ''
+                        }
+                        <button type="button" class="btn-delete" onclick="app.deletePendingOrder('${
+                            order.id
+                        }')" style="min-width: 36px; padding: 0.5rem;">
                             <i class="fas fa-times"></i>
                         </button>
                     </div>
@@ -11106,7 +11274,7 @@ class LojaApp {
     deletePendingOrder(orderId) {
         if (confirm('Tem certeza que deseja excluir este pedido pendente?')) {
             this.pendingOrders = this.pendingOrders.filter(
-                (o) => o.id !== orderId
+                (o) => o.id !== orderId,
             );
             this.saveData();
             this.renderPendingOrders();
@@ -11120,7 +11288,7 @@ class LojaApp {
 
         if (
             confirm(
-                'Deseja finalizar o pagamento e converter este pedido em venda concluída?'
+                'Deseja finalizar o pagamento e converter este pedido em venda concluída?',
             )
         ) {
             // Usar data de vencimento ou data atual
@@ -11132,7 +11300,7 @@ class LojaApp {
             const year = finalizationDate.getFullYear();
             const month = String(finalizationDate.getMonth() + 1).padStart(
                 2,
-                '0'
+                '0',
             );
             const day = finalizationDate.getDate();
             const groupMonth = `${year}-${month}`;
@@ -11152,7 +11320,7 @@ class LojaApp {
                 const daysInMonth = new Date(
                     year,
                     parseInt(month),
-                    0
+                    0,
                 ).getDate();
                 for (let d = 1; d <= daysInMonth; d++) {
                     group.days.push({
@@ -11215,7 +11383,7 @@ class LojaApp {
                 customerCPF: order.customerCPF || null,
                 items: order.items.map((item) => {
                     const itemObj = this.items.find(
-                        (i) => i.id === item.itemId
+                        (i) => i.id === item.itemId,
                     );
                     return {
                         itemId: item.itemId,
@@ -11240,7 +11408,7 @@ class LojaApp {
 
             // Remover pedido pendente
             this.pendingOrders = this.pendingOrders.filter(
-                (o) => o.id !== orderId
+                (o) => o.id !== orderId,
             );
 
             this.saveData();
@@ -11255,7 +11423,7 @@ class LojaApp {
 
             this.showReceiptPreview(completedSale);
             this.showSuccess(
-                'Pedido finalizado e convertido em venda concluída! Venda registrada no grupo mensal e estoque atualizado.'
+                'Pedido finalizado e convertido em venda concluída! Venda registrada no grupo mensal e estoque atualizado.',
             );
         }
     }
@@ -11331,11 +11499,11 @@ class LojaApp {
         e.preventDefault();
 
         const serviceTypeId = document.getElementById(
-            'appointmentServiceType'
+            'appointmentServiceType',
         ).value;
         // Formatar nome do cliente automaticamente
         const customerName = this.formatText(
-            document.getElementById('appointmentCustomerName').value
+            document.getElementById('appointmentCustomerName').value,
         );
         const customerContact = document
             .getElementById('appointmentCustomerContact')
@@ -11347,7 +11515,7 @@ class LojaApp {
         const status = document.getElementById('appointmentStatus').value;
         // Formatar observações automaticamente
         const notes = this.formatText(
-            document.getElementById('appointmentNotes').value
+            document.getElementById('appointmentNotes').value,
         );
 
         if (!serviceTypeId) {
@@ -11384,15 +11552,15 @@ class LojaApp {
             notes: notes || null,
             createdAt: this.currentEditingServiceAppointment
                 ? this.serviceAppointments.find(
-                    (a) => a.id === this.currentEditingServiceAppointment
-                )?.createdAt || new Date().toISOString()
+                      (a) => a.id === this.currentEditingServiceAppointment,
+                  )?.createdAt || new Date().toISOString()
                 : new Date().toISOString(),
             updatedAt: new Date().toISOString(),
         };
 
         if (this.currentEditingServiceAppointment) {
             const index = this.serviceAppointments.findIndex(
-                (a) => a.id === this.currentEditingServiceAppointment
+                (a) => a.id === this.currentEditingServiceAppointment,
             );
             if (index !== -1) {
                 this.serviceAppointments[index] = appointmentData;
@@ -11434,7 +11602,7 @@ class LojaApp {
 
         this.serviceAppointments.forEach((appointment) => {
             const appointmentDateTime = new Date(
-                `${appointment.date}T${appointment.time}`
+                `${appointment.date}T${appointment.time}`,
             );
             if (appointmentDateTime >= now) {
                 future.push(appointment);
@@ -11447,12 +11615,12 @@ class LojaApp {
         future.sort(
             (a, b) =>
                 new Date(`${a.date}T${a.time}`) -
-                new Date(`${b.date}T${b.time}`)
+                new Date(`${b.date}T${b.time}`),
         );
         past.sort(
             (a, b) =>
                 new Date(`${b.date}T${b.time}`) -
-                new Date(`${a.date}T${a.time}`)
+                new Date(`${a.date}T${a.time}`),
         );
 
         let html = '';
@@ -11462,7 +11630,7 @@ class LojaApp {
                 '<h3 style="margin: 0 0 1rem 0; color: var(--dark-gray); font-size: 1.1rem;">Próximos Agendamentos</h3>';
             html += future
                 .map((appointment) =>
-                    this.renderServiceAppointmentCard(appointment)
+                    this.renderServiceAppointmentCard(appointment),
                 )
                 .join('');
         }
@@ -11474,7 +11642,7 @@ class LojaApp {
                 '<div style="display: flex; flex-direction: column; align-items: center; gap: 0.75rem;">';
             html += past
                 .map((appointment) =>
-                    this.renderServiceAppointmentCard(appointment, true)
+                    this.renderServiceAppointmentCard(appointment, true),
                 )
                 .join('');
             html += '</div>';
@@ -11501,7 +11669,7 @@ class LojaApp {
         // Obter dias com agendamentos no mês atual
         const daysWithAppointments = this.getDaysWithAppointments(
             currentYear,
-            currentMonth
+            currentMonth,
         );
 
         // Nomes dos dias da semana (abreviados)
@@ -11519,17 +11687,17 @@ class LojaApp {
             <div class="mini-calendar" onclick="app.openCalendarModal()">
                 <div class="mini-calendar-header">
                     <span class="mini-calendar-month">${this.getMonthName(
-            currentMonth
-        )}</span>
+                        currentMonth,
+                    )}</span>
                     <span class="mini-calendar-year">${currentYear}</span>
                 </div>
                 <div class="mini-calendar-weekdays">
                     ${weekDays
-                .map(
-                    (day) =>
-                        `<span class="mini-calendar-weekday">${day}</span>`
-                )
-                .join('')}
+                        .map(
+                            (day) =>
+                                `<span class="mini-calendar-weekday">${day}</span>`,
+                        )
+                        .join('')}
                 </div>
                 <div class="mini-calendar-days">
         `;
@@ -11543,20 +11711,22 @@ class LojaApp {
         for (let day = 1; day <= totalDays; day++) {
             const dateStr = `${currentYear}-${String(currentMonth + 1).padStart(
                 2,
-                '0'
+                '0',
             )}-${String(day).padStart(2, '0')}`;
             const hasAppointment = daysWithAppointments.includes(day);
             const isToday = day === currentDate;
 
             html += `
-                <div class="mini-calendar-day ${hasAppointment ? 'has-appointment' : ''
+                <div class="mini-calendar-day ${
+                    hasAppointment ? 'has-appointment' : ''
                 } ${isToday ? 'today' : ''}" 
                      data-day="${day}">
                     <span class="day-number">${day}</span>
-                    ${hasAppointment
-                    ? '<span class="appointment-dot"></span>'
-                    : ''
-                }
+                    ${
+                        hasAppointment
+                            ? '<span class="appointment-dot"></span>'
+                            : ''
+                    }
                 </div>
             `;
         }
@@ -11581,7 +11751,7 @@ class LojaApp {
                 appointmentDate = new Date(
                     parseInt(yearStr),
                     parseInt(monthStr) - 1,
-                    parseInt(dayStr)
+                    parseInt(dayStr),
                 );
             } else {
                 appointmentDate = new Date(appointment.date);
@@ -11628,7 +11798,7 @@ class LojaApp {
 
         this.renderFullCalendar(
             this.currentCalendarYear,
-            this.currentCalendarMonth
+            this.currentCalendarMonth,
         );
         modal.classList.add('active');
     }
@@ -11684,37 +11854,40 @@ class LojaApp {
         for (let day = 1; day <= totalDays; day++) {
             const dateStr = `${year}-${String(month + 1).padStart(
                 2,
-                '0'
+                '0',
             )}-${String(day).padStart(2, '0')}`;
             const hasAppointment = daysWithAppointments.includes(day);
             const isToday = isCurrentMonth && day === today;
             const dayAppointments = appointmentsByDay[day] || [];
 
             html += `
-                <div class="calendar-day ${hasAppointment ? 'has-appointment' : ''
+                <div class="calendar-day ${
+                    hasAppointment ? 'has-appointment' : ''
                 } ${isToday ? 'today' : ''}" 
                      data-day="${day}" data-date="${dateStr}">
                     <span class="calendar-day-number">${day}</span>
-                    ${hasAppointment
-                    ? `<div class="calendar-appointment-indicator">${dayAppointments.length}</div>`
-                    : ''
-                }
-                    ${dayAppointments.length > 0
-                    ? `
+                    ${
+                        hasAppointment
+                            ? `<div class="calendar-appointment-indicator">${dayAppointments.length}</div>`
+                            : ''
+                    }
+                    ${
+                        dayAppointments.length > 0
+                            ? `
                         <div class="calendar-day-tooltip">
                             ${dayAppointments
-                        .map(
-                            (apt) => `
+                                .map(
+                                    (apt) => `
                                 <div class="tooltip-item">
                                     <strong>${apt.time}</strong> - ${apt.customerName}
                                 </div>
-                            `
-                        )
-                        .join('')}
+                            `,
+                                )
+                                .join('')}
                         </div>
                     `
-                    : ''
-                }
+                            : ''
+                    }
                 </div>
             `;
         }
@@ -11735,7 +11908,7 @@ class LojaApp {
                 }
                 this.renderFullCalendar(
                     this.currentCalendarYear,
-                    this.currentCalendarMonth
+                    this.currentCalendarMonth,
                 );
             };
         }
@@ -11750,7 +11923,7 @@ class LojaApp {
                 }
                 this.renderFullCalendar(
                     this.currentCalendarYear,
-                    this.currentCalendarMonth
+                    this.currentCalendarMonth,
                 );
             };
         }
@@ -11768,7 +11941,7 @@ class LojaApp {
                 appointmentDate = new Date(
                     parseInt(yearStr),
                     parseInt(monthStr) - 1,
-                    parseInt(dayStr)
+                    parseInt(dayStr),
                 );
             } else {
                 appointmentDate = new Date(appointment.date);
@@ -11795,7 +11968,7 @@ class LojaApp {
 
     renderServiceAppointmentCard(appointment, isPast = false) {
         const service = this.items.find(
-            (i) => i.id === appointment.serviceTypeId
+            (i) => i.id === appointment.serviceTypeId,
         );
         const serviceName = service ? service.name : 'Serviço não encontrado';
 
@@ -11809,7 +11982,7 @@ class LojaApp {
             }[appointment.status] || appointment.status;
 
         const appointmentDate = new Date(
-            `${appointment.date}T${appointment.time}`
+            `${appointment.date}T${appointment.time}`,
         );
         const formattedDate = appointmentDate.toLocaleDateString('pt-BR');
         const formattedTime = appointmentDate.toLocaleTimeString('pt-BR', {
@@ -11874,49 +12047,59 @@ class LojaApp {
         return `
             <div class="service-appointment-card" style="${cardStyle}; border: 2px solid ${cardBorderColor};">
                 ${reminderAlert}
-                <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: ${isPast ? '0.75rem' : '1rem'
-            };">
+                <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: ${
+                    isPast ? '0.75rem' : '1rem'
+                };">
                     <div style="flex: 1; min-width: 0;">
                         <h3 style="${titleStyle}">${this.escapeHtml(
-                serviceName
-            )}</h3>
+                            serviceName,
+                        )}</h3>
                         <p style="${textStyle}">${this.escapeHtml(
-                appointment.customerName
-            )}</p>
-                        ${appointment.customerContact
-                ? `<p style="margin: 0.2rem 0 0 0; color: var(--gray-600); font-size: 0.8rem;">📞 ${this.escapeHtml(
-                    appointment.customerContact
-                )}</p>`
-                : ''
-            }
+                            appointment.customerName,
+                        )}</p>
+                        ${
+                            appointment.customerContact
+                                ? `<p style="margin: 0.2rem 0 0 0; color: var(--gray-600); font-size: 0.8rem;">📞 ${this.escapeHtml(
+                                      appointment.customerContact,
+                                  )}</p>`
+                                : ''
+                        }
                     </div>
                     <span class="appointment-status ${statusClass}" style="flex-shrink: 0; margin-left: 0.5rem;">${statusText}</span>
                 </div>
                 <div style="margin-bottom: ${isPast ? '0.5rem' : '0.75rem'};">
                     <p style="${detailStyle}"><strong>📅 Data:</strong> ${formattedDate}</p>
                     <p style="${detailStyle}"><strong>🕐 Horário:</strong> ${formattedTime}</p>
-                    <p style="margin: 0; color: var(--dark-gray); font-size: ${isPast ? '0.85rem' : '1rem'
-            };"><strong>💰 Preço:</strong> R$ ${appointment.price
-                .toFixed(2)
-                .replace('.', ',')}</p>
+                    <p style="margin: 0; color: var(--dark-gray); font-size: ${
+                        isPast ? '0.85rem' : '1rem'
+                    };"><strong>💰 Preço:</strong> R$ ${appointment.price
+                        .toFixed(2)
+                        .replace('.', ',')}</p>
                 </div>
-                ${appointment.notes
-                ? `<p style="margin: 0 0 ${isPast ? '0.5rem' : '0.75rem'
-                } 0; color: var(--gray-600); font-size: ${isPast ? '0.8rem' : '0.9rem'
-                }; font-style: italic;">${this.escapeHtml(
+                ${
                     appointment.notes
-                )}</p>`
-                : ''
-            }
+                        ? `<p style="margin: 0 0 ${
+                              isPast ? '0.5rem' : '0.75rem'
+                          } 0; color: var(--gray-600); font-size: ${
+                              isPast ? '0.8rem' : '0.9rem'
+                          }; font-style: italic;">${this.escapeHtml(
+                              appointment.notes,
+                          )}</p>`
+                        : ''
+                }
                 <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
-                    <button type="button" class="btn-secondary" onclick="app.editServiceAppointment('${appointment.id
-            }')" style="flex: 1; min-width: 80px; font-size: ${isPast ? '0.85rem' : '0.95rem'
-            }; padding: ${isPast ? '0.5rem' : '0.625rem'};">
+                    <button type="button" class="btn-secondary" onclick="app.editServiceAppointment('${
+                        appointment.id
+                    }')" style="flex: 1; min-width: 80px; font-size: ${
+                        isPast ? '0.85rem' : '0.95rem'
+                    }; padding: ${isPast ? '0.5rem' : '0.625rem'};">
                         <i class="fas fa-edit"></i> Editar
                     </button>
-                    <button type="button" class="btn-delete" onclick="app.deleteServiceAppointment('${appointment.id
-            }')" style="min-width: 36px; padding: ${isPast ? '0.4rem' : '0.5rem'
-            }; font-size: ${isPast ? '0.85rem' : '0.95rem'};">
+                    <button type="button" class="btn-delete" onclick="app.deleteServiceAppointment('${
+                        appointment.id
+                    }')" style="min-width: 36px; padding: ${
+                        isPast ? '0.4rem' : '0.5rem'
+                    }; font-size: ${isPast ? '0.85rem' : '0.95rem'};">
                         <i class="fas fa-times"></i>
                     </button>
                 </div>
@@ -11926,7 +12109,7 @@ class LojaApp {
 
     editServiceAppointment(appointmentId) {
         const appointment = this.serviceAppointments.find(
-            (a) => a.id === appointmentId
+            (a) => a.id === appointmentId,
         );
         if (appointment) {
             this.openServiceAppointmentModal(appointment);
@@ -11936,7 +12119,7 @@ class LojaApp {
     deleteServiceAppointment(appointmentId) {
         if (confirm('Tem certeza que deseja excluir este agendamento?')) {
             this.serviceAppointments = this.serviceAppointments.filter(
-                (a) => a.id !== appointmentId
+                (a) => a.id !== appointmentId,
             );
             this.saveData();
             this.renderServiceAppointments();
@@ -12115,7 +12298,7 @@ class LojaApp {
     deleteGroup(groupId) {
         if (
             confirm(
-                'Tem certeza que deseja excluir este grupo mensal? Todas as vendas serão perdidas.'
+                'Tem certeza que deseja excluir este grupo mensal? Todas as vendas serão perdidas.',
             )
         ) {
             this.groups = this.groups.filter((g) => g.id !== groupId);
@@ -12159,14 +12342,14 @@ class LojaApp {
         if (overallTotalSalesEl) {
             this.updateValueWithAnimation(
                 'overallTotalSales',
-                allMonthsTotal.totalSales
+                allMonthsTotal.totalSales,
             );
         }
         if (overallTotalValueEl) {
             this.updateValueWithAnimation(
                 'overallTotalValue',
                 allMonthsTotal.totalValue,
-                (val) => `R$ ${val.toFixed(2).replace('.', ',')}`
+                (val) => `R$ ${val.toFixed(2).replace('.', ',')}`,
             );
         }
 
@@ -12201,15 +12384,17 @@ class LojaApp {
                     <div class="empty-state-icon">
                         <i class="fas fa-calendar-alt"></i>
                     </div>
-                    <h3 class="empty-state-title">${yearFilter
-                    ? `Nenhum grupo encontrado para ${yearFilter}`
-                    : 'Nenhum grupo mensal criado ainda'
-                }</h3>
+                    <h3 class="empty-state-title">${
+                        yearFilter
+                            ? `Nenhum grupo encontrado para ${yearFilter}`
+                            : 'Nenhum grupo mensal criado ainda'
+                    }</h3>
                     <p class="empty-state-message">
-                        ${yearFilter
-                    ? 'Tente selecionar outro ano ou criar um novo grupo mensal.'
-                    : 'Comece criando um grupo mensal para organizar suas vendas por mês.'
-                }
+                        ${
+                            yearFilter
+                                ? 'Tente selecionar outro ano ou criar um novo grupo mensal.'
+                                : 'Comece criando um grupo mensal para organizar suas vendas por mês.'
+                        }
                     </p>
                 </div>`;
             return;
@@ -12238,16 +12423,16 @@ class LojaApp {
                     (sum, day) =>
                         sum +
                         day.sales.reduce((s, sale) => s + sale.quantity, 0),
-                    0
+                    0,
                 );
                 const totalValue = group.days.reduce(
                     (sum, day) =>
                         sum +
                         day.sales.reduce(
                             (s, sale) => s + this.getSaleTotalValue(sale),
-                            0
+                            0,
                         ),
-                    0
+                    0,
                 );
 
                 // Calcular estoque do grupo
@@ -12266,7 +12451,7 @@ class LojaApp {
                         }
                         itemStockStatus[itemId].stock = Math.max(
                             itemStockStatus[itemId].stock,
-                            day.stock[itemId] || 0
+                            day.stock[itemId] || 0,
                         );
                     });
                     // Somar vendas
@@ -12283,11 +12468,11 @@ class LojaApp {
 
                 const totalStock = Object.values(itemStockStatus).reduce(
                     (sum, data) => sum + data.stock,
-                    0
+                    0,
                 );
                 const totalStockSold = Object.values(itemStockStatus).reduce(
                     (sum, data) => sum + data.sold,
-                    0
+                    0,
                 );
                 const totalStockAvailable = totalStock - totalStockSold;
 
@@ -12297,24 +12482,27 @@ class LojaApp {
                     <div class="group-info">
                         <div><strong>Total de Vendas:</strong> ${totalSales}</div>
                         <div><strong>Valor Total:</strong> R$ ${totalValue
-                        .toFixed(2)
-                        .replace('.', ',')}</div>
+                            .toFixed(2)
+                            .replace('.', ',')}</div>
                         <div class="stock-section">
                             <div class="stock-total"><strong>Estoque Total:</strong> ${totalStock} un.</div>
                             <div class="stock-sold"><strong>Estoque Vendido:</strong> ${totalStockSold} un.</div>
-                            <div class="stock-available ${totalStockAvailable < 0
-                        ? 'danger'
-                        : totalStockAvailable === 0
-                            ? 'warning'
-                            : ''
-                    }"><strong>Estoque Disponível:</strong> ${totalStockAvailable} un.</div>
+                            <div class="stock-available ${
+                                totalStockAvailable < 0
+                                    ? 'danger'
+                                    : totalStockAvailable === 0
+                                      ? 'warning'
+                                      : ''
+                            }"><strong>Estoque Disponível:</strong> ${totalStockAvailable} un.</div>
                         </div>
                     </div>
                     <div class="group-actions">
-                        <button class="btn-small btn-edit" onclick="app.viewGroup('${group.id
-                    }')">Ver Detalhes</button>
-                        <button class="btn-small btn-delete" onclick="app.deleteGroup('${group.id
-                    }')" title="Excluir"><i class="fas fa-times"></i></button>
+                        <button class="btn-small btn-edit" onclick="app.viewGroup('${
+                            group.id
+                        }')">Ver Detalhes</button>
+                        <button class="btn-small btn-delete" onclick="app.deleteGroup('${
+                            group.id
+                        }')" title="Excluir"><i class="fas fa-times"></i></button>
                     </div>
                 </div>
             `;
@@ -12349,8 +12537,9 @@ class LojaApp {
                 ];
                 const option = document.createElement('option');
                 option.value = group.month;
-                option.textContent = `${monthNames[parseInt(month) - 1]
-                    } ${year}`;
+                option.textContent = `${
+                    monthNames[parseInt(month) - 1]
+                } ${year}`;
                 select.appendChild(option);
             }
         });
@@ -12369,7 +12558,7 @@ class LojaApp {
 
         // Ordenar anos (mais recente primeiro)
         const sortedYears = Array.from(years).sort(
-            (a, b) => parseInt(b) - parseInt(a)
+            (a, b) => parseInt(b) - parseInt(a),
         );
 
         // Limpar opções existentes (exceto "Todos os anos")
@@ -12401,7 +12590,7 @@ class LojaApp {
 
         // Ordenar anos (mais recente primeiro)
         const sortedYears = Array.from(years).sort(
-            (a, b) => parseInt(b) - parseInt(a)
+            (a, b) => parseInt(b) - parseInt(a),
         );
 
         // Limpar opções existentes (exceto "Todos os anos")
@@ -12433,7 +12622,7 @@ class LojaApp {
 
         // Ordenar anos (mais recente primeiro)
         const sortedYears = Array.from(years).sort(
-            (a, b) => parseInt(b) - parseInt(a)
+            (a, b) => parseInt(b) - parseInt(a),
         );
 
         // Limpar opções existentes (exceto "Todos os anos")
@@ -12497,7 +12686,7 @@ class LojaApp {
 
     openServiceRecordModal(serviceGroupId, day) {
         const serviceGroup = this.serviceGroups.find(
-            (g) => g.id === serviceGroupId
+            (g) => g.id === serviceGroupId,
         );
         if (!serviceGroup) return;
 
@@ -12508,7 +12697,7 @@ class LojaApp {
         // Popular select apenas com serviços
         const serviceItemSelect = document.getElementById('serviceRecordItem');
         const serviceItems = this.items.filter(
-            (item) => item.category === 'Serviços'
+            (item) => item.category === 'Serviços',
         );
 
         serviceItemSelect.innerHTML =
@@ -12516,7 +12705,7 @@ class LojaApp {
             serviceItems
                 .map((item) => {
                     return `<option value="${item.id}">${this.escapeHtml(
-                        item.name
+                        item.name,
                     )}</option>`;
                 })
                 .join('');
@@ -12526,7 +12715,7 @@ class LojaApp {
 
         // Atualizar exibição do dia
         const serviceDayDisplay = document.getElementById(
-            'serviceRecordDayDisplay'
+            'serviceRecordDayDisplay',
         );
         if (serviceDayDisplay) {
             serviceDayDisplay.textContent = day;
@@ -12544,7 +12733,7 @@ class LojaApp {
 
         // Verificar se o modal de visualização está aberto e adicionar classe para z-index maior
         const viewServiceGroupModal = document.getElementById(
-            'viewServiceGroupModal'
+            'viewServiceGroupModal',
         );
         const serviceRecordModal =
             document.getElementById('serviceRecordModal');
@@ -12577,7 +12766,7 @@ class LojaApp {
             dayData.services
                 .map((service, index) => {
                     const item = this.items.find(
-                        (i) => i.id === service.itemId
+                        (i) => i.id === service.itemId,
                     );
                     const hours = service.hours || 0;
                     const minutes = service.minutes || 0;
@@ -12587,15 +12776,16 @@ class LojaApp {
                     <div style="display: flex; justify-content: space-between; align-items: center; padding: 0.75rem; background: white; margin-bottom: 0.5rem; border-radius: 5px; border: 1px solid var(--border-color);">
                         <div>
                             <strong>${this.escapeHtml(
-                        this.getItemName(service.itemId)
-                    )}</strong>
+                                this.getItemName(service.itemId),
+                            )}</strong>
                             <div style="font-size: 0.85rem; color: var(--gray); margin-top: 0.25rem;">
                                 ${hours}h ${minutes}min - R$ ${total
-                            .toFixed(2)
-                            .replace('.', ',')}
+                                    .toFixed(2)
+                                    .replace('.', ',')}
                             </div>
                         </div>
-                        <button type="button" class="btn-small btn-delete" onclick="app.deleteServiceRecord(${this.currentServiceDay
+                        <button type="button" class="btn-small btn-delete" onclick="app.deleteServiceRecord(${
+                            this.currentServiceDay
                         }, ${index})" title="Excluir">
                             <i class="fas fa-times"></i>
                         </button>
@@ -12617,7 +12807,7 @@ class LojaApp {
             parseInt(document.getElementById('serviceRecordMinutes').value) ||
             0;
         const price = this.parsePrice(
-            document.getElementById('serviceRecordPrice').value
+            document.getElementById('serviceRecordPrice').value,
         );
 
         if (!itemId) {
@@ -12637,12 +12827,12 @@ class LojaApp {
 
         // Buscar o grupo atualizado
         const serviceGroup = this.serviceGroups.find(
-            (g) => g.id === this.currentServiceGroup.id
+            (g) => g.id === this.currentServiceGroup.id,
         );
         if (!serviceGroup) return;
 
         const dayData = serviceGroup.days.find(
-            (d) => d.day === this.currentServiceDay
+            (d) => d.day === this.currentServiceDay,
         );
         if (!dayData) return;
 
@@ -12659,7 +12849,7 @@ class LojaApp {
 
         // Atualizar visualização
         const viewServiceGroupModal = document.getElementById(
-            'viewServiceGroupModal'
+            'viewServiceGroupModal',
         );
         if (
             viewServiceGroupModal &&
@@ -12685,7 +12875,7 @@ class LojaApp {
         if (!this.currentServiceGroup) return;
 
         const serviceGroup = this.serviceGroups.find(
-            (g) => g.id === this.currentServiceGroup.id
+            (g) => g.id === this.currentServiceGroup.id,
         );
         if (!serviceGroup) return;
 
@@ -12721,7 +12911,7 @@ class LojaApp {
 
     viewServiceGroup(serviceGroupId) {
         const serviceGroup = this.serviceGroups.find(
-            (g) => g.id === serviceGroupId
+            (g) => g.id === serviceGroupId,
         );
         if (!serviceGroup) return;
 
@@ -12750,9 +12940,8 @@ class LojaApp {
         ];
         const monthName = monthNames[parseInt(monthNum) - 1];
 
-        document.getElementById(
-            'serviceGroupTitle'
-        ).textContent = `Serviços - ${monthName}/${year}`;
+        document.getElementById('serviceGroupTitle').textContent =
+            `Serviços - ${monthName}/${year}`;
 
         // Calcular totais do mês
         let totalHours = 0;
@@ -12771,12 +12960,10 @@ class LojaApp {
         totalHours += Math.floor(totalMinutes / 60);
         totalMinutes = totalMinutes % 60;
 
-        document.getElementById(
-            'serviceGroupTotalHours'
-        ).textContent = `${totalHours}h ${totalMinutes}min`;
-        document.getElementById(
-            'serviceGroupTotalRevenue'
-        ).textContent = `R$ ${totalRevenue.toFixed(2).replace('.', ',')}`;
+        document.getElementById('serviceGroupTotalHours').textContent =
+            `${totalHours}h ${totalMinutes}min`;
+        document.getElementById('serviceGroupTotalRevenue').textContent =
+            `R$ ${totalRevenue.toFixed(2).replace('.', ',')}`;
 
         // Calcular totais de todos os meses
         let allHours = 0;
@@ -12796,12 +12983,10 @@ class LojaApp {
         allHours += Math.floor(allMinutes / 60);
         allMinutes = allMinutes % 60;
 
-        document.getElementById(
-            'serviceGroupTotalHoursAll'
-        ).textContent = `${allHours}h ${allMinutes}min`;
-        document.getElementById(
-            'serviceGroupTotalRevenueAll'
-        ).textContent = `R$ ${allRevenue.toFixed(2).replace('.', ',')}`;
+        document.getElementById('serviceGroupTotalHoursAll').textContent =
+            `${allHours}h ${allMinutes}min`;
+        document.getElementById('serviceGroupTotalRevenueAll').textContent =
+            `R$ ${allRevenue.toFixed(2).replace('.', ',')}`;
 
         // Renderizar dias
         const daysList = document.getElementById('serviceDaysList');
@@ -12810,7 +12995,7 @@ class LojaApp {
                 const dayServices = day.services.length;
                 const dayTotal = day.services.reduce(
                     (sum, s) => sum + (s.price || 0),
-                    0
+                    0,
                 );
                 let dayHours = 0;
                 let dayMinutes = 0;
@@ -12831,7 +13016,8 @@ class LojaApp {
                         <span>${dayHours}h ${dayMinutes}min</span>
                         <span>R$ ${dayTotal.toFixed(2).replace('.', ',')}</span>
                     </div>
-                    <button type="button" class="btn-small btn-primary" onclick="app.openServiceRecordModal('${serviceGroup.id
+                    <button type="button" class="btn-small btn-primary" onclick="app.openServiceRecordModal('${
+                        serviceGroup.id
                     }', ${day.day})">
                         ${dayServices > 0 ? 'Editar' : 'Registrar'}
                     </button>
@@ -12871,8 +13057,8 @@ class LojaApp {
                             <strong>${this.escapeHtml(data.name)}</strong>
                             <div style="font-size: 0.85rem; color: var(--gray); margin-top: 0.25rem;">
                                 ${totalHours}h ${totalMinutes}min - R$ ${data.total
-                            .toFixed(2)
-                            .replace('.', ',')}
+                                    .toFixed(2)
+                                    .replace('.', ',')}
                             </div>
                         </div>
                     </div>
@@ -12892,11 +13078,11 @@ class LojaApp {
     deleteServiceGroup(serviceGroupId) {
         if (
             confirm(
-                'Tem certeza que deseja excluir este grupo de serviços? Todos os registros serão perdidos.'
+                'Tem certeza que deseja excluir este grupo de serviços? Todos os registros serão perdidos.',
             )
         ) {
             this.serviceGroups = this.serviceGroups.filter(
-                (g) => g.id !== serviceGroupId
+                (g) => g.id !== serviceGroupId,
             );
             this.saveData();
             this.updateServicesYearFilter();
@@ -12924,7 +13110,7 @@ class LojaApp {
                     if (!serviceGroup.month) return false;
                     const [year] = serviceGroup.month.split('-');
                     return year === servicesYearFilter;
-                }
+                },
             );
         }
 
@@ -12981,15 +13167,17 @@ class LojaApp {
                     <div class="group-info">
                         <div><strong>Total de Horas:</strong> ${totalHours}h ${totalMinutes}min</div>
                         <div><strong>Total Faturado:</strong> R$ ${totalRevenue
-                        .toFixed(2)
-                        .replace('.', ',')}</div>
+                            .toFixed(2)
+                            .replace('.', ',')}</div>
                         <div><strong>Serviços Registrados:</strong> ${totalServices}</div>
                     </div>
                     <div class="group-actions">
-                        <button class="btn-small btn-edit" onclick="app.viewServiceGroup('${serviceGroup.id
-                    }')">Ver Detalhes</button>
-                        <button class="btn-small btn-delete" onclick="app.deleteServiceGroup('${serviceGroup.id
-                    }')" title="Excluir"><i class="fas fa-times"></i></button>
+                        <button class="btn-small btn-edit" onclick="app.viewServiceGroup('${
+                            serviceGroup.id
+                        }')">Ver Detalhes</button>
+                        <button class="btn-small btn-delete" onclick="app.deleteServiceGroup('${
+                            serviceGroup.id
+                        }')" title="Excluir"><i class="fas fa-times"></i></button>
                     </div>
                 </div>
             `;
@@ -13061,10 +13249,10 @@ class LojaApp {
         const totalRevenueEl = document.getElementById('servicesTotalRevenue');
         const totalCountEl = document.getElementById('servicesTotalCount');
         const avgValuePerHourEl = document.getElementById(
-            'servicesAvgValuePerHour'
+            'servicesAvgValuePerHour',
         );
         const avgHoursPerServiceEl = document.getElementById(
-            'servicesAvgHoursPerService'
+            'servicesAvgHoursPerService',
         );
 
         if (totalHoursEl)
@@ -13099,7 +13287,7 @@ class LojaApp {
         const costItemSelect = document.getElementById('costItem');
         // Filtrar apenas produtos físicos (excluir serviços)
         const physicalItems = this.items.filter(
-            (item) => item.category !== 'Serviços'
+            (item) => item.category !== 'Serviços',
         );
 
         costItemSelect.innerHTML =
@@ -13110,7 +13298,7 @@ class LojaApp {
                     if (category === 'Eletrônicos') {
                         const displayName = item.model || item.name;
                         return `<option value="${item.id}">${this.escapeHtml(
-                            displayName
+                            displayName,
                         )}</option>`;
                     } else {
                         // Para roupas, se não tiver nome, usar marca + estilo ou apenas marca
@@ -13124,7 +13312,7 @@ class LojaApp {
                                 parts.filter((p) => p).join(' - ') || 'Roupa';
                         }
                         return `<option value="${item.id}">${this.escapeHtml(
-                            displayName
+                            displayName,
                         )}</option>`;
                     }
                 })
@@ -13139,8 +13327,8 @@ class LojaApp {
                     .map(
                         (supplier) =>
                             `<option value="${supplier.id}">${this.escapeHtml(
-                                supplier.name
-                            )}</option>`
+                                supplier.name,
+                            )}</option>`,
                     )
                     .join('');
         }
@@ -13175,7 +13363,7 @@ class LojaApp {
         const quantity =
             parseFloat(document.getElementById('costQuantity').value) || 0;
         const price = this.parsePrice(
-            document.getElementById('costPrice').value
+            document.getElementById('costPrice').value,
         );
         const total = quantity * price;
         document.getElementById('costTotal').value = total.toFixed(2);
@@ -13187,10 +13375,10 @@ class LojaApp {
         const itemId = document.getElementById('costItem').value;
         const date = document.getElementById('costDate').value;
         const quantity = parseInt(
-            document.getElementById('costQuantity').value
+            document.getElementById('costQuantity').value,
         );
         const price = this.parsePrice(
-            document.getElementById('costPrice').value
+            document.getElementById('costPrice').value,
         );
 
         if (!itemId) {
@@ -13220,7 +13408,7 @@ class LojaApp {
 
         if (this.currentEditingCost) {
             const index = this.costs.findIndex(
-                (c) => c.id === this.currentEditingCost.id
+                (c) => c.id === this.currentEditingCost.id,
             );
             if (index !== -1) {
                 this.costs[index] = cost;
@@ -13262,7 +13450,7 @@ class LojaApp {
         const totalCosts = this.costs.length;
         const totalValue = this.costs.reduce(
             (sum, cost) => sum + cost.total,
-            0
+            0,
         );
 
         if (countEl) {
@@ -13297,7 +13485,7 @@ class LojaApp {
 
         // Ordenar por data (mais recente primeiro)
         const sortedCosts = [...this.costs].sort(
-            (a, b) => new Date(b.date) - new Date(a.date)
+            (a, b) => new Date(b.date) - new Date(a.date),
         );
 
         list.innerHTML = sortedCosts
@@ -13309,10 +13497,11 @@ class LojaApp {
                 return `
                 <div class="cost-card">
                     <h3>${this.escapeHtml(
-                    item ? item.name : 'Item não encontrado'
-                )}</h3>
+                        item ? item.name : 'Item não encontrado',
+                    )}</h3>
                     <div class="cost-info"><strong>Data:</strong> ${formattedDate}</div>
-                    <div class="cost-info"><strong>Quantidade:</strong> ${cost.quantity
+                    <div class="cost-info"><strong>Quantidade:</strong> ${
+                        cost.quantity
                     } un.</div>
                     <div class="cost-info"><strong>Custo Unitário:</strong> R$ ${cost.price
                         .toFixed(2)
@@ -13322,10 +13511,11 @@ class LojaApp {
                         .replace('.', ',')}</div>
                     <div class="cost-actions">
                         <button class="btn-small btn-edit" onclick="app.openCostModal(${JSON.stringify(
-                            cost
+                            cost,
                         ).replace(/"/g, '&quot;')})">Editar</button>
-                        <button class="btn-small btn-delete" onclick="app.deleteCost('${cost.id
-                    }')" title="Excluir"><i class="fas fa-times"></i></button>
+                        <button class="btn-small btn-delete" onclick="app.deleteCost('${
+                            cost.id
+                        }')" title="Excluir"><i class="fas fa-times"></i></button>
                     </div>
                 </div>
             `;
@@ -13352,7 +13542,7 @@ class LojaApp {
             // Definir mês atual como padrão
             const now = new Date();
             const currentMonth = `${now.getFullYear()}-${String(
-                now.getMonth() + 1
+                now.getMonth() + 1,
             ).padStart(2, '0')}`;
             document.getElementById('goalMonth').value = currentMonth;
             form.reset();
@@ -13373,7 +13563,7 @@ class LojaApp {
 
         const month = document.getElementById('goalMonth').value;
         const amount = this.parsePrice(
-            document.getElementById('goalAmount').value
+            document.getElementById('goalAmount').value,
         );
         const description = document
             .getElementById('goalDescription')
@@ -13398,7 +13588,7 @@ class LojaApp {
 
         if (this.currentEditingGoal) {
             const index = this.goals.findIndex(
-                (g) => g.id === this.currentEditingGoal.id
+                (g) => g.id === this.currentEditingGoal.id,
             );
             if (index !== -1) {
                 this.goals[index] = goal;
@@ -13409,7 +13599,7 @@ class LojaApp {
             if (existingGoal) {
                 if (
                     !confirm(
-                        'Já existe uma meta para este mês. Deseja substituí-la?'
+                        'Já existe uma meta para este mês. Deseja substituí-la?',
                     )
                 ) {
                     return;
@@ -13484,7 +13674,7 @@ class LojaApp {
         // Calcular meta e vendas do mês atual
         const now = new Date();
         const currentMonth = `${now.getFullYear()}-${String(
-            now.getMonth() + 1
+            now.getMonth() + 1,
         ).padStart(2, '0')}`;
         const currentGoal = this.goals.find((g) => g.month === currentMonth);
         const currentSales = this.getMonthSales(currentMonth);
@@ -13505,7 +13695,7 @@ class LojaApp {
             }
             if (goalProgressEl) {
                 goalProgressEl.textContent = `${Math.min(progress, 100).toFixed(
-                    1
+                    1,
                 )}%`;
             }
             if (goalStatusEl) {
@@ -13545,26 +13735,29 @@ class LojaApp {
                     <div class="empty-state-icon">
                         <i class="fas fa-bullseye"></i>
                     </div>
-                    <h3 class="empty-state-title">${goalsYearFilter
-                    ? `Nenhuma meta encontrada para ${goalsYearFilter}`
-                    : 'Nenhuma meta cadastrada ainda'
-                }</h3>
+                    <h3 class="empty-state-title">${
+                        goalsYearFilter
+                            ? `Nenhuma meta encontrada para ${goalsYearFilter}`
+                            : 'Nenhuma meta cadastrada ainda'
+                    }</h3>
                     <p class="empty-state-message">
-                        ${goalsYearFilter
-                    ? 'Tente selecionar outro ano ou criar uma nova meta.'
-                    : 'Comece definindo suas metas financeiras para acompanhar o desempenho do negócio.'
-                }
+                        ${
+                            goalsYearFilter
+                                ? 'Tente selecionar outro ano ou criar uma nova meta.'
+                                : 'Comece definindo suas metas financeiras para acompanhar o desempenho do negócio.'
+                        }
                     </p>
-                    ${!goalsYearFilter
-                    ? `
+                    ${
+                        !goalsYearFilter
+                            ? `
                         <div class="empty-state-action">
                             <button class="btn-primary" onclick="app.openGoalModal()">
                                 <i class="fas fa-bullseye"></i> Criar Primeira Meta
                             </button>
                         </div>
                     `
-                    : ''
-                }
+                            : ''
+                    }
                 </div>`;
             ('</p>');
             return;
@@ -13575,7 +13768,7 @@ class LojaApp {
 
         // Ordenar por mês (mais recente primeiro)
         const sortedGoals = [...filteredGoals].sort((a, b) =>
-            b.month.localeCompare(a.month)
+            b.month.localeCompare(a.month),
         );
 
         list.innerHTML = sortedGoals
@@ -13602,22 +13795,22 @@ class LojaApp {
                     progress >= 100
                         ? 'success'
                         : progress >= 75
-                            ? 'warning'
-                            : 'danger';
+                          ? 'warning'
+                          : 'danger';
 
                 // Verificar se está próximo de atingir (75-95%)
                 const isNearGoal = progress >= 75 && progress < 100;
                 const daysInMonth = new Date(
                     parseInt(year),
                     parseInt(month),
-                    0
+                    0,
                 ).getDate();
                 const now = new Date();
                 const isCurrentMonth =
                     goal.month ===
                     `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(
                         2,
-                        '0'
+                        '0',
                     )}`;
                 const daysRemaining = isCurrentMonth
                     ? daysInMonth - now.getDate()
@@ -13628,40 +13821,44 @@ class LojaApp {
                     daysRemaining <= 7;
 
                 return `
-                <div class="goal-card" ${isNearGoal || isNearEndOfMonth
+                <div class="goal-card" ${
+                    isNearGoal || isNearEndOfMonth
                         ? 'style="border: 2px solid #ffc107;"'
                         : ''
-                    }>
-                    ${isNearGoal
-                        ? `
+                }>
+                    ${
+                        isNearGoal
+                            ? `
                         <div style="padding: 0.75rem; background: #fff3cd; border: 2px solid #ffc107; border-radius: var(--radius-sm); margin-bottom: 1rem;">
                             <p style="margin: 0; color: #856404; font-weight: 600;">
                                 <i class="fas fa-bullseye"></i> Meta quase atingida! ${progress.toFixed(
-                            1
-                        )}% concluído
+                                    1,
+                                )}% concluído
                             </p>
                         </div>
                     `
-                        : ''
+                            : ''
                     }
-                    ${isNearEndOfMonth && progress < 100
-                        ? `
+                    ${
+                        isNearEndOfMonth && progress < 100
+                            ? `
                         <div style="padding: 0.75rem; background: #fff3cd; border: 2px solid #ffc107; border-radius: var(--radius-sm); margin-bottom: 1rem;">
                             <p style="margin: 0; color: #856404; font-weight: 600;">
                                 <i class="fas fa-clock"></i> Faltam ${daysRemaining} dia(s) para o fim do mês! Progresso: ${progress.toFixed(
-                            1
-                        )}%
+                                    1,
+                                )}%
                             </p>
                         </div>
                     `
-                        : ''
+                            : ''
                     }
                     <h3>${monthName}/${year}</h3>
-                    ${goal.description
-                        ? `<div class="goal-info"><strong>Descrição:</strong> ${this.escapeHtml(
-                            goal.description
-                        )}</div>`
-                        : ''
+                    ${
+                        goal.description
+                            ? `<div class="goal-info"><strong>Descrição:</strong> ${this.escapeHtml(
+                                  goal.description,
+                              )}</div>`
+                            : ''
                     }
                     <div class="goal-info"><strong>Meta:</strong> R$ ${goal.amount
                         .toFixed(2)
@@ -13672,17 +13869,18 @@ class LojaApp {
                     <div class="goal-progress-bar">
                         <div class="goal-progress-fill ${progressClass}" style="width: ${Math.min(
                             progress,
-                            100
+                            100,
                         )}%">
                             ${Math.min(progress, 100).toFixed(1)}%
                         </div>
                     </div>
                     <div class="goal-actions">
                         <button class="btn-small btn-edit" onclick="app.openGoalModal(${JSON.stringify(
-                            goal
+                            goal,
                         ).replace(/"/g, '&quot;')})">Editar</button>
-                        <button class="btn-small btn-delete" onclick="app.deleteGoal('${goal.id
-                    }')" title="Excluir"><i class="fas fa-times"></i></button>
+                        <button class="btn-small btn-delete" onclick="app.deleteGoal('${
+                            goal.id
+                        }')" title="Excluir"><i class="fas fa-times"></i></button>
                     </div>
                 </div>
             `;
@@ -13749,7 +13947,7 @@ class LojaApp {
                 const sales = this.getMonthSales(monthKey);
 
                 months.push(
-                    `${monthNames[month - 1]}/${String(year).slice(-2)}`
+                    `${monthNames[month - 1]}/${String(year).slice(-2)}`,
                 );
                 goalsData.push(goal ? goal.amount : 0);
                 salesData.push(sales);
@@ -13760,13 +13958,13 @@ class LojaApp {
             for (let i = 5; i >= 0; i--) {
                 const date = new Date(now.getFullYear(), now.getMonth() - i, 1);
                 const monthKey = `${date.getFullYear()}-${String(
-                    date.getMonth() + 1
+                    date.getMonth() + 1,
                 ).padStart(2, '0')}`;
 
                 months.push(
                     `${monthNames[date.getMonth()]}/${String(
-                        date.getFullYear()
-                    ).slice(-2)}`
+                        date.getFullYear(),
+                    ).slice(-2)}`,
                 );
 
                 const goal = this.goals.find((g) => g.month === monthKey);
@@ -13785,7 +13983,7 @@ class LojaApp {
         // Obter cor primária do tema
         const primaryColor =
             getComputedStyle(document.documentElement).getPropertyValue(
-                '--primary-color'
+                '--primary-color',
             ) || '#dc3545';
 
         // Criar novo gráfico
@@ -13910,7 +14108,7 @@ class LojaApp {
         this.costs.forEach((cost) => {
             const date = new Date(cost.date);
             const monthKey = `${date.getFullYear()}-${String(
-                date.getMonth() + 1
+                date.getMonth() + 1,
             ).padStart(2, '0')}`;
 
             if (!costsByMonth[monthKey]) {
@@ -13932,7 +14130,7 @@ class LojaApp {
         for (let i = 5; i >= 0; i--) {
             const date = new Date(now.getFullYear(), now.getMonth() - i, 1);
             const monthKey = `${date.getFullYear()}-${String(
-                date.getMonth() + 1
+                date.getMonth() + 1,
             ).padStart(2, '0')}`;
             const monthNames = [
                 'Jan',
@@ -13951,8 +14149,8 @@ class LojaApp {
 
             months.push(
                 `${monthNames[date.getMonth()]}/${String(
-                    date.getFullYear()
-                ).slice(-2)}`
+                    date.getFullYear(),
+                ).slice(-2)}`,
             );
 
             const monthData = costsByMonth[monthKey] || { total: 0, count: 0 };
@@ -13968,7 +14166,7 @@ class LojaApp {
         // Obter cor primária do tema
         const primaryColor =
             getComputedStyle(document.documentElement).getPropertyValue(
-                '--primary-color'
+                '--primary-color',
             ) || '#dc3545';
 
         // Criar novo gráfico
@@ -14129,7 +14327,7 @@ class LojaApp {
                     if (!serviceGroup.month) return false;
                     const [year] = serviceGroup.month.split('-');
                     return year === servicesYearFilter;
-                }
+                },
             );
         }
 
@@ -14187,7 +14385,7 @@ class LojaApp {
                 };
 
                 months.push(
-                    `${monthNames[month - 1]}/${String(year).slice(-2)}`
+                    `${monthNames[month - 1]}/${String(year).slice(-2)}`,
                 );
                 revenueData.push(monthData.revenue);
                 const totalHours = monthData.hours + monthData.minutes / 60;
@@ -14199,13 +14397,13 @@ class LojaApp {
             for (let i = 5; i >= 0; i--) {
                 const date = new Date(now.getFullYear(), now.getMonth() - i, 1);
                 const monthKey = `${date.getFullYear()}-${String(
-                    date.getMonth() + 1
+                    date.getMonth() + 1,
                 ).padStart(2, '0')}`;
 
                 months.push(
                     `${monthNames[date.getMonth()]}/${String(
-                        date.getFullYear()
-                    ).slice(-2)}`
+                        date.getFullYear(),
+                    ).slice(-2)}`,
                 );
 
                 const monthData = servicesByMonth[monthKey] || {
@@ -14228,7 +14426,7 @@ class LojaApp {
         // Obter cor primária do tema
         const primaryColor =
             getComputedStyle(document.documentElement).getPropertyValue(
-                '--primary-color'
+                '--primary-color',
             ) || '#dc3545';
 
         // Criar novo gráfico
@@ -14370,7 +14568,7 @@ class LojaApp {
         // Custos da seção de custos
         let totalCosts = this.costs.reduce(
             (sum, cost) => sum + (cost.total || 0),
-            0
+            0,
         );
 
         // Adicionar custos dos produtos vendidos (baseado em item.cost)
@@ -14493,7 +14691,7 @@ class LojaApp {
                 const avgStock =
                     data.stockValues.length > 0
                         ? data.stockValues.reduce((sum, val) => sum + val, 0) /
-                        data.stockValues.length
+                          data.stockValues.length
                         : 0;
 
                 if (!stockByMonth[monthKey][sku]) {
@@ -14573,7 +14771,7 @@ class LojaApp {
         // Obter cor primária do tema
         const primaryColor =
             getComputedStyle(document.documentElement).getPropertyValue(
-                '--primary-color'
+                '--primary-color',
             ) || '#dc3545';
 
         // Criar novo gráfico
@@ -14711,30 +14909,32 @@ class LojaApp {
                     suggestion.priority === 'high'
                         ? '#dc3545'
                         : suggestion.priority === 'medium'
-                            ? '#ffc107'
-                            : '#28a745';
+                          ? '#ffc107'
+                          : '#28a745';
                 const priorityText =
                     suggestion.priority === 'high'
                         ? 'Urgente'
                         : suggestion.priority === 'medium'
-                            ? 'Atenção'
-                            : 'Sugestão';
+                          ? 'Atenção'
+                          : 'Sugestão';
 
                 return `
                 <div style="display: flex; justify-content: space-between; align-items: center; padding: 0.75rem; background: white; margin-bottom: 0.5rem; border-radius: 5px; border-left: 3px solid ${priorityColor};">
                     <div style="flex: 1;">
                         <strong style="font-size: 0.9rem;">${this.escapeHtml(
-                    suggestion.itemName
-                )}</strong>
+                            suggestion.itemName,
+                        )}</strong>
                         <div style="font-size: 0.75rem; color: var(--gray-600); margin-top: 0.25rem;">
-                            Estoque atual: ${suggestion.currentStock
-                    } un. | Vendas/mês: ${suggestion.monthlySales} un.
+                            Estoque atual: ${
+                                suggestion.currentStock
+                            } un. | Vendas/mês: ${suggestion.monthlySales} un.
                         </div>
                     </div>
                     <div style="text-align: right;">
                         <div style="font-size: 0.75rem; color: ${priorityColor}; font-weight: 600; margin-bottom: 0.25rem;">${priorityText}</div>
-                        <div style="font-size: 0.85rem; color: var(--gray-700);">Sugerido: ${suggestion.suggestedQty
-                    } un.</div>
+                        <div style="font-size: 0.85rem; color: var(--gray-700);">Sugerido: ${
+                            suggestion.suggestedQty
+                        } un.</div>
                     </div>
                 </div>
             `;
@@ -14748,7 +14948,7 @@ class LojaApp {
         // Verificar qual dashboard está atualmente visível
         const salesDashboard = document.getElementById('dashboardTab');
         const servicesDashboard = document.getElementById(
-            'servicesDashboardTab'
+            'servicesDashboardTab',
         );
         const isSalesActive =
             salesDashboard &&
@@ -14826,7 +15026,7 @@ class LojaApp {
                 }, 200);
             } else {
                 console.warn(
-                    '⚠️ [ADMIN] Acesso negado - apenas administradores'
+                    '⚠️ [ADMIN] Acesso negado - apenas administradores',
                 );
                 return;
             }
@@ -14861,7 +15061,7 @@ class LojaApp {
                 // Em modo de teste, não gerar warnings
                 if (!suppressWarnings) {
                     console.warn(
-                        `⚠️ [SWITCH TAB] Botão da aba "${tab}" não encontrado`
+                        `⚠️ [SWITCH TAB] Botão da aba "${tab}" não encontrado`,
                     );
                 }
             }
@@ -14908,10 +15108,10 @@ class LojaApp {
             // Em modo de teste, não gerar warnings
             if (!suppressWarnings) {
                 console.warn(
-                    `⚠️ [SWITCH TAB] Conteúdo da aba "${tab}Tab" não encontrado`
+                    `⚠️ [SWITCH TAB] Conteúdo da aba "${tab}Tab" não encontrado`,
                 );
                 console.warn(
-                    `⚠️ [SWITCH TAB] Tentando encontrar elemento com ID: ${tab}Tab`
+                    `⚠️ [SWITCH TAB] Tentando encontrar elemento com ID: ${tab}Tab`,
                 );
             }
         }
@@ -15231,7 +15431,7 @@ class LojaApp {
                 });
                 newCloseBtn.onclick = (e) => {
                     console.log(
-                        '🟢 [TUTORIAL] Botão X (onclick) clicado (re-anexado)'
+                        '🟢 [TUTORIAL] Botão X (onclick) clicado (re-anexado)',
                     );
                     e.preventDefault();
                     e.stopPropagation();
@@ -15244,11 +15444,11 @@ class LojaApp {
                 const newCloseTutorialBtn = closeTutorialBtn.cloneNode(true);
                 closeTutorialBtn.parentNode.replaceChild(
                     newCloseTutorialBtn,
-                    closeTutorialBtn
+                    closeTutorialBtn,
                 );
                 newCloseTutorialBtn.addEventListener('click', (e) => {
                     console.log(
-                        '🟢 [TUTORIAL] Botão Fechar clicado (re-anexado)'
+                        '🟢 [TUTORIAL] Botão Fechar clicado (re-anexado)',
                     );
                     e.preventDefault();
                     e.stopPropagation();
@@ -15256,7 +15456,7 @@ class LojaApp {
                 });
                 newCloseTutorialBtn.onclick = (e) => {
                     console.log(
-                        '🟢 [TUTORIAL] Botão Fechar (onclick) clicado (re-anexado)'
+                        '🟢 [TUTORIAL] Botão Fechar (onclick) clicado (re-anexado)',
                     );
                     e.preventDefault();
                     e.stopPropagation();
@@ -15330,7 +15530,7 @@ class LojaApp {
         } else {
             this.closeTutorialTooltip();
             alert(
-                '🎉 Tutorial concluído! Você já conhece as principais funcionalidades do sistema.'
+                '🎉 Tutorial concluído! Você já conhece as principais funcionalidades do sistema.',
             );
         }
     }
@@ -15578,10 +15778,10 @@ class LojaApp {
             'Dezembro',
         ];
 
-        document.getElementById(
-            'stockModalTitle'
-        ).textContent = `Gerenciar Estoque do Mês - ${monthNames[parseInt(month) - 1]
-        } ${year}`;
+        document.getElementById('stockModalTitle').textContent =
+            `Gerenciar Estoque do Mês - ${
+                monthNames[parseInt(month) - 1]
+            } ${year}`;
 
         // Definir dia padrão como 1
         document.getElementById('stockDay').value = 1;
@@ -15626,7 +15826,7 @@ class LojaApp {
 
         // Filtrar apenas produtos físicos (excluir serviços)
         const physicalItems = this.items.filter(
-            (item) => item.category !== 'Serviços'
+            (item) => item.category !== 'Serviços',
         );
 
         if (physicalItems.length === 0) {
@@ -15638,11 +15838,11 @@ class LojaApp {
         // Separar roupas e eletrônicos de outros produtos
         const itemsWithVariations = physicalItems.filter(
             (item) =>
-                item.category === 'Roupas' || item.category === 'Eletrônicos'
+                item.category === 'Roupas' || item.category === 'Eletrônicos',
         );
         const otherItems = physicalItems.filter(
             (item) =>
-                item.category !== 'Roupas' && item.category !== 'Eletrônicos'
+                item.category !== 'Roupas' && item.category !== 'Eletrônicos',
         );
 
         let html = '';
@@ -15701,7 +15901,7 @@ class LojaApp {
                             const saleStockKey = this.getStockKey(
                                 sale.itemId,
                                 saleSize,
-                                saleColor
+                                saleColor,
                             );
                             return saleStockKey === stockKey;
                         })
@@ -15714,12 +15914,18 @@ class LojaApp {
                     <div class="stock-variation-item">
                         <div class="stock-variation-info">
                             <div class="stock-variation-name">${this.escapeHtml(
-                        item.name || item.model || item.brand
-                    )}${item.brand ? ' - ' + this.escapeHtml(item.brand) : ''
-                        }</div>
+                                item.name || item.model || item.brand,
+                            )}${
+                                item.brand
+                                    ? ' - ' + this.escapeHtml(item.brand)
+                                    : ''
+                            }</div>
                             <div class="stock-variation-details">
-                                Tamanho: ${this.escapeHtml(sizeLabel)}${color ? ` | Cor: ${this.escapeHtml(colorLabel)}` : ''
-                        }
+                                Tamanho: ${this.escapeHtml(sizeLabel)}${
+                                    color
+                                        ? ` | Cor: ${this.escapeHtml(colorLabel)}`
+                                        : ''
+                                }
                             </div>
                             <div class="stock-variation-stats">
                                 Estoque: ${stockQuantity} un. | Vendido: ${soldQuantity} un. | Disponível: ${availableStock} un.
@@ -15769,9 +15975,10 @@ class LojaApp {
             <div style="display: flex; justify-content: space-between; align-items: center; padding: 1rem; background: white; margin-bottom: 0.5rem; border-radius: 5px; border: 1px solid var(--border-color);">
                 <div style="flex: 1;">
                     <strong>${this.escapeHtml(
-                item.name || item.model || 'Item'
-            )}</strong>${item.brand ? ' - ' + this.escapeHtml(item.brand) : ''
-                }
+                        item.name || item.model || 'Item',
+                    )}</strong>${
+                        item.brand ? ' - ' + this.escapeHtml(item.brand) : ''
+                    }
                     <div style="font-size: 0.85rem; color: var(--gray); margin-top: 0.25rem;">
                         Estoque: ${stockQuantity} un. | Vendido: ${soldQuantity} un. | Disponível: ${availableStock} un.
                     </div>
@@ -15816,7 +16023,7 @@ class LojaApp {
 
         // Salvar estoque - percorrer todos os inputs de estoque (excluir inputs de tamanho e cor)
         const stockInputs = document.querySelectorAll(
-            'input[id^="stock_"]:not([id^="stock_size_"]):not([id^="stock_color_"])'
+            'input[id^="stock_"]:not([id^="stock_size_"]):not([id^="stock_color_"])',
         );
         stockInputs.forEach((input) => {
             const stockKey = input.id.replace('stock_', '');
@@ -15914,35 +16121,35 @@ class LojaApp {
 
     renderDashboard() {
         console.log(
-            '📊 [DASHBOARD] ========== INICIANDO RENDERIZAÇÃO DO DASHBOARD =========='
+            '📊 [DASHBOARD] ========== INICIANDO RENDERIZAÇÃO DO DASHBOARD ==========',
         );
         console.log('📊 [DASHBOARD] Verificando Chart.js...');
         console.log('📊 [DASHBOARD] typeof Chart:', typeof Chart);
         console.log(
             '📊 [DASHBOARD] window.chartJsLoaded:',
-            window.chartJsLoaded
+            window.chartJsLoaded,
         );
 
         // Verificar se Chart.js está carregado, se não, aguardar
         if (typeof Chart === 'undefined' || window.chartJsLoaded === false) {
             console.warn(
-                '⚠️ [DASHBOARD] Chart.js não está carregado ainda, aguardando...'
+                '⚠️ [DASHBOARD] Chart.js não está carregado ainda, aguardando...',
             );
             // Tentar novamente após 500ms
             setTimeout(() => {
                 if (typeof Chart !== 'undefined') {
                     console.log(
-                        '✅ [DASHBOARD] Chart.js carregado, renderizando gráficos...'
+                        '✅ [DASHBOARD] Chart.js carregado, renderizando gráficos...',
                     );
                     this.renderDashboard();
                 } else {
                     console.error(
-                        '❌ [DASHBOARD] Chart.js não está disponível após aguardar. Verifique se o CDN está acessível.'
+                        '❌ [DASHBOARD] Chart.js não está disponível após aguardar. Verifique se o CDN está acessível.',
                     );
                     // Tentar carregar Chart.js manualmente
                     if (!document.querySelector('script[src*="chart.js"]')) {
                         console.log(
-                            '🔄 [DASHBOARD] Tentando carregar Chart.js manualmente...'
+                            '🔄 [DASHBOARD] Tentando carregar Chart.js manualmente...',
                         );
                         const script = document.createElement('script');
                         script.src =
@@ -15950,30 +16157,30 @@ class LojaApp {
                         script.onload = () => {
                             window.chartJsLoaded = true;
                             console.log(
-                                '✅ [DASHBOARD] Chart.js carregado manualmente, renderizando...'
+                                '✅ [DASHBOARD] Chart.js carregado manualmente, renderizando...',
                             );
                             this.renderDashboard();
                         };
                         script.onerror = () => {
                             console.error(
-                                '❌ [DASHBOARD] Erro ao carregar Chart.js do CDN'
+                                '❌ [DASHBOARD] Erro ao carregar Chart.js do CDN',
                             );
                         };
                         document.head.appendChild(script);
                     } else {
                         // Script já existe, aguardar mais um pouco
                         console.log(
-                            '⏳ [DASHBOARD] Script Chart.js já existe, aguardando carregamento...'
+                            '⏳ [DASHBOARD] Script Chart.js já existe, aguardando carregamento...',
                         );
                         setTimeout(() => {
                             if (typeof Chart !== 'undefined') {
                                 console.log(
-                                    '✅ [DASHBOARD] Chart.js carregado após espera, renderizando...'
+                                    '✅ [DASHBOARD] Chart.js carregado após espera, renderizando...',
                                 );
                                 this.renderDashboard();
                             } else {
                                 console.error(
-                                    '❌ [DASHBOARD] Chart.js ainda não está disponível após 1.5s'
+                                    '❌ [DASHBOARD] Chart.js ainda não está disponível após 1.5s',
                                 );
                             }
                         }, 1000);
@@ -16016,28 +16223,28 @@ class LojaApp {
                 cutoffDate = new Date(
                     now.getFullYear(),
                     now.getMonth() - 1,
-                    now.getDate()
+                    now.getDate(),
                 );
                 break;
             case '3months':
                 cutoffDate = new Date(
                     now.getFullYear(),
                     now.getMonth() - 3,
-                    now.getDate()
+                    now.getDate(),
                 );
                 break;
             case '6months':
                 cutoffDate = new Date(
                     now.getFullYear(),
                     now.getMonth() - 6,
-                    now.getDate()
+                    now.getDate(),
                 );
                 break;
             case 'year':
                 cutoffDate = new Date(
                     now.getFullYear() - 1,
                     now.getMonth(),
-                    now.getDate()
+                    now.getDate(),
                 );
                 break;
         }
@@ -16049,7 +16256,7 @@ class LojaApp {
                 const groupDate = new Date(
                     parseInt(year),
                     parseInt(month) - 1,
-                    1
+                    1,
                 );
                 return groupDate >= cutoffDate;
             });
@@ -16063,7 +16270,7 @@ class LojaApp {
 
         if (typeof Chart === 'undefined') {
             console.error(
-                '❌ [CHART] Chart.js não está disponível para renderSalesByMonthChart'
+                '❌ [CHART] Chart.js não está disponível para renderSalesByMonthChart',
             );
             return;
         }
@@ -16081,22 +16288,22 @@ class LojaApp {
         // Verificar dimensões do canvas antes de criar o gráfico
         const canvasRect = ctx.getBoundingClientRect();
         console.log(
-            `📏 [CHART] Dimensões do canvas: width=${canvasRect.width}px, height=${canvasRect.height}px`
+            `📏 [CHART] Dimensões do canvas: width=${canvasRect.width}px, height=${canvasRect.height}px`,
         );
         console.log(
-            `📏 [CHART] Canvas offsetWidth: ${ctx.offsetWidth}, offsetHeight: ${ctx.offsetHeight}`
+            `📏 [CHART] Canvas offsetWidth: ${ctx.offsetWidth}, offsetHeight: ${ctx.offsetHeight}`,
         );
 
         // Garantir que o canvas tenha dimensões mínimas
         if (canvasRect.width === 0 || canvasRect.height === 0) {
             console.warn(
-                '⚠️ [CHART] Canvas tem dimensões zero! Tentando forçar dimensões...'
+                '⚠️ [CHART] Canvas tem dimensões zero! Tentando forçar dimensões...',
             );
             const parent = ctx.parentElement;
             if (parent) {
                 const parentRect = parent.getBoundingClientRect();
                 console.log(
-                    `📏 [CHART] Dimensões do parent: width=${parentRect.width}px, height=${parentRect.height}px`
+                    `📏 [CHART] Dimensões do parent: width=${parentRect.width}px, height=${parentRect.height}px`,
                 );
             }
         }
@@ -16108,8 +16315,9 @@ class LojaApp {
 
         // CORRIGIDO: Percorrer days -> sales
         filteredGroups.forEach((group) => {
-            const key = `${group.month.split('-')[1]}/${group.month.split('-')[0]
-                }`;
+            const key = `${group.month.split('-')[1]}/${
+                group.month.split('-')[0]
+            }`;
             if (!monthlyData[key]) {
                 monthlyData[key] = { sales: 0, value: 0 };
             }
@@ -16137,7 +16345,7 @@ class LojaApp {
 
         if (labels.length === 0) {
             console.warn(
-                '⚠️ [CHART] Nenhum dado para renderizar, limpando canvas'
+                '⚠️ [CHART] Nenhum dado para renderizar, limpando canvas',
             );
             ctx.getContext('2d').clearRect(0, 0, ctx.width, ctx.height);
             return;
@@ -16211,20 +16419,20 @@ class LojaApp {
                 if (canvasAfter) {
                     const rectAfter = canvasAfter.getBoundingClientRect();
                     console.log(
-                        `📏 [CHART] Dimensões após criação: width=${rectAfter.width}px, height=${rectAfter.height}px`
+                        `📏 [CHART] Dimensões após criação: width=${rectAfter.width}px, height=${rectAfter.height}px`,
                     );
                     console.log(
-                        `📏 [CHART] Canvas width/height attributes: ${canvasAfter.width}x${canvasAfter.height}`
+                        `📏 [CHART] Canvas width/height attributes: ${canvasAfter.width}x${canvasAfter.height}`,
                     );
 
                     // Verificar se o gráfico foi renderizado
                     const chartInstance = this.charts.salesByMonth;
                     if (chartInstance) {
                         console.log(
-                            `📊 [CHART] Chart width: ${chartInstance.width}, height: ${chartInstance.height}`
+                            `📊 [CHART] Chart width: ${chartInstance.width}, height: ${chartInstance.height}`,
                         );
                         console.log(
-                            `📊 [CHART] Chart canvas width: ${chartInstance.canvas.width}, height: ${chartInstance.canvas.height}`
+                            `📊 [CHART] Chart canvas width: ${chartInstance.canvas.width}, height: ${chartInstance.canvas.height}`,
                         );
                     }
                 }
@@ -16232,7 +16440,7 @@ class LojaApp {
         } catch (error) {
             console.error(
                 '❌ [CHART] Erro ao criar gráfico salesByMonth:',
-                error
+                error,
             );
             console.error('❌ [CHART] Erro stack:', error.stack);
         }
@@ -16241,7 +16449,7 @@ class LojaApp {
     renderProfitVsCostsChart() {
         if (typeof Chart === 'undefined') {
             console.warn(
-                '⚠️ [CHART] Chart.js não está disponível para renderProfitVsCostsChart'
+                '⚠️ [CHART] Chart.js não está disponível para renderProfitVsCostsChart',
             );
             return;
         }
@@ -16257,8 +16465,9 @@ class LojaApp {
 
         // Percorrer days -> sales e calcular receita + custo do produto
         filteredGroups.forEach((group) => {
-            const key = `${group.month.split('-')[1]}/${group.month.split('-')[0]
-                }`;
+            const key = `${group.month.split('-')[1]}/${
+                group.month.split('-')[0]
+            }`;
             if (!monthlyData[key]) {
                 monthlyData[key] = { profit: 0, costs: 0, productCosts: 0 };
             }
@@ -16352,7 +16561,7 @@ class LojaApp {
     renderTopItemsChart() {
         if (typeof Chart === 'undefined') {
             console.warn(
-                '⚠️ [CHART] Chart.js não está disponível para renderTopItemsChart'
+                '⚠️ [CHART] Chart.js não está disponível para renderTopItemsChart',
             );
             return;
         }
@@ -16393,7 +16602,7 @@ class LojaApp {
         const labels = sortedItems.map(([id, data]) =>
             data.name.length > 15
                 ? data.name.substring(0, 15) + '...'
-                : data.name
+                : data.name,
         );
         const data = sortedItems.map(([id, data]) => data.quantity);
 
@@ -16434,7 +16643,7 @@ class LojaApp {
     renderProfitEvolutionChart() {
         if (typeof Chart === 'undefined') {
             console.warn(
-                '⚠️ [CHART] Chart.js não está disponível para renderProfitEvolutionChart'
+                '⚠️ [CHART] Chart.js não está disponível para renderProfitEvolutionChart',
             );
             return;
         }
@@ -16442,7 +16651,7 @@ class LojaApp {
         const ctx = document.getElementById('profitEvolutionChart');
         if (!ctx) {
             console.warn(
-                '⚠️ [CHART] Canvas profitEvolutionChart não encontrado'
+                '⚠️ [CHART] Canvas profitEvolutionChart não encontrado',
             );
             return;
         }
@@ -16452,8 +16661,9 @@ class LojaApp {
 
         // Percorrer days -> sales e calcular receita + custo do produto
         filteredGroups.forEach((group) => {
-            const key = `${group.month.split('-')[1]}/${group.month.split('-')[0]
-                }`;
+            const key = `${group.month.split('-')[1]}/${
+                group.month.split('-')[0]
+            }`;
             if (!monthlyData[key]) {
                 monthlyData[key] = { sales: 0, costs: 0, productCosts: 0 };
             }
@@ -16500,7 +16710,7 @@ class LojaApp {
 
         const profitData = labels.map(
             (label) =>
-                monthlyData[label].sales - (monthlyData[label].costs || 0)
+                monthlyData[label].sales - (monthlyData[label].costs || 0),
         );
 
         if (labels.length === 0) {
@@ -16549,8 +16759,9 @@ class LojaApp {
 
         // CORRIGIDO: Percorrer days -> sales
         filteredGroups.forEach((group) => {
-            const key = `${group.month.split('-')[1]}/${group.month.split('-')[0]
-                }`;
+            const key = `${group.month.split('-')[1]}/${
+                group.month.split('-')[0]
+            }`;
             if (!monthlyTotals[key]) {
                 monthlyTotals[key] = 0;
                 monthCount++;
@@ -16613,7 +16824,7 @@ class LojaApp {
             itemsEl.textContent = itemsText;
             itemsEl.setAttribute(
                 'title',
-                `Total: ${itemsText} itens cadastrados`
+                `Total: ${itemsText} itens cadastrados`,
             );
         }
     }
@@ -16644,7 +16855,7 @@ class LojaApp {
                 // Pegar o maior estoque registrado no mês (estoque inicial)
                 itemStockStatus[itemId].stock = Math.max(
                     itemStockStatus[itemId].stock,
-                    day.stock[itemId] || 0
+                    day.stock[itemId] || 0,
                 );
             });
 
@@ -16691,7 +16902,7 @@ class LojaApp {
         }
 
         const groupStockAvailableEl = document.getElementById(
-            'groupStockAvailable'
+            'groupStockAvailable',
         );
         if (groupStockAvailableEl) {
             const available = totalStock - totalSold;
@@ -16717,8 +16928,9 @@ class LojaApp {
                 groupLowStockItemsEl.innerHTML = lowStockItems
                     .map(
                         (item) =>
-                            `<strong>${this.escapeHtml(item.name)}</strong>: ${item.available
-                            } un.`
+                            `<strong>${this.escapeHtml(item.name)}</strong>: ${
+                                item.available
+                            } un.`,
                     )
                     .join('<br>');
             } else {
@@ -16730,7 +16942,7 @@ class LojaApp {
     renderStockConsumptionChart() {
         if (typeof Chart === 'undefined') {
             console.warn(
-                '⚠️ [CHART] Chart.js não está disponível para renderStockConsumptionChart'
+                '⚠️ [CHART] Chart.js não está disponível para renderStockConsumptionChart',
             );
             return;
         }
@@ -16738,7 +16950,7 @@ class LojaApp {
         const ctx = document.getElementById('stockConsumptionChart');
         if (!ctx) {
             console.warn(
-                '⚠️ [CHART] Canvas stockConsumptionChart não encontrado'
+                '⚠️ [CHART] Canvas stockConsumptionChart não encontrado',
             );
             return;
         }
@@ -16748,8 +16960,9 @@ class LojaApp {
 
         // Calcular consumo de estoque (quantidade vendida) por mês
         filteredGroups.forEach((group) => {
-            const key = `${group.month.split('-')[1]}/${group.month.split('-')[0]
-                }`;
+            const key = `${group.month.split('-')[1]}/${
+                group.month.split('-')[0]
+            }`;
             if (!monthlyData[key]) {
                 monthlyData[key] = 0;
             }
@@ -16824,7 +17037,7 @@ class LojaApp {
     renderStockRotationChart() {
         if (typeof Chart === 'undefined') {
             console.warn(
-                '⚠️ [CHART] Chart.js não está disponível para renderStockRotationChart'
+                '⚠️ [CHART] Chart.js não está disponível para renderStockRotationChart',
             );
             return;
         }
@@ -16865,7 +17078,7 @@ class LojaApp {
         const labels = sortedItems.map(([id, data]) =>
             data.name.length > 20
                 ? data.name.substring(0, 20) + '...'
-                : data.name
+                : data.name,
         );
         const data = sortedItems.map(([id, data]) => data.quantity);
 
@@ -16993,7 +17206,7 @@ class LojaApp {
                     'font-small',
                     'font-normal',
                     'font-large',
-                    'font-extra-large'
+                    'font-extra-large',
                 );
                 if (settings.fontSize) {
                     document.body.classList.add(`font-${settings.fontSize}`);
@@ -17005,7 +17218,7 @@ class LojaApp {
                 document.body.classList.remove(
                     'spacing-compact',
                     'spacing-normal',
-                    'spacing-comfortable'
+                    'spacing-comfortable',
                 );
                 if (settings.spacing) {
                     document.body.classList.add(`spacing-${settings.spacing}`);
@@ -17015,7 +17228,7 @@ class LojaApp {
             } catch (error) {
                 console.error(
                     'Erro ao carregar configurações de acessibilidade:',
-                    error
+                    error,
                 );
             }
         }
@@ -17066,7 +17279,7 @@ class LojaApp {
                 isEnabled
                     ? 'Modo alto contraste ativado'
                     : 'Modo alto contraste desativado',
-                2000
+                2000,
             );
         }
     }
@@ -17077,7 +17290,7 @@ class LojaApp {
             'font-small',
             'font-normal',
             'font-large',
-            'font-extra-large'
+            'font-extra-large',
         );
         if (size && size !== 'normal') {
             document.body.classList.add(`font-${size}`);
@@ -17092,7 +17305,7 @@ class LojaApp {
         document.body.classList.remove(
             'spacing-compact',
             'spacing-normal',
-            'spacing-comfortable'
+            'spacing-comfortable',
         );
         if (spacing && spacing !== 'normal') {
             document.body.classList.add(`spacing-${spacing}`);
@@ -17142,12 +17355,12 @@ class LojaApp {
             'font-small',
             'font-normal',
             'font-large',
-            'font-extra-large'
+            'font-extra-large',
         );
         document.body.classList.remove(
             'spacing-compact',
             'spacing-normal',
-            'spacing-comfortable'
+            'spacing-comfortable',
         );
         document.body.classList.add('font-normal', 'spacing-normal');
 
@@ -17166,7 +17379,7 @@ class LojaApp {
         if (typeof toast !== 'undefined' && toast) {
             toast.success(
                 'Configurações de acessibilidade restauradas para os padrões',
-                3000
+                3000,
             );
         }
     }
@@ -17267,7 +17480,7 @@ class LojaApp {
 
         if (typeof Chart === 'undefined' || window.chartJsLoaded === false) {
             console.warn(
-                '⚠️ [SERVICES DASHBOARD] Chart.js não está carregado, aguardando...'
+                '⚠️ [SERVICES DASHBOARD] Chart.js não está carregado, aguardando...',
             );
             setTimeout(() => this.renderServicesDashboard(), 500);
             return;
@@ -17461,7 +17674,7 @@ class LojaApp {
         const labels = sortedServices.map(([id, data]) =>
             data.name.length > 15
                 ? data.name.substring(0, 15) + '...'
-                : data.name
+                : data.name,
         );
         const counts = sortedServices.map(([id, data]) => data.count);
 
@@ -17804,19 +18017,19 @@ class LojaApp {
         const bestMonthHours =
             monthStats.length > 0
                 ? monthStats.reduce(
-                    (best, current) =>
-                        current.hours > best.hours ? current : best,
-                    monthStats[0]
-                )
+                      (best, current) =>
+                          current.hours > best.hours ? current : best,
+                      monthStats[0],
+                  )
                 : null;
 
         const bestMonthRevenue =
             monthStats.length > 0
                 ? monthStats.reduce(
-                    (best, current) =>
-                        current.revenue > best.revenue ? current : best,
-                    monthStats[0]
-                )
+                      (best, current) =>
+                          current.revenue > best.revenue ? current : best,
+                      monthStats[0],
+                  )
                 : null;
 
         const totalHoursDecimal = totalHours + totalMinutes / 60;
@@ -17825,22 +18038,22 @@ class LojaApp {
 
         // Atualizar elementos
         const avgMonthlyHoursEl = document.getElementById(
-            'servicesAvgMonthlyHours'
+            'servicesAvgMonthlyHours',
         );
         const bestMonthHoursEl = document.getElementById(
-            'servicesBestMonthHours'
+            'servicesBestMonthHours',
         );
         const avgMonthlyRevenueEl = document.getElementById(
-            'servicesAvgMonthlyRevenue'
+            'servicesAvgMonthlyRevenue',
         );
         const bestMonthRevenueEl = document.getElementById(
-            'servicesBestMonthRevenue'
+            'servicesBestMonthRevenue',
         );
         const avgValuePerHourEl = document.getElementById(
-            'servicesDashboardAvgValuePerHour'
+            'servicesDashboardAvgValuePerHour',
         );
         const totalServicesEl = document.getElementById(
-            'servicesDashboardTotalServices'
+            'servicesDashboardTotalServices',
         );
 
         if (avgMonthlyHoursEl) {
@@ -17853,8 +18066,9 @@ class LojaApp {
             bestMonthHoursEl.textContent = monthText;
             // Adicionar tooltip com o valor completo
             if (bestMonthHours) {
-                const tooltipText = `${bestMonthHours.month
-                    } - ${bestMonthHours.hours.toFixed(1)}h`;
+                const tooltipText = `${
+                    bestMonthHours.month
+                } - ${bestMonthHours.hours.toFixed(1)}h`;
                 bestMonthHoursEl.setAttribute('title', tooltipText);
             } else {
                 bestMonthHoursEl.removeAttribute('title');
@@ -17870,10 +18084,11 @@ class LojaApp {
             bestMonthRevenueEl.textContent = monthText;
             // Adicionar tooltip com o valor completo
             if (bestMonthRevenue) {
-                const tooltipText = `${bestMonthRevenue.month
-                    } - R$ ${bestMonthRevenue.revenue
-                        .toFixed(2)
-                        .replace('.', ',')}`;
+                const tooltipText = `${
+                    bestMonthRevenue.month
+                } - R$ ${bestMonthRevenue.revenue
+                    .toFixed(2)
+                    .replace('.', ',')}`;
                 bestMonthRevenueEl.setAttribute('title', tooltipText);
             } else {
                 bestMonthRevenueEl.removeAttribute('title');
@@ -17891,7 +18106,7 @@ class LojaApp {
             totalServicesEl.textContent = totalText;
             totalServicesEl.setAttribute(
                 'title',
-                `Total: ${totalText} serviços`
+                `Total: ${totalText} serviços`,
             );
         }
     }
@@ -17904,7 +18119,7 @@ class LojaApp {
 
         if (!username) {
             console.warn(
-                '⚠️ [SAVE DATA] Username não encontrado no sessionStorage, salvando apenas localmente'
+                '⚠️ [SAVE DATA] Username não encontrado no sessionStorage, salvando apenas localmente',
             );
         }
 
@@ -17920,16 +18135,16 @@ class LojaApp {
             try {
                 clientsData = await this.encryptClientData(
                     clientsData,
-                    username
+                    username,
                 );
                 suppliersData = await this.encryptClientData(
                     suppliersData,
-                    username
+                    username,
                 );
             } catch (error) {
                 console.error(
                     'Erro ao criptografar dados antes de salvar:',
-                    error
+                    error,
                 );
                 // Continuar sem criptografia em caso de erro
             }
@@ -17978,7 +18193,7 @@ class LojaApp {
                 : 'lojaData';
             localStorage.setItem(localStorageKey, JSON.stringify(data));
             console.log(
-                `💾 [SAVE DATA] Dados salvos no localStorage (chave: ${localStorageKey})`
+                `💾 [SAVE DATA] Dados salvos no localStorage (chave: ${localStorageKey})`,
             );
         } catch (e) {
             console.error('❌ [SAVE DATA] Erro ao salvar no localStorage:', e);
@@ -17987,26 +18202,26 @@ class LojaApp {
         // Tentar salvar na nuvem (se estiver na Vercel e tiver username)
         if (!username) {
             console.warn(
-                '⚠️ [SAVE DATA] Username não disponível, pulando salvamento na nuvem'
+                '⚠️ [SAVE DATA] Username não disponível, pulando salvamento na nuvem',
             );
             return;
         }
 
         try {
             console.log(
-                `☁️ [SAVE DATA] Tentando salvar na nuvem (API: /api/save) para usuário: ${username}...`
+                `☁️ [SAVE DATA] Tentando salvar na nuvem (API: /api/save) para usuário: ${username}...`,
             );
 
             // Verificar rate limiting antes de fazer requisição
             const rateLimitCheck = this.canMakeRequest();
             if (!rateLimitCheck.allowed) {
                 console.warn(
-                    `⚠️ [SAVE DATA] Rate limit atingido. Aguardando ${rateLimitCheck.remainingSeconds} segundos...`
+                    `⚠️ [SAVE DATA] Rate limit atingido. Aguardando ${rateLimitCheck.remainingSeconds} segundos...`,
                 );
                 if (typeof toast !== 'undefined' && toast) {
                     toast.warning(
                         `Muitas requisições. Aguarde ${rateLimitCheck.remainingSeconds} segundos.`,
-                        3000
+                        3000,
                     );
                 }
                 // Salvar localmente mesmo assim
@@ -18025,20 +18240,20 @@ class LojaApp {
             });
 
             console.log(
-                `📡 [SAVE DATA] Status HTTP: ${response.status} ${response.statusText}`
+                `📡 [SAVE DATA] Status HTTP: ${response.status} ${response.statusText}`,
             );
 
             // Tratar erro 504 (Gateway Timeout) especificamente
             if (response.status === 504) {
                 const text = await response.text();
                 console.warn(
-                    '⚠️ [SAVE DATA] Erro 504 (Gateway Timeout) - A API demorou muito para responder'
+                    '⚠️ [SAVE DATA] Erro 504 (Gateway Timeout) - A API demorou muito para responder',
                 );
                 console.warn(
-                    '💾 [SAVE DATA] Dados foram salvos localmente, mas não na nuvem'
+                    '💾 [SAVE DATA] Dados foram salvos localmente, mas não na nuvem',
                 );
                 console.warn(
-                    '💡 [SAVE DATA] Isso pode acontecer se o servidor estiver sobrecarregado'
+                    '💡 [SAVE DATA] Isso pode acontecer se o servidor estiver sobrecarregado',
                 );
                 // Não lançar erro para não bloquear a interface
                 return;
@@ -18052,28 +18267,28 @@ class LojaApp {
                 console.error(`❌ [SAVE DATA] Status: ${response.status}`);
                 console.error(
                     `❌ [SAVE DATA] Resposta (primeiros 200 chars):`,
-                    text.substring(0, 200)
+                    text.substring(0, 200),
                 );
 
                 if (response.status === 404) {
                     console.error(
-                        '❌ [SAVE DATA] Erro 404: Rota /api/save não encontrada'
+                        '❌ [SAVE DATA] Erro 404: Rota /api/save não encontrada',
                     );
                     console.error(
-                        '💡 [SAVE DATA] Verifique se a API está configurada corretamente na Vercel'
+                        '💡 [SAVE DATA] Verifique se a API está configurada corretamente na Vercel',
                     );
                 }
 
                 // Para outros erros, não bloquear a interface
                 if (response.status >= 500) {
                     console.warn(
-                        '⚠️ [SAVE DATA] Erro do servidor - dados salvos apenas localmente'
+                        '⚠️ [SAVE DATA] Erro do servidor - dados salvos apenas localmente',
                     );
                     return;
                 }
 
                 throw new Error(
-                    `Resposta da API não é JSON (Status: ${response.status})`
+                    `Resposta da API não é JSON (Status: ${response.status})`,
                 );
             }
 
@@ -18086,7 +18301,7 @@ class LojaApp {
 
             if (response.ok && result.success) {
                 console.log(
-                    '✅ [SAVE DATA] Dados salvos na nuvem com sucesso!'
+                    '✅ [SAVE DATA] Dados salvos na nuvem com sucesso!',
                 );
             } else {
                 if (
@@ -18094,23 +18309,23 @@ class LojaApp {
                     result.error.includes('não estão definidas')
                 ) {
                     console.warn(
-                        '⚠️ [SAVE DATA] Variáveis de ambiente não configuradas na Vercel'
+                        '⚠️ [SAVE DATA] Variáveis de ambiente não configuradas na Vercel',
                     );
                     console.warn(
-                        '💡 [SAVE DATA] Configure JSONBIN_API_KEY e JSONBIN_BIN_ID no painel da Vercel para habilitar sincronização na nuvem'
+                        '💡 [SAVE DATA] Configure JSONBIN_API_KEY e JSONBIN_BIN_ID no painel da Vercel para habilitar sincronização na nuvem',
                     );
                 } else {
                     console.warn(
                         '⚠️ [SAVE DATA] Erro ao salvar na nuvem:',
-                        result.error || result.message
+                        result.error || result.message,
                     );
                     console.warn(
-                        '💾 [SAVE DATA] Dados salvos apenas localmente (localStorage)'
+                        '💾 [SAVE DATA] Dados salvos apenas localmente (localStorage)',
                     );
                 }
                 if (!response.ok) {
                     console.error(
-                        `❌ [SAVE DATA] HTTP ${response.status}: ${response.statusText}`
+                        `❌ [SAVE DATA] HTTP ${response.status}: ${response.statusText}`,
                     );
                 }
             }
@@ -18119,14 +18334,14 @@ class LojaApp {
             console.warn('⚠️ [SAVE DATA] Erro ao salvar na nuvem:', error);
             console.warn(
                 '⚠️ [SAVE DATA] Tipo do erro:',
-                error.constructor.name
+                error.constructor.name,
             );
             console.warn('⚠️ [SAVE DATA] Mensagem:', error.message);
             console.log(
-                '📱 [SAVE DATA] Modo offline: dados salvos apenas localmente'
+                '📱 [SAVE DATA] Modo offline: dados salvos apenas localmente',
             );
             console.log(
-                'ℹ️ [SAVE DATA] Isso é normal se você estiver testando localmente (localhost)'
+                'ℹ️ [SAVE DATA] Isso é normal se você estiver testando localmente (localhost)',
             );
         }
     }
@@ -18139,7 +18354,7 @@ class LojaApp {
 
         if (!username) {
             console.warn(
-                '⚠️ [LOAD DATA] Username não encontrado no sessionStorage, carregando apenas do localStorage'
+                '⚠️ [LOAD DATA] Username não encontrado no sessionStorage, carregando apenas do localStorage',
             );
         }
 
@@ -18147,14 +18362,14 @@ class LojaApp {
         if (username) {
             try {
                 console.log(
-                    `☁️ [LOAD DATA] Tentando carregar da nuvem (API: /api/load) para usuário: ${username}...`
+                    `☁️ [LOAD DATA] Tentando carregar da nuvem (API: /api/load) para usuário: ${username}...`,
                 );
 
                 // Verificar rate limiting antes de fazer requisição
                 const rateLimitCheck = this.canMakeRequest();
                 if (!rateLimitCheck.allowed) {
                     console.warn(
-                        `⚠️ [LOAD DATA] Rate limit atingido. Aguardando ${rateLimitCheck.remainingSeconds} segundos...`
+                        `⚠️ [LOAD DATA] Rate limit atingido. Aguardando ${rateLimitCheck.remainingSeconds} segundos...`,
                     );
                     // Continuar com localStorage como fallback
                 } else {
@@ -18165,18 +18380,19 @@ class LojaApp {
                             headers: {
                                 'Content-Type': 'application/json',
                             },
-                        }
+                        },
                     );
 
                     console.log(
-                        `📡 [LOAD DATA] Status HTTP: ${response.status} ${response.statusText}`
+                        `📡 [LOAD DATA] Status HTTP: ${response.status} ${response.statusText}`,
                     );
 
                     // Verificar se a resposta é JSON antes de fazer parse
                     const contentType = response.headers.get('content-type');
                     console.log(
-                        `📋 [LOAD DATA] Content-Type: ${contentType || 'não especificado'
-                        }`
+                        `📋 [LOAD DATA] Content-Type: ${
+                            contentType || 'não especificado'
+                        }`,
                     );
 
                     if (
@@ -18185,31 +18401,31 @@ class LojaApp {
                     ) {
                         const text = await response.text();
                         console.error(
-                            '❌ [LOAD DATA] Resposta da API não é JSON!'
+                            '❌ [LOAD DATA] Resposta da API não é JSON!',
                         );
                         console.error(
-                            `❌ [LOAD DATA] Status: ${response.status}`
+                            `❌ [LOAD DATA] Status: ${response.status}`,
                         );
                         console.error(
                             `❌ [LOAD DATA] Resposta (primeiros 200 chars):`,
-                            text.substring(0, 200)
+                            text.substring(0, 200),
                         );
 
                         if (response.status === 404) {
                             console.error(
-                                '❌ [LOAD DATA] Erro 404: Rota /api/load não encontrada'
+                                '❌ [LOAD DATA] Erro 404: Rota /api/load não encontrada',
                             );
                             console.error(
-                                '💡 [LOAD DATA] Verifique se a API está configurada corretamente na Vercel'
+                                '💡 [LOAD DATA] Verifique se a API está configurada corretamente na Vercel',
                             );
                         } else if (response.status >= 500) {
                             console.error(
-                                '❌ [LOAD DATA] Erro do servidor (5xx)'
+                                '❌ [LOAD DATA] Erro do servidor (5xx)',
                             );
                         }
 
                         throw new Error(
-                            `Resposta da API não é JSON (Status: ${response.status}). Possível erro 404 ou rota não encontrada.`
+                            `Resposta da API não é JSON (Status: ${response.status}). Possível erro 404 ou rota não encontrada.`,
                         );
                     }
 
@@ -18250,17 +18466,17 @@ class LojaApp {
                                 try {
                                     clientsData = await this.decryptClientData(
                                         clientsData,
-                                        username
+                                        username,
                                     );
                                     suppliersData =
                                         await this.decryptClientData(
                                             suppliersData,
-                                            username
+                                            username,
                                         );
                                 } catch (error) {
                                     console.error(
                                         'Erro ao descriptografar dados ao carregar:',
-                                        error
+                                        error,
                                     );
                                     // Continuar com dados criptografados em caso de erro
                                 }
@@ -18325,7 +18541,7 @@ class LojaApp {
                             }
 
                             console.log(
-                                `📋 [LOAD DATA] Comprovantes carregados: ${this.completedSales.length}`
+                                `📋 [LOAD DATA] Comprovantes carregados: ${this.completedSales.length}`,
                             );
                             if (this.completedSales.length > 0) {
                                 console.log(
@@ -18337,7 +18553,7 @@ class LojaApp {
                                         date: this.completedSales[0].date,
                                         total: this.completedSales[0]
                                             .totalValue,
-                                    }
+                                    },
                                 );
                             }
 
@@ -18353,7 +18569,7 @@ class LojaApp {
                                     this.updateThemeColor('#007bff');
                                 } else {
                                     document.body.classList.remove(
-                                        'theme-blue'
+                                        'theme-blue',
                                     );
                                     this.updateThemeColor('#dc3545');
                                 }
@@ -18390,33 +18606,36 @@ class LojaApp {
                                 };
                                 localStorage.setItem(
                                     'lojaData',
-                                    JSON.stringify(updatedData)
+                                    JSON.stringify(updatedData),
                                 );
                                 this.saveData(); // Salvar na nuvem também
                             } else {
                                 // Sincronizar com localStorage
                                 localStorage.setItem(
                                     'lojaData',
-                                    JSON.stringify(cloudData)
+                                    JSON.stringify(cloudData),
                                 );
                             }
 
                             console.log(
-                                '✅ [LOAD DATA] Dados carregados da nuvem com sucesso!'
+                                '✅ [LOAD DATA] Dados carregados da nuvem com sucesso!',
                             );
                             console.log(
-                                `📊 [LOAD DATA] Items: ${this.items.length} | Grupos: ${this.groups.length} | Custos: ${this.costs.length} | Metas: ${this.goals.length} | Comprovantes: ${this.completedSales.length}`
+                                `📊 [LOAD DATA] Items: ${this.items.length} | Grupos: ${this.groups.length} | Custos: ${this.costs.length} | Metas: ${this.goals.length} | Comprovantes: ${this.completedSales.length}`,
                             );
                             return Promise.resolve();
                         } else {
                             console.log(
-                                'ℹ️ [LOAD DATA] Nenhum dado encontrado na nuvem (bin vazio ou apenas estrutura vazia)'
+                                'ℹ️ [LOAD DATA] Nenhum dado encontrado na nuvem (bin vazio ou apenas estrutura vazia)',
                             );
                             console.log(
-                                `📊 [LOAD DATA] Estrutura: Items: ${cloudData.items?.length || 0
-                                } | Grupos: ${cloudData.groups?.length || 0
-                                } | Custos: ${cloudData.costs?.length || 0
-                                } | Metas: ${cloudData.goals?.length || 0}`
+                                `📊 [LOAD DATA] Estrutura: Items: ${
+                                    cloudData.items?.length || 0
+                                } | Grupos: ${
+                                    cloudData.groups?.length || 0
+                                } | Custos: ${
+                                    cloudData.costs?.length || 0
+                                } | Metas: ${cloudData.goals?.length || 0}`,
                             );
                         }
                     } else {
@@ -18424,26 +18643,26 @@ class LojaApp {
                         if (result.error) {
                             console.error(
                                 '❌ [LOAD DATA] Erro na resposta da API:',
-                                result.error
+                                result.error,
                             );
                             if (result.error.includes('não estão definidas')) {
                                 console.warn(
-                                    '⚠️ [LOAD DATA] Variáveis de ambiente não configuradas na Vercel'
+                                    '⚠️ [LOAD DATA] Variáveis de ambiente não configuradas na Vercel',
                                 );
                                 console.warn(
-                                    '💡 [LOAD DATA] Configure JSONBIN_API_KEY e JSONBIN_BIN_ID no painel da Vercel'
+                                    '💡 [LOAD DATA] Configure JSONBIN_API_KEY e JSONBIN_BIN_ID no painel da Vercel',
                                 );
                             }
                         }
                         if (result.message) {
                             console.warn(
                                 '⚠️ [LOAD DATA] Mensagem da API:',
-                                result.message
+                                result.message,
                             );
                         }
                         if (!response.ok) {
                             console.error(
-                                `❌ [LOAD DATA] HTTP ${response.status}: ${response.statusText}`
+                                `❌ [LOAD DATA] HTTP ${response.status}: ${response.statusText}`,
                             );
                         }
                     }
@@ -18451,25 +18670,25 @@ class LojaApp {
             } catch (error) {
                 console.error(
                     '❌ [LOAD DATA] Erro ao carregar da nuvem:',
-                    error
+                    error,
                 );
                 console.error(
                     '❌ [LOAD DATA] Tipo do erro:',
-                    error.constructor.name
+                    error.constructor.name,
                 );
                 console.error('❌ [LOAD DATA] Mensagem:', error.message);
                 if (error.stack) {
                     console.error('❌ [LOAD DATA] Stack:', error.stack);
                 }
                 console.log(
-                    '💾 [LOAD DATA] Usando localStorage como fallback...'
+                    '💾 [LOAD DATA] Usando localStorage como fallback...',
                 );
                 // Continuar mesmo com erro - não lançar exceção
                 // A função continuará e carregará do localStorage
             }
         } else {
             console.log(
-                '💾 [LOAD DATA] Username não disponível, carregando apenas do localStorage...'
+                '💾 [LOAD DATA] Username não disponível, carregando apenas do localStorage...',
             );
         }
 
@@ -18483,13 +18702,13 @@ class LojaApp {
             const oldData = localStorage.getItem('lojaData');
             if (oldData) {
                 console.log(
-                    '🔄 [LOAD DATA] Dados antigos encontrados (sem username), migrando...'
+                    '🔄 [LOAD DATA] Dados antigos encontrados (sem username), migrando...',
                 );
                 // Migrar dados antigos para a nova chave do usuário
                 localStorage.setItem(localStorageKey, oldData);
                 saved = oldData;
                 console.log(
-                    `✅ [LOAD DATA] Dados migrados para chave: ${localStorageKey}`
+                    `✅ [LOAD DATA] Dados migrados para chave: ${localStorageKey}`,
                 );
             }
         }
@@ -18497,7 +18716,7 @@ class LojaApp {
         if (saved) {
             try {
                 console.log(
-                    '📦 [LOAD DATA] Dados encontrados no localStorage, parseando...'
+                    '📦 [LOAD DATA] Dados encontrados no localStorage, parseando...',
                 );
                 const data = JSON.parse(saved);
                 this.items = data.items || [];
@@ -18533,7 +18752,7 @@ class LojaApp {
                 this.whatsappAutomations = data.whatsappAutomations || [];
 
                 console.log(
-                    `📋 [LOAD DATA] Comprovantes carregados do localStorage: ${this.completedSales.length}`
+                    `📋 [LOAD DATA] Comprovantes carregados do localStorage: ${this.completedSales.length}`,
                 );
                 if (this.completedSales.length > 0) {
                     console.log('📋 [LOAD DATA] Primeiro comprovante:', {
@@ -18559,7 +18778,7 @@ class LojaApp {
                         this.updateThemeColor('#dc3545');
                     }
                     console.log(
-                        `✅ [LOAD DATA] Tema carregado do localStorage: ${data.theme}`
+                        `✅ [LOAD DATA] Tema carregado do localStorage: ${data.theme}`,
                     );
                 }
 
@@ -18586,7 +18805,7 @@ class LojaApp {
                 // Se houve migração, salvar novamente
                 if (needsSave) {
                     console.log(
-                        '🔄 [LOAD DATA] Migração de dados detectada, salvando...'
+                        '🔄 [LOAD DATA] Migração de dados detectada, salvando...',
                     );
                     const updatedData = {
                         items: this.items,
@@ -18597,32 +18816,32 @@ class LojaApp {
                     };
                     localStorage.setItem(
                         localStorageKey,
-                        JSON.stringify(updatedData)
+                        JSON.stringify(updatedData),
                     );
                     this.saveData(); // Salvar na nuvem também
                 }
 
                 console.log(
-                    '✅ [LOAD DATA] Dados carregados do localStorage com sucesso!'
+                    '✅ [LOAD DATA] Dados carregados do localStorage com sucesso!',
                 );
                 console.log(
-                    `📊 [LOAD DATA] Items: ${this.items.length} | Grupos: ${this.groups.length} | Custos: ${this.costs.length} | Metas: ${this.goals.length}`
+                    `📊 [LOAD DATA] Items: ${this.items.length} | Grupos: ${this.groups.length} | Custos: ${this.costs.length} | Metas: ${this.goals.length}`,
                 );
             } catch (e) {
                 console.error(
                     '❌ [LOAD DATA] Erro ao carregar dados do localStorage:',
-                    e
+                    e,
                 );
                 console.error(
                     '❌ [LOAD DATA] Tipo do erro:',
-                    e.constructor.name
+                    e.constructor.name,
                 );
                 console.error('❌ [LOAD DATA] Mensagem:', e.message);
                 if (e.stack) {
                     console.error('❌ [LOAD DATA] Stack:', e.stack);
                 }
                 console.warn(
-                    '⚠️ [LOAD DATA] Inicializando com dados vazios devido ao erro'
+                    '⚠️ [LOAD DATA] Inicializando com dados vazios devido ao erro',
                 );
                 // Garantir que todos os arrays estejam inicializados
                 this.items = this.items || [];
@@ -18644,7 +18863,7 @@ class LojaApp {
             }
         } else {
             console.log(
-                'ℹ️ [LOAD DATA] Nenhum dado encontrado no localStorage, iniciando vazio'
+                'ℹ️ [LOAD DATA] Nenhum dado encontrado no localStorage, iniciando vazio',
             );
             // Garantir que arrays estejam inicializados mesmo sem dados
             this.items = this.items || [];
@@ -18663,9 +18882,11 @@ class LojaApp {
 
         console.log('✅ [LOAD DATA] Carregamento de dados concluído');
         console.log(
-            `📊 [LOAD DATA] Estado final: Items: ${this.items?.length || 0
-            } | Grupos: ${this.groups?.length || 0} | Clientes: ${this.clients?.length || 0
-            }`
+            `📊 [LOAD DATA] Estado final: Items: ${
+                this.items?.length || 0
+            } | Grupos: ${this.groups?.length || 0} | Clientes: ${
+                this.clients?.length || 0
+            }`,
         );
 
         // SEMPRE retornar Promise resolvida, mesmo se houver erro
@@ -18678,7 +18899,7 @@ class LojaApp {
             if (typeof toast !== 'undefined' && toast) {
                 toast.error(
                     'Você não tem permissão para exportar dados.',
-                    3000
+                    3000,
                 );
             } else {
                 alert('Você não tem permissão para exportar dados.');
@@ -18701,8 +18922,9 @@ class LojaApp {
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
-        a.download = `loja_backup_${new Date().toISOString().split('T')[0]
-            }.txt`;
+        a.download = `loja_backup_${
+            new Date().toISOString().split('T')[0]
+        }.txt`;
         document.body.appendChild(a);
         a.click();
         document.body.removeChild(a);
@@ -18730,7 +18952,7 @@ class LojaApp {
             if (typeof toast !== 'undefined' && toast) {
                 toast.error(
                     'Usuário não autenticado. Faça login novamente.',
-                    3000
+                    3000,
                 );
             }
             return;
@@ -18793,7 +19015,7 @@ class LojaApp {
             const backupHistoryKey = `backupHistory_${username}`;
             localStorage.setItem(
                 backupHistoryKey,
-                JSON.stringify(this.backupHistory)
+                JSON.stringify(this.backupHistory),
             );
 
             this.lastBackupTime = new Date();
@@ -18815,7 +19037,7 @@ class LojaApp {
             if (typeof toast !== 'undefined' && toast) {
                 toast.error(
                     'Erro ao criar backup. Verifique o console para mais detalhes.',
-                    4000
+                    4000,
                 );
             }
         }
@@ -18843,7 +19065,7 @@ class LojaApp {
             };
             localStorage.setItem(
                 `autoBackupConfig_${username}`,
-                JSON.stringify(config)
+                JSON.stringify(config),
             );
         }
     }
@@ -18868,9 +19090,10 @@ class LojaApp {
 
         if (typeof toast !== 'undefined' && toast) {
             toast.info(
-                `Backup automático ${frequency === 'daily' ? 'diário' : 'semanal'
+                `Backup automático ${
+                    frequency === 'daily' ? 'diário' : 'semanal'
                 } ativado!`,
-                3000
+                3000,
             );
         }
     }
@@ -18937,7 +19160,7 @@ class LojaApp {
                 } catch (error) {
                     console.error(
                         'Erro ao criptografar backup automático:',
-                        error
+                        error,
                     );
                     // Continuar sem criptografia em caso de erro
                 }
@@ -18967,14 +19190,14 @@ class LojaApp {
                 }
                 localStorage.setItem(
                     backupHistoryKey,
-                    JSON.stringify(this.backupHistory)
+                    JSON.stringify(this.backupHistory),
                 );
                 backup.storagePoints.push('localStorage');
                 console.log('✅ [BACKUP] Backup salvo em localStorage');
             } catch (error) {
                 console.error(
                     '❌ [BACKUP] Erro ao salvar em localStorage:',
-                    error
+                    error,
                 );
             }
 
@@ -18987,7 +19210,7 @@ class LojaApp {
                 } catch (error) {
                     console.error(
                         '❌ [BACKUP] Erro ao salvar em IndexedDB:',
-                        error
+                        error,
                     );
                 }
             }
@@ -19000,7 +19223,7 @@ class LojaApp {
             } catch (error) {
                 console.warn(
                     '⚠️ [BACKUP] Erro ao salvar na nuvem (pode não estar configurado):',
-                    error.message
+                    error.message,
                 );
             }
 
@@ -19029,7 +19252,7 @@ class LojaApp {
             if (typeof toast !== 'undefined' && toast) {
                 toast.success(
                     `Backup automático criado com sucesso! (${pointsText})`,
-                    3000
+                    3000,
                 );
             }
 
@@ -19044,7 +19267,7 @@ class LojaApp {
             if (typeof toast !== 'undefined' && toast) {
                 toast.error(
                     'Erro ao criar backup automático. Verifique o console.',
-                    4000
+                    4000,
                 );
             }
         }
@@ -19064,7 +19287,7 @@ class LojaApp {
 
             const transaction = this.indexedDB.transaction(
                 ['backups'],
-                'readwrite'
+                'readwrite',
             );
             const store = transaction.objectStore('backups');
             const request = store.add(backup);
@@ -19090,7 +19313,7 @@ class LojaApp {
         try {
             await this.saveData();
             console.log(
-                '✅ [BACKUP] Backup sincronizado na nuvem via saveData'
+                '✅ [BACKUP] Backup sincronizado na nuvem via saveData',
             );
         } catch (error) {
             throw new Error('Erro ao salvar backup na nuvem: ' + error.message);
@@ -19109,8 +19332,9 @@ class LojaApp {
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
-        a.download = `backup_${backupId}_${new Date().toISOString().split('T')[0]
-            }.json`;
+        a.download = `backup_${backupId}_${
+            new Date().toISOString().split('T')[0]
+        }.json`;
         document.body.appendChild(a);
         a.click();
         document.body.removeChild(a);
@@ -19159,7 +19383,7 @@ class LojaApp {
         const username = sessionStorage.getItem('username');
         if (username) {
             const configStr = localStorage.getItem(
-                `autoBackupConfig_${username}`
+                `autoBackupConfig_${username}`,
             );
             if (configStr) {
                 try {
@@ -19167,7 +19391,7 @@ class LojaApp {
                     const enabledCheckbox =
                         document.getElementById('autoBackupEnabled');
                     const frequencySelect = document.getElementById(
-                        'autoBackupFrequency'
+                        'autoBackupFrequency',
                     );
                     if (enabledCheckbox)
                         enabledCheckbox.checked = config.enabled || false;
@@ -19176,7 +19400,7 @@ class LojaApp {
                 } catch (e) {
                     console.error(
                         'Erro ao carregar configuração de backup:',
-                        e
+                        e,
                     );
                 }
             }
@@ -19260,77 +19484,95 @@ class LojaApp {
                 const pointsText =
                     storagePoints.length > 0
                         ? storagePoints
-                            .map((p) => pointsLabels[p] || p)
-                            .join(', ')
+                              .map((p) => pointsLabels[p] || p)
+                              .join(', ')
                         : 'Local';
                 const pointsCount = storagePoints.length || 1;
 
                 return `
-                    <div class="item-card" style="margin-bottom: 1rem; border-left: 4px solid ${backup.type === 'auto' ? '#28a745' : '#007bff'
+                    <div class="item-card" style="margin-bottom: 1rem; border-left: 4px solid ${
+                        backup.type === 'auto' ? '#28a745' : '#007bff'
                     };">
                         <div class="item-header">
                             <div style="display: flex; align-items: center; gap: 0.5rem; flex: 1;">
-                                <i class="fas ${backup.type === 'auto'
-                        ? 'fa-clock'
-                        : 'fa-save'
-                    }" style="color: ${backup.type === 'auto' ? '#28a745' : '#007bff'
-                    };"></i>
+                                <i class="fas ${
+                                    backup.type === 'auto'
+                                        ? 'fa-clock'
+                                        : 'fa-save'
+                                }" style="color: ${
+                                    backup.type === 'auto'
+                                        ? '#28a745'
+                                        : '#007bff'
+                                };"></i>
                                 <div style="flex: 1;">
                                     <h3 style="margin: 0; font-size: 0.95rem; font-weight: 600;">
-                                        ${backup.type === 'auto'
-                        ? 'Backup Automático'
-                        : 'Backup Manual'
-                    }
+                                        ${
+                                            backup.type === 'auto'
+                                                ? 'Backup Automático'
+                                                : 'Backup Manual'
+                                        }
                                     </h3>
                                     <p style="margin: 0.25rem 0 0 0; font-size: 0.85rem; color: var(--gray-600);">
                                         <i class="fas fa-calendar"></i> ${dateStr}
                                     </p>
-                                    ${pointsCount > 1
-                        ? `
+                                    ${
+                                        pointsCount > 1
+                                            ? `
                                         <p style="margin: 0.25rem 0 0 0; font-size: 0.8rem; color: var(--primary-color);">
                                             <i class="fas fa-database"></i> Armazenado em ${pointsCount} locais: ${pointsText}
                                         </p>
                                     `
-                        : ''
-                    }
+                                            : ''
+                                    }
                                 </div>
                             </div>
                             <div style="display: flex; gap: 0.5rem; flex-direction: column; align-items: flex-end;">
-                                ${isIntegrityOk
-                        ? '<span style="color: #28a745; font-size: 0.75rem;"><i class="fas fa-check-circle"></i> Íntegro</span>'
-                        : '<span style="color: #dc3545; font-size: 0.75rem;"><i class="fas fa-exclamation-circle"></i> Corrompido</span>'
-                    }
-                                ${pointsCount > 1
-                        ? `
+                                ${
+                                    isIntegrityOk
+                                        ? '<span style="color: #28a745; font-size: 0.75rem;"><i class="fas fa-check-circle"></i> Íntegro</span>'
+                                        : '<span style="color: #dc3545; font-size: 0.75rem;"><i class="fas fa-exclamation-circle"></i> Corrompido</span>'
+                                }
+                                ${
+                                    pointsCount > 1
+                                        ? `
                                     <span style="color: var(--primary-color); font-size: 0.7rem;" title="Múltiplos pontos de backup">
                                         <i class="fas fa-shield-alt"></i> ${pointsCount}x
                                     </span>
                                 `
-                        : ''
-                    }
+                                        : ''
+                                }
                             </div>
                         </div>
                         <div class="item-details" style="padding-top: 0.75rem; border-top: 1px solid var(--border-color); margin-top: 0.75rem;">
                             <p style="margin: 0.5rem 0; font-size: 0.85rem;">
-                                <i class="fas fa-box"></i> <strong>Itens:</strong> ${backup.data.items?.length || 0
-                    } | 
-                                <i class="fas fa-users"></i> <strong>Clientes:</strong> ${backup.data.clients?.length || 0
-                    } | 
-                                <i class="fas fa-shopping-cart"></i> <strong>Vendas:</strong> ${backup.data.completedSales?.length || 0
-                    }
+                                <i class="fas fa-box"></i> <strong>Itens:</strong> ${
+                                    backup.data.items?.length || 0
+                                } | 
+                                <i class="fas fa-users"></i> <strong>Clientes:</strong> ${
+                                    backup.data.clients?.length || 0
+                                } | 
+                                <i class="fas fa-shopping-cart"></i> <strong>Vendas:</strong> ${
+                                    backup.data.completedSales?.length || 0
+                                }
                             </p>
                             <div style="display: flex; gap: 0.5rem; margin-top: 0.75rem;">
-                                <button class="btn-small btn-secondary" onclick="app.restoreBackup('${backup.id
-                    }')" ${!isIntegrityOk ? 'disabled title="Backup corrompido"' : ''
-                    }>
+                                <button class="btn-small btn-secondary" onclick="app.restoreBackup('${
+                                    backup.id
+                                }')" ${
+                                    !isIntegrityOk
+                                        ? 'disabled title="Backup corrompido"'
+                                        : ''
+                                }>
                                     <i class="fas fa-undo"></i> Restaurar
                                 </button>
-                                <button class="btn-small btn-secondary" onclick="app.downloadBackup('${backup.id
-                    }')">
+                                <button class="btn-small btn-secondary" onclick="app.downloadBackup('${
+                                    backup.id
+                                }')">
                                     <i class="fas fa-download"></i> Baixar
                                 </button>
-                                <button class="btn-small btn-delete" onclick="app.deleteBackup('${backup.id
-                    }')">
+                                <button class="btn-small btn-delete" onclick="app.deleteBackup('${
+                                    backup.id
+                                }')">
                                     <i class="fas fa-times"></i> Excluir
                                 </button>
                             </div>
@@ -19363,7 +19605,7 @@ class LojaApp {
                 if (typeof toast !== 'undefined' && toast) {
                     toast.error(
                         'Erro ao descriptografar backup. Verifique se você está usando a mesma conta.',
-                        4000
+                        4000,
                     );
                 }
                 return;
@@ -19376,7 +19618,7 @@ class LojaApp {
             if (typeof toast !== 'undefined' && toast) {
                 toast.warning(
                     'Backup pode estar corrompido. Continuar mesmo assim?',
-                    5000
+                    5000,
                 );
             }
         }
@@ -19419,7 +19661,7 @@ class LojaApp {
                     'Restauração de Backup',
                     {
                         backupTimestamp: backup.timestamp,
-                    }
+                    },
                 );
 
                 if (typeof toast !== 'undefined' && toast) {
@@ -19432,7 +19674,7 @@ class LojaApp {
                 if (typeof toast !== 'undefined' && toast) {
                     toast.error(
                         'Erro ao restaurar backup. Verifique o console para mais detalhes.',
-                        4000
+                        4000,
                     );
                 }
             }
@@ -19442,7 +19684,7 @@ class LojaApp {
             confirmDialog
                 .danger(
                     'Tem certeza que deseja restaurar este backup? Todos os dados atuais serão substituídos pelos dados do backup.',
-                    'Restaurar Backup'
+                    'Restaurar Backup',
                 )
                 .then(performRestore);
         } else {
@@ -19468,8 +19710,9 @@ class LojaApp {
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
-        a.download = `backup_${backupId}_${new Date(backup.timestamp).toISOString().split('T')[0]
-            }.json`;
+        a.download = `backup_${backupId}_${
+            new Date(backup.timestamp).toISOString().split('T')[0]
+        }.json`;
         document.body.appendChild(a);
         a.click();
         document.body.removeChild(a);
@@ -19493,14 +19736,14 @@ class LojaApp {
             if (!confirmed) return;
 
             this.backupHistory = this.backupHistory.filter(
-                (b) => b.id !== backupId
+                (b) => b.id !== backupId,
             );
             const username = sessionStorage.getItem('username');
             if (username) {
                 const backupHistoryKey = `backupHistory_${username}`;
                 localStorage.setItem(
                     backupHistoryKey,
-                    JSON.stringify(this.backupHistory)
+                    JSON.stringify(this.backupHistory),
                 );
             }
 
@@ -19509,7 +19752,7 @@ class LojaApp {
             if (typeof toast !== 'undefined' && toast) {
                 toast.success(
                     `Backup "${backupName}" excluído com sucesso!`,
-                    3000
+                    3000,
                 );
             }
         };
@@ -19518,7 +19761,7 @@ class LojaApp {
             confirmDialog
                 .danger(
                     `Tem certeza que deseja excluir o ${backupName}?`,
-                    'Excluir Backup'
+                    'Excluir Backup',
                 )
                 .then(performDelete);
         } else {
@@ -19534,7 +19777,7 @@ class LojaApp {
             if (typeof toast !== 'undefined' && toast) {
                 toast.warning(
                     'Não há clientes cadastrados para exportar.',
-                    3000
+                    3000,
                 );
             } else {
                 alert('Não há clientes cadastrados para exportar.');
@@ -19556,7 +19799,7 @@ class LojaApp {
         ];
         const rows = this.clients.map((client) => {
             const purchaseCount = this.completedSales.filter(
-                (sale) => sale.customerName === client.name
+                (sale) => sale.customerName === client.name,
             ).length;
             const totalSpent = this.completedSales
                 .filter((sale) => sale.customerName === client.name)
@@ -19602,7 +19845,7 @@ class LojaApp {
         if (typeof toast !== 'undefined' && toast) {
             toast.success(
                 `Lista de ${this.clients.length} cliente(s) exportada com sucesso!`,
-                3000
+                3000,
             );
         }
     }
@@ -19647,7 +19890,7 @@ class LojaApp {
         if (pointsEarned > 0 && typeof toast !== 'undefined' && toast) {
             toast.info(
                 `Cliente "${clientName}" ganhou ${pointsEarned} ponto(s) de fidelidade!`,
-                3000
+                3000,
             );
         }
     }
@@ -19677,7 +19920,7 @@ class LojaApp {
     // Marcar notificação como lida
     markNotificationAsRead(notificationId) {
         const notification = this.clientNotifications.find(
-            (n) => n.id === notificationId
+            (n) => n.id === notificationId,
         );
         if (notification) {
             notification.read = true;
@@ -19698,7 +19941,7 @@ class LojaApp {
         const discountType =
             document.getElementById('saleDiscountType')?.value || '';
         const discountValue = parseFloat(
-            document.getElementById('saleDiscountValue')?.value || 0
+            document.getElementById('saleDiscountValue')?.value || 0,
         );
         const couponCode =
             document
@@ -19712,7 +19955,7 @@ class LojaApp {
         // Verificar se há cupom aplicado
         if (couponCode) {
             const coupon = this.coupons.find(
-                (c) => c.code === couponCode && c.active
+                (c) => c.code === couponCode && c.active,
             );
             if (coupon) {
                 // Verificar período
@@ -19804,19 +20047,20 @@ class LojaApp {
                 <div>
                     <div style="font-size: 0.75rem; color: var(--gray-600); margin-bottom: 0.25rem;">Subtotal</div>
                     <div style="font-weight: 600; color: var(--gray-800);">R$ ${baseTotal
-                .toFixed(2)
-                .replace('.', ',')}</div>
+                        .toFixed(2)
+                        .replace('.', ',')}</div>
                 </div>
                 <div>
                     <div style="font-size: 0.75rem; color: var(--gray-600); margin-bottom: 0.25rem;">Desconto</div>
-                    <div style="font-weight: 600; color: ${discount > 0 ? '#28a745' : 'var(--gray-800)'
-            };">R$ ${discount.toFixed(2).replace('.', ',')}</div>
+                    <div style="font-weight: 600; color: ${
+                        discount > 0 ? '#28a745' : 'var(--gray-800)'
+                    };">R$ ${discount.toFixed(2).replace('.', ',')}</div>
                 </div>
                 <div>
                     <div style="font-size: 0.75rem; color: var(--gray-600); margin-bottom: 0.25rem;">Total</div>
                     <div style="font-weight: 700; font-size: 1.1rem; color: var(--primary-color);">R$ ${total
-                .toFixed(2)
-                .replace('.', ',')}</div>
+                        .toFixed(2)
+                        .replace('.', ',')}</div>
                 </div>
             </div>
         `;
@@ -19873,7 +20117,7 @@ class LojaApp {
         try {
             console.log('🟢 [ADMIN] Carregando dados do admin...');
             console.log(
-                '🟢 [ADMIN] Fazendo fetch para /api/admin?username=' + username
+                '🟢 [ADMIN] Fazendo fetch para /api/admin?username=' + username,
             );
 
             const response = await fetch(`/api/admin?username=${username}`);
@@ -19894,10 +20138,10 @@ class LojaApp {
                 trimmedText.includes('module.exports =')
             ) {
                 console.error(
-                    '❌ [ADMIN] API retornou código JavaScript em vez de JSON.'
+                    '❌ [ADMIN] API retornou código JavaScript em vez de JSON.',
                 );
                 console.error(
-                    '❌ [ADMIN] Servidor local não suporta funções serverless.'
+                    '❌ [ADMIN] Servidor local não suporta funções serverless.',
                 );
 
                 // Retornar dados vazios para não quebrar a interface
@@ -19921,7 +20165,7 @@ class LojaApp {
                 };
 
                 console.log(
-                    '🟢 [ADMIN] Dados vazios retornados (API não disponível)'
+                    '🟢 [ADMIN] Dados vazios retornados (API não disponível)',
                 );
                 this.renderAdminTotalUsageDashboard(result.totalUsage);
                 this.renderAdminUsersUsageDashboard(result.usersUsage);
@@ -19932,7 +20176,7 @@ class LojaApp {
                 console.error(
                     '❌ [ADMIN] Erro HTTP:',
                     response.status,
-                    responseText.substring(0, 200)
+                    responseText.substring(0, 200),
                 );
                 throw new Error(`Erro HTTP: ${response.status}`);
             }
@@ -19944,11 +20188,11 @@ class LojaApp {
             } catch (parseError) {
                 console.error(
                     '❌ [ADMIN] Erro ao fazer parse do JSON:',
-                    parseError
+                    parseError,
                 );
                 console.error(
                     '❌ [ADMIN] Resposta (primeiros 200 chars):',
-                    responseText.substring(0, 200)
+                    responseText.substring(0, 200),
                 );
 
                 // Retornar dados vazios
@@ -19982,18 +20226,18 @@ class LojaApp {
                     this.renderAdminTotalUsageDashboard(result.totalUsage);
                 } else {
                     console.error(
-                        '❌ [ADMIN] totalUsage não encontrado no resultado'
+                        '❌ [ADMIN] totalUsage não encontrado no resultado',
                     );
                 }
 
                 if (result.usersUsage) {
                     this.renderAdminUsersUsageDashboard(
                         result.usersUsage,
-                        result.totalUsage
+                        result.totalUsage,
                     );
                 } else {
                     console.error(
-                        '❌ [ADMIN] usersUsage não encontrado no resultado'
+                        '❌ [ADMIN] usersUsage não encontrado no resultado',
                     );
                 }
 
@@ -20001,19 +20245,19 @@ class LojaApp {
             } else {
                 console.error(
                     '❌ [ADMIN] Erro ao carregar dados:',
-                    result.error
+                    result.error,
                 );
                 const errorMsg =
                     result.error || result.message || 'Erro desconhecido';
                 this.showError(
-                    `Erro ao carregar dados de administração: ${errorMsg}`
+                    `Erro ao carregar dados de administração: ${errorMsg}`,
                 );
             }
         } catch (error) {
             console.error('❌ [ADMIN] Erro ao carregar dados:', error);
             console.error('❌ [ADMIN] Stack:', error.stack);
             this.showError(
-                `Erro ao carregar dados de administração: ${error.message}`
+                `Erro ao carregar dados de administração: ${error.message}`,
             );
         }
     }
@@ -20032,8 +20276,8 @@ class LojaApp {
             totalUsage.usagePercent > 80
                 ? '#dc3545'
                 : totalUsage.usagePercent > 60
-                    ? '#ffc107'
-                    : '#28a745';
+                  ? '#ffc107'
+                  : '#28a745';
 
         container.innerHTML = `
             <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.5rem; margin-bottom: 2rem;">
@@ -20042,28 +20286,33 @@ class LojaApp {
                         <h3 style="margin: 0; color: var(--gray-600); font-size: 0.9rem; font-weight: 600;">Espaço Utilizado</h3>
                         <i class="fas fa-database" style="color: ${usageColor}; font-size: 1.5rem;"></i>
                     </div>
-                    <p style="margin: 0; font-size: 2rem; font-weight: 700; color: var(--dark-gray);">${totalUsage.binSizeMB
-            } MB</p>
-                    <p style="margin: 0.25rem 0 0 0; font-size: 0.75rem; color: var(--gray-500);">${totalUsage.binSizeKB
-            } KB</p>
+                    <p style="margin: 0; font-size: 2rem; font-weight: 700; color: var(--dark-gray);">${
+                        totalUsage.binSizeMB
+                    } MB</p>
+                    <p style="margin: 0.25rem 0 0 0; font-size: 0.75rem; color: var(--gray-500);">${
+                        totalUsage.binSizeKB
+                    } KB</p>
                 </div>
                 <div class="admin-stat-card" style="background: var(--white); padding: 1.5rem; border-radius: var(--radius-md); box-shadow: var(--shadow-sm); border-left: 4px solid #28a745;">
                     <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.5rem;">
                         <h3 style="margin: 0; color: var(--gray-600); font-size: 0.9rem; font-weight: 600;">Espaço Restante</h3>
                         <i class="fas fa-hdd" style="color: #28a745; font-size: 1.5rem;"></i>
                     </div>
-                    <p style="margin: 0; font-size: 2rem; font-weight: 700; color: var(--dark-gray);">${totalUsage.remainingMB
-            } MB</p>
-                    <p style="margin: 0.25rem 0 0 0; font-size: 0.75rem; color: var(--gray-500);">${totalUsage.remainingKB
-            } KB</p>
+                    <p style="margin: 0; font-size: 2rem; font-weight: 700; color: var(--dark-gray);">${
+                        totalUsage.remainingMB
+                    } MB</p>
+                    <p style="margin: 0.25rem 0 0 0; font-size: 0.75rem; color: var(--gray-500);">${
+                        totalUsage.remainingKB
+                    } KB</p>
                 </div>
                 <div class="admin-stat-card" style="background: var(--white); padding: 1.5rem; border-radius: var(--radius-md); box-shadow: var(--shadow-sm); border-left: 4px solid #007bff;">
                     <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.5rem;">
                         <h3 style="margin: 0; color: var(--gray-600); font-size: 0.9rem; font-weight: 600;">Limite do Plano</h3>
                         <i class="fas fa-chart-pie" style="color: #007bff; font-size: 1.5rem;"></i>
                     </div>
-                    <p style="margin: 0; font-size: 2rem; font-weight: 700; color: var(--dark-gray);">${totalUsage.freePlanLimitMB
-            } MB</p>
+                    <p style="margin: 0; font-size: 2rem; font-weight: 700; color: var(--dark-gray);">${
+                        totalUsage.freePlanLimitMB
+                    } MB</p>
                     <p style="margin: 0.25rem 0 0 0; font-size: 0.75rem; color: var(--gray-500);">Plano gratuito JSONBin</p>
                 </div>
                 <div class="admin-stat-card" style="background: var(--white); padding: 1.5rem; border-radius: var(--radius-md); box-shadow: var(--shadow-sm); border-left: 4px solid ${usageColor};">
@@ -20071,14 +20320,17 @@ class LojaApp {
                         <h3 style="margin: 0; color: var(--gray-600); font-size: 0.9rem; font-weight: 600;">Percentual de Uso</h3>
                         <i class="fas fa-percentage" style="color: ${usageColor}; font-size: 1.5rem;"></i>
                     </div>
-                    <p style="margin: 0; font-size: 2rem; font-weight: 700; color: var(--dark-gray);">${totalUsage.usagePercent
-            }%</p>
-                    <p style="margin: 0.25rem 0 0 0; font-size: 0.75rem; color: ${totalUsage.isNearLimit ? '#dc3545' : 'var(--gray-500)'
-            };">
-                        ${totalUsage.isNearLimit
-                ? '⚠️ Próximo do limite!'
-                : 'Disponível'
-            }
+                    <p style="margin: 0; font-size: 2rem; font-weight: 700; color: var(--dark-gray);">${
+                        totalUsage.usagePercent
+                    }%</p>
+                    <p style="margin: 0.25rem 0 0 0; font-size: 0.75rem; color: ${
+                        totalUsage.isNearLimit ? '#dc3545' : 'var(--gray-500)'
+                    };">
+                        ${
+                            totalUsage.isNearLimit
+                                ? '⚠️ Próximo do limite!'
+                                : 'Disponível'
+                        }
                     </p>
                 </div>
             </div>
@@ -20124,8 +20376,8 @@ class LojaApp {
                             totalUsage.usagePercent > 80
                                 ? '#dc3545'
                                 : totalUsage.usagePercent > 60
-                                    ? '#ffc107'
-                                    : '#28a745',
+                                  ? '#ffc107'
+                                  : '#28a745',
                             '#e9ecef',
                         ],
                         borderColor: ['#fff', '#fff'],
@@ -20164,7 +20416,7 @@ class LojaApp {
 
         // Ordenar por tamanho de dados (maior primeiro)
         const sortedUsers = [...usersUsage].sort(
-            (a, b) => b.dataSize - a.dataSize
+            (a, b) => b.dataSize - a.dataSize,
         );
 
         container.innerHTML = `
@@ -20194,47 +20446,52 @@ class LojaApp {
                         </thead>
                         <tbody>
                             ${sortedUsers
-                .map((user) => {
-                    const usagePercent = parseFloat(
-                        user.usagePercent
-                    );
-                    const rowColor =
-                        usagePercent > 30
-                            ? '#fff5f5'
-                            : usagePercent > 15
-                                ? '#fffbf0'
-                                : 'transparent';
-                    return `
+                                .map((user) => {
+                                    const usagePercent = parseFloat(
+                                        user.usagePercent,
+                                    );
+                                    const rowColor =
+                                        usagePercent > 30
+                                            ? '#fff5f5'
+                                            : usagePercent > 15
+                                              ? '#fffbf0'
+                                              : 'transparent';
+                                    return `
                                 <tr style="border-bottom: 1px solid var(--gray-200); background: ${rowColor};">
                                     <td style="padding: 0.75rem; font-weight: 600; color: var(--dark-gray);">
                                         <i class="fas fa-user" style="margin-right: 0.5rem; color: var(--primary-color);"></i>
                                         ${this.escapeHtml(user.username)}
                                     </td>
-                                    <td style="padding: 0.75rem; text-align: center; color: var(--gray-700); font-weight: 600;">${user.dataSizeKB
-                        } KB</td>
-                                    <td style="padding: 0.75rem; text-align: center; color: var(--gray-700); font-weight: 600;">${user.dataSizeMB
-                        } MB</td>
+                                    <td style="padding: 0.75rem; text-align: center; color: var(--gray-700); font-weight: 600;">${
+                                        user.dataSizeKB
+                                    } KB</td>
+                                    <td style="padding: 0.75rem; text-align: center; color: var(--gray-700); font-weight: 600;">${
+                                        user.dataSizeMB
+                                    } MB</td>
                                     <td style="padding: 0.75rem; text-align: center; color: var(--gray-700); font-weight: 600;">
-                                        <span style="padding: 0.25rem 0.5rem; border-radius: var(--radius-sm); background: ${usagePercent > 30
-                            ? '#fee'
-                            : usagePercent > 15
-                                ? '#fff3cd'
-                                : '#d4edda'
-                        }; color: ${usagePercent > 30
-                            ? '#721c24'
-                            : usagePercent > 15
-                                ? '#856404'
-                                : '#155724'
-                        };">
+                                        <span style="padding: 0.25rem 0.5rem; border-radius: var(--radius-sm); background: ${
+                                            usagePercent > 30
+                                                ? '#fee'
+                                                : usagePercent > 15
+                                                  ? '#fff3cd'
+                                                  : '#d4edda'
+                                        }; color: ${
+                                            usagePercent > 30
+                                                ? '#721c24'
+                                                : usagePercent > 15
+                                                  ? '#856404'
+                                                  : '#155724'
+                                        };">
                                             ${usagePercent}%
                                         </span>
                                     </td>
-                                    <td style="padding: 0.75rem; text-align: center; color: var(--gray-600); font-size: 0.85rem;">${user.lastUpdateFormatted
-                        }</td>
+                                    <td style="padding: 0.75rem; text-align: center; color: var(--gray-600); font-size: 0.85rem;">${
+                                        user.lastUpdateFormatted
+                                    }</td>
                                 </tr>
                             `;
-                })
-                .join('')}
+                                })
+                                .join('')}
                         </tbody>
                     </table>
                 </div>
@@ -20265,8 +20522,8 @@ class LojaApp {
             return percent > 30
                 ? 'rgba(220, 53, 69, 0.7)'
                 : percent > 15
-                    ? 'rgba(255, 193, 7, 0.7)'
-                    : 'rgba(40, 167, 69, 0.7)';
+                  ? 'rgba(255, 193, 7, 0.7)'
+                  : 'rgba(40, 167, 69, 0.7)';
         });
 
         this.adminUsersUsageChart = new Chart(ctx, {
@@ -20283,8 +20540,8 @@ class LojaApp {
                             return percent > 30
                                 ? '#dc3545'
                                 : percent > 15
-                                    ? '#ffc107'
-                                    : '#28a745';
+                                  ? '#ffc107'
+                                  : '#28a745';
                         }),
                         borderWidth: 2,
                     },
@@ -20368,7 +20625,7 @@ class LojaApp {
             .toFixed(2)
             .replace('.', ',')}`;
         document.getElementById('roiMargin').textContent = `${margin.toFixed(
-            2
+            2,
         )}%`;
         document.getElementById('roiValue').textContent = `${roi.toFixed(2)}%`;
 
@@ -20400,15 +20657,13 @@ class LojaApp {
         const profit = suggestedPrice - cost;
         const finalPrice = suggestedPrice * (1 - discount / 100);
 
-        document.getElementById(
-            'simulatorPrice'
-        ).textContent = `R$ ${suggestedPrice.toFixed(2).replace('.', ',')}`;
+        document.getElementById('simulatorPrice').textContent =
+            `R$ ${suggestedPrice.toFixed(2).replace('.', ',')}`;
         document.getElementById('simulatorProfit').textContent = `R$ ${profit
             .toFixed(2)
             .replace('.', ',')}`;
-        document.getElementById(
-            'simulatorFinalPrice'
-        ).textContent = `R$ ${finalPrice.toFixed(2).replace('.', ',')}`;
+        document.getElementById('simulatorFinalPrice').textContent =
+            `R$ ${finalPrice.toFixed(2).replace('.', ',')}`;
     }
 
     // Popular select de produtos para ROI
@@ -20467,7 +20722,7 @@ class LojaApp {
 
                 if (
                     confirm(
-                        'Isso irá substituir todos os dados atuais. Deseja continuar?'
+                        'Isso irá substituir todos os dados atuais. Deseja continuar?',
                     )
                 ) {
                     this.items = data.items || [];
@@ -20495,7 +20750,7 @@ class LojaApp {
                 }
             } catch (error) {
                 alert(
-                    'Erro ao importar arquivo. Verifique se o arquivo está no formato correto.'
+                    'Erro ao importar arquivo. Verifique se o arquivo está no formato correto.',
                 );
                 console.error('Erro ao importar:', error);
             }
@@ -20667,8 +20922,8 @@ class LojaApp {
                     <h3 class="empty-state-title">Nenhum resultado encontrado</h3>
                     <p class="empty-state-message">
                         Não foram encontradas notas contendo "${this.escapeHtml(
-                searchTerm
-            )}"
+                            searchTerm,
+                        )}"
                     </p>
                 </div>
             `;
@@ -20678,8 +20933,8 @@ class LojaApp {
         let html = `<div style="grid-column: 1/-1; margin-bottom: 1rem; padding: 1rem; background: var(--light-gray); border-radius: var(--radius-md);">
             <h3 style="margin: 0 0 0.5rem 0; color: var(--primary-color);">
                 <i class="fas fa-search"></i> Resultados da busca: "${this.escapeHtml(
-            searchTerm
-        )}"
+                    searchTerm,
+                )}"
             </h3>
             <p style="margin: 0; color: var(--gray-600); font-size: 0.9rem;">
                 Encontrados ${totalResults} resultado(s)
@@ -20702,8 +20957,8 @@ class LojaApp {
                         </div>
                         <div class="item-details">
                             <p><i class="fas fa-sticky-note"></i> <strong>Nota:</strong> ${this.escapeHtml(
-                    item.notes
-                )}</p>
+                                item.notes,
+                            )}</p>
                         </div>
                     </div>
                 `;
@@ -20726,8 +20981,8 @@ class LojaApp {
                         </div>
                         <div class="item-details">
                             <p><i class="fas fa-sticky-note"></i> <strong>Nota:</strong> ${this.escapeHtml(
-                    client.notes
-                )}</p>
+                                client.notes,
+                            )}</p>
                         </div>
                     </div>
                 `;
@@ -20750,8 +21005,8 @@ class LojaApp {
                         </div>
                         <div class="item-details">
                             <p><i class="fas fa-sticky-note"></i> <strong>Nota:</strong> ${this.escapeHtml(
-                    supplier.notes
-                )}</p>
+                                supplier.notes,
+                            )}</p>
                         </div>
                     </div>
                 `;
@@ -20777,8 +21032,8 @@ class LojaApp {
                         </div>
                         <div class="item-details">
                             <p><i class="fas fa-sticky-note"></i> <strong>Nota:</strong> ${this.escapeHtml(
-                    sale.notes
-                )}</p>
+                                sale.notes,
+                            )}</p>
                         </div>
                     </div>
                 `;
@@ -20804,8 +21059,8 @@ class LojaApp {
                         </div>
                         <div class="item-details">
                             <p><i class="fas fa-sticky-note"></i> <strong>Nota:</strong> ${this.escapeHtml(
-                    appointment.notes
-                )}</p>
+                                appointment.notes,
+                            )}</p>
                         </div>
                     </div>
                 `;
@@ -20832,7 +21087,7 @@ class LojaApp {
         }
 
         const resultsContainer = document.getElementById(
-            'advancedSearchResults'
+            'advancedSearchResults',
         );
         if (resultsContainer) {
             resultsContainer.innerHTML =
@@ -20854,13 +21109,13 @@ class LojaApp {
     clearAdvancedSearch() {
         const searchInput = document.getElementById('advancedSearchTerm');
         const categorySelect = document.getElementById(
-            'advancedSearchCategory'
+            'advancedSearchCategory',
         );
         const dateRangeSelect = document.getElementById(
-            'advancedSearchDateRange'
+            'advancedSearchDateRange',
         );
         const resultsContainer = document.getElementById(
-            'advancedSearchResults'
+            'advancedSearchResults',
         );
 
         if (searchInput) searchInput.value = '';
@@ -20878,11 +21133,11 @@ class LojaApp {
             if (typeof toast !== 'undefined' && toast) {
                 toast.error(
                     'Biblioteca de scanner não carregada. Verifique sua conexão.',
-                    3000
+                    3000,
                 );
             } else {
                 alert(
-                    'Biblioteca de scanner não carregada. Verifique sua conexão.'
+                    'Biblioteca de scanner não carregada. Verifique sua conexão.',
                 );
             }
             return;
@@ -20928,14 +21183,14 @@ class LojaApp {
                 },
                 (errorMessage) => {
                     // Erro ignorado (continua escaneando)
-                }
+                },
             )
             .catch((err) => {
                 console.error('Erro ao iniciar scanner:', err);
                 if (typeof toast !== 'undefined' && toast) {
                     toast.error(
                         'Erro ao acessar a câmera. Verifique as permissões.',
-                        3000
+                        3000,
                     );
                 }
                 container.style.display = 'none';
@@ -21004,7 +21259,7 @@ class LojaApp {
             if (typeof toast !== 'undefined' && toast) {
                 toast.error(
                     'Reconhecimento de voz não suportado neste navegador',
-                    3000
+                    3000,
                 );
             }
             return;
@@ -21025,7 +21280,7 @@ class LojaApp {
         recognition.onstart = () => {
             this.voiceRecognitionActive = true;
             console.log(
-                '🎤 [VOICE SEARCH] Reconhecimento de voz iniciado para busca'
+                '🎤 [VOICE SEARCH] Reconhecimento de voz iniciado para busca',
             );
         };
 
@@ -21052,7 +21307,7 @@ class LojaApp {
         recognition.onerror = (event) => {
             console.error(
                 '❌ [VOICE SEARCH] Erro no reconhecimento:',
-                event.error
+                event.error,
             );
             this.voiceRecognitionActive = false;
             const voiceBtn = document.getElementById('advancedSearchVoiceBtn');
@@ -21065,7 +21320,7 @@ class LojaApp {
                 if (typeof toast !== 'undefined' && toast) {
                     toast.warning(
                         'Nenhum áudio detectado. Tente novamente.',
-                        2000
+                        2000,
                     );
                 }
             } else {
@@ -21095,7 +21350,7 @@ class LojaApp {
             .getElementById('advancedSearchTerm')
             ?.value.trim();
         const resultsContainer = document.getElementById(
-            'advancedSearchResults'
+            'advancedSearchResults',
         );
 
         if (!resultsContainer) return;
@@ -21143,12 +21398,12 @@ class LojaApp {
                     dateStart = new Date(
                         now.getFullYear(),
                         now.getMonth(),
-                        now.getDate()
+                        now.getDate(),
                     );
                     dateEnd = new Date(
                         now.getFullYear(),
                         now.getMonth(),
-                        now.getDate() + 1
+                        now.getDate() + 1,
                     );
                     break;
                 case 'week':
@@ -21164,7 +21419,7 @@ class LojaApp {
                     dateEnd = new Date(
                         now.getFullYear(),
                         now.getMonth() + 1,
-                        1
+                        1,
                     );
                     break;
                 case 'quarter':
@@ -21283,7 +21538,7 @@ class LojaApp {
                         sale.items.some(
                             (item) =>
                                 item.name &&
-                                item.name.toLowerCase().includes(search)
+                                item.name.toLowerCase().includes(search),
                         )) ||
                     (searchInNotes &&
                         sale.notes &&
@@ -21316,7 +21571,7 @@ class LojaApp {
                 }
 
                 const service = this.items.find(
-                    (item) => item.id === appointment.serviceTypeId
+                    (item) => item.id === appointment.serviceTypeId,
                 );
                 const serviceName = service
                     ? service.name || service.brand || service.model
@@ -21355,7 +21610,7 @@ class LojaApp {
     // Renderizar resultados da busca avançada
     renderAdvancedSearchResults(results, searchTerm) {
         const resultsContainer = document.getElementById(
-            'advancedSearchResults'
+            'advancedSearchResults',
         );
         if (!resultsContainer) return;
 
@@ -21375,8 +21630,8 @@ class LojaApp {
                     <h3 class="empty-state-title">Nenhum resultado encontrado</h3>
                     <p class="empty-state-message">
                         Não foram encontrados resultados para "${this.escapeHtml(
-                searchTerm
-            )}"
+                            searchTerm,
+                        )}"
                     </p>
                 </div>
             `;
@@ -21386,8 +21641,8 @@ class LojaApp {
         let html = `<div style="grid-column: 1/-1; margin-bottom: 1rem; padding: 1rem; background: var(--light-gray); border-radius: var(--radius-md);">
             <h3 style="margin: 0 0 0.5rem 0; color: var(--primary-color);">
                 <i class="fas fa-search"></i> Resultados da busca: "${this.escapeHtml(
-            searchTerm
-        )}"
+                    searchTerm,
+                )}"
             </h3>
             <p style="margin: 0; color: var(--gray-600); font-size: 0.9rem;">
                 Encontrados ${totalResults} resultado(s)
@@ -21406,15 +21661,16 @@ class LojaApp {
                     <div class="item-card">
                         <div class="item-header">
                             <h3>${this.escapeHtml(item.name)}</h3>
-                            <span style="font-size: 0.75rem; color: var(--gray-600);">${item.category || 'Produto'
-                    }</span>
+                            <span style="font-size: 0.75rem; color: var(--gray-600);">${
+                                item.category || 'Produto'
+                            }</span>
                         </div>
                         <div class="item-details">
                             <p><i class="fas fa-dollar-sign"></i> Preço: R$ ${(
-                        item.price || 0
-                    )
-                        .toFixed(2)
-                        .replace('.', ',')}</p>
+                                item.price || 0
+                            )
+                                .toFixed(2)
+                                .replace('.', ',')}</p>
                         </div>
                     </div>
                 `;
@@ -21436,18 +21692,20 @@ class LojaApp {
                             <span style="font-size: 0.75rem; color: var(--gray-600);">Cliente</span>
                         </div>
                         <div class="item-details">
-                            ${client.cpf
-                        ? `<p><i class="fas fa-id-card"></i> CPF: ${this.escapeHtml(
-                            client.cpf
-                        )}</p>`
-                        : ''
-                    }
-                            ${client.email
-                        ? `<p><i class="fas fa-envelope"></i> ${this.escapeHtml(
-                            client.email
-                        )}</p>`
-                        : ''
-                    }
+                            ${
+                                client.cpf
+                                    ? `<p><i class="fas fa-id-card"></i> CPF: ${this.escapeHtml(
+                                          client.cpf,
+                                      )}</p>`
+                                    : ''
+                            }
+                            ${
+                                client.email
+                                    ? `<p><i class="fas fa-envelope"></i> ${this.escapeHtml(
+                                          client.email,
+                                      )}</p>`
+                                    : ''
+                            }
                         </div>
                     </div>
                 `;
@@ -21469,12 +21727,13 @@ class LojaApp {
                             <span style="font-size: 0.75rem; color: var(--gray-600);">Fornecedor</span>
                         </div>
                         <div class="item-details">
-                            ${supplier.cnpj
-                        ? `<p><i class="fas fa-building"></i> CNPJ: ${this.escapeHtml(
-                            supplier.cnpj
-                        )}</p>`
-                        : ''
-                    }
+                            ${
+                                supplier.cnpj
+                                    ? `<p><i class="fas fa-building"></i> CNPJ: ${this.escapeHtml(
+                                          supplier.cnpj,
+                                      )}</p>`
+                                    : ''
+                            }
                         </div>
                     </div>
                 `;
@@ -21499,17 +21758,18 @@ class LojaApp {
                             <span style="font-size: 0.75rem; color: var(--gray-600);">Venda - ${saleDate}</span>
                         </div>
                         <div class="item-details">
-                            ${sale.orderCode
-                        ? `<p><i class="fas fa-barcode"></i> Código: ${this.escapeHtml(
-                            sale.orderCode
-                        )}</p>`
-                        : ''
-                    }
+                            ${
+                                sale.orderCode
+                                    ? `<p><i class="fas fa-barcode"></i> Código: ${this.escapeHtml(
+                                          sale.orderCode,
+                                      )}</p>`
+                                    : ''
+                            }
                             <p><i class="fas fa-dollar-sign"></i> Total: R$ ${(
-                        sale.totalValue || 0
-                    )
-                        .toFixed(2)
-                        .replace('.', ',')}</p>
+                                sale.totalValue || 0
+                            )
+                                .toFixed(2)
+                                .replace('.', ',')}</p>
                         </div>
                     </div>
                 `;
@@ -21540,21 +21800,24 @@ class LojaApp {
                             <span style="font-size: 0.75rem; color: var(--gray-600);">Agendamento - ${appointmentDate}</span>
                         </div>
                         <div class="item-details">
-                            ${appointment.serviceName
-                        ? `<p><i class="fas fa-tools"></i> Serviço: ${this.escapeHtml(
-                            appointment.serviceName
-                        )}</p>`
-                        : ''
-                    }
-                            ${appointment.time
-                        ? `<p><i class="fas fa-clock"></i> Horário: ${this.escapeHtml(
-                            appointment.time
-                        )}</p>`
-                        : ''
-                    }
-                            <p><i class="fas fa-info-circle"></i> Status: ${statusNames[appointment.status] ||
-                    appointment.status
-                    }</p>
+                            ${
+                                appointment.serviceName
+                                    ? `<p><i class="fas fa-tools"></i> Serviço: ${this.escapeHtml(
+                                          appointment.serviceName,
+                                      )}</p>`
+                                    : ''
+                            }
+                            ${
+                                appointment.time
+                                    ? `<p><i class="fas fa-clock"></i> Horário: ${this.escapeHtml(
+                                          appointment.time,
+                                      )}</p>`
+                                    : ''
+                            }
+                            <p><i class="fas fa-info-circle"></i> Status: ${
+                                statusNames[appointment.status] ||
+                                appointment.status
+                            }</p>
                         </div>
                     </div>
                 `;
@@ -21601,8 +21864,9 @@ class LojaApp {
         this.coupons.forEach((coupon) => {
             const option = document.createElement('option');
             option.value = coupon.code;
-            option.textContent = `${coupon.code} - ${coupon.description || 'Sem descrição'
-                }`;
+            option.textContent = `${coupon.code} - ${
+                coupon.description || 'Sem descrição'
+            }`;
             filter.appendChild(option);
         });
     }
@@ -21622,7 +21886,7 @@ class LojaApp {
                 sale.discount &&
                 sale.discount.couponCode &&
                 (!selectedCouponCode ||
-                    sale.discount.couponCode === selectedCouponCode)
+                    sale.discount.couponCode === selectedCouponCode),
         );
 
         if (salesWithCoupons.length === 0) {
@@ -21633,10 +21897,11 @@ class LojaApp {
                     </div>
                     <h3 class="empty-state-title">Nenhum uso de cupom encontrado</h3>
                     <p class="empty-state-message">
-                        ${selectedCouponCode
-                    ? 'Este cupom ainda não foi usado em nenhuma venda.'
-                    : 'Ainda não há vendas que utilizaram cupons de desconto.'
-                }
+                        ${
+                            selectedCouponCode
+                                ? 'Este cupom ainda não foi usado em nenhuma venda.'
+                                : 'Ainda não há vendas que utilizaram cupons de desconto.'
+                        }
                     </p>
                 </div>
             `;
@@ -21675,28 +21940,31 @@ class LojaApp {
                         <div>
                             <h3 style="margin: 0; color: var(--primary-color);">
                                 <i class="fas fa-tag"></i> ${this.escapeHtml(
-                couponCode
-            )}
+                                    couponCode,
+                                )}
                             </h3>
-                            ${coupon
-                    ? `
+                            ${
+                                coupon
+                                    ? `
                                 <p style="margin: 0.5rem 0 0 0; color: var(--gray-600); font-size: 0.9rem;">
-                                    ${coupon.type === 'percent'
-                        ? `${coupon.value}%`
-                        : `R$ ${coupon.value
-                            .toFixed(2)
-                            .replace('.', ',')}`
-                    } de desconto
-                                    ${coupon.description
-                        ? ` - ${this.escapeHtml(
-                            coupon.description
-                        )}`
-                        : ''
-                    }
+                                    ${
+                                        coupon.type === 'percent'
+                                            ? `${coupon.value}%`
+                                            : `R$ ${coupon.value
+                                                  .toFixed(2)
+                                                  .replace('.', ',')}`
+                                    } de desconto
+                                    ${
+                                        coupon.description
+                                            ? ` - ${this.escapeHtml(
+                                                  coupon.description,
+                                              )}`
+                                            : ''
+                                    }
                                 </p>
                             `
-                    : ''
-                }
+                                    : ''
+                            }
                         </div>
                         <div style="text-align: right;">
                             <p style="margin: 0; font-size: 0.85rem; color: var(--gray-600);">Total de usos</p>
@@ -21711,85 +21979,90 @@ class LojaApp {
                             <p style="margin: 0; font-size: 0.85rem; color: var(--gray-600);">Total em Descontos</p>
                             <p style="margin: 0.25rem 0 0 0; font-size: 1.2rem; font-weight: 600; color: #28a745;">
                                 R$ ${history.totalDiscount
-                    .toFixed(2)
-                    .replace('.', ',')}
+                                    .toFixed(2)
+                                    .replace('.', ',')}
                             </p>
                         </div>
                         <div style="padding: 1rem; background: var(--light-gray); border-radius: var(--radius-sm);">
                             <p style="margin: 0; font-size: 0.85rem; color: var(--gray-600);">Valor Total das Vendas</p>
                             <p style="margin: 0.25rem 0 0 0; font-size: 1.2rem; font-weight: 600; color: var(--primary-color);">
                                 R$ ${history.totalValue
-                    .toFixed(2)
-                    .replace('.', ',')}
+                                    .toFixed(2)
+                                    .replace('.', ',')}
                             </p>
                         </div>
                     </div>
                     
                     <div>
                         <h4 style="margin: 0 0 1rem 0; color: var(--dark-gray); font-size: 1rem;">
-                            <i class="fas fa-shopping-cart"></i> Vendas que usaram este cupom (${history.sales.length
-                })
+                            <i class="fas fa-shopping-cart"></i> Vendas que usaram este cupom (${
+                                history.sales.length
+                            })
                         </h4>
                         <div style="display: flex; flex-direction: column; gap: 0.75rem;">
                             ${history.sales
-                    .map((sale) => {
-                        const saleDate = sale.date
-                            ? new Date(
-                                sale.date
-                            ).toLocaleDateString('pt-BR')
-                            : 'N/A';
-                        const saleTime = sale.date
-                            ? new Date(
-                                sale.date
-                            ).toLocaleTimeString('pt-BR', {
-                                hour: '2-digit',
-                                minute: '2-digit',
-                            })
-                            : '';
-                        return `
+                                .map((sale) => {
+                                    const saleDate = sale.date
+                                        ? new Date(
+                                              sale.date,
+                                          ).toLocaleDateString('pt-BR')
+                                        : 'N/A';
+                                    const saleTime = sale.date
+                                        ? new Date(
+                                              sale.date,
+                                          ).toLocaleTimeString('pt-BR', {
+                                              hour: '2-digit',
+                                              minute: '2-digit',
+                                          })
+                                        : '';
+                                    return `
                                     <div style="padding: 1rem; background: var(--light-gray); border-radius: var(--radius-sm); border-left: 3px solid var(--primary-color);">
                                         <div style="display: flex; justify-content: space-between; align-items: start; flex-wrap: wrap; gap: 0.5rem;">
                                             <div style="flex: 1;">
                                                 <p style="margin: 0; font-weight: 600; color: var(--dark-gray);">
                                                     ${this.escapeHtml(
-                            sale.customerName ||
-                            'Cliente não informado'
-                        )}
+                                                        sale.customerName ||
+                                                            'Cliente não informado',
+                                                    )}
                                                 </p>
                                                 <p style="margin: 0.25rem 0 0 0; font-size: 0.85rem; color: var(--gray-600);">
-                                                    <i class="fas fa-calendar"></i> ${saleDate} ${saleTime ? `às ${saleTime}` : ''
-                            }
-                                                    ${sale.orderCode
-                                ? ` | <i class="fas fa-barcode"></i> ${this.escapeHtml(
-                                    sale.orderCode
-                                )}`
-                                : ''
-                            }
+                                                    <i class="fas fa-calendar"></i> ${saleDate} ${
+                                                        saleTime
+                                                            ? `às ${saleTime}`
+                                                            : ''
+                                                    }
+                                                    ${
+                                                        sale.orderCode
+                                                            ? ` | <i class="fas fa-barcode"></i> ${this.escapeHtml(
+                                                                  sale.orderCode,
+                                                              )}`
+                                                            : ''
+                                                    }
                                                 </p>
                                             </div>
                                             <div style="text-align: right;">
                                                 <p style="margin: 0; font-size: 0.85rem; color: var(--gray-600);">Desconto aplicado</p>
                                                 <p style="margin: 0.25rem 0 0 0; font-weight: 600; color: #28a745;">
                                                     - R$ ${(
-                                sale.discount.amount ||
-                                0
-                            )
-                                .toFixed(2)
-                                .replace('.', ',')}
+                                                        sale.discount.amount ||
+                                                        0
+                                                    )
+                                                        .toFixed(2)
+                                                        .replace('.', ',')}
                                                 </p>
                                                 <p style="margin: 0.25rem 0 0 0; font-size: 0.85rem; color: var(--gray-600);">
                                                     Total: R$ ${(
-                                sale.totalValue || 0
-                            )
-                                .toFixed(2)
-                                .replace('.', ',')}
+                                                        sale.totalValue || 0
+                                                    )
+                                                        .toFixed(2)
+                                                        .replace('.', ',')}
                                                 </p>
                                             </div>
                                         </div>
                                     </div>
                                 `;
-                    })
-                    .join('')}
+                                })
+                                .join('')}
                         </div>
                     </div>
                 </div>
@@ -21805,7 +22078,7 @@ class LojaApp {
     checkGoalsAlerts() {
         const now = new Date();
         const currentMonth = `${now.getFullYear()}-${String(
-            now.getMonth() + 1
+            now.getMonth() + 1,
         ).padStart(2, '0')}`;
         const currentGoal = this.goals.find((g) => g.month === currentMonth);
 
@@ -21816,7 +22089,7 @@ class LojaApp {
         const daysInMonth = new Date(
             now.getFullYear(),
             now.getMonth() + 1,
-            0
+            0,
         ).getDate();
         const daysRemaining = daysInMonth - now.getDate();
 
@@ -21826,14 +22099,14 @@ class LojaApp {
             if (typeof toast !== 'undefined' && toast) {
                 toast.warning(
                     `Meta do mês: ${progress.toFixed(
-                        1
+                        1,
                     )}% concluída. Faltam R$ ${remaining
                         .toFixed(2)
                         .replace(
                             '.',
-                            ','
+                            ',',
                         )} e ${daysRemaining} dia(s) restante(s)!`,
-                    5000
+                    5000,
                 );
             }
         }
@@ -21875,7 +22148,7 @@ class LojaApp {
             if (typeof toast !== 'undefined' && toast) {
                 toast.info(
                     `Você tem ${todayAppointments.length} agendamento(s) hoje!`,
-                    4000
+                    4000,
                 );
                 sessionStorage.setItem('todayAppointmentsAlerted', 'true');
             }
@@ -21888,7 +22161,7 @@ class LojaApp {
             if (typeof toast !== 'undefined' && toast) {
                 toast.info(
                     `Você tem ${tomorrowAppointments.length} agendamento(s) amanhã!`,
-                    4000
+                    4000,
                 );
                 sessionStorage.setItem('tomorrowAppointmentsAlerted', 'true');
             }
@@ -21922,7 +22195,7 @@ class LojaApp {
             const dueDate = new Date(order.dueDate);
             dueDate.setHours(0, 0, 0, 0);
             const daysUntilDue = Math.ceil(
-                (dueDate - now) / (1000 * 60 * 60 * 24)
+                (dueDate - now) / (1000 * 60 * 60 * 24),
             );
             return daysUntilDue >= 0 && daysUntilDue <= 3;
         });
@@ -21934,7 +22207,7 @@ class LojaApp {
             if (typeof toast !== 'undefined' && toast) {
                 toast.error(
                     `Atenção! ${expiredOrders.length} pedido(s) vencido(s) precisam de atenção.`,
-                    5000
+                    5000,
                 );
                 sessionStorage.setItem('expiredOrdersAlerted', 'true');
             }
@@ -21947,7 +22220,7 @@ class LojaApp {
             if (typeof toast !== 'undefined' && toast) {
                 toast.warning(
                     `${expiringSoonOrders.length} pedido(s) vence(m) em até 3 dias!`,
-                    4000
+                    4000,
                 );
                 sessionStorage.setItem('expiringSoonOrdersAlerted', 'true');
             }
@@ -21974,7 +22247,7 @@ class LojaApp {
         const lastDay = new Date(now.getFullYear(), now.getMonth() + 1, 0);
 
         const startDateInput = document.getElementById(
-            'reportBuilderStartDate'
+            'reportBuilderStartDate',
         );
         const endDateInput = document.getElementById('reportBuilderEndDate');
         if (startDateInput) {
@@ -22004,10 +22277,10 @@ class LojaApp {
 
         // Mostrar/ocultar filtros específicos baseado no tipo
         const categoryFilter = document.getElementById(
-            'reportBuilderCategory'
+            'reportBuilderCategory',
         )?.parentElement;
         const statusFilter = document.getElementById(
-            'reportBuilderStatus'
+            'reportBuilderStatus',
         )?.parentElement;
 
         if (categoryFilter) {
@@ -22074,7 +22347,7 @@ class LojaApp {
         }
 
         const startDateInput = document.getElementById(
-            'reportBuilderStartDate'
+            'reportBuilderStartDate',
         );
         const endDateInput = document.getElementById('reportBuilderEndDate');
         if (startDateInput)
@@ -22089,7 +22362,7 @@ class LojaApp {
 
         const type = document.getElementById('reportBuilderType')?.value;
         const startDate = document.getElementById(
-            'reportBuilderStartDate'
+            'reportBuilderStartDate',
         )?.value;
         const endDate = document.getElementById('reportBuilderEndDate')?.value;
         const format = document.getElementById('reportBuilderFormat')?.value;
@@ -22108,7 +22381,7 @@ class LojaApp {
             if (typeof toast !== 'undefined' && toast) {
                 toast.warning(
                     'Por favor, preencha todos os campos obrigatórios.',
-                    3000
+                    3000,
                 );
             }
             return;
@@ -22118,7 +22391,7 @@ class LojaApp {
             if (typeof toast !== 'undefined' && toast) {
                 toast.warning(
                     'Por favor, selecione o período do relatório.',
-                    3000
+                    3000,
                 );
             }
             return;
@@ -22139,7 +22412,7 @@ class LojaApp {
                     start,
                     end,
                     category,
-                    status
+                    status,
                 );
                 break;
             case 'services':
@@ -22164,7 +22437,7 @@ class LojaApp {
                     start,
                     end,
                     category,
-                    status
+                    status,
                 );
                 break;
         }
@@ -22191,10 +22464,10 @@ class LojaApp {
         // Agendar relatório se solicitado
         if (isScheduled) {
             const scheduleDate = document.getElementById(
-                'reportBuilderScheduleDate'
+                'reportBuilderScheduleDate',
             )?.value;
             const scheduleTime = document.getElementById(
-                'reportBuilderScheduleTime'
+                'reportBuilderScheduleTime',
             )?.value;
             const frequency =
                 document.getElementById('reportBuilderScheduleFrequency')
@@ -22205,7 +22478,7 @@ class LojaApp {
                     reportConfig,
                     scheduleDate,
                     scheduleTime,
-                    frequency
+                    frequency,
                 );
                 if (typeof toast !== 'undefined' && toast) {
                     toast.success('Relatório agendado com sucesso!', 3000);
@@ -22214,7 +22487,7 @@ class LojaApp {
                 if (typeof toast !== 'undefined' && toast) {
                     toast.warning(
                         'Por favor, preencha data e hora do agendamento.',
-                        3000
+                        3000,
                     );
                 }
                 return;
@@ -22224,7 +22497,7 @@ class LojaApp {
         // Compartilhar relatório se solicitado
         if (isShared) {
             const shareEmails = document.getElementById(
-                'reportBuilderShareEmails'
+                'reportBuilderShareEmails',
             )?.value;
             const shareMessage =
                 document.getElementById('reportBuilderShareMessage')?.value ||
@@ -22239,7 +22512,7 @@ class LojaApp {
                 if (typeof toast !== 'undefined' && toast) {
                     toast.warning(
                         'Por favor, informe pelo menos um email para compartilhamento.',
-                        3000
+                        3000,
                     );
                 }
                 return;
@@ -22254,7 +22527,7 @@ class LojaApp {
                 reportTitle,
                 format,
                 includeCharts,
-                includeSummary
+                includeSummary,
             );
 
             // Fechar modal
@@ -22272,7 +22545,7 @@ class LojaApp {
     // Toggle campos de agendamento
     toggleScheduleFields() {
         const scheduleCheckbox = document.getElementById(
-            'reportBuilderSchedule'
+            'reportBuilderSchedule',
         );
         const scheduleFields = document.getElementById('scheduleFields');
 
@@ -22285,10 +22558,10 @@ class LojaApp {
             if (scheduleCheckbox.checked) {
                 const now = new Date();
                 const scheduleDate = document.getElementById(
-                    'reportBuilderScheduleDate'
+                    'reportBuilderScheduleDate',
                 );
                 const scheduleTime = document.getElementById(
-                    'reportBuilderScheduleTime'
+                    'reportBuilderScheduleTime',
                 );
 
                 if (scheduleDate) {
@@ -22297,7 +22570,7 @@ class LojaApp {
                 if (scheduleTime) {
                     scheduleTime.value = `${String(now.getHours()).padStart(
                         2,
-                        '0'
+                        '0',
                     )}:${String(now.getMinutes()).padStart(2, '0')}`;
                 }
             }
@@ -22325,7 +22598,7 @@ class LojaApp {
             if (typeof toast !== 'undefined' && toast) {
                 toast.warning(
                     'A data/hora do agendamento deve ser no futuro.',
-                    3000
+                    3000,
                 );
             }
             return;
@@ -22395,7 +22668,7 @@ class LojaApp {
         // Por enquanto, apenas simula o envio
         console.log(
             '📧 [SHARE] Simulando envio de relatório para:',
-            sharedReport.sharedWith
+            sharedReport.sharedWith,
         );
 
         // Marcar como enviado após simulação
@@ -22405,7 +22678,7 @@ class LojaApp {
             if (typeof toast !== 'undefined' && toast) {
                 toast.info(
                     `Relatório compartilhado com ${sharedReport.sharedWith.length} destinatário(s)`,
-                    3000
+                    3000,
                 );
             }
         }, 1000);
@@ -22438,7 +22711,7 @@ class LojaApp {
             if (nextRun <= now) {
                 console.log(
                     '⏰ [SCHEDULE] Executando relatório agendado:',
-                    scheduled.id
+                    scheduled.id,
                 );
 
                 // Gerar relatório
@@ -22495,21 +22768,21 @@ class LojaApp {
                     start,
                     end,
                     config.category,
-                    config.status
+                    config.status,
                 );
                 break;
             case 'services':
                 reportData = this.generateServicesReport(
                     start,
                     end,
-                    config.status
+                    config.status,
                 );
                 break;
             case 'products':
                 reportData = this.generateProductsReport(
                     start,
                     end,
-                    config.category
+                    config.category,
                 );
                 break;
             case 'clients':
@@ -22523,7 +22796,7 @@ class LojaApp {
                     start,
                     end,
                     config.category,
-                    config.status
+                    config.status,
                 );
                 break;
         }
@@ -22534,20 +22807,20 @@ class LojaApp {
             reportTitle,
             config.format,
             config.includeCharts,
-            config.includeSummary
+            config.includeSummary,
         );
 
         // Notificar usuário
         if (typeof toast !== 'undefined' && toast) {
             toast.success(
                 `Relatório agendado "${reportTitle}" gerado automaticamente!`,
-                5000
+                5000,
             );
         }
 
         console.log(
             '✅ [SCHEDULE] Relatório agendado executado:',
-            scheduled.id
+            scheduled.id,
         );
     }
 
@@ -22562,7 +22835,7 @@ class LojaApp {
                 !category ||
                 sale.items?.some((item) => {
                     const product = this.items.find(
-                        (i) => i.id === item.itemId
+                        (i) => i.id === item.itemId,
                     );
                     return product && product.category === category;
                 });
@@ -22572,17 +22845,17 @@ class LojaApp {
 
         const totalValue = sales.reduce(
             (sum, sale) => sum + (sale.totalValue || 0),
-            0
+            0,
         );
         const totalDiscount = sales.reduce(
             (sum, sale) => sum + (sale.discount?.amount || 0),
-            0
+            0,
         );
         const totalItems = sales.reduce(
             (sum, sale) =>
                 sum +
                 (sale.items?.reduce((s, i) => s + (i.quantity || 0), 0) || 0),
-            0
+            0,
         );
 
         return {
@@ -22611,7 +22884,7 @@ class LojaApp {
 
         const totalValue = services.reduce(
             (sum, apt) => sum + (apt.price || 0),
-            0
+            0,
         );
         const totalHours = services.reduce((sum, apt) => {
             const service = this.items.find((i) => i.id === apt.serviceTypeId);
@@ -22685,11 +22958,11 @@ class LojaApp {
                 totalProducts: filteredItems.length,
                 totalRevenue: productStats.reduce(
                     (sum, p) => sum + p.revenue,
-                    0
+                    0,
                 ),
                 totalQuantitySold: productStats.reduce(
                     (sum, p) => sum + p.quantitySold,
-                    0
+                    0,
                 ),
             },
             data: productStats,
@@ -22713,7 +22986,7 @@ class LojaApp {
 
             const totalSpent = sales.reduce(
                 (sum, sale) => sum + (sale.totalValue || 0),
-                0
+                0,
             );
 
             return {
@@ -22733,7 +23006,7 @@ class LojaApp {
                     .length,
                 totalRevenue: clientStats.reduce(
                     (sum, c) => sum + c.totalSpent,
-                    0
+                    0,
                 ),
             },
             data: clientStats,
@@ -22759,11 +23032,11 @@ class LojaApp {
 
         const revenue = sales.reduce(
             (sum, sale) => sum + (sale.totalValue || 0),
-            0
+            0,
         );
         const totalCosts = costs.reduce(
             (sum, cost) => sum + (cost.amount || 0),
-            0
+            0,
         );
         const profit = revenue - totalCosts;
         const margin = revenue > 0 ? (profit / revenue) * 100 : 0;
@@ -22794,7 +23067,7 @@ class LojaApp {
                 startDate,
                 endDate,
                 category,
-                status
+                status,
             ),
             services: this.generateServicesReport(startDate, endDate, status),
             products: this.generateProductsReport(startDate, endDate, category),
@@ -22806,8 +23079,9 @@ class LojaApp {
 
     // Exportar relatório no formato selecionado
     exportReport(reportData, title, format, includeCharts, includeSummary) {
-        const filename = `${title.replace(/\s+/g, '_')}_${new Date().toISOString().split('T')[0]
-            }`;
+        const filename = `${title.replace(/\s+/g, '_')}_${
+            new Date().toISOString().split('T')[0]
+        }`;
 
         switch (format) {
             case 'html':
@@ -22816,7 +23090,7 @@ class LojaApp {
                     title,
                     filename,
                     includeCharts,
-                    includeSummary
+                    includeSummary,
                 );
                 break;
             case 'json':
@@ -22830,7 +23104,7 @@ class LojaApp {
                     reportData,
                     title,
                     filename,
-                    includeSummary
+                    includeSummary,
                 );
                 break;
         }
@@ -22842,7 +23116,7 @@ class LojaApp {
         title,
         filename,
         includeCharts,
-        includeSummary
+        includeSummary,
     ) {
         let html = `<!DOCTYPE html>
 <html lang="pt-BR">
@@ -22865,13 +23139,13 @@ class LojaApp {
 <body>
     <h1>${title}</h1>
     <p><strong>Período:</strong> ${new Date(
-            reportData.period.start
-        ).toLocaleDateString('pt-BR')} a ${new Date(
-            reportData.period.end
-        ).toLocaleDateString('pt-BR')}</p>
+        reportData.period.start,
+    ).toLocaleDateString('pt-BR')} a ${new Date(
+        reportData.period.end,
+    ).toLocaleDateString('pt-BR')}</p>
     <p><strong>Gerado em:</strong> ${new Date(
-            reportData.generatedAt
-        ).toLocaleString('pt-BR')}</p>
+        reportData.generatedAt,
+    ).toLocaleString('pt-BR')}</p>
 `;
 
         if (includeSummary && reportData.summary) {
@@ -22954,10 +23228,10 @@ class LojaApp {
         let txt = `${title}\n`;
         txt += `${'='.repeat(title.length)}\n\n`;
         txt += `Período: ${new Date(reportData.period.start).toLocaleDateString(
-            'pt-BR'
+            'pt-BR',
         )} a ${new Date(reportData.period.end).toLocaleDateString('pt-BR')}\n`;
         txt += `Gerado em: ${new Date(reportData.generatedAt).toLocaleString(
-            'pt-BR'
+            'pt-BR',
         )}\n\n`;
 
         if (includeSummary && reportData.summary) {
@@ -22992,7 +23266,7 @@ class LojaApp {
             if (typeof toast !== 'undefined' && toast) {
                 toast.error(
                     'Você não tem permissão para exportar dados.',
-                    3000
+                    3000,
                 );
             } else {
                 alert('Você não tem permissão para exportar dados.');
@@ -23036,7 +23310,7 @@ class LojaApp {
             if (typeof toast !== 'undefined' && toast) {
                 toast.warning(
                     'Por favor, preencha todos os campos obrigatórios.',
-                    3000
+                    3000,
                 );
             }
             return;
@@ -23125,7 +23399,7 @@ class LojaApp {
                     scheduleDate,
                     scheduleTime,
                     frequency,
-                    isEmail
+                    isEmail,
                 );
                 if (typeof toast !== 'undefined' && toast) {
                     toast.success('Exportação agendada com sucesso!', 3000);
@@ -23134,7 +23408,7 @@ class LojaApp {
                 if (typeof toast !== 'undefined' && toast) {
                     toast.warning(
                         'Por favor, preencha data e hora do agendamento.',
-                        3000
+                        3000,
                     );
                 }
                 return;
@@ -23144,7 +23418,7 @@ class LojaApp {
         // Enviar por email se solicitado
         if (isEmail && !isScheduled) {
             const emailRecipients = document.getElementById(
-                'exportEmailRecipients'
+                'exportEmailRecipients',
             )?.value;
             const emailSubject =
                 document.getElementById('exportEmailSubject')?.value ||
@@ -23154,7 +23428,7 @@ class LojaApp {
                 this.sendExportByEmail(
                     exportConfig,
                     emailRecipients,
-                    emailSubject
+                    emailSubject,
                 );
                 if (typeof toast !== 'undefined' && toast) {
                     toast.success('Exportação enviada por email!', 3000);
@@ -23163,7 +23437,7 @@ class LojaApp {
                 if (typeof toast !== 'undefined' && toast) {
                     toast.warning(
                         'Por favor, informe pelo menos um email.',
-                        3000
+                        3000,
                     );
                 }
                 return;
@@ -23173,8 +23447,9 @@ class LojaApp {
         // Se não for agendamento, exportar imediatamente
         if (!isScheduled) {
             // Exportar no formato selecionado
-            const filename = `loja_export_${dataType}_${new Date().toISOString().split('T')[0]
-                }`;
+            const filename = `loja_export_${dataType}_${
+                new Date().toISOString().split('T')[0]
+            }`;
 
             switch (format) {
                 case 'json':
@@ -23186,7 +23461,7 @@ class LojaApp {
                         dataType,
                         filename,
                         includeCharts,
-                        includeSummary
+                        includeSummary,
                     );
                     break;
                 case 'excel':
@@ -23233,7 +23508,7 @@ class LojaApp {
                 if (scheduleTime) {
                     scheduleTime.value = `${String(now.getHours()).padStart(
                         2,
-                        '0'
+                        '0',
                     )}:${String(now.getMinutes()).padStart(2, '0')}`;
                 }
             }
@@ -23258,7 +23533,7 @@ class LojaApp {
         scheduleDate,
         scheduleTime,
         frequency,
-        sendEmail = false
+        sendEmail = false,
     ) {
         const scheduleDateTime = new Date(`${scheduleDate}T${scheduleTime}`);
         const now = new Date();
@@ -23267,7 +23542,7 @@ class LojaApp {
             if (typeof toast !== 'undefined' && toast) {
                 toast.warning(
                     'A data/hora do agendamento deve ser no futuro.',
-                    3000
+                    3000,
                 );
             }
             return;
@@ -23286,7 +23561,7 @@ class LojaApp {
                 : null,
             emailSubject: sendEmail
                 ? document.getElementById('exportEmailSubject')?.value ||
-                'Exportação de Dados - Loja'
+                  'Exportação de Dados - Loja'
                 : null,
             createdAt: new Date().toISOString(),
             lastRun: null,
@@ -23299,7 +23574,7 @@ class LojaApp {
 
         console.log(
             '✅ [EXPORT SCHEDULE] Exportação agendada:',
-            scheduledExport
+            scheduledExport,
         );
 
         // Iniciar verificação de agendamentos se ainda não estiver rodando
@@ -23323,13 +23598,14 @@ class LojaApp {
         }
 
         // Preparar dados para exportação
-        const filename = `loja_export_${config.dataType}_${new Date().toISOString().split('T')[0]
-            }`;
+        const filename = `loja_export_${config.dataType}_${
+            new Date().toISOString().split('T')[0]
+        }`;
 
         // Simular envio (em produção, isso chamaria a API de email configurada)
         console.log(
             '📧 [EXPORT EMAIL] Simulando envio de exportação para:',
-            emailList
+            emailList,
         );
         console.log('📧 [EXPORT EMAIL] Assunto:', subject);
         console.log('📧 [EXPORT EMAIL] Formato:', config.format);
@@ -23341,7 +23617,7 @@ class LojaApp {
             if (typeof toast !== 'undefined' && toast) {
                 toast.info(
                     `Exportação enviada para ${emailList.length} destinatário(s)`,
-                    3000
+                    3000,
                 );
             }
         }, 1000);
@@ -23358,7 +23634,7 @@ class LojaApp {
         this.checkScheduledExports();
 
         console.log(
-            '✅ [EXPORT SCHEDULE] Verificador de agendamentos de exportação iniciado'
+            '✅ [EXPORT SCHEDULE] Verificador de agendamentos de exportação iniciado',
         );
     }
 
@@ -23376,7 +23652,7 @@ class LojaApp {
             if (nextRun <= now) {
                 console.log(
                     '⏰ [EXPORT SCHEDULE] Executando exportação agendada:',
-                    scheduled.id
+                    scheduled.id,
                 );
 
                 // Executar exportação
@@ -23419,8 +23695,9 @@ class LojaApp {
     // Executar exportação agendada
     executeScheduledExport(scheduled) {
         const { config } = scheduled;
-        const filename = `loja_export_${config.dataType}_${new Date().toISOString().split('T')[0]
-            }`;
+        const filename = `loja_export_${config.dataType}_${
+            new Date().toISOString().split('T')[0]
+        }`;
 
         // Exportar no formato configurado
         switch (config.format) {
@@ -23433,21 +23710,21 @@ class LojaApp {
                     config.dataType,
                     filename,
                     config.includeCharts,
-                    config.includeSummary
+                    config.includeSummary,
                 );
                 break;
             case 'excel':
                 this.exportAsExcel(
                     config.exportDataObj,
                     config.dataType,
-                    filename
+                    filename,
                 );
                 break;
             case 'csv':
                 this.exportAsCSV(
                     config.exportDataObj,
                     config.dataType,
-                    filename
+                    filename,
                 );
                 break;
         }
@@ -23457,7 +23734,7 @@ class LojaApp {
             this.sendExportByEmail(
                 config,
                 scheduled.emailRecipients,
-                scheduled.emailSubject || 'Exportação de Dados - Loja'
+                scheduled.emailSubject || 'Exportação de Dados - Loja',
             );
         }
 
@@ -23465,13 +23742,13 @@ class LojaApp {
         if (typeof toast !== 'undefined' && toast) {
             toast.success(
                 `Exportação agendada executada automaticamente!`,
-                5000
+                5000,
             );
         }
 
         console.log(
             '✅ [EXPORT SCHEDULE] Exportação agendada executada:',
-            scheduled.id
+            scheduled.id,
         );
     }
 
@@ -23503,11 +23780,11 @@ class LojaApp {
             if (typeof toast !== 'undefined' && toast) {
                 toast.error(
                     'Biblioteca jsPDF não está disponível. Tente outro formato.',
-                    3000
+                    3000,
                 );
             } else {
                 alert(
-                    'Biblioteca jsPDF não está disponível. Tente outro formato.'
+                    'Biblioteca jsPDF não está disponível. Tente outro formato.',
                 );
             }
             return;
@@ -23537,13 +23814,13 @@ class LojaApp {
         doc.text(
             `Exportado em: ${new Date().toLocaleString('pt-BR')}`,
             margin,
-            yPos
+            yPos,
         );
         yPos += 6;
         doc.text(
             `Tipo de dados: ${this.getDataTypeLabel(dataType)}`,
             margin,
-            yPos
+            yPos,
         );
         yPos += 6;
         const username = sessionStorage.getItem('username') || 'Usuário';
@@ -23571,12 +23848,12 @@ class LojaApp {
             if (data.items) {
                 const totalValue = data.items.reduce(
                     (sum, item) => sum + (item.price || 0) * (item.stock || 0),
-                    0
+                    0,
                 );
                 doc.text(
                     `Total de Produtos: ${data.items.length}`,
                     margin,
-                    yPos
+                    yPos,
                 );
                 yPos += 6;
                 doc.text(
@@ -23584,14 +23861,14 @@ class LojaApp {
                         .toFixed(2)
                         .replace('.', ',')}`,
                     margin,
-                    yPos
+                    yPos,
                 );
                 yPos += 6;
             }
             if (data.completedSales) {
                 const totalSales = data.completedSales.reduce(
                     (sum, sale) => sum + (sale.totalValue || 0),
-                    0
+                    0,
                 );
                 const avgSale =
                     data.completedSales.length > 0
@@ -23600,7 +23877,7 @@ class LojaApp {
                 doc.text(
                     `Total de Vendas: ${data.completedSales.length}`,
                     margin,
-                    yPos
+                    yPos,
                 );
                 yPos += 6;
                 doc.text(
@@ -23608,13 +23885,13 @@ class LojaApp {
                         .toFixed(2)
                         .replace('.', ',')}`,
                     margin,
-                    yPos
+                    yPos,
                 );
                 yPos += 6;
                 doc.text(
                     `Ticket Médio: R$ ${avgSale.toFixed(2).replace('.', ',')}`,
                     margin,
-                    yPos
+                    yPos,
                 );
                 yPos += 6;
             }
@@ -23622,32 +23899,32 @@ class LojaApp {
                 doc.text(
                     `Total de Clientes: ${data.clients.length}`,
                     margin,
-                    yPos
+                    yPos,
                 );
                 yPos += 6;
             }
             if (data.costs) {
                 const totalCosts = data.costs.reduce(
                     (sum, cost) => sum + (cost.amount || 0),
-                    0
+                    0,
                 );
                 doc.text(
                     `Total de Custos: R$ ${totalCosts
                         .toFixed(2)
                         .replace('.', ',')}`,
                     margin,
-                    yPos
+                    yPos,
                 );
                 yPos += 6;
             }
             if (data.completedSales && data.costs) {
                 const totalSales = data.completedSales.reduce(
                     (sum, sale) => sum + (sale.totalValue || 0),
-                    0
+                    0,
                 );
                 const totalCosts = data.costs.reduce(
                     (sum, cost) => sum + (cost.amount || 0),
-                    0
+                    0,
                 );
                 const profit = totalSales - totalCosts;
                 const marginPercent =
@@ -23655,7 +23932,7 @@ class LojaApp {
                 doc.text(
                     `Lucro Líquido: R$ ${profit.toFixed(2).replace('.', ',')}`,
                     margin,
-                    yPos
+                    yPos,
                 );
                 yPos += 6;
                 doc.text(
@@ -23663,7 +23940,7 @@ class LojaApp {
                         .toFixed(2)
                         .replace('.', ',')}%`,
                     margin,
-                    yPos
+                    yPos,
                 );
                 yPos += 6;
             }
@@ -23767,11 +24044,11 @@ class LojaApp {
             doc.setTextColor(128, 128, 128);
             doc.text(
                 `Página ${i} de ${totalPages} | Gerado em ${new Date().toLocaleString(
-                    'pt-BR'
+                    'pt-BR',
                 )}`,
                 pageWidth / 2,
                 pageHeight - 10,
-                { align: 'center' }
+                { align: 'center' },
             );
         }
 
@@ -23792,8 +24069,9 @@ class LojaApp {
             data.items.forEach((item) => {
                 csv += `"${(item.name || '').replace(/"/g, '""')}","${(
                     item.category || ''
-                ).replace(/"/g, '""')}",${(item.price || 0).toFixed(2)},${item.stock || 0
-                    },"${(item.description || '').replace(/"/g, '""')}"\n`;
+                ).replace(/"/g, '""')}",${(item.price || 0).toFixed(2)},${
+                    item.stock || 0
+                },"${(item.description || '').replace(/"/g, '""')}"\n`;
             });
             csv += '\n';
         }
@@ -23807,8 +24085,8 @@ class LojaApp {
                 const date = sale.date
                     ? new Date(sale.date).toLocaleDateString('pt-BR')
                     : sale.timestamp
-                        ? new Date(sale.timestamp).toLocaleDateString('pt-BR')
-                        : '';
+                      ? new Date(sale.timestamp).toLocaleDateString('pt-BR')
+                      : '';
                 const clientName =
                     sale.clientName ||
                     sale.customerName ||
@@ -23819,11 +24097,12 @@ class LojaApp {
                     sale.paymentMethod || sale.payment || 'Não informado';
                 csv += `"${date}","${clientName.replace(
                     /"/g,
-                    '""'
+                    '""',
                 )}","${clientCPF.replace(/"/g, '""')}",${(
                     sale.totalValue || 0
-                ).toFixed(2)},${discount.toFixed(2)},${(sale.items || []).length
-                    },"${paymentMethod.replace(/"/g, '""')}"\n`;
+                ).toFixed(2)},${discount.toFixed(2)},${
+                    (sale.items || []).length
+                },"${paymentMethod.replace(/"/g, '""')}"\n`;
             });
             csv += '\n';
         }
@@ -23840,11 +24119,12 @@ class LojaApp {
                     client.cpf || ''
                 ).replace(/"/g, '""')}","${(client.phone || '').replace(
                     /"/g,
-                    '""'
+                    '""',
                 )}","${(client.email || '').replace(/"/g, '""')}","${(
                     client.address || ''
-                ).replace(/"/g, '""')}",${client.loyaltyPoints || 0
-                    },${totalSpent.toFixed(2)},${totalPurchases}\n`;
+                ).replace(/"/g, '""')}",${
+                    client.loyaltyPoints || 0
+                },${totalSpent.toFixed(2)},${totalPurchases}\n`;
             });
             csv += '\n';
         }
@@ -23859,7 +24139,7 @@ class LojaApp {
                     : '';
                 csv += `"${date}","${(cost.description || '').replace(
                     /"/g,
-                    '""'
+                    '""',
                 )}","${(cost.category || '').replace(/"/g, '""')}",${(
                     cost.amount || 0
                 ).toFixed(2)},"${(cost.notes || '').replace(/"/g, '""')}"\n`;
@@ -23880,10 +24160,10 @@ class LojaApp {
                     percent >= 100
                         ? 'Atingida'
                         : percent >= 75
-                            ? 'Em andamento'
-                            : 'Abaixo do esperado';
+                          ? 'Em andamento'
+                          : 'Abaixo do esperado';
                 csv += `"${month}",${target.toFixed(2)},${achieved.toFixed(
-                    2
+                    2,
                 )},${percent.toFixed(2)}%,"${status}"\n`;
             });
             csv += '\n';
@@ -23898,12 +24178,12 @@ class LojaApp {
                     supplier.cnpj || ''
                 ).replace(/"/g, '""')}","${(supplier.phone || '').replace(
                     /"/g,
-                    '""'
+                    '""',
                 )}","${(supplier.email || '').replace(/"/g, '""')}","${(
                     supplier.address || ''
                 ).replace(/"/g, '""')}","${(supplier.contact || '').replace(
                     /"/g,
-                    '""'
+                    '""',
                 )}"\n`;
             });
             csv += '\n';
@@ -23962,7 +24242,7 @@ class LojaApp {
     // Atualizar análise preditiva
     updatePredictiveAnalysis() {
         const period = parseInt(
-            document.getElementById('predictivePeriod')?.value || 6
+            document.getElementById('predictivePeriod')?.value || 6,
         );
 
         // Calcular previsão de vendas (melhorada)
@@ -23973,30 +24253,33 @@ class LojaApp {
                 forecast.confidence >= 70
                     ? '🟢'
                     : forecast.confidence >= 50
-                        ? '🟡'
-                        : '🔴';
+                      ? '🟡'
+                      : '🔴';
             forecastEl.innerHTML = `R$ ${forecast.value
                 .toFixed(2)
                 .replace(
                     '.',
-                    ','
-                )} <span style="font-size: 0.8em; color: var(--gray-600);" title="Confiança: ${forecast.confidence
-                }%">${confidenceBadge}</span>`;
+                    ',',
+                )} <span style="font-size: 0.8em; color: var(--gray-600);" title="Confiança: ${
+                forecast.confidence
+            }%">${confidenceBadge}</span>`;
         }
 
         // Mostrar detalhes da previsão se disponível
         const forecastDetailsEl = document.getElementById(
-            'salesForecastDetails'
+            'salesForecastDetails',
         );
         if (forecastDetailsEl && forecast.method) {
             let details = `Confiança: ${forecast.confidence}%`;
             if (forecast.trend) {
-                details += ` | Tendência: ${forecast.trend > 0 ? '+' : ''
-                    }${forecast.trend.toFixed(2)}`;
+                details += ` | Tendência: ${
+                    forecast.trend > 0 ? '+' : ''
+                }${forecast.trend.toFixed(2)}`;
             }
             if (forecast.seasonalAdjustment) {
-                details += ` | Ajuste sazonal: ${forecast.seasonalAdjustment > 0 ? '+' : ''
-                    }${forecast.seasonalAdjustment.toFixed(2)}`;
+                details += ` | Ajuste sazonal: ${
+                    forecast.seasonalAdjustment > 0 ? '+' : ''
+                }${forecast.seasonalAdjustment.toFixed(2)}`;
             }
             forecastDetailsEl.textContent = details;
             forecastDetailsEl.style.display = 'block';
@@ -24010,36 +24293,39 @@ class LojaApp {
                 trend.direction === 'up'
                     ? '📈'
                     : trend.direction === 'down'
-                        ? '📉'
-                        : '➡️';
+                      ? '📉'
+                      : '➡️';
             const trendColor =
                 trend.direction === 'up'
                     ? '#28a745'
                     : trend.direction === 'down'
-                        ? '#dc3545'
-                        : '#6c757d';
+                      ? '#dc3545'
+                      : '#6c757d';
             const strengthIcon =
                 trend.strength === 'strong'
                     ? '💪'
                     : trend.strength === 'moderate'
-                        ? '👍'
-                        : '👎';
-            trendEl.innerHTML = `${trendIcon} <span style="color: ${trendColor};">${trend.percentage > 0 ? '+' : ''
-                }${trend.percentage.toFixed(
-                    1
-                )}%</span> <span style="font-size: 0.8em;" title="Força da tendência: ${trend.strength
-                } (R²=${trend.rSquared})">${strengthIcon}</span>`;
+                      ? '👍'
+                      : '👎';
+            trendEl.innerHTML = `${trendIcon} <span style="color: ${trendColor};">${
+                trend.percentage > 0 ? '+' : ''
+            }${trend.percentage.toFixed(
+                1,
+            )}%</span> <span style="font-size: 0.8em;" title="Força da tendência: ${
+                trend.strength
+            } (R²=${trend.rSquared})">${strengthIcon}</span>`;
         }
 
         // Mostrar detalhes da tendência
         const trendDetailsEl = document.getElementById('salesTrendDetails');
         if (trendDetailsEl && trend.strength) {
-            trendDetailsEl.innerHTML = `Força: <strong>${trend.strength === 'strong'
-                ? 'Forte'
-                : trend.strength === 'moderate'
-                    ? 'Moderada'
-                    : 'Fraca'
-                }</strong> (R²=${trend.rSquared})`;
+            trendDetailsEl.innerHTML = `Força: <strong>${
+                trend.strength === 'strong'
+                    ? 'Forte'
+                    : trend.strength === 'moderate'
+                      ? 'Moderada'
+                      : 'Fraca'
+            }</strong> (R²=${trend.rSquared})`;
             trendDetailsEl.style.display = 'block';
         }
 
@@ -24049,8 +24335,9 @@ class LojaApp {
         if (growthEl) {
             const growthColor =
                 growth > 0 ? '#28a745' : growth < 0 ? '#dc3545' : '#6c757d';
-            growthEl.innerHTML = `<span style="color: ${growthColor};">${growth > 0 ? '+' : ''
-                }${growth.toFixed(1)}%</span>`;
+            growthEl.innerHTML = `<span style="color: ${growthColor};">${
+                growth > 0 ? '+' : ''
+            }${growth.toFixed(1)}%</span>`;
         }
 
         // Gerar insights
@@ -24069,7 +24356,7 @@ class LojaApp {
         for (let i = months - 1; i >= 0; i--) {
             const date = new Date(now.getFullYear(), now.getMonth() - i, 1);
             const monthKey = `${date.getFullYear()}-${String(
-                date.getMonth() + 1
+                date.getMonth() + 1,
             ).padStart(2, '0')}`;
             const sales = this.getMonthSales(monthKey);
             salesByMonth.push(sales);
@@ -24090,10 +24377,10 @@ class LojaApp {
         if (salesByMonth.length >= 2) {
             const firstHalf = salesByMonth.slice(
                 0,
-                Math.floor(salesByMonth.length / 2)
+                Math.floor(salesByMonth.length / 2),
             );
             const secondHalf = salesByMonth.slice(
-                Math.floor(salesByMonth.length / 2)
+                Math.floor(salesByMonth.length / 2),
             );
             const firstAvg =
                 firstHalf.reduce((sum, val) => sum + val, 0) / firstHalf.length;
@@ -24118,7 +24405,7 @@ class LojaApp {
         const currentMonth = now.getMonth();
         const seasonalAdjustment = this.calculateSeasonalAdjustment(
             currentMonth,
-            salesByMonth
+            salesByMonth,
         );
 
         // Previsão = média ponderada + tendência + ajuste sazonal
@@ -24128,7 +24415,7 @@ class LojaApp {
         const variance =
             salesByMonth.reduce(
                 (sum, val) => sum + Math.pow(val - average, 2),
-                0
+                0,
             ) / salesByMonth.length;
         const stdDev = Math.sqrt(variance);
         const coefficientOfVariation = average > 0 ? stdDev / average : 1;
@@ -24181,7 +24468,7 @@ class LojaApp {
             const monthAverage =
                 monthlyAverages[currentMonth].reduce(
                     (sum, val) => sum + val,
-                    0
+                    0,
                 ) / monthlyAverages[currentMonth].length;
             return monthAverage - overallAverage;
         }
@@ -24197,7 +24484,7 @@ class LojaApp {
         for (let i = months - 1; i >= 0; i--) {
             const date = new Date(now.getFullYear(), now.getMonth() - i, 1);
             const monthKey = `${date.getFullYear()}-${String(
-                date.getMonth() + 1
+                date.getMonth() + 1,
             ).padStart(2, '0')}`;
             const sales = this.getMonthSales(monthKey);
             salesByMonth.push(sales);
@@ -24209,10 +24496,10 @@ class LojaApp {
 
         const firstHalf = salesByMonth.slice(
             0,
-            Math.floor(salesByMonth.length / 2)
+            Math.floor(salesByMonth.length / 2),
         );
         const secondHalf = salesByMonth.slice(
-            Math.floor(salesByMonth.length / 2)
+            Math.floor(salesByMonth.length / 2),
         );
         const firstAvg =
             firstHalf.reduce((sum, val) => sum + val, 0) / firstHalf.length;
@@ -24256,7 +24543,7 @@ class LojaApp {
                     .toFixed(2)
                     .replace(
                         '.',
-                        ','
+                        ',',
                     )} (confiança: ${forecast.confidence.toFixed(0)}%)`,
             });
         }
@@ -24268,7 +24555,7 @@ class LojaApp {
                 icon: '📈',
                 title: 'Tendência Positiva',
                 message: `Vendas estão em crescimento de ${trend.percentage.toFixed(
-                    1
+                    1,
                 )}% comparado ao período anterior`,
             });
         } else if (trend.direction === 'down') {
@@ -24277,7 +24564,7 @@ class LojaApp {
                 icon: '📉',
                 title: 'Tendência Negativa',
                 message: `Vendas estão em declínio de ${Math.abs(
-                    trend.percentage
+                    trend.percentage,
                 ).toFixed(1)}% comparado ao período anterior`,
             });
         }
@@ -24297,28 +24584,32 @@ class LojaApp {
         container.innerHTML = insights
             .map(
                 (insight) => `
-            <div style="padding: 1rem; background: ${insight.type === 'success'
-                        ? '#d4edda'
-                        : insight.type === 'warning'
-                            ? '#fff3cd'
-                            : '#d1ecf1'
-                    }; border-left: 4px solid ${insight.type === 'success'
-                        ? '#28a745'
-                        : insight.type === 'warning'
-                            ? '#ffc107'
-                            : '#17a2b8'
-                    }; border-radius: var(--radius-sm); margin-bottom: 0.75rem;">
+            <div style="padding: 1rem; background: ${
+                insight.type === 'success'
+                    ? '#d4edda'
+                    : insight.type === 'warning'
+                      ? '#fff3cd'
+                      : '#d1ecf1'
+            }; border-left: 4px solid ${
+                insight.type === 'success'
+                    ? '#28a745'
+                    : insight.type === 'warning'
+                      ? '#ffc107'
+                      : '#17a2b8'
+            }; border-radius: var(--radius-sm); margin-bottom: 0.75rem;">
                 <div style="display: flex; align-items: start; gap: 0.75rem;">
                     <span style="font-size: 1.5rem;">${insight.icon}</span>
                     <div style="flex: 1;">
-                        <h4 style="margin: 0 0 0.25rem 0; color: var(--dark-gray); font-size: 0.95rem; font-weight: 600;">${insight.title
-                    }</h4>
-                        <p style="margin: 0; color: var(--gray-700); font-size: 0.9rem;">${insight.message
-                    }</p>
+                        <h4 style="margin: 0 0 0.25rem 0; color: var(--dark-gray); font-size: 0.95rem; font-weight: 600;">${
+                            insight.title
+                        }</h4>
+                        <p style="margin: 0; color: var(--gray-700); font-size: 0.9rem;">${
+                            insight.message
+                        }</p>
                     </div>
                 </div>
             </div>
-        `
+        `,
             )
             .join('');
     }
@@ -24357,7 +24648,7 @@ class LojaApp {
         // Recomendação baseada em metas
         const now = new Date();
         const currentMonth = `${now.getFullYear()}-${String(
-            now.getMonth() + 1
+            now.getMonth() + 1,
         ).padStart(2, '0')}`;
         const currentGoal = this.goals.find((g) => g.month === currentMonth);
         if (currentGoal) {
@@ -24372,7 +24663,7 @@ class LojaApp {
                     priority: 'high',
                     title: 'Meta em Risco',
                     message: `A meta do mês está em ${progress.toFixed(
-                        1
+                        1,
                     )}% com apenas ${daysRemaining} dia(s) restante(s). Ação imediata recomendada.`,
                 });
             }
@@ -24387,7 +24678,7 @@ class LojaApp {
                     .toFixed(2)
                     .replace(
                         '.',
-                        ','
+                        ',',
                     )} no próximo mês. Prepare-se para atender essa demanda.`,
             });
         }
@@ -24400,23 +24691,27 @@ class LojaApp {
             container.innerHTML = recommendations
                 .map(
                     (rec) => `
-                <div style="padding: 1rem; background: ${rec.priority === 'high'
-                            ? '#fee'
-                            : rec.priority === 'medium'
-                                ? '#fff3cd'
-                                : '#f8f9fa'
-                        }; border-left: 4px solid ${rec.priority === 'high'
-                            ? '#dc3545'
-                            : rec.priority === 'medium'
-                                ? '#ffc107'
-                                : '#6c757d'
-                        }; border-radius: var(--radius-sm); margin-bottom: 0.75rem;">
-                    <h4 style="margin: 0 0 0.5rem 0; color: var(--dark-gray); font-size: 0.95rem; font-weight: 600;">${rec.title
-                        }</h4>
-                    <p style="margin: 0; color: var(--gray-700); font-size: 0.9rem;">${rec.message
-                        }</p>
+                <div style="padding: 1rem; background: ${
+                    rec.priority === 'high'
+                        ? '#fee'
+                        : rec.priority === 'medium'
+                          ? '#fff3cd'
+                          : '#f8f9fa'
+                }; border-left: 4px solid ${
+                    rec.priority === 'high'
+                        ? '#dc3545'
+                        : rec.priority === 'medium'
+                          ? '#ffc107'
+                          : '#6c757d'
+                }; border-radius: var(--radius-sm); margin-bottom: 0.75rem;">
+                    <h4 style="margin: 0 0 0.5rem 0; color: var(--dark-gray); font-size: 0.95rem; font-weight: 600;">${
+                        rec.title
+                    }</h4>
+                    <p style="margin: 0; color: var(--gray-700); font-size: 0.9rem;">${
+                        rec.message
+                    }</p>
                 </div>
-            `
+            `,
                 )
                 .join('');
         }
@@ -24431,7 +24726,7 @@ class LojaApp {
         for (let i = months - 1; i >= 0; i--) {
             const date = new Date(now.getFullYear(), now.getMonth() - i, 1);
             const monthKey = `${date.getFullYear()}-${String(
-                date.getMonth() + 1
+                date.getMonth() + 1,
             ).padStart(2, '0')}`;
             const group = this.groups.find((g) => g.month === monthKey);
 
@@ -24563,7 +24858,7 @@ class LojaApp {
         if (typeof toast !== 'undefined' && toast) {
             toast.info(
                 'Consentimento recusado. Alguns recursos podem não funcionar corretamente.',
-                4000
+                4000,
             );
         }
     }
@@ -24587,8 +24882,8 @@ class LojaApp {
             const color = this.cookieConsent.accepted ? '#28a745' : '#dc3545';
             statusEl.innerHTML = `
                 <span style="color: ${color}; font-weight: 600;">${status}</span> em ${date.toLocaleDateString(
-                'pt-BR'
-            )} às ${date.toLocaleTimeString('pt-BR')}
+                    'pt-BR',
+                )} às ${date.toLocaleTimeString('pt-BR')}
             `;
         } else {
             statusEl.textContent = 'Não definido';
@@ -24614,7 +24909,7 @@ class LojaApp {
             'view',
             'privacy_policy',
             null,
-            'Visualização da política de privacidade'
+            'Visualização da política de privacidade',
         );
     }
 
@@ -24634,8 +24929,9 @@ class LojaApp {
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
-        a.download = `politica_privacidade_${new Date().toISOString().split('T')[0]
-            }.txt`;
+        a.download = `politica_privacidade_${
+            new Date().toISOString().split('T')[0]
+        }.txt`;
         document.body.appendChild(a);
         a.click();
         document.body.removeChild(a);
@@ -24644,7 +24940,7 @@ class LojaApp {
         if (typeof toast !== 'undefined' && toast) {
             toast.success(
                 'Política de privacidade exportada com sucesso!',
-                3000
+                3000,
             );
         }
     }
@@ -24678,10 +24974,10 @@ class LojaApp {
                 theme: localStorage.getItem(`appTheme_${username}`) || 'red',
             },
             auditLog: (this.auditLog || []).filter(
-                (log) => log.username === username
+                (log) => log.username === username,
             ),
             dataAccessLogs: (this.dataAccessLogs || []).filter(
-                (log) => log.username === username
+                (log) => log.username === username,
             ),
         };
 
@@ -24692,8 +24988,9 @@ class LojaApp {
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
-        a.download = `meus_dados_${username}_${new Date().toISOString().split('T')[0]
-            }.json`;
+        a.download = `meus_dados_${username}_${
+            new Date().toISOString().split('T')[0]
+        }.json`;
         document.body.appendChild(a);
         a.click();
         document.body.removeChild(a);
@@ -24704,7 +25001,7 @@ class LojaApp {
             'export',
             'personal_data',
             username,
-            'Exportação de dados pessoais'
+            'Exportação de dados pessoais',
         );
 
         if (typeof toast !== 'undefined' && toast) {
@@ -24747,7 +25044,7 @@ class LojaApp {
                 'delete_request',
                 'personal_data',
                 username,
-                'Solicitação de exclusão de dados (LGPD)'
+                'Solicitação de exclusão de dados (LGPD)',
             );
 
             // Excluir dados pessoais
@@ -24778,7 +25075,7 @@ class LojaApp {
                 'delete',
                 'personal_data',
                 username,
-                'Exclusão de dados pessoais realizada'
+                'Exclusão de dados pessoais realizada',
             );
 
             if (typeof toast !== 'undefined' && toast) {
@@ -24794,7 +25091,7 @@ class LojaApp {
             if (typeof toast !== 'undefined' && toast) {
                 toast.error(
                     'Erro ao excluir dados. Verifique o console.',
-                    4000
+                    4000,
                 );
             }
         }
@@ -24881,45 +25178,50 @@ class LojaApp {
                         <div style="flex: 1;">
                             <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 0.25rem;">
                                 <h4 style="margin: 0; color: var(--dark-gray); font-size: 0.95rem; font-weight: 600;">
-                                    ${log.action === 'view'
-                        ? 'Visualização'
-                        : log.action === 'export'
-                            ? 'Exportação'
-                            : log.action === 'delete'
-                                ? 'Exclusão'
-                                : log.action === 'delete_request'
-                                    ? 'Solicitação de Exclusão'
-                                    : log.action === 'update'
-                                        ? 'Atualização'
-                                        : log.action === 'create'
-                                            ? 'Criação'
-                                            : log.action
-                    }
+                                    ${
+                                        log.action === 'view'
+                                            ? 'Visualização'
+                                            : log.action === 'export'
+                                              ? 'Exportação'
+                                              : log.action === 'delete'
+                                                ? 'Exclusão'
+                                                : log.action ===
+                                                    'delete_request'
+                                                  ? 'Solicitação de Exclusão'
+                                                  : log.action === 'update'
+                                                    ? 'Atualização'
+                                                    : log.action === 'create'
+                                                      ? 'Criação'
+                                                      : log.action
+                                    }
                                 </h4>
                                 <span style="font-size: 0.85rem; color: var(--gray-600);">
                                     ${date.toLocaleDateString(
-                        'pt-BR'
-                    )} ${date.toLocaleTimeString('pt-BR')}
+                                        'pt-BR',
+                                    )} ${date.toLocaleTimeString('pt-BR')}
                                 </span>
                             </div>
                             <p style="margin: 0 0 0.25rem 0; color: var(--gray-700); font-size: 0.9rem;">
-                                <strong>Tipo:</strong> ${log.entityType === 'client'
-                        ? 'Cliente'
-                        : log.entityType === 'supplier'
-                            ? 'Fornecedor'
-                            : log.entityType === 'personal_data'
-                                ? 'Dados Pessoais'
-                                : log.entityType || 'N/A'
-                    }
+                                <strong>Tipo:</strong> ${
+                                    log.entityType === 'client'
+                                        ? 'Cliente'
+                                        : log.entityType === 'supplier'
+                                          ? 'Fornecedor'
+                                          : log.entityType === 'personal_data'
+                                            ? 'Dados Pessoais'
+                                            : log.entityType || 'N/A'
+                                }
                             </p>
                             <p style="margin: 0 0 0.25rem 0; color: var(--gray-700); font-size: 0.9rem;">
-                                <strong>Usuário:</strong> ${log.username || 'N/A'
-                    }
+                                <strong>Usuário:</strong> ${
+                                    log.username || 'N/A'
+                                }
                             </p>
-                            ${log.description
-                        ? `<p style="margin: 0; color: var(--gray-600); font-size: 0.85rem; font-style: italic;">${log.description}</p>`
-                        : ''
-                    }
+                            ${
+                                log.description
+                                    ? `<p style="margin: 0; color: var(--gray-600); font-size: 0.85rem; font-style: italic;">${log.description}</p>`
+                                    : ''
+                            }
                         </div>
                     </div>
                 </div>
@@ -24944,8 +25246,9 @@ class LojaApp {
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
-        a.download = `logs_acesso_dados_${new Date().toISOString().split('T')[0]
-            }.json`;
+        a.download = `logs_acesso_dados_${
+            new Date().toISOString().split('T')[0]
+        }.json`;
         document.body.appendChild(a);
         a.click();
         document.body.removeChild(a);
@@ -25013,7 +25316,7 @@ class LojaApp {
 
             if (!response.ok) {
                 console.warn(
-                    '⚠️ [CRYPTO] Não foi possível carregar config do servidor, usando fallback local'
+                    '⚠️ [CRYPTO] Não foi possível carregar config do servidor, usando fallback local',
                 );
                 return this.getLocalCryptoConfig(username);
             }
@@ -25031,7 +25334,7 @@ class LojaApp {
         } catch (error) {
             console.warn(
                 '⚠️ [CRYPTO] Erro ao carregar config do servidor:',
-                error.message
+                error.message,
             );
         }
 
@@ -25074,7 +25377,7 @@ class LojaApp {
             sessionStorage.getItem('sessionId') || this.generateSessionId();
         const combined = `${username}:${sessionId}:${navigator.userAgent.slice(
             0,
-            50
+            50,
         )}`;
 
         // Criar hash simples (não tão seguro quanto do servidor, mas funciona offline)
@@ -25124,7 +25427,7 @@ class LojaApp {
 
             if (!response.ok) {
                 console.warn(
-                    '⚠️ [CRYPTO] Não foi possível carregar config do servidor, usando fallback local'
+                    '⚠️ [CRYPTO] Não foi possível carregar config do servidor, usando fallback local',
                 );
                 return this.getLocalCryptoConfig(username);
             }
@@ -25142,7 +25445,7 @@ class LojaApp {
         } catch (error) {
             console.warn(
                 '⚠️ [CRYPTO] Erro ao carregar config do servidor:',
-                error.message
+                error.message,
             );
         }
 
@@ -25185,7 +25488,7 @@ class LojaApp {
             sessionStorage.getItem('sessionId') || this.generateSessionId();
         const combined = `${username}:${sessionId}:${navigator.userAgent.slice(
             0,
-            50
+            50,
         )}`;
 
         // Criar hash simples (não tão seguro quanto do servidor, mas funciona offline)
@@ -25220,7 +25523,7 @@ class LojaApp {
 
             if (!config || !config.derivedSalt) {
                 console.error(
-                    '❌ [CRYPTO] Não foi possível obter configuração de criptografia'
+                    '❌ [CRYPTO] Não foi possível obter configuração de criptografia',
                 );
                 return null;
             }
@@ -25229,11 +25532,11 @@ class LojaApp {
             const keyMaterial = await crypto.subtle.importKey(
                 'raw',
                 new TextEncoder().encode(
-                    username + password + config.derivedSalt
+                    username + password + config.derivedSalt,
                 ),
                 { name: 'PBKDF2' },
                 false,
-                ['deriveBits', 'deriveKey']
+                ['deriveBits', 'deriveKey'],
             );
 
             // Derivar chave usando PBKDF2 com salt do servidor
@@ -25250,7 +25553,7 @@ class LojaApp {
                     length: config.keyLength || 256,
                 },
                 true,
-                ['encrypt', 'decrypt']
+                ['encrypt', 'decrypt'],
             );
 
             this.encryptionKeys[username] = key;
@@ -25287,7 +25590,7 @@ class LojaApp {
             const key = await this.getEncryptionKey(username);
             if (!key) {
                 console.warn(
-                    '⚠️ [ENCRYPT] Chave de criptografia não disponível, dados não serão criptografados'
+                    '⚠️ [ENCRYPT] Chave de criptografia não disponível, dados não serão criptografados',
                 );
                 return data;
             }
@@ -25306,12 +25609,12 @@ class LojaApp {
                     iv: iv,
                 },
                 key,
-                dataBuffer
+                dataBuffer,
             );
 
             // Combinar IV + dados criptografados
             const combined = new Uint8Array(
-                iv.length + encryptedData.byteLength
+                iv.length + encryptedData.byteLength,
             );
             combined.set(iv, 0);
             combined.set(new Uint8Array(encryptedData), iv.length);
@@ -25341,14 +25644,14 @@ class LojaApp {
             const key = await this.getEncryptionKey(username);
             if (!key) {
                 console.warn(
-                    '⚠️ [DECRYPT] Chave de criptografia não disponível, dados não podem ser descriptografados'
+                    '⚠️ [DECRYPT] Chave de criptografia não disponível, dados não podem ser descriptografados',
                 );
                 return encryptedData;
             }
 
             // Converter de base64 para Uint8Array
             const combined = Uint8Array.from(atob(encryptedData.data), (c) =>
-                c.charCodeAt(0)
+                c.charCodeAt(0),
             );
 
             // Extrair IV (primeiros 12 bytes)
@@ -25362,7 +25665,7 @@ class LojaApp {
                     iv: iv,
                 },
                 key,
-                encrypted
+                encrypted,
             );
 
             // Converter de volta para objeto
@@ -25393,7 +25696,7 @@ class LojaApp {
 
                 const encryptedFields = await this.encryptSensitiveData(
                     sensitiveFields,
-                    username
+                    username,
                 );
 
                 encryptedClients.push({
@@ -25426,7 +25729,7 @@ class LojaApp {
                     // Descriptografar campos sensíveis
                     const decryptedFields = await this.decryptSensitiveData(
                         client.sensitiveData,
-                        username
+                        username,
                     );
 
                     decryptedClients.push({
@@ -25458,11 +25761,11 @@ class LojaApp {
                 ...backupData,
                 clients: await this.encryptClientData(
                     backupData.clients || [],
-                    username
+                    username,
                 ),
                 suppliers: await this.encryptClientData(
                     backupData.suppliers || [],
-                    username
+                    username,
                 ),
             };
 
@@ -25481,11 +25784,11 @@ class LojaApp {
                 ...backupData,
                 clients: await this.decryptClientData(
                     backupData.clients || [],
-                    username
+                    username,
                 ),
                 suppliers: await this.decryptClientData(
                     backupData.suppliers || [],
-                    username
+                    username,
                 ),
             };
 
@@ -25513,7 +25816,7 @@ class LojaApp {
         // Verificar se excedeu o limite
         if (this.requestCount >= maxRequests) {
             const remainingSeconds = Math.ceil(
-                (windowMs - (now - this.requestWindowStart)) / 1000
+                (windowMs - (now - this.requestWindowStart)) / 1000,
             );
             return {
                 allowed: false,
@@ -25530,7 +25833,7 @@ class LojaApp {
         const rateLimitCheck = this.canMakeRequest();
         if (!rateLimitCheck.allowed) {
             throw new Error(
-                `Rate limit atingido. Aguarde ${rateLimitCheck.remainingSeconds} segundos.`
+                `Rate limit atingido. Aguarde ${rateLimitCheck.remainingSeconds} segundos.`,
             );
         }
 
@@ -25542,7 +25845,7 @@ class LojaApp {
         const timeSinceLastRequest = now - this.lastRequestTime;
         if (timeSinceLastRequest < 200) {
             await new Promise((resolve) =>
-                setTimeout(resolve, 200 - timeSinceLastRequest)
+                setTimeout(resolve, 200 - timeSinceLastRequest),
             );
         }
 
@@ -25575,7 +25878,7 @@ class LojaApp {
                 () => {
                     this.resetInactivityTimer();
                 },
-                { passive: true }
+                { passive: true },
             );
         });
 
@@ -25604,7 +25907,7 @@ class LojaApp {
                 if (typeof toast !== 'undefined' && toast) {
                     toast.warning(
                         'Você será desconectado em 5 minutos por inatividade. Mova o mouse ou pressione uma tecla para continuar.',
-                        10000
+                        10000,
                     );
                 }
             }
@@ -25630,7 +25933,7 @@ class LojaApp {
         if (typeof toast !== 'undefined' && toast) {
             toast.error(
                 'Você foi desconectado por inatividade. Faça login novamente.',
-                5000
+                5000,
             );
         }
 
@@ -25646,7 +25949,7 @@ class LojaApp {
     async requestNotificationPermission() {
         if (!('Notification' in window)) {
             console.warn(
-                '⚠️ [PWA] Notificações não suportadas neste navegador'
+                '⚠️ [PWA] Notificações não suportadas neste navegador',
             );
             return false;
         }
@@ -25823,7 +26126,7 @@ class LojaApp {
             if (typeof toast !== 'undefined' && toast) {
                 toast.warning(
                     'Você está offline. Algumas funcionalidades podem estar limitadas.',
-                    4000
+                    4000,
                 );
             }
         });
@@ -25842,7 +26145,7 @@ class LojaApp {
             }
 
             const response = await fetch(
-                `https://viacep.com.br/ws/${cepLimpo}/json/`
+                `https://viacep.com.br/ws/${cepLimpo}/json/`,
             );
 
             if (!response.ok) {
@@ -25862,11 +26165,12 @@ class LojaApp {
                 bairro: data.bairro || '',
                 cidade: data.localidade || '',
                 estado: data.uf || '',
-                enderecoCompleto: `${data.logradouro || ''}, ${data.bairro || ''
-                    }, ${data.localidade || ''} - ${data.uf || ''}`.replace(
-                        /^,\s*|,\s*$/g,
-                        ''
-                    ),
+                enderecoCompleto: `${data.logradouro || ''}, ${
+                    data.bairro || ''
+                }, ${data.localidade || ''} - ${data.uf || ''}`.replace(
+                    /^,\s*|,\s*$/g,
+                    '',
+                ),
             };
         } catch (error) {
             console.error('Erro ao buscar CEP:', error);
@@ -25879,7 +26183,7 @@ class LojaApp {
         cepInput,
         enderecoInput,
         cidadeInput,
-        estadoInput
+        estadoInput,
     ) {
         const cep = cepInput.value;
 
@@ -25999,7 +26303,7 @@ class LojaApp {
         try {
             // Usar API gratuita (sem chave necessária)
             const response = await fetch(
-                `https://api.exchangerate-api.com/v4/latest/${baseCurrency}`
+                `https://api.exchangerate-api.com/v4/latest/${baseCurrency}`,
             );
 
             if (!response.ok) {
@@ -26027,7 +26331,7 @@ class LojaApp {
 
             if (!cotacao.targetRate) {
                 throw new Error(
-                    `Taxa de câmbio não encontrada para ${paraMoeda}`
+                    `Taxa de câmbio não encontrada para ${paraMoeda}`,
                 );
             }
 
@@ -26061,7 +26365,7 @@ class LojaApp {
                     enableHighAccuracy: true,
                     timeout: 10000,
                     maximumAge: 0,
-                }
+                },
             );
         });
     }
@@ -26075,7 +26379,7 @@ class LojaApp {
                     headers: {
                         'User-Agent': 'LojaGestaoApp/1.0',
                     },
-                }
+                },
             );
 
             if (!response.ok) {
@@ -26104,9 +26408,9 @@ class LojaApp {
         const a =
             Math.sin(dLat / 2) * Math.sin(dLat / 2) +
             Math.cos(this.toRad(lat1)) *
-            Math.cos(this.toRad(lat2)) *
-            Math.sin(dLon / 2) *
-            Math.sin(dLon / 2);
+                Math.cos(this.toRad(lat2)) *
+                Math.sin(dLon / 2) *
+                Math.sin(dLon / 2);
         const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
         return R * c; // Distância em km
     }
@@ -26125,7 +26429,7 @@ class LojaApp {
             }
 
             const response = await fetch(
-                `https://www.receitaws.com.br/v1/${cnpjLimpo}`
+                `https://www.receitaws.com.br/v1/${cnpjLimpo}`,
             );
 
             if (!response.ok) {
@@ -26167,7 +26471,7 @@ class LojaApp {
     initIndexedDB() {
         if (!window.indexedDB) {
             console.warn(
-                '⚠️ [INDEXEDDB] IndexedDB não suportado neste navegador'
+                '⚠️ [INDEXEDDB] IndexedDB não suportado neste navegador',
             );
             this.useIndexedDB = false;
             return;
@@ -26178,7 +26482,7 @@ class LojaApp {
         request.onerror = (event) => {
             console.error(
                 '❌ [INDEXEDDB] Erro ao abrir banco de dados:',
-                event
+                event,
             );
             this.useIndexedDB = false;
         };
@@ -26214,7 +26518,7 @@ class LojaApp {
             }
 
             console.log(
-                '✅ [INDEXEDDB] Estrutura do banco de dados criada/atualizada'
+                '✅ [INDEXEDDB] Estrutura do banco de dados criada/atualizada',
             );
         };
     }
@@ -26229,7 +26533,7 @@ class LojaApp {
             !('SpeechRecognition' in window)
         ) {
             console.warn(
-                '⚠️ [VOICE] Web Speech API não suportada neste navegador'
+                '⚠️ [VOICE] Web Speech API não suportada neste navegador',
             );
             return;
         }
@@ -26442,7 +26746,7 @@ class LojaApp {
                     touchStartY = 0; // Resetar se não estiver no topo
                 }
             },
-            { passive: true }
+            { passive: true },
         );
 
         // Touch move
@@ -26492,14 +26796,13 @@ class LojaApp {
                     // Atualizar posição do indicador
                     pullIndicator.style.top = `${Math.min(
                         pullAmount - 20,
-                        60
+                        60,
                     )}px`;
 
                     // Rotacionar ícone baseado no progresso
                     const rotation = progress * 360;
-                    pullIndicator.querySelector(
-                        'i'
-                    ).style.transform = `rotate(${rotation}deg)`;
+                    pullIndicator.querySelector('i').style.transform =
+                        `rotate(${rotation}deg)`;
 
                     // Mudar cor quando passar do threshold
                     if (pullAmount >= threshold) {
@@ -26518,7 +26821,7 @@ class LojaApp {
                     this.resetPullToRefreshIndicator(pullIndicator);
                 }
             },
-            { passive: false }
+            { passive: false },
         );
 
         // Touch end
@@ -26551,7 +26854,7 @@ class LojaApp {
                 hasScrolled = false;
                 initialScrollY = 0;
             },
-            { passive: true }
+            { passive: true },
         );
 
         console.log('✅ [PULL-TO-REFRESH] Inicializado');
@@ -26638,7 +26941,7 @@ class LojaApp {
         const startDate = new Date(
             now.getFullYear(),
             now.getMonth() - period,
-            1
+            1,
         );
 
         // Calcular preço médio dos produtos vendidos
@@ -26647,13 +26950,13 @@ class LojaApp {
             .flatMap((sale) => sale.items || [])
             .map((item) => {
                 const product = this.items.find(
-                    (i) => i.id === item.id || i.name === item.name
+                    (i) => i.id === item.id || i.name === item.name,
                 );
                 return product
                     ? {
-                        price: item.price || product.price,
-                        cost: product.cost || 0,
-                    }
+                          price: item.price || product.price,
+                          cost: product.cost || 0,
+                      }
                     : null;
             })
             .filter((item) => item !== null);
@@ -26661,18 +26964,18 @@ class LojaApp {
         const avgPrice =
             soldItems.length > 0
                 ? soldItems.reduce((sum, item) => sum + (item.price || 0), 0) /
-                soldItems.length
+                  soldItems.length
                 : 0;
 
         const avgMargin =
             soldItems.length > 0
                 ? soldItems.reduce((sum, item) => {
-                    const margin =
-                        item.cost > 0
-                            ? ((item.price - item.cost) / item.price) * 100
-                            : 0;
-                    return sum + margin;
-                }, 0) / soldItems.length
+                      const margin =
+                          item.cost > 0
+                              ? ((item.price - item.cost) / item.price) * 100
+                              : 0;
+                      return sum + margin;
+                  }, 0) / soldItems.length
                 : 0;
 
         // Comparar com benchmarks do mercado (valores simulados - em produção, usar dados reais)
@@ -26691,8 +26994,8 @@ class LojaApp {
                 avgPrice < marketAvgPrice
                     ? 'competitivo'
                     : avgPrice > marketAvgPrice
-                        ? 'acima'
-                        : 'similar',
+                      ? 'acima'
+                      : 'similar',
         };
     }
 
@@ -26702,7 +27005,7 @@ class LojaApp {
         const startDate = new Date(
             now.getFullYear(),
             now.getMonth() - period,
-            1
+            1,
         );
 
         // Analisar categorias mais vendidas
@@ -26712,7 +27015,7 @@ class LojaApp {
             .forEach((sale) => {
                 (sale.items || []).forEach((item) => {
                     const product = this.items.find(
-                        (i) => i.id === item.id || i.name === item.name
+                        (i) => i.id === item.id || i.name === item.name,
                     );
                     if (product && product.category) {
                         categorySales[product.category] =
@@ -26754,12 +27057,12 @@ class LojaApp {
             const monthDate = new Date(
                 now.getFullYear(),
                 now.getMonth() - i,
-                1
+                1,
             );
             const monthEnd = new Date(
                 now.getFullYear(),
                 now.getMonth() - i + 1,
-                0
+                0,
             );
 
             const monthSales = this.completedSales.filter((sale) => {
@@ -26769,13 +27072,13 @@ class LojaApp {
 
             const monthTotal = monthSales.reduce(
                 (sum, sale) => sum + (sale.totalValue || 0),
-                0
+                0,
             );
             const monthCount = monthSales.length;
 
             monthlyData.push({
                 month: `${monthDate.getFullYear()}-${String(
-                    monthDate.getMonth() + 1
+                    monthDate.getMonth() + 1,
                 ).padStart(2, '0')}`,
                 total: monthTotal,
                 count: monthCount,
@@ -26786,10 +27089,10 @@ class LojaApp {
         // Calcular tendência
         const firstHalf = monthlyData.slice(
             0,
-            Math.floor(monthlyData.length / 2)
+            Math.floor(monthlyData.length / 2),
         );
         const secondHalf = monthlyData.slice(
-            Math.floor(monthlyData.length / 2)
+            Math.floor(monthlyData.length / 2),
         );
 
         const firstAvg =
@@ -26801,8 +27104,8 @@ class LojaApp {
             secondAvg > firstAvg
                 ? 'crescimento'
                 : secondAvg < firstAvg
-                    ? 'declínio'
-                    : 'estável';
+                  ? 'declínio'
+                  : 'estável';
         const trendPercentage =
             firstAvg > 0 ? ((secondAvg - firstAvg) / firstAvg) * 100 : 0;
 
@@ -26873,7 +27176,7 @@ class LojaApp {
         const startDate = new Date(
             now.getFullYear(),
             now.getMonth() - period,
-            1
+            1,
         );
 
         const ourSales = this.completedSales
@@ -26908,7 +27211,7 @@ class LojaApp {
 
         return growthRates.length > 0
             ? growthRates.reduce((sum, rate) => sum + rate, 0) /
-            growthRates.length
+                  growthRates.length
             : 0;
     }
 
@@ -26944,14 +27247,14 @@ class LojaApp {
         return {
             hasSeasonality:
                 Math.max(...Object.values(seasonality)) -
-                Math.min(...Object.values(seasonality)) >
+                    Math.min(...Object.values(seasonality)) >
                 20,
             monthVariations: seasonality,
             peakMonth: Object.keys(monthAverages).reduce((a, b) =>
-                monthAverages[a] > monthAverages[b] ? a : b
+                monthAverages[a] > monthAverages[b] ? a : b,
             ),
             lowMonth: Object.keys(monthAverages).reduce((a, b) =>
-                monthAverages[a] < monthAverages[b] ? a : b
+                monthAverages[a] < monthAverages[b] ? a : b,
             ),
         };
     }
@@ -26967,7 +27270,7 @@ class LojaApp {
                 priority: 'alta',
                 title: 'Ajustar Preços',
                 description: `Seus preços estão ${analysis.priceComparison.priceDifference.toFixed(
-                    1
+                    1,
                 )}% acima da média do mercado. Considere revisar preços para aumentar competitividade.`,
                 action: 'Revisar estratégia de precificação',
             });
@@ -26980,9 +27283,9 @@ class LojaApp {
                 priority: 'alta',
                 title: 'Melhorar Margem de Lucro',
                 description: `Sua margem está ${Math.abs(
-                    analysis.priceComparison.marginDifference
+                    analysis.priceComparison.marginDifference,
                 ).toFixed(
-                    1
+                    1,
                 )}% abaixo da média. Considere negociar melhores condições com fornecedores ou ajustar preços.`,
                 action: 'Negociar com fornecedores',
             });
@@ -26995,7 +27298,7 @@ class LojaApp {
                 priority: 'média',
                 title: 'Aumentar Diversidade de Produtos',
                 description: `Sua diversidade de produtos está baixa (${analysis.productComparison.diversityScore.toFixed(
-                    1
+                    1,
                 )}%). Considere expandir o catálogo.`,
                 action: 'Adicionar novos produtos',
             });
@@ -27011,9 +27314,9 @@ class LojaApp {
                 priority: 'alta',
                 title: 'Reversão de Tendência',
                 description: `Vendas em declínio de ${Math.abs(
-                    analysis.marketTrends.trendPercentage
+                    analysis.marketTrends.trendPercentage,
                 ).toFixed(
-                    1
+                    1,
                 )}%. Considere campanhas promocionais ou ajustes estratégicos.`,
                 action: 'Criar campanha promocional',
             });
@@ -27057,7 +27360,7 @@ class LojaApp {
     // Atualizar análise de concorrência
     updateCompetitiveAnalysis() {
         const period = parseInt(
-            document.getElementById('competitivePeriod')?.value || 6
+            document.getElementById('competitivePeriod')?.value || 6,
         );
         this.renderCompetitiveAnalysis(period);
     }
@@ -27065,7 +27368,7 @@ class LojaApp {
     // Exportar análise de concorrência
     exportCompetitiveAnalysis() {
         const period = parseInt(
-            document.getElementById('competitivePeriod')?.value || 6
+            document.getElementById('competitivePeriod')?.value || 6,
         );
         const analysis = this.analyzeCompetition(period);
 
@@ -27081,8 +27384,9 @@ class LojaApp {
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
-        a.download = `analise_concorrencia_${new Date().toISOString().split('T')[0]
-            }.json`;
+        a.download = `analise_concorrencia_${
+            new Date().toISOString().split('T')[0]
+        }.json`;
         document.body.appendChild(a);
         a.click();
         document.body.removeChild(a);
@@ -27091,7 +27395,7 @@ class LojaApp {
         if (typeof toast !== 'undefined' && toast) {
             toast.success(
                 'Análise de concorrência exportada com sucesso!',
-                3000
+                3000,
             );
         }
     }
@@ -27100,7 +27404,7 @@ class LojaApp {
     renderCompetitiveAnalysis(period = 6) {
         const analysis = this.analyzeCompetition(period);
         const container = document.getElementById(
-            'competitiveAnalysisContainer'
+            'competitiveAnalysisContainer',
         );
 
         if (!container) return;
@@ -27109,83 +27413,93 @@ class LojaApp {
             <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1rem; margin-bottom: 1.5rem;">
                 <div style="padding: 1rem; background: var(--light-gray); border-radius: var(--radius-sm);">
                     <h3 style="margin: 0 0 0.5rem 0; font-size: 0.9rem; color: var(--gray-600);">Competitividade de Preços</h3>
-                    <p style="margin: 0; font-size: 1.2rem; font-weight: 600; color: ${analysis.priceComparison.competitiveness ===
-                'competitivo'
-                ? '#28a745'
-                : analysis.priceComparison.competitiveness ===
-                    'acima'
-                    ? '#dc3545'
-                    : '#6c757d'
-            };">
-                        ${analysis.priceComparison.competitiveness ===
-                'competitivo'
-                ? '✓ Competitivo'
-                : analysis.priceComparison.competitiveness ===
-                    'acima'
-                    ? '↑ Acima'
-                    : '→ Similar'
-            }
+                    <p style="margin: 0; font-size: 1.2rem; font-weight: 600; color: ${
+                        analysis.priceComparison.competitiveness ===
+                        'competitivo'
+                            ? '#28a745'
+                            : analysis.priceComparison.competitiveness ===
+                                'acima'
+                              ? '#dc3545'
+                              : '#6c757d'
+                    };">
+                        ${
+                            analysis.priceComparison.competitiveness ===
+                            'competitivo'
+                                ? '✓ Competitivo'
+                                : analysis.priceComparison.competitiveness ===
+                                    'acima'
+                                  ? '↑ Acima'
+                                  : '→ Similar'
+                        }
                     </p>
                     <p style="margin: 0.25rem 0 0 0; font-size: 0.85rem; color: var(--gray-600);">
-                        ${analysis.priceComparison.priceDifference > 0
-                ? '+'
-                : ''
-            }${analysis.priceComparison.priceDifference.toFixed(
-                1
-            )}% vs mercado
+                        ${
+                            analysis.priceComparison.priceDifference > 0
+                                ? '+'
+                                : ''
+                        }${analysis.priceComparison.priceDifference.toFixed(
+                            1,
+                        )}% vs mercado
                     </p>
                 </div>
                 <div style="padding: 1rem; background: var(--light-gray); border-radius: var(--radius-sm);">
                     <h3 style="margin: 0 0 0.5rem 0; font-size: 0.9rem; color: var(--gray-600);">Margem de Lucro</h3>
-                    <p style="margin: 0; font-size: 1.2rem; font-weight: 600; color: ${analysis.priceComparison.ourAvgMargin >
-                analysis.priceComparison.marketAvgMargin
-                ? '#28a745'
-                : '#dc3545'
-            };">
+                    <p style="margin: 0; font-size: 1.2rem; font-weight: 600; color: ${
+                        analysis.priceComparison.ourAvgMargin >
+                        analysis.priceComparison.marketAvgMargin
+                            ? '#28a745'
+                            : '#dc3545'
+                    };">
                         ${analysis.priceComparison.ourAvgMargin.toFixed(1)}%
                     </p>
                     <p style="margin: 0.25rem 0 0 0; font-size: 0.85rem; color: var(--gray-600);">
-                        ${analysis.priceComparison.marginDifference > 0
-                ? '+'
-                : ''
-            }${analysis.priceComparison.marginDifference.toFixed(
-                1
-            )}% vs mercado
+                        ${
+                            analysis.priceComparison.marginDifference > 0
+                                ? '+'
+                                : ''
+                        }${analysis.priceComparison.marginDifference.toFixed(
+                            1,
+                        )}% vs mercado
                     </p>
                 </div>
                 <div style="padding: 1rem; background: var(--light-gray); border-radius: var(--radius-sm);">
                     <h3 style="margin: 0 0 0.5rem 0; font-size: 0.9rem; color: var(--gray-600);">Diversidade de Produtos</h3>
-                    <p style="margin: 0; font-size: 1.2rem; font-weight: 600; color: ${analysis.productComparison.diversityScore > 70
-                ? '#28a745'
-                : analysis.productComparison.diversityScore > 50
-                    ? '#ffc107'
-                    : '#dc3545'
-            };">
+                    <p style="margin: 0; font-size: 1.2rem; font-weight: 600; color: ${
+                        analysis.productComparison.diversityScore > 70
+                            ? '#28a745'
+                            : analysis.productComparison.diversityScore > 50
+                              ? '#ffc107'
+                              : '#dc3545'
+                    };">
                         ${analysis.productComparison.diversityScore.toFixed(1)}%
                     </p>
                     <p style="margin: 0.25rem 0 0 0; font-size: 0.85rem; color: var(--gray-600);">
-                        ${analysis.productComparison.productDiversity
-            } produtos únicos
+                        ${
+                            analysis.productComparison.productDiversity
+                        } produtos únicos
                     </p>
                 </div>
                 <div style="padding: 1rem; background: var(--light-gray); border-radius: var(--radius-sm);">
                     <h3 style="margin: 0 0 0.5rem 0; font-size: 0.9rem; color: var(--gray-600);">Tendência de Mercado</h3>
-                    <p style="margin: 0; font-size: 1.2rem; font-weight: 600; color: ${analysis.marketTrends.trend === 'crescimento'
-                ? '#28a745'
-                : analysis.marketTrends.trend === 'declínio'
-                    ? '#dc3545'
-                    : '#6c757d'
-            };">
-                        ${analysis.marketTrends.trend === 'crescimento'
-                ? '📈 Crescimento'
-                : analysis.marketTrends.trend === 'declínio'
-                    ? '📉 Declínio'
-                    : '➡️ Estável'
-            }
+                    <p style="margin: 0; font-size: 1.2rem; font-weight: 600; color: ${
+                        analysis.marketTrends.trend === 'crescimento'
+                            ? '#28a745'
+                            : analysis.marketTrends.trend === 'declínio'
+                              ? '#dc3545'
+                              : '#6c757d'
+                    };">
+                        ${
+                            analysis.marketTrends.trend === 'crescimento'
+                                ? '📈 Crescimento'
+                                : analysis.marketTrends.trend === 'declínio'
+                                  ? '📉 Declínio'
+                                  : '➡️ Estável'
+                        }
                     </p>
                     <p style="margin: 0.25rem 0 0 0; font-size: 0.85rem; color: var(--gray-600);">
-                        ${analysis.marketTrends.trendPercentage > 0 ? '+' : ''
-            }${analysis.marketTrends.trendPercentage.toFixed(1)}%
+                        ${
+                            analysis.marketTrends.trendPercentage > 0 ? '+' : ''
+                        }${analysis.marketTrends.trendPercentage.toFixed(1)}%
                     </p>
                 </div>
             </div>
@@ -27195,26 +27509,29 @@ class LojaApp {
                     <i class="fas fa-trophy"></i> Vantagens Competitivas
                 </h3>
                 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 0.75rem;">
-                    ${analysis.competitiveAdvantages.length > 0
-                ? analysis.competitiveAdvantages
-                    .map(
-                        (adv) => `
-                            <div style="padding: 0.75rem; background: ${adv.impact === 'alto' ? '#d4edda' : '#fff3cd'
-                            }; border-left: 3px solid ${adv.impact === 'alto'
-                                ? '#28a745'
-                                : '#ffc107'
+                    ${
+                        analysis.competitiveAdvantages.length > 0
+                            ? analysis.competitiveAdvantages
+                                  .map(
+                                      (adv) => `
+                            <div style="padding: 0.75rem; background: ${
+                                adv.impact === 'alto' ? '#d4edda' : '#fff3cd'
+                            }; border-left: 3px solid ${
+                                adv.impact === 'alto' ? '#28a745' : '#ffc107'
                             }; border-radius: var(--radius-sm);">
-                                <strong style="display: block; margin-bottom: 0.25rem; color: var(--dark-gray);">${adv.type.charAt(0).toUpperCase() +
-                            adv.type.slice(1)
-                            }</strong>
-                                <p style="margin: 0; font-size: 0.85rem; color: var(--gray-700);">${adv.description
-                            }</p>
+                                <strong style="display: block; margin-bottom: 0.25rem; color: var(--dark-gray);">${
+                                    adv.type.charAt(0).toUpperCase() +
+                                    adv.type.slice(1)
+                                }</strong>
+                                <p style="margin: 0; font-size: 0.85rem; color: var(--gray-700);">${
+                                    adv.description
+                                }</p>
                             </div>
-                        `
-                    )
-                    .join('')
-                : '<p style="color: var(--gray-600);">Nenhuma vantagem competitiva identificada no período.</p>'
-            }
+                        `,
+                                  )
+                                  .join('')
+                            : '<p style="color: var(--gray-600);">Nenhuma vantagem competitiva identificada no período.</p>'
+                    }
                 </div>
             </div>
 
@@ -27224,32 +27541,39 @@ class LojaApp {
                 </h3>
                 <div style="display: flex; flex-direction: column; gap: 0.75rem;">
                     ${analysis.recommendations
-                .map(
-                    (rec) => `
-                        <div style="padding: 1rem; background: ${rec.priority === 'alta' ? '#f8d7da' : '#fff3cd'
-                        }; border-left: 4px solid ${rec.priority === 'alta' ? '#dc3545' : '#ffc107'
+                        .map(
+                            (rec) => `
+                        <div style="padding: 1rem; background: ${
+                            rec.priority === 'alta' ? '#f8d7da' : '#fff3cd'
+                        }; border-left: 4px solid ${
+                            rec.priority === 'alta' ? '#dc3545' : '#ffc107'
                         }; border-radius: var(--radius-sm);">
                             <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 0.5rem;">
-                                <strong style="color: var(--dark-gray);">${rec.title
-                        }</strong>
-                                <span style="padding: 0.25rem 0.5rem; background: ${rec.priority === 'alta'
-                            ? '#dc3545'
-                            : '#ffc107'
-                        }; color: white; border-radius: var(--radius-sm); font-size: 0.75rem;">
-                                    ${rec.priority === 'alta'
-                            ? 'Alta'
-                            : 'Média'
-                        }
+                                <strong style="color: var(--dark-gray);">${
+                                    rec.title
+                                }</strong>
+                                <span style="padding: 0.25rem 0.5rem; background: ${
+                                    rec.priority === 'alta'
+                                        ? '#dc3545'
+                                        : '#ffc107'
+                                }; color: white; border-radius: var(--radius-sm); font-size: 0.75rem;">
+                                    ${
+                                        rec.priority === 'alta'
+                                            ? 'Alta'
+                                            : 'Média'
+                                    }
                                 </span>
                             </div>
-                            <p style="margin: 0 0 0.5rem 0; color: var(--gray-700); font-size: 0.9rem;">${rec.description
-                        }</p>
-                            <p style="margin: 0; font-size: 0.85rem; color: var(--gray-600);"><strong>Ação:</strong> ${rec.action
-                        }</p>
+                            <p style="margin: 0 0 0.5rem 0; color: var(--gray-700); font-size: 0.9rem;">${
+                                rec.description
+                            }</p>
+                            <p style="margin: 0; font-size: 0.85rem; color: var(--gray-600);"><strong>Ação:</strong> ${
+                                rec.action
+                            }</p>
                         </div>
-                    `
-                )
-                .join('')}
+                    `,
+                        )
+                        .join('')}
                 </div>
             </div>
         `;
@@ -27274,7 +27598,7 @@ class LojaApp {
                     if (age > ttl) {
                         delete this.chartCache[chartId];
                         console.log(
-                            `🗑️ [CACHE] Cache expirado removido: ${chartId}`
+                            `🗑️ [CACHE] Cache expirado removido: ${chartId}`,
                         );
                     }
                 }
@@ -27302,7 +27626,7 @@ class LojaApp {
 
         // Aplicar throttle em eventos de scroll
         const scrollableElements = document.querySelectorAll(
-            '.items-list, .clients-list, .suppliers-list, .main-content'
+            '.items-list, .clients-list, .suppliers-list, .main-content',
         );
         scrollableElements.forEach((element) => {
             if (element) {
@@ -27311,7 +27635,7 @@ class LojaApp {
                     throttle(() => {
                         // Scroll throttled - pode adicionar lógica aqui se necessário
                     }, 100),
-                    { passive: true }
+                    { passive: true },
                 );
             }
         });
@@ -27341,7 +27665,7 @@ class LojaApp {
                 },
                 {
                     rootMargin: '50px', // Carregar 50px antes de entrar na viewport
-                }
+                },
             );
 
             // Observar todas as imagens com data-src
@@ -27350,7 +27674,7 @@ class LojaApp {
             });
 
             console.log(
-                '✅ [LAZY LOADING] Lazy loading de imagens inicializado'
+                '✅ [LAZY LOADING] Lazy loading de imagens inicializado',
             );
         } else {
             // Fallback para navegadores sem Intersection Observer
@@ -27366,7 +27690,7 @@ class LojaApp {
         containerId,
         items,
         renderItem,
-        itemsPerPage = 20
+        itemsPerPage = 20,
     ) {
         const container = document.getElementById(containerId);
         if (!container) return;
@@ -27496,7 +27820,7 @@ class LojaApp {
         return new Promise((resolve) => {
             setTimeout(() => {
                 console.log(
-                    `✅ [LAZY LOADING] Componente ${componentName} carregado`
+                    `✅ [LAZY LOADING] Componente ${componentName} carregado`,
                 );
                 resolve(true);
             }, 100);
@@ -27529,7 +27853,7 @@ class LojaApp {
                         }
                     });
                 },
-                { rootMargin: '50px' }
+                { rootMargin: '50px' },
             );
 
             observer.observe(img);
@@ -27579,7 +27903,7 @@ class LojaApp {
                     }
                 },
                 'image/jpeg',
-                0.8
+                0.8,
             );
         });
     }
@@ -27607,7 +27931,7 @@ class LojaApp {
                     enableHighAccuracy: true,
                     timeout: 10000,
                     maximumAge: 0,
-                }
+                },
             );
         });
     }
@@ -27621,7 +27945,7 @@ class LojaApp {
                 if (typeof toast !== 'undefined' && toast) {
                     toast.success(
                         'Conteúdo copiado para área de transferência!',
-                        3000
+                        3000,
                     );
                 }
             }
@@ -27650,12 +27974,12 @@ class LojaApp {
 
         // Formato para Google Calendar
         const googleCalendarUrl = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(
-            title
+            title,
         )}&dates=${startDate.replace(/-/g, '')}/${endDate.replace(
             /-/g,
-            ''
+            '',
         )}&details=${encodeURIComponent(
-            description
+            description,
         )}&location=${encodeURIComponent(location)}`;
 
         window.open(googleCalendarUrl, '_blank');
@@ -27685,7 +28009,7 @@ END:VCARD`;
         if (typeof toast !== 'undefined' && toast) {
             toast.success(
                 'Contato salvo! Abra o arquivo .vcf para adicionar aos seus contatos.',
-                4000
+                4000,
             );
         }
     }
@@ -27694,7 +28018,7 @@ END:VCARD`;
     isMobileDevice() {
         return (
             /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
-                navigator.userAgent
+                navigator.userAgent,
             ) || window.innerWidth <= 768
         );
     }
@@ -27741,7 +28065,7 @@ END:VCARD`;
                 const activeTab = document.querySelector('.tab-btn.active');
                 if (activeTab) {
                     const tabs = Array.from(
-                        document.querySelectorAll('.tab-btn')
+                        document.querySelectorAll('.tab-btn'),
                     );
                     const currentIndex = tabs.indexOf(activeTab);
                     let nextIndex;
@@ -27772,7 +28096,7 @@ END:VCARD`;
     // Configurar navegação por teclado em listas
     setupListKeyboardNavigation() {
         const lists = document.querySelectorAll(
-            '.items-list, .clients-list, .suppliers-list'
+            '.items-list, .clients-list, .suppliers-list',
         );
 
         lists.forEach((list) => {
@@ -27782,13 +28106,13 @@ END:VCARD`;
             list.addEventListener('keydown', (e) => {
                 const items = Array.from(
                     list.querySelectorAll(
-                        '[role="listitem"], .item-card, .client-card, .supplier-card'
-                    )
+                        '[role="listitem"], .item-card, .client-card, .supplier-card',
+                    ),
                 );
                 const currentIndex = items.findIndex(
                     (item) =>
                         item === document.activeElement ||
-                        item.contains(document.activeElement)
+                        item.contains(document.activeElement),
                 );
 
                 let nextIndex = currentIndex;
@@ -27842,7 +28166,7 @@ END:VCARD`;
                 // Tab: Navegar entre campos
                 if (e.key === 'Tab') {
                     const focusableElements = modal.querySelectorAll(
-                        'input, textarea, select, button, [href], [tabindex]:not([tabindex="-1"])'
+                        'input, textarea, select, button, [href], [tabindex]:not([tabindex="-1"])',
                     );
                     const firstElement = focusableElements[0];
                     const lastElement =
@@ -27876,7 +28200,7 @@ END:VCARD`;
     // Exportar análise preditiva
     exportPredictiveAnalysis() {
         const period = parseInt(
-            document.getElementById('predictivePeriod')?.value || 6
+            document.getElementById('predictivePeriod')?.value || 6,
         );
         const forecast = this.calculateSalesForecast(period);
         const trend = this.calculateSalesTrend(period);
@@ -27897,8 +28221,9 @@ END:VCARD`;
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
-        a.download = `analise_preditiva_${new Date().toISOString().split('T')[0]
-            }.json`;
+        a.download = `analise_preditiva_${
+            new Date().toISOString().split('T')[0]
+        }.json`;
         document.body.appendChild(a);
         a.click();
         document.body.removeChild(a);
@@ -27938,14 +28263,14 @@ END:VCARD`;
                 name: 'E-commerce',
                 config: this.ecommerceConfig,
                 enabled: Object.values(this.ecommerceConfig || {}).some(
-                    (c) => c?.enabled
+                    (c) => c?.enabled,
                 ),
             },
             {
                 name: 'ERP',
                 config: this.erpConfig,
                 enabled: Object.values(this.erpConfig || {}).some(
-                    (c) => c?.enabled
+                    (c) => c?.enabled,
                 ),
             },
         ];
@@ -28098,7 +28423,7 @@ END:VCARD`;
                 const smtp = config.smtp || {};
                 if (!smtp.host || !smtp.username || !smtp.password) {
                     throw new Error(
-                        'Preencha todos os campos obrigatórios (Host, Usuário, Senha)'
+                        'Preencha todos os campos obrigatórios (Host, Usuário, Senha)',
                     );
                 }
 
@@ -28112,7 +28437,7 @@ END:VCARD`;
                 if (typeof toast !== 'undefined' && toast) {
                     toast.success(
                         'Credenciais SMTP válidas! (Teste completo requer backend)',
-                        4000
+                        4000,
                     );
                 }
                 return { success: true, message: 'Credenciais válidas' };
@@ -28131,16 +28456,17 @@ END:VCARD`;
                             Authorization: `Bearer ${apiKey}`,
                             'Content-Type': 'application/json',
                         },
-                    }
+                    },
                 );
 
                 if (response.ok) {
                     const data = await response.json();
                     if (typeof toast !== 'undefined' && toast) {
                         toast.success(
-                            `SendGrid conectado! Usuário: ${data.username || 'N/A'
+                            `SendGrid conectado! Usuário: ${
+                                data.username || 'N/A'
                             }`,
-                            4000
+                            4000,
                         );
                     }
                     return {
@@ -28151,16 +28477,17 @@ END:VCARD`;
                 } else {
                     const error = await response.json();
                     throw new Error(
-                        `SendGrid: ${error.errors?.[0]?.message ||
-                        'Credenciais inválidas'
-                        }`
+                        `SendGrid: ${
+                            error.errors?.[0]?.message ||
+                            'Credenciais inválidas'
+                        }`,
                     );
                 }
             } else if (provider === 'ses') {
                 const ses = config.ses || {};
                 if (!ses.accessKeyId || !ses.secretAccessKey) {
                     throw new Error(
-                        'Access Key ID e Secret Access Key são obrigatórios'
+                        'Access Key ID e Secret Access Key são obrigatórios',
                     );
                 }
 
@@ -28169,7 +28496,7 @@ END:VCARD`;
                 if (typeof toast !== 'undefined' && toast) {
                     toast.success(
                         'Credenciais AWS SES válidas! (Teste completo requer backend)',
-                        4000
+                        4000,
                     );
                 }
                 return { success: true, message: 'Credenciais válidas' };
@@ -28188,20 +28515,20 @@ END:VCARD`;
                         headers: {
                             Authorization: `Basic ${auth}`,
                         },
-                    }
+                    },
                 );
 
                 if (response.ok || response.status === 200) {
                     if (typeof toast !== 'undefined' && toast) {
                         toast.success(
                             `Mailgun conectado! Domínio: ${mailgun.domain}`,
-                            4000
+                            4000,
                         );
                     }
                     return { success: true, message: 'Mailgun conectado' };
                 } else {
                     throw new Error(
-                        'Mailgun: Credenciais inválidas ou domínio não encontrado'
+                        'Mailgun: Credenciais inválidas ou domínio não encontrado',
                     );
                 }
             }
@@ -28323,7 +28650,7 @@ END:VCARD`;
                 const twilio = config.twilio || {};
                 if (!twilio.accountSid || !twilio.authToken) {
                     throw new Error(
-                        'Account SID e Auth Token são obrigatórios'
+                        'Account SID e Auth Token são obrigatórios',
                     );
                 }
 
@@ -28336,23 +28663,24 @@ END:VCARD`;
                         headers: {
                             Authorization: `Basic ${auth}`,
                         },
-                    }
+                    },
                 );
 
                 if (response.ok) {
                     const data = await response.json();
                     if (typeof toast !== 'undefined' && toast) {
                         toast.success(
-                            `Twilio conectado! Conta: ${data.friendly_name || twilio.accountSid
+                            `Twilio conectado! Conta: ${
+                                data.friendly_name || twilio.accountSid
                             }`,
-                            4000
+                            4000,
                         );
                     }
                     return { success: true, message: 'Twilio conectado', data };
                 } else {
                     const error = await response.json();
                     throw new Error(
-                        `Twilio: ${error.message || 'Credenciais inválidas'}`
+                        `Twilio: ${error.message || 'Credenciais inválidas'}`,
                     );
                 }
             } else if (provider === 'zenvia') {
@@ -28370,7 +28698,7 @@ END:VCARD`;
                             'X-API-TOKEN': zenvia.apiKey,
                             'Content-Type': 'application/json',
                         },
-                    }
+                    },
                 );
 
                 if (response.ok) {
@@ -28378,7 +28706,7 @@ END:VCARD`;
                     if (typeof toast !== 'undefined' && toast) {
                         toast.success(
                             `Zenvia conectada! Conta: ${data.name || 'N/A'}`,
-                            4000
+                            4000,
                         );
                     }
                     return { success: true, message: 'Zenvia conectada', data };
@@ -28400,16 +28728,17 @@ END:VCARD`;
                             'Access-Token': totalvoice.accessToken,
                             'Content-Type': 'application/json',
                         },
-                    }
+                    },
                 );
 
                 if (response.ok) {
                     const data = await response.json();
                     if (typeof toast !== 'undefined' && toast) {
                         toast.success(
-                            `TotalVoice conectado! Conta: ${data.dados?.nome || 'N/A'
+                            `TotalVoice conectado! Conta: ${
+                                data.dados?.nome || 'N/A'
                             }`,
-                            4000
+                            4000,
                         );
                     }
                     return {
@@ -28420,8 +28749,9 @@ END:VCARD`;
                 } else {
                     const error = await response.json();
                     throw new Error(
-                        `TotalVoice: ${error.mensagem || 'Credenciais inválidas'
-                        }`
+                        `TotalVoice: ${
+                            error.mensagem || 'Credenciais inválidas'
+                        }`,
                     );
                 }
             }
@@ -28469,7 +28799,7 @@ END:VCARD`;
             phoneNumberId: document.getElementById('whatsappPhoneNumberId')
                 .value,
             businessAccountId: document.getElementById(
-                'whatsappBusinessAccountId'
+                'whatsappBusinessAccountId',
             ).value,
             webhookUrl: document.getElementById('whatsappWebhookUrl').value,
         };
@@ -28501,7 +28831,7 @@ END:VCARD`;
                 !config.businessAccountId
             ) {
                 throw new Error(
-                    'API Key, Phone Number ID e Business Account ID são obrigatórios'
+                    'API Key, Phone Number ID e Business Account ID são obrigatórios',
                 );
             }
 
@@ -28514,24 +28844,26 @@ END:VCARD`;
                         Authorization: `Bearer ${config.apiKey}`,
                         'Content-Type': 'application/json',
                     },
-                }
+                },
             );
 
             if (response.ok) {
                 const data = await response.json();
                 if (typeof toast !== 'undefined' && toast) {
                     toast.success(
-                        `WhatsApp conectado! Número: ${data.display_phone_number || 'N/A'
+                        `WhatsApp conectado! Número: ${
+                            data.display_phone_number || 'N/A'
                         }`,
-                        4000
+                        4000,
                     );
                 }
                 return { success: true, message: 'WhatsApp conectado', data };
             } else {
                 const error = await response.json();
                 throw new Error(
-                    `WhatsApp: ${error.error?.message || 'Credenciais inválidas'
-                    }`
+                    `WhatsApp: ${
+                        error.error?.message || 'Credenciais inválidas'
+                    }`,
                 );
             }
         } catch (error) {
@@ -28624,7 +28956,7 @@ END:VCARD`;
                 consumerKey: document.getElementById('woocommerceConsumerKey')
                     .value,
                 consumerSecret: document.getElementById(
-                    'woocommerceConsumerSecret'
+                    'woocommerceConsumerSecret',
                 ).value,
             };
             // Desativar outras plataformas
@@ -28649,7 +28981,7 @@ END:VCARD`;
                 enabled: document.getElementById('mercadoLivreEnabled').checked,
                 clientId: document.getElementById('mercadoLivreClientId').value,
                 clientSecret: document.getElementById(
-                    'mercadoLivreClientSecret'
+                    'mercadoLivreClientSecret',
                 ).value,
                 accessToken: document.getElementById('mercadoLivreAccessToken')
                     .value,
@@ -28668,7 +29000,7 @@ END:VCARD`;
         if (typeof toast !== 'undefined' && toast) {
             toast.success(
                 'Configuração de e-commerce salva com sucesso!',
-                3000
+                3000,
             );
         }
     }
@@ -28692,7 +29024,7 @@ END:VCARD`;
                 const wc = config.woocommerce || {};
                 if (!wc.url || !wc.consumerKey || !wc.consumerSecret) {
                     throw new Error(
-                        'URL, Consumer Key e Consumer Secret são obrigatórios'
+                        'URL, Consumer Key e Consumer Secret são obrigatórios',
                     );
                 }
 
@@ -28718,9 +29050,10 @@ END:VCARD`;
                     const data = await response.json();
                     if (typeof toast !== 'undefined' && toast) {
                         toast.success(
-                            `WooCommerce conectado! Versão: ${data.environment?.version || 'N/A'
+                            `WooCommerce conectado! Versão: ${
+                                data.environment?.version || 'N/A'
                             }`,
-                            4000
+                            4000,
                         );
                     }
                     return {
@@ -28731,16 +29064,17 @@ END:VCARD`;
                 } else {
                     const error = await response.json();
                     throw new Error(
-                        `WooCommerce: ${error.message ||
-                        'Credenciais inválidas ou URL incorreta'
-                        }`
+                        `WooCommerce: ${
+                            error.message ||
+                            'Credenciais inválidas ou URL incorreta'
+                        }`,
                     );
                 }
             } else if (platform === 'shopify') {
                 const shopify = config.shopify || {};
                 if (!shopify.shop || !shopify.apiKey || !shopify.apiSecret) {
                     throw new Error(
-                        'Shop, API Key e API Secret são obrigatórios'
+                        'Shop, API Key e API Secret são obrigatórios',
                     );
                 }
 
@@ -28761,9 +29095,10 @@ END:VCARD`;
                     const data = await response.json();
                     if (typeof toast !== 'undefined' && toast) {
                         toast.success(
-                            `Shopify conectado! Loja: ${data.shop?.name || shop
+                            `Shopify conectado! Loja: ${
+                                data.shop?.name || shop
                             }`,
-                            4000
+                            4000,
                         );
                     }
                     return {
@@ -28774,14 +29109,14 @@ END:VCARD`;
                 } else {
                     const error = await response.json();
                     throw new Error(
-                        `Shopify: ${error.errors || 'Credenciais inválidas'}`
+                        `Shopify: ${error.errors || 'Credenciais inválidas'}`,
                     );
                 }
             } else if (platform === 'mercadoLivre') {
                 const ml = config.mercadoLivre || {};
                 if (!ml.clientId || !ml.clientSecret || !ml.accessToken) {
                     throw new Error(
-                        'Client ID, Client Secret e Access Token são obrigatórios'
+                        'Client ID, Client Secret e Access Token são obrigatórios',
                     );
                 }
 
@@ -28794,16 +29129,17 @@ END:VCARD`;
                             Authorization: `Bearer ${ml.accessToken}`,
                             'Content-Type': 'application/json',
                         },
-                    }
+                    },
                 );
 
                 if (response.ok) {
                     const data = await response.json();
                     if (typeof toast !== 'undefined' && toast) {
                         toast.success(
-                            `Mercado Livre conectado! Usuário: ${data.nickname || 'N/A'
+                            `Mercado Livre conectado! Usuário: ${
+                                data.nickname || 'N/A'
                             }`,
-                            4000
+                            4000,
                         );
                     }
                     return {
@@ -28814,8 +29150,9 @@ END:VCARD`;
                 } else {
                     const error = await response.json();
                     throw new Error(
-                        `Mercado Livre: ${error.message || 'Token inválido ou expirado'
-                        }`
+                        `Mercado Livre: ${
+                            error.message || 'Token inválido ou expirado'
+                        }`,
                     );
                 }
             }
@@ -28932,7 +29269,7 @@ END:VCARD`;
         if (typeof toast !== 'undefined' && toast) {
             toast.info(
                 `Testando conexão com ${platform.toUpperCase()}...`,
-                2000
+                2000,
             );
         }
 
@@ -28953,7 +29290,7 @@ END:VCARD`;
                 if (typeof toast !== 'undefined' && toast) {
                     toast.success(
                         'Credenciais TOTVS válidas! (Teste completo requer backend com SDK)',
-                        5000
+                        5000,
                     );
                 }
                 return {
@@ -28965,7 +29302,7 @@ END:VCARD`;
                 const sap = config.sap || {};
                 if (!sap.url || !sap.username || !sap.password || !sap.client) {
                     throw new Error(
-                        'URL, Usuário, Senha e Client são obrigatórios'
+                        'URL, Usuário, Senha e Client são obrigatórios',
                     );
                 }
 
@@ -28984,7 +29321,7 @@ END:VCARD`;
                 if (typeof toast !== 'undefined' && toast) {
                     toast.success(
                         'Credenciais SAP válidas! (Teste completo requer backend com SAP SDK)',
-                        5000
+                        5000,
                     );
                 }
                 return {
@@ -29050,7 +29387,7 @@ END:VCARD`;
                                 { type: 'text/html', value: html },
                             ],
                         }),
-                    }
+                    },
                 );
 
                 if (response.ok) {
@@ -29061,22 +29398,23 @@ END:VCARD`;
                 } else {
                     const error = await response.json();
                     throw new Error(
-                        `SendGrid: ${error.errors?.[0]?.message || 'Erro ao enviar email'
-                        }`
+                        `SendGrid: ${
+                            error.errors?.[0]?.message || 'Erro ao enviar email'
+                        }`,
                     );
                 }
             } else if (provider === 'mailgun') {
                 const mailgun = config.mailgun || {};
                 if (!mailgun.apiKey || !mailgun.domain) {
                     throw new Error(
-                        'API Key e Domain do Mailgun não configurados'
+                        'API Key e Domain do Mailgun não configurados',
                     );
                 }
 
                 const formData = new FormData();
                 formData.append(
                     'from',
-                    config.fromEmail || `noreply@${mailgun.domain}`
+                    config.fromEmail || `noreply@${mailgun.domain}`,
                 );
                 formData.append('to', to);
                 formData.append('subject', subject);
@@ -29092,7 +29430,7 @@ END:VCARD`;
                             Authorization: `Basic ${auth}`,
                         },
                         body: formData,
-                    }
+                    },
                 );
 
                 if (response.ok) {
@@ -29103,13 +29441,13 @@ END:VCARD`;
                 } else {
                     const error = await response.json();
                     throw new Error(
-                        `Mailgun: ${error.message || 'Erro ao enviar email'}`
+                        `Mailgun: ${error.message || 'Erro ao enviar email'}`,
                     );
                 }
             } else {
                 // SMTP e SES requerem backend
                 throw new Error(
-                    `Envio de email via ${provider} requer backend. Use SendGrid ou Mailgun para envio direto.`
+                    `Envio de email via ${provider} requer backend. Use SendGrid ou Mailgun para envio direto.`,
                 );
             }
         } catch (error) {
@@ -29141,7 +29479,7 @@ END:VCARD`;
                     !twilio.fromNumber
                 ) {
                     throw new Error(
-                        'Credenciais do Twilio não configuradas completamente'
+                        'Credenciais do Twilio não configuradas completamente',
                     );
                 }
 
@@ -29160,7 +29498,7 @@ END:VCARD`;
                             'Content-Type': 'application/x-www-form-urlencoded',
                         },
                         body: formData,
-                    }
+                    },
                 );
 
                 if (response.ok) {
@@ -29173,14 +29511,14 @@ END:VCARD`;
                 } else {
                     const error = await response.json();
                     throw new Error(
-                        `Twilio: ${error.message || 'Erro ao enviar SMS'}`
+                        `Twilio: ${error.message || 'Erro ao enviar SMS'}`,
                     );
                 }
             } else if (provider === 'zenvia') {
                 const zenvia = config.zenvia || {};
                 if (!zenvia.apiKey || !zenvia.fromNumber) {
                     throw new Error(
-                        'API Key e número remetente da Zenvia não configurados'
+                        'API Key e número remetente da Zenvia não configurados',
                     );
                 }
 
@@ -29197,7 +29535,7 @@ END:VCARD`;
                             to: to,
                             contents: [{ type: 'text', text: message }],
                         }),
-                    }
+                    },
                 );
 
                 if (response.ok) {
@@ -29214,7 +29552,7 @@ END:VCARD`;
                 const totalvoice = config.totalvoice || {};
                 if (!totalvoice.accessToken || !totalvoice.fromNumber) {
                     throw new Error(
-                        'Access Token e número remetente do TotalVoice não configurados'
+                        'Access Token e número remetente do TotalVoice não configurados',
                     );
                 }
 
@@ -29231,7 +29569,7 @@ END:VCARD`;
                             mensagem: message,
                             resposta_usuario: false,
                         }),
-                    }
+                    },
                 );
 
                 if (response.ok) {
@@ -29244,7 +29582,7 @@ END:VCARD`;
                 } else {
                     const error = await response.json();
                     throw new Error(
-                        `TotalVoice: ${error.mensagem || 'Erro ao enviar SMS'}`
+                        `TotalVoice: ${error.mensagem || 'Erro ao enviar SMS'}`,
                     );
                 }
             }
@@ -29289,7 +29627,7 @@ END:VCARD`;
                         type: 'text',
                         text: { body: message },
                     }),
-                }
+                },
             );
 
             if (response.ok) {
@@ -29302,8 +29640,9 @@ END:VCARD`;
             } else {
                 const error = await response.json();
                 throw new Error(
-                    `WhatsApp: ${error.error?.message || 'Erro ao enviar mensagem'
-                    }`
+                    `WhatsApp: ${
+                        error.error?.message || 'Erro ao enviar mensagem'
+                    }`,
                 );
             }
         } catch (error) {
@@ -29376,10 +29715,10 @@ END:VCARD`;
             this.performanceMetrics.memoryUsage = {
                 used: (performance.memory.usedJSHeapSize / 1048576).toFixed(2), // MB
                 total: (performance.memory.totalJSHeapSize / 1048576).toFixed(
-                    2
+                    2,
                 ), // MB
                 limit: (performance.memory.jsHeapSizeLimit / 1048576).toFixed(
-                    2
+                    2,
                 ), // MB
                 timestamp: Date.now(),
             };
@@ -29534,24 +29873,24 @@ END:VCARD`;
             rendering: {
                 averageRenderTime: this.calculateAverage(
                     this.performanceMetrics.renderTimes,
-                    'duration'
+                    'duration',
                 ),
                 totalRenders: this.performanceMetrics.renderTimes.length,
                 slowRenders: this.performanceMetrics.renderTimes.filter(
-                    (r) => r.duration > 100
+                    (r) => r.duration > 100,
                 ).length,
             },
             api: {
                 averageResponseTime: this.calculateAverage(
                     this.performanceMetrics.apiCallTimes,
-                    'duration'
+                    'duration',
                 ),
                 totalCalls: this.performanceMetrics.apiCallTimes.length,
                 slowCalls: this.performanceMetrics.apiCallTimes.filter(
-                    (c) => c.duration > 1000
+                    (c) => c.duration > 1000,
                 ).length,
                 errorRate: this.calculateErrorRate(
-                    this.performanceMetrics.apiCallTimes
+                    this.performanceMetrics.apiCallTimes,
                 ),
             },
             cache: {
@@ -29586,7 +29925,7 @@ END:VCARD`;
     calculateErrorRate(apiCalls) {
         if (!apiCalls || apiCalls.length === 0) return 0;
         const errors = apiCalls.filter(
-            (c) => c.status === 'error' || c.status >= 400
+            (c) => c.status === 'error' || c.status >= 400,
         ).length;
         return errors / apiCalls.length;
     }
@@ -29607,7 +29946,7 @@ END:VCARD`;
                     maxTime: Math.max(...calls.map((c) => c.duration)),
                     minTime: Math.min(...calls.map((c) => c.duration)),
                 };
-            }
+            },
         );
         return stats;
     }
@@ -29628,75 +29967,83 @@ END:VCARD`;
                     <h3>Carregamento da Página</h3>
                     <div class="metric">
                         <span class="metric-label">Tempo Total:</span>
-                        <span class="metric-value">${report.pageLoad.pageLoadTime
-            }ms</span>
+                        <span class="metric-value">${
+                            report.pageLoad.pageLoadTime
+                        }ms</span>
                     </div>
                     <div class="metric">
                         <span class="metric-label">DOM Content Loaded:</span>
-                        <span class="metric-value">${report.pageLoad.domContentLoaded
-            }ms</span>
+                        <span class="metric-value">${
+                            report.pageLoad.domContentLoaded
+                        }ms</span>
                     </div>
                     <div class="metric">
                         <span class="metric-label">First Paint:</span>
                         <span class="metric-value">${report.pageLoad.firstPaint.toFixed(
-                2
-            )}ms</span>
+                            2,
+                        )}ms</span>
                     </div>
                     <div class="metric">
                         <span class="metric-label">First Contentful Paint:</span>
                         <span class="metric-value">${report.pageLoad.firstContentfulPaint.toFixed(
-                2
-            )}ms</span>
+                            2,
+                        )}ms</span>
                     </div>
                 </div>
 
-                ${report.memory
-                ? `
+                ${
+                    report.memory
+                        ? `
                 <div class="performance-section">
                     <h3>Uso de Memória</h3>
                     <div class="metric">
                         <span class="metric-label">Usado:</span>
-                        <span class="metric-value">${report.memory.used
-                } MB</span>
+                        <span class="metric-value">${
+                            report.memory.used
+                        } MB</span>
                     </div>
                     <div class="metric">
                         <span class="metric-label">Total:</span>
-                        <span class="metric-value">${report.memory.total
-                } MB</span>
+                        <span class="metric-value">${
+                            report.memory.total
+                        } MB</span>
                     </div>
                     <div class="metric">
                         <span class="metric-label">Limite:</span>
-                        <span class="metric-value">${report.memory.limit
-                } MB</span>
+                        <span class="metric-value">${
+                            report.memory.limit
+                        } MB</span>
                     </div>
                     <div class="progress-bar" style="margin-top: 0.5rem;">
                         <div class="progress-fill" style="width: ${(
-                    (report.memory.used / report.memory.limit) *
-                    100
-                ).toFixed(1)}%"></div>
+                            (report.memory.used / report.memory.limit) *
+                            100
+                        ).toFixed(1)}%"></div>
                     </div>
                 </div>
                 `
-                : ''
-            }
+                        : ''
+                }
 
                 <div class="performance-section">
                     <h3>Renderização</h3>
                     <div class="metric">
                         <span class="metric-label">Tempo Médio:</span>
                         <span class="metric-value">${report.rendering.averageRenderTime.toFixed(
-                2
-            )}ms</span>
+                            2,
+                        )}ms</span>
                     </div>
                     <div class="metric">
                         <span class="metric-label">Total de Renderizações:</span>
-                        <span class="metric-value">${report.rendering.totalRenders
-            }</span>
+                        <span class="metric-value">${
+                            report.rendering.totalRenders
+                        }</span>
                     </div>
                     <div class="metric">
                         <span class="metric-label">Renderizações Lentas (&gt;100ms):</span>
-                        <span class="metric-value ${report.rendering.slowRenders > 0 ? 'warning' : ''
-            }">${report.rendering.slowRenders}</span>
+                        <span class="metric-value ${
+                            report.rendering.slowRenders > 0 ? 'warning' : ''
+                        }">${report.rendering.slowRenders}</span>
                     </div>
                 </div>
 
@@ -29705,23 +30052,26 @@ END:VCARD`;
                     <div class="metric">
                         <span class="metric-label">Tempo Médio de Resposta:</span>
                         <span class="metric-value">${report.api.averageResponseTime.toFixed(
-                2
-            )}ms</span>
+                            2,
+                        )}ms</span>
                     </div>
                     <div class="metric">
                         <span class="metric-label">Total de Chamadas:</span>
-                        <span class="metric-value">${report.api.totalCalls
-            }</span>
+                        <span class="metric-value">${
+                            report.api.totalCalls
+                        }</span>
                     </div>
                     <div class="metric">
                         <span class="metric-label">Chamadas Lentas (&gt;1s):</span>
-                        <span class="metric-value ${report.api.slowCalls > 0 ? 'warning' : ''
-            }">${report.api.slowCalls}</span>
+                        <span class="metric-value ${
+                            report.api.slowCalls > 0 ? 'warning' : ''
+                        }">${report.api.slowCalls}</span>
                     </div>
                     <div class="metric">
                         <span class="metric-label">Taxa de Erro:</span>
-                        <span class="metric-value ${report.api.errorRate > 0.1 ? 'error' : ''
-            }">${(report.api.errorRate * 100).toFixed(2)}%</span>
+                        <span class="metric-value ${
+                            report.api.errorRate > 0.1 ? 'error' : ''
+                        }">${(report.api.errorRate * 100).toFixed(2)}%</span>
                     </div>
                 </div>
 
@@ -29730,8 +30080,8 @@ END:VCARD`;
                     <div class="metric">
                         <span class="metric-label">Taxa de Acerto:</span>
                         <span class="metric-value">${(
-                report.cache.hitRate * 100
-            ).toFixed(2)}%</span>
+                            report.cache.hitRate * 100
+                        ).toFixed(2)}%</span>
                     </div>
                     <div class="metric">
                         <span class="metric-label">Hits:</span>
@@ -29835,7 +30185,7 @@ END:VCARD`;
         const startIndex = Math.floor(scrollTop / itemHeight);
         const endIndex = Math.min(
             startIndex + Math.ceil(containerHeight / itemHeight) + 1,
-            items.length
+            items.length,
         );
         const visibleItems = items.slice(startIndex, endIndex);
 
@@ -29982,7 +30332,7 @@ END:VCARD`;
      */
     deleteMessageTemplate(templateId) {
         const index = this.messageTemplates.findIndex(
-            (t) => t.id === templateId
+            (t) => t.id === templateId,
         );
         if (index === -1) {
             throw new Error('Template não encontrado');
@@ -30064,11 +30414,11 @@ END:VCARD`;
         // Processar template
         const processedSubject = this.processMessageTemplate(
             template.subject,
-            variables
+            variables,
         );
         const processedContent = this.processMessageTemplate(
             template.content,
-            variables
+            variables,
         );
 
         let result;
@@ -30078,7 +30428,7 @@ END:VCARD`;
                 result = await this.sendEmail(
                     to,
                     processedSubject,
-                    processedContent
+                    processedContent,
                 );
             } else if (template.type === 'sms') {
                 result = await this.sendSMS(to, processedContent);
@@ -30166,7 +30516,7 @@ END:VCARD`;
             'create',
             'scheduledMessage',
             scheduled.id,
-            `Agendado para ${scheduledAt}`
+            `Agendado para ${scheduledAt}`,
         );
 
         // Iniciar verificação de agendamentos se ainda não estiver rodando
@@ -30192,7 +30542,7 @@ END:VCARD`;
         }, 60000); // Verificar a cada minuto
 
         console.log(
-            '✅ [MESSAGES] Verificador de mensagens agendadas iniciado'
+            '✅ [MESSAGES] Verificador de mensagens agendadas iniciado',
         );
     }
 
@@ -30212,7 +30562,7 @@ END:VCARD`;
                 await this.sendMessageWithTemplate(
                     msg.templateId,
                     msg.to,
-                    msg.variables
+                    msg.variables,
                 );
                 msg.sent = true;
                 msg.sentAt = new Date().toISOString();
@@ -30220,20 +30570,20 @@ END:VCARD`;
                 if (typeof toast !== 'undefined' && toast) {
                     toast.success(
                         `Mensagem agendada enviada para ${msg.to}`,
-                        3000
+                        3000,
                     );
                 }
             } catch (error) {
                 msg.error = error.message;
                 console.error(
                     '❌ [MESSAGES] Erro ao enviar mensagem agendada:',
-                    error
+                    error,
                 );
 
                 if (typeof toast !== 'undefined' && toast) {
                     toast.error(
                         `Erro ao enviar mensagem agendada: ${error.message}`,
-                        5000
+                        5000,
                     );
                 }
             }
@@ -30290,41 +30640,46 @@ END:VCARD`;
                             </h3>
                             <small style="color: var(--gray-600);">
                                 ${template.type.toUpperCase()} • Criado em ${new Date(
-                    template.createdAt
-                ).toLocaleDateString('pt-BR')}
+                                    template.createdAt,
+                                ).toLocaleDateString('pt-BR')}
                             </small>
                         </div>
                         <div style="display: flex; gap: 0.5rem;">
-                            <button class="btn-secondary" onclick="app.openMessageTemplateModal('${template.id
-                    }')" title="Editar">
+                            <button class="btn-secondary" onclick="app.openMessageTemplateModal('${
+                                template.id
+                            }')" title="Editar">
                                 <i class="fas fa-edit"></i>
                             </button>
-                            <button class="btn-secondary" onclick="app.deleteMessageTemplateWithConfirm('${template.id
-                    }')" title="Deletar">
+                            <button class="btn-secondary" onclick="app.deleteMessageTemplateWithConfirm('${
+                                template.id
+                            }')" title="Deletar">
                                 <i class="fas fa-trash"></i>
                             </button>
                         </div>
                     </div>
-                    ${template.subject
-                        ? `<p style="margin: 0.5rem 0; color: var(--gray-700);"><strong>Assunto:</strong> ${template.subject}</p>`
-                        : ''
+                    ${
+                        template.subject
+                            ? `<p style="margin: 0.5rem 0; color: var(--gray-700);"><strong>Assunto:</strong> ${template.subject}</p>`
+                            : ''
                     }
                     <p style="margin: 0; color: var(--gray-600); font-size: 0.9rem;">
-                        ${template.content.substring(0, 100)}${template.content.length > 100 ? '...' : ''
-                    }
+                        ${template.content.substring(0, 100)}${
+                            template.content.length > 100 ? '...' : ''
+                        }
                     </p>
-                    ${template.variables && template.variables.length > 0
-                        ? `
+                    ${
+                        template.variables && template.variables.length > 0
+                            ? `
                         <div style="margin-top: 0.5rem; display: flex; flex-wrap: gap: 0.25rem;">
                             ${template.variables
-                            .map(
-                                (v) =>
-                                    `<span style="background: var(--light-gray); padding: 0.25rem 0.5rem; border-radius: 4px; font-size: 0.8rem;">{{${v}}}</span>`
-                            )
-                            .join('')}
+                                .map(
+                                    (v) =>
+                                        `<span style="background: var(--light-gray); padding: 0.25rem 0.5rem; border-radius: 4px; font-size: 0.8rem;">{{${v}}}</span>`,
+                                )
+                                .join('')}
                         </div>
                     `
-                        : ''
+                            : ''
                     }
                 </div>
             `;
@@ -30364,7 +30719,7 @@ END:VCARD`;
             form.templateSubject.value = template.subject || '';
             form.templateContent.value = template.content || '';
             form.templateVariables.value = (template.variables || []).join(
-                ', '
+                ', ',
             );
             form.dataset.templateId = templateId;
         } else {
@@ -30393,7 +30748,7 @@ END:VCARD`;
         const type =
             document.getElementById('messageTemplateType')?.value || 'email';
         const subjectField = document.getElementById(
-            'messageTemplateSubjectField'
+            'messageTemplateSubjectField',
         );
 
         // Email tem campo de assunto, SMS e WhatsApp não
@@ -30463,14 +30818,14 @@ END:VCARD`;
         // Filtro por tipo
         if (typeFilter) {
             filteredHistory = filteredHistory.filter(
-                (msg) => msg.type === typeFilter
+                (msg) => msg.type === typeFilter,
             );
         }
 
         // Filtro por status
         if (statusFilter) {
             filteredHistory = filteredHistory.filter(
-                (msg) => msg.status === statusFilter
+                (msg) => msg.status === statusFilter,
             );
         }
 
@@ -30492,10 +30847,10 @@ END:VCARD`;
         // Calcular estatísticas
         const total = this.messageHistory.length;
         const success = this.messageHistory.filter(
-            (m) => m.status === 'success'
+            (m) => m.status === 'success',
         ).length;
         const errors = this.messageHistory.filter(
-            (m) => m.status === 'error'
+            (m) => m.status === 'error',
         ).length;
         const byType = {
             email: this.messageHistory.filter((m) => m.type === 'email').length,
@@ -30521,8 +30876,9 @@ END:VCARD`;
                 </div>
                 <div style="background: var(--white); padding: 1rem; border-radius: var(--radius-sm); border-left: 4px solid #ffc107;">
                     <div style="font-size: 0.85rem; color: var(--gray-600); margin-bottom: 0.25rem;">Taxa de Sucesso</div>
-                    <div style="font-size: 1.5rem; font-weight: bold; color: #ffc107;">${total > 0 ? ((success / total) * 100).toFixed(1) : 0
-                }%</div>
+                    <div style="font-size: 1.5rem; font-weight: bold; color: #ffc107;">${
+                        total > 0 ? ((success / total) * 100).toFixed(1) : 0
+                    }%</div>
                 </div>
             `;
         }
@@ -30567,27 +30923,31 @@ END:VCARD`;
                                 <strong>${msg.to}</strong>
                                 <i class="fas ${statusIcon}" style="color: ${statusColor};"></i>
                             </div>
-                            ${msg.subject
-                        ? `<p style="margin: 0.25rem 0; color: var(--gray-700);"><strong>Assunto:</strong> ${msg.subject}</p>`
-                        : ''
-                    }
+                            ${
+                                msg.subject
+                                    ? `<p style="margin: 0.25rem 0; color: var(--gray-700);"><strong>Assunto:</strong> ${msg.subject}</p>`
+                                    : ''
+                            }
                             <p style="margin: 0.25rem 0; color: var(--gray-600); font-size: 0.9rem;">
-                                ${msg.content.substring(0, 150)}${msg.content.length > 150 ? '...' : ''
-                    }
+                                ${msg.content.substring(0, 150)}${
+                                    msg.content.length > 150 ? '...' : ''
+                                }
                             </p>
-                            ${msg.templateName
-                        ? `<small style="color: var(--gray-500);">Template: ${msg.templateName}</small>`
-                        : ''
-                    }
+                            ${
+                                msg.templateName
+                                    ? `<small style="color: var(--gray-500);">Template: ${msg.templateName}</small>`
+                                    : ''
+                            }
                         </div>
                         <div style="text-align: right;">
                             <small style="color: var(--gray-500);">
                                 ${new Date(msg.sentAt).toLocaleString('pt-BR')}
                             </small>
-                            ${msg.error
-                        ? `<div style="color: ${statusColor}; font-size: 0.8rem; margin-top: 0.25rem;">${msg.error}</div>`
-                        : ''
-                    }
+                            ${
+                                msg.error
+                                    ? `<div style="color: ${statusColor}; font-size: 0.8rem; margin-top: 0.25rem;">${msg.error}</div>`
+                                    : ''
+                            }
                         </div>
                     </div>
                 </div>
@@ -30624,12 +30984,12 @@ END:VCARD`;
 
         // Ordenar por data (mais próximas primeiro)
         pending.sort(
-            (a, b) => new Date(a.scheduledAt) - new Date(b.scheduledAt)
+            (a, b) => new Date(a.scheduledAt) - new Date(b.scheduledAt),
         );
         sent.sort(
             (a, b) =>
                 new Date(b.sentAt || b.scheduledAt) -
-                new Date(a.sentAt || a.scheduledAt)
+                new Date(a.sentAt || a.scheduledAt),
         );
 
         let html = '';
@@ -30650,7 +31010,7 @@ END:VCARD`;
                     const timeUntil = scheduledDate - now;
                     const hoursUntil = Math.floor(timeUntil / (1000 * 60 * 60));
                     const minutesUntil = Math.floor(
-                        (timeUntil % (1000 * 60 * 60)) / (1000 * 60)
+                        (timeUntil % (1000 * 60 * 60)) / (1000 * 60),
                     );
 
                     const typeIcon =
@@ -30668,8 +31028,9 @@ END:VCARD`;
                         }[msg.type] || '#6c757d';
 
                     return `
-                    <div class="scheduled-message-card" style="border-left: 4px solid ${typeColor}; ${isPast ? 'opacity: 0.7;' : ''
-                        }">
+                    <div class="scheduled-message-card" style="border-left: 4px solid ${typeColor}; ${
+                        isPast ? 'opacity: 0.7;' : ''
+                    }">
                         <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 0.5rem;">
                             <div style="flex: 1;">
                                 <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.25rem;">
@@ -30677,52 +31038,57 @@ END:VCARD`;
                                     <strong>${msg.to}</strong>
                                 </div>
                                 <p style="margin: 0.25rem 0; color: var(--gray-700);">
-                                    <strong>Template:</strong> ${template?.name ||
-                        'Template não encontrado'
-                        }
+                                    <strong>Template:</strong> ${
+                                        template?.name ||
+                                        'Template não encontrado'
+                                    }
                                 </p>
                                 <p style="margin: 0.25rem 0; color: var(--gray-600); font-size: 0.9rem;">
                                     <i class="fas fa-calendar"></i> ${scheduledDate.toLocaleString(
-                            'pt-BR'
-                        )}
+                                        'pt-BR',
+                                    )}
                                 </p>
-                                ${isPast
-                            ? `
+                                ${
+                                    isPast
+                                        ? `
                                     <p style="margin: 0.25rem 0; color: #ffc107; font-size: 0.85rem;">
                                         <i class="fas fa-exclamation-triangle"></i> Agendado para o passado - será enviado na próxima verificação
                                     </p>
                                 `
-                            : `
+                                        : `
                                     <p style="margin: 0.25rem 0; color: var(--gray-600); font-size: 0.85rem;">
-                                        <i class="fas fa-hourglass-half"></i> Envio em ${hoursUntil > 0
-                                ? `${hoursUntil}h `
-                                : ''
-                            }${minutesUntil}min
+                                        <i class="fas fa-hourglass-half"></i> Envio em ${
+                                            hoursUntil > 0
+                                                ? `${hoursUntil}h `
+                                                : ''
+                                        }${minutesUntil}min
                                     </p>
                                 `
-                        }
-                                ${msg.error
-                            ? `
+                                }
+                                ${
+                                    msg.error
+                                        ? `
                                     <p style="margin: 0.25rem 0; color: #dc3545; font-size: 0.85rem;">
                                         <i class="fas fa-exclamation-circle"></i> Erro: ${msg.error}
                                     </p>
                                 `
-                            : ''
-                        }
+                                        : ''
+                                }
                             </div>
                             <div style="display: flex; gap: 0.5rem;">
-                                ${!msg.sent
-                            ? `
+                                ${
+                                    !msg.sent
+                                        ? `
                                     <button class="btn-secondary" onclick="app.cancelScheduledMessage('${msg.id}')" title="Cancelar">
                                         <i class="fas fa-times"></i>
                                     </button>
                                 `
-                            : `
+                                        : `
                                     <span style="color: #28a745; font-size: 0.9rem;">
                                         <i class="fas fa-check-circle"></i> Enviada
                                     </span>
                                 `
-                        }
+                                }
                             </div>
                         </div>
                     </div>
@@ -30772,14 +31138,15 @@ END:VCARD`;
                                     <i class="fas fa-check-circle" style="color: #28a745;"></i>
                                 </div>
                                 <p style="margin: 0.25rem 0; color: var(--gray-700); font-size: 0.9rem;">
-                                    <strong>Template:</strong> ${template?.name ||
-                        'Template não encontrado'
-                        }
+                                    <strong>Template:</strong> ${
+                                        template?.name ||
+                                        'Template não encontrado'
+                                    }
                                 </p>
                                 <p style="margin: 0.25rem 0; color: var(--gray-600); font-size: 0.85rem;">
                                     <i class="fas fa-calendar-check"></i> Enviada em ${sentDate.toLocaleString(
-                            'pt-BR'
-                        )}
+                                        'pt-BR',
+                                    )}
                                 </p>
                             </div>
                         </div>
@@ -30816,8 +31183,9 @@ END:VCARD`;
         this.messageTemplates.forEach((template) => {
             const option = document.createElement('option');
             option.value = template.id;
-            option.textContent = `${template.name
-                } (${template.type.toUpperCase()})`;
+            option.textContent = `${
+                template.name
+            } (${template.type.toUpperCase()})`;
             templateSelect.appendChild(option);
         });
 
@@ -30945,7 +31313,7 @@ END:VCARD`;
 
         if (confirmed) {
             const index = this.scheduledMessages.findIndex(
-                (m) => m.id === messageId
+                (m) => m.id === messageId,
             );
             if (index !== -1) {
                 this.scheduledMessages.splice(index, 1);
@@ -30954,7 +31322,7 @@ END:VCARD`;
                     'delete',
                     'scheduledMessage',
                     messageId,
-                    `Cancelado: ${message.to}`
+                    `Cancelado: ${message.to}`,
                 );
                 this.renderScheduledMessages();
 
@@ -31000,7 +31368,7 @@ END:VCARD`;
 
             // Converter produtos do E-commerce para o formato do sistema
             const convertedProducts = products.map((product) =>
-                this.convertEcommerceProductToLocal(product, activePlatform)
+                this.convertEcommerceProductToLocal(product, activePlatform),
             );
 
             // Adicionar produtos ao sistema (evitar duplicatas)
@@ -31011,7 +31379,7 @@ END:VCARD`;
                 const existingIndex = this.items.findIndex(
                     (item) =>
                         item.ecommerceId === product.ecommerceId &&
-                        item.ecommercePlatform === activePlatform
+                        item.ecommercePlatform === activePlatform,
                 );
 
                 if (existingIndex !== -1) {
@@ -31039,13 +31407,13 @@ END:VCARD`;
                 'import',
                 'products',
                 'ecommerce',
-                `Importados ${addedCount} novos e ${updatedCount} atualizados de ${activePlatform}`
+                `Importados ${addedCount} novos e ${updatedCount} atualizados de ${activePlatform}`,
             );
 
             if (typeof toast !== 'undefined' && toast) {
                 toast.success(
                     `Importação concluída: ${addedCount} novos, ${updatedCount} atualizados`,
-                    5000
+                    5000,
                 );
             }
 
@@ -31059,7 +31427,7 @@ END:VCARD`;
             if (typeof toast !== 'undefined' && toast) {
                 toast.error(
                     `Erro ao importar produtos: ${error.message}`,
-                    5000
+                    5000,
                 );
             }
             throw error;
@@ -31096,7 +31464,7 @@ END:VCARD`;
         if (typeof toast !== 'undefined' && toast) {
             toast.info(
                 `Exportando ${productsToExport.length} produtos para ${activePlatform}...`,
-                3000
+                3000,
             );
         }
 
@@ -31110,7 +31478,7 @@ END:VCARD`;
                     const ecommerceProduct =
                         this.convertLocalProductToEcommerce(
                             product,
-                            activePlatform
+                            activePlatform,
                         );
                     let result;
 
@@ -31118,19 +31486,19 @@ END:VCARD`;
                         result = await this.exportToWooCommerce(
                             product,
                             ecommerceProduct,
-                            config
+                            config,
                         );
                     } else if (activePlatform === 'shopify') {
                         result = await this.exportToShopify(
                             product,
                             ecommerceProduct,
-                            config
+                            config,
                         );
                     } else if (activePlatform === 'mercadoLivre') {
                         result = await this.exportToMercadoLivre(
                             product,
                             ecommerceProduct,
-                            config
+                            config,
                         );
                     }
 
@@ -31154,19 +31522,19 @@ END:VCARD`;
                 'export',
                 'products',
                 'ecommerce',
-                `Exportados ${exportedCount} novos e ${updatedCount} atualizados para ${activePlatform}`
+                `Exportados ${exportedCount} novos e ${updatedCount} atualizados para ${activePlatform}`,
             );
 
             if (typeof toast !== 'undefined' && toast) {
                 if (errors.length > 0) {
                     toast.warning(
                         `Exportação concluída com ${errors.length} erros: ${exportedCount} novos, ${updatedCount} atualizados`,
-                        5000
+                        5000,
                     );
                 } else {
                     toast.success(
                         `Exportação concluída: ${exportedCount} novos, ${updatedCount} atualizados`,
-                        5000
+                        5000,
                     );
                 }
             }
@@ -31177,7 +31545,7 @@ END:VCARD`;
             if (typeof toast !== 'undefined' && toast) {
                 toast.error(
                     `Erro ao exportar produtos: ${error.message}`,
-                    5000
+                    5000,
                 );
             }
             throw error;
@@ -31194,7 +31562,7 @@ END:VCARD`;
     async importOrdersFromEcommerce(
         platform = null,
         startDate = null,
-        endDate = null
+        endDate = null,
     ) {
         const activePlatform = platform || this.getActiveEcommercePlatform();
         if (!activePlatform) {
@@ -31217,25 +31585,25 @@ END:VCARD`;
                 orders = await this.importWooCommerceOrders(
                     config,
                     startDate,
-                    endDate
+                    endDate,
                 );
             } else if (activePlatform === 'shopify') {
                 orders = await this.importShopifyOrders(
                     config,
                     startDate,
-                    endDate
+                    endDate,
                 );
             } else if (activePlatform === 'mercadoLivre') {
                 orders = await this.importMercadoLivreOrders(
                     config,
                     startDate,
-                    endDate
+                    endDate,
                 );
             }
 
             // Converter pedidos para o formato do sistema
             const convertedSales = orders.map((order) =>
-                this.convertEcommerceOrderToSale(order, activePlatform)
+                this.convertEcommerceOrderToSale(order, activePlatform),
             );
 
             // Adicionar vendas ao sistema
@@ -31244,7 +31612,7 @@ END:VCARD`;
                 const existingIndex = this.completedSales.findIndex(
                     (s) =>
                         s.ecommerceId === sale.ecommerceId &&
-                        s.ecommercePlatform === activePlatform
+                        s.ecommercePlatform === activePlatform,
                 );
 
                 if (existingIndex === -1) {
@@ -31263,13 +31631,13 @@ END:VCARD`;
                 'import',
                 'orders',
                 'ecommerce',
-                `Importados ${addedCount} pedidos de ${activePlatform}`
+                `Importados ${addedCount} pedidos de ${activePlatform}`,
             );
 
             if (typeof toast !== 'undefined' && toast) {
                 toast.success(
                     `Importação concluída: ${addedCount} pedidos importados`,
-                    5000
+                    5000,
                 );
             }
 
@@ -31319,7 +31687,7 @@ END:VCARD`;
                 price: parseFloat(ecommerceProduct.variants?.[0]?.price || 0),
                 cost: 0,
                 stock: parseInt(
-                    ecommerceProduct.variants?.[0]?.inventory_quantity || 0
+                    ecommerceProduct.variants?.[0]?.inventory_quantity || 0,
                 ),
                 description: ecommerceProduct.body_html || '',
                 sku: ecommerceProduct.variants?.[0]?.sku || '',
@@ -31410,8 +31778,9 @@ END:VCARD`;
                 price: parseFloat(item.price || 0),
             }));
             total = parseFloat(order.total || 0);
-            customerName = `${order.billing?.first_name || ''} ${order.billing?.last_name || ''
-                }`.trim();
+            customerName = `${order.billing?.first_name || ''} ${
+                order.billing?.last_name || ''
+            }`.trim();
             customerEmail = order.billing?.email || '';
         } else if (platform === 'shopify') {
             items = (order.line_items || []).map((item) => ({
@@ -31420,8 +31789,9 @@ END:VCARD`;
                 price: parseFloat(item.price || 0),
             }));
             total = parseFloat(order.total_price || 0);
-            customerName = `${order.customer?.first_name || ''} ${order.customer?.last_name || ''
-                }`.trim();
+            customerName = `${order.customer?.first_name || ''} ${
+                order.customer?.last_name || ''
+            }`.trim();
             customerEmail = order.customer?.email || order.email || '';
         } else if (platform === 'mercadoLivre') {
             items = [
@@ -31469,7 +31839,7 @@ END:VCARD`;
 
         if (!response.ok) {
             throw new Error(
-                `WooCommerce: ${response.status} ${response.statusText}`
+                `WooCommerce: ${response.status} ${response.statusText}`,
             );
         }
 
@@ -31487,7 +31857,7 @@ END:VCARD`;
 
         if (!response.ok) {
             throw new Error(
-                `Shopify: ${response.status} ${response.statusText}`
+                `Shopify: ${response.status} ${response.statusText}`,
             );
         }
 
@@ -31502,7 +31872,7 @@ END:VCARD`;
 
         if (!response.ok) {
             throw new Error(
-                `Mercado Livre: ${response.status} ${response.statusText}`
+                `Mercado Livre: ${response.status} ${response.statusText}`,
             );
         }
 
@@ -31522,7 +31892,7 @@ END:VCARD`;
                     console.error(`Erro ao buscar item ${itemId}:`, error);
                 }
                 return null;
-            })
+            }),
         );
 
         return products.filter((p) => p !== null);
@@ -31550,7 +31920,7 @@ END:VCARD`;
                 .json()
                 .catch(() => ({ message: response.statusText }));
             throw new Error(
-                `WooCommerce: ${error.message || response.statusText}`
+                `WooCommerce: ${error.message || response.statusText}`,
             );
         }
 
@@ -31584,8 +31954,9 @@ END:VCARD`;
                 .json()
                 .catch(() => ({ message: response.statusText }));
             throw new Error(
-                `Shopify: ${error.errors || error.message || response.statusText
-                }`
+                `Shopify: ${
+                    error.errors || error.message || response.statusText
+                }`,
             );
         }
 
@@ -31600,7 +31971,7 @@ END:VCARD`;
     async exportToMercadoLivre(product, ecommerceProduct, config) {
         // Mercado Livre requer mais configuração e autenticação OAuth
         throw new Error(
-            'Exportação para Mercado Livre requer configuração adicional de OAuth'
+            'Exportação para Mercado Livre requer configuração adicional de OAuth',
         );
     }
 
@@ -31624,7 +31995,7 @@ END:VCARD`;
 
         if (!response.ok) {
             throw new Error(
-                `WooCommerce: ${response.status} ${response.statusText}`
+                `WooCommerce: ${response.status} ${response.statusText}`,
             );
         }
 
@@ -31649,7 +32020,7 @@ END:VCARD`;
 
         if (!response.ok) {
             throw new Error(
-                `Shopify: ${response.status} ${response.statusText}`
+                `Shopify: ${response.status} ${response.statusText}`,
             );
         }
 
@@ -31676,7 +32047,7 @@ END:VCARD`;
 
         if (!response.ok) {
             throw new Error(
-                `Mercado Livre: ${response.status} ${response.statusText}`
+                `Mercado Livre: ${response.status} ${response.statusText}`,
             );
         }
 
@@ -31700,8 +32071,9 @@ END:VCARD`;
                 mercadoLivre: 'Mercado Livre',
             };
 
-            container.textContent = `Plataforma ativa: ${platformNames[activePlatform] || activePlatform
-                }`;
+            container.textContent = `Plataforma ativa: ${
+                platformNames[activePlatform] || activePlatform
+            }`;
             const parent = container.parentElement;
             if (parent) {
                 parent.style.background = '#d4edda';
@@ -31737,14 +32109,14 @@ END:VCARD`;
         // Produtos vinculados ao E-commerce
         const linkedProducts = this.items.filter(
             (item) =>
-                item.ecommerceId && item.ecommercePlatform === activePlatform
+                item.ecommerceId && item.ecommercePlatform === activePlatform,
         );
 
         if (linkedProducts.length === 0) {
             if (typeof toast !== 'undefined' && toast) {
                 toast.info(
                     'Nenhum produto vinculado ao E-commerce encontrado',
-                    3000
+                    3000,
                 );
             }
             return { synced: 0, errors: [] };
@@ -31753,7 +32125,7 @@ END:VCARD`;
         if (typeof toast !== 'undefined' && toast) {
             toast.info(
                 `Sincronizando estoque de ${linkedProducts.length} produtos...`,
-                3000
+                3000,
             );
         }
 
@@ -31768,7 +32140,7 @@ END:VCARD`;
                         const ecommerceStock = await this.getEcommerceStock(
                             product,
                             activePlatform,
-                            config
+                            config,
                         );
 
                         if (ecommerceStock !== null) {
@@ -31791,7 +32163,7 @@ END:VCARD`;
                         await this.updateEcommerceStock(
                             product,
                             activePlatform,
-                            config
+                            config,
                         );
                         syncedCount++;
                     } catch (error) {
@@ -31808,19 +32180,19 @@ END:VCARD`;
                 'sync',
                 'stock',
                 'ecommerce',
-                `Sincronizado estoque de ${syncedCount} produtos com ${activePlatform}`
+                `Sincronizado estoque de ${syncedCount} produtos com ${activePlatform}`,
             );
 
             if (typeof toast !== 'undefined' && toast) {
                 if (errors.length > 0) {
                     toast.warning(
                         `Sincronização concluída com ${errors.length} erros: ${syncedCount} produtos sincronizados`,
-                        5000
+                        5000,
                     );
                 } else {
                     toast.success(
                         `Estoque sincronizado: ${syncedCount} produtos`,
-                        5000
+                        5000,
                     );
                 }
             }
@@ -31831,7 +32203,7 @@ END:VCARD`;
             if (typeof toast !== 'undefined' && toast) {
                 toast.error(
                     `Erro ao sincronizar estoque: ${error.message}`,
-                    5000
+                    5000,
                 );
             }
             throw error;
@@ -31877,7 +32249,7 @@ END:VCARD`;
 
             const data = await response.json();
             return parseInt(
-                data.product?.variants?.[0]?.inventory_quantity || 0
+                data.product?.variants?.[0]?.inventory_quantity || 0,
             );
         } else if (platform === 'mercadoLivre') {
             const url = `https://api.mercadolivre.com/items/${product.ecommerceId}?access_token=${config.accessToken}`;
@@ -31974,20 +32346,23 @@ END:VCARD`;
             clearInterval(this.autoStockSyncInterval);
         }
 
-        this.autoStockSyncInterval = setInterval(() => {
-            const activePlatform = this.getActiveEcommercePlatform();
-            if (activePlatform) {
-                this.syncStockWithEcommerce('both').catch((error) => {
-                    console.error(
-                        'Erro na sincronização automática de estoque:',
-                        error
-                    );
-                });
-            }
-        }, intervalMinutes * 60 * 1000);
+        this.autoStockSyncInterval = setInterval(
+            () => {
+                const activePlatform = this.getActiveEcommercePlatform();
+                if (activePlatform) {
+                    this.syncStockWithEcommerce('both').catch((error) => {
+                        console.error(
+                            'Erro na sincronização automática de estoque:',
+                            error,
+                        );
+                    });
+                }
+            },
+            intervalMinutes * 60 * 1000,
+        );
 
         console.log(
-            `✅ [E-COMMERCE] Sincronização automática de estoque iniciada (a cada ${intervalMinutes} minutos)`
+            `✅ [E-COMMERCE] Sincronização automática de estoque iniciada (a cada ${intervalMinutes} minutos)`,
         );
     }
 
@@ -31999,10 +32374,34 @@ END:VCARD`;
             clearInterval(this.autoStockSyncInterval);
             this.autoStockSyncInterval = null;
             console.log(
-                '✅ [E-COMMERCE] Sincronização automática de estoque parada'
+                '✅ [E-COMMERCE] Sincronização automática de estoque parada',
             );
         }
     }
+}
+
+function atualizarResumoEstoqueMes(usuario, mes) {
+    if (!usuario || !mes) return;
+
+    const estoque = carregarEstoque(usuario, mes);
+
+    const estoqueInicial = estoque?.totalInicial || 0;
+    const movimentacoes = estoque?.movimentacoes || [];
+
+    const totalVendido = movimentacoes
+        .filter((m) => m.qtd < 0)
+        .reduce((acc, m) => acc + Math.abs(m.qtd), 0);
+
+    const estoqueDisponivel = estoqueInicial - totalVendido;
+
+    document.getElementById('resumoEstoqueInicial').textContent =
+        `${estoqueInicial} un`;
+
+    document.getElementById('resumoEstoqueVendido').textContent =
+        `${totalVendido} un`;
+
+    document.getElementById('resumoEstoqueDisponivel').textContent =
+        `${estoqueDisponivel} un`;
 }
 
 // Inicializar aplicação
@@ -32048,7 +32447,7 @@ if (
     document.readyState === 'interactive'
 ) {
     console.log(
-        '🟣 [APP.JS] DOM já está pronto, inicializando imediatamente...'
+        '🟣 [APP.JS] DOM já está pronto, inicializando imediatamente...',
     );
     setTimeout(inicializarApp, 100);
 }
