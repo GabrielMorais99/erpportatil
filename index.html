@@ -1,681 +1,828 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="pt-BR">
+    <head>
+        <meta charset="UTF-8" />
+        <meta
+            name="viewport"
+            content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+        />
+        <meta
+            name="description"
+            content="Sistema de gestão de loja de roupas - Controle de vendas e custos"
+        />
+        <meta name="theme-color" content="#000000" id="theme-color-meta" />
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta
+            name="apple-mobile-web-app-status-bar-style"
+            content="black-translucent"
+        />
+        <meta name="apple-mobile-web-app-title" content="Loja Vendas" />
+        <title>ERP Portátil</title>
+        <!-- Google Fonts - Inter (similar a Kedebideri) -->
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+        <link
+            href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
+            rel="stylesheet"
+        />
+        <!-- Versão dinâmica do sistema - CARREGAR PRIMEIRO -->
+        <script>
+            // Carregar versão ANTES de carregar CSS para garantir cache busting
+            (function () {
+                let APP_VERSION = '2025120927'; // Fallback atualizado - HARDCODED
+                let SW_VERSION = '2025120927000000'; // Fallback atualizado
 
-<head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-    <meta name="description" content="Sistema de gestão de loja de roupas - Controle de vendas e custos" />
-    <meta name="theme-color" content="#000000" id="theme-color-meta" />
-    <meta name="apple-mobile-web-app-capable" content="yes" />
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-    <meta name="apple-mobile-web-app-title" content="Loja Vendas" />
-    <title>ERP Portátil</title>
-    <!-- Google Fonts - Inter (similar a Kedebideri) -->
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
-        rel="stylesheet" />
-    <!-- Versão dinâmica do sistema - CARREGAR PRIMEIRO -->
-    <script>
-        // Carregar versão ANTES de carregar CSS para garantir cache busting
-        (function () {
-            let APP_VERSION = '2025120927'; // Fallback atualizado - HARDCODED
-            let SW_VERSION = '2025120927000000'; // Fallback atualizado
-
-            // Tentar carregar versão do arquivo version.json (com cache busting ULTRA AGRESSIVO)
-            // BYPASS TOTAL: não usar cache, sempre buscar da rede
-            const versionUrl = '/version.json?t=' + Date.now() + '&v=' + Math.random() + '&_=' + performance.now();
-            fetch(versionUrl, {
-                method: 'GET',
-                cache: 'no-store',
-                headers: {
-                    'Cache-Control': 'no-cache, no-store, must-revalidate, max-age=0',
-                    'Pragma': 'no-cache',
-                    'Expires': '0'
-                }
-            })
-                .then(res => {
-                    if (!res.ok) throw new Error('HTTP ' + res.status);
-                    // Clonar response para garantir que não está cacheado
-                    return res.clone().json();
-                })
-                .then(data => {
-                    console.log('✅ [VERSION] Versão carregada do servidor:', data.version);
-                    APP_VERSION = data.version || APP_VERSION;
-                    SW_VERSION = (data.version || '2025120927') + '000000';
-
-                    // Atualizar TODOS os links CSS com versão dinâmica
-                    const updateCSSLinks = () => {
-                        // Buscar TODOS os links CSS (incluindo preload)
-                        const allCSSLinks = document.querySelectorAll('link[rel="stylesheet"], link[rel="preload"][as="style"]');
-
-                        allCSSLinks.forEach(link => {
-                            const href = link.getAttribute('href');
-                            if (!href) return;
-
-                            // Atualizar apenas links CSS locais (não CDN)
-                            if (href.startsWith('/css/') || href.startsWith('./css/') || href.includes('/css/')) {
-                                // Remover query string antiga se existir
-                                const baseHref = href.split('?')[0];
-                                // Atualizar com nova versão
-                                link.setAttribute('href', `${baseHref}?v=${APP_VERSION}`);
-                            }
-                        });
-
-                        // Log para debug (apenas em desenvolvimento)
-                        if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
-                            console.log(`✅ [VERSION] CSS atualizados para versão: ${APP_VERSION}`);
-                        }
-                    };
-
-                    // Atualizar links CSS imediatamente
-                    updateCSSLinks();
-
-                    // Atualizar novamente após DOM estar completo (para CSS carregados dinamicamente)
-                    if (document.readyState === 'loading') {
-                        document.addEventListener('DOMContentLoaded', updateCSSLinks);
-                    } else {
-                        // DOM já está pronto, atualizar novamente após um pequeno delay
-                        setTimeout(updateCSSLinks, 100);
-                    }
-
-                    // Atualizar versão na tela de login (elemento correto)
-                    const versionEl = document.getElementById('version-display');
-                    if (versionEl) {
-                        const versionText = versionEl.querySelector('div:first-child');
-                        if (versionText) {
-                            versionText.textContent = `Versão: ${APP_VERSION}`;
-                        }
-                    }
-
-                    // Armazenar versão globalmente
-                    window.APP_VERSION = APP_VERSION;
-                    window.SW_VERSION = SW_VERSION;
-                })
-                .catch(err => {
-                    console.warn('⚠️ Não foi possível carregar version.json, usando versão padrão:', APP_VERSION);
-                    window.APP_VERSION = APP_VERSION;
-                    window.SW_VERSION = SW_VERSION;
-                });
-        })();
-    </script>
-    <!-- Preload CSS para evitar FOUC - Versão será atualizada dinamicamente -->
-    <link rel="preload" href="/css/style.css?v=2025120927" as="style" />
-    <link rel="stylesheet" href="/css/style.css?v=2025120927" />
-    <!-- Tailwind CSS (compilado) - Versão será atualizada dinamicamente -->
-    <link rel="stylesheet" href="/css/tailwind.css?v=2025120927" />
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
-    <!-- Correção específica para Chrome Android - CARREGAR PRIMEIRO -->
-    <!-- android-modal-fix.js REMOVIDO da página de login - não é necessário aqui -->
-    <!-- <script src="/js/android-modal-fix.js"></script> -->
-    <script>
-        // Kill switch temporário de SW para bust de cache na tela de login (apenas com debug=1|clearCache=1|killsw=1)
-        (function () {
-            const params = new URLSearchParams(window.location.search);
-            const killSW =
-                params.get('debug') === '1' ||
-                params.get('clearCache') === '1' ||
-                params.get('killsw') === '1';
-            if (!killSW) return;
-            try {
-                window.__disableSW = true;
-                if ('serviceWorker' in navigator) {
-                    navigator.serviceWorker
-                        .getRegistrations()
-                        .then((regs) => regs.forEach((r) => r.unregister()))
-                        .catch(() => { });
-                    const originalRegister = navigator.serviceWorker.register;
-                    navigator.serviceWorker.register = function () {
-                        console.info('[SW-KILL] Registro de SW bloqueado temporariamente (login)');
-                        return Promise.resolve({ scope: '/sw-kill-mock' });
-                    };
-                }
-                if (window.caches && caches.keys) {
-                    caches
-                        .keys()
-                        .then((keys) => Promise.all(keys.map((k) => caches.delete(k))))
-                        .catch(() => { });
-                }
-                console.log('[SW-KILL] SW desativado temporariamente (login debug/clearCache/killsw)');
-            } catch (err) {
-                console.error('[SW-KILL] Falha ao desativar SW (login)', err);
-            }
-        })();
-    </script>
-    <!-- Proteção de Código Fonte -->
-    <link rel="manifest" href="/manifest.json" />
-    <link rel="icon" type="image/jpeg" sizes="192x192" href="/images/icone-e-transicao.jpg" />
-    <link rel="apple-touch-icon" href="/images/icone-e-transicao.jpg" />
-    <!-- Estilo inline para evitar FOUC - esconde conteúdo até CSS carregar -->
-    <!--<style>
-        body {
-            visibility: hidden;
-            opacity: 0;
-        }
-
-        body.loaded {
-            visibility: visible;
-            opacity: 1;
-            transition: opacity 0.2s;
-    }-->
-    </style>
-    <script>
-        // Mostrar conteúdo quando CSS carregar
-        window.addEventListener('load', function () {
-            document.body.classList.add('loaded');
-        });
-    </script>
-    <script>
-        // Se acessar com ?test=1, guardar flag para carregar painel de testes depois do login
-        (function () {
-            const params = new URLSearchParams(window.location.search);
-            if (params.get('test') === '1') {
-                sessionStorage.setItem('enableTestPanel', '1');
-            }
-            // Propagar debug para o gerenciamento via sessionStorage
-            if (params.get('debug') === '1') {
-                sessionStorage.setItem('__modalDebug', '1');
-                sessionStorage.setItem('enableDebugPanel', '1');
-            } else if (params.get('debug') === '0') {
-                sessionStorage.removeItem('__modalDebug');
-                sessionStorage.removeItem('enableDebugPanel');
-            }
-        })();
-    </script>
-</head>
-
-<body>
-    <div class="login-container">
-        <div class="login-box">
-            <div class="logo">
-                <h1 class="text-3xl font-bold text-center mb-6 text-black">
-                    ERP Portátil
-                </h1>
-            </div>
-            <form id="loginForm" action="#" onsubmit="return false;" class="flex flex-col items-stretch">
-                <div class="form-group">
-                    <label for="username" class="block mb-2 text-sm font-medium text-gray-700">Usuário</label>
-                    <input type="text" id="username" name="username" required
-                        class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-black focus:border-black transition-all" />
-                </div>
-                <div class="form-group">
-                    <label for="password" class="block mb-2 text-sm font-medium text-gray-700">Senha</label>
-                    <input type="password" id="password" name="password" required
-                        class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-black focus:border-black transition-all" />
-                </div>
-                <div id="errorMessage" class="error-message text-red-600 text-sm mt-2 hidden"></div>
-                <button type="button" class="btn-primary w-full mt-4 bg-black text-white hover:bg-gray-900"
-                    id="entrarBtn">
-                    Entrar
-                </button>
-            </form>
-            <script>
-                // Script inline para garantir que funcione
-                // Forçar botão de login a ficar sempre preto
-                function forceLoginButtonBlack() {
-                    const entrarBtn = document.getElementById('entrarBtn');
-                    if (entrarBtn) {
-                        entrarBtn.style.setProperty(
-                            'background',
-                            '#000000',
-                            'important'
-                        );
-                        entrarBtn.style.setProperty(
-                            'background-color',
-                            '#000000',
-                            'important'
-                        );
-                        entrarBtn.style.setProperty(
-                            'background-image',
-                            'none',
-                            'important'
-                        );
-                        entrarBtn.style.setProperty(
-                            'color',
-                            '#ffffff',
-                            'important'
-                        );
-                        entrarBtn.style.setProperty(
-                            'border',
-                            'none',
-                            'important'
-                        );
-                    }
-                }
-
-                document.addEventListener('DOMContentLoaded', function () {
-                    // Forçar cor preta imediatamente
-                    forceLoginButtonBlack();
-
-                    const entrarBtn = document.getElementById('entrarBtn');
-                    const usernameInput =
-                        document.getElementById('username');
-                    const passwordInput =
-                        document.getElementById('password');
-                    const errorMessage =
-                        document.getElementById('errorMessage');
-
-                    // Observar mudanças no botão para manter cor preta
-                    if (entrarBtn) {
-                        const observer = new MutationObserver(function () {
-                            forceLoginButtonBlack();
-                        });
-                        observer.observe(entrarBtn, {
-                            attributes: true,
-                            attributeFilter: ['style', 'class'],
-                            childList: false,
-                            subtree: false,
-                        });
-                    }
-
-                    if (entrarBtn) {
-                        entrarBtn.addEventListener('click', function (e) {
-                            e.preventDefault();
-                            e.stopPropagation();
-
-                            const username = usernameInput.value.trim();
-                            const password = passwordInput.value;
-
-                            if (!username || !password) {
-                                if (errorMessage) {
-                                    errorMessage.textContent =
-                                        'Por favor, preencha todos os campos.';
-                                    errorMessage.classList.add('show');
-                                }
-                                return;
-                            }
-
-                            // Verificar credenciais
-                            const validUsers = {
-                                nilda: '123',
-                                admin: 'gab123', // Usuário administrador
-                                usuarioteste1: '123',
-                                usuarioteste2: '123',
-                                usuarioteste3: '123',
-                                usuarioteste4: '123',
-                                usuarioteste5: '123',
-                                deivson: '123',
-                                isaac: '123',
-                                vinicius: '123',
-                                paulo: '123',
-                            };
-
-                            if (
-                                validUsers[username] &&
-                                validUsers[username] === password
-                            ) {
-                                sessionStorage.setItem('loggedIn', 'true');
-                                sessionStorage.setItem(
-                                    'username',
-                                    username
-                                );
-                                console.log(
-                                    '🟡 [INDEX.HTML] Redirecionando para gerenciamento.html...'
-                                );
-
-                                // Aplicar animação de saída
-                                const loginContainer =
-                                    document.querySelector(
-                                        '.login-container'
-                                    );
-                                if (loginContainer) {
-                                    loginContainer.classList.add(
-                                        'fade-out'
-                                    );
-                                }
-
-                                // Redirecionar após animação suave de fade-out
-                                setTimeout(() => {
-                                    window.location.href =
-                                        '/gerenciamento.html';
-                                }, 600);
-
-                                // Fallback após 500ms se não redirecionou
-                                setTimeout(() => {
-                                    if (
-                                        window.location.pathname !==
-                                        '/gerenciamento.html' &&
-                                        !window.location.pathname.includes(
-                                            'gerenciamento'
-                                        )
-                                    ) {
-                                        console.log(
-                                            '🟡 [INDEX.HTML] Tentando caminho relativo...'
-                                        );
-                                        window.location.href =
-                                            'gerenciamento.html';
-                                    }
-                                }, 500);
-                            } else {
-                                if (errorMessage) {
-                                    errorMessage.textContent =
-                                        'Usuário ou senha incorretos.';
-                                    errorMessage.classList.add('show');
-                                }
-                                passwordInput.value = '';
-                            }
-                        });
-                    }
-                });
-            </script>
-            <div class="signature text-center mt-6 text-gray-600 text-sm">
-                <p>© Gabriel Dev</p>
-                <p>2025</p>
-                <div id="version-display"
-                    style="margin-top: 6px; font-weight: 600; font-size: 0.9rem; line-height: 1.4;">
-                    <div style="color: var(--primary-color);">Versão: 2025120927</div>
-                    <div id="version-details"
-                        style="font-size: 0.75rem; font-weight: 400; margin-top: 2px; opacity: 0.8; display: none;">
-                        <span id="version-commit"></span>
-                    </div>
-                </div>
-            </div>
-            <script>
-                // Atualizar versão na tela de login (com cache busting ULTRA AGRESSIVO)
-                const versionEl = document.getElementById('version-display');
-                const versionUrl2 = '/version.json?t=' + Date.now() + '&v=' + Math.random() + '&_=' + performance.now();
-                fetch(versionUrl2, {
+                // Tentar carregar versão do arquivo version.json (com cache busting ULTRA AGRESSIVO)
+                // BYPASS TOTAL: não usar cache, sempre buscar da rede
+                const versionUrl =
+                    '/version.json?t=' +
+                    Date.now() +
+                    '&v=' +
+                    Math.random() +
+                    '&_=' +
+                    performance.now();
+                fetch(versionUrl, {
                     method: 'GET',
                     cache: 'no-store',
                     headers: {
-                        'Cache-Control': 'no-cache, no-store, must-revalidate, max-age=0',
-                        'Pragma': 'no-cache',
-                        'Expires': '0'
-                    }
+                        'Cache-Control':
+                            'no-cache, no-store, must-revalidate, max-age=0',
+                        Pragma: 'no-cache',
+                        Expires: '0',
+                    },
                 })
-                    .then(res => {
+                    .then((res) => {
                         if (!res.ok) throw new Error('HTTP ' + res.status);
                         // Clonar response para garantir que não está cacheado
                         return res.clone().json();
                     })
-                    .then(data => {
-                        console.log('✅ [VERSION] Versão atualizada na tela:', data.version);
-                        const versionEl = document.getElementById('version-display');
-                        const versionDetails = document.getElementById('version-details');
-                        const versionCommit = document.getElementById('version-commit');
+                    .then((data) => {
+                        console.log(
+                            '✅ [VERSION] Versão carregada do servidor:',
+                            data.version,
+                        );
+                        APP_VERSION = data.version || APP_VERSION;
+                        SW_VERSION = (data.version || '2025120927') + '000000';
 
-                        if (versionEl) {
-                            const versionText = versionEl.querySelector('div:first-child');
-                            if (versionText) {
-                                versionText.textContent = `Versão: ${data.version}`;
-                                console.log('✅ [VERSION] Versão atualizada para:', data.version);
-                                // Forçar atualização visual
-                                versionText.style.display = 'none';
-                                setTimeout(() => {
-                                    versionText.style.display = '';
-                                }, 10);
-                            }
-                        }
+                        // Atualizar TODOS os links CSS com versão dinâmica
+                        const updateCSSLinks = () => {
+                            // Buscar TODOS os links CSS (incluindo preload)
+                            const allCSSLinks = document.querySelectorAll(
+                                'link[rel="stylesheet"], link[rel="preload"][as="style"]',
+                            );
 
-                        // Mostrar detalhes adicionais (commit, data)
-                        if (data.commit && data.commit !== 'unknown') {
-                            if (versionDetails) {
-                                versionDetails.style.display = 'block';
-                                const commitShort = data.commit.substring(0, 7);
-                                const buildInfo = data.buildDate ? ` • ${data.buildDate}` : '';
-                                if (versionCommit) {
-                                    versionCommit.textContent = `${commitShort}${buildInfo}`;
+                            allCSSLinks.forEach((link) => {
+                                const href = link.getAttribute('href');
+                                if (!href) return;
+
+                                // Atualizar apenas links CSS locais (não CDN)
+                                if (
+                                    href.startsWith('/css/') ||
+                                    href.startsWith('./css/') ||
+                                    href.includes('/css/')
+                                ) {
+                                    // Remover query string antiga se existir
+                                    const baseHref = href.split('?')[0];
+                                    // Atualizar com nova versão
+                                    link.setAttribute(
+                                        'href',
+                                        `${baseHref}?v=${APP_VERSION}`,
+                                    );
                                 }
+                            });
+
+                            // Log para debug (apenas em desenvolvimento)
+                            if (
+                                window.location.hostname === 'localhost' ||
+                                window.location.hostname === '127.0.0.1'
+                            ) {
+                                console.log(
+                                    `✅ [VERSION] CSS atualizados para versão: ${APP_VERSION}`,
+                                );
+                            }
+                        };
+
+                        // Atualizar links CSS imediatamente
+                        updateCSSLinks();
+
+                        // Atualizar novamente após DOM estar completo (para CSS carregados dinamicamente)
+                        if (document.readyState === 'loading') {
+                            document.addEventListener(
+                                'DOMContentLoaded',
+                                updateCSSLinks,
+                            );
+                        } else {
+                            // DOM já está pronto, atualizar novamente após um pequeno delay
+                            setTimeout(updateCSSLinks, 100);
+                        }
+
+                        // Atualizar versão na tela de login (elemento correto)
+                        const versionEl =
+                            document.getElementById('version-display');
+                        if (versionEl) {
+                            const versionText =
+                                versionEl.querySelector('div:first-child');
+                            if (versionText) {
+                                versionText.textContent = `Versão: ${APP_VERSION}`;
                             }
                         }
+
+                        // Armazenar versão globalmente
+                        window.APP_VERSION = APP_VERSION;
+                        window.SW_VERSION = SW_VERSION;
                     })
-                    .catch(err => {
-                        console.warn('⚠️ Erro ao carregar version.json no segundo script:', err);
-                        const versionEl = document.getElementById('version-display');
-                        if (versionEl) {
-                            const versionText = versionEl.querySelector('div:first-child');
-                            if (versionText) {
-                                // Usar fallback do primeiro script se disponível
-                                versionText.textContent = `Versão: ${window.APP_VERSION || '2025120927'}`;
-                            }
+                    .catch((err) => {
+                        console.warn(
+                            '⚠️ Não foi possível carregar version.json, usando versão padrão:',
+                            APP_VERSION,
+                        );
+                        window.APP_VERSION = APP_VERSION;
+                        window.SW_VERSION = SW_VERSION;
+                    });
+            })();
+        </script>
+        <!-- Preload CSS para evitar FOUC - Versão será atualizada dinamicamente -->
+        <link rel="preload" href="/css/style.css?v=2025120927" as="style" />
+        <link rel="stylesheet" href="/css/style.css?v=2025120927" />
+        <!-- Tailwind CSS (compilado) - Versão será atualizada dinamicamente -->
+        <link rel="stylesheet" href="/css/tailwind.css?v=2025120927" />
+        <link
+            rel="stylesheet"
+            href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+        />
+        <!-- Correção específica para Chrome Android - CARREGAR PRIMEIRO -->
+        <!-- android-modal-fix.js REMOVIDO da página de login - não é necessário aqui -->
+        <!-- <script src="/js/android-modal-fix.js"></script> -->
+        <script>
+            // Kill switch temporário de SW para bust de cache na tela de login (apenas com debug=1|clearCache=1|killsw=1)
+            (function () {
+                const params = new URLSearchParams(window.location.search);
+                const killSW =
+                    params.get('debug') === '1' ||
+                    params.get('clearCache') === '1' ||
+                    params.get('killsw') === '1';
+                if (!killSW) return;
+                try {
+                    window.__disableSW = true;
+                    if ('serviceWorker' in navigator) {
+                        navigator.serviceWorker
+                            .getRegistrations()
+                            .then((regs) => regs.forEach((r) => r.unregister()))
+                            .catch(() => {});
+                        const originalRegister =
+                            navigator.serviceWorker.register;
+                        navigator.serviceWorker.register = function () {
+                            console.info(
+                                '[SW-KILL] Registro de SW bloqueado temporariamente (login)',
+                            );
+                            return Promise.resolve({ scope: '/sw-kill-mock' });
+                        };
+                    }
+                    if (window.caches && caches.keys) {
+                        caches
+                            .keys()
+                            .then((keys) =>
+                                Promise.all(keys.map((k) => caches.delete(k))),
+                            )
+                            .catch(() => {});
+                    }
+                    console.log(
+                        '[SW-KILL] SW desativado temporariamente (login debug/clearCache/killsw)',
+                    );
+                } catch (err) {
+                    console.error(
+                        '[SW-KILL] Falha ao desativar SW (login)',
+                        err,
+                    );
+                }
+            })();
+        </script>
+        <!-- Proteção de Código Fonte -->
+        <link rel="manifest" href="/manifest.json" />
+        <link
+            rel="icon"
+            type="image/jpeg"
+            sizes="192x192"
+            href="/images/icone-e-transicao.jpg"
+        />
+        <link rel="apple-touch-icon" href="/images/icone-e-transicao.jpg" />
+        <!-- Estilo inline para evitar FOUC - esconde conteúdo até CSS carregar -->
+        <style>
+            body {
+                visibility: hidden;
+                opacity: 0;
+            }
+
+            body.loaded {
+                visibility: visible;
+                opacity: 1;
+                transition: opacity 0.2s;
+            }
+        </style>
+        <script>
+            // Mostrar conteúdo quando CSS carregar
+            window.addEventListener('load', function () {
+                document.body.classList.add('loaded');
+            });
+        </script>
+        <script>
+            // Se acessar com ?test=1, guardar flag para carregar painel de testes depois do login
+            (function () {
+                const params = new URLSearchParams(window.location.search);
+                if (params.get('test') === '1') {
+                    sessionStorage.setItem('enableTestPanel', '1');
+                }
+                // Propagar debug para o gerenciamento via sessionStorage
+                if (params.get('debug') === '1') {
+                    sessionStorage.setItem('__modalDebug', '1');
+                    sessionStorage.setItem('enableDebugPanel', '1');
+                } else if (params.get('debug') === '0') {
+                    sessionStorage.removeItem('__modalDebug');
+                    sessionStorage.removeItem('enableDebugPanel');
+                }
+            })();
+        </script>
+    </head>
+
+    <body>
+        <div class="login-container">
+            <div class="login-box">
+                <div class="logo">
+                    <h1 class="text-3xl font-bold text-center mb-6 text-black">
+                        ERP Portátil
+                    </h1>
+                </div>
+                <form
+                    id="loginForm"
+                    action="#"
+                    onsubmit="return false;"
+                    class="flex flex-col items-stretch"
+                >
+                    <div class="form-group">
+                        <label
+                            for="username"
+                            class="block mb-2 text-sm font-medium text-gray-700"
+                            >Usuário</label
+                        >
+                        <input
+                            type="text"
+                            id="username"
+                            name="username"
+                            required
+                            class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-black focus:border-black transition-all"
+                        />
+                    </div>
+                    <div class="form-group">
+                        <label
+                            for="password"
+                            class="block mb-2 text-sm font-medium text-gray-700"
+                            >Senha</label
+                        >
+                        <input
+                            type="password"
+                            id="password"
+                            name="password"
+                            required
+                            class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-black focus:border-black transition-all"
+                        />
+                    </div>
+                    <div
+                        id="errorMessage"
+                        class="error-message text-red-600 text-sm mt-2 hidden"
+                    ></div>
+                    <button
+                        type="button"
+                        class="btn-primary w-full mt-4 bg-black text-white hover:bg-gray-900"
+                        id="entrarBtn"
+                    >
+                        Entrar
+                    </button>
+                </form>
+                <script>
+                    // Script inline para garantir que funcione
+                    // Forçar botão de login a ficar sempre preto
+                    function forceLoginButtonBlack() {
+                        const entrarBtn = document.getElementById('entrarBtn');
+                        if (entrarBtn) {
+                            entrarBtn.style.setProperty(
+                                'background',
+                                '#000000',
+                                'important',
+                            );
+                            entrarBtn.style.setProperty(
+                                'background-color',
+                                '#000000',
+                                'important',
+                            );
+                            entrarBtn.style.setProperty(
+                                'background-image',
+                                'none',
+                                'important',
+                            );
+                            entrarBtn.style.setProperty(
+                                'color',
+                                '#ffffff',
+                                'important',
+                            );
+                            entrarBtn.style.setProperty(
+                                'border',
+                                'none',
+                                'important',
+                            );
+                        }
+                    }
+
+                    document.addEventListener('DOMContentLoaded', function () {
+                        // Forçar cor preta imediatamente
+                        forceLoginButtonBlack();
+
+                        const entrarBtn = document.getElementById('entrarBtn');
+                        const usernameInput =
+                            document.getElementById('username');
+                        const passwordInput =
+                            document.getElementById('password');
+                        const errorMessage =
+                            document.getElementById('errorMessage');
+
+                        // Observar mudanças no botão para manter cor preta
+                        if (entrarBtn) {
+                            const observer = new MutationObserver(function () {
+                                forceLoginButtonBlack();
+                            });
+                            observer.observe(entrarBtn, {
+                                attributes: true,
+                                attributeFilter: ['style', 'class'],
+                                childList: false,
+                                subtree: false,
+                            });
+                        }
+
+                        if (entrarBtn) {
+                            entrarBtn.addEventListener('click', function (e) {
+                                e.preventDefault();
+                                e.stopPropagation();
+
+                                const username = usernameInput.value.trim();
+                                const password = passwordInput.value;
+
+                                if (!username || !password) {
+                                    if (errorMessage) {
+                                        errorMessage.textContent =
+                                            'Por favor, preencha todos os campos.';
+                                        errorMessage.classList.add('show');
+                                    }
+                                    return;
+                                }
+
+                                // Verificar credenciais
+                                const validUsers = {
+                                    nilda: '123',
+                                    admin: 'gab123', // Usuário administrador
+                                    usuarioteste1: '123',
+                                    usuarioteste2: '123',
+                                    usuarioteste3: '123',
+                                    usuarioteste4: '123',
+                                    usuarioteste5: '123',
+                                    deivson: '123',
+                                    isaac: '123',
+                                    vinicius: '123',
+                                    paulo: '123',
+                                };
+
+                                if (
+                                    validUsers[username] &&
+                                    validUsers[username] === password
+                                ) {
+                                    sessionStorage.setItem('loggedIn', 'true');
+                                    sessionStorage.setItem(
+                                        'username',
+                                        username,
+                                    );
+                                    console.log(
+                                        '🟡 [INDEX.HTML] Redirecionando para gerenciamento.html...',
+                                    );
+
+                                    // Aplicar animação de saída
+                                    const loginContainer =
+                                        document.querySelector(
+                                            '.login-container',
+                                        );
+                                    if (loginContainer) {
+                                        loginContainer.classList.add(
+                                            'fade-out',
+                                        );
+                                    }
+
+                                    // Redirecionar após animação suave de fade-out
+                                    setTimeout(() => {
+                                        window.location.href =
+                                            '/gerenciamento.html';
+                                    }, 600);
+
+                                    // Fallback após 500ms se não redirecionou
+                                    setTimeout(() => {
+                                        if (
+                                            window.location.pathname !==
+                                                '/gerenciamento.html' &&
+                                            !window.location.pathname.includes(
+                                                'gerenciamento',
+                                            )
+                                        ) {
+                                            console.log(
+                                                '🟡 [INDEX.HTML] Tentando caminho relativo...',
+                                            );
+                                            window.location.href =
+                                                'gerenciamento.html';
+                                        }
+                                    }, 500);
+                                } else {
+                                    if (errorMessage) {
+                                        errorMessage.textContent =
+                                            'Usuário ou senha incorretos.';
+                                        errorMessage.classList.add('show');
+                                    }
+                                    passwordInput.value = '';
+                                }
+                            });
                         }
                     });
-            </script>
+                </script>
+                <div class="signature text-center mt-6 text-gray-600 text-sm">
+                    <p>© Gabriel Dev</p>
+                    <p>2025</p>
+                    <div
+                        id="version-display"
+                        style="
+                            margin-top: 6px;
+                            font-weight: 600;
+                            font-size: 0.9rem;
+                            line-height: 1.4;
+                        "
+                    >
+                        <div style="color: var(--primary-color)">
+                            Versão: 2025120927
+                        </div>
+                        <div
+                            id="version-details"
+                            style="
+                                font-size: 0.75rem;
+                                font-weight: 400;
+                                margin-top: 2px;
+                                opacity: 0.8;
+                                display: none;
+                            "
+                        >
+                            <span id="version-commit"></span>
+                        </div>
+                    </div>
+                </div>
+                <script>
+                    // Atualizar versão na tela de login (com cache busting ULTRA AGRESSIVO)
+                    const versionEl =
+                        document.getElementById('version-display');
+                    const versionUrl2 =
+                        '/version.json?t=' +
+                        Date.now() +
+                        '&v=' +
+                        Math.random() +
+                        '&_=' +
+                        performance.now();
+                    fetch(versionUrl2, {
+                        method: 'GET',
+                        cache: 'no-store',
+                        headers: {
+                            'Cache-Control':
+                                'no-cache, no-store, must-revalidate, max-age=0',
+                            Pragma: 'no-cache',
+                            Expires: '0',
+                        },
+                    })
+                        .then((res) => {
+                            if (!res.ok) throw new Error('HTTP ' + res.status);
+                            // Clonar response para garantir que não está cacheado
+                            return res.clone().json();
+                        })
+                        .then((data) => {
+                            console.log(
+                                '✅ [VERSION] Versão atualizada na tela:',
+                                data.version,
+                            );
+                            const versionEl =
+                                document.getElementById('version-display');
+                            const versionDetails =
+                                document.getElementById('version-details');
+                            const versionCommit =
+                                document.getElementById('version-commit');
+
+                            if (versionEl) {
+                                const versionText =
+                                    versionEl.querySelector('div:first-child');
+                                if (versionText) {
+                                    versionText.textContent = `Versão: ${data.version}`;
+                                    console.log(
+                                        '✅ [VERSION] Versão atualizada para:',
+                                        data.version,
+                                    );
+                                    // Forçar atualização visual
+                                    versionText.style.display = 'none';
+                                    setTimeout(() => {
+                                        versionText.style.display = '';
+                                    }, 10);
+                                }
+                            }
+
+                            // Mostrar detalhes adicionais (commit, data)
+                            if (data.commit && data.commit !== 'unknown') {
+                                if (versionDetails) {
+                                    versionDetails.style.display = 'block';
+                                    const commitShort = data.commit.substring(
+                                        0,
+                                        7,
+                                    );
+                                    const buildInfo = data.buildDate
+                                        ? ` • ${data.buildDate}`
+                                        : '';
+                                    if (versionCommit) {
+                                        versionCommit.textContent = `${commitShort}${buildInfo}`;
+                                    }
+                                }
+                            }
+                        })
+                        .catch((err) => {
+                            console.warn(
+                                '⚠️ Erro ao carregar version.json no segundo script:',
+                                err,
+                            );
+                            const versionEl =
+                                document.getElementById('version-display');
+                            if (versionEl) {
+                                const versionText =
+                                    versionEl.querySelector('div:first-child');
+                                if (versionText) {
+                                    // Usar fallback do primeiro script se disponível
+                                    versionText.textContent = `Versão: ${window.APP_VERSION || '2025120927'}`;
+                                }
+                            }
+                        });
+                </script>
+            </div>
         </div>
-    </div>
-    <script>
-        // Carregar tema salvo
-        (function () {
-            function updateThemeColor(color) {
+        <script>
+            // Carregar tema salvo
+            (function () {
+                function updateThemeColor(color) {
+                    const metaThemeColor =
+                        document.getElementById('theme-color-meta');
+                    if (metaThemeColor) {
+                        metaThemeColor.setAttribute('content', color);
+                    }
+                }
+
+                // Na tela de login, SEMPRE usar preto, independente do tema salvo
+                // Forçar preto e não permitir mudanças
+                updateThemeColor('#000000');
+
+                // Garantir que o theme-color permaneça preto mesmo se houver tentativa de mudança
                 const metaThemeColor =
                     document.getElementById('theme-color-meta');
                 if (metaThemeColor) {
-                    metaThemeColor.setAttribute('content', color);
-                }
-            }
-
-            // Na tela de login, SEMPRE usar preto, independente do tema salvo
-            // Forçar preto e não permitir mudanças
-            updateThemeColor('#000000');
-
-            // Garantir que o theme-color permaneça preto mesmo se houver tentativa de mudança
-            const metaThemeColor =
-                document.getElementById('theme-color-meta');
-            if (metaThemeColor) {
-                // Observar mudanças e forçar de volta para preto
-                const observer = new MutationObserver(function (mutations) {
-                    if (
-                        metaThemeColor.getAttribute('content') !== '#000000'
-                    ) {
-                        metaThemeColor.setAttribute('content', '#000000');
-                    }
-                });
-                observer.observe(metaThemeColor, {
-                    attributes: true,
-                    attributeFilter: ['content'],
-                });
-            }
-
-            // Na tela de login, não carregar tema (sempre usar padrão)
-            // O tema será carregado após o login na página de gerenciamento
-        })();
-    </script>
-    <!-- Script Loader Inline - Carrega arquivos ofuscados em produção -->
-    <script>
-        // ScriptLoader - Carrega scripts de /js/ (dev) e /dist/js/ (produção)
-        const ScriptLoader = (function () {
-            'use strict';
-            const config = {
-                isProduction: !['localhost', '127.0.0.1', ''].includes(
-                    window.location.hostname.split(':')[0]
-                ),
-                paths: { development: '/js/', production: '/dist/js/' },
-                obfuscatedFiles: [
-                    'app.js',
-                    'login.js',
-                    'skeleton-manager.js',
-                ],
-                loadedScripts: new Set(),
-                debug: false,
-            };
-
-            function log(...args) {
-                if (config.debug) console.log('🔧 [ScriptLoader]', ...args);
-            }
-
-            function getPath(filename) {
-                return (
-                    (config.isProduction
-                        ? config.paths.production
-                        : config.paths.development) + filename
-                );
-            }
-
-            function loadScript(filename, onSuccess, onError) {
-                if (config.loadedScripts.has(filename)) {
-                    if (onSuccess) onSuccess();
-                    return;
+                    // Observar mudanças e forçar de volta para preto
+                    const observer = new MutationObserver(function (mutations) {
+                        if (
+                            metaThemeColor.getAttribute('content') !== '#000000'
+                        ) {
+                            metaThemeColor.setAttribute('content', '#000000');
+                        }
+                    });
+                    observer.observe(metaThemeColor, {
+                        attributes: true,
+                        attributeFilter: ['content'],
+                    });
                 }
 
-                const path = getPath(filename);
-                const fullUrl = path + '?v=' + Date.now();
-                log('Carregando:', fullUrl);
-
-                const script = document.createElement('script');
-                script.src = fullUrl;
-                script.async = false;
-
-                script.onload = function () {
-                    config.loadedScripts.add(filename);
-                    log('✅ Carregado:', filename);
-                    if (onSuccess) onSuccess();
+                // Na tela de login, não carregar tema (sempre usar padrão)
+                // O tema será carregado após o login na página de gerenciamento
+            })();
+        </script>
+        <!-- Script Loader Inline - Carrega arquivos ofuscados em produção -->
+        <script>
+            // ScriptLoader - Carrega scripts de /js/ (dev) e /dist/js/ (produção)
+            const ScriptLoader = (function () {
+                'use strict';
+                const config = {
+                    isProduction: !['localhost', '127.0.0.1', ''].includes(
+                        window.location.hostname.split(':')[0],
+                    ),
+                    paths: { development: '/js/', production: '/dist/js/' },
+                    obfuscatedFiles: [
+                        'app.js',
+                        'login.js',
+                        'skeleton-manager.js',
+                    ],
+                    loadedScripts: new Set(),
+                    debug: false,
                 };
 
-                script.onerror = function (e) {
-                    console.error(
-                        '❌ [ScriptLoader] Falha ao carregar:',
-                        path
+                function log(...args) {
+                    if (config.debug) console.log('🔧 [ScriptLoader]', ...args);
+                }
+
+                function getPath(filename) {
+                    return (
+                        (config.isProduction
+                            ? config.paths.production
+                            : config.paths.development) + filename
                     );
-                    if (onError) onError(e);
-                };
-
-                document.head.appendChild(script);
-            }
-
-            return {
-                load: function (filename, onSuccess, onError) {
-                    loadScript(filename, onSuccess, onError);
-                },
-                isProduction: function () {
-                    return config.isProduction;
-                },
-                getInfo: function () {
-                    return {
-                        isProduction: config.isProduction,
-                        hostname: window.location.hostname,
-                    };
-                },
-            };
-        })();
-
-        console.log(
-            '🔐 [INDEX.HTML] Ambiente:',
-            ScriptLoader.isProduction()
-                ? 'PRODUÇÃO (ofuscado)'
-                : 'DESENVOLVIMENTO'
-        );
-
-        ScriptLoader.load(
-            'login.js',
-            function () {
-                console.log(
-                    '✅ [INDEX.HTML] login.js carregado com sucesso!'
-                );
-            },
-            function (error) {
-                console.error(
-                    '❌ [INDEX.HTML] Falha ao carregar login.js:',
-                    error
-                );
-            }
-        );
-    </script>
-    <script>
-        // Registrar Service Worker para PWA (com versão dinâmica)
-        if ('serviceWorker' in navigator) {
-            let SW_VERSION = '2025120927000000'; // Fallback atualizado
-            // Carregar versão do arquivo version.json (com cache busting)
-            fetch('/version.json?t=' + Date.now() + '&v=' + Math.random(), {
-                cache: 'no-store',
-                headers: {
-                    'Cache-Control': 'no-cache, no-store, must-revalidate',
-                    'Pragma': 'no-cache'
                 }
-            })
-                .then(res => {
-                    if (!res.ok) {
-                        throw new Error(`HTTP ${res.status}`);
+
+                function loadScript(filename, onSuccess, onError) {
+                    if (config.loadedScripts.has(filename)) {
+                        if (onSuccess) onSuccess();
+                        return;
                     }
-                    return res.json();
-                })
-                .then(data => {
-                    SW_VERSION = (data.version || '2025120927') + '000000'; // Formato: YYYYMMDDHHMMSS
-                    registerServiceWorker();
-                })
-                .catch(err => {
-                    console.warn('⚠️ Não foi possível carregar version.json para SW, usando versão padrão:', err.message);
-                    registerServiceWorker();
-                });
 
-            function registerServiceWorker() {
-                window.addEventListener('load', async () => {
-                    try {
-                        // FORÇAR LIMPEZA TOTAL DE TODOS OS SERVICE WORKERS E CACHES
-                        const registrations =
-                            await navigator.serviceWorker.getRegistrations();
+                    const path = getPath(filename);
+                    const fullUrl = path + '?v=' + Date.now();
+                    log('Carregando:', fullUrl);
 
-                        // Desregistrar TODOS os Service Workers antigos
-                        await Promise.all(
-                            registrations.map((reg) => {
-                                console.log('[SW] Desregistrando SW antigo:', reg.scope);
-                                return reg.unregister();
-                            })
+                    const script = document.createElement('script');
+                    script.src = fullUrl;
+                    script.async = false;
+
+                    script.onload = function () {
+                        config.loadedScripts.add(filename);
+                        log('✅ Carregado:', filename);
+                        if (onSuccess) onSuccess();
+                    };
+
+                    script.onerror = function (e) {
+                        console.error(
+                            '❌ [ScriptLoader] Falha ao carregar:',
+                            path,
                         );
+                        if (onError) onError(e);
+                    };
 
-                        // Limpar TODOS os caches
-                        if ('caches' in window) {
-                            const cacheNames = await caches.keys();
+                    document.head.appendChild(script);
+                }
+
+                return {
+                    load: function (filename, onSuccess, onError) {
+                        loadScript(filename, onSuccess, onError);
+                    },
+                    isProduction: function () {
+                        return config.isProduction;
+                    },
+                    getInfo: function () {
+                        return {
+                            isProduction: config.isProduction,
+                            hostname: window.location.hostname,
+                        };
+                    },
+                };
+            })();
+
+            console.log(
+                '🔐 [INDEX.HTML] Ambiente:',
+                ScriptLoader.isProduction()
+                    ? 'PRODUÇÃO (ofuscado)'
+                    : 'DESENVOLVIMENTO',
+            );
+
+            ScriptLoader.load(
+                'login.js',
+                function () {
+                    console.log(
+                        '✅ [INDEX.HTML] login.js carregado com sucesso!',
+                    );
+                },
+                function (error) {
+                    console.error(
+                        '❌ [INDEX.HTML] Falha ao carregar login.js:',
+                        error,
+                    );
+                },
+            );
+        </script>
+        <script>
+            // Registrar Service Worker para PWA (com versão dinâmica)
+            if ('serviceWorker' in navigator) {
+                let SW_VERSION = '2025120927000000'; // Fallback atualizado
+                // Carregar versão do arquivo version.json (com cache busting)
+                fetch('/version.json?t=' + Date.now() + '&v=' + Math.random(), {
+                    cache: 'no-store',
+                    headers: {
+                        'Cache-Control': 'no-cache, no-store, must-revalidate',
+                        Pragma: 'no-cache',
+                    },
+                })
+                    .then((res) => {
+                        if (!res.ok) {
+                            throw new Error(`HTTP ${res.status}`);
+                        }
+                        return res.json();
+                    })
+                    .then((data) => {
+                        SW_VERSION = (data.version || '2025120927') + '000000'; // Formato: YYYYMMDDHHMMSS
+                        registerServiceWorker();
+                    })
+                    .catch((err) => {
+                        console.warn(
+                            '⚠️ Não foi possível carregar version.json para SW, usando versão padrão:',
+                            err.message,
+                        );
+                        registerServiceWorker();
+                    });
+
+                function registerServiceWorker() {
+                    window.addEventListener('load', async () => {
+                        try {
+                            // FORÇAR LIMPEZA TOTAL DE TODOS OS SERVICE WORKERS E CACHES
+                            const registrations =
+                                await navigator.serviceWorker.getRegistrations();
+
+                            // Desregistrar TODOS os Service Workers antigos
                             await Promise.all(
-                                cacheNames.map((cacheName) => {
-                                    console.log('[SW] Removendo cache:', cacheName);
-                                    return caches.delete(cacheName);
+                                registrations.map((reg) => {
+                                    console.log(
+                                        '[SW] Desregistrando SW antigo:',
+                                        reg.scope,
+                                    );
+                                    return reg.unregister();
+                                }),
+                            );
+
+                            // Limpar TODOS os caches
+                            if ('caches' in window) {
+                                const cacheNames = await caches.keys();
+                                await Promise.all(
+                                    cacheNames.map((cacheName) => {
+                                        console.log(
+                                            '[SW] Removendo cache:',
+                                            cacheName,
+                                        );
+                                        return caches.delete(cacheName);
+                                    }),
+                                );
+                            }
+
+                            // Aguardar um pouco antes de registrar novo SW para garantir limpeza
+                            await new Promise((resolve) =>
+                                setTimeout(resolve, 100),
+                            );
+
+                            navigator.serviceWorker
+                                .register(
+                                    `/sw.js?v=${SW_VERSION}&t=${Date.now()}`,
+                                    { scope: '/' },
+                                )
+                                .then((registration) => {
+                                    console.log(
+                                        '✅ [PWA] Service Worker registrado:',
+                                        registration.scope,
+                                        'Versão:',
+                                        SW_VERSION,
+                                    );
+
+                                    // Verificar atualizações (sem reload automático para evitar loop)
+                                    registration.addEventListener(
+                                        'updatefound',
+                                        () => {
+                                            const newWorker =
+                                                registration.installing;
+                                            newWorker.addEventListener(
+                                                'statechange',
+                                                () => {
+                                                    if (
+                                                        newWorker.state ===
+                                                            'installed' &&
+                                                        navigator.serviceWorker
+                                                            .controller
+                                                    ) {
+                                                        console.log(
+                                                            '🔄 [PWA] Nova versão disponível - atualize manualmente (Ctrl+Shift+R)',
+                                                        );
+                                                    }
+                                                },
+                                            );
+                                        },
+                                    );
                                 })
+                                .catch((error) => {
+                                    console.error(
+                                        '❌ [PWA] Erro ao registrar Service Worker:',
+                                        error,
+                                    );
+                                });
+                        } catch (error) {
+                            console.error(
+                                '❌ [PWA] Erro ao gerenciar Service Workers:',
+                                error,
                             );
                         }
-
-                        // Aguardar um pouco antes de registrar novo SW para garantir limpeza
-                        await new Promise(resolve => setTimeout(resolve, 100));
-
-                        navigator.serviceWorker
-                            .register(`/sw.js?v=${SW_VERSION}&t=${Date.now()}`, { scope: '/' })
-                            .then((registration) => {
-                                console.log(
-                                    '✅ [PWA] Service Worker registrado:',
-                                    registration.scope,
-                                    'Versão:',
-                                    SW_VERSION
-                                );
-
-                                // Verificar atualizações (sem reload automático para evitar loop)
-                                registration.addEventListener(
-                                    'updatefound',
-                                    () => {
-                                        const newWorker =
-                                            registration.installing;
-                                        newWorker.addEventListener(
-                                            'statechange',
-                                            () => {
-                                                if (
-                                                    newWorker.state ===
-                                                    'installed' &&
-                                                    navigator.serviceWorker
-                                                        .controller
-                                                ) {
-                                                    console.log(
-                                                        '🔄 [PWA] Nova versão disponível - atualize manualmente (Ctrl+Shift+R)'
-                                                    );
-                                                }
-                                            }
-                                        );
-                                    }
-                                );
-                            })
-                            .catch((error) => {
-                                console.error(
-                                    '❌ [PWA] Erro ao registrar Service Worker:',
-                                    error
-                                );
-                            });
-                    } catch (error) {
-                        console.error(
-                            '❌ [PWA] Erro ao gerenciar Service Workers:',
-                            error
-                        );
-                    }
-                });
+                    });
+                }
             }
-        }
-    </script>
-</body>
-
+        </script>
+    </body>
 </html>
