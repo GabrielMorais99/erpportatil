@@ -1,10 +1,10 @@
 {
-  "version": "2026012521",
-  "buildDate": "2026-01-25",
-  "buildTime": "21:03:55",
-  "commit": "26de216",
-  "branch": "main",
-  "commitMessage": "fix: corrigir piscar do layout no gerenciamento.html",
-  "description": "ERP Portátil - Sistema de Gestão Financeira",
-  "updatedAt": "2025-12-27T00:03:55.499Z"
+    "version": "4.5.2",
+    "buildDate": "2026-01-30",
+    "buildTime": "21:03:55",
+    "commit": "26de216",
+    "branch": "main",
+    "commitMessage": "fix: corrigir piscar do layout no gerenciamento.html",
+    "description": "ERP Portátil - Sistema de Gestão Financeira",
+    "updatedAt": "2025-12-27T00:03:55.499Z"
 }
