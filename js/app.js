@@ -191,28 +191,6 @@ class ToastSystem {
     // ===============================
     abrirMovimentacoesEstoque(mes) {}
 
-    // ===============================
-    // ESTOQUE → CÁLCULO DIÁRIO
-    // ===============================
-    calcularEstoquePorDia(estoque) {
-        if (!estoque || !estoque.movimentacoes) return {};
-
-        let saldo = estoque.totalInicial;
-        const resultado = {};
-
-        // Ordenar movimentações por data
-        const movsOrdenadas = [...estoque.movimentacoes].sort((a, b) =>
-            a.data.localeCompare(b.data),
-        );
-
-        movsOrdenadas.forEach((mov) => {
-            saldo += mov.qtd;
-            resultado[mov.data] = saldo;
-        });
-
-        return resultado;
-    }
-
     createToast(message, type) {
         const toast = document.createElement('div');
         toast.className = `toast toast-${type}`;
@@ -3263,42 +3241,21 @@ class LojaApp {
 
         // Modal de estoque
         const manageStockBtn = document.getElementById('manageStockBtn');
-        const saveStockBtn = document.getElementById('saveStockBtn');
-        const cancelStockBtn = document.getElementById('cancelStockBtn');
         const stockModalClose = document.querySelector('#stockModal .close');
-        const stockDay = document.getElementById('stockDay');
 
         if (manageStockBtn) {
-            manageStockBtn.addEventListener('click', () =>
-                this.openStockModal(),
-            );
+            manageStockBtn.addEventListener('click', () => {
+                const mes = document.getElementById('mesSelecionado')?.value;
+                abrirModalEstoqueMes(mes);
+            });
             console.log('✅ [APP.JS] Listener anexado ao manageStockBtn');
         }
 
-        if (saveStockBtn) {
-            saveStockBtn.addEventListener('click', () => this.saveStock());
-            console.log('✅ [APP.JS] Listener anexado ao saveStockBtn');
-        }
-
-        if (cancelStockBtn) {
-            cancelStockBtn.addEventListener('click', () =>
-                this.closeStockModal(),
-            );
-            console.log('✅ [APP.JS] Listener anexado ao cancelStockBtn');
-        }
-
         if (stockModalClose) {
-            stockModalClose.addEventListener('click', () =>
-                this.closeStockModal(),
-            );
+            stockModalClose.addEventListener('click', () => {
+                closeModalSafely(document.getElementById('stockModal'));
+            });
             console.log('✅ [APP.JS] Listener anexado ao stockModal .close');
-        }
-
-        if (stockDay) {
-            stockDay.addEventListener('change', () =>
-                this.updateStockItemsList(),
-            );
-            console.log('✅ [APP.JS] Listener anexado ao stockDay');
         }
 
         // Atualizar estoque disponível ao selecionar item no modal de venda
@@ -15754,295 +15711,6 @@ class LojaApp {
     }
 
     // ========== GERENCIAMENTO DE ESTOQUE ==========
-
-    openStockModal() {
-        if (!this.currentGroup) {
-            alert('Por favor, abra um grupo mensal primeiro.');
-            return;
-        }
-
-        const modal = document.getElementById('stockModal');
-        const [year, month] = this.currentGroup.month.split('-');
-        const monthNames = [
-            'Janeiro',
-            'Fevereiro',
-            'Março',
-            'Abril',
-            'Maio',
-            'Junho',
-            'Julho',
-            'Agosto',
-            'Setembro',
-            'Outubro',
-            'Novembro',
-            'Dezembro',
-        ];
-
-        document.getElementById('stockModalTitle').textContent =
-            `Gerenciar Estoque do Mês - ${
-                monthNames[parseInt(month) - 1]
-            } ${year}`;
-
-        // Definir dia padrão como 1
-        document.getElementById('stockDay').value = 1;
-        this.updateStockItemsList();
-
-        modal.classList.add('active');
-    }
-
-    closeStockModal() {
-        document.getElementById('stockModal').classList.remove('active');
-    }
-
-    updateStockItemsList() {
-        if (!this.currentGroup) return;
-
-        const day = parseInt(document.getElementById('stockDay').value);
-        if (!day || day < 1 || day > 31) {
-            document.getElementById('stockItemsList').innerHTML =
-                '<p style="text-align: center; color: var(--gray); padding: 1rem;">Selecione um dia válido.</p>';
-            return;
-        }
-
-        const dayData = this.currentGroup.days.find((d) => d.day === day);
-        if (!dayData) {
-            document.getElementById('stockItemsList').innerHTML =
-                '<p style="text-align: center; color: var(--gray); padding: 1rem;">Dia não encontrado.</p>';
-            return;
-        }
-
-        // Garantir que stock existe
-        if (!dayData.stock) {
-            dayData.stock = {};
-        }
-
-        const stockItemsList = document.getElementById('stockItemsList');
-
-        if (this.items.length === 0) {
-            stockItemsList.innerHTML =
-                '<p style="text-align: center; color: var(--gray); padding: 1rem;">Nenhum item cadastrado.</p>';
-            return;
-        }
-
-        // Filtrar apenas produtos físicos (excluir serviços)
-        const physicalItems = this.items.filter(
-            (item) => item.category !== 'Serviços',
-        );
-
-        if (physicalItems.length === 0) {
-            stockItemsList.innerHTML =
-                '<p style="text-align: center; color: var(--gray); padding: 1rem;">Nenhum produto físico cadastrado.</p>';
-            return;
-        }
-
-        // Separar roupas e eletrônicos de outros produtos
-        const itemsWithVariations = physicalItems.filter(
-            (item) =>
-                item.category === 'Roupas' || item.category === 'Eletrônicos',
-        );
-        const otherItems = physicalItems.filter(
-            (item) =>
-                item.category !== 'Roupas' && item.category !== 'Eletrônicos',
-        );
-
-        let html = '';
-
-        // Processar roupas e eletrônicos (com controle por tamanho e cor)
-        if (itemsWithVariations.length > 0) {
-            itemsWithVariations.forEach((item) => {
-                // Coletar todas as combinações únicas de tamanho e cor que têm estoque ou vendas
-                const variations = new Map(); // Map<"size_color", {size, color}>
-
-                // Adicionar variações do estoque
-                Object.keys(dayData.stock).forEach((key) => {
-                    if (key.startsWith(item.id + '_')) {
-                        // Extrair tamanho e cor da chave
-                        const parts = key
-                            .substring(item.id.length + 1)
-                            .split('_');
-                        const size = parts[0] || '';
-                        const color = parts[1] || '';
-                        const variationKey = `${size}|||${color}`;
-                        if (!variations.has(variationKey)) {
-                            variations.set(variationKey, { size, color });
-                        }
-                    } else if (key === item.id) {
-                        // Estoque antigo sem tamanho/cor - manter compatibilidade
-                        variations.set('|||', { size: '', color: '' });
-                    }
-                });
-
-                // Adicionar variações das vendas
-                dayData.sales
-                    .filter((sale) => sale.itemId === item.id)
-                    .forEach((sale) => {
-                        const size = sale.size || '';
-                        const color = sale.color || '';
-                        const variationKey = `${size}|||${color}`;
-                        if (!variations.has(variationKey)) {
-                            variations.set(variationKey, { size, color });
-                        }
-                    });
-
-                // Se não houver variações, adicionar um campo vazio para permitir cadastro
-                if (variations.size === 0) {
-                    variations.set('|||', { size: '', color: '' });
-                }
-
-                // Criar entrada para cada variação (tamanho + cor)
-                variations.forEach((variation, variationKey) => {
-                    const { size, color } = variation;
-                    const stockKey = this.getStockKey(item.id, size, color);
-                    const stockQuantity = dayData.stock[stockKey] || 0;
-                    const soldQuantity = dayData.sales
-                        .filter((sale) => {
-                            const saleSize = sale.size || '';
-                            const saleColor = sale.color || '';
-                            const saleStockKey = this.getStockKey(
-                                sale.itemId,
-                                saleSize,
-                                saleColor,
-                            );
-                            return saleStockKey === stockKey;
-                        })
-                        .reduce((sum, sale) => sum + sale.quantity, 0);
-                    const availableStock = stockQuantity - soldQuantity;
-                    const sizeLabel = size || '(sem tamanho)';
-                    const colorLabel = color || '(sem cor)';
-
-                    html += `
-                    <div class="stock-variation-item">
-                        <div class="stock-variation-info">
-                            <div class="stock-variation-name">${this.escapeHtml(
-                                item.name || item.model || item.brand,
-                            )}${
-                                item.brand
-                                    ? ' - ' + this.escapeHtml(item.brand)
-                                    : ''
-                            }</div>
-                            <div class="stock-variation-details">
-                                Tamanho: ${this.escapeHtml(sizeLabel)}${
-                                    color
-                                        ? ` | Cor: ${this.escapeHtml(colorLabel)}`
-                                        : ''
-                                }
-                            </div>
-                            <div class="stock-variation-stats">
-                                Estoque: ${stockQuantity} un. | Vendido: ${soldQuantity} un. | Disponível: ${availableStock} un.
-                            </div>
-                        </div>
-                        <div class="stock-inputs-group">
-                            <input 
-                                type="text" 
-                                id="stock_size_${item.id}_${variationKey}" 
-                                class="stock-input"
-                                value="${this.escapeHtml(size)}" 
-                                placeholder="Tamanho"
-                            />
-                            <input 
-                                type="text" 
-                                id="stock_color_${item.id}_${variationKey}" 
-                                class="stock-input"
-                                value="${this.escapeHtml(color)}" 
-                                placeholder="Cor"
-                            />
-                            <input 
-                                type="number" 
-                                id="stock_${stockKey}" 
-                                class="stock-input"
-                                value="${stockQuantity}" 
-                                min="0" 
-                                placeholder="0"
-                            />
-                            <span class="stock-unit-label">un.</span>
-                        </div>
-                    </div>
-                    `;
-                });
-            });
-        }
-
-        // Processar outros produtos (sem controle por tamanho/cor)
-        otherItems.forEach((item) => {
-            const stockKey = this.getStockKey(item.id, '', '');
-            const stockQuantity = dayData.stock[stockKey] || 0;
-            const soldQuantity = dayData.sales
-                .filter((sale) => sale.itemId === item.id)
-                .reduce((sum, sale) => sum + sale.quantity, 0);
-            const availableStock = stockQuantity - soldQuantity;
-
-            html += `
-            <div style="display: flex; justify-content: space-between; align-items: center; padding: 1rem; background: white; margin-bottom: 0.5rem; border-radius: 5px; border: 1px solid var(--border-color);">
-                <div style="flex: 1;">
-                    <strong>${this.escapeHtml(
-                        item.name || item.model || 'Item',
-                    )}</strong>${
-                        item.brand ? ' - ' + this.escapeHtml(item.brand) : ''
-                    }
-                    <div style="font-size: 0.85rem; color: var(--gray); margin-top: 0.25rem;">
-                        Estoque: ${stockQuantity} un. | Vendido: ${soldQuantity} un. | Disponível: ${availableStock} un.
-                    </div>
-                </div>
-                <div style="display: flex; align-items: center; gap: 0.5rem;">
-                    <input 
-                        type="number" 
-                        id="stock_${stockKey}" 
-                        value="${stockQuantity}" 
-                        min="0" 
-                        style="width: 80px; padding: 0.5rem; border: 2px solid var(--border-color); border-radius: 5px;"
-                        placeholder="0"
-                    />
-                    <span style="font-size: 0.9rem; color: var(--gray);">un.</span>
-                </div>
-            </div>
-            `;
-        });
-
-        stockItemsList.innerHTML = html;
-    }
-
-    saveStock() {
-        if (!this.currentGroup) return;
-
-        const day = parseInt(document.getElementById('stockDay').value);
-        if (!day || day < 1 || day > 31) {
-            alert('Por favor, selecione um dia válido.');
-            return;
-        }
-
-        const dayData = this.currentGroup.days.find((d) => d.day === day);
-        if (!dayData) {
-            alert('Dia não encontrado.');
-            return;
-        }
-
-        // Garantir que stock existe
-        if (!dayData.stock) {
-            dayData.stock = {};
-        }
-
-        // Salvar estoque - percorrer todos os inputs de estoque (excluir inputs de tamanho e cor)
-        const stockInputs = document.querySelectorAll(
-            'input[id^="stock_"]:not([id^="stock_size_"]):not([id^="stock_color_"])',
-        );
-        stockInputs.forEach((input) => {
-            const stockKey = input.id.replace('stock_', '');
-            const quantity = parseInt(input.value) || 0;
-            if (quantity >= 0) {
-                dayData.stock[stockKey] = quantity;
-            } else if (quantity === 0) {
-                // Remover estoque zero (opcional - pode manter se quiser)
-                // delete dayData.stock[stockKey];
-                dayData.stock[stockKey] = 0;
-            }
-        });
-
-        this.saveData();
-        this.updateStockItemsList();
-        this.renderGroupView(this.currentGroup);
-
-        alert('Estoque salvo com sucesso!');
-    }
 
     closeViewGroupModal() {
         console.log('🔧 [CLOSE VIEW GROUP] Fechando viewGroupModal');
@@ -32380,6 +32048,26 @@ END:VCARD`;
     }
 }
 
+function carregarEstoque(usuario, mes) {
+    if (!window.app) return null;
+    return window.app.carregarEstoque(usuario, mes);
+}
+
+function salvarEstoque(usuario, mes, estoque) {
+    if (!window.app) return;
+    window.app.salvarEstoque(usuario, mes, estoque);
+}
+
+function openModalSafely(modalElement) {
+    if (!window.app) return;
+    window.app.openModalSafely(modalElement);
+}
+
+function closeModalSafely(modalElement) {
+    if (!window.app) return;
+    window.app.closeModalSafely(modalElement);
+}
+
 function atualizarResumoEstoqueMes(usuario, mes) {
     if (!usuario || !mes) return;
 
@@ -32402,6 +32090,42 @@ function atualizarResumoEstoqueMes(usuario, mes) {
 
     document.getElementById('resumoEstoqueDisponivel').textContent =
         `${estoqueDisponivel} un`;
+}
+
+function abrirModalEstoqueMes(mes) {
+  const usuario = sessionStorage.getItem('username');
+  if (!usuario || !mes) return;
+
+  const estoque = carregarEstoque(usuario, mes);
+
+  document.getElementById('stockModalTitle').textContent =
+    `Ajustar Estoque do Mês – ${mes}`;
+
+  document.getElementById('estoqueMesModal').value =
+    estoque?.totalInicial ?? 0;
+
+  openModalSafely(document.getElementById('stockModal'));
+}
+
+function salvarEstoqueMensal() {
+  const usuario = sessionStorage.getItem('username');
+  const mes = document.getElementById('mesSelecionado')?.value;
+  const valor = Number(document.getElementById('estoqueMesModal').value);
+
+  if (!usuario || !mes || isNaN(valor)) return;
+
+  const estoque = carregarEstoque(usuario, mes) || {
+    totalInicial: 0,
+    movimentacoes: []
+  };
+
+  estoque.totalInicial = valor;
+
+  salvarEstoque(usuario, mes, estoque);
+
+  atualizarResumoEstoqueMes(usuario, mes);
+
+  closeModalSafely(document.getElementById('stockModal'));
 }
 
 // Inicializar aplicação
