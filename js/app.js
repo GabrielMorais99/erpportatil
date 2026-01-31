@@ -1644,6 +1644,18 @@ class LojaApp {
         });
 
         mesSelect.addEventListener('change', () => {
+            atualizarEstadoEstoqueInput();
+
+            const usuario = sessionStorage.getItem('username');
+            const mes = document.getElementById('mesSelecionado').value;
+
+            if (usuario && mes) {
+                const estoque = carregarEstoque(usuario, mes);
+                document.getElementById('estoqueMes').value =
+                    estoque?.totalInicial ?? '';
+                atualizarResumoEstoqueMes(usuario, mes);
+            }
+
             this.carregarEstoqueDoMesSelecionado();
         });
     }
@@ -32092,6 +32104,21 @@ function atualizarResumoEstoqueMes(usuario, mes) {
         `${estoqueDisponivel} un`;
 }
 
+function atualizarEstadoEstoqueInput() {
+  const mes = document.getElementById('mesSelecionado')?.value;
+  const input = document.getElementById('estoqueMes');
+
+  if (!input) return;
+
+  input.disabled = !mes;
+  if (!mes) input.value = '';
+}
+
+function normalizarMes(valor) {
+  if (/^\d{4}-\d{2}$/.test(valor)) return valor;
+  return valor;
+}
+
 function abrirModalEstoqueMes(mes) {
   const usuario = sessionStorage.getItem('username');
   if (!usuario || !mes) return;
@@ -32122,6 +32149,9 @@ function salvarEstoqueMensal() {
   estoque.totalInicial = valor;
 
   salvarEstoque(usuario, mes, estoque);
+
+  const estoqueInput = document.getElementById('estoqueMes');
+  if (estoqueInput) estoqueInput.value = valor;
 
   atualizarResumoEstoqueMes(usuario, mes);
 
