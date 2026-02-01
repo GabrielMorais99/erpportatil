@@ -749,6 +749,21 @@
                                 <input type="number" id="estoqueMes" min="0" placeholder="Ex: 100"
                                     class="search-input-with-icon" />
                             </div>
+                            <div class="form-group" style="min-width: 220px;">
+                                <label>Entrada adicional de estoque (por dia)</label>
+                                <input type="date" id="estoqueEntradaDia" class="search-input-with-icon" />
+                            </div>
+                            <div class="form-group" style="min-width: 160px;">
+                                <label for="estoqueEntradaQuantidade">Quantidade</label>
+                                <input type="number" id="estoqueEntradaQuantidade" min="1" placeholder="Ex: 10"
+                                    class="search-input-with-icon" />
+                            </div>
+                            <div class="form-group" style="min-width: 200px;">
+                                <label style="opacity: 0">Ações</label>
+                                <button class="btn-secondary" type="button" onclick="adicionarEntradaEstoque()">
+                                    Adicionar Entrada de Estoque
+                                </button>
+                            </div>
 
                             <!-- RESUMO DO ESTOQUE DO MÊS -->
                             <div id="resumoEstoqueMes" class="estoque-resumo-card mobile-sticky">
@@ -774,31 +789,10 @@
                                 </div>
 
                                 <div class="estoque-resumo-acoes">
-                                    <button class="btn-secondary" onclick="
-                                                abrirMovimentacoesEstoque(
-                                                    document.getElementById(
-                                                        'mesSelecionado',
-                                                    ).value,
-                                                )
-                                            ">
-                                        ↔ Movimentações
-                                    </button>
+                                    <div id="movimentacoesAviso" style="text-align: center; opacity: 0.8;">
+                                        Nenhuma movimentação registrada para este mês.
+                                    </div>
                                 </div>
-                            </div>
-
-                            <!-- 🔹 NOVO BOTÃO -->
-                            <div class="form-group">
-                                <label style="opacity: 0">Ações</label>
-                                <button class="btn-secondary" onclick="
-                                            abrirMovimentacoesEstoque(
-                                                document.getElementById(
-                                                    'mesSelecionado',
-                                                ).value,
-                                            )
-                                        ">
-                                    <i class="fas fa-exchange-alt"></i>
-                                    Movimentações
-                                </button>
                             </div>
                         </div>
                         <div class="panel-filters" style="
@@ -3508,34 +3502,6 @@
                     </button>
                 </div>
             </form>
-        </div>
-    </div>
-
-    <!-- Modal: Gerenciar Estoque do Mês -->
-    <div id="stockModal" class="modal">
-        <div class="modal-content large">
-            <div class="modal-header">
-                <h2 id="stockModalTitle">Ajustar Estoque do Mês</h2>
-                <span class="close" aria-label="Fechar modal" role="button" tabindex="0">&times;</span>
-            </div>
-            <div class="stock-content">
-                <div class="form-group">
-                    <label for="estoqueMesModal">Estoque inicial do mês</label>
-                    <input type="number" id="estoqueMesModal" min="0" placeholder="Ex: 100" />
-                    <small style="opacity: 0.7;">
-                        Esse valor define o estoque base do mês selecionado.
-                    </small>
-                </div>
-            </div>
-
-            <div class="modal-footer">
-                <button class="btn-secondary close-modal">
-                    Cancelar
-                </button>
-                <button class="btn-primary" onclick="salvarEstoqueMensal()">
-                    Salvar
-                </button>
-            </div>
         </div>
     </div>
 
@@ -6665,11 +6631,6 @@
                     label: 'Abrir Como usar',
                     run: () =>
                         app?.openTutorialModal && app.openTutorialModal(),
-                },
-                {
-                    id: 'stock-modal',
-                    label: 'Controle de estoque',
-                    run: () => app?.openStockModal && app.openStockModal(),
                 },
                 {
                     id: 'export-modal',

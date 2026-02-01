@@ -186,11 +186,6 @@ class ToastSystem {
         const dados = localStorage.getItem(getEstoqueKey(usuario, mes));
         return dados ? JSON.parse(dados) : null;
     }
-    // ===============================
-    // MOVIMENTAÇÕES DE ESTOQUE (VISUAL)
-    // ===============================
-    abrirMovimentacoesEstoque(mes) { }
-
     createToast(message, type) {
         const toast = document.createElement('div');
         toast.className = `toast toast-${type}`;
@@ -1615,6 +1610,31 @@ class LojaApp {
 
         // Atualizar audit log também
         this.renderAuditLog();
+    }
+    carregarEstoqueDoMesSelecionado() {
+        const usuario = sessionStorage.getItem('username');
+        const mesSelect = document.getElementById('mesSelecionado');
+        const estoqueInput = document.getElementById('estoqueMes');
+
+        if (!usuario || !mesSelect || !estoqueInput) {
+            console.warn('⚠️ Usuário, mês ou input de estoque não encontrado');
+            return;
+        }
+
+        const mes = mesSelect.value;
+        if (!mes) return;
+
+        const estoque = carregarEstoque(usuario, mes);
+
+        if (estoque) {
+            // Preencher estoque mensal
+            estoqueInput.value = estoque.totalInicial;
+            console.log('📦 Estoque carregado para o mês:', mes, estoque);
+        } else {
+            // Limpar quando não existir estoque
+            estoqueInput.value = '';
+            console.log('ℹ️ Nenhum estoque encontrado para o mês:', mes);
+        }
     }
     initEstoqueMes() {
         const estoqueInput = document.getElementById('estoqueMes');
@@ -3242,25 +3262,6 @@ class LojaApp {
                 this.closeGoalModal(),
             );
             console.log('✅ [APP.JS] Listener anexado ao goalModal .close');
-        }
-
-        // Modal de estoque
-        const manageStockBtn = document.getElementById('manageStockBtn');
-        const stockModalClose = document.querySelector('#stockModal .close');
-
-        if (manageStockBtn) {
-            manageStockBtn.addEventListener('click', () => {
-                const mes = document.getElementById('mesSelecionado')?.value;
-                abrirModalEstoqueMes(mes);
-            });
-            console.log('✅ [APP.JS] Listener anexado ao manageStockBtn');
-        }
-
-        if (stockModalClose) {
-            stockModalClose.addEventListener('click', () => {
-                closeModalSafely(document.getElementById('stockModal'));
-            });
-            console.log('✅ [APP.JS] Listener anexado ao stockModal .close');
         }
 
         // Atualizar estoque disponível ao selecionar item no modal de venda
@@ -8933,8 +8934,8 @@ class LojaApp {
                         return `<option value="${this.escapeHtml(
                             client.name,
                         )}">${this.escapeHtml(client.name)}${client.phone
-                                ? ` - ${this.escapeHtml(client.phone)}`
-                                : ''
+                            ? ` - ${this.escapeHtml(client.phone)}`
+                            : ''
                             }</option>`;
                     })
                     .join('');
@@ -9266,14 +9267,14 @@ class LojaApp {
                             <strong>${this.escapeHtml(
                         item ? item.name : 'Item não encontrado',
                     )}</strong>${sale.size || sale.color
-                            ? ` <span style="color: var(--primary-color); font-weight: 600;">(${sale.size
-                                ? `Tamanho: ${this.escapeHtml(sale.size)}`
-                                : ''
-                            }${sale.size && sale.color ? ', ' : ''}${sale.color
-                                ? `Cor: ${this.escapeHtml(sale.color)}`
-                                : ''
-                            })</span>`
+                        ? ` <span style="color: var(--primary-color); font-weight: 600;">(${sale.size
+                            ? `Tamanho: ${this.escapeHtml(sale.size)}`
                             : ''
+                        }${sale.size && sale.color ? ', ' : ''}${sale.color
+                            ? `Cor: ${this.escapeHtml(sale.color)}`
+                            : ''
+                        })</span>`
+                        : ''
                         }<br>
                             <small style="color: var(--gray);">${sale.quantity
                         } un. × R$ ${sale.price
@@ -9759,8 +9760,8 @@ class LojaApp {
                     `Sua compra de R$ ${totalValue
                         .toFixed(2)
                         .replace('.', ',')} foi registrada com sucesso!${loyaltyPointsUsed > 0
-                        ? ` Você usou ${loyaltyPointsUsed} ponto(s) de fidelidade.`
-                        : ''
+                            ? ` Você usou ${loyaltyPointsUsed} ponto(s) de fidelidade.`
+                            : ''
                     }`,
                     'success',
                 );
@@ -23788,10 +23789,10 @@ class LojaApp {
         const trendDetailsEl = document.getElementById('salesTrendDetails');
         if (trendDetailsEl && trend.strength) {
             trendDetailsEl.innerHTML = `Força: <strong>${trend.strength === 'strong'
-                    ? 'Forte'
-                    : trend.strength === 'moderate'
-                        ? 'Moderada'
-                        : 'Fraca'
+                ? 'Forte'
+                : trend.strength === 'moderate'
+                    ? 'Moderada'
+                    : 'Fraca'
                 }</strong> (R²=${trend.rSquared})`;
             trendDetailsEl.style.display = 'block';
         }
@@ -31760,13 +31761,23 @@ END:VCARD`;
 }
 
 function carregarEstoque(usuario, mes) {
-    if (!window.app) return null;
-    return window.app.carregarEstoque(usuario, mes);
+    if (toast && typeof toast.carregarEstoque === 'function') {
+        return toast.carregarEstoque(usuario, mes);
+    }
+    if (window.app && typeof window.app.carregarEstoque === 'function') {
+        return window.app.carregarEstoque(usuario, mes);
+    }
+    return null;
 }
 
 function salvarEstoque(usuario, mes, estoque) {
-    if (!window.app) return;
-    window.app.salvarEstoque(usuario, mes, estoque);
+    if (toast && typeof toast.salvarEstoque === 'function') {
+        toast.salvarEstoque(usuario, mes, estoque);
+        return;
+    }
+    if (window.app && typeof window.app.salvarEstoque === 'function') {
+        window.app.salvarEstoque(usuario, mes, estoque);
+    }
 }
 
 function openModalSafely(modalElement) {
@@ -31801,6 +31812,49 @@ function atualizarResumoEstoqueMes(usuario, mes) {
 
     document.getElementById('resumoEstoqueDisponivel').textContent =
         `${estoqueDisponivel} un`;
+
+    const movimentacoesAviso = document.getElementById('movimentacoesAviso');
+    if (movimentacoesAviso) {
+        if (movimentacoes.length === 0) {
+            movimentacoesAviso.textContent =
+                'Nenhuma movimentação registrada para este mês.';
+            movimentacoesAviso.style.display = 'block';
+        } else {
+            movimentacoesAviso.textContent = '';
+            movimentacoesAviso.style.display = 'none';
+        }
+    }
+}
+
+function adicionarEntradaEstoque() {
+    const usuario = sessionStorage.getItem('username');
+    const mes = document.getElementById('mesSelecionado')?.value;
+    const diaInput = document.getElementById('estoqueEntradaDia');
+    const quantidadeInput = document.getElementById('estoqueEntradaQuantidade');
+
+    if (!usuario || !mes || !diaInput || !quantidadeInput) return;
+
+    const data = diaInput.value;
+    const quantidade = Number(quantidadeInput.value);
+
+    if (!data || !data.startsWith(mes) || !quantidade || quantidade <= 0) {
+        return;
+    }
+
+    const estoque = carregarEstoque(usuario, mes) || {
+        totalInicial: 0,
+        movimentacoes: [],
+    };
+
+    estoque.movimentacoes = estoque.movimentacoes || [];
+    estoque.movimentacoes.push({
+        tipo: 'entrada',
+        qtd: Math.abs(quantidade),
+        data,
+    });
+
+    salvarEstoque(usuario, mes, estoque);
+    atualizarResumoEstoqueMes(usuario, mes);
 }
 
 function atualizarEstadoEstoqueInput() {
@@ -31816,45 +31870,6 @@ function atualizarEstadoEstoqueInput() {
 function normalizarMes(valor) {
     if (/^\d{4}-\d{2}$/.test(valor)) return valor;
     return valor;
-}
-
-function abrirModalEstoqueMes(mes) {
-    const usuario = sessionStorage.getItem('username');
-    if (!usuario || !mes) return;
-
-    const estoque = carregarEstoque(usuario, mes);
-
-    document.getElementById('stockModalTitle').textContent =
-        `Ajustar Estoque do Mês – ${mes}`;
-
-    document.getElementById('estoqueMesModal').value =
-        estoque?.totalInicial ?? 0;
-
-    openModalSafely(document.getElementById('stockModal'));
-}
-
-function salvarEstoqueMensal() {
-    const usuario = sessionStorage.getItem('username');
-    const mes = document.getElementById('mesSelecionado')?.value;
-    const valor = Number(document.getElementById('estoqueMesModal').value);
-
-    if (!usuario || !mes || isNaN(valor)) return;
-
-    const estoque = carregarEstoque(usuario, mes) || {
-        totalInicial: 0,
-        movimentacoes: []
-    };
-
-    estoque.totalInicial = valor;
-
-    salvarEstoque(usuario, mes, estoque);
-
-    const estoqueInput = document.getElementById('estoqueMes');
-    if (estoqueInput) estoqueInput.value = valor;
-
-    atualizarResumoEstoqueMes(usuario, mes);
-
-    closeModalSafely(document.getElementById('stockModal'));
 }
 
 // Inicializar aplicação

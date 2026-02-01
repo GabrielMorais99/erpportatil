@@ -263,7 +263,6 @@
         
         // Forçar repaint
         forceRepaint();
-    };
     
         // MutationObserver para detectar quando modais são abertos/fechados
         const observer = new MutationObserver((mutations) => {
