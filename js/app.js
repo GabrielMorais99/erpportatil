@@ -752,6 +752,7 @@ class LojaApp {
         this.currentSaleDay = null;
         this.currentEditingCost = null;
         this.currentEditingGoal = null;
+        this.modalStack = [];
         this.currentQRScanner = null; // Scanner de QR code
         this.advancedSearchQRScanner = null; // Scanner QR para busca avançada
         this.currentEditingPendingOrder = null; // Pedido pendente sendo editado
@@ -1776,12 +1777,12 @@ class LojaApp {
                 true,
             );
 
-            // Listener global para ESC - fechar qualquer modal ativo
+            // Listener global para ESC - fechar apenas o modal do topo
             document.addEventListener('keydown', (e) => {
                 if (e.key === 'Escape') {
-                    const activeModal = document.querySelector('.modal.active');
-                    if (activeModal) {
-                        this.closeModalSafely(activeModal);
+                    const topModal = this.getTopModalFromStack();
+                    if (topModal) {
+                        this.closeModalSafely(topModal);
                     }
                 }
             });
@@ -3570,6 +3571,13 @@ class LojaApp {
 
         // Adicionar classe active
         modalElement.classList.add('active');
+
+        this.pushModalToStack(modalElement);
+        this.updateModalStackZIndexes();
+
+        // Garantir foco no modal mais recente
+        modalElement.setAttribute('tabindex', '-1');
+        modalElement.focus({ preventScroll: true });
     }
 
     /**
@@ -3579,13 +3587,17 @@ class LojaApp {
      */
     closeModalSafely(modalElement) {
         if (!modalElement) return;
+        if (typeof modalElement === 'string') {
+            modalElement = document.getElementById(modalElement);
+            if (!modalElement) return;
+        }
 
         // Detectar se é Android Chrome
         const isAndroidChrome =
             /Android/i.test(navigator.userAgent) &&
             /Chrome/i.test(navigator.userAgent);
 
-        // VERIFICAR SE É O ÚLTIMO MODAL ANTES DE REMOVER (para mostrar FAB)
+        // Verificar se é o último modal antes de remover (para mostrar FAB)
         const allActiveModals = document.querySelectorAll('.modal.active');
         const isLastModal =
             allActiveModals.length === 1 && allActiveModals[0] === modalElement;
@@ -3686,29 +3698,8 @@ class LojaApp {
             );
         }
 
-        // LIMPAR TODOS OS OUTROS MODAIS TAMBÉM (caso algum esteja "preso")
-        document.querySelectorAll('.modal.active').forEach((modal) => {
-            if (modal !== modalElement) {
-                modal.classList.remove('active');
-                modal.style.setProperty('pointer-events', 'none', 'important');
-                modal.style.setProperty(
-                    'backdrop-filter',
-                    'blur(0px)',
-                    'important',
-                );
-                modal.style.setProperty(
-                    '-webkit-backdrop-filter',
-                    'blur(0px)',
-                    'important',
-                );
-                modal.style.setProperty(
-                    'background',
-                    'rgba(0, 0, 0, 0)',
-                    'important',
-                );
-                modal.style.setProperty('display', 'none', 'important');
-            }
-        });
+        this.removeModalFromStack(modalElement);
+        this.updateModalStackZIndexes();
 
         // Se era o último modal, mostrar FAB novamente após um pequeno delay
         if (isLastModal) {
@@ -3774,6 +3765,41 @@ class LojaApp {
         if (form) {
             form.reset();
         }
+    }
+
+    pushModalToStack(modalElement) {
+        if (!modalElement) return;
+        if (!this.modalStack.includes(modalElement)) {
+            this.modalStack.push(modalElement);
+        }
+    }
+
+    removeModalFromStack(modalElement) {
+        if (!modalElement) return;
+        this.modalStack = this.modalStack.filter((m) => m !== modalElement);
+    }
+
+    getTopModalFromStack() {
+        if (!this.modalStack.length) return null;
+        const top = this.modalStack[this.modalStack.length - 1];
+        return top && top.classList.contains('active') ? top : null;
+    }
+
+    updateModalStackZIndexes() {
+        const baseZ = 10000;
+        this.modalStack.forEach((modal, index) => {
+            if (!modal || !modal.classList.contains('active')) return;
+            const zIndex = baseZ + index * 10;
+            modal.style.setProperty('z-index', String(zIndex), 'important');
+            const modalContent = modal.querySelector('.modal-content');
+            if (modalContent) {
+                modalContent.style.setProperty(
+                    'z-index',
+                    String(zIndex + 1),
+                    'important',
+                );
+            }
+        });
     }
 
     saveItem(e) {

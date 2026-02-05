@@ -303,12 +303,10 @@ body.theme-blue {
 body.theme-blue .login-container {
     background-image:
         url('/images/background-financial.svg'),
-        linear-gradient(
-            to bottom,
+        linear-gradient(to bottom,
             rgba(0, 0, 0, 0.1) 0%,
             rgba(0, 0, 0, 0.2) 50%,
-            rgba(0, 0, 0, 0.3) 100%
-        );
+            rgba(0, 0, 0, 0.3) 100%);
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
@@ -521,11 +519,9 @@ body:not(.dark-mode) .main-content {
    ======================================== */
 
 .header {
-    background: linear-gradient(
-        135deg,
-        var(--primary-color) 0%,
-        var(--primary-color-dark) 100%
-    );
+    background: linear-gradient(135deg,
+            var(--primary-color) 0%,
+            var(--primary-color-dark) 100%);
     color: var(--white);
     padding: 1.25rem 2rem;
     display: flex;
@@ -543,12 +539,10 @@ body:not(.dark-mode) .main-content {
     left: 0;
     right: 0;
     bottom: 0;
-    background: linear-gradient(
-        135deg,
-        rgba(255, 255, 255, 0.1) 0%,
-        rgba(255, 255, 255, 0) 50%,
-        rgba(0, 0, 0, 0.05) 100%
-    );
+    background: linear-gradient(135deg,
+            rgba(255, 255, 255, 0.1) 0%,
+            rgba(255, 255, 255, 0) 50%,
+            rgba(0, 0, 0, 0.05) 100%);
     pointer-events: none;
 }
 
@@ -576,11 +570,9 @@ body:not(.dark-mode) .main-content {
 
 .btn-primary {
     padding: 0.65rem 1.5rem;
-    background: linear-gradient(
-        135deg,
-        var(--primary-color) 0%,
-        var(--primary-color-dark) 100%
-    );
+    background: linear-gradient(135deg,
+            var(--primary-color) 0%,
+            var(--primary-color-dark) 100%);
     color: var(--white);
     border: none;
     border-radius: var(--radius-md);
@@ -604,10 +596,10 @@ body:not(.dark-mode) .main-content {
 }
 
 /* Garantir espaçamento do ícone dentro do btn-primary */
-.btn-primary > i,
-.btn-primary > .fas,
-.btn-primary > .far,
-.btn-primary > .fab {
+.btn-primary>i,
+.btn-primary>.fas,
+.btn-primary>.far,
+.btn-primary>.fab {
     flex-shrink: 0;
     font-size: 1em;
 }
@@ -754,12 +746,10 @@ body.theme-blue .login-container #entrarBtn:focus {
     left: -100%;
     width: 100%;
     height: 100%;
-    background: linear-gradient(
-        90deg,
-        transparent,
-        rgba(255, 255, 255, 0.2),
-        transparent
-    );
+    background: linear-gradient(90deg,
+            transparent,
+            rgba(255, 255, 255, 0.2),
+            transparent);
     transition: left 0.5s;
 }
 
@@ -853,10 +843,10 @@ body.theme-blue .login-container #entrarBtn:focus {
 }
 
 /* Garantir espaçamento do ícone dentro do btn-secondary */
-.btn-secondary > i,
-.btn-secondary > .fas,
-.btn-secondary > .far,
-.btn-secondary > .fab {
+.btn-secondary>i,
+.btn-secondary>.fas,
+.btn-secondary>.far,
+.btn-secondary>.fab {
     flex-shrink: 0;
     font-size: 1em;
 }
@@ -1439,7 +1429,7 @@ body.theme-blue .login-container #entrarBtn:focus {
     line-height: 1.6;
 }
 
-.group-info > div {
+.group-info>div {
     margin-bottom: 0.5rem;
 }
 
@@ -1448,13 +1438,13 @@ body.theme-blue .login-container #entrarBtn:focus {
     font-weight: 600;
 }
 
-.group-info > div:last-child {
+.group-info>div:last-child {
     margin-top: 0.75rem;
     padding-top: 0.75rem;
     border-top: 1px solid var(--gray-200);
 }
 
-.group-info > div:last-child > div {
+.group-info>div:last-child>div {
     margin-bottom: 0.4rem;
     font-size: 0.85rem;
 }
@@ -1608,7 +1598,7 @@ body.theme-blue .login-container #entrarBtn:focus {
     border-top: 1px solid var(--gray-200);
 }
 
-.stock-section > div {
+.stock-section>div {
     margin-bottom: 0.4rem;
     font-size: 0.85rem;
 }
@@ -1742,11 +1732,9 @@ body.theme-blue .login-container #entrarBtn:focus {
         height: 44px !important;
         padding: 0 !important;
         flex: 0 0 44px !important;
-        background: linear-gradient(
-            135deg,
-            var(--primary-color) 0%,
-            var(--primary-color-dark) 100%
-        ) !important;
+        background: linear-gradient(135deg,
+                var(--primary-color) 0%,
+                var(--primary-color-dark) 100%) !important;
     }
 
     .item-actions-row .btn-edit i,
@@ -2222,7 +2210,7 @@ body.theme-blue .login-container #entrarBtn:focus {
     text-align: center;
 }
 
-.days-container > div:first-child {
+.days-container>div:first-child {
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -2267,7 +2255,7 @@ body.theme-blue .login-container #entrarBtn:focus {
 }
 
 /* Botão de gerenciar estoque centralizado */
-#viewGroupModal .days-container > div:first-child {
+#viewGroupModal .days-container>div:first-child {
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -2662,13 +2650,12 @@ body.theme-blue .login-container #entrarBtn:focus {
     align-items: center;
     padding: 1.5rem 2rem;
     border-bottom: 1px solid var(--gray-200);
-    background: linear-gradient(
-        135deg,
-        var(--primary-color) 0%,
-        var(--primary-color-dark) 100%
-    );
+    background: linear-gradient(135deg,
+            var(--primary-color) 0%,
+            var(--primary-color-dark) 100%);
     color: var(--white);
     border-radius: var(--radius-xl) var(--radius-xl) 0 0;
+    position: relative;
 }
 
 .modal-header h2 {
@@ -2677,9 +2664,10 @@ body.theme-blue .login-container #entrarBtn:focus {
     font-size: var(--text-xl);
     font-weight: var(--font-bold);
     letter-spacing: var(--tracking-tight);
+    padding-right: 2.5rem;
 }
 
-.close {
+.modal-header .close {
     color: var(--white);
     font-size: 2rem;
     font-weight: 300;
@@ -2694,11 +2682,13 @@ body.theme-blue .login-container #entrarBtn:focus {
     border-radius: 50%;
     /* Garantir que o botão de fechar sempre seja clicável */
     pointer-events: auto !important;
-    position: relative;
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
     z-index: 1001 !important;
 }
 
-.close:hover {
+.modal-header .close:hover {
     background: rgba(255, 255, 255, 0.1);
     transform: rotate(90deg);
 }
@@ -2957,6 +2947,7 @@ body.theme-blue .login-container #entrarBtn:focus {
    ======================================== */
 
 @media (max-width: 768px) {
+
     /* Prevenir overflow horizontal em mobile */
     body,
     html {
@@ -3466,7 +3457,7 @@ body.theme-blue .login-container #entrarBtn:focus {
         margin-bottom: 0.6rem;
     }
 
-    .group-info > div,
+    .group-info>div,
     .cost-info,
     .goal-info {
         margin-bottom: 0.35rem;
@@ -3653,11 +3644,9 @@ body.theme-blue .login-container #entrarBtn:focus {
     position: absolute;
     top: 0.75rem;
     right: 0.75rem;
-    background: linear-gradient(
-        135deg,
-        var(--primary-color) 0%,
-        var(--primary-color-dark) 100%
-    );
+    background: linear-gradient(135deg,
+            var(--primary-color) 0%,
+            var(--primary-color-dark) 100%);
     color: var(--white);
     padding: 0.4rem 0.875rem;
     border-radius: 20px;
@@ -3703,11 +3692,9 @@ body.theme-blue .login-container #entrarBtn:focus {
 }
 
 .btn-edit {
-    background: linear-gradient(
-        135deg,
-        var(--primary-color) 0%,
-        var(--primary-color-dark) 100%
-    );
+    background: linear-gradient(135deg,
+            var(--primary-color) 0%,
+            var(--primary-color-dark) 100%);
     color: var(--white);
 }
 
@@ -3820,12 +3807,10 @@ body.theme-blue .login-container #entrarBtn:focus {
     background-color: #000000;
     background-image:
         url('/images/background-financial.svg'),
-        linear-gradient(
-            to bottom,
+        linear-gradient(to bottom,
             rgba(0, 0, 0, 0.1) 0%,
             rgba(0, 0, 0, 0.2) 50%,
-            rgba(0, 0, 0, 0.3) 100%
-        );
+            rgba(0, 0, 0, 0.3) 100%);
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
@@ -3859,12 +3844,10 @@ body.theme-blue .login-container #entrarBtn:focus {
     left: 0;
     right: 0;
     height: 4px;
-    background: linear-gradient(
-        90deg,
-        transparent 0%,
-        #000000 50%,
-        transparent 100%
-    );
+    background: linear-gradient(90deg,
+            transparent 0%,
+            #000000 50%,
+            transparent 100%);
     opacity: 0.8;
 }
 
@@ -3892,12 +3875,10 @@ body.theme-blue .login-container #entrarBtn:focus {
     display: block;
     width: 60px;
     height: 3px;
-    background: linear-gradient(
-        90deg,
-        transparent 0%,
-        #000000 50%,
-        transparent 100%
-    );
+    background: linear-gradient(90deg,
+            transparent 0%,
+            #000000 50%,
+            transparent 100%);
     margin: 1rem auto 0;
     border-radius: 2px;
 }
@@ -3996,7 +3977,7 @@ body.theme-blue .login-container #entrarBtn:focus {
     align-items: stretch;
 }
 
-.panel-section > * {
+.panel-section>* {
     width: 100%;
 }
 
@@ -4329,11 +4310,9 @@ body.theme-blue .login-container #entrarBtn:focus {
     left: -50%;
     width: 200%;
     height: 200%;
-    background: radial-gradient(
-        circle,
-        rgba(255, 255, 255, 0.3) 0%,
-        transparent 70%
-    );
+    background: radial-gradient(circle,
+            rgba(255, 255, 255, 0.3) 0%,
+            transparent 70%);
     opacity: 0;
     transition: opacity 0.3s;
 }
@@ -4423,11 +4402,9 @@ body.theme-blue .login-container #entrarBtn:focus {
 }
 
 .mini-calendar-day.today {
-    background: linear-gradient(
-        135deg,
-        var(--primary-color) 0%,
-        var(--primary-color-dark) 100%
-    );
+    background: linear-gradient(135deg,
+            var(--primary-color) 0%,
+            var(--primary-color-dark) 100%);
     color: white;
     font-weight: 700;
     border-color: var(--primary-color-dark);
@@ -4473,6 +4450,7 @@ body.theme-blue .login-container #entrarBtn:focus {
 }
 
 @keyframes dotPulse {
+
     0%,
     100% {
         transform: scale(1);
@@ -4495,11 +4473,9 @@ body.theme-blue .login-container #entrarBtn:focus {
 }
 
 .calendar-header {
-    background: linear-gradient(
-        135deg,
-        var(--primary-color) 0%,
-        var(--primary-color-dark) 100%
-    );
+    background: linear-gradient(135deg,
+            var(--primary-color) 0%,
+            var(--primary-color-dark) 100%);
     color: white;
     border-radius: var(--radius-lg) var(--radius-lg) 0 0;
     margin: -1.5rem -1.5rem 1.5rem -1.5rem;
@@ -4610,11 +4586,9 @@ body.theme-blue .login-container #entrarBtn:focus {
 }
 
 .calendar-day.today {
-    background: linear-gradient(
-        135deg,
-        var(--primary-color) 0%,
-        var(--primary-color-dark) 100%
-    );
+    background: linear-gradient(135deg,
+            var(--primary-color) 0%,
+            var(--primary-color-dark) 100%);
     border-color: var(--primary-color-dark);
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
 }
@@ -4739,6 +4713,7 @@ body.theme-blue .login-container #entrarBtn:focus {
 }
 
 @keyframes appointmentDayGlow {
+
     0%,
     100% {
         box-shadow: 0 0 0 0 rgba(255, 193, 7, 0.4);
@@ -4764,6 +4739,7 @@ body.theme-blue .login-container #entrarBtn:focus {
 }
 
 @media (max-width: 768px) {
+
     .pending-order-card,
     .service-appointment-card {
         padding: 1rem;
@@ -4907,6 +4883,7 @@ body.theme-blue .login-container #entrarBtn:focus {
    ======================================== */
 
 @media (max-width: 1024px) {
+
     .groups-layout,
     .costs-layout,
     .goals-layout,
@@ -4952,6 +4929,7 @@ body.theme-blue .login-container #entrarBtn:focus {
 }
 
 @media (max-width: 768px) {
+
     .groups-layout,
     .costs-layout,
     .goals-layout,
@@ -5532,12 +5510,10 @@ body.spacing-comfortable * {
 
 .skeleton-line {
     height: 1rem;
-    background: linear-gradient(
-        90deg,
-        var(--gray-200) 0%,
-        var(--gray-100) 50%,
-        var(--gray-200) 100%
-    );
+    background: linear-gradient(90deg,
+            var(--gray-200) 0%,
+            var(--gray-100) 50%,
+            var(--gray-200) 100%);
     background-size: 200% 100%;
     border-radius: var(--radius-md);
     margin-bottom: 0.75rem;
@@ -5944,8 +5920,8 @@ body.spacing-comfortable * {
     opacity: 0;
 }
 
-.form-group input:not(:placeholder-shown) + .field-status,
-.form-group textarea:not(:placeholder-shown) + .field-status {
+.form-group input:not(:placeholder-shown)+.field-status,
+.form-group textarea:not(:placeholder-shown)+.field-status {
     opacity: 1;
 }
 
@@ -6041,11 +6017,9 @@ body.spacing-comfortable * {
 
 .progress-bar-fill {
     height: 100%;
-    background: linear-gradient(
-        90deg,
-        var(--primary-color) 0%,
-        var(--primary-color-light) 100%
-    );
+    background: linear-gradient(90deg,
+            var(--primary-color) 0%,
+            var(--primary-color-light) 100%);
     border-radius: var(--radius-md);
     transition: width var(--transition-base);
     position: relative;
@@ -6059,12 +6033,10 @@ body.spacing-comfortable * {
     left: 0;
     bottom: 0;
     right: 0;
-    background: linear-gradient(
-        90deg,
-        transparent 0%,
-        rgba(255, 255, 255, 0.3) 50%,
-        transparent 100%
-    );
+    background: linear-gradient(90deg,
+            transparent 0%,
+            rgba(255, 255, 255, 0.3) 50%,
+            transparent 100%);
     animation: progress-shimmer 1.5s infinite;
 }
 
@@ -6137,12 +6109,10 @@ body.spacing-comfortable * {
 
 /* Shimmer Effect (padrão emergente.sh) */
 .shimmer {
-    background: linear-gradient(
-        90deg,
-        var(--gray-200) 0%,
-        var(--gray-100) 50%,
-        var(--gray-200) 100%
-    );
+    background: linear-gradient(90deg,
+            var(--gray-200) 0%,
+            var(--gray-100) 50%,
+            var(--gray-200) 100%);
     background-size: 200% 100%;
     animation: shimmer 1.5s ease-in-out infinite;
     border-radius: var(--radius-md);
@@ -6162,12 +6132,10 @@ body.spacing-comfortable * {
     display: inline-block;
     height: 1rem;
     width: 100%;
-    background: linear-gradient(
-        90deg,
-        var(--gray-200) 0%,
-        var(--gray-100) 50%,
-        var(--gray-200) 100%
-    );
+    background: linear-gradient(90deg,
+            var(--gray-200) 0%,
+            var(--gray-100) 50%,
+            var(--gray-200) 100%);
     background-size: 200% 100%;
     animation: shimmer 1.5s ease-in-out infinite;
     border-radius: var(--radius-sm);
@@ -6247,8 +6215,8 @@ body.spacing-comfortable * {
 }
 
 /* Garantir que texto dos botões em empty-state sempre seja visível, mesmo no mobile */
-.empty-state .btn-primary > *:not(i),
-.empty-state button.btn-primary > *:not(i) {
+.empty-state .btn-primary>*:not(i),
+.empty-state button.btn-primary>*:not(i) {
     display: inline !important;
     visibility: visible !important;
     opacity: 1 !important;
@@ -6494,11 +6462,9 @@ body.dark-mode .toast-warning {
 }
 
 body.dark-mode .toast-info {
-    background: linear-gradient(
-        135deg,
-        var(--gray-100) 0%,
-        var(--gray-50) 100%
-    );
+    background: linear-gradient(135deg,
+            var(--gray-100) 0%,
+            var(--gray-50) 100%);
 }
 
 body.dark-mode .confirm-modal-content {
@@ -6530,12 +6496,10 @@ body.dark-mode .skeleton-card {
 }
 
 body.dark-mode .skeleton-line {
-    background: linear-gradient(
-        90deg,
-        var(--gray-200) 0%,
-        var(--gray-100) 50%,
-        var(--gray-200) 100%
-    );
+    background: linear-gradient(90deg,
+            var(--gray-200) 0%,
+            var(--gray-100) 50%,
+            var(--gray-200) 100%);
 }
 
 /* Toggle de Dark Mode no header */
@@ -6607,6 +6571,7 @@ body.dark-mode .skeleton-line {
 
 /* Breakpoint principal: tablets e mobile (até 768px) */
 @media (max-width: 768px) {
+
     /* Garantir que todos os botões mostrem apenas ícones - ESPECIFICIDADE MÁXIMA */
     /* Esconder spans e elementos com classe btn-text */
     .btn-primary .btn-text,
@@ -6649,9 +6614,8 @@ body.dark-mode .skeleton-line {
     }
 
     /* Esconder texto usando text-indent e overflow */
-    .btn-primary:not(.dark-mode-toggle):not(.theme-toggle-btn) > *:not(i),
-    button.btn-primary:not(.dark-mode-toggle):not(.theme-toggle-btn)
-        > *:not(i) {
+    .btn-primary:not(.dark-mode-toggle):not(.theme-toggle-btn)>*:not(i),
+    button.btn-primary:not(.dark-mode-toggle):not(.theme-toggle-btn)>*:not(i) {
         text-indent: -9999px !important;
         overflow: hidden !important;
         width: 0 !important;
@@ -6662,8 +6626,8 @@ body.dark-mode .skeleton-line {
     /* Mostrar apenas ícones - garantir tamanho adequado */
     .btn-primary i,
     button.btn-primary i,
-    .btn-primary > i,
-    button.btn-primary > i,
+    .btn-primary>i,
+    button.btn-primary>i,
     .btn-primary i.fas,
     button.btn-primary i.fas,
     .btn-primary i.far,
@@ -6707,8 +6671,8 @@ body.dark-mode .skeleton-line {
     /* Ajustar ícones nos botões - GARANTIR QUE APARECEM E TENHAM TAMANHO ADEQUADO */
     .btn-primary i,
     button.btn-primary i,
-    .btn-primary > i,
-    button.btn-primary > i,
+    .btn-primary>i,
+    button.btn-primary>i,
     .btn-secondary i,
     button.btn-secondary i,
     .btn-small i,
@@ -6740,8 +6704,8 @@ body.dark-mode .skeleton-line {
         gap: 0.5rem !important;
     }
 
-    .empty-state .btn-primary > *:not(i),
-    .empty-state button.btn-primary > *:not(i) {
+    .empty-state .btn-primary>*:not(i),
+    .empty-state button.btn-primary>*:not(i) {
         display: inline !important;
         visibility: visible !important;
         opacity: 1 !important;
@@ -6880,6 +6844,7 @@ body.dark-mode .skeleton-line {
 
 /* Breakpoint para telas muito pequenas (até 480px) */
 @media (max-width: 480px) {
+
     /* Ajustes adicionais para telas muito pequenas - MANTER TAMANHO MÍNIMO PARA TOQUE */
     .btn-primary:not(.dark-mode-toggle):not(.theme-toggle-btn),
     .btn-secondary:not(.dark-mode-toggle):not(.theme-toggle-btn),
