@@ -18,7 +18,7 @@ module.exports = async (req, res) => {
         const username = req.query.username;
 
         if (!username || typeof username !== 'string') {
-            return res.status(400).json({ 
+            return res.status(400).json({
                 success: false,
                 error: 'Username é obrigatório na query string (?username=...)',
                 data: {
@@ -35,12 +35,17 @@ module.exports = async (req, res) => {
             });
         }
 
+        console.log('🧭 [LOAD API] Requisição recebida', {
+            username,
+            contentType: req.headers['content-type'] || 'unknown',
+        });
+
         // Carregar dados do JSONBin
         const JSONBIN_API_KEY = process.env.JSONBIN_API_KEY;
         const JSONBIN_BIN_ID = process.env.JSONBIN_BIN_ID;
-        
+
         if (!JSONBIN_API_KEY || !JSONBIN_BIN_ID) {
-            return res.status(200).json({ 
+            return res.status(200).json({
                 success: false,
                 message: 'Variáveis de ambiente não configuradas',
                 error: 'JSONBIN_API_KEY ou JSONBIN_BIN_ID não estão definidas. Configure-as no painel da Vercel.',
@@ -57,18 +62,18 @@ module.exports = async (req, res) => {
                 timestamp: new Date().toISOString()
             });
         }
-        
+
         // Usar fetch nativo do Node.js 18+ (Vercel usa Node.js 18+)
         const response = await fetch(`https://api.jsonbin.io/v3/b/${JSONBIN_BIN_ID}/latest`, {
             headers: {
                 'X-Master-Key': JSONBIN_API_KEY
             }
         });
-        
+
         if (response.ok) {
             const result = await response.json();
             const allData = result.record || {};
-            
+
             // Verificar se é estrutura antiga (sem users) ou nova (com users)
             let userData = {
                 items: [],
@@ -100,8 +105,8 @@ module.exports = async (req, res) => {
                 };
             }
 
-            return res.status(200).json({ 
-                success: true, 
+            return res.status(200).json({
+                success: true,
                 data: userData,
                 timestamp: new Date().toISOString(),
                 binId: JSONBIN_BIN_ID,
@@ -109,7 +114,7 @@ module.exports = async (req, res) => {
             });
         } else if (response.status === 404) {
             // Bin não encontrado ou vazio - retornar vazio
-            return res.status(200).json({ 
+            return res.status(200).json({
                 success: true,
                 message: 'Bin não encontrado ou vazio',
                 data: {
@@ -130,9 +135,9 @@ module.exports = async (req, res) => {
         }
     } catch (error) {
         console.error('Erro ao carregar dados:', error);
-        return res.status(500).json({ 
+        return res.status(500).json({
             error: 'Erro ao carregar dados',
-            message: error.message 
+            message: error.message
         });
     }
 };

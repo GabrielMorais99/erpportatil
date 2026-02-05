@@ -17650,7 +17650,12 @@ class LojaApp {
 
     async saveData() {
         // Obter username do sessionStorage
-        const username = sessionStorage.getItem('username');
+        const username = sessionStorage.getItem('username')?.trim();
+
+        console.log('🧭 [SAVE DATA] Iniciando salvamento', {
+            username: username || null,
+            hostname: window.location?.hostname || 'unknown',
+        });
 
         if (!username) {
             console.warn(
@@ -17720,6 +17725,17 @@ class LojaApp {
             version: '1.0',
             lastUpdate: new Date().toISOString(),
         };
+
+        console.log('📦 [SAVE DATA] Contagem de dados', {
+            items: this.items?.length || 0,
+            groups: this.groups?.length || 0,
+            serviceGroups: this.serviceGroups?.length || 0,
+            costs: this.costs?.length || 0,
+            goals: this.goals?.length || 0,
+            completedSales: this.completedSales?.length || 0,
+            pendingOrders: this.pendingOrders?.length || 0,
+            serviceAppointments: this.serviceAppointments?.length || 0,
+        });
 
         // Salvar no localStorage por usuário (sempre)
         try {

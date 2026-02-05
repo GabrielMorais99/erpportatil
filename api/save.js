@@ -14,8 +14,16 @@ module.exports = async (req, res) => {
     }
 
     try {
-        const userData = req.body.data; // Dados do usuário (items, groups, costs, goals)
-        const username = req.body.username; // Nome do usuário
+        const body =
+            typeof req.body === 'string' ? JSON.parse(req.body) : req.body;
+        const userData = body?.data; // Dados do usuário (items, groups, costs, goals)
+        const username = body?.username; // Nome do usuário
+
+        console.log('🧭 [SAVE API] Requisição recebida', {
+            username: username || null,
+            hasData: !!userData,
+            contentType: req.headers['content-type'] || 'unknown',
+        });
 
         // Validar dados
         if (!userData || typeof userData !== 'object') {
@@ -25,6 +33,17 @@ module.exports = async (req, res) => {
         if (!username || typeof username !== 'string') {
             return res.status(400).json({ error: 'Username é obrigatório' });
         }
+
+        console.log('📦 [SAVE API] Contagem de dados', {
+            items: userData.items?.length || 0,
+            groups: userData.groups?.length || 0,
+            serviceGroups: userData.serviceGroups?.length || 0,
+            costs: userData.costs?.length || 0,
+            goals: userData.goals?.length || 0,
+            completedSales: userData.completedSales?.length || 0,
+            pendingOrders: userData.pendingOrders?.length || 0,
+            serviceAppointments: userData.serviceAppointments?.length || 0,
+        });
 
         // Usar JSONBin.io (gratuito) para armazenar na nuvem
         const JSONBIN_API_KEY = process.env.JSONBIN_API_KEY;
@@ -54,7 +73,7 @@ module.exports = async (req, res) => {
             if (getResponse.ok) {
                 const getResult = await getResponse.json();
                 const existingData = getResult.record || {};
-                
+
                 // Se os dados antigos não têm estrutura de usuários, migrar
                 if (existingData.items || existingData.groups || existingData.costs || existingData.goals) {
                     // Dados antigos: migrar para estrutura de usuários
@@ -114,14 +133,14 @@ module.exports = async (req, res) => {
         if (!response.ok) {
             const errorText = await response.text();
             let errorMessage = `Erro ao salvar no JSONBin (${response.status})`;
-            
+
             try {
                 const errorJson = JSON.parse(errorText);
                 errorMessage = errorJson.message || errorMessage;
             } catch {
                 errorMessage = errorText || errorMessage;
             }
-            
+
             throw new Error(errorMessage);
         }
 
