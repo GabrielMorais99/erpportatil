@@ -108,6 +108,7 @@ module.exports = async (req, res) => {
         allUsersData.users[username] = {
             items: userData.items || [],
             serviceGroups: userData.serviceGroups || [],
+            serviceTypes: userData.serviceTypes || [],
             groups: userData.groups || [],
             costs: userData.costs || [],
             goals: userData.goals || [],

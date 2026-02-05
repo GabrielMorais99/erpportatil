@@ -734,6 +734,7 @@ class LojaApp {
         this.items = [];
         this.groups = [];
         this.serviceGroups = []; // Grupos mensais de serviços
+        this.serviceTypes = []; // Categorias/tipos de serviços
         this.costs = [];
         this.goals = [];
         this.clients = []; // Clientes cadastrados
@@ -6725,7 +6726,8 @@ class LojaApp {
     openServiceTypeModal() {
         const input = document.getElementById('serviceTypeName');
         if (input) input.value = '';
-        this.openModal('serviceTypeModal');
+        const modal = document.getElementById('serviceTypeModal');
+        this.openModalSafely(modal);
     }
 
     saveServiceType() {
@@ -6736,35 +6738,30 @@ class LojaApp {
             return;
         }
 
-        const usuario = sessionStorage.getItem('username');
-        const storageKey = `serviceTypes_${usuario}`;
+        if (!Array.isArray(this.serviceTypes)) {
+            this.serviceTypes = [];
+        }
 
-        const tipos = JSON.parse(localStorage.getItem(storageKey)) || [];
-
-        tipos.push({
+        this.serviceTypes.push({
             id: Date.now().toString(),
             name: input.value.trim(),
         });
 
-        localStorage.setItem(storageKey, JSON.stringify(tipos));
-
         this.closeModalSafely('serviceTypeModal');
         this.populateServiceTypes();
+        this.saveData();
 
         toast.success('Tipo de serviço cadastrado');
     }
 
     populateServiceTypes() {
-        const usuario = sessionStorage.getItem('username');
-        const storageKey = `serviceTypes_${usuario}`;
-
-        const tipos = JSON.parse(localStorage.getItem(storageKey)) || [];
         const select = document.getElementById('serviceTypeSelect');
 
         if (!select) return;
 
         select.innerHTML = '<option value="">Selecione</option>';
 
+        const tipos = Array.isArray(this.serviceTypes) ? this.serviceTypes : [];
         tipos.forEach((tipo) => {
             const option = document.createElement('option');
             option.value = tipo.id;
@@ -17720,6 +17717,7 @@ class LojaApp {
             items: this.items,
             groups: this.groups,
             serviceGroups: this.serviceGroups || [], // Grupos mensais de serviços
+            serviceTypes: this.serviceTypes || [], // Categorias/tipos de serviços
             costs: this.costs,
             goals: this.goals,
             clients: clientsData, // Clientes (criptografados se habilitado)
@@ -18031,6 +18029,7 @@ class LojaApp {
                             this.items = cloudData.items || [];
                             this.groups = cloudData.groups || [];
                             this.serviceGroups = cloudData.serviceGroups || [];
+                            this.serviceTypes = cloudData.serviceTypes || [];
                             this.costs = cloudData.costs || [];
                             this.goals = cloudData.goals || [];
 
@@ -18177,6 +18176,7 @@ class LojaApp {
                                     items: this.items,
                                     groups: this.groups,
                                     serviceGroups: this.serviceGroups || [],
+                                    serviceTypes: this.serviceTypes || [],
                                     costs: this.costs,
                                     goals: this.goals,
                                 };
@@ -18199,6 +18199,7 @@ class LojaApp {
                             console.log(
                                 `📊 [LOAD DATA] Items: ${this.items.length} | Grupos: ${this.groups.length} | Custos: ${this.costs.length} | Metas: ${this.goals.length} | Comprovantes: ${this.completedSales.length}`,
                             );
+                            this.populateServiceTypes();
                             return Promise.resolve();
                         } else {
                             console.log(
@@ -18295,6 +18296,13 @@ class LojaApp {
                 this.items = data.items || [];
                 this.groups = data.groups || [];
                 this.serviceGroups = data.serviceGroups || [];
+                this.serviceTypes =
+                    data.serviceTypes ||
+                    JSON.parse(
+                        localStorage.getItem(
+                            `serviceTypes_${username || 'default'}`,
+                        ) || '[]',
+                    );
                 this.costs = data.costs || [];
                 this.goals = data.goals || [];
                 this.clients = data.clients || [];
@@ -18384,6 +18392,7 @@ class LojaApp {
                         items: this.items,
                         groups: this.groups,
                         serviceGroups: this.serviceGroups || [],
+                        serviceTypes: this.serviceTypes || [],
                         costs: this.costs,
                         goals: this.goals,
                     };
@@ -18400,6 +18409,7 @@ class LojaApp {
                 console.log(
                     `📊 [LOAD DATA] Items: ${this.items.length} | Grupos: ${this.groups.length} | Custos: ${this.costs.length} | Metas: ${this.goals.length}`,
                 );
+                this.populateServiceTypes();
             } catch (e) {
                 console.error(
                     '❌ [LOAD DATA] Erro ao carregar dados do localStorage:',

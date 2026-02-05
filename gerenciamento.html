@@ -1425,6 +1425,10 @@
                                 <i class="fas fa-calendar-plus"></i>
                                 <span class="btn-text">Novo Mês de Serviços</span>
                             </button>
+                            <button type="button" class="btn-secondary" onclick="app.openServiceTypeModal()">
+                                <i class="fas fa-tags"></i>
+                                <span class="btn-text">Nova Categoria de Serviço</span>
+                            </button>
                         </div>
                         <div class="panel-filters" style="
                                     margin-bottom: 1.5rem;
@@ -1455,6 +1459,30 @@
                                                 var(--transition-base);
                                         ">
                                     <option value="">Todos os anos</option>
+                                </select>
+                            </div>
+                            <div class="filter-group" style="
+                                        display: flex;
+                                        align-items: center;
+                                        gap: 0.5rem;
+                                    ">
+                                <label for="serviceTypeSelect" style="
+                                            font-weight: 600;
+                                            color: var(--gray-700);
+                                            font-size: 0.9rem;
+                                        ">Categoria de Serviço:</label>
+                                <select id="serviceTypeSelect" class="filter-select" style="
+                                            padding: 0.5rem 1rem;
+                                            border-radius: var(--radius-md);
+                                            border: 1px solid var(--gray-300);
+                                            background: var(--white);
+                                            color: var(--dark-gray);
+                                            font-size: 0.9rem;
+                                            cursor: pointer;
+                                            transition: all
+                                                var(--transition-base);
+                                        ">
+                                    <option value="">Selecione</option>
                                 </select>
                             </div>
                         </div>
@@ -6039,9 +6067,8 @@
         <div class="modal-content">
             <div class="modal-header">
                 <h3><i class="fas fa-tools"></i> Novo Tipo de Serviço</h3>
-                <button class="modal-close" onclick="app.closeModalSafely('serviceTypeModal')">
-                    ×
-                </button>
+                <span class="close" aria-label="Fechar modal" role="button" tabindex="0"
+                    onclick="app.closeModalSafely('serviceTypeModal')">&times;</span>
             </div>
 
             <div class="modal-body">
