@@ -752,17 +752,21 @@
                             <div class="form-group" style="min-width: 220px;">
                                 <label>Entrada adicional de estoque (por dia)</label>
                                 <input type="date" id="estoqueEntradaDia" class="search-input-with-icon" />
+                                <div id="estoqueEntradaDiaMsg" class="field-message error"></div>
                             </div>
                             <div class="form-group" style="min-width: 160px;">
                                 <label for="estoqueEntradaQuantidade">Quantidade</label>
                                 <input type="number" id="estoqueEntradaQuantidade" min="1" placeholder="Ex: 10"
                                     class="search-input-with-icon" />
+                                <div id="estoqueEntradaQuantidadeMsg" class="field-message error"></div>
                             </div>
                             <div class="form-group" style="min-width: 200px;">
                                 <label style="opacity: 0">Ações</label>
-                                <button class="btn-secondary" type="button" onclick="adicionarEntradaEstoque()">
+                                <button class="btn-secondary" type="button" id="adicionarEntradaEstoqueBtn"
+                                    onclick="adicionarEntradaEstoque()">
                                     Adicionar Entrada de Estoque
                                 </button>
+                                <div id="estoqueEntradaFeedback" class="field-message"></div>
                             </div>
 
                             <!-- RESUMO DO ESTOQUE DO MÊS -->

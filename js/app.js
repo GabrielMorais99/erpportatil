@@ -31883,13 +31883,47 @@ function adicionarEntradaEstoque() {
     const mes = document.getElementById('mesSelecionado')?.value;
     const diaInput = document.getElementById('estoqueEntradaDia');
     const quantidadeInput = document.getElementById('estoqueEntradaQuantidade');
+    const feedbackEl = document.getElementById('estoqueEntradaFeedback');
+    const btn = document.getElementById('adicionarEntradaEstoqueBtn');
+    const diaMsg = document.getElementById('estoqueEntradaDiaMsg');
+    const qtdMsg = document.getElementById('estoqueEntradaQuantidadeMsg');
 
+    if (btn && btn.dataset.busy === 'true') return;
     if (!usuario || !mes || !diaInput || !quantidadeInput) return;
 
     const data = diaInput.value;
     const quantidade = Number(quantidadeInput.value);
 
-    if (!data || !data.startsWith(mes) || !quantidade || quantidade <= 0) {
+    diaInput.classList.remove('invalid');
+    quantidadeInput.classList.remove('invalid');
+    if (diaMsg) diaMsg.textContent = '';
+    if (diaMsg) diaMsg.classList.remove('show');
+    if (qtdMsg) qtdMsg.textContent = '';
+    if (qtdMsg) qtdMsg.classList.remove('show');
+    if (feedbackEl) feedbackEl.textContent = '';
+    if (feedbackEl) feedbackEl.classList.remove('show');
+
+    let hasError = false;
+    if (!data || !data.startsWith(mes)) {
+        diaInput.classList.add('invalid');
+        if (diaMsg) {
+            diaMsg.textContent = 'Informe uma data dentro do mês selecionado.';
+            diaMsg.classList.add('show');
+        }
+        hasError = true;
+    }
+    if (!quantidade || quantidade <= 0) {
+        quantidadeInput.classList.add('invalid');
+        if (qtdMsg) {
+            qtdMsg.textContent = 'Informe uma quantidade maior que zero.';
+            qtdMsg.classList.add('show');
+        }
+        hasError = true;
+    }
+    if (hasError) {
+        if (typeof toast !== 'undefined' && toast) {
+            toast.warning('Preencha os campos corretamente.');
+        }
         return;
     }
 
@@ -31905,8 +31939,30 @@ function adicionarEntradaEstoque() {
         data,
     });
 
+    if (btn) {
+        btn.dataset.busy = 'true';
+        btn.disabled = true;
+    }
+
     salvarEstoque(usuario, mes, estoque);
     atualizarResumoEstoqueMes(usuario, mes);
+
+    if (typeof toast !== 'undefined' && toast) {
+        toast.success('Entrada de estoque registrada');
+    }
+    if (feedbackEl) {
+        feedbackEl.textContent = `Entrada registrada: +${Math.abs(quantidade)} un em ${data}.`;
+        feedbackEl.classList.add('show');
+    }
+    diaInput.value = '';
+    quantidadeInput.value = '';
+
+    if (btn) {
+        setTimeout(() => {
+            btn.dataset.busy = 'false';
+            btn.disabled = false;
+        }, 800);
+    }
 }
 
 function atualizarEstadoEstoqueInput() {
