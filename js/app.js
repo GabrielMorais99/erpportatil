@@ -1613,6 +1613,17 @@ class LojaApp {
         // Atualizar audit log também
         this.renderAuditLog();
     }
+    salvarEstoque(usuario, mes, estoque) {
+        localStorage.setItem(
+            `estoque_${usuario}_${mes}`,
+            JSON.stringify(estoque),
+        );
+    }
+
+    carregarEstoque(usuario, mes) {
+        const dados = localStorage.getItem(`estoque_${usuario}_${mes}`);
+        return dados ? JSON.parse(dados) : null;
+    }
     carregarEstoqueDoMesSelecionado() {
         const usuario = sessionStorage.getItem('username');
         const mesSelect = document.getElementById('mesSelecionado');
@@ -1626,7 +1637,7 @@ class LojaApp {
         const mes = mesSelect.value;
         if (!mes) return;
 
-        const estoque = carregarEstoque(usuario, mes);
+        const estoque = this.carregarEstoque(usuario, mes);
 
         if (estoque) {
             // Preencher estoque mensal
@@ -1637,6 +1648,7 @@ class LojaApp {
             estoqueInput.value = '';
             console.log('ℹ️ Nenhum estoque encontrado para o mês:', mes);
         }
+        atualizarResumoEstoqueMes(usuario, mes);
     }
     initEstoqueMes() {
         const estoqueInput = document.getElementById('estoqueMes');
@@ -1644,33 +1656,27 @@ class LojaApp {
 
         if (!estoqueInput || !mesSelect) return;
 
-        // Salvar estoque ao alterar valor
         estoqueInput.addEventListener('change', () => {
             const usuario = sessionStorage.getItem('username');
             const mes = mesSelect.value;
+
+            if (!usuario || !mes) return;
 
             let estoque = this.carregarEstoque(usuario, mes) || {
                 totalInicial: 0,
                 movimentacoes: [],
             };
 
-            estoque.totalInicial = Number(estoqueInput.value);
+            estoque.totalInicial = Number(estoqueInput.value) || 0;
             this.salvarEstoque(usuario, mes, estoque);
+
+            // Atualizar UI imediatamente
+            if (typeof this.renderResumoEstoque === 'function') {
+                this.renderResumoEstoque(estoque);
+            }
         });
 
         mesSelect.addEventListener('change', () => {
-            atualizarEstadoEstoqueInput();
-
-            const usuario = sessionStorage.getItem('username');
-            const mes = document.getElementById('mesSelecionado').value;
-
-            if (usuario && mes) {
-                const estoque = carregarEstoque(usuario, mes);
-                document.getElementById('estoqueMes').value =
-                    estoque?.totalInicial ?? '';
-                atualizarResumoEstoqueMes(usuario, mes);
-            }
-
             this.carregarEstoqueDoMesSelecionado();
         });
     }
@@ -31812,26 +31818,6 @@ END:VCARD`;
     }
 }
 
-function carregarEstoque(usuario, mes) {
-    if (toast && typeof toast.carregarEstoque === 'function') {
-        return toast.carregarEstoque(usuario, mes);
-    }
-    if (window.app && typeof window.app.carregarEstoque === 'function') {
-        return window.app.carregarEstoque(usuario, mes);
-    }
-    return null;
-}
-
-function salvarEstoque(usuario, mes, estoque) {
-    if (toast && typeof toast.salvarEstoque === 'function') {
-        toast.salvarEstoque(usuario, mes, estoque);
-        return;
-    }
-    if (window.app && typeof window.app.salvarEstoque === 'function') {
-        window.app.salvarEstoque(usuario, mes, estoque);
-    }
-}
-
 function openModalSafely(modalElement) {
     if (!window.app) return;
     window.app.openModalSafely(modalElement);
@@ -31845,7 +31831,9 @@ function closeModalSafely(modalElement) {
 function atualizarResumoEstoqueMes(usuario, mes) {
     if (!usuario || !mes) return;
 
-    const estoque = carregarEstoque(usuario, mes);
+    const estoque = window.app?.carregarEstoque
+        ? window.app.carregarEstoque(usuario, mes)
+        : null;
 
     const estoqueInicial = estoque?.totalInicial || 0;
     const movimentacoes = estoque?.movimentacoes || [];
@@ -31927,13 +31915,16 @@ function adicionarEntradaEstoque() {
         return;
     }
 
-    const estoque = carregarEstoque(usuario, mes) || {
+    const estoque = window.app?.carregarEstoque
+        ? window.app.carregarEstoque(usuario, mes)
+        : null;
+    const estoqueFinal = estoque || {
         totalInicial: 0,
         movimentacoes: [],
     };
 
-    estoque.movimentacoes = estoque.movimentacoes || [];
-    estoque.movimentacoes.push({
+    estoqueFinal.movimentacoes = estoqueFinal.movimentacoes || [];
+    estoqueFinal.movimentacoes.push({
         tipo: 'entrada',
         qtd: Math.abs(quantidade),
         data,
@@ -31944,7 +31935,8 @@ function adicionarEntradaEstoque() {
         btn.disabled = true;
     }
 
-    salvarEstoque(usuario, mes, estoque);
+    if (!window.app?.salvarEstoque) return;
+    window.app.salvarEstoque(usuario, mes, estoqueFinal);
     atualizarResumoEstoqueMes(usuario, mes);
 
     if (typeof toast !== 'undefined' && toast) {
