@@ -1629,27 +1629,22 @@ class LojaApp {
         const mesSelect = document.getElementById('mesSelecionado');
         const estoqueInput = document.getElementById('estoqueMes');
 
-        if (!usuario || !mesSelect || !estoqueInput) {
-            console.warn('⚠️ Usuário, mês ou input de estoque não encontrado');
-            return;
-        }
+        if (!usuario || !mesSelect) return;
 
         const mes = mesSelect.value;
         if (!mes) return;
 
         const estoque = this.carregarEstoque(usuario, mes);
 
-        if (estoque) {
-            // Preencher estoque mensal
-            estoqueInput.value = estoque.totalInicial;
-            console.log('📦 Estoque carregado para o mês:', mes, estoque);
-        } else {
-            // Limpar quando não existir estoque
-            estoqueInput.value = '';
-            console.log('ℹ️ Nenhum estoque encontrado para o mês:', mes);
+        if (estoqueInput) {
+            estoqueInput.value = estoque?.totalInicial ?? '';
         }
+
         atualizarResumoEstoqueMes(usuario, mes);
     }
+
+
+
     initEstoqueMes() {
         const estoqueInput = document.getElementById('estoqueMes');
         const mesSelect = document.getElementById('mesSelecionado');
