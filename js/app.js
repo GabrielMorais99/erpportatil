@@ -8707,6 +8707,26 @@ class LojaApp {
     createGroup(e) {
         e.preventDefault();
         const month = document.getElementById('groupMonth').value;
+        // ================================
+        // 🔥 CRIAR ESTOQUE DO MÊS (OBRIGATÓRIO)
+        // ================================
+        const usuario = sessionStorage.getItem('username');
+
+        if (usuario && month) {
+            const chaveEstoque = `estoque_${usuario}_${month}`;
+
+            if (!localStorage.getItem(chaveEstoque)) {
+                localStorage.setItem(
+                    chaveEstoque,
+                    JSON.stringify({
+                        totalInicial: 0,
+                        movimentacoes: []
+                    })
+                );
+
+                console.log('[ESTOQUE] Criado estoque para o mês:', month);
+            }
+        }
 
         if (this.groups.some((g) => g.month === month)) {
             toast.warning('Já existe um grupo para este mês.', 4000);
@@ -8738,6 +8758,9 @@ class LojaApp {
         this.groups.sort((a, b) => b.month.localeCompare(a.month));
         this.saveData();
         this.renderGroups();
+        this.popularSelectMeses();
+        document.getElementById('mesSelecionado').value = month;
+        this.carregarEstoqueDoMesSelecionado();
         this.updateMonthFilter();
         this.updateYearFilter();
         this.closeGroupModal();
