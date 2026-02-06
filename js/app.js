@@ -1643,6 +1643,58 @@ class LojaApp {
         atualizarResumoEstoqueMes(usuario, mes);
     }
 
+    popularSelectMeses() {
+        const mesSelect = document.getElementById('mesSelecionado');
+        if (!mesSelect) return;
+
+        mesSelect.innerHTML = '<option value="">Selecione o mês</option>';
+
+        const usuario = sessionStorage.getItem('username');
+        if (!usuario) return;
+
+        const prefixo = `estoque_${usuario}_`;
+
+        Object.keys(localStorage)
+            .filter(key => key.startsWith(prefixo))
+            .forEach(key => {
+                const mes = key.replace(prefixo, '');
+
+                const option = document.createElement('option');
+                option.value = mes;
+                option.textContent = this.formatarMesAno(mes);
+
+                mesSelect.appendChild(option);
+            });
+    }
+    formatarMesAno(mes) {
+        const [ano, mesNum] = mes.split('-');
+        const nomesMeses = [
+            'Janeiro', 'Fevereiro', 'Março', 'Abril',
+            'Maio', 'Junho', 'Julho', 'Agosto',
+            'Setembro', 'Outubro', 'Novembro', 'Dezembro'
+        ];
+
+        return `${nomesMeses[Number(mesNum) - 1]} ${ano}`;
+    }
+    coletarEstoqueLocal() {
+        const usuario = sessionStorage.getItem('username');
+        if (!usuario) return {};
+
+        const estoque = {};
+
+        Object.keys(localStorage)
+            .filter(key => key.startsWith(`estoque_${usuario}_`))
+            .forEach(key => {
+                const mes = key.replace(`estoque_${usuario}_`, '');
+                try {
+                    estoque[mes] = JSON.parse(localStorage.getItem(key));
+                } catch {
+                    console.warn('⚠️ Estoque inválido ignorado:', key);
+                }
+            });
+
+        return estoque;
+    }
 
 
     initEstoqueMes() {
@@ -1918,7 +1970,7 @@ class LojaApp {
                         this.switchTab('salesPanel');
                     }, 50);
                 }
-
+                this.popularSelectMeses();
                 this.initEstoqueMes();
                 // 🔥 carregar estoque inicial
                 this.carregarEstoqueDoMesSelecionado();
@@ -17749,6 +17801,21 @@ class LojaApp {
             encryptionEnabled: this.encryptionEnabled, // Flag de criptografia
             version: '1.0',
             lastUpdate: new Date().toISOString(),
+            // Adicione aqui propriedades/funcionalidades novas que precisam ser salvas na nuvem,
+            // para que mantenham sincronização completa entre localStorage e o backend
+            // Exemplo de campos normalmente esquecidos:
+            nfeConfig: this.nfeConfig || {}, // Configuração de nota fiscal eletrônica
+            integrations: this.integrations || {}, // Integrações externas (ex: marketplaces, fiscal)
+            notificationsConfig: this.notificationsConfig || {}, // Configurações de notificações gerais
+            customFields: this.customFields || [], // Campos personalizados em entidades
+            sharedLinks: this.sharedLinks || [], // Links compartilhados customizados
+            remoteBackupStatus: this.remoteBackupStatus || {}, // Status/flags de backup externo
+            userSettings: this.userSettings || {}, // Preferências avançadas do usuário
+            cashRegisters: this.cashRegisters || [], // Caixas e fechamentos
+            receipts: this.receipts || [], // Recibos e comprovantes gerados
+            productImports: this.productImports || [], // Importações de produtos (logs, histórico)
+            estoque: this.coletarEstoqueLocal?.() || {}
+
         };
 
         console.log('📦 [SAVE DATA] Contagem de dados', {
