@@ -2290,6 +2290,19 @@ class LojaApp {
             console.log('✅ [APP.JS] Listener anexado ao importFile');
         }
 
+        // Entrada adicional de estoque (por dia)
+        const btnAdicionarEntradaEstoque = document.getElementById(
+            'adicionarEntradaEstoqueBtn',
+        );
+        if (btnAdicionarEntradaEstoque) {
+            btnAdicionarEntradaEstoque.addEventListener('click', () => {
+                adicionarEntradaEstoque();
+            });
+            console.log(
+                '✅ [APP.JS] Listener anexado ao adicionarEntradaEstoqueBtn',
+            );
+        }
+
         // Export button agora abre modal (removido listener direto)
         // O botão já tem onclick="app.openExportModal()" no HTML
 
