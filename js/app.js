@@ -6437,7 +6437,7 @@ class LojaApp {
 
         // Adicionar/atualizar cliente se não existir
         const existingClient = this.clients.find(
-            (c) => c.name.toLowerCase() === customerName.toLowerCase(),
+            (c) => (c.name || '').toLowerCase() === (customerName || '').toLowerCase(),
         );
         if (!existingClient) {
             const newClient = {
@@ -6776,30 +6776,30 @@ class LojaApp {
         // Filtro de pesquisa
         if (searchTerm) {
             filteredItems = filteredItems.filter((item) => {
-                const search = searchTerm.toLowerCase();
+                const search = (searchTerm || '').toLowerCase();
                 const category = item.category || 'Roupas';
 
                 return (
-                    item.name.toLowerCase().includes(search) ||
+                    (item.name || '').toLowerCase().includes(search) ||
                     (category === 'Roupas' &&
                         item.brand &&
-                        item.brand.toLowerCase().includes(search)) ||
+                        (item.brand || '').toLowerCase().includes(search)) ||
                     (category === 'Roupas' &&
                         item.style &&
-                        item.style.toLowerCase().includes(search)) ||
+                        (item.style || '').toLowerCase().includes(search)) ||
                     (category === 'Roupas' &&
                         item.size &&
-                        item.size.toLowerCase().includes(search)) ||
+                        (item.size || '').toLowerCase().includes(search)) ||
                     (category === 'Eletrônicos' &&
                         item.model &&
-                        item.model.toLowerCase().includes(search)) ||
+                        (item.model || '').toLowerCase().includes(search)) ||
                     (category === 'Eletrônicos' &&
                         item.capacity &&
-                        item.capacity.toLowerCase().includes(search)) ||
+                        (item.capacity || '').toLowerCase().includes(search)) ||
                     (category === 'Eletrônicos' &&
                         item.color &&
-                        item.color.toLowerCase().includes(search)) ||
-                    (item.notes && item.notes.toLowerCase().includes(search))
+                        (item.color || '').toLowerCase().includes(search)) ||
+                    (item.notes && (item.notes || '').toLowerCase().includes(search))
                 );
             });
         }
@@ -7272,9 +7272,9 @@ class LojaApp {
 
         let filteredClients = this.clients;
         if (searchTerm) {
-            filteredClients = this.clients.filter(
+            filteredClients =             this.clients.filter(
                 (client) =>
-                    client.name.toLowerCase().includes(searchTerm) ||
+                    (client.name || '').toLowerCase().includes(searchTerm) ||
                     (client.cpf && client.cpf.includes(searchTerm)) ||
                     (client.phone && client.phone.includes(searchTerm)),
             );
@@ -7617,7 +7617,7 @@ class LojaApp {
         if (searchTerm) {
             filteredSuppliers = this.suppliers.filter(
                 (supplier) =>
-                    supplier.name.toLowerCase().includes(searchTerm) ||
+                    (supplier.name || '').toLowerCase().includes(searchTerm) ||
                     (supplier.cnpj && supplier.cnpj.includes(searchTerm)) ||
                     (supplier.phone && supplier.phone.includes(searchTerm)),
             );
@@ -21409,15 +21409,15 @@ class LojaApp {
         if (searchInClients) {
             this.clients.forEach((client) => {
                 const matches =
-                    client.name.toLowerCase().includes(search) ||
-                    (client.cpf && client.cpf.toLowerCase().includes(search)) ||
+                    (client.name || '').toLowerCase().includes(search) ||
+                    (client.cpf && (client.cpf || '').toLowerCase().includes(search)) ||
                     (client.email &&
-                        client.email.toLowerCase().includes(search)) ||
+                        (client.email || '').toLowerCase().includes(search)) ||
                     (client.phone &&
-                        client.phone.toLowerCase().includes(search)) ||
+                        (client.phone || '').toLowerCase().includes(search)) ||
                     (searchInNotes &&
                         client.notes &&
-                        client.notes.toLowerCase().includes(search));
+                        (client.notes || '').toLowerCase().includes(search));
 
                 if (matches) {
                     results.clients.push({
@@ -21435,16 +21435,16 @@ class LojaApp {
         if (searchInSuppliers) {
             this.suppliers.forEach((supplier) => {
                 const matches =
-                    supplier.name.toLowerCase().includes(search) ||
+                    (supplier.name || '').toLowerCase().includes(search) ||
                     (supplier.cnpj &&
-                        supplier.cnpj.toLowerCase().includes(search)) ||
+                        (supplier.cnpj || '').toLowerCase().includes(search)) ||
                     (supplier.email &&
-                        supplier.email.toLowerCase().includes(search)) ||
+                        (supplier.email || '').toLowerCase().includes(search)) ||
                     (supplier.phone &&
-                        supplier.phone.toLowerCase().includes(search)) ||
+                        (supplier.phone || '').toLowerCase().includes(search)) ||
                     (searchInNotes &&
                         supplier.notes &&
-                        supplier.notes.toLowerCase().includes(search));
+                        (supplier.notes || '').toLowerCase().includes(search));
 
                 if (matches) {
                     results.suppliers.push({
@@ -32534,7 +32534,7 @@ function renderizarTabelaEstoque() {
 
         const tr = document.createElement('tr');
         tr.dataset.status = statusClass;
-        tr.dataset.nome = grupo.name.toLowerCase();
+        tr.dataset.nome = (grupo.name || '').toLowerCase();
         tr.innerHTML = `
             <td><strong>${grupo.name || 'Sem nome'}</strong></td>
             <td><span style="background: ${grupo.color}; color: white; padding: 2px 8px; border-radius: 4px; font-size: 0.8rem;">${grupo.name}</span></td>
@@ -32636,14 +32636,14 @@ function buscarNaTabelaEstoque(termo) {
     const tbody = document.getElementById('tabelaEstoqueBody');
     if (!tbody) return;
     
-    const termoLower = termo.toLowerCase().trim();
+    const termoLower = (termo || '').toLowerCase().trim();
     const linhas = tbody.querySelectorAll('tr[data-nome]');
     
     linhas.forEach(linha => {
         if (!termoLower) {
             linha.style.display = '';
         } else {
-            const nome = linha.dataset.nome;
+            const nome = linha.dataset.nome || '';
             linha.style.display = nome.includes(termoLower) ? '' : 'none';
         }
     });
