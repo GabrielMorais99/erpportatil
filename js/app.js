@@ -108,13 +108,13 @@ class ToastSystem {
     // ================================
     // MODELO DE ESTOQUE
     // ================================
-    getEstoqueKey(usuario, mes) {
-        return `estoque_${usuario}_${mes}`;
+    getEstoqueKey(usuario, mes, grupo = null) {
+        return grupo ? `estoque_${usuario}_${mes}_${grupo}` : `estoque_${usuario}_${mes}`;
     }
 
-    salvarEstoque(usuario, mes, estoque) {
+    salvarEstoque(usuario, mes, estoque, grupo = null) {
         localStorage.setItem(
-            this.getEstoqueKey(usuario, mes),
+            this.getEstoqueKey(usuario, mes, grupo),
             JSON.stringify(estoque),
         );
     }
@@ -182,8 +182,8 @@ class ToastSystem {
         console.log('💸 Venda registrada e estoque abatido:', qtd);
     }
 
-    carregarEstoque(usuario, mes) {
-        const dados = localStorage.getItem(getEstoqueKey(usuario, mes));
+    carregarEstoque(usuario, mes, grupo = null) {
+        const dados = localStorage.getItem(this.getEstoqueKey(usuario, mes, grupo));
         return dados ? JSON.parse(dados) : null;
     }
     createToast(message, type) {
@@ -1613,15 +1613,14 @@ class LojaApp {
         // Atualizar audit log também
         this.renderAuditLog();
     }
-    salvarEstoque(usuario, mes, estoque) {
-        localStorage.setItem(
-            `estoque_${usuario}_${mes}`,
-            JSON.stringify(estoque),
-        );
+    salvarEstoque(usuario, mes, estoque, grupo = null) {
+        const key = grupo ? `estoque_${usuario}_${mes}_${grupo}` : `estoque_${usuario}_${mes}`;
+        localStorage.setItem(key, JSON.stringify(estoque));
     }
 
-    carregarEstoque(usuario, mes) {
-        const dados = localStorage.getItem(`estoque_${usuario}_${mes}`);
+    carregarEstoque(usuario, mes, grupo = null) {
+        const key = grupo ? `estoque_${usuario}_${mes}_${grupo}` : `estoque_${usuario}_${mes}`;
+        const dados = localStorage.getItem(key);
         return dados ? JSON.parse(dados) : null;
     }
     carregarEstoqueDoMesSelecionado() {
