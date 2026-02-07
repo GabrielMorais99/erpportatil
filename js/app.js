@@ -261,6 +261,274 @@ class ToastSystem {
 }
 
 // ========================================
+// FUNÇÃO DEBOUNCE PARA OTIMIZAÇÃO
+// ========================================
+
+function debounce(func, wait) {
+    let timeout;
+    return function executedFunction(...args) {
+        const later = () => {
+            clearTimeout(timeout);
+            func(...args);
+        };
+        clearTimeout(timeout);
+        timeout = setTimeout(later, wait);
+    };
+}
+
+// ========================================
+// VALIDAÇÃO CENTRALIZADA
+// ========================================
+class Validador {
+    static numero(valor, opcoes = {}) {
+        const num = parseFloat(valor);
+
+        if (isNaN(num)) {
+            throw new Error('Valor deve ser um número');
+        }
+
+        if (opcoes.min !== undefined && num < opcoes.min) {
+            throw new Error(`Valor deve ser maior ou igual a ${opcoes.min}`);
+        }
+
+        if (opcoes.max !== undefined && num > opcoes.max) {
+            throw new Error(`Valor deve ser menor ou igual a ${opcoes.max}`);
+        }
+
+        if (opcoes.inteiro && !Number.isInteger(num)) {
+            throw new Error('Valor deve ser um número inteiro');
+        }
+
+        return num;
+    }
+
+    static data(valor) {
+        const data = new Date(valor);
+
+        if (isNaN(data.getTime())) {
+            throw new Error('Data inválida');
+        }
+
+        return data;
+    }
+
+    static dataFutura(valor, permitirHoje = true) {
+        const data = this.data(valor);
+        const hoje = new Date();
+        hoje.setHours(0, 0, 0, 0);
+
+        if (!permitirHoje && data < hoje) {
+            throw new Error('Data deve ser no futuro');
+        }
+
+        if (permitirHoje && data < hoje) {
+            throw new Error('Data não pode ser no passado');
+        }
+
+        return data;
+    }
+
+    static email(valor) {
+        const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!regex.test(valor)) {
+            throw new Error('Email inválido');
+        }
+        return valor.toLowerCase();
+    }
+
+    static cpf(valor) {
+        const cpfLimpo = valor.replace(/\D/g, '');
+
+        if (cpfLimpo.length !== 11) {
+            throw new Error('CPF deve ter 11 dígitos');
+        }
+
+        // Validar dígitos verificadores
+        if (/^(\d)\1{10}$/.test(cpfLimpo)) {
+            throw new Error('CPF inválido');
+        }
+
+        let soma = 0;
+        for (let i = 0; i < 9; i++) {
+            soma += parseInt(cpfLimpo[i]) * (10 - i);
+        }
+        let resto = soma % 11;
+        const digito1 = resto < 2 ? 0 : 11 - resto;
+
+        if (parseInt(cpfLimpo[9]) !== digito1) {
+            throw new Error('CPF inválido');
+        }
+
+        soma = 0;
+        for (let i = 0; i < 10; i++) {
+            soma += parseInt(cpfLimpo[i]) * (11 - i);
+        }
+        resto = soma % 11;
+        const digito2 = resto < 2 ? 0 : 11 - resto;
+
+        if (parseInt(cpfLimpo[10]) !== digito2) {
+            throw new Error('CPF inválido');
+        }
+
+        return cpfLimpo;
+    }
+
+    static cnpj(valor) {
+        const cnpjLimpo = valor.replace(/\D/g, '');
+
+        if (cnpjLimpo.length !== 14) {
+            throw new Error('CNPJ deve ter 14 dígitos');
+        }
+
+        if (/^(\d)\1{13}$/.test(cnpjLimpo)) {
+            throw new Error('CNPJ inválido');
+        }
+
+        return cnpjLimpo;
+    }
+
+    static telefone(valor) {
+        const telLimpo = valor.replace(/\D/g, '');
+
+        if (telLimpo.length < 10 || telLimpo.length > 11) {
+            throw new Error('Telefone deve ter 10 ou 11 dígitos');
+        }
+
+        return telLimpo;
+    }
+
+    static texto(valor, opcoes = {}) {
+        if (typeof valor !== 'string') {
+            throw new Error('Valor deve ser um texto');
+        }
+
+        const textoTrimmed = valor.trim();
+
+        if (opcoes.minLength && textoTrimmed.length < opcoes.minLength) {
+            throw new Error(`Texto deve ter no mínimo ${opcoes.minLength} caracteres`);
+        }
+
+        if (opcoes.maxLength && textoTrimmed.length > opcoes.maxLength) {
+            throw new Error(`Texto deve ter no máximo ${opcoes.maxLength} caracteres`);
+        }
+
+        if (opcoes.pattern && !opcoes.pattern.test(textoTrimmed)) {
+            throw new Error(opcoes.patternMessage || 'Formato inválido');
+        }
+
+        return textoTrimmed;
+    }
+
+    static url(valor) {
+        try {
+            new URL(valor);
+            return valor;
+        } catch {
+            throw new Error('URL inválida');
+        }
+    }
+}
+
+// ========================================
+// INDICADOR DE SINCRONIZAÇÃO
+// ========================================
+class IndicadorSincronizacao {
+    constructor() {
+        this.status = 'sincronizado';
+        this.elemento = null;
+        this.criarIndicador();
+    }
+
+    criarIndicador() {
+        const indicador = document.createElement('div');
+        indicador.id = 'sync-indicator';
+        indicador.style.cssText = `
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            padding: 10px 15px;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 12px;
+            z-index: 9999;
+            transition: all 0.3s;
+        `;
+
+        indicador.innerHTML = `
+            <span class="sync-icon" style="font-size: 14px;">✓</span>
+            <span class="sync-text">Sincronizado</span>
+        `;
+
+        const appendIndicador = () => {
+            if (document.body) {
+                document.body.appendChild(indicador);
+                this.elemento = indicador;
+            } else {
+                setTimeout(appendIndicador, 10);
+            }
+        };
+
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', appendIndicador);
+        } else {
+            appendIndicador();
+        }
+    }
+
+    setSincronizando() {
+        if (!this.elemento) return;
+        this.status = 'sincronizando';
+        this.elemento.innerHTML = `
+            <span class="sync-icon spinner" style="font-size: 14px; animation: spin 1s linear infinite;">⟳</span>
+            <span class="sync-text">Sincronizando...</span>
+        `;
+        this.elemento.style.background = '#fff3cd';
+    }
+
+    setSincronizado() {
+        if (!this.elemento) return;
+        this.status = 'sincronizado';
+        this.elemento.innerHTML = `
+            <span class="sync-icon" style="font-size: 14px;">✓</span>
+            <span class="sync-text">Sincronizado</span>
+        `;
+        this.elemento.style.background = '#d4edda';
+
+        setTimeout(() => {
+            if (this.elemento && this.status === 'sincronizado') {
+                this.elemento.style.background = 'white';
+            }
+        }, 2000);
+    }
+
+    setErro(mensagem = 'Falha na sincronização') {
+        if (!this.elemento) return;
+        this.status = 'erro';
+        this.elemento.innerHTML = `
+            <span class="sync-icon" style="font-size: 14px;">⚠</span>
+            <span class="sync-text">${mensagem}</span>
+        `;
+        this.elemento.style.background = '#f8d7da';
+    }
+
+    hide() {
+        if (this.elemento) {
+            this.elemento.style.display = 'none';
+        }
+    }
+
+    show() {
+        if (this.elemento) {
+            this.elemento.style.display = 'flex';
+        }
+    }
+}
+
+// ========================================
 // SISTEMA DE CONFIRMAÇÃO CUSTOMIZADO
 // ========================================
 class ConfirmSystem {
@@ -423,6 +691,7 @@ class ConfirmSystem {
 // Instâncias globais (serão inicializadas quando o DOM estiver pronto)
 let toast;
 let confirmDialog;
+let indicadorSync;
 
 // Inicializar instâncias quando DOM estiver pronto
 const initToastAndConfirm = () => {
@@ -431,6 +700,9 @@ const initToastAndConfirm = () => {
     }
     if (!confirmDialog) {
         confirmDialog = new ConfirmSystem();
+    }
+    if (!indicadorSync) {
+        indicadorSync = new IndicadorSincronizacao();
     }
 };
 
@@ -750,6 +1022,9 @@ class LojaApp {
         this.currentGroup = null;
         this.currentServiceGroup = null;
         this.currentServiceDay = null;
+        
+        // Sistema de Relatórios
+        this.relatorios = new GeradorRelatorios(this);
         this.currentSaleDay = null;
         this.currentEditingCost = null;
         this.currentEditingGoal = null;
@@ -32381,6 +32656,250 @@ function normalizarMes(valor) {
     if (/^\d{4}-\d{2}$/.test(valor)) return valor;
     return valor;
 }
+
+// ========================================
+// SISTEMA DE RELATÓRIOS
+// ========================================
+
+class GeradorRelatorios {
+    constructor(app) {
+        this.app = app;
+    }
+
+    relatorioVendasPorPeriodo(dataInicio, dataFim) {
+        const vendas = this.app.sales || [];
+        const vendasPeriodo = vendas.filter(v => {
+            if (!v.date) return false;
+            const dataVenda = new Date(v.date);
+            return dataVenda >= dataInicio && dataVenda <= dataFim;
+        });
+
+        const totalVendas = vendasPeriodo.length;
+        const valorTotal = vendasPeriodo.reduce((sum, v) => sum + (v.totalPrice || 0), 0);
+
+        const itensMaisVendidos = this.calcularItensMaisVendidos(vendasPeriodo);
+
+        return {
+            periodo: { inicio: dataInicio, fim: dataFim },
+            totalVendas,
+            valorTotal,
+            ticketMedio: totalVendas > 0 ? valorTotal / totalVendas : 0,
+            itensMaisVendidos,
+            vendasPeriodo
+        };
+    }
+
+    calcularItensMaisVendidos(vendas) {
+        const contagem = {};
+
+        vendas.forEach(venda => {
+            if (!venda.item) return;
+            
+            const itemId = venda.item.id || venda.item.name;
+            const itemNome = venda.item.name || 'Item sem nome';
+            const quantidade = venda.quantity || 1;
+            const valor = venda.totalPrice || 0;
+
+            if (!contagem[itemId]) {
+                contagem[itemId] = {
+                    id: itemId,
+                    nome: itemNome,
+                    quantidade: 0,
+                    valor: 0
+                };
+            }
+            contagem[itemId].quantidade += quantidade;
+            contagem[itemId].valor += valor;
+        });
+
+        return Object.values(contagem)
+            .sort((a, b) => b.quantidade - a.quantidade)
+            .slice(0, 10);
+    }
+
+    relatorioEstoquePorGrupo(mes) {
+        const usuario = sessionStorage.getItem('username');
+        if (!usuario || !mes) return null;
+
+        const grupos = this.app.groups || [];
+        const relatorio = [];
+
+        grupos.forEach(grupo => {
+            const estoque = this.app.carregarEstoque
+                ? this.app.carregarEstoque(usuario, mes, grupo.name)
+                : null;
+
+            if (!estoque) return;
+
+            const estoqueInicial = estoque.totalInicial || 0;
+            const movimentacoes = estoque.movimentacoes || [];
+
+            const totalEntradas = movimentacoes
+                .filter(m => m.tipo === 'entrada' && m.qtd > 0)
+                .reduce((acc, m) => acc + Math.abs(m.qtd), 0);
+
+            const totalSaidas = movimentacoes
+                .filter(m => m.tipo === 'saida' && m.qtd < 0)
+                .reduce((acc, m) => acc + Math.abs(m.qtd), 0);
+
+            const totalVendas = movimentacoes
+                .filter(m => !m.tipo && m.qtd < 0)
+                .reduce((acc, m) => acc + Math.abs(m.qtd), 0);
+
+            const estoqueAtual = estoqueInicial + totalEntradas - totalSaidas - totalVendas;
+
+            relatorio.push({
+                grupo: grupo.name,
+                estoqueInicial,
+                totalEntradas,
+                totalSaidas,
+                totalVendas,
+                estoqueAtual,
+                status: estoqueAtual <= 0 ? 'crítico' : estoqueAtual <= 5 ? 'baixo' : 'ok'
+            });
+        });
+
+        return {
+            mes,
+            grupos: relatorio,
+            totalGrupos: relatorio.length,
+            gruposCriticos: relatorio.filter(g => g.status === 'crítico').length,
+            gruposBaixos: relatorio.filter(g => g.status === 'baixo').length
+        };
+    }
+
+    exportarParaCSV(dados, nomeArquivo) {
+        if (!dados || dados.length === 0) {
+            if (typeof toast !== 'undefined' && toast) {
+                toast.warning('Não há dados para exportar');
+            }
+            return;
+        }
+
+        const colunas = Object.keys(dados[0]);
+        let csv = colunas.join(',') + '\n';
+
+        dados.forEach(linha => {
+            const valores = colunas.map(col => {
+                const valor = linha[col];
+                if (typeof valor === 'string' && valor.includes(',')) {
+                    return `"${valor}"`;
+                }
+                return valor;
+            });
+            csv += valores.join(',') + '\n';
+        });
+
+        const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(blob);
+        link.download = `${nomeArquivo}.csv`;
+        link.click();
+
+        if (typeof toast !== 'undefined' && toast) {
+            toast.success('Relatório exportado com sucesso!');
+        }
+    }
+
+    gerarRelatorioMensal(mes) {
+        const relatorioVendas = this.relatorioVendasPorPeriodo(
+            new Date(mes + '-01'),
+            new Date(mes + '-31')
+        );
+
+        const relatorioEstoque = this.relatorioEstoquePorGrupo(mes);
+
+        return {
+            mes,
+            vendas: relatorioVendas,
+            estoque: relatorioEstoque,
+            geradoEm: new Date().toISOString()
+        };
+    }
+}
+
+// ========================================
+// ALERTAS DE ESTOQUE BAIXO
+// ========================================
+
+function verificarEstoqueBaixo() {
+    const usuario = sessionStorage.getItem('username');
+    const mes = document.getElementById('mesSelecionado')?.value;
+
+    if (!usuario || !mes) return;
+
+    const grupos = window.app?.groups || [];
+    if (grupos.length === 0) return;
+
+    const gruposBaixos = [];
+    const gruposCriticos = [];
+
+    grupos.forEach((grupo) => {
+        const estoque = window.app?.carregarEstoque
+            ? window.app.carregarEstoque(usuario, mes, grupo.name)
+            : null;
+
+        if (!estoque) return;
+
+        const estoqueInicial = estoque.totalInicial || 0;
+        const movimentacoes = estoque.movimentacoes || [];
+
+        const totalEntradas = movimentacoes
+            .filter((m) => m.tipo === 'entrada' && m.qtd > 0)
+            .reduce((acc, m) => acc + Math.abs(m.qtd), 0);
+
+        const totalSaidas = movimentacoes
+            .filter((m) => (m.tipo === 'saida' || !m.tipo) && m.qtd < 0)
+            .reduce((acc, m) => acc + Math.abs(m.qtd), 0);
+
+        const estoqueAtual = estoqueInicial + totalEntradas - totalSaidas;
+
+        if (estoqueAtual <= 0) {
+            gruposCriticos.push({
+                nome: grupo.name,
+                estoque: estoqueAtual,
+            });
+        } else if (estoqueAtual <= 5) {
+            gruposBaixos.push({
+                nome: grupo.name,
+                estoque: estoqueAtual,
+            });
+        }
+    });
+
+    // Mostrar alertas se houver problemas
+    if (gruposCriticos.length > 0) {
+        const mensagem = gruposCriticos.length === 1
+            ? `Grupo "${gruposCriticos[0].nome}" está com estoque CRÍTICO (${gruposCriticos[0].estoque} un)`
+            : `${gruposCriticos.length} grupos com estoque CRÍTICO!`;
+
+        if (typeof toast !== 'undefined' && toast) {
+            toast.error(mensagem, 8000);
+        }
+    } else if (gruposBaixos.length > 0) {
+        const mensagem = gruposBaixos.length === 1
+            ? `Grupo "${gruposBaixos[0].nome}" está com estoque baixo (${gruposBaixos[0].estoque} un)`
+            : `${gruposBaixos.length} grupos com estoque baixo`;
+
+        if (typeof toast !== 'undefined' && toast) {
+            toast.warning(mensagem, 6000);
+        }
+    }
+
+    return { criticos: gruposCriticos, baixos: gruposBaixos };
+}
+
+// Verificar estoque baixo automaticamente quando carregar a página
+document.addEventListener('DOMContentLoaded', function() {
+    setTimeout(() => {
+        const usuario = sessionStorage.getItem('username');
+        const logged = sessionStorage.getItem('loggedIn');
+        
+        if (usuario && logged === 'true') {
+            setTimeout(verificarEstoqueBaixo, 3000);
+        }
+    }, 1000);
+});
 
 // Inicializar aplicação
 let app;

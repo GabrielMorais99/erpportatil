@@ -7061,3 +7061,27 @@ body.dark-mode .skeleton-line {
         padding: 1rem;
     }
 }
+
+/* ========================================
+   INDICADOR DE SINCRONIZAÇÃO
+   ======================================== */
+
+@keyframes spin {
+    from {
+        transform: rotate(0deg);
+    }
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+#sync-indicator {
+    user-select: none;
+    pointer-events: auto;
+    cursor: default;
+}
+
+#sync-indicator .spinner {
+    display: inline-block;
+    animation: spin 1s linear infinite;
+}
