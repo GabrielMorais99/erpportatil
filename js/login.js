@@ -202,50 +202,16 @@ document.addEventListener('DOMContentLoaded', function () {
                     'a665a45920422f9d417e4867efdc4fb8a04a1f3fff1fa07e998e86f7f7a27ae3', // hash de '123'
                 level: 'admin',
             },
+
+            gabriel: {
+                passwordHash:
+                    '8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92', // hash de '0001'
+                level: 'admin',
+            },
             admin: {
                 passwordHash:
                     '8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92', // hash de 'gab123'
                 level: 'admin',
-            },
-            usuarioteste1: {
-                passwordHash:
-                    'a665a45920422f9d417e4867efdc4fb8a04a1f3fff1fa07e998e86f7f7a27ae3', // hash de '123'
-                level: 'manager',
-            },
-            usuarioteste2: {
-                passwordHash:
-                    'a665a45920422f9d417e4867efdc4fb8a04a1f3fff1fa07e998e86f7f7a27ae3', // hash de '123'
-                level: 'user',
-            },
-            usuarioteste3: {
-                passwordHash:
-                    'a665a45920422f9d417e4867efdc4fb8a04a1f3fff1fa07e998e86f7f7a27ae3', // hash de '123'
-                level: 'user',
-            },
-            usuarioteste4: {
-                passwordHash:
-                    'a665a45920422f9d417e4867efdc4fb8a04a1f3fff1fa07e998e86f7f7a27ae3', // hash de '123'
-                level: 'user',
-            },
-            usuarioteste5: {
-                passwordHash:
-                    'a665a45920422f9d417e4867efdc4fb8a04a1f3fff1fa07e998e86f7f7a27ae3', // hash de '123'
-                level: 'user',
-            },
-            deivson: {
-                passwordHash:
-                    'a665a45920422f9d417e4867efdc4fb8a04a1f3fff1fa07e998e86f7f7a27ae3', // hash de '123'
-                level: 'manager',
-            },
-            isaac: {
-                passwordHash:
-                    'a665a45920422f9d417e4867efdc4fb8a04a1f3fff1fa07e998e86f7f7a27ae3', // hash de '123'
-                level: 'user',
-            },
-            vinicius: {
-                passwordHash:
-                    'a665a45920422f9d417e4867efdc4fb8a04a1f3fff1fa07e998e86f7f7a27ae3', // hash de '123'
-                level: 'user',
             },
             paulo: {
                 passwordHash:
