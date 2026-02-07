@@ -722,8 +722,7 @@
                     <div class="panel-section">
                         <div class="panel-header">
                             <h2>
-                                <i class="fas fa-calendar-check"></i> Grupos
-                                Mensais
+                                <i class="fas fa-calendar-check"></i> Painel de Estoque Consolidado e Vendas
                             </h2>
                             <button class="btn-primary btn-plus" onclick="app.openGroupModal()">
                                 <i class="fas fa-plus"></i> Novo Mês
@@ -822,9 +821,11 @@
 
                             <!-- TABELA CONSOLIDADA DE ESTOQUE -->
                             <div id="tabelaEstoqueContainer" class="estoque-tabela-container" style="margin-top: 2rem;">
-                                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                                <div
+                                    style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
                                     <h4 style="margin: 0; color: var(--gray-700);">📊 Estoque Consolidado</h4>
-                                    <button type="button" class="btn-secondary btn-sm" onclick="renderizarTabelaEstoque()">
+                                    <button type="button" class="btn-secondary btn-sm"
+                                        onclick="renderizarTabelaEstoque()">
                                         🔄 Atualizar
                                     </button>
                                 </div>
@@ -6971,7 +6972,8 @@
                 <span class="close" aria-label="Fechar modal" role="button" tabindex="0">&times;</span>
             </div>
             <div class="modal-body">
-                <div id="historicoEstoqueInfo" style="margin-bottom: 1.5rem; padding: 1rem; background: var(--gray-100); border-radius: var(--radius-md);">
+                <div id="historicoEstoqueInfo"
+                    style="margin-bottom: 1.5rem; padding: 1rem; background: var(--gray-100); border-radius: var(--radius-md);">
                     <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 1rem;">
                         <div>
                             <small style="color: var(--gray-600); display: block;">Grupo</small>
@@ -6991,15 +6993,19 @@
                         </div>
                     </div>
                 </div>
-                
+
                 <div style="overflow-x: auto;">
                     <table class="tabela-historico" style="width: 100%; border-collapse: collapse;">
                         <thead>
                             <tr style="background: var(--gray-100);">
-                                <th style="padding: 10px; text-align: left; border-bottom: 2px solid var(--gray-300);">Data</th>
-                                <th style="padding: 10px; text-align: left; border-bottom: 2px solid var(--gray-300);">Tipo</th>
-                                <th style="padding: 10px; text-align: right; border-bottom: 2px solid var(--gray-300);">Quantidade</th>
-                                <th style="padding: 10px; text-align: right; border-bottom: 2px solid var(--gray-300);">Saldo</th>
+                                <th style="padding: 10px; text-align: left; border-bottom: 2px solid var(--gray-300);">
+                                    Data</th>
+                                <th style="padding: 10px; text-align: left; border-bottom: 2px solid var(--gray-300);">
+                                    Tipo</th>
+                                <th style="padding: 10px; text-align: right; border-bottom: 2px solid var(--gray-300);">
+                                    Quantidade</th>
+                                <th style="padding: 10px; text-align: right; border-bottom: 2px solid var(--gray-300);">
+                                    Saldo</th>
                             </tr>
                         </thead>
                         <tbody id="historicoEstoqueBody">
