@@ -8783,6 +8783,10 @@ class LojaApp {
         this.updateYearFilter();
         this.closeGroupModal();
         toast.success('Grupo mensal criado com sucesso!', 3000);
+
+
+
+
     }
 
     viewGroup(groupId) {
