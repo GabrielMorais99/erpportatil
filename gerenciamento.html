@@ -821,13 +821,64 @@
 
                             <!-- TABELA CONSOLIDADA DE ESTOQUE -->
                             <div id="tabelaEstoqueContainer" class="estoque-tabela-container" style="margin-top: 2rem;">
-                                <div
-                                    style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
-                                    <h4 style="margin: 0; color: var(--gray-700);">📊 Estoque Consolidado</h4>
-                                    <button type="button" class="btn-secondary btn-sm"
-                                        onclick="renderizarTabelaEstoque()">
-                                        🔄 Atualizar
-                                    </button>
+                                <!-- Cabeçalho com badges e ações -->
+                                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; flex-wrap: wrap; gap: 1rem;">
+                                    <div style="display: flex; align-items: center; gap: 1rem; flex-wrap: wrap;">
+                                        <h4 style="margin: 0; color: var(--gray-700);">📊 Estoque Consolidado</h4>
+                                        
+                                        <!-- Badges de status -->
+                                        <div style="display: flex; gap: 0.5rem;">
+                                            <span class="badge badge-critico" id="badgeEstoqueCritico" style="display: none;">
+                                                <i class="fas fa-exclamation-circle"></i> <span id="countCritico">0</span> Crítico
+                                            </span>
+                                            <span class="badge badge-baixo" id="badgeEstoqueBaixo" style="display: none;">
+                                                <i class="fas fa-exclamation-triangle"></i> <span id="countBaixo">0</span> Baixo
+                                            </span>
+                                            <span class="badge badge-medio" id="badgeEstoqueMedio" style="display: none;">
+                                                <i class="fas fa-info-circle"></i> <span id="countMedio">0</span> Médio
+                                            </span>
+                                            <span class="badge badge-ok" id="badgeEstoqueOk" style="display: none;">
+                                                <i class="fas fa-check-circle"></i> <span id="countOk">0</span> OK
+                                            </span>
+                                        </div>
+                                    </div>
+                                    
+                                    <div style="display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap;">
+                                        <button type="button" class="btn-secondary btn-sm" onclick="renderizarTabelaEstoque()">
+                                            🔄 Atualizar
+                                        </button>
+                                        <button type="button" class="btn-secondary btn-sm" onclick="imprimirRelatorioEstoque()">
+                                            🖨️ Imprimir
+                                        </button>
+                                    </div>
+                                </div>
+                                
+                                <!-- Filtros e busca -->
+                                <div style="display: flex; gap: 1rem; margin-bottom: 1rem; flex-wrap: wrap; align-items: center;">
+                                    <div class="btn-group-filtros">
+                                        <button class="btn-filtro active" data-filtro="todos" onclick="filtrarTabelaEstoque('todos')">
+                                            Todos
+                                        </button>
+                                        <button class="btn-filtro" data-filtro="critico" onclick="filtrarTabelaEstoque('critico')">
+                                            Crítico
+                                        </button>
+                                        <button class="btn-filtro" data-filtro="baixo" onclick="filtrarTabelaEstoque('baixo')">
+                                            Baixo
+                                        </button>
+                                        <button class="btn-filtro" data-filtro="medio" onclick="filtrarTabelaEstoque('medio')">
+                                            Médio
+                                        </button>
+                                        <button class="btn-filtro" data-filtro="ok" onclick="filtrarTabelaEstoque('ok')">
+                                            OK
+                                        </button>
+                                    </div>
+                                    
+                                    <div style="flex: 1; min-width: 200px;">
+                                        <input type="text" id="buscaTabelaEstoque" class="search-input-with-icon" 
+                                               placeholder="🔍 Buscar grupo..." 
+                                               onkeyup="buscarNaTabelaEstoque(this.value)"
+                                               style="width: 100%;">
+                                    </div>
                                 </div>
                                 <div style="overflow-x: auto;">
                                     <table class="tabela-estoque">

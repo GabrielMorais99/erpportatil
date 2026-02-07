@@ -32453,6 +32453,9 @@ function atualizarEstadoEstoqueInput() {
     if (!mes) input.value = '';
 }
 
+// Variável global para armazenar dados da tabela
+let dadosTabelaEstoque = [];
+
 // Função para renderizar tabela consolidada de estoque
 function renderizarTabelaEstoque() {
     const tbody = document.getElementById('tabelaEstoqueBody');
@@ -32469,6 +32472,7 @@ function renderizarTabelaEstoque() {
                 </td>
             </tr>
         `;
+        atualizarBadgesEstoque([]);
         return;
     }
 
@@ -32482,10 +32486,12 @@ function renderizarTabelaEstoque() {
                 </td>
             </tr>
         `;
+        atualizarBadgesEstoque([]);
         return;
     }
 
     tbody.innerHTML = '';
+    dadosTabelaEstoque = [];
 
     grupos.forEach((grupo) => {
         // Buscar estoque do grupo para o mês
@@ -32527,6 +32533,8 @@ function renderizarTabelaEstoque() {
         }
 
         const tr = document.createElement('tr');
+        tr.dataset.status = statusClass;
+        tr.dataset.nome = grupo.name.toLowerCase();
         tr.innerHTML = `
             <td><strong>${grupo.name || 'Sem nome'}</strong></td>
             <td><span style="background: ${grupo.color}; color: white; padding: 2px 8px; border-radius: 4px; font-size: 0.8rem;">${grupo.name}</span></td>
@@ -32543,7 +32551,207 @@ function renderizarTabelaEstoque() {
             </td>
         `;
         tbody.appendChild(tr);
+        
+        // Armazenar dados para filtros e busca
+        dadosTabelaEstoque.push({
+            nome: grupo.name,
+            status: statusClass,
+            estoqueAtual,
+            elemento: tr
+        });
     });
+    
+    // Atualizar badges com contadores
+    atualizarBadgesEstoque(dadosTabelaEstoque);
+}
+
+// Função para atualizar badges de contadores
+function atualizarBadgesEstoque(dados) {
+    const contadores = {
+        critico: 0,
+        baixo: 0,
+        medio: 0,
+        ok: 0
+    };
+    
+    dados.forEach(item => {
+        if (contadores.hasOwnProperty(item.status)) {
+            contadores[item.status]++;
+        }
+    });
+    
+    // Atualizar badges
+    const badgeCritico = document.getElementById('badgeEstoqueCritico');
+    const badgeBaixo = document.getElementById('badgeEstoqueBaixo');
+    const badgeMedio = document.getElementById('badgeEstoqueMedio');
+    const badgeOk = document.getElementById('badgeEstoqueOk');
+    
+    if (badgeCritico) {
+        document.getElementById('countCritico').textContent = contadores.critico;
+        badgeCritico.style.display = contadores.critico > 0 ? 'inline-flex' : 'none';
+    }
+    
+    if (badgeBaixo) {
+        document.getElementById('countBaixo').textContent = contadores.baixo;
+        badgeBaixo.style.display = contadores.baixo > 0 ? 'inline-flex' : 'none';
+    }
+    
+    if (badgeMedio) {
+        document.getElementById('countMedio').textContent = contadores.medio;
+        badgeMedio.style.display = contadores.medio > 0 ? 'inline-flex' : 'none';
+    }
+    
+    if (badgeOk) {
+        document.getElementById('countOk').textContent = contadores.ok;
+        badgeOk.style.display = contadores.ok > 0 ? 'inline-flex' : 'none';
+    }
+}
+
+// Função para filtrar tabela por status
+function filtrarTabelaEstoque(filtro) {
+    const tbody = document.getElementById('tabelaEstoqueBody');
+    if (!tbody) return;
+    
+    const linhas = tbody.querySelectorAll('tr[data-status]');
+    
+    linhas.forEach(linha => {
+        if (filtro === 'todos') {
+            linha.style.display = '';
+        } else {
+            linha.style.display = linha.dataset.status === filtro ? '' : 'none';
+        }
+    });
+    
+    // Atualizar botões ativos
+    document.querySelectorAll('.btn-filtro').forEach(btn => {
+        btn.classList.remove('active');
+        if (btn.dataset.filtro === filtro) {
+            btn.classList.add('active');
+        }
+    });
+}
+
+// Função para buscar na tabela
+function buscarNaTabelaEstoque(termo) {
+    const tbody = document.getElementById('tabelaEstoqueBody');
+    if (!tbody) return;
+    
+    const termoLower = termo.toLowerCase().trim();
+    const linhas = tbody.querySelectorAll('tr[data-nome]');
+    
+    linhas.forEach(linha => {
+        if (!termoLower) {
+            linha.style.display = '';
+        } else {
+            const nome = linha.dataset.nome;
+            linha.style.display = nome.includes(termoLower) ? '' : 'none';
+        }
+    });
+}
+
+// Função para imprimir relatório de estoque
+function imprimirRelatorioEstoque() {
+    const usuario = sessionStorage.getItem('username');
+    const mes = document.getElementById('mesSelecionado')?.value;
+    
+    if (!usuario || !mes) {
+        if (typeof toast !== 'undefined' && toast) {
+            toast.warning('Selecione um mês para imprimir o relatório');
+        }
+        return;
+    }
+    
+    // Criar janela de impressão com estilo
+    const printWindow = window.open('', '_blank');
+    
+    const tabela = document.querySelector('.tabela-estoque').cloneNode(true);
+    
+    // Remover colunas de ações
+    tabela.querySelectorAll('th:last-child, td:last-child').forEach(el => el.remove());
+    
+    const html = `
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <meta charset="UTF-8">
+            <title>Relatório de Estoque - ${mes}</title>
+            <style>
+                body {
+                    font-family: Arial, sans-serif;
+                    margin: 20px;
+                }
+                h1 {
+                    text-align: center;
+                    color: #333;
+                }
+                .info {
+                    text-align: center;
+                    margin-bottom: 20px;
+                    color: #666;
+                }
+                table {
+                    width: 100%;
+                    border-collapse: collapse;
+                    margin-top: 20px;
+                }
+                th, td {
+                    border: 1px solid #ddd;
+                    padding: 8px;
+                    text-align: left;
+                }
+                th {
+                    background: #f8f9fa;
+                    font-weight: bold;
+                }
+                .estoque-status {
+                    padding: 4px 8px;
+                    border-radius: 4px;
+                    font-size: 0.85rem;
+                    font-weight: 600;
+                }
+                .estoque-status.critico {
+                    background: #fee;
+                    color: #c00;
+                }
+                .estoque-status.baixo {
+                    background: #fff3cd;
+                    color: #856404;
+                }
+                .estoque-status.medio {
+                    background: #d1ecf1;
+                    color: #0c5460;
+                }
+                .estoque-status.ok {
+                    background: #d4edda;
+                    color: #155724;
+                }
+                @media print {
+                    body { margin: 0; }
+                }
+            </style>
+        </head>
+        <body>
+            <h1>📊 Relatório de Estoque Consolidado</h1>
+            <div class="info">
+                <strong>Mês:</strong> ${mes} | 
+                <strong>Usuário:</strong> ${usuario} | 
+                <strong>Data:</strong> ${new Date().toLocaleString('pt-BR')}
+            </div>
+            ${tabela.outerHTML}
+            <script>
+                window.onload = function() {
+                    window.print();
+                    setTimeout(function() {
+                        window.close();
+                    }, 100);
+                }
+            </script>
+        </body>
+        </html>
+    `;
+    
+    printWindow.document.write(html);
+    printWindow.document.close();
 }
 
 // Função para abrir histórico de estoque
