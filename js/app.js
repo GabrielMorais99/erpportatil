@@ -8759,7 +8759,12 @@ class LojaApp {
         this.saveData();
         this.renderGroups();
         this.popularSelectMeses();
-        document.getElementById('mesSelecionado').value = month;
+
+        const mesSelect = document.getElementById('mesSelecionado');
+        if (mesSelect) {
+            mesSelect.value = month;
+        }
+
         this.carregarEstoqueDoMesSelecionado();
         this.updateMonthFilter();
         this.updateYearFilter();
