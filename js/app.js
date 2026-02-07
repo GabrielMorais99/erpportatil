@@ -1921,24 +1921,48 @@ class LojaApp {
         const mesSelect = document.getElementById('mesSelecionado');
         if (!mesSelect) return;
 
+        // Salvar o valor atualmente selecionado
+        const valorAtual = mesSelect.value;
+
         mesSelect.innerHTML = '<option value="">Selecione o mês</option>';
 
         const usuario = sessionStorage.getItem('username');
         if (!usuario) return;
 
         const prefixo = `estoque_${usuario}_`;
+        const mesesEncontrados = new Set();
 
+        // Buscar todos os meses com dados de estoque (com ou sem grupo)
         Object.keys(localStorage)
             .filter(key => key.startsWith(prefixo))
             .forEach(key => {
-                const mes = key.replace(prefixo, '');
-
-                const option = document.createElement('option');
-                option.value = mes;
-                option.textContent = this.formatarMesAno(mes);
-
-                mesSelect.appendChild(option);
+                // Extrair o mês da chave (formato: estoque_usuario_mes ou estoque_usuario_mes_grupo)
+                const partes = key.replace(prefixo, '').split('_');
+                const mes = partes[0]; // Primeiro elemento é sempre o mês (YYYY-MM)
+                
+                // Validar formato do mês (YYYY-MM)
+                if (mes && /^\d{4}-\d{2}$/.test(mes)) {
+                    mesesEncontrados.add(mes);
+                }
             });
+
+        // Ordenar meses (mais recentes primeiro)
+        const mesesOrdenados = Array.from(mesesEncontrados).sort((a, b) => b.localeCompare(a));
+
+        // Adicionar options
+        mesesOrdenados.forEach(mes => {
+            const option = document.createElement('option');
+            option.value = mes;
+            option.textContent = this.formatarMesAno(mes);
+            mesSelect.appendChild(option);
+        });
+
+        // Restaurar o valor anterior se ainda existir
+        if (valorAtual && mesesEncontrados.has(valorAtual)) {
+            mesSelect.value = valorAtual;
+        }
+
+        console.log('📅 Dropdown de meses populado:', mesesOrdenados);
     }
     formatarMesAno(mes) {
         const [ano, mesNum] = mes.split('-');
@@ -1999,6 +2023,16 @@ class LojaApp {
 
         mesSelect.addEventListener('change', () => {
             this.carregarEstoqueDoMesSelecionado();
+            
+            // Garantir que a tabela consolidada seja renderizada
+            const usuario = sessionStorage.getItem('username');
+            const mes = mesSelect.value;
+            if (usuario && mes) {
+                console.log('📊 Renderizando tabela de estoque para:', mes);
+                if (typeof atualizarResumoEstoqueMes === 'function') {
+                    atualizarResumoEstoqueMes(usuario, mes);
+                }
+            }
         });
     }
     init() {
@@ -32331,6 +32365,12 @@ function adicionarEntradaEstoque() {
 
     if (!window.app?.salvarEstoque) return;
     window.app.salvarEstoque(usuario, mes, estoqueFinal);
+    
+    // Atualizar dropdown de meses disponíveis
+    if (window.app?.popularSelectMeses) {
+        window.app.popularSelectMeses();
+    }
+    
     atualizarResumoEstoqueMes(usuario, mes);
 
     if (typeof toast !== 'undefined' && toast) {
@@ -32423,6 +32463,12 @@ function adicionarSaidaEstoque() {
 
     if (!window.app?.salvarEstoque) return;
     window.app.salvarEstoque(usuario, mes, estoqueFinal);
+    
+    // Atualizar dropdown de meses disponíveis
+    if (window.app?.popularSelectMeses) {
+        window.app.popularSelectMeses();
+    }
+    
     atualizarResumoEstoqueMes(usuario, mes);
 
     if (typeof toast !== 'undefined' && toast) {
@@ -32459,12 +32505,18 @@ let dadosTabelaEstoque = [];
 // Função para renderizar tabela consolidada de estoque
 function renderizarTabelaEstoque() {
     const tbody = document.getElementById('tabelaEstoqueBody');
-    if (!tbody) return;
+    if (!tbody) {
+        console.warn('⚠️ tabelaEstoqueBody não encontrado');
+        return;
+    }
 
     const usuario = sessionStorage.getItem('username');
     const mes = document.getElementById('mesSelecionado')?.value;
 
+    console.log('📊 renderizarTabelaEstoque() chamada:', { usuario, mes });
+
     if (!usuario || !mes) {
+        console.log('📊 Usuário ou mês não definido, mostrando mensagem');
         tbody.innerHTML = `
             <tr>
                 <td colspan="9" style="text-align: center; padding: 20px; color: #999;">
@@ -32478,7 +32530,10 @@ function renderizarTabelaEstoque() {
 
     // Buscar grupos do usuário
     const grupos = window.app?.groups || [];
+    console.log('📊 Grupos encontrados:', grupos.length, grupos);
+    
     if (grupos.length === 0) {
+        console.log('📊 Nenhum grupo cadastrado');
         tbody.innerHTML = `
             <tr>
                 <td colspan="9" style="text-align: center; padding: 20px; color: #999;">
@@ -32492,6 +32547,7 @@ function renderizarTabelaEstoque() {
 
     tbody.innerHTML = '';
     dadosTabelaEstoque = [];
+    console.log('📊 Iniciando renderização de', grupos.length, 'grupos');
 
     grupos.forEach((grupo) => {
         // Buscar estoque do grupo para o mês
@@ -32560,6 +32616,8 @@ function renderizarTabelaEstoque() {
             elemento: tr
         });
     });
+    
+    console.log('📊 Tabela renderizada com', dadosTabelaEstoque.length, 'grupos');
     
     // Atualizar badges com contadores
     atualizarBadgesEstoque(dadosTabelaEstoque);
