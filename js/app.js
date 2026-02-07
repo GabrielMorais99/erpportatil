@@ -31945,11 +31945,21 @@ function atualizarResumoEstoqueMes(usuario, mes) {
     const estoqueInicial = estoque?.totalInicial || 0;
     const movimentacoes = estoque?.movimentacoes || [];
 
-    const totalVendido = movimentacoes
-        .filter((m) => m.qtd < 0)
+    // Separar entradas, saídas manuais e vendas
+    const totalEntradas = movimentacoes
+        .filter((m) => m.tipo === 'entrada' && m.qtd > 0)
         .reduce((acc, m) => acc + Math.abs(m.qtd), 0);
 
-    const estoqueDisponivel = estoqueInicial - totalVendido;
+    const totalSaidas = movimentacoes
+        .filter((m) => m.tipo === 'saida' && m.qtd < 0)
+        .reduce((acc, m) => acc + Math.abs(m.qtd), 0);
+
+    const totalVendas = movimentacoes
+        .filter((m) => !m.tipo && m.qtd < 0)
+        .reduce((acc, m) => acc + Math.abs(m.qtd), 0);
+
+    const totalVendido = totalSaidas + totalVendas;
+    const estoqueDisponivel = estoqueInicial + totalEntradas - totalVendido;
 
     document.getElementById('resumoEstoqueInicial').textContent =
         `${estoqueInicial} un`;
@@ -31971,6 +31981,9 @@ function atualizarResumoEstoqueMes(usuario, mes) {
             movimentacoesAviso.style.display = 'none';
         }
     }
+
+    // Atualizar tabela consolidada
+    renderizarTabelaEstoque();
 }
 
 function adicionarEntradaEstoque() {
@@ -32064,6 +32077,98 @@ function adicionarEntradaEstoque() {
     }
 }
 
+// Função para saída manual de estoque (ajuste/perda)
+function adicionarSaidaEstoque() {
+    const usuario = sessionStorage.getItem('username');
+    const mes = document.getElementById('mesSelecionado')?.value;
+    const diaInput = document.getElementById('estoqueSaidaDia');
+    const quantidadeInput = document.getElementById('estoqueSaidaQuantidade');
+    const feedbackEl = document.getElementById('estoqueSaidaFeedback');
+    const btn = document.getElementById('adicionarSaidaEstoqueBtn');
+    const diaMsg = document.getElementById('estoqueSaidaDiaMsg');
+    const qtdMsg = document.getElementById('estoqueSaidaQuantidadeMsg');
+
+    if (btn && btn.dataset.busy === 'true') return;
+    if (!usuario || !mes || !diaInput || !quantidadeInput) return;
+
+    const data = diaInput.value;
+    const quantidade = Number(quantidadeInput.value);
+
+    diaInput.classList.remove('invalid');
+    quantidadeInput.classList.remove('invalid');
+    if (diaMsg) diaMsg.textContent = '';
+    if (diaMsg) diaMsg.classList.remove('show');
+    if (qtdMsg) qtdMsg.textContent = '';
+    if (qtdMsg) qtdMsg.classList.remove('show');
+    if (feedbackEl) feedbackEl.textContent = '';
+    if (feedbackEl) feedbackEl.classList.remove('show');
+
+    let hasError = false;
+    if (!data || !data.startsWith(mes)) {
+        diaInput.classList.add('invalid');
+        if (diaMsg) {
+            diaMsg.textContent = 'Informe uma data dentro do mês selecionado.';
+            diaMsg.classList.add('show');
+        }
+        hasError = true;
+    }
+    if (!quantidade || quantidade <= 0) {
+        quantidadeInput.classList.add('invalid');
+        if (qtdMsg) {
+            qtdMsg.textContent = 'Informe uma quantidade maior que zero.';
+            qtdMsg.classList.add('show');
+        }
+        hasError = true;
+    }
+    if (hasError) {
+        if (typeof toast !== 'undefined' && toast) {
+            toast.warning('Preencha os campos corretamente.');
+        }
+        return;
+    }
+
+    const estoque = window.app?.carregarEstoque
+        ? window.app.carregarEstoque(usuario, mes)
+        : null;
+    const estoqueFinal = estoque || {
+        totalInicial: 0,
+        movimentacoes: [],
+    };
+
+    estoqueFinal.movimentacoes = estoqueFinal.movimentacoes || [];
+    estoqueFinal.movimentacoes.push({
+        tipo: 'saida',
+        qtd: -Math.abs(quantidade),
+        data,
+    });
+
+    if (btn) {
+        btn.dataset.busy = 'true';
+        btn.disabled = true;
+    }
+
+    if (!window.app?.salvarEstoque) return;
+    window.app.salvarEstoque(usuario, mes, estoqueFinal);
+    atualizarResumoEstoqueMes(usuario, mes);
+
+    if (typeof toast !== 'undefined' && toast) {
+        toast.success('Saída de estoque registrada');
+    }
+    if (feedbackEl) {
+        feedbackEl.textContent = `Saída registrada: -${Math.abs(quantidade)} un em ${data}.`;
+        feedbackEl.classList.add('show');
+    }
+    diaInput.value = '';
+    quantidadeInput.value = '';
+
+    if (btn) {
+        setTimeout(() => {
+            btn.dataset.busy = 'false';
+            btn.disabled = false;
+        }, 800);
+    }
+}
+
 function atualizarEstadoEstoqueInput() {
     const mes = document.getElementById('mesSelecionado')?.value;
     const input = document.getElementById('estoqueMes');
@@ -32072,6 +32177,205 @@ function atualizarEstadoEstoqueInput() {
 
     input.disabled = !mes;
     if (!mes) input.value = '';
+}
+
+// Função para renderizar tabela consolidada de estoque
+function renderizarTabelaEstoque() {
+    const tbody = document.getElementById('tabelaEstoqueBody');
+    if (!tbody) return;
+
+    const usuario = sessionStorage.getItem('username');
+    const mes = document.getElementById('mesSelecionado')?.value;
+
+    if (!usuario || !mes) {
+        tbody.innerHTML = `
+            <tr>
+                <td colspan="9" style="text-align: center; padding: 20px; color: #999;">
+                    Selecione um mês para visualizar o estoque
+                </td>
+            </tr>
+        `;
+        return;
+    }
+
+    // Buscar grupos do usuário
+    const grupos = window.app?.groups || [];
+    if (grupos.length === 0) {
+        tbody.innerHTML = `
+            <tr>
+                <td colspan="9" style="text-align: center; padding: 20px; color: #999;">
+                    Nenhum grupo cadastrado
+                </td>
+            </tr>
+        `;
+        return;
+    }
+
+    tbody.innerHTML = '';
+
+    grupos.forEach((grupo) => {
+        // Buscar estoque do grupo para o mês
+        const estoque = window.app?.carregarEstoque
+            ? window.app.carregarEstoque(usuario, mes, grupo.name)
+            : null;
+
+        const estoqueInicial = estoque?.totalInicial || 0;
+        const movimentacoes = estoque?.movimentacoes || [];
+
+        // Calcular totais
+        const totalEntradas = movimentacoes
+            .filter((m) => m.tipo === 'entrada' && m.qtd > 0)
+            .reduce((acc, m) => acc + Math.abs(m.qtd), 0);
+
+        const totalSaidas = movimentacoes
+            .filter((m) => m.tipo === 'saida' && m.qtd < 0)
+            .reduce((acc, m) => acc + Math.abs(m.qtd), 0);
+
+        const totalVendas = movimentacoes
+            .filter((m) => !m.tipo && m.qtd < 0)
+            .reduce((acc, m) => acc + Math.abs(m.qtd), 0);
+
+        const estoqueAtual = estoqueInicial + totalEntradas - totalSaidas - totalVendas;
+
+        // Determinar status
+        let statusClass = 'ok';
+        let statusTexto = 'OK';
+
+        if (estoqueAtual <= 0) {
+            statusClass = 'critico';
+            statusTexto = 'Crítico';
+        } else if (estoqueAtual <= 5) {
+            statusClass = 'baixo';
+            statusTexto = 'Baixo';
+        } else if (estoqueAtual <= 10) {
+            statusClass = 'medio';
+            statusTexto = 'Médio';
+        }
+
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+            <td><strong>${grupo.name || 'Sem nome'}</strong></td>
+            <td><span style="background: ${grupo.color}; color: white; padding: 2px 8px; border-radius: 4px; font-size: 0.8rem;">${grupo.name}</span></td>
+            <td>${estoqueInicial}</td>
+            <td style="color: #28a745; font-weight: 600;">${totalEntradas > 0 ? '+' + totalEntradas : '0'}</td>
+            <td style="color: #dc3545; font-weight: 600;">${totalSaidas > 0 ? '-' + totalSaidas : '0'}</td>
+            <td style="color: #6c757d; font-weight: 600;">${totalVendas > 0 ? '-' + totalVendas : '0'}</td>
+            <td><span class="estoque-valor ${statusClass}">${estoqueAtual}</span></td>
+            <td><span class="estoque-status ${statusClass}">${statusTexto}</span></td>
+            <td>
+                <button class="btn-secondary btn-sm" onclick="abrirHistoricoEstoque('${grupo.name}', '${mes}')">
+                    📊 Ver
+                </button>
+            </td>
+        `;
+        tbody.appendChild(tr);
+    });
+}
+
+// Função para abrir histórico de estoque
+function abrirHistoricoEstoque(grupoNome, mes) {
+    const usuario = sessionStorage.getItem('username');
+    if (!usuario || !grupoNome || !mes) return;
+
+    const modal = document.getElementById('historicoEstoqueModal');
+    if (!modal) return;
+
+    // Buscar estoque do grupo
+    const estoque = window.app?.carregarEstoque
+        ? window.app.carregarEstoque(usuario, mes, grupoNome)
+        : null;
+
+    const estoqueInicial = estoque?.totalInicial || 0;
+    const movimentacoes = estoque?.movimentacoes || [];
+
+    // Atualizar informações do modal
+    document.getElementById('historicoGrupoNome').textContent = grupoNome;
+    document.getElementById('historicoMes').textContent = mes;
+    document.getElementById('historicoEstoqueInicial').textContent = estoqueInicial + ' un';
+
+    // Calcular estoque atual
+    const totalEntradas = movimentacoes
+        .filter((m) => m.tipo === 'entrada' && m.qtd > 0)
+        .reduce((acc, m) => acc + Math.abs(m.qtd), 0);
+
+    const totalSaidas = movimentacoes
+        .filter((m) => (m.tipo === 'saida' || !m.tipo) && m.qtd < 0)
+        .reduce((acc, m) => acc + Math.abs(m.qtd), 0);
+
+    const estoqueAtual = estoqueInicial + totalEntradas - totalSaidas;
+    document.getElementById('historicoEstoqueAtual').textContent = estoqueAtual + ' un';
+
+    // Renderizar tabela de movimentações
+    const tbody = document.getElementById('historicoEstoqueBody');
+    tbody.innerHTML = '';
+
+    if (movimentacoes.length === 0) {
+        tbody.innerHTML = `
+            <tr>
+                <td colspan="4" style="text-align: center; padding: 20px; color: #999;">
+                    Nenhuma movimentação registrada para este mês
+                </td>
+            </tr>
+        `;
+    } else {
+        // Ordenar por data
+        const movimentacoesOrdenadas = [...movimentacoes].sort((a, b) => {
+            return new Date(a.data) - new Date(b.data);
+        });
+
+        let saldoAcumulado = estoqueInicial;
+
+        movimentacoesOrdenadas.forEach((mov) => {
+            const quantidade = mov.qtd;
+            let tipoTexto = '';
+            let tipoIcon = '';
+            let corTipo = '';
+
+            if (mov.tipo === 'entrada') {
+                tipoTexto = 'Entrada';
+                tipoIcon = '📥';
+                corTipo = '#28a745';
+            } else if (mov.tipo === 'saida') {
+                tipoTexto = 'Saída';
+                tipoIcon = '📤';
+                corTipo = '#dc3545';
+            } else {
+                tipoTexto = 'Venda';
+                tipoIcon = '💰';
+                corTipo = '#6c757d';
+            }
+
+            saldoAcumulado += quantidade;
+
+            const tr = document.createElement('tr');
+            tr.style.borderBottom = '1px solid var(--gray-200)';
+
+            const dataFormatada = new Date(mov.data + 'T00:00:00').toLocaleDateString('pt-BR');
+
+            tr.innerHTML = `
+                <td style="padding: 10px;">${dataFormatada}</td>
+                <td style="padding: 10px;">
+                    <span style="color: ${corTipo}; font-weight: 600;">
+                        ${tipoIcon} ${tipoTexto}
+                    </span>
+                </td>
+                <td style="padding: 10px; text-align: right; font-weight: 600; color: ${quantidade >= 0 ? '#28a745' : '#dc3545'};">
+                    ${quantidade >= 0 ? '+' : ''}${quantidade}
+                </td>
+                <td style="padding: 10px; text-align: right; font-weight: 700; font-size: 1.1rem;">
+                    ${saldoAcumulado}
+                </td>
+            `;
+            tbody.appendChild(tr);
+        });
+    }
+
+    // Abrir modal
+    if (window.app?.openModalSafely) {
+        window.app.openModalSafely(modal);
+    } else {
+        modal.classList.add('active');
+    }
 }
 
 function normalizarMes(valor) {

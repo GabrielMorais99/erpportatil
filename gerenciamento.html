@@ -769,6 +769,27 @@
                                 <div id="estoqueEntradaFeedback" class="field-message"></div>
                             </div>
 
+                            <!-- SAÍDA MANUAL DE ESTOQUE -->
+                            <div class="form-group" style="min-width: 220px;">
+                                <label>Saída de estoque (ajuste/perda)</label>
+                                <input type="date" id="estoqueSaidaDia" class="search-input-with-icon" />
+                                <div id="estoqueSaidaDiaMsg" class="field-message error"></div>
+                            </div>
+                            <div class="form-group" style="min-width: 160px;">
+                                <label for="estoqueSaidaQuantidade">Quantidade</label>
+                                <input type="number" id="estoqueSaidaQuantidade" min="1" placeholder="Ex: 5"
+                                    class="search-input-with-icon" />
+                                <div id="estoqueSaidaQuantidadeMsg" class="field-message error"></div>
+                            </div>
+                            <div class="form-group" style="min-width: 200px;">
+                                <label style="opacity: 0">Ações</label>
+                                <button class="btn-danger" type="button" id="adicionarSaidaEstoqueBtn"
+                                    onclick="adicionarSaidaEstoque()">
+                                    Registrar Saída de Estoque
+                                </button>
+                                <div id="estoqueSaidaFeedback" class="field-message"></div>
+                            </div>
+
                             <!-- RESUMO DO ESTOQUE DO MÊS -->
                             <div id="resumoEstoqueMes" class="estoque-resumo-card mobile-sticky">
                                 <h4 class="estoque-resumo-titulo">
@@ -796,6 +817,40 @@
                                     <div id="movimentacoesAviso" style="text-align: center; opacity: 0.8;">
                                         Nenhuma movimentação registrada para este mês.
                                     </div>
+                                </div>
+                            </div>
+
+                            <!-- TABELA CONSOLIDADA DE ESTOQUE -->
+                            <div id="tabelaEstoqueContainer" class="estoque-tabela-container" style="margin-top: 2rem;">
+                                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                                    <h4 style="margin: 0; color: var(--gray-700);">📊 Estoque Consolidado</h4>
+                                    <button type="button" class="btn-secondary btn-sm" onclick="renderizarTabelaEstoque()">
+                                        🔄 Atualizar
+                                    </button>
+                                </div>
+                                <div style="overflow-x: auto;">
+                                    <table class="tabela-estoque">
+                                        <thead>
+                                            <tr>
+                                                <th>Produto</th>
+                                                <th>Grupo</th>
+                                                <th>Est. Inicial</th>
+                                                <th>Entradas</th>
+                                                <th>Saídas</th>
+                                                <th>Vendas</th>
+                                                <th>Est. Atual</th>
+                                                <th>Status</th>
+                                                <th>Ações</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="tabelaEstoqueBody">
+                                            <tr>
+                                                <td colspan="9" style="text-align: center; padding: 20px; color: #999;">
+                                                    Selecione um mês para visualizar o estoque
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
                                 </div>
                             </div>
                         </div>
@@ -6907,6 +6962,58 @@
             }
         });
     </script>
+
+    <!-- MODAL DE HISTÓRICO DE ESTOQUE -->
+    <div id="historicoEstoqueModal" class="modal">
+        <div class="modal-content" style="max-width: 900px;">
+            <div class="modal-header">
+                <h2 id="historicoEstoqueModalTitle">📊 Histórico de Movimentações</h2>
+                <span class="close" aria-label="Fechar modal" role="button" tabindex="0">&times;</span>
+            </div>
+            <div class="modal-body">
+                <div id="historicoEstoqueInfo" style="margin-bottom: 1.5rem; padding: 1rem; background: var(--gray-100); border-radius: var(--radius-md);">
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 1rem;">
+                        <div>
+                            <small style="color: var(--gray-600); display: block;">Grupo</small>
+                            <strong id="historicoGrupoNome">-</strong>
+                        </div>
+                        <div>
+                            <small style="color: var(--gray-600); display: block;">Mês</small>
+                            <strong id="historicoMes">-</strong>
+                        </div>
+                        <div>
+                            <small style="color: var(--gray-600); display: block;">Estoque Inicial</small>
+                            <strong id="historicoEstoqueInicial">0</strong>
+                        </div>
+                        <div>
+                            <small style="color: var(--gray-600); display: block;">Estoque Atual</small>
+                            <strong id="historicoEstoqueAtual" style="color: var(--primary-color);">0</strong>
+                        </div>
+                    </div>
+                </div>
+                
+                <div style="overflow-x: auto;">
+                    <table class="tabela-historico" style="width: 100%; border-collapse: collapse;">
+                        <thead>
+                            <tr style="background: var(--gray-100);">
+                                <th style="padding: 10px; text-align: left; border-bottom: 2px solid var(--gray-300);">Data</th>
+                                <th style="padding: 10px; text-align: left; border-bottom: 2px solid var(--gray-300);">Tipo</th>
+                                <th style="padding: 10px; text-align: right; border-bottom: 2px solid var(--gray-300);">Quantidade</th>
+                                <th style="padding: 10px; text-align: right; border-bottom: 2px solid var(--gray-300);">Saldo</th>
+                            </tr>
+                        </thead>
+                        <tbody id="historicoEstoqueBody">
+                            <tr>
+                                <td colspan="4" style="text-align: center; padding: 20px; color: #999;">
+                                    Nenhuma movimentação registrada
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <script>
         (function blockLoadingOverlay() {

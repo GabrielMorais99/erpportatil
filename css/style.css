@@ -6923,3 +6923,141 @@ body.dark-mode .skeleton-line {
         font-size: clamp(0.85rem, 3vw, 1rem) !important;
     }
 }
+
+/* ========================================
+   TABELA CONSOLIDADA DE ESTOQUE
+   ======================================== */
+
+.estoque-tabela-container {
+    background: var(--white);
+    border-radius: var(--radius-md);
+    padding: 1.5rem;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.tabela-estoque {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.9rem;
+}
+
+.tabela-estoque thead {
+    background: var(--gray-100);
+}
+
+.tabela-estoque th {
+    padding: 12px;
+    text-align: left;
+    font-weight: 600;
+    color: var(--gray-700);
+    border-bottom: 2px solid var(--gray-300);
+    white-space: nowrap;
+}
+
+.tabela-estoque td {
+    padding: 10px 12px;
+    border-bottom: 1px solid var(--gray-200);
+    vertical-align: middle;
+}
+
+.tabela-estoque tbody tr:hover {
+    background: var(--gray-50);
+}
+
+/* Status de estoque */
+.estoque-status {
+    display: inline-block;
+    padding: 4px 12px;
+    border-radius: 12px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+.estoque-status.critico {
+    background: #fee;
+    color: #c00;
+}
+
+.estoque-status.baixo {
+    background: #fff3cd;
+    color: #856404;
+}
+
+.estoque-status.medio {
+    background: #d1ecf1;
+    color: #0c5460;
+}
+
+.estoque-status.ok {
+    background: #d4edda;
+    color: #155724;
+}
+
+.estoque-valor {
+    font-weight: 600;
+    font-size: 1rem;
+}
+
+.estoque-valor.critico {
+    color: #c00;
+}
+
+.estoque-valor.baixo {
+    color: #856404;
+}
+
+.estoque-valor.medio {
+    color: #0c5460;
+}
+
+.estoque-valor.ok {
+    color: #155724;
+}
+
+.btn-sm {
+    padding: 6px 12px !important;
+    font-size: 0.85rem !important;
+}
+
+.btn-danger {
+    background: #dc3545;
+    color: white;
+    border: none;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.btn-danger:hover {
+    background: #c82333;
+}
+
+.btn-danger:disabled {
+    background: #dc354580;
+    cursor: not-allowed;
+}
+
+/* Estilos para tabela de histórico */
+.tabela-historico tr:hover {
+    background: var(--gray-50);
+}
+
+.modal-body {
+    max-height: 70vh;
+    overflow-y: auto;
+}
+
+@media (max-width: 768px) {
+    .tabela-estoque {
+        font-size: 0.8rem;
+    }
+
+    .tabela-estoque th,
+    .tabela-estoque td {
+        padding: 8px;
+    }
+
+    .estoque-tabela-container {
+        padding: 1rem;
+    }
+}
