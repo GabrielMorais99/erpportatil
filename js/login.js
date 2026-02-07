@@ -200,13 +200,18 @@ document.addEventListener('DOMContentLoaded', function () {
             nilda: {
                 passwordHash:
                     'a665a45920422f9d417e4867efdc4fb8a04a1f3fff1fa07e998e86f7f7a27ae3', // hash de '123'
-                level: 'admin',
+                level: 'user',
             },
 
             gabriel: {
                 passwordHash:
                     '8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92', // hash de '0001'
                 level: 'admin',
+            },
+            samara: {
+                passwordHash:
+                    '8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92', // hash de '0002'
+                level: 'manager',
             },
             admin: {
                 passwordHash:
