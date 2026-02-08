@@ -1919,7 +1919,10 @@ class LojaApp {
 
     popularSelectMeses() {
         const mesSelect = document.getElementById('mesSelecionado');
-        if (!mesSelect) return;
+        if (!mesSelect) {
+            console.warn('⚠️ mesSelecionado não encontrado');
+            return;
+        }
 
         // Salvar o valor atualmente selecionado
         const valorAtual = mesSelect.value;
@@ -1927,27 +1930,44 @@ class LojaApp {
         mesSelect.innerHTML = '<option value="">Selecione o mês</option>';
 
         const usuario = sessionStorage.getItem('username');
-        if (!usuario) return;
+        if (!usuario) {
+            console.warn('⚠️ Usuário não encontrado');
+            return;
+        }
 
         const prefixo = `estoque_${usuario}_`;
         const mesesEncontrados = new Set();
 
+        console.log('📅 [POPULAR MESES] Buscando chaves com prefixo:', prefixo);
+        
         // Buscar todos os meses com dados de estoque (com ou sem grupo)
-        Object.keys(localStorage)
-            .filter(key => key.startsWith(prefixo))
-            .forEach(key => {
-                // Extrair o mês da chave (formato: estoque_usuario_mes ou estoque_usuario_mes_grupo)
-                const partes = key.replace(prefixo, '').split('_');
-                const mes = partes[0]; // Primeiro elemento é sempre o mês (YYYY-MM)
+        const todasChaves = Object.keys(localStorage).filter(key => key.startsWith(prefixo));
+        console.log('📅 [POPULAR MESES] Chaves encontradas:', todasChaves);
+        
+        todasChaves.forEach(key => {
+            // Extrair o mês da chave (formato: estoque_usuario_mes ou estoque_usuario_mes_grupo)
+                const resto = key.replace(prefixo, ''); // Remove "estoque_usuario_"
+                console.log('📅 [POPULAR MESES] Processando chave:', key, '-> resto:', resto);
                 
-                // Validar formato do mês (YYYY-MM)
-                if (mes && /^\d{4}-\d{2}$/.test(mes)) {
-                    mesesEncontrados.add(mes);
-                }
-            });
+            const partes = resto.split('_');
+            const mes = partes[0]; // Primeiro elemento é sempre o mês (YYYY-MM)
+                
+                console.log('📅 [POPULAR MESES] Partes:', partes, '-> mês extraído:', mes);
+                
+            // Validar formato do mês (YYYY-MM)
+            if (mes && /^\d{4}-\d{2}$/.test(mes)) {
+                    console.log('📅 [POPULAR MESES] Mês válido encontrado:', mes);
+                mesesEncontrados.add(mes);
+                } else {
+                    console.warn('⚠️ [POPULAR MESES] Formato inválido para mês:', mes, 'da chave:', key);
+            }
+        });
+
+        console.log('📅 [POPULAR MESES] Meses únicos encontrados:', Array.from(mesesEncontrados));
 
         // Ordenar meses (mais recentes primeiro)
         const mesesOrdenados = Array.from(mesesEncontrados).sort((a, b) => b.localeCompare(a));
+        console.log('📅 [POPULAR MESES] Meses ordenados:', mesesOrdenados);
 
         // Adicionar options
         mesesOrdenados.forEach(mes => {
@@ -1955,14 +1975,16 @@ class LojaApp {
             option.value = mes;
             option.textContent = this.formatarMesAno(mes);
             mesSelect.appendChild(option);
+            console.log('📅 [POPULAR MESES] Adicionada option:', mes, '->', this.formatarMesAno(mes));
         });
 
         // Restaurar o valor anterior se ainda existir
         if (valorAtual && mesesEncontrados.has(valorAtual)) {
             mesSelect.value = valorAtual;
+            console.log('📅 [POPULAR MESES] Valor restaurado:', valorAtual);
         }
 
-        console.log('📅 Dropdown de meses populado:', mesesOrdenados);
+        console.log('📅 [POPULAR MESES] Dropdown populado com', mesesOrdenados.length, 'meses');
     }
     formatarMesAno(mes) {
         const [ano, mesNum] = mes.split('-');
@@ -32939,6 +32961,41 @@ function abrirHistoricoEstoque(grupoNome, mes) {
             `;
             tbody.appendChild(tr);
         });
+    }
+
+    // Configurar botão fechar (apenas uma vez, se ainda não foi configurado)
+    if (!modal.dataset.listenersConfigured) {
+        const closeBtn = modal.querySelector('.close');
+        const cancelBtn = modal.querySelector('.btn-secondary, [onclick*="fechar"], [onclick*="close"]');
+        
+        if (closeBtn) {
+            closeBtn.addEventListener('click', () => {
+                console.log('📊 [HISTORICO] Botão X clicado');
+                if (window.app?.closeModalSafely) {
+                    window.app.closeModalSafely(modal);
+                } else {
+                    modal.classList.remove('active');
+                    modal.style.display = 'none';
+                }
+            });
+            console.log('✅ [HISTORICO] Listener anexado ao botão X');
+        }
+        
+        if (cancelBtn) {
+            cancelBtn.addEventListener('click', () => {
+                console.log('📊 [HISTORICO] Botão cancelar clicado');
+                if (window.app?.closeModalSafely) {
+                    window.app.closeModalSafely(modal);
+                } else {
+                    modal.classList.remove('active');
+                    modal.style.display = 'none';
+                }
+            });
+            console.log('✅ [HISTORICO] Listener anexado ao botão cancelar');
+        }
+        
+        // Marcar como configurado para não duplicar listeners
+        modal.dataset.listenersConfigured = 'true';
     }
 
     // Abrir modal
