@@ -15292,6 +15292,25 @@ class LojaApp {
                 return;
             }
         }
+        
+        // Se mudar para a aba de estoque, popular dropdown de meses e renderizar tabela
+        if (tab === 'stockPanel') {
+            console.log('📦 [ESTOQUE] Abrindo painel de estoque');
+            setTimeout(() => {
+                this.popularSelectMeses();
+                
+                // Verificar se existe um mês selecionado e renderizar a tabela
+                const mesSelect = document.getElementById('mesSelecionado');
+                if (mesSelect && mesSelect.value) {
+                    const usuario = sessionStorage.getItem('username');
+                    if (usuario && typeof atualizarResumoEstoqueMes === 'function') {
+                        console.log('📦 [ESTOQUE] Renderizando tabela para o mês:', mesSelect.value);
+                        atualizarResumoEstoqueMes(usuario, mesSelect.value);
+                    }
+                }
+            }, 100);
+        }
+        
         if (!tab) {
             console.warn('⚠️ [SWITCH TAB] Tab não especificado');
             return;
@@ -32369,6 +32388,12 @@ function adicionarEntradaEstoque() {
     // Atualizar dropdown de meses disponíveis
     if (window.app?.popularSelectMeses) {
         window.app.popularSelectMeses();
+        
+        // Garantir que o mês atual está selecionado no dropdown
+        const mesSelect = document.getElementById('mesSelecionado');
+        if (mesSelect && mes) {
+            mesSelect.value = mes;
+        }
     }
     
     atualizarResumoEstoqueMes(usuario, mes);
@@ -32467,6 +32492,12 @@ function adicionarSaidaEstoque() {
     // Atualizar dropdown de meses disponíveis
     if (window.app?.popularSelectMeses) {
         window.app.popularSelectMeses();
+        
+        // Garantir que o mês atual está selecionado no dropdown
+        const mesSelect = document.getElementById('mesSelecionado');
+        if (mesSelect && mes) {
+            mesSelect.value = mes;
+        }
     }
     
     atualizarResumoEstoqueMes(usuario, mes);
