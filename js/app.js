@@ -1939,35 +1939,40 @@ class LojaApp {
         const mesesEncontrados = new Set();
 
         console.log('📅 [POPULAR MESES] Buscando chaves com prefixo:', prefixo);
+        console.log('📅 [POPULAR MESES] Total de chaves no localStorage:', Object.keys(localStorage).length);
         
         // Buscar todos os meses com dados de estoque (com ou sem grupo)
         const todasChaves = Object.keys(localStorage).filter(key => key.startsWith(prefixo));
-        console.log('📅 [POPULAR MESES] Chaves encontradas:', todasChaves);
+        console.log('📅 [POPULAR MESES] Chaves de estoque encontradas:', todasChaves.length, todasChaves);
         
         todasChaves.forEach(key => {
-            // Extrair o mês da chave (formato: estoque_usuario_mes ou estoque_usuario_mes_grupo)
-                const resto = key.replace(prefixo, ''); // Remove "estoque_usuario_"
-                console.log('📅 [POPULAR MESES] Processando chave:', key, '-> resto:', resto);
-                
-            const partes = resto.split('_');
-            const mes = partes[0]; // Primeiro elemento é sempre o mês (YYYY-MM)
-                
-                console.log('📅 [POPULAR MESES] Partes:', partes, '-> mês extraído:', mes);
-                
+            // Extrair o mês da chave
+            // Formato esperado: estoque_usuario_YYYY-MM ou estoque_usuario_YYYY-MM_NomeDoGrupo
+            const resto = key.substring(prefixo.length); // Remove "estoque_usuario_"
+            console.log('📅 [POPULAR MESES] Chave:', key);
+            console.log('📅 [POPULAR MESES]   -> Resto após remover prefixo:', resto);
+            
+            // Pegar apenas os primeiros 7 caracteres (YYYY-MM)
+            // Isso funciona tanto para "2026-02" quanto para "2026-02_NomeDoGrupo"
+            const mes = resto.substring(0, 7);
+            console.log('📅 [POPULAR MESES]   -> Mês extraído (7 chars):', mes);
+            
             // Validar formato do mês (YYYY-MM)
             if (mes && /^\d{4}-\d{2}$/.test(mes)) {
-                    console.log('📅 [POPULAR MESES] Mês válido encontrado:', mes);
+                console.log('📅 [POPULAR MESES]   -> ✅ Mês VÁLIDO:', mes);
                 mesesEncontrados.add(mes);
-                } else {
-                    console.warn('⚠️ [POPULAR MESES] Formato inválido para mês:', mes, 'da chave:', key);
+            } else {
+                console.warn('📅 [POPULAR MESES]   -> ❌ Mês INVÁLIDO:', mes, '(não passa na regex)');
             }
         });
 
-        console.log('📅 [POPULAR MESES] Meses únicos encontrados:', Array.from(mesesEncontrados));
+        console.log('📅 [POPULAR MESES] ========================================');
+        console.log('📅 [POPULAR MESES] MESES ÚNICOS ENCONTRADOS:', Array.from(mesesEncontrados));
+        console.log('📅 [POPULAR MESES] ========================================');
 
         // Ordenar meses (mais recentes primeiro)
         const mesesOrdenados = Array.from(mesesEncontrados).sort((a, b) => b.localeCompare(a));
-        console.log('📅 [POPULAR MESES] Meses ordenados:', mesesOrdenados);
+        console.log('📅 [POPULAR MESES] Meses ordenados (recentes primeiro):', mesesOrdenados);
 
         // Adicionar options
         mesesOrdenados.forEach(mes => {
@@ -1975,16 +1980,18 @@ class LojaApp {
             option.value = mes;
             option.textContent = this.formatarMesAno(mes);
             mesSelect.appendChild(option);
-            console.log('📅 [POPULAR MESES] Adicionada option:', mes, '->', this.formatarMesAno(mes));
+            console.log('📅 [POPULAR MESES] ✅ Adicionada option:', mes, '->', this.formatarMesAno(mes));
         });
 
         // Restaurar o valor anterior se ainda existir
         if (valorAtual && mesesEncontrados.has(valorAtual)) {
             mesSelect.value = valorAtual;
-            console.log('📅 [POPULAR MESES] Valor restaurado:', valorAtual);
+            console.log('📅 [POPULAR MESES] Valor anterior restaurado:', valorAtual);
         }
 
+        console.log('📅 [POPULAR MESES] ======== CONCLUÍDO ========');
         console.log('📅 [POPULAR MESES] Dropdown populado com', mesesOrdenados.length, 'meses');
+        console.log('📅 [POPULAR MESES] ============================');
     }
     formatarMesAno(mes) {
         const [ano, mesNum] = mes.split('-');
