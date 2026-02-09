@@ -1,10 +1,10 @@
 {
-    "version": "4.6.0",
+    "version": "4.6.1",
     "buildDate": "2026-02-09",
-    "buildTime": "01:58:00",
+    "buildTime": "02:15:00",
     "commit": "pending",
     "branch": "main",
-    "commitMessage": "feat: adicionar gerenciamento de estoque por SKU dentro dos cards mensais",
+    "commitMessage": "fix: corrigir botão e remover controles antigos de estoque do painel principal",
     "description": "ERP Portátil - Sistema de Gestão Financeira",
-    "updatedAt": "2026-02-09T01:58:00.000Z"
+    "updatedAt": "2026-02-09T02:15:00.000Z"
 }

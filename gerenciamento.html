@@ -743,82 +743,6 @@
                                 </select>
                             </div>
 
-                            <div class="form-group">
-                                <label for="estoqueMes">Estoque inicial do mês</label>
-                                <input type="number" id="estoqueMes" min="0" placeholder="Ex: 100"
-                                    class="search-input-with-icon" />
-                            </div>
-                            <div class="form-group" style="min-width: 220px;">
-                                <label>Entrada adicional de estoque (por dia)</label>
-                                <input type="date" id="estoqueEntradaDia" class="search-input-with-icon" />
-                                <div id="estoqueEntradaDiaMsg" class="field-message error"></div>
-                            </div>
-                            <div class="form-group" style="min-width: 160px;">
-                                <label for="estoqueEntradaQuantidade">Quantidade</label>
-                                <input type="number" id="estoqueEntradaQuantidade" min="1" placeholder="Ex: 10"
-                                    class="search-input-with-icon" />
-                                <div id="estoqueEntradaQuantidadeMsg" class="field-message error"></div>
-                            </div>
-                            <div class="form-group" style="min-width: 200px;">
-                                <label style="opacity: 0">Ações</label>
-                                <button class="btn-secondary" type="button" id="adicionarEntradaEstoqueBtn"
-                                    onclick="adicionarEntradaEstoque()">
-                                    Adicionar Entrada de Estoque
-                                </button>
-                                <div id="estoqueEntradaFeedback" class="field-message"></div>
-                            </div>
-
-                            <!-- SAÍDA MANUAL DE ESTOQUE -->
-                            <div class="form-group" style="min-width: 220px;">
-                                <label>Saída de estoque (ajuste/perda)</label>
-                                <input type="date" id="estoqueSaidaDia" class="search-input-with-icon" />
-                                <div id="estoqueSaidaDiaMsg" class="field-message error"></div>
-                            </div>
-                            <div class="form-group" style="min-width: 160px;">
-                                <label for="estoqueSaidaQuantidade">Quantidade</label>
-                                <input type="number" id="estoqueSaidaQuantidade" min="1" placeholder="Ex: 5"
-                                    class="search-input-with-icon" />
-                                <div id="estoqueSaidaQuantidadeMsg" class="field-message error"></div>
-                            </div>
-                            <div class="form-group" style="min-width: 200px;">
-                                <label style="opacity: 0">Ações</label>
-                                <button class="btn-danger" type="button" id="adicionarSaidaEstoqueBtn"
-                                    onclick="adicionarSaidaEstoque()">
-                                    Registrar Saída de Estoque
-                                </button>
-                                <div id="estoqueSaidaFeedback" class="field-message"></div>
-                            </div>
-
-                            <!-- RESUMO DO ESTOQUE DO MÊS -->
-                            <div id="resumoEstoqueMes" class="estoque-resumo-card mobile-sticky">
-                                <h4 class="estoque-resumo-titulo">
-                                    📦 Resumo do Estoque
-                                </h4>
-
-                                <div class="estoque-resumo-grid">
-                                    <div class="estoque-resumo-item">
-                                        <span>Estoque inicial</span>
-                                        <strong id="resumoEstoqueInicial">0 un</strong>
-                                    </div>
-
-                                    <div class="estoque-resumo-item">
-                                        <span>Total vendido</span>
-                                        <strong id="resumoEstoqueVendido">0 un</strong>
-                                    </div>
-
-                                    <div class="estoque-resumo-item destaque">
-                                        <span>Estoque disponível</span>
-                                        <strong id="resumoEstoqueDisponivel">0 un</strong>
-                                    </div>
-                                </div>
-
-                                <div class="estoque-resumo-acoes">
-                                    <div id="movimentacoesAviso" style="text-align: center; opacity: 0.8;">
-                                        Nenhuma movimentação registrada para este mês.
-                                    </div>
-                                </div>
-                            </div>
-
                             <!-- TABELA CONSOLIDADA DE ESTOQUE -->
                             <div id="tabelaEstoqueContainer" class="estoque-tabela-container" style="margin-top: 2rem;">
                                 <!-- Cabeçalho com badges e ações -->
@@ -3558,7 +3482,7 @@
                             type="button"
                             class="btn-primary"
                             id="manageStockBtn"
-                            onclick="app.openStockManagementModal(app.currentGroup?.id)"
+                            onclick="if(app && app.currentGroup) { app.stockManager.openStockManagementModal(app.currentGroup.id); }"
                             style="
                                 padding: 0.875rem 1.5rem;
                                 font-size: 1rem;
@@ -3569,12 +3493,13 @@
                                 border-radius: 8px;
                                 box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
                                 transition: all 0.3s;
+                                white-space: nowrap;
                             "
                             onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 6px 20px rgba(0, 0, 0, 0.2)';"
                             onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 12px rgba(0, 0, 0, 0.15)';"
                         >
                             <i class="fas fa-warehouse"></i> 
-                            <span>Gerenciar Estoque por SKU</span>
+                            <span>Gerenciamento estoque do mês</span>
                         </button>
                     </div>
                 </div>
