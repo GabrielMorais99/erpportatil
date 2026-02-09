@@ -3477,7 +3477,7 @@
                     </div>
                     
                     <!-- Botão de Gerenciamento de Estoque -->
-                    <div style="margin-top: 1rem; text-align: center;">
+                    <div style="margin-top: 1rem; text-align: center; padding: 0 1rem;">
                         <button
                             type="button"
                             class="btn-primary"
@@ -3485,15 +3485,20 @@
                             onclick="if(app && app.currentGroup) { app.stockManager.openStockManagementModal(app.currentGroup.id); }"
                             style="
                                 padding: 0.875rem 1.5rem;
-                                font-size: 1rem;
+                                font-size: 0.95rem;
                                 font-weight: 600;
                                 display: inline-flex;
                                 align-items: center;
+                                justify-content: center;
                                 gap: 0.5rem;
                                 border-radius: 8px;
                                 box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
                                 transition: all 0.3s;
-                                white-space: nowrap;
+                                white-space: normal;
+                                word-wrap: break-word;
+                                text-align: center;
+                                width: 100%;
+                                max-width: 400px;
                             "
                             onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 6px 20px rgba(0, 0, 0, 0.2)';"
                             onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 12px rgba(0, 0, 0, 0.15)';"
@@ -7014,7 +7019,7 @@
                 <h2 id="stockManagementTitle">
                     <i class="fas fa-warehouse"></i> Gerenciamento de Estoque
                 </h2>
-                <span class="close" onclick="app.closeStockManagementModal()" aria-label="Fechar modal" role="button" tabindex="0">&times;</span>
+                <span class="close" onclick="if(app && app.stockManager) { app.stockManager.closeStockManagementModal(); }" aria-label="Fechar modal" role="button" tabindex="0">&times;</span>
             </div>
             <div class="modal-body" style="overflow-y: auto; max-height: calc(90vh - 80px);">
                 

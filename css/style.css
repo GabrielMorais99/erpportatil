@@ -6933,6 +6933,8 @@ body.dark-mode .skeleton-line {
     border-radius: var(--radius-md);
     padding: 1.5rem;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
 }
 
 .tabela-estoque {
@@ -7049,16 +7051,39 @@ body.dark-mode .skeleton-line {
 
 @media (max-width: 768px) {
     .tabela-estoque {
-        font-size: 0.8rem;
+        font-size: 0.75rem;
+        min-width: 800px;
     }
 
     .tabela-estoque th,
     .tabela-estoque td {
-        padding: 8px;
+        padding: 8px 6px;
+        white-space: nowrap;
     }
 
     .estoque-tabela-container {
-        padding: 1rem;
+        padding: 0.75rem;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+    
+    /* Melhora visualização do scroll horizontal */
+    .estoque-tabela-container::-webkit-scrollbar {
+        height: 8px;
+    }
+    
+    .estoque-tabela-container::-webkit-scrollbar-track {
+        background: #f1f1f1;
+        border-radius: 10px;
+    }
+    
+    .estoque-tabela-container::-webkit-scrollbar-thumb {
+        background: #888;
+        border-radius: 10px;
+    }
+    
+    .estoque-tabela-container::-webkit-scrollbar-thumb:hover {
+        background: #555;
     }
 }
 
@@ -7608,8 +7633,14 @@ body.dark-mode .skeleton-line {
 
 /* Responsividade do modal de estoque */
 @media (max-width: 768px) {
+    #stockManagementModal .modal-content {
+        max-width: 95%;
+        margin: 1rem;
+    }
+    
     .product-stats-grid {
         grid-template-columns: repeat(2, 1fr);
+        gap: 0.5rem;
     }
     
     .operation-buttons-grid {
@@ -7620,12 +7651,48 @@ body.dark-mode .skeleton-line {
         grid-template-columns: 1fr;
     }
     
+    .stock-history-container {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+    
     .stock-history-table {
-        font-size: 0.85rem;
+        font-size: 0.75rem;
+        min-width: 650px;
     }
     
     .stock-history-table th,
     .stock-history-table td {
-        padding: 0.5rem;
+        padding: 0.5rem 0.35rem;
+        white-space: nowrap;
+    }
+    
+    /* Scroll horizontal para tabela no mobile */
+    .stock-history-container::-webkit-scrollbar {
+        height: 6px;
+    }
+    
+    .stock-history-container::-webkit-scrollbar-track {
+        background: #f1f1f1;
+        border-radius: 10px;
+    }
+    
+    .stock-history-container::-webkit-scrollbar-thumb {
+        background: #888;
+        border-radius: 10px;
+    }
+    
+    .stock-section {
+        padding: 1rem;
+    }
+    
+    .section-title {
+        font-size: 0.95rem;
+    }
+    
+    .step-number {
+        width: 28px;
+        height: 28px;
+        font-size: 0.9rem;
     }
 }
