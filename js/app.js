@@ -33745,14 +33745,18 @@ function inicializarApp() {
             window.app = new LojaApp(); // O construtor já chama this.init()
             app = window.app;
             console.log('✅ [APP.JS] Instância de LojaApp criada com sucesso!');
-            
-            // Inicializar StockManager
+        } else {
+            console.log('ℹ️ [APP.JS] Instância de LojaApp já existe');
+            app = window.app;
+        }
+        
+        // Inicializar StockManager (sempre, mesmo se app já existir)
+        if (!window.app.stockManager) {
             console.log('📦 [APP.JS] Inicializando StockManager...');
             window.app.stockManager = new StockManager(window.app);
             console.log('✅ [APP.JS] StockManager inicializado!');
         } else {
-            console.log('ℹ️ [APP.JS] Instância de LojaApp já existe');
-            app = window.app;
+            console.log('ℹ️ [APP.JS] StockManager já existe');
         }
     } catch (error) {
         console.error('❌ [APP.JS] ERRO ao criar LojaApp:', error);
@@ -33769,7 +33773,7 @@ document.addEventListener('DOMContentLoaded', () => {
     inicializarApp();
     
     // Expor funções do StockManager globalmente para o HTML
-    setTimeout(() => {
+    const exponerFuncoesStockManager = () => {
         if (window.app && window.app.stockManager) {
             window.app.openStockManagementModal = (groupId) => window.app.stockManager.openStockManagementModal(groupId);
             window.app.closeStockManagementModal = () => window.app.stockManager.closeStockManagementModal();
@@ -33780,8 +33784,25 @@ document.addEventListener('DOMContentLoaded', () => {
             window.app.registerStockMovement = () => window.app.stockManager.registerStockMovement();
             window.app.refreshStockHistory = () => window.app.stockManager.refreshStockHistory();
             console.log('✅ [APP.JS] Funções do StockManager expostas globalmente!');
+            return true;
+        } else {
+            console.warn('⚠️ [APP.JS] StockManager ainda não está pronto, tentando novamente...');
+            return false;
         }
-    }, 200);
+    };
+    
+    // Tentar expor as funções com retry
+    let tentativas = 0;
+    const maxTentativas = 10;
+    const intervaloExposicao = setInterval(() => {
+        tentativas++;
+        if (exponerFuncoesStockManager()) {
+            clearInterval(intervaloExposicao);
+        } else if (tentativas >= maxTentativas) {
+            console.error('❌ [APP.JS] Falha ao expor funções do StockManager após', maxTentativas, 'tentativas');
+            clearInterval(intervaloExposicao);
+        }
+    }, 100);
 });
 
 // Se o DOM já estiver pronto quando o script carregar, inicializar imediatamente

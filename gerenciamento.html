@@ -3482,7 +3482,7 @@
                             type="button"
                             class="btn-primary"
                             id="manageStockBtn"
-                            onclick="if(app && app.currentGroup) { app.stockManager.openStockManagementModal(app.currentGroup.id); }"
+                            onclick="if(app && app.stockManager && app.currentGroup) { app.stockManager.openStockManagementModal(app.currentGroup.id); } else { console.error('StockManager não inicializado ou grupo não selecionado'); alert('Sistema ainda inicializando, aguarde um momento...'); }"
                             style="
                                 padding: 0.875rem 1.5rem;
                                 font-size: 0.95rem;
