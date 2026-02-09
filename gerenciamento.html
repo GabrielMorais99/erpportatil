@@ -3551,24 +3551,34 @@
                             </p>
                         </div>
                     </div>
+                    
+                    <!-- Botão de Gerenciamento de Estoque -->
+                    <div style="margin-top: 1rem; text-align: center;">
+                        <button
+                            type="button"
+                            class="btn-primary"
+                            id="manageStockBtn"
+                            onclick="app.openStockManagementModal(app.currentGroup?.id)"
+                            style="
+                                padding: 0.875rem 1.5rem;
+                                font-size: 1rem;
+                                font-weight: 600;
+                                display: inline-flex;
+                                align-items: center;
+                                gap: 0.5rem;
+                                border-radius: 8px;
+                                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+                                transition: all 0.3s;
+                            "
+                            onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 6px 20px rgba(0, 0, 0, 0.2)';"
+                            onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 12px rgba(0, 0, 0, 0.15)';"
+                        >
+                            <i class="fas fa-warehouse"></i> 
+                            <span>Gerenciar Estoque por SKU</span>
+                        </button>
+                    </div>
                 </div>
-                <!----   <div class="days-container">
-                        <div>
-                            <h3>Vendas por Mês</h3>
-                            <button
-                                type="button"
-                                class="btn-primary"
-                                id="manageStockBtn"
-                                style="
-                                    margin-top: 1rem;
-                                    padding: 0.5rem 1rem;
-                                    font-size: 0.9rem;
-                                "
-                            >
-                                <i class="fas fa-warehouse"></i> Gerenciar
-                                Estoque do Mês
-                            </button>
-                        </div>  -->
+                
                 <div id="daysList" class="days-list">
                     <!-- Dias serão inseridos aqui -->
                 </div>
@@ -7068,6 +7078,227 @@
                         </tbody>
                     </table>
                 </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL DE GERENCIAMENTO DE ESTOQUE POR SKU -->
+    <div id="stockManagementModal" class="modal">
+        <div class="modal-content" style="max-width: 950px; max-height: 90vh;">
+            <div class="modal-header">
+                <h2 id="stockManagementTitle">
+                    <i class="fas fa-warehouse"></i> Gerenciamento de Estoque
+                </h2>
+                <span class="close" onclick="app.closeStockManagementModal()" aria-label="Fechar modal" role="button" tabindex="0">&times;</span>
+            </div>
+            <div class="modal-body" style="overflow-y: auto; max-height: calc(90vh - 80px);">
+                
+                <!-- SEÇÃO 1: SELEÇÃO DE PRODUTO -->
+                <div class="stock-section">
+                    <h3 class="section-title">
+                        <span class="step-number">1</span> 
+                        <i class="fas fa-box"></i> Selecione o Produto (SKU)
+                    </h3>
+                    
+                    <div class="product-search-wrapper">
+                        <div class="search-input-wrapper">
+                            <i class="fas fa-search search-icon"></i>
+                            <input 
+                                type="text" 
+                                id="stockProductSearch" 
+                                class="search-input-with-icon" 
+                                placeholder="🔍 Buscar produto por nome ou SKU..."
+                                onkeyup="app.filterStockProducts(this.value)"
+                            />
+                        </div>
+                        
+                        <!-- Lista de produtos -->
+                        <div id="stockProductsList" class="products-list">
+                            <div style="padding: 1rem; text-align: center; color: #999;">
+                                Carregando produtos...
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Card do produto selecionado -->
+                    <div id="selectedProductCard" class="selected-product-card" style="display: none;">
+                        <div class="product-card-header">
+                            <div class="product-info">
+                                <h4 id="selectedProductName">-</h4>
+                                <p class="sku-code">SKU: <span id="selectedProductSKU">-</span></p>
+                            </div>
+                            <button class="btn-icon-round" onclick="app.clearSelectedProduct()" title="Limpar seleção">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                        <div class="product-stats-grid">
+                            <div class="stat-box">
+                                <span class="stat-label">Estoque Inicial</span>
+                                <span class="stat-value" id="selectedProductInitial">0 un</span>
+                            </div>
+                            <div class="stat-box stat-success">
+                                <span class="stat-label">Entradas</span>
+                                <span class="stat-value" id="selectedProductEntries">+0 un</span>
+                            </div>
+                            <div class="stat-box stat-danger">
+                                <span class="stat-label">Saídas</span>
+                                <span class="stat-value" id="selectedProductExits">-0 un</span>
+                            </div>
+                            <div class="stat-box">
+                                <span class="stat-label">Vendido</span>
+                                <span class="stat-value" id="selectedProductSold">-0 un</span>
+                            </div>
+                            <div class="stat-box stat-highlight">
+                                <span class="stat-label">Disponível</span>
+                                <span class="stat-value" id="selectedProductAvailable">0 un</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- SEÇÃO 2: TIPO DE OPERAÇÃO -->
+                <div class="stock-section">
+                    <h3 class="section-title">
+                        <span class="step-number">2</span>
+                        <i class="fas fa-exchange-alt"></i> Escolha a Operação
+                    </h3>
+                    
+                    <div class="operation-buttons-grid">
+                        <button 
+                            class="operation-btn operation-entry active" 
+                            id="btnEntryOperation"
+                            onclick="app.selectOperation('entry')"
+                        >
+                            <i class="fas fa-arrow-down"></i>
+                            <div class="op-title">ENTRADA</div>
+                            <div class="op-subtitle">Adicionar Estoque</div>
+                        </button>
+                        
+                        <button 
+                            class="operation-btn operation-exit" 
+                            id="btnExitOperation"
+                            onclick="app.selectOperation('exit')"
+                        >
+                            <i class="fas fa-arrow-up"></i>
+                            <div class="op-title">SAÍDA</div>
+                            <div class="op-subtitle">Retirar/Perda/Ajuste</div>
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- SEÇÃO 3: DETALHES DA MOVIMENTAÇÃO -->
+                <div class="stock-section">
+                    <h3 class="section-title">
+                        <span class="step-number">3</span>
+                        <i class="fas fa-edit"></i> Detalhes da Movimentação
+                    </h3>
+                    
+                    <div class="movement-form">
+                        <div class="form-row-two">
+                            <div class="form-group">
+                                <label for="stockMovementDate">
+                                    <i class="fas fa-calendar"></i> Data
+                                </label>
+                                <input 
+                                    type="date" 
+                                    id="stockMovementDate" 
+                                    class="form-control"
+                                />
+                                <div id="stockMovementDateMsg" class="field-message error"></div>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="stockMovementQty">
+                                    <i class="fas fa-hashtag"></i> Quantidade
+                                </label>
+                                <input 
+                                    type="number" 
+                                    id="stockMovementQty" 
+                                    class="form-control" 
+                                    min="1" 
+                                    placeholder="Ex: 10"
+                                />
+                                <div id="stockMovementQtyMsg" class="field-message error"></div>
+                            </div>
+                        </div>
+                        
+                        <!-- Campo de estoque inicial (aparece apenas se produto não tiver estoque inicial) -->
+                        <div id="stockInitialField" class="form-group" style="display: none;">
+                            <label for="stockInitialValue">
+                                <i class="fas fa-warehouse"></i> Estoque Inicial do Produto
+                                <span class="optional-label">(defina o estoque inicial antes da primeira movimentação)</span>
+                            </label>
+                            <input 
+                                type="number" 
+                                id="stockInitialValue" 
+                                class="form-control" 
+                                min="0" 
+                                placeholder="Ex: 100"
+                            />
+                        </div>
+                        
+                        <!-- Observação (aparece apenas para saída) -->
+                        <div id="stockObservationField" class="form-group" style="display: none;">
+                            <label for="stockMovementObs">
+                                <i class="fas fa-comment"></i> Motivo/Observação 
+                                <span class="optional-label">(opcional)</span>
+                            </label>
+                            <textarea 
+                                id="stockMovementObs" 
+                                class="form-control" 
+                                rows="2"
+                                placeholder="Ex: Perda, Avaria, Ajuste de inventário, Produto danificado, Devolução, etc."
+                            ></textarea>
+                        </div>
+                        
+                        <button 
+                            class="btn-primary btn-large" 
+                            id="btnRegisterMovement"
+                            onclick="app.registerStockMovement()"
+                            disabled
+                        >
+                            <i class="fas fa-check-circle"></i>
+                            <span id="btnRegisterText">Registrar Entrada</span>
+                        </button>
+                        
+                        <div id="stockMovementFeedback" class="field-message"></div>
+                    </div>
+                </div>
+                
+                <!-- SEÇÃO 4: HISTÓRICO DE MOVIMENTAÇÕES -->
+                <div class="stock-section">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                        <h3 class="section-title" style="margin: 0;">
+                            <i class="fas fa-history"></i> Histórico de Movimentações do Mês
+                        </h3>
+                        <button class="btn-icon-small" onclick="app.refreshStockHistory()" title="Atualizar">
+                            <i class="fas fa-sync-alt"></i>
+                        </button>
+                    </div>
+                    
+                    <div class="stock-history-container">
+                        <table class="stock-history-table">
+                            <thead>
+                                <tr>
+                                    <th><i class="fas fa-calendar"></i> Data</th>
+                                    <th><i class="fas fa-box"></i> Produto</th>
+                                    <th><i class="fas fa-exchange-alt"></i> Operação</th>
+                                    <th style="text-align: right;"><i class="fas fa-hashtag"></i> Quantidade</th>
+                                    <th style="text-align: right;"><i class="fas fa-layer-group"></i> Saldo</th>
+                                    <th><i class="fas fa-comment"></i> Observação</th>
+                                </tr>
+                            </thead>
+                            <tbody id="stockHistoryBody">
+                                <tr>
+                                    <td colspan="6" style="text-align: center; padding: 20px; color: #999;">
+                                        Nenhuma movimentação registrada
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                
             </div>
         </div>
     </div>

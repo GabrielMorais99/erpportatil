@@ -1025,6 +1025,10 @@ class LojaApp {
         
         // Sistema de Relatórios
         this.relatorios = new GeradorRelatorios(this);
+        
+        // Sistema de Gerenciamento de Estoque por SKU
+        this.stockManager = null; // Será inicializado após DOM estar pronto
+        
         this.currentSaleDay = null;
         this.currentEditingCost = null;
         this.currentEditingGoal = null;
@@ -33180,6 +33184,467 @@ class GeradorRelatorios {
 }
 
 // ========================================
+// GERENCIAMENTO DE ESTOQUE POR SKU
+// ========================================
+
+class StockManager {
+    constructor(app) {
+        this.app = app;
+        this.currentMonth = null;
+        this.selectedProduct = null;
+        this.selectedOperation = 'entry'; // 'entry' ou 'exit'
+    }
+
+    // Abrir modal de gerenciamento
+    openStockManagementModal(groupId) {
+        console.log('📦 [STOCK MGR] Abrindo modal para grupo:', groupId);
+        const group = this.app.groups.find(g => g.id === groupId);
+        if (!group) {
+            console.error('❌ [STOCK MGR] Grupo não encontrado');
+            return;
+        }
+
+        this.currentMonth = group.month;
+        const modal = document.getElementById('stockManagementModal');
+        if (!modal) {
+            console.error('❌ [STOCK MGR] Modal não encontrado');
+            return;
+        }
+
+        // Atualizar título
+        const [year, monthNum] = group.month.split('-');
+        const monthNames = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho',
+                            'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'];
+        document.getElementById('stockManagementTitle').innerHTML = 
+            `<i class="fas fa-warehouse"></i> Gerenciamento de Estoque - ${monthNames[parseInt(monthNum) - 1]} ${year}`;
+
+        // Carregar lista de produtos
+        this.loadProductsList();
+
+        // Limpar seleções
+        this.clearSelectedProduct();
+        this.selectOperation('entry');
+        
+        // Definir data padrão para hoje
+        const dateInput = document.getElementById('stockMovementDate');
+        if (dateInput) {
+            const today = new Date().toISOString().split('T')[0];
+            dateInput.value = today;
+        }
+
+        // Carregar histórico
+        this.refreshStockHistory();
+
+        // Abrir modal
+        console.log('📦 [STOCK MGR] Abrindo modal...');
+        this.app.openModalSafely(modal);
+    }
+
+    // Carregar lista de produtos
+    loadProductsList() {
+        const container = document.getElementById('stockProductsList');
+        if (!container) return;
+
+        const usuario = sessionStorage.getItem('username');
+        
+        console.log('📦 [STOCK MGR] Carregando lista de produtos:', this.app.items.length);
+        
+        if (this.app.items.length === 0) {
+            container.innerHTML = `
+                <div style="padding: 1.5rem; text-align: center; color: #999;">
+                    <i class="fas fa-box-open" style="font-size: 2rem; margin-bottom: 0.5rem; opacity: 0.5;"></i>
+                    <p>Nenhum produto cadastrado</p>
+                    <p style="font-size: 0.85rem;">Cadastre produtos primeiro no painel de produtos</p>
+                </div>
+            `;
+            return;
+        }
+
+        container.innerHTML = this.app.items.map(item => {
+            // Calcular estoque atual do item para o mês
+            const estoqueAtual = this.calculateCurrentStock(item.id);
+
+            return `
+                <div class="product-item" onclick="window.app.selectProduct('${item.id}')">
+                    <div class="product-item-name">${item.name || 'Produto sem nome'}</div>
+                    <div class="product-item-sku">
+                        SKU: ${item.id} | Disponível: ${estoqueAtual} un
+                    </div>
+                </div>
+            `;
+        }).join('');
+    }
+
+    // Filtrar produtos
+    filterStockProducts(searchTerm) {
+        const items = document.querySelectorAll('.product-item');
+        const term = (searchTerm || '').toLowerCase().trim();
+
+        items.forEach(item => {
+            const name = (item.querySelector('.product-item-name')?.textContent || '').toLowerCase();
+            const sku = (item.querySelector('.product-item-sku')?.textContent || '').toLowerCase();
+            
+            if (!term || name.includes(term) || sku.includes(term)) {
+                item.style.display = '';
+            } else {
+                item.style.display = 'none';
+            }
+        });
+    }
+
+    // Selecionar produto
+    selectProduct(itemId) {
+        const item = this.app.items.find(i => i.id === itemId);
+        if (!item) {
+            console.error('❌ [STOCK MGR] Produto não encontrado:', itemId);
+            return;
+        }
+
+        this.selectedProduct = item;
+        console.log('📦 [STOCK MGR] Produto selecionado:', item.name);
+
+        // Atualizar UI
+        document.getElementById('selectedProductCard').style.display = 'block';
+        document.getElementById('selectedProductName').textContent = item.name || 'Produto sem nome';
+        document.getElementById('selectedProductSKU').textContent = item.id;
+
+        // Calcular estatísticas
+        this.updateProductStats(itemId);
+
+        // Habilitar botão de registro
+        const btnRegister = document.getElementById('btnRegisterMovement');
+        if (btnRegister) {
+            btnRegister.disabled = false;
+        }
+
+        // Marcar item como selecionado na lista
+        document.querySelectorAll('.product-item').forEach(el => {
+            el.classList.remove('selected');
+        });
+        
+        // Buscar o elemento clicado
+        const clickedElement = event?.currentTarget;
+        if (clickedElement) {
+            clickedElement.classList.add('selected');
+        }
+    }
+
+    // Limpar produto selecionado
+    clearSelectedProduct() {
+        this.selectedProduct = null;
+        
+        const card = document.getElementById('selectedProductCard');
+        if (card) card.style.display = 'none';
+        
+        const search = document.getElementById('stockProductSearch');
+        if (search) search.value = '';
+        
+        const btnRegister = document.getElementById('btnRegisterMovement');
+        if (btnRegister) btnRegister.disabled = true;
+        
+        document.querySelectorAll('.product-item').forEach(el => {
+            el.classList.remove('selected');
+            el.style.display = '';
+        });
+        
+        console.log('📦 [STOCK MGR] Produto desmarcado');
+    }
+
+    // Calcular estatísticas do produto
+    updateProductStats(itemId) {
+        const usuario = sessionStorage.getItem('username');
+        const estoque = this.app.carregarEstoque(usuario, this.currentMonth, itemId);
+
+        const estoqueInicial = estoque?.totalInicial || 0;
+        const movimentacoes = estoque?.movimentacoes || [];
+
+        const totalEntradas = movimentacoes
+            .filter(m => m.tipo === 'entrada' && m.qtd > 0)
+            .reduce((acc, m) => acc + Math.abs(m.qtd), 0);
+
+        const totalSaidas = movimentacoes
+            .filter(m => m.tipo === 'saida' && m.qtd < 0)
+            .reduce((acc, m) => acc + Math.abs(m.qtd), 0);
+
+        const totalVendas = this.calculateSalesForProduct(itemId);
+        const estoqueDisponivel = estoqueInicial + totalEntradas - totalSaidas - totalVendas;
+
+        document.getElementById('selectedProductInitial').textContent = `${estoqueInicial} un`;
+        document.getElementById('selectedProductEntries').textContent = `+${totalEntradas} un`;
+        document.getElementById('selectedProductExits').textContent = `-${totalSaidas} un`;
+        document.getElementById('selectedProductSold').textContent = `-${totalVendas} un`;
+        document.getElementById('selectedProductAvailable').textContent = `${estoqueDisponivel} un`;
+
+        // Mostrar/ocultar campo de estoque inicial
+        const stockInitialField = document.getElementById('stockInitialField');
+        if (stockInitialField) {
+            stockInitialField.style.display = (estoqueInicial === 0 && movimentacoes.length === 0) ? 'block' : 'none';
+        }
+    }
+
+    // Calcular vendas do produto no mês
+    calculateSalesForProduct(itemId) {
+        const group = this.app.groups.find(g => g.month === this.currentMonth);
+        if (!group) return 0;
+
+        let totalVendas = 0;
+        group.days.forEach(day => {
+            if (day.sales) {
+                day.sales.forEach(sale => {
+                    if (sale.itemId === itemId) {
+                        totalVendas += sale.quantity || 0;
+                    }
+                });
+            }
+        });
+
+        return totalVendas;
+    }
+
+    // Calcular estoque atual total
+    calculateCurrentStock(itemId) {
+        const usuario = sessionStorage.getItem('username');
+        const estoque = this.app.carregarEstoque(usuario, this.currentMonth, itemId);
+
+        const estoqueInicial = estoque?.totalInicial || 0;
+        const movimentacoes = estoque?.movimentacoes || [];
+
+        const totalEntradas = movimentacoes
+            .filter(m => m.tipo === 'entrada' && m.qtd > 0)
+            .reduce((acc, m) => acc + Math.abs(m.qtd), 0);
+
+        const totalSaidas = movimentacoes
+            .filter(m => m.tipo === 'saida' && m.qtd < 0)
+            .reduce((acc, m) => acc + Math.abs(m.qtd), 0);
+
+        const totalVendas = this.calculateSalesForProduct(itemId);
+
+        return estoqueInicial + totalEntradas - totalSaidas - totalVendas;
+    }
+
+    // Selecionar tipo de operação
+    selectOperation(type) {
+        this.selectedOperation = type;
+
+        // Atualizar UI dos botões
+        const btnEntry = document.getElementById('btnEntryOperation');
+        const btnExit = document.getElementById('btnExitOperation');
+        
+        if (btnEntry) btnEntry.classList.toggle('active', type === 'entry');
+        if (btnExit) btnExit.classList.toggle('active', type === 'exit');
+
+        // Mostrar/ocultar campo de observação
+        const obsField = document.getElementById('stockObservationField');
+        if (obsField) {
+            obsField.style.display = type === 'exit' ? 'block' : 'none';
+        }
+
+        // Atualizar texto do botão
+        const btnText = document.getElementById('btnRegisterText');
+        if (btnText) {
+            btnText.textContent = type === 'entry' ? 'Registrar Entrada' : 'Registrar Saída';
+        }
+        
+        console.log('📦 [STOCK MGR] Operação selecionada:', type);
+    }
+
+    // Registrar movimentação
+    registerStockMovement() {
+        if (!this.selectedProduct) {
+            if (typeof toast !== 'undefined' && toast) {
+                toast.warning('Selecione um produto primeiro');
+            }
+            return;
+        }
+
+        const usuario = sessionStorage.getItem('username');
+        const dateInput = document.getElementById('stockMovementDate');
+        const qtyInput = document.getElementById('stockMovementQty');
+        const obsInput = document.getElementById('stockMovementObs');
+        const initialInput = document.getElementById('stockInitialValue');
+
+        // Limpar mensagens de erro
+        const dateMsgEl = document.getElementById('stockMovementDateMsg');
+        const qtyMsgEl = document.getElementById('stockMovementQtyMsg');
+        if (dateMsgEl) dateMsgEl.textContent = '';
+        if (qtyMsgEl) qtyMsgEl.textContent = '';
+
+        // Validações
+        let hasError = false;
+
+        if (!dateInput || !dateInput.value) {
+            if (dateMsgEl) dateMsgEl.textContent = 'Informe a data';
+            hasError = true;
+        } else if (!dateInput.value.startsWith(this.currentMonth)) {
+            if (dateMsgEl) dateMsgEl.textContent = 'Data deve estar no mês selecionado';
+            hasError = true;
+        }
+
+        const quantidade = Number(qtyInput?.value || 0);
+        if (!quantidade || quantidade <= 0) {
+            if (qtyMsgEl) qtyMsgEl.textContent = 'Informe uma quantidade válida';
+            hasError = true;
+        }
+
+        if (hasError) {
+            if (typeof toast !== 'undefined' && toast) {
+                toast.warning('Preencha todos os campos corretamente');
+            }
+            return;
+        }
+
+        // Carregar ou criar estoque
+        let estoque = this.app.carregarEstoque(usuario, this.currentMonth, this.selectedProduct.id) || {
+            totalInicial: 0,
+            movimentacoes: []
+        };
+
+        // Se o campo de estoque inicial estiver visível e preenchido, atualizar
+        if (initialInput && initialInput.value && estoque.totalInicial === 0) {
+            estoque.totalInicial = Number(initialInput.value) || 0;
+        }
+
+        // Adicionar movimentação
+        const movimentacao = {
+            tipo: this.selectedOperation === 'entry' ? 'entrada' : 'saida',
+            qtd: this.selectedOperation === 'entry' ? Math.abs(quantidade) : -Math.abs(quantidade),
+            data: dateInput.value,
+            itemId: this.selectedProduct.id,
+            itemName: this.selectedProduct.name,
+            timestamp: new Date().toISOString()
+        };
+
+        if (this.selectedOperation === 'exit' && obsInput && obsInput.value.trim()) {
+            movimentacao.observacao = obsInput.value.trim();
+        }
+
+        estoque.movimentacoes.push(movimentacao);
+
+        // Salvar
+        this.app.salvarEstoque(usuario, this.currentMonth, estoque, this.selectedProduct.id);
+        console.log('✅ [STOCK MGR] Movimentação salva:', movimentacao);
+
+        // Feedback
+        const msg = this.selectedOperation === 'entry' 
+            ? `Entrada registrada: +${quantidade} un de ${this.selectedProduct.name}`
+            : `Saída registrada: -${quantidade} un de ${this.selectedProduct.name}`;
+        
+        if (typeof toast !== 'undefined' && toast) {
+            toast.success(msg);
+        }
+
+        // Limpar campos
+        if (dateInput) dateInput.value = '';
+        if (qtyInput) qtyInput.value = '';
+        if (obsInput) obsInput.value = '';
+        if (initialInput) {
+            initialInput.value = '';
+            const stockInitialField = document.getElementById('stockInitialField');
+            if (stockInitialField) stockInitialField.style.display = 'none';
+        }
+
+        // Atualizar stats do produto
+        this.updateProductStats(this.selectedProduct.id);
+
+        // Atualizar histórico
+        this.refreshStockHistory();
+
+        // Atualizar tabela consolidada
+        if (typeof renderizarTabelaEstoque === 'function') {
+            renderizarTabelaEstoque();
+        }
+
+        // Atualizar view do grupo se estiver aberta
+        if (this.app.currentGroup) {
+            this.app.updateGroupStockStats(this.app.currentGroup);
+        }
+    }
+
+    // Atualizar histórico de movimentações
+    refreshStockHistory() {
+        const tbody = document.getElementById('stockHistoryBody');
+        if (!tbody) return;
+
+        const usuario = sessionStorage.getItem('username');
+        
+        // Buscar todas as movimentações do mês (todos os produtos)
+        const todasMovimentacoes = [];
+
+        this.app.items.forEach(item => {
+            const estoque = this.app.carregarEstoque(usuario, this.currentMonth, item.id);
+            if (estoque && estoque.movimentacoes && Array.isArray(estoque.movimentacoes)) {
+                estoque.movimentacoes.forEach(mov => {
+                    todasMovimentacoes.push({
+                        ...mov,
+                        itemId: item.id,
+                        itemName: item.name || 'Produto sem nome'
+                    });
+                });
+            }
+        });
+
+        console.log('📦 [STOCK MGR] Total de movimentações encontradas:', todasMovimentacoes.length);
+
+        if (todasMovimentacoes.length === 0) {
+            tbody.innerHTML = `
+                <tr>
+                    <td colspan="6" style="text-align: center; padding: 20px; color: #999;">
+                        <i class="fas fa-inbox" style="font-size: 2rem; margin-bottom: 0.5rem; opacity: 0.5; display: block;"></i>
+                        Nenhuma movimentação registrada para este mês
+                    </td>
+                </tr>
+            `;
+            return;
+        }
+
+        // Ordenar por data (mais recente primeiro)
+        todasMovimentacoes.sort((a, b) => new Date(b.data) - new Date(a.data));
+
+        // Renderizar
+        tbody.innerHTML = todasMovimentacoes.map(mov => {
+            const dataFormatada = new Date(mov.data + 'T00:00:00').toLocaleDateString('pt-BR');
+            const tipoIcon = mov.tipo === 'entrada' ? '📥' : '📤';
+            const tipoText = mov.tipo === 'entrada' ? 'Entrada' : 'Saída';
+            const tipoClass = mov.tipo === 'entrada' ? 'success' : 'danger';
+            const qtdFormatada = mov.qtd >= 0 ? `+${mov.qtd}` : mov.qtd;
+
+            // Calcular saldo atual do produto
+            const saldo = this.calculateCurrentStock(mov.itemId);
+
+            return `
+                <tr>
+                    <td>${dataFormatada}</td>
+                    <td style="font-weight: 500;">${mov.itemName}</td>
+                    <td>
+                        <span class="badge badge-${tipoClass}">
+                            ${tipoIcon} ${tipoText}
+                        </span>
+                    </td>
+                    <td style="text-align: right; font-weight: 600; color: ${mov.qtd >= 0 ? '#28a745' : '#dc3545'};">
+                        ${qtdFormatada} un
+                    </td>
+                    <td style="text-align: right; font-weight: 700; font-size: 1.05rem;">
+                        ${saldo} un
+                    </td>
+                    <td style="font-size: 0.9rem; color: var(--gray-600); font-style: italic;">
+                        ${mov.observacao || '-'}
+                    </td>
+                </tr>
+            `;
+        }).join('');
+    }
+
+    // Fechar modal
+    closeStockManagementModal() {
+        const modal = document.getElementById('stockManagementModal');
+        if (modal) {
+            console.log('📦 [STOCK MGR] Fechando modal');
+            this.app.closeModalSafely(modal);
+        }
+    }
+}
+
+// ========================================
 // ALERTAS DE ESTOQUE BAIXO
 // ========================================
 
@@ -33280,6 +33745,11 @@ function inicializarApp() {
             window.app = new LojaApp(); // O construtor já chama this.init()
             app = window.app;
             console.log('✅ [APP.JS] Instância de LojaApp criada com sucesso!');
+            
+            // Inicializar StockManager
+            console.log('📦 [APP.JS] Inicializando StockManager...');
+            window.app.stockManager = new StockManager(window.app);
+            console.log('✅ [APP.JS] StockManager inicializado!');
         } else {
             console.log('ℹ️ [APP.JS] Instância de LojaApp já existe');
             app = window.app;
@@ -33297,6 +33767,21 @@ function inicializarApp() {
 document.addEventListener('DOMContentLoaded', () => {
     console.log('🟣 [APP.JS] ========== DOMContentLoaded DISPARADO ==========');
     inicializarApp();
+    
+    // Expor funções do StockManager globalmente para o HTML
+    setTimeout(() => {
+        if (window.app && window.app.stockManager) {
+            window.app.openStockManagementModal = (groupId) => window.app.stockManager.openStockManagementModal(groupId);
+            window.app.closeStockManagementModal = () => window.app.stockManager.closeStockManagementModal();
+            window.app.selectProduct = (itemId) => window.app.stockManager.selectProduct(itemId);
+            window.app.clearSelectedProduct = () => window.app.stockManager.clearSelectedProduct();
+            window.app.filterStockProducts = (term) => window.app.stockManager.filterStockProducts(term);
+            window.app.selectOperation = (type) => window.app.stockManager.selectOperation(type);
+            window.app.registerStockMovement = () => window.app.stockManager.registerStockMovement();
+            window.app.refreshStockHistory = () => window.app.stockManager.refreshStockHistory();
+            console.log('✅ [APP.JS] Funções do StockManager expostas globalmente!');
+        }
+    }, 200);
 });
 
 // Se o DOM já estiver pronto quando o script carregar, inicializar imediatamente
