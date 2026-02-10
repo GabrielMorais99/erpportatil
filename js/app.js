@@ -33265,7 +33265,7 @@ class StockManager {
             const estoqueAtual = this.calculateCurrentStock(item.id);
 
             return `
-                <div class="product-item" onclick="window.app.selectProduct('${item.id}')">
+                <div class="product-item" onclick="if(window.app && window.app.stockManager) { window.app.stockManager.selectProduct('${item.id}'); }">
                     <div class="product-item-name">${item.name || 'Produto sem nome'}</div>
                     <div class="product-item-sku">
                         SKU: ${item.id} | Disponível: ${estoqueAtual} un

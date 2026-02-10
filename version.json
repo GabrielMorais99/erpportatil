@@ -1,10 +1,10 @@
 {
-    "version": "4.6.3",
+    "version": "4.6.4",
     "buildDate": "2026-02-09",
-    "buildTime": "02:35:00",
+    "buildTime": "02:45:00",
     "commit": "pending",
     "branch": "main",
-    "commitMessage": "fix: corrigir inicializacao do StockManager e abertura do modal",
+    "commitMessage": "fix: corrigir todas as chamadas de funcoes do StockManager no HTML",
     "description": "ERP Portátil - Sistema de Gestão Financeira",
-    "updatedAt": "2026-02-09T02:35:00.000Z"
+    "updatedAt": "2026-02-09T02:45:00.000Z"
 }
