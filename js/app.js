@@ -1022,13 +1022,13 @@ class LojaApp {
         this.currentGroup = null;
         this.currentServiceGroup = null;
         this.currentServiceDay = null;
-        
+
         // Sistema de Relatórios
         this.relatorios = new GeradorRelatorios(this);
-        
+
         // Sistema de Gerenciamento de Estoque por SKU
         this.stockManager = null; // Será inicializado após DOM estar pronto
-        
+
         this.currentSaleDay = null;
         this.currentEditingCost = null;
         this.currentEditingGoal = null;
@@ -1931,7 +1931,7 @@ class LojaApp {
         // Salvar o valor atualmente selecionado
         const valorAtual = mesSelect.value;
 
-        mesSelect.innerHTML = '<option value="">Selecione o mês</option>';
+        mesSelect.innerHTML = '<option value="">Selecione o mês / Ano</option>';
 
         const usuario = sessionStorage.getItem('username');
         if (!usuario) {
@@ -1944,23 +1944,23 @@ class LojaApp {
 
         console.log('📅 [POPULAR MESES] Buscando chaves com prefixo:', prefixo);
         console.log('📅 [POPULAR MESES] Total de chaves no localStorage:', Object.keys(localStorage).length);
-        
+
         // Buscar todos os meses com dados de estoque (com ou sem grupo)
         const todasChaves = Object.keys(localStorage).filter(key => key.startsWith(prefixo));
         console.log('📅 [POPULAR MESES] Chaves de estoque encontradas:', todasChaves.length, todasChaves);
-        
+
         todasChaves.forEach(key => {
             // Extrair o mês da chave
             // Formato esperado: estoque_usuario_YYYY-MM ou estoque_usuario_YYYY-MM_NomeDoGrupo
             const resto = key.substring(prefixo.length); // Remove "estoque_usuario_"
             console.log('📅 [POPULAR MESES] Chave:', key);
             console.log('📅 [POPULAR MESES]   -> Resto após remover prefixo:', resto);
-            
+
             // Pegar apenas os primeiros 7 caracteres (YYYY-MM)
             // Isso funciona tanto para "2026-02" quanto para "2026-02_NomeDoGrupo"
             const mes = resto.substring(0, 7);
             console.log('📅 [POPULAR MESES]   -> Mês extraído (7 chars):', mes);
-            
+
             // Validar formato do mês (YYYY-MM)
             if (mes && /^\d{4}-\d{2}$/.test(mes)) {
                 console.log('📅 [POPULAR MESES]   -> ✅ Mês VÁLIDO:', mes);
@@ -2056,7 +2056,7 @@ class LojaApp {
 
         mesSelect.addEventListener('change', () => {
             this.carregarEstoqueDoMesSelecionado();
-            
+
             // Garantir que a tabela consolidada seja renderizada
             const usuario = sessionStorage.getItem('username');
             const mes = mesSelect.value;
@@ -7339,7 +7339,7 @@ class LojaApp {
 
         let filteredClients = this.clients;
         if (searchTerm) {
-            filteredClients =             this.clients.filter(
+            filteredClients = this.clients.filter(
                 (client) =>
                     (client.name || '').toLowerCase().includes(searchTerm) ||
                     (client.cpf && client.cpf.includes(searchTerm)) ||
@@ -15325,13 +15325,13 @@ class LojaApp {
                 return;
             }
         }
-        
+
         // Se mudar para a aba de estoque, popular dropdown de meses e renderizar tabela
         if (tab === 'stockPanel') {
             console.log('📦 [ESTOQUE] Abrindo painel de estoque');
             setTimeout(() => {
                 this.popularSelectMeses();
-                
+
                 // Verificar se existe um mês selecionado e renderizar a tabela
                 const mesSelect = document.getElementById('mesSelecionado');
                 if (mesSelect && mesSelect.value) {
@@ -15343,7 +15343,7 @@ class LojaApp {
                 }
             }, 100);
         }
-        
+
         if (!tab) {
             console.warn('⚠️ [SWITCH TAB] Tab não especificado');
             return;
@@ -32417,18 +32417,18 @@ function adicionarEntradaEstoque() {
 
     if (!window.app?.salvarEstoque) return;
     window.app.salvarEstoque(usuario, mes, estoqueFinal);
-    
+
     // Atualizar dropdown de meses disponíveis
     if (window.app?.popularSelectMeses) {
         window.app.popularSelectMeses();
-        
+
         // Garantir que o mês atual está selecionado no dropdown
         const mesSelect = document.getElementById('mesSelecionado');
         if (mesSelect && mes) {
             mesSelect.value = mes;
         }
     }
-    
+
     atualizarResumoEstoqueMes(usuario, mes);
 
     if (typeof toast !== 'undefined' && toast) {
@@ -32521,18 +32521,18 @@ function adicionarSaidaEstoque() {
 
     if (!window.app?.salvarEstoque) return;
     window.app.salvarEstoque(usuario, mes, estoqueFinal);
-    
+
     // Atualizar dropdown de meses disponíveis
     if (window.app?.popularSelectMeses) {
         window.app.popularSelectMeses();
-        
+
         // Garantir que o mês atual está selecionado no dropdown
         const mesSelect = document.getElementById('mesSelecionado');
         if (mesSelect && mes) {
             mesSelect.value = mes;
         }
     }
-    
+
     atualizarResumoEstoqueMes(usuario, mes);
 
     if (typeof toast !== 'undefined' && toast) {
@@ -32595,7 +32595,7 @@ function renderizarTabelaEstoque() {
     // Buscar grupos do usuário
     const grupos = window.app?.groups || [];
     console.log('📊 Grupos encontrados:', grupos.length, grupos);
-    
+
     if (grupos.length === 0) {
         console.log('📊 Nenhum grupo cadastrado');
         tbody.innerHTML = `
@@ -32671,7 +32671,7 @@ function renderizarTabelaEstoque() {
             </td>
         `;
         tbody.appendChild(tr);
-        
+
         // Armazenar dados para filtros e busca
         dadosTabelaEstoque.push({
             nome: grupo.name,
@@ -32680,9 +32680,9 @@ function renderizarTabelaEstoque() {
             elemento: tr
         });
     });
-    
+
     console.log('📊 Tabela renderizada com', dadosTabelaEstoque.length, 'grupos');
-    
+
     // Atualizar badges com contadores
     atualizarBadgesEstoque(dadosTabelaEstoque);
 }
@@ -32695,34 +32695,34 @@ function atualizarBadgesEstoque(dados) {
         medio: 0,
         ok: 0
     };
-    
+
     dados.forEach(item => {
         if (contadores.hasOwnProperty(item.status)) {
             contadores[item.status]++;
         }
     });
-    
+
     // Atualizar badges
     const badgeCritico = document.getElementById('badgeEstoqueCritico');
     const badgeBaixo = document.getElementById('badgeEstoqueBaixo');
     const badgeMedio = document.getElementById('badgeEstoqueMedio');
     const badgeOk = document.getElementById('badgeEstoqueOk');
-    
+
     if (badgeCritico) {
         document.getElementById('countCritico').textContent = contadores.critico;
         badgeCritico.style.display = contadores.critico > 0 ? 'inline-flex' : 'none';
     }
-    
+
     if (badgeBaixo) {
         document.getElementById('countBaixo').textContent = contadores.baixo;
         badgeBaixo.style.display = contadores.baixo > 0 ? 'inline-flex' : 'none';
     }
-    
+
     if (badgeMedio) {
         document.getElementById('countMedio').textContent = contadores.medio;
         badgeMedio.style.display = contadores.medio > 0 ? 'inline-flex' : 'none';
     }
-    
+
     if (badgeOk) {
         document.getElementById('countOk').textContent = contadores.ok;
         badgeOk.style.display = contadores.ok > 0 ? 'inline-flex' : 'none';
@@ -32733,9 +32733,9 @@ function atualizarBadgesEstoque(dados) {
 function filtrarTabelaEstoque(filtro) {
     const tbody = document.getElementById('tabelaEstoqueBody');
     if (!tbody) return;
-    
+
     const linhas = tbody.querySelectorAll('tr[data-status]');
-    
+
     linhas.forEach(linha => {
         if (filtro === 'todos') {
             linha.style.display = '';
@@ -32743,7 +32743,7 @@ function filtrarTabelaEstoque(filtro) {
             linha.style.display = linha.dataset.status === filtro ? '' : 'none';
         }
     });
-    
+
     // Atualizar botões ativos
     document.querySelectorAll('.btn-filtro').forEach(btn => {
         btn.classList.remove('active');
@@ -32757,10 +32757,10 @@ function filtrarTabelaEstoque(filtro) {
 function buscarNaTabelaEstoque(termo) {
     const tbody = document.getElementById('tabelaEstoqueBody');
     if (!tbody) return;
-    
+
     const termoLower = (termo || '').toLowerCase().trim();
     const linhas = tbody.querySelectorAll('tr[data-nome]');
-    
+
     linhas.forEach(linha => {
         if (!termoLower) {
             linha.style.display = '';
@@ -32775,22 +32775,22 @@ function buscarNaTabelaEstoque(termo) {
 function imprimirRelatorioEstoque() {
     const usuario = sessionStorage.getItem('username');
     const mes = document.getElementById('mesSelecionado')?.value;
-    
+
     if (!usuario || !mes) {
         if (typeof toast !== 'undefined' && toast) {
             toast.warning('Selecione um mês para imprimir o relatório');
         }
         return;
     }
-    
+
     // Criar janela de impressão com estilo
     const printWindow = window.open('', '_blank');
-    
+
     const tabela = document.querySelector('.tabela-estoque').cloneNode(true);
-    
+
     // Remover colunas de ações
     tabela.querySelectorAll('th:last-child, td:last-child').forEach(el => el.remove());
-    
+
     const html = `
         <!DOCTYPE html>
         <html>
@@ -32871,7 +32871,7 @@ function imprimirRelatorioEstoque() {
         </body>
         </html>
     `;
-    
+
     printWindow.document.write(html);
     printWindow.document.close();
 }
@@ -32978,7 +32978,7 @@ function abrirHistoricoEstoque(grupoNome, mes) {
     if (!modal.dataset.listenersConfigured) {
         const closeBtn = modal.querySelector('.close');
         const cancelBtn = modal.querySelector('.btn-secondary, [onclick*="fechar"], [onclick*="close"]');
-        
+
         if (closeBtn) {
             closeBtn.addEventListener('click', () => {
                 console.log('📊 [HISTORICO] Botão X clicado');
@@ -32991,7 +32991,7 @@ function abrirHistoricoEstoque(grupoNome, mes) {
             });
             console.log('✅ [HISTORICO] Listener anexado ao botão X');
         }
-        
+
         if (cancelBtn) {
             cancelBtn.addEventListener('click', () => {
                 console.log('📊 [HISTORICO] Botão cancelar clicado');
@@ -33004,7 +33004,7 @@ function abrirHistoricoEstoque(grupoNome, mes) {
             });
             console.log('✅ [HISTORICO] Listener anexado ao botão cancelar');
         }
-        
+
         // Marcar como configurado para não duplicar listeners
         modal.dataset.listenersConfigured = 'true';
     }
@@ -33059,7 +33059,7 @@ class GeradorRelatorios {
 
         vendas.forEach(venda => {
             if (!venda.item) return;
-            
+
             const itemId = venda.item.id || venda.item.name;
             const itemNome = venda.item.name || 'Item sem nome';
             const quantidade = venda.quantity || 1;
@@ -33214,8 +33214,8 @@ class StockManager {
         // Atualizar título
         const [year, monthNum] = group.month.split('-');
         const monthNames = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho',
-                            'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'];
-        document.getElementById('stockManagementTitle').innerHTML = 
+            'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'];
+        document.getElementById('stockManagementTitle').innerHTML =
             `<i class="fas fa-warehouse"></i> Gerenciamento de Estoque - ${monthNames[parseInt(monthNum) - 1]} ${year}`;
 
         // Carregar lista de produtos
@@ -33224,7 +33224,7 @@ class StockManager {
         // Limpar seleções
         this.clearSelectedProduct();
         this.selectOperation('entry');
-        
+
         // Definir data padrão para hoje
         const dateInput = document.getElementById('stockMovementDate');
         if (dateInput) {
@@ -33246,9 +33246,9 @@ class StockManager {
         if (!container) return;
 
         const usuario = sessionStorage.getItem('username');
-        
+
         console.log('📦 [STOCK MGR] Carregando lista de produtos:', this.app.items.length);
-        
+
         if (this.app.items.length === 0) {
             container.innerHTML = `
                 <div style="padding: 1.5rem; text-align: center; color: #999;">
@@ -33283,7 +33283,7 @@ class StockManager {
         items.forEach(item => {
             const name = (item.querySelector('.product-item-name')?.textContent || '').toLowerCase();
             const sku = (item.querySelector('.product-item-sku')?.textContent || '').toLowerCase();
-            
+
             if (!term || name.includes(term) || sku.includes(term)) {
                 item.style.display = '';
             } else {
@@ -33321,7 +33321,7 @@ class StockManager {
         document.querySelectorAll('.product-item').forEach(el => {
             el.classList.remove('selected');
         });
-        
+
         // Buscar o elemento clicado
         const clickedElement = event?.currentTarget;
         if (clickedElement) {
@@ -33332,21 +33332,21 @@ class StockManager {
     // Limpar produto selecionado
     clearSelectedProduct() {
         this.selectedProduct = null;
-        
+
         const card = document.getElementById('selectedProductCard');
         if (card) card.style.display = 'none';
-        
+
         const search = document.getElementById('stockProductSearch');
         if (search) search.value = '';
-        
+
         const btnRegister = document.getElementById('btnRegisterMovement');
         if (btnRegister) btnRegister.disabled = true;
-        
+
         document.querySelectorAll('.product-item').forEach(el => {
             el.classList.remove('selected');
             el.style.display = '';
         });
-        
+
         console.log('📦 [STOCK MGR] Produto desmarcado');
     }
 
@@ -33429,7 +33429,7 @@ class StockManager {
         // Atualizar UI dos botões
         const btnEntry = document.getElementById('btnEntryOperation');
         const btnExit = document.getElementById('btnExitOperation');
-        
+
         if (btnEntry) btnEntry.classList.toggle('active', type === 'entry');
         if (btnExit) btnExit.classList.toggle('active', type === 'exit');
 
@@ -33444,7 +33444,7 @@ class StockManager {
         if (btnText) {
             btnText.textContent = type === 'entry' ? 'Registrar Entrada' : 'Registrar Saída';
         }
-        
+
         console.log('📦 [STOCK MGR] Operação selecionada:', type);
     }
 
@@ -33525,10 +33525,10 @@ class StockManager {
         console.log('✅ [STOCK MGR] Movimentação salva:', movimentacao);
 
         // Feedback
-        const msg = this.selectedOperation === 'entry' 
+        const msg = this.selectedOperation === 'entry'
             ? `Entrada registrada: +${quantidade} un de ${this.selectedProduct.name}`
             : `Saída registrada: -${quantidade} un de ${this.selectedProduct.name}`;
-        
+
         if (typeof toast !== 'undefined' && toast) {
             toast.success(msg);
         }
@@ -33566,7 +33566,7 @@ class StockManager {
         if (!tbody) return;
 
         const usuario = sessionStorage.getItem('username');
-        
+
         // Buscar todas as movimentações do mês (todos os produtos)
         const todasMovimentacoes = [];
 
@@ -33716,11 +33716,11 @@ function verificarEstoqueBaixo() {
 }
 
 // Verificar estoque baixo automaticamente quando carregar a página
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
     setTimeout(() => {
         const usuario = sessionStorage.getItem('username');
         const logged = sessionStorage.getItem('loggedIn');
-        
+
         if (usuario && logged === 'true') {
             setTimeout(verificarEstoqueBaixo, 3000);
         }
@@ -33749,7 +33749,7 @@ function inicializarApp() {
             console.log('ℹ️ [APP.JS] Instância de LojaApp já existe');
             app = window.app;
         }
-        
+
         // Inicializar StockManager (sempre, mesmo se app já existir)
         if (!window.app.stockManager) {
             console.log('📦 [APP.JS] Inicializando StockManager...');
@@ -33771,7 +33771,7 @@ function inicializarApp() {
 document.addEventListener('DOMContentLoaded', () => {
     console.log('🟣 [APP.JS] ========== DOMContentLoaded DISPARADO ==========');
     inicializarApp();
-    
+
     // Expor funções do StockManager globalmente para o HTML
     const exponerFuncoesStockManager = () => {
         if (window.app && window.app.stockManager) {
@@ -33790,7 +33790,7 @@ document.addEventListener('DOMContentLoaded', () => {
             return false;
         }
     };
-    
+
     // Tentar expor as funções com retry
     let tentativas = 0;
     const maxTentativas = 10;

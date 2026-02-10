@@ -737,7 +737,7 @@
                                     flex-wrap: wrap;
                                 ">
                             <div class="form-group">
-                                <label for="mesSelecionado">Mês</label>
+                                <label for="mesSelecionado">Mês/Ano</label>
                                 <select id="mesSelecionado" class="filter-select">
                                     <!-- meses serão carregados via JS -->
                                 </select>
@@ -746,19 +746,25 @@
                             <!-- TABELA CONSOLIDADA DE ESTOQUE -->
                             <div id="tabelaEstoqueContainer" class="estoque-tabela-container" style="margin-top: 2rem;">
                                 <!-- Cabeçalho com badges e ações -->
-                                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; flex-wrap: wrap; gap: 1rem;">
+                                <div
+                                    style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; flex-wrap: wrap; gap: 1rem;">
                                     <div style="display: flex; align-items: center; gap: 1rem; flex-wrap: wrap;">
                                         <h4 style="margin: 0; color: var(--gray-700);">📊 Estoque Consolidado</h4>
-                                        
+
                                         <!-- Badges de status -->
                                         <div style="display: flex; gap: 0.5rem;">
-                                            <span class="badge badge-critico" id="badgeEstoqueCritico" style="display: none;">
-                                                <i class="fas fa-exclamation-circle"></i> <span id="countCritico">0</span> Crítico
+                                            <span class="badge badge-critico" id="badgeEstoqueCritico"
+                                                style="display: none;">
+                                                <i class="fas fa-exclamation-circle"></i> <span
+                                                    id="countCritico">0</span> Crítico
                                             </span>
-                                            <span class="badge badge-baixo" id="badgeEstoqueBaixo" style="display: none;">
-                                                <i class="fas fa-exclamation-triangle"></i> <span id="countBaixo">0</span> Baixo
+                                            <span class="badge badge-baixo" id="badgeEstoqueBaixo"
+                                                style="display: none;">
+                                                <i class="fas fa-exclamation-triangle"></i> <span
+                                                    id="countBaixo">0</span> Baixo
                                             </span>
-                                            <span class="badge badge-medio" id="badgeEstoqueMedio" style="display: none;">
+                                            <span class="badge badge-medio" id="badgeEstoqueMedio"
+                                                style="display: none;">
                                                 <i class="fas fa-info-circle"></i> <span id="countMedio">0</span> Médio
                                             </span>
                                             <span class="badge badge-ok" id="badgeEstoqueOk" style="display: none;">
@@ -766,42 +772,49 @@
                                             </span>
                                         </div>
                                     </div>
-                                    
+
                                     <div style="display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap;">
-                                        <button type="button" class="btn-secondary btn-sm" onclick="renderizarTabelaEstoque()">
+                                        <button type="button" class="btn-secondary btn-sm"
+                                            onclick="renderizarTabelaEstoque()">
                                             🔄 Atualizar
                                         </button>
-                                        <button type="button" class="btn-secondary btn-sm" onclick="imprimirRelatorioEstoque()">
+                                        <button type="button" class="btn-secondary btn-sm"
+                                            onclick="imprimirRelatorioEstoque()">
                                             🖨️ Imprimir
                                         </button>
                                     </div>
                                 </div>
-                                
+
                                 <!-- Filtros e busca -->
-                                <div style="display: flex; gap: 1rem; margin-bottom: 1rem; flex-wrap: wrap; align-items: center;">
+                                <div
+                                    style="display: flex; gap: 1rem; margin-bottom: 1rem; flex-wrap: wrap; align-items: center;">
                                     <div class="btn-group-filtros">
-                                        <button class="btn-filtro active" data-filtro="todos" onclick="filtrarTabelaEstoque('todos')">
+                                        <button class="btn-filtro active" data-filtro="todos"
+                                            onclick="filtrarTabelaEstoque('todos')">
                                             Todos
                                         </button>
-                                        <button class="btn-filtro" data-filtro="critico" onclick="filtrarTabelaEstoque('critico')">
+                                        <button class="btn-filtro" data-filtro="critico"
+                                            onclick="filtrarTabelaEstoque('critico')">
                                             Crítico
                                         </button>
-                                        <button class="btn-filtro" data-filtro="baixo" onclick="filtrarTabelaEstoque('baixo')">
+                                        <button class="btn-filtro" data-filtro="baixo"
+                                            onclick="filtrarTabelaEstoque('baixo')">
                                             Baixo
                                         </button>
-                                        <button class="btn-filtro" data-filtro="medio" onclick="filtrarTabelaEstoque('medio')">
+                                        <button class="btn-filtro" data-filtro="medio"
+                                            onclick="filtrarTabelaEstoque('medio')">
                                             Médio
                                         </button>
-                                        <button class="btn-filtro" data-filtro="ok" onclick="filtrarTabelaEstoque('ok')">
+                                        <button class="btn-filtro" data-filtro="ok"
+                                            onclick="filtrarTabelaEstoque('ok')">
                                             OK
                                         </button>
                                     </div>
-                                    
+
                                     <div style="flex: 1; min-width: 200px;">
-                                        <input type="text" id="buscaTabelaEstoque" class="search-input-with-icon" 
-                                               placeholder="🔍 Buscar grupo..." 
-                                               onkeyup="buscarNaTabelaEstoque(this.value)"
-                                               style="width: 100%;">
+                                        <input type="text" id="buscaTabelaEstoque" class="search-input-with-icon"
+                                            placeholder="🔍 Buscar grupo..." onkeyup="buscarNaTabelaEstoque(this.value)"
+                                            style="width: 100%;">
                                     </div>
                                 </div>
                                 <div style="overflow-x: auto;">
@@ -3475,13 +3488,10 @@
                             </p>
                         </div>
                     </div>
-                    
+
                     <!-- Botão de Gerenciamento de Estoque -->
                     <div style="margin-top: 1rem; text-align: center; padding: 0 1rem;">
-                        <button
-                            type="button"
-                            class="btn-primary"
-                            id="manageStockBtn"
+                        <button type="button" class="btn-primary" id="manageStockBtn"
                             onclick="if(app && app.stockManager && app.currentGroup) { app.stockManager.openStockManagementModal(app.currentGroup.id); } else { console.error('StockManager não inicializado ou grupo não selecionado'); alert('Sistema ainda inicializando, aguarde um momento...'); }"
                             style="
                                 padding: 0.875rem 1.5rem;
@@ -3501,14 +3511,13 @@
                                 max-width: 400px;
                             "
                             onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 6px 20px rgba(0, 0, 0, 0.2)';"
-                            onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 12px rgba(0, 0, 0, 0.15)';"
-                        >
-                            <i class="fas fa-warehouse"></i> 
+                            onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 12px rgba(0, 0, 0, 0.15)';">
+                            <i class="fas fa-warehouse"></i>
                             <span>Gerenciamento estoque do mês</span>
                         </button>
                     </div>
                 </div>
-                
+
                 <div id="daysList" class="days-list">
                     <!-- Dias serão inseridos aqui -->
                 </div>
@@ -7019,29 +7028,27 @@
                 <h2 id="stockManagementTitle">
                     <i class="fas fa-warehouse"></i> Gerenciamento de Estoque
                 </h2>
-                <span class="close" onclick="if(app && app.stockManager) { app.stockManager.closeStockManagementModal(); }" aria-label="Fechar modal" role="button" tabindex="0">&times;</span>
+                <span class="close"
+                    onclick="if(app && app.stockManager) { app.stockManager.closeStockManagementModal(); }"
+                    aria-label="Fechar modal" role="button" tabindex="0">&times;</span>
             </div>
             <div class="modal-body" style="overflow-y: auto; max-height: calc(90vh - 80px);">
-                
+
                 <!-- SEÇÃO 1: SELEÇÃO DE PRODUTO -->
                 <div class="stock-section">
                     <h3 class="section-title">
-                        <span class="step-number">1</span> 
+                        <span class="step-number">1</span>
                         <i class="fas fa-box"></i> Selecione o Produto (SKU)
                     </h3>
-                    
+
                     <div class="product-search-wrapper">
                         <div class="search-input-wrapper">
                             <i class="fas fa-search search-icon"></i>
-                            <input 
-                                type="text" 
-                                id="stockProductSearch" 
-                                class="search-input-with-icon" 
+                            <input type="text" id="stockProductSearch" class="search-input-with-icon"
                                 placeholder="🔍 Buscar produto por nome ou SKU..."
-                                onkeyup="if(app && app.stockManager) { app.stockManager.filterStockProducts(this.value); }"
-                            />
+                                onkeyup="if(app && app.stockManager) { app.stockManager.filterStockProducts(this.value); }" />
                         </div>
-                        
+
                         <!-- Lista de produtos -->
                         <div id="stockProductsList" class="products-list">
                             <div style="padding: 1rem; text-align: center; color: #999;">
@@ -7049,7 +7056,7 @@
                             </div>
                         </div>
                     </div>
-                    
+
                     <!-- Card do produto selecionado -->
                     <div id="selectedProductCard" class="selected-product-card" style="display: none;">
                         <div class="product-card-header">
@@ -7057,7 +7064,9 @@
                                 <h4 id="selectedProductName">-</h4>
                                 <p class="sku-code">SKU: <span id="selectedProductSKU">-</span></p>
                             </div>
-                            <button class="btn-icon-round" onclick="if(app && app.stockManager) { app.stockManager.clearSelectedProduct(); }" title="Limpar seleção">
+                            <button class="btn-icon-round"
+                                onclick="if(app && app.stockManager) { app.stockManager.clearSelectedProduct(); }"
+                                title="Limpar seleção">
                                 <i class="fas fa-times"></i>
                             </button>
                         </div>
@@ -7085,127 +7094,104 @@
                         </div>
                     </div>
                 </div>
-                
+
                 <!-- SEÇÃO 2: TIPO DE OPERAÇÃO -->
                 <div class="stock-section">
                     <h3 class="section-title">
                         <span class="step-number">2</span>
                         <i class="fas fa-exchange-alt"></i> Escolha a Operação
                     </h3>
-                    
+
                     <div class="operation-buttons-grid">
-                        <button 
-                            class="operation-btn operation-entry active" 
-                            id="btnEntryOperation"
-                            onclick="if(app && app.stockManager) { app.stockManager.selectOperation('entry'); }"
-                        >
+                        <button class="operation-btn operation-entry active" id="btnEntryOperation"
+                            onclick="if(app && app.stockManager) { app.stockManager.selectOperation('entry'); }">
                             <i class="fas fa-arrow-down"></i>
                             <div class="op-title">ENTRADA</div>
                             <div class="op-subtitle">Adicionar Estoque</div>
                         </button>
-                        
-                        <button 
-                            class="operation-btn operation-exit" 
-                            id="btnExitOperation"
-                            onclick="if(app && app.stockManager) { app.stockManager.selectOperation('exit'); }"
-                        >
+
+                        <button class="operation-btn operation-exit" id="btnExitOperation"
+                            onclick="if(app && app.stockManager) { app.stockManager.selectOperation('exit'); }">
                             <i class="fas fa-arrow-up"></i>
                             <div class="op-title">SAÍDA</div>
                             <div class="op-subtitle">Retirar/Perda/Ajuste</div>
                         </button>
                     </div>
                 </div>
-                
+
                 <!-- SEÇÃO 3: DETALHES DA MOVIMENTAÇÃO -->
                 <div class="stock-section">
                     <h3 class="section-title">
                         <span class="step-number">3</span>
                         <i class="fas fa-edit"></i> Detalhes da Movimentação
                     </h3>
-                    
+
                     <div class="movement-form">
                         <div class="form-row-two">
                             <div class="form-group">
                                 <label for="stockMovementDate">
                                     <i class="fas fa-calendar"></i> Data
                                 </label>
-                                <input 
-                                    type="date" 
-                                    id="stockMovementDate" 
-                                    class="form-control"
-                                />
+                                <input type="date" id="stockMovementDate" class="form-control" />
                                 <div id="stockMovementDateMsg" class="field-message error"></div>
                             </div>
-                            
+
                             <div class="form-group">
                                 <label for="stockMovementQty">
                                     <i class="fas fa-hashtag"></i> Quantidade
                                 </label>
-                                <input 
-                                    type="number" 
-                                    id="stockMovementQty" 
-                                    class="form-control" 
-                                    min="1" 
-                                    placeholder="Ex: 10"
-                                />
+                                <input type="number" id="stockMovementQty" class="form-control" min="1"
+                                    placeholder="Ex: 10" />
                                 <div id="stockMovementQtyMsg" class="field-message error"></div>
                             </div>
                         </div>
-                        
+
                         <!-- Campo de estoque inicial (aparece apenas se produto não tiver estoque inicial) -->
                         <div id="stockInitialField" class="form-group" style="display: none;">
                             <label for="stockInitialValue">
                                 <i class="fas fa-warehouse"></i> Estoque Inicial do Produto
-                                <span class="optional-label">(defina o estoque inicial antes da primeira movimentação)</span>
+                                <span class="optional-label">(defina o estoque inicial antes da primeira
+                                    movimentação)</span>
                             </label>
-                            <input 
-                                type="number" 
-                                id="stockInitialValue" 
-                                class="form-control" 
-                                min="0" 
-                                placeholder="Ex: 100"
-                            />
+                            <input type="number" id="stockInitialValue" class="form-control" min="0"
+                                placeholder="Ex: 100" />
                         </div>
-                        
+
                         <!-- Observação (aparece apenas para saída) -->
                         <div id="stockObservationField" class="form-group" style="display: none;">
                             <label for="stockMovementObs">
-                                <i class="fas fa-comment"></i> Motivo/Observação 
+                                <i class="fas fa-comment"></i> Motivo/Observação
                                 <span class="optional-label">(opcional)</span>
                             </label>
-                            <textarea 
-                                id="stockMovementObs" 
-                                class="form-control" 
-                                rows="2"
-                                placeholder="Ex: Perda, Avaria, Ajuste de inventário, Produto danificado, Devolução, etc."
-                            ></textarea>
+                            <textarea id="stockMovementObs" class="form-control" rows="2"
+                                placeholder="Ex: Perda, Avaria, Ajuste de inventário, Produto danificado, Devolução, etc."></textarea>
                         </div>
-                        
-                        <button 
-                            class="btn-primary btn-large" 
-                            id="btnRegisterMovement"
+
+                        <button class="btn-primary btn-large" id="btnRegisterMovement"
                             onclick="if(app && app.stockManager) { app.stockManager.registerStockMovement(); }"
-                            disabled
-                        >
+                            disabled>
                             <i class="fas fa-check-circle"></i>
                             <span id="btnRegisterText">Registrar Entrada</span>
                         </button>
-                        
+
                         <div id="stockMovementFeedback" class="field-message"></div>
                     </div>
                 </div>
-                
+
                 <!-- SEÇÃO 4: HISTÓRICO DE MOVIMENTAÇÕES -->
                 <div class="stock-section">
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                    <div
+                        style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
                         <h3 class="section-title" style="margin: 0;">
                             <i class="fas fa-history"></i> Histórico de Movimentações do Mês
                         </h3>
-                        <button class="btn-icon-small" onclick="if(app && app.stockManager) { app.stockManager.refreshStockHistory(); }" title="Atualizar">
+                        <button class="btn-icon-small"
+                            onclick="if(app && app.stockManager) { app.stockManager.refreshStockHistory(); }"
+                            title="Atualizar">
                             <i class="fas fa-sync-alt"></i>
                         </button>
                     </div>
-                    
+
                     <div class="stock-history-container">
                         <table class="stock-history-table">
                             <thead>
@@ -7228,7 +7214,7 @@
                         </table>
                     </div>
                 </div>
-                
+
             </div>
         </div>
     </div>
