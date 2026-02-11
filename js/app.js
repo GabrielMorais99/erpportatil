@@ -445,7 +445,8 @@ class IndicadorSincronizacao {
         indicador.style.cssText = `
             position: fixed;
             bottom: 20px;
-            right: 20px;
+            left: 50%;
+            transform: translateX(-50%);
             padding: 10px 15px;
             background: white;
             border-radius: 20px;
@@ -455,7 +456,9 @@ class IndicadorSincronizacao {
             gap: 8px;
             font-size: 12px;
             z-index: 9999;
-            transition: all 0.3s;
+            transition: all 0.3s, opacity 0.5s;
+            opacity: 0;
+            pointer-events: none;
         `;
 
         indicador.innerHTML = `
@@ -487,6 +490,7 @@ class IndicadorSincronizacao {
             <span class="sync-text">Sincronizando...</span>
         `;
         this.elemento.style.background = '#fff3cd';
+        this.elemento.style.opacity = '1';
     }
 
     setSincronizado() {
@@ -497,10 +501,12 @@ class IndicadorSincronizacao {
             <span class="sync-text">Sincronizado</span>
         `;
         this.elemento.style.background = '#d4edda';
+        this.elemento.style.opacity = '1';
 
+        // Esconder após 2 segundos com fade out
         setTimeout(() => {
             if (this.elemento && this.status === 'sincronizado') {
-                this.elemento.style.background = 'white';
+                this.elemento.style.opacity = '0';
             }
         }, 2000);
     }
@@ -513,6 +519,14 @@ class IndicadorSincronizacao {
             <span class="sync-text">${mensagem}</span>
         `;
         this.elemento.style.background = '#f8d7da';
+        this.elemento.style.opacity = '1';
+        
+        // Esconder após 4 segundos (erro fica mais tempo visível)
+        setTimeout(() => {
+            if (this.elemento && this.status === 'erro') {
+                this.elemento.style.opacity = '0';
+            }
+        }, 4000);
     }
 
     hide() {
@@ -18130,6 +18144,11 @@ class LojaApp {
     // ========== PERSISTÊNCIA DE DADOS ==========
 
     async saveData() {
+        // Mostrar indicador de sincronização
+        if (typeof indicadorSync !== 'undefined' && indicadorSync) {
+            indicadorSync.setSincronizando();
+        }
+        
         // Obter username do sessionStorage
         const username = sessionStorage.getItem('username')?.trim();
 
@@ -18351,6 +18370,11 @@ class LojaApp {
                 console.log(
                     '✅ [SAVE DATA] Dados salvos na nuvem com sucesso!',
                 );
+                
+                // Mostrar sucesso no indicador
+                if (typeof indicadorSync !== 'undefined' && indicadorSync) {
+                    indicadorSync.setSincronizado();
+                }
             } else {
                 if (
                     result.error &&
@@ -18391,6 +18415,11 @@ class LojaApp {
             console.log(
                 'ℹ️ [SAVE DATA] Isso é normal se você estiver testando localmente (localhost)',
             );
+            
+            // Mostrar que salvou localmente (não é erro grave)
+            if (typeof indicadorSync !== 'undefined' && indicadorSync) {
+                indicadorSync.setSincronizado();
+            }
         }
     }
 
