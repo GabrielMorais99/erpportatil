@@ -1,10 +1,10 @@
 {
-    "version": "4.7.0",
-    "buildDate": "2026-02-09",
-    "buildTime": "03:00:00",
+    "version": "4.8.0",
+    "buildDate": "2026-01-31",
+    "buildTime": "12:00:00",
     "commit": "pending",
     "branch": "main",
-    "commitMessage": "feat: melhorar indicador de sincronizacao e integrar com saveData",
+    "commitMessage": "feat: adicionar sistema de alertas de estoque crítico com notificações e configurações",
     "description": "ERP Portátil - Sistema de Gestão Financeira",
-    "updatedAt": "2026-02-09T03:00:00.000Z"
+    "updatedAt": "2026-01-31T12:00:00.000Z"
 }

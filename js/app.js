@@ -520,7 +520,7 @@ class IndicadorSincronizacao {
         `;
         this.elemento.style.background = '#f8d7da';
         this.elemento.style.opacity = '1';
-        
+
         // Esconder após 4 segundos (erro fica mais tempo visível)
         setTimeout(() => {
             if (this.elemento && this.status === 'erro') {
@@ -1042,7 +1042,10 @@ class LojaApp {
 
         // Sistema de Gerenciamento de Estoque por SKU
         this.stockManager = null; // Será inicializado após DOM estar pronto
-
+        
+        // Sistema de Alertas de Estoque
+        this.stockAlerts = null; // Será inicializado após DOM estar pronto
+        
         this.currentSaleDay = null;
         this.currentEditingCost = null;
         this.currentEditingGoal = null;
@@ -18148,7 +18151,7 @@ class LojaApp {
         if (typeof indicadorSync !== 'undefined' && indicadorSync) {
             indicadorSync.setSincronizando();
         }
-        
+
         // Obter username do sessionStorage
         const username = sessionStorage.getItem('username')?.trim();
 
@@ -18370,7 +18373,7 @@ class LojaApp {
                 console.log(
                     '✅ [SAVE DATA] Dados salvos na nuvem com sucesso!',
                 );
-                
+
                 // Mostrar sucesso no indicador
                 if (typeof indicadorSync !== 'undefined' && indicadorSync) {
                     indicadorSync.setSincronizado();
@@ -18415,7 +18418,7 @@ class LojaApp {
             console.log(
                 'ℹ️ [SAVE DATA] Isso é normal se você estiver testando localmente (localhost)',
             );
-            
+
             // Mostrar que salvou localmente (não é erro grave)
             if (typeof indicadorSync !== 'undefined' && indicadorSync) {
                 indicadorSync.setSincronizado();
@@ -33674,87 +33677,729 @@ class StockManager {
 }
 
 // ========================================
-// ALERTAS DE ESTOQUE BAIXO
+// SISTEMA DE ALERTAS DE ESTOQUE
 // ========================================
 
-function verificarEstoqueBaixo() {
-    const usuario = sessionStorage.getItem('username');
-    const mes = document.getElementById('mesSelecionado')?.value;
+class StockAlertsSystem {
+    constructor(app) {
+        this.app = app;
+        this.settings = this.loadSettings();
+        this.checkInterval = null;
+        this.alertsCache = null;
+        this.lastCheck = null;
+    }
 
-    if (!usuario || !mes) return;
-
-    const grupos = window.app?.groups || [];
-    if (grupos.length === 0) return;
-
-    const gruposBaixos = [];
-    const gruposCriticos = [];
-
-    grupos.forEach((grupo) => {
-        const estoque = window.app?.carregarEstoque
-            ? window.app.carregarEstoque(usuario, mes, grupo.name)
-            : null;
-
-        if (!estoque) return;
-
-        const estoqueInicial = estoque.totalInicial || 0;
-        const movimentacoes = estoque.movimentacoes || [];
-
-        const totalEntradas = movimentacoes
-            .filter((m) => m.tipo === 'entrada' && m.qtd > 0)
-            .reduce((acc, m) => acc + Math.abs(m.qtd), 0);
-
-        const totalSaidas = movimentacoes
-            .filter((m) => (m.tipo === 'saida' || !m.tipo) && m.qtd < 0)
-            .reduce((acc, m) => acc + Math.abs(m.qtd), 0);
-
-        const estoqueAtual = estoqueInicial + totalEntradas - totalSaidas;
-
-        if (estoqueAtual <= 0) {
-            gruposCriticos.push({
-                nome: grupo.name,
-                estoque: estoqueAtual,
-            });
-        } else if (estoqueAtual <= 5) {
-            gruposBaixos.push({
-                nome: grupo.name,
-                estoque: estoqueAtual,
-            });
+    // Carregar configurações
+    loadSettings() {
+        const usuario = sessionStorage.getItem('username');
+        const key = `stockAlertsSettings_${usuario}`;
+        const saved = localStorage.getItem(key);
+        
+        if (saved) {
+            return JSON.parse(saved);
         }
-    });
+        
+        // Configurações padrão
+        return {
+            lowStockLevel: 5,
+            criticalStockLevel: 0,
+            notifyInApp: true,
+            notifyBadge: true,
+            autoShow: true,
+            checkInterval: 3600000 // 1 hora
+        };
+    }
 
-    // Mostrar alertas se houver problemas
-    if (gruposCriticos.length > 0) {
-        const mensagem = gruposCriticos.length === 1
-            ? `Grupo "${gruposCriticos[0].nome}" está com estoque CRÍTICO (${gruposCriticos[0].estoque} un)`
-            : `${gruposCriticos.length} grupos com estoque CRÍTICO!`;
-
+    // Salvar configurações
+    saveSettings(event) {
+        if (event) event.preventDefault();
+        
+        const usuario = sessionStorage.getItem('username');
+        
+        this.settings = {
+            lowStockLevel: parseInt(document.getElementById('lowStockLevel')?.value) || 5,
+            criticalStockLevel: 0,
+            notifyInApp: document.getElementById('alertNotifyInApp')?.checked || false,
+            notifyBadge: document.getElementById('alertNotifyBadge')?.checked || false,
+            autoShow: document.getElementById('alertAutoShow')?.checked || false,
+            checkInterval: parseInt(document.getElementById('alertCheckInterval')?.value) || 3600000
+        };
+        
+        const key = `stockAlertsSettings_${usuario}`;
+        localStorage.setItem(key, JSON.stringify(this.settings));
+        
+        console.log('✅ [ALERTS] Configurações salvas:', this.settings);
+        
         if (typeof toast !== 'undefined' && toast) {
-            toast.error(mensagem, 8000);
+            toast.success('Configurações de alertas salvas!');
         }
-    } else if (gruposBaixos.length > 0) {
-        const mensagem = gruposBaixos.length === 1
-            ? `Grupo "${gruposBaixos[0].nome}" está com estoque baixo (${gruposBaixos[0].estoque} un)`
-            : `${gruposBaixos.length} grupos com estoque baixo`;
+        
+        // Fechar modal
+        this.closeSettingsModal();
+        
+        // Reiniciar verificação automática
+        this.startAutoCheck();
+        
+        // Atualizar alertas imediatamente
+        this.checkAndShowAlerts();
+    }
 
-        if (typeof toast !== 'undefined' && toast) {
-            toast.warning(mensagem, 6000);
+    // Abrir modal de configurações
+    openSettingsModal() {
+        const modal = document.getElementById('stockAlertsSettingsModal');
+        if (!modal) return;
+        
+        // Preencher valores atuais
+        const lowLevel = document.getElementById('lowStockLevel');
+        const notifyApp = document.getElementById('alertNotifyInApp');
+        const notifyBadge = document.getElementById('alertNotifyBadge');
+        const autoShow = document.getElementById('alertAutoShow');
+        const interval = document.getElementById('alertCheckInterval');
+        
+        if (lowLevel) lowLevel.value = this.settings.lowStockLevel;
+        if (notifyApp) notifyApp.checked = this.settings.notifyInApp;
+        if (notifyBadge) notifyBadge.checked = this.settings.notifyBadge;
+        if (autoShow) autoShow.checked = this.settings.autoShow;
+        if (interval) interval.value = this.settings.checkInterval;
+        
+        this.app.openModalSafely(modal);
+    }
+
+    // Fechar modal de configurações
+    closeSettingsModal() {
+        const modal = document.getElementById('stockAlertsSettingsModal');
+        if (modal) {
+            this.app.closeModalSafely(modal);
         }
     }
 
-    return { criticos: gruposCriticos, baixos: gruposBaixos };
+    // Verificar estoque e retornar alertas
+    checkStock() {
+        const usuario = sessionStorage.getItem('username');
+        if (!usuario) return { critical: [], low: [] };
+        
+        console.log('🔍 [ALERTS] Verificando estoque de todos os produtos...');
+        
+        const critical = [];
+        const low = [];
+        
+        // Verificar todos os produtos cadastrados
+        this.app.items.forEach(item => {
+            // Verificar estoque em todos os meses
+            this.app.groups.forEach(group => {
+                const estoque = this.app.carregarEstoque(usuario, group.month, item.id);
+                if (!estoque) return;
+                
+                // Calcular estoque disponível
+                const estoqueInicial = estoque.totalInicial || 0;
+                const movimentacoes = estoque.movimentacoes || [];
+                
+                const totalEntradas = movimentacoes
+                    .filter(m => m.tipo === 'entrada' && m.qtd > 0)
+                    .reduce((acc, m) => acc + Math.abs(m.qtd), 0);
+                
+                const totalSaidas = movimentacoes
+                    .filter(m => m.tipo === 'saida' && m.qtd < 0)
+                    .reduce((acc, m) => acc + Math.abs(m.qtd), 0);
+                
+                // Calcular vendas do produto no mês
+                const totalVendas = this.app.stockManager ? 
+                    this.app.stockManager.calculateSalesForProduct(item.id) : 0;
+                
+                const estoqueAtual = estoqueInicial + totalEntradas - totalSaidas - totalVendas;
+                
+                // Verificar níveis
+                if (estoqueAtual <= this.settings.criticalStockLevel) {
+                    critical.push({
+                        itemId: item.id,
+                        itemName: item.name || 'Produto sem nome',
+                        month: group.month,
+                        monthLabel: this.formatMonthLabel(group.month),
+                        currentStock: estoqueAtual
+                    });
+                } else if (estoqueAtual <= this.settings.lowStockLevel) {
+                    low.push({
+                        itemId: item.id,
+                        itemName: item.name || 'Produto sem nome',
+                        month: group.month,
+                        monthLabel: this.formatMonthLabel(group.month),
+                        currentStock: estoqueAtual
+                    });
+                }
+            });
+        });
+        
+        this.lastCheck = new Date();
+        this.alertsCache = { critical, low };
+        
+        console.log(`🔍 [ALERTS] Verificação concluída: ${critical.length} críticos, ${low.length} baixos`);
+        
+        return { critical, low };
+    }
+
+    // Formatar label do mês
+    formatMonthLabel(monthStr) {
+        const [year, month] = monthStr.split('-');
+        const monthNames = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun',
+                            'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
+        return `${monthNames[parseInt(month) - 1]}/${year}`;
+    }
+
+    // Verificar e mostrar alertas
+    checkAndShowAlerts() {
+        const alerts = this.checkStock();
+        const totalAlerts = alerts.critical.length + alerts.low.length;
+        
+        console.log(`🔔 [ALERTS] Total de alertas: ${totalAlerts}`);
+        
+        // Atualizar UI
+        this.renderAlerts(alerts);
+        
+        // Atualizar badge
+        this.updateBadge(totalAlerts);
+        
+        // Mostrar painel se configurado e houver alertas
+        if (this.settings.autoShow && totalAlerts > 0) {
+            this.showAlertsPanel();
+        }
+        
+        return alerts;
+    }
+
+    // Renderizar alertas na tela
+    renderAlerts(alerts) {
+        const panel = document.getElementById('stockAlertsPanel');
+        const criticalSection = document.getElementById('criticalStockSection');
+        const lowSection = document.getElementById('lowStockSection');
+        const noAlertsMsg = document.getElementById('noAlertsMessage');
+        const criticalList = document.getElementById('criticalStockList');
+        const lowList = document.getElementById('lowStockList');
+        
+        if (!panel) return;
+        
+        const hasCritical = alerts.critical.length > 0;
+        const hasLow = alerts.low.length > 0;
+        const hasAlerts = hasCritical || hasLow;
+        
+        // Mostrar/ocultar seções
+        if (criticalSection) criticalSection.style.display = hasCritical ? 'block' : 'none';
+        if (lowSection) lowSection.style.display = hasLow ? 'block' : 'none';
+        if (noAlertsMsg) noAlertsMsg.style.display = hasAlerts ? 'none' : 'block';
+        
+        // Renderizar alertas críticos
+        if (criticalList && hasCritical) {
+            criticalList.innerHTML = alerts.critical.map(alert => `
+                <div class="stock-alert-item critical">
+                    <div class="alert-item-info">
+                        <strong>${alert.itemName}</strong>
+                        <span class="alert-item-details">SKU: ${alert.itemId} | ${alert.monthLabel} | ${alert.currentStock} un</span>
+                    </div>
+                    <div class="alert-item-actions">
+                        <button class="btn-small btn-primary" onclick="if(app && app.stockManager) { app.stockManager.openStockManagementModal(app.groups.find(g => g.month === '${alert.month}')?.id); }" title="Gerenciar Estoque">
+                            <i class="fas fa-warehouse"></i>
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        }
+        
+        // Renderizar alertas baixos
+        if (lowList && hasLow) {
+            lowList.innerHTML = alerts.low.map(alert => `
+                <div class="stock-alert-item low">
+                    <div class="alert-item-info">
+                        <strong>${alert.itemName}</strong>
+                        <span class="alert-item-details">SKU: ${alert.itemId} | ${alert.monthLabel} | ${alert.currentStock} un</span>
+                    </div>
+                    <div class="alert-item-actions">
+                        <button class="btn-small btn-secondary" onclick="if(app && app.stockManager) { app.stockManager.openStockManagementModal(app.groups.find(g => g.month === '${alert.month}')?.id); }" title="Gerenciar Estoque">
+                            <i class="fas fa-warehouse"></i>
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        }
+    }
+
+    // Mostrar painel de alertas
+    showAlertsPanel() {
+        const panel = document.getElementById('stockAlertsPanel');
+        if (panel) {
+            panel.style.display = 'block';
+            console.log('📢 [ALERTS] Painel de alertas exibido');
+        }
+    }
+
+    // Ocultar painel de alertas
+    hideAlertsPanel() {
+        const panel = document.getElementById('stockAlertsPanel');
+        if (panel) {
+            panel.style.display = 'none';
+            console.log('🔇 [ALERTS] Painel de alertas ocultado');
+        }
+    }
+
+    // Atualizar badge de notificações
+    updateBadge(count) {
+        if (!this.settings.notifyBadge) {
+            count = 0;
+        }
+        
+        // Atualizar badge no botão de vendas (se existir)
+        const salesBtn = document.querySelector('[data-tab="salesPanel"]');
+        if (!salesBtn) return;
+        
+        // Remover badge existente
+        const existingBadge = salesBtn.querySelector('.notification-badge');
+        if (existingBadge) {
+            existingBadge.remove();
+        }
+        
+        // Adicionar novo badge se houver alertas
+        if (count > 0) {
+            const badge = document.createElement('span');
+            badge.className = 'notification-badge';
+            badge.textContent = count;
+            badge.style.cssText = `
+                position: absolute;
+                top: 8px;
+                right: 8px;
+                background: #dc3545;
+                color: white;
+                border-radius: 50%;
+                width: 20px;
+                height: 20px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 0.7rem;
+                font-weight: 700;
+                box-shadow: 0 2px 4px rgba(220, 53, 69, 0.4);
+                animation: pulse 2s infinite;
+            `;
+            
+            salesBtn.style.position = 'relative';
+            salesBtn.appendChild(badge);
+            
+            console.log(`🔔 [ALERTS] Badge atualizado: ${count} alertas`);
+        }
+    }
+
+    // Iniciar verificação automática
+    startAutoCheck() {
+        // Limpar intervalo anterior
+        if (this.checkInterval) {
+            clearInterval(this.checkInterval);
+        }
+        
+        // Criar novo intervalo
+        this.checkInterval = setInterval(() => {
+            console.log('⏰ [ALERTS] Verificação automática disparada');
+            this.checkAndShowAlerts();
+        }, this.settings.checkInterval);
+        
+        console.log(`⏰ [ALERTS] Verificação automática iniciada (a cada ${this.settings.checkInterval / 1000 / 60} minutos)`);
+    }
+
+    // Parar verificação automática
+    stopAutoCheck() {
+        if (this.checkInterval) {
+            clearInterval(this.checkInterval);
+            this.checkInterval = null;
+            console.log('⏰ [ALERTS] Verificação automática parada');
+        }
+    }
+
+    // Atualizar alertas (botão refresh)
+    refreshAlerts() {
+        console.log('🔄 [ALERTS] Atualizando alertas manualmente...');
+        this.checkAndShowAlerts();
+        
+        if (typeof toast !== 'undefined' && toast) {
+            toast.info('Alertas de estoque atualizados!');
+        }
+    }
+
+    // Inicializar sistema
+    init() {
+        console.log('🔔 [ALERTS] Inicializando sistema de alertas...');
+        
+        // Verificar imediatamente
+        setTimeout(() => {
+            this.checkAndShowAlerts();
+        }, 3000);
+        
+        // Iniciar verificação automática
+        this.startAutoCheck();
+        
+        console.log('✅ [ALERTS] Sistema de alertas inicializado');
+    }
 }
 
-// Verificar estoque baixo automaticamente quando carregar a página
-document.addEventListener('DOMContentLoaded', function () {
-    setTimeout(() => {
-        const usuario = sessionStorage.getItem('username');
-        const logged = sessionStorage.getItem('loggedIn');
+// ========================================
+// SISTEMA DE ALERTAS DE ESTOQUE CRÍTICO
+// ========================================
 
-        if (usuario && logged === 'true') {
-            setTimeout(verificarEstoqueBaixo, 3000);
+class StockAlertsSystem {
+    constructor(app) {
+        this.app = app;
+        this.settings = this.loadSettings();
+        this.checkInterval = null;
+        this.alertsCache = { critical: [], low: [], timestamp: 0 };
+    }
+
+    // Carregar configurações
+    loadSettings() {
+        const usuario = sessionStorage.getItem('username');
+        const key = `stockAlertsSettings_${usuario}`;
+        const saved = localStorage.getItem(key);
+        
+        if (saved) {
+            try {
+                return JSON.parse(saved);
+            } catch (e) {
+                console.error('Erro ao carregar configurações de alertas:', e);
+            }
         }
-    }, 1000);
-});
+        
+        // Configurações padrão
+        return {
+            lowStockLevel: 5,
+            criticalStockLevel: 0,
+            notifyInApp: true,
+            notifyBadge: true,
+            autoShow: true,
+            checkInterval: 3600000 // 1 hora
+        };
+    }
+
+    // Salvar configurações
+    saveSettings(event) {
+        if (event) event.preventDefault();
+        
+        const settings = {
+            lowStockLevel: Number(document.getElementById('lowStockLevel')?.value || 5),
+            criticalStockLevel: 0, // Sempre 0
+            notifyInApp: document.getElementById('alertNotifyInApp')?.checked || true,
+            notifyBadge: document.getElementById('alertNotifyBadge')?.checked || true,
+            autoShow: document.getElementById('alertAutoShow')?.checked || true,
+            checkInterval: Number(document.getElementById('alertCheckInterval')?.value || 3600000)
+        };
+        
+        this.settings = settings;
+        
+        const usuario = sessionStorage.getItem('username');
+        const key = `stockAlertsSettings_${usuario}`;
+        localStorage.setItem(key, JSON.stringify(settings));
+        
+        console.log('✅ [ALERTS] Configurações salvas:', settings);
+        
+        if (typeof toast !== 'undefined' && toast) {
+            toast.success('Configurações de alertas salvas!');
+        }
+        
+        this.closeSettingsModal();
+        
+        // Reiniciar verificação com novo intervalo
+        this.startAutoCheck();
+        
+        // Atualizar alertas imediatamente
+        this.checkAndDisplayAlerts();
+    }
+
+    // Abrir modal de configurações
+    openSettingsModal() {
+        const modal = document.getElementById('stockAlertsSettingsModal');
+        if (!modal) return;
+        
+        // Preencher valores atuais
+        const lowStockInput = document.getElementById('lowStockLevel');
+        const notifyInAppCb = document.getElementById('alertNotifyInApp');
+        const notifyBadgeCb = document.getElementById('alertNotifyBadge');
+        const autoShowCb = document.getElementById('alertAutoShow');
+        const intervalSelect = document.getElementById('alertCheckInterval');
+        
+        if (lowStockInput) lowStockInput.value = this.settings.lowStockLevel;
+        if (notifyInAppCb) notifyInAppCb.checked = this.settings.notifyInApp;
+        if (notifyBadgeCb) notifyBadgeCb.checked = this.settings.notifyBadge;
+        if (autoShowCb) autoShowCb.checked = this.settings.autoShow;
+        if (intervalSelect) intervalSelect.value = this.settings.checkInterval;
+        
+        this.app.openModalSafely(modal);
+    }
+
+    // Fechar modal de configurações
+    closeSettingsModal() {
+        const modal = document.getElementById('stockAlertsSettingsModal');
+        if (modal) {
+            this.app.closeModalSafely(modal);
+        }
+    }
+
+    // Verificar estoque de todos os produtos
+    checkStockLevels() {
+        const usuario = sessionStorage.getItem('username');
+        if (!usuario) return { critical: [], low: [] };
+
+        const critical = [];
+        const low = [];
+        
+        console.log('🔍 [ALERTS] Verificando estoque de', this.app.items.length, 'produtos');
+
+        this.app.items.forEach(item => {
+            // Calcular estoque atual considerando todos os meses
+            let estoqueTotal = 0;
+            
+            this.app.groups.forEach(group => {
+                const estoque = this.app.carregarEstoque(usuario, group.month, item.id);
+                
+                if (estoque) {
+                    const estoqueInicial = estoque.totalInicial || 0;
+                    const movimentacoes = estoque.movimentacoes || [];
+                    
+                    const totalEntradas = movimentacoes
+                        .filter(m => m.tipo === 'entrada' && m.qtd > 0)
+                        .reduce((acc, m) => acc + Math.abs(m.qtd), 0);
+                    
+                    const totalSaidas = movimentacoes
+                        .filter(m => m.tipo === 'saida' && m.qtd < 0)
+                        .reduce((acc, m) => acc + Math.abs(m.qtd), 0);
+                    
+                    // Calcular vendas do produto no mês
+                    let totalVendas = 0;
+                    if (this.app.stockManager) {
+                        totalVendas = this.app.stockManager.calculateSalesForProduct(item.id);
+                    }
+                    
+                    estoqueTotal += estoqueInicial + totalEntradas - totalSaidas - totalVendas;
+                }
+            });
+            
+            const produto = {
+                id: item.id,
+                name: item.name || 'Produto sem nome',
+                estoque: estoqueTotal,
+                brand: item.brand,
+                category: item.category
+            };
+            
+            if (estoqueTotal <= this.settings.criticalStockLevel) {
+                critical.push(produto);
+            } else if (estoqueTotal <= this.settings.lowStockLevel) {
+                low.push(produto);
+            }
+        });
+        
+        console.log('📊 [ALERTS] Resultado:', {
+            critical: critical.length,
+            low: low.length
+        });
+        
+        this.alertsCache = {
+            critical,
+            low,
+            timestamp: Date.now()
+        };
+        
+        return { critical, low };
+    }
+
+    // Atualizar display de alertas
+    checkAndDisplayAlerts() {
+        const { critical, low } = this.checkStockLevels();
+        
+        // Atualizar badge de notificação
+        this.updateBadge(critical.length + low.length);
+        
+        // Renderizar alertas no painel
+        this.renderAlerts(critical, low);
+        
+        // Mostrar painel se tiver alertas e configuração ativa
+        if ((critical.length > 0 || low.length > 0) && this.settings.autoShow) {
+            this.showAlertsPanel();
+        } else if (critical.length === 0 && low.length === 0) {
+            // Se não houver alertas, pode ocultar
+            // this.hideAlertsPanel(); // Comentado para não ocultar automaticamente
+        }
+        
+        // Toasts para alertas críticos
+        if (critical.length > 0 && this.settings.notifyInApp) {
+            if (typeof toast !== 'undefined' && toast) {
+                toast.error(`⚠️ ${critical.length} produto(s) sem estoque!`, 8000);
+            }
+        }
+        
+        return { critical, low };
+    }
+
+    // Renderizar alertas na tela
+    renderAlerts(critical, low) {
+        const criticalSection = document.getElementById('criticalStockSection');
+        const lowSection = document.getElementById('lowStockSection');
+        const noAlertsMsg = document.getElementById('noAlertsMessage');
+        const criticalList = document.getElementById('criticalStockList');
+        const lowList = document.getElementById('lowStockList');
+        
+        if (!criticalSection || !lowSection || !noAlertsMsg) return;
+        
+        const hasAlerts = critical.length > 0 || low.length > 0;
+        
+        // Mostrar/ocultar seções
+        if (criticalSection) criticalSection.style.display = critical.length > 0 ? 'block' : 'none';
+        if (lowSection) lowSection.style.display = low.length > 0 ? 'block' : 'none';
+        if (noAlertsMsg) noAlertsMsg.style.display = hasAlerts ? 'none' : 'block';
+        
+        // Renderizar produtos críticos
+        if (criticalList && critical.length > 0) {
+            criticalList.innerHTML = critical.map(produto => `
+                <div class="stock-alert-item" style="background: white; padding: 1rem; border-radius: 6px; margin-bottom: 0.75rem; border: 1px solid #dc3545;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+                        <div style="flex: 1;">
+                            <h4 style="margin: 0 0 0.25rem 0; color: #721c24; font-size: 1rem;">
+                                ${this.app.escapeHtml(produto.name)}
+                            </h4>
+                            <p style="margin: 0; font-size: 0.85rem; color: #6c757d;">
+                                SKU: ${produto.id} ${produto.brand ? `| Marca: ${produto.brand}` : ''}
+                            </p>
+                            <p style="margin: 0.25rem 0 0 0; font-weight: 700; color: #dc3545; font-size: 1.1rem;">
+                                <i class="fas fa-box"></i> ${produto.estoque} unidades
+                            </p>
+                        </div>
+                        <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+                            <button class="btn-primary btn-sm" onclick="if(app && app.currentGroup) { app.stockManager.openStockManagementModal(app.currentGroup.id); setTimeout(() => app.stockManager.selectProduct('${produto.id}'), 300); }">
+                                <i class="fas fa-plus"></i> Adicionar Estoque
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+        
+        // Renderizar produtos baixos
+        if (lowList && low.length > 0) {
+            lowList.innerHTML = low.map(produto => `
+                <div class="stock-alert-item" style="background: white; padding: 1rem; border-radius: 6px; margin-bottom: 0.75rem; border: 1px solid #ffc107;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+                        <div style="flex: 1;">
+                            <h4 style="margin: 0 0 0.25rem 0; color: #856404; font-size: 1rem;">
+                                ${this.app.escapeHtml(produto.name)}
+                            </h4>
+                            <p style="margin: 0; font-size: 0.85rem; color: #6c757d;">
+                                SKU: ${produto.id} ${produto.brand ? `| Marca: ${produto.brand}` : ''}
+                            </p>
+                            <p style="margin: 0.25rem 0 0 0; font-weight: 700; color: #ffc107; font-size: 1.1rem;">
+                                <i class="fas fa-box"></i> ${produto.estoque} unidades
+                            </p>
+                        </div>
+                        <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+                            <button class="btn-primary btn-sm" onclick="if(app && app.currentGroup) { app.stockManager.openStockManagementModal(app.currentGroup.id); setTimeout(() => app.stockManager.selectProduct('${produto.id}'), 300); }">
+                                <i class="fas fa-plus"></i> Reabastecer
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+    }
+
+    // Mostrar painel de alertas
+    showAlertsPanel() {
+        const panel = document.getElementById('stockAlertsPanel');
+        if (panel) {
+            panel.style.display = 'block';
+            console.log('✅ [ALERTS] Painel de alertas exibido');
+        }
+    }
+
+    // Ocultar painel de alertas
+    hideAlertsPanel() {
+        const panel = document.getElementById('stockAlertsPanel');
+        if (panel) {
+            panel.style.display = 'none';
+            console.log('✅ [ALERTS] Painel de alertas ocultado');
+        }
+    }
+
+    // Atualizar badge de notificação
+    updateBadge(count) {
+        if (!this.settings.notifyBadge) return;
+        
+        // Atualizar badge no ícone de vendas (se existir)
+        const salesBtn = document.querySelector('[data-tab="salesPanel"]');
+        if (!salesBtn) return;
+        
+        // Remover badge existente
+        const existingBadge = salesBtn.querySelector('.notification-badge');
+        if (existingBadge) {
+            existingBadge.remove();
+        }
+        
+        // Adicionar novo badge se houver alertas
+        if (count > 0) {
+            const badge = document.createElement('span');
+            badge.className = 'notification-badge';
+            badge.textContent = count > 99 ? '99+' : count;
+            badge.style.cssText = `
+                position: absolute;
+                top: 5px;
+                right: 5px;
+                background: #dc3545;
+                color: white;
+                border-radius: 10px;
+                padding: 2px 6px;
+                font-size: 0.7rem;
+                font-weight: 700;
+                min-width: 18px;
+                text-align: center;
+                box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+            `;
+            
+            salesBtn.style.position = 'relative';
+            salesBtn.appendChild(badge);
+        }
+    }
+
+    // Iniciar verificação automática
+    startAutoCheck() {
+        // Limpar intervalo anterior se existir
+        if (this.checkInterval) {
+            clearInterval(this.checkInterval);
+        }
+        
+        // Configurar novo intervalo
+        this.checkInterval = setInterval(() => {
+            console.log('🔍 [ALERTS] Verificação automática de estoque');
+            this.checkAndDisplayAlerts();
+        }, this.settings.checkInterval);
+        
+        console.log(`✅ [ALERTS] Verificação automática iniciada (intervalo: ${this.settings.checkInterval / 1000}s)`);
+    }
+
+    // Atualizar alertas manualmente
+    refreshAlerts() {
+        console.log('🔄 [ALERTS] Atualizando alertas manualmente...');
+        this.checkAndDisplayAlerts();
+        
+        if (typeof toast !== 'undefined' && toast) {
+            toast.info('Alertas atualizados!');
+        }
+    }
+
+    // Inicializar sistema de alertas
+    init() {
+        console.log('🔔 [ALERTS] Inicializando sistema de alertas...');
+        
+        // Verificar alertas pela primeira vez
+        setTimeout(() => {
+            this.checkAndDisplayAlerts();
+        }, 2000);
+        
+        // Iniciar verificação automática
+        this.startAutoCheck();
+        
+        console.log('✅ [ALERTS] Sistema de alertas inicializado!');
+    }
+}
 
 // Inicializar aplicação
 let app;
@@ -33786,6 +34431,16 @@ function inicializarApp() {
             console.log('✅ [APP.JS] StockManager inicializado!');
         } else {
             console.log('ℹ️ [APP.JS] StockManager já existe');
+        }
+        
+        // Inicializar StockAlerts (sempre, mesmo se app já existir)
+        if (!window.app.stockAlerts) {
+            console.log('🔔 [APP.JS] Inicializando StockAlerts...');
+            window.app.stockAlerts = new StockAlertsSystem(window.app);
+            window.app.stockAlerts.init();
+            console.log('✅ [APP.JS] StockAlerts inicializado!');
+        } else {
+            console.log('ℹ️ [APP.JS] StockAlerts já existe');
         }
     } catch (error) {
         console.error('❌ [APP.JS] ERRO ao criar LojaApp:', error);
@@ -33819,16 +34474,33 @@ document.addEventListener('DOMContentLoaded', () => {
             return false;
         }
     };
+    
+    // Expor funções do StockAlerts globalmente para o HTML
+    const exponerFuncoesStockAlerts = () => {
+        if (window.app && window.app.stockAlerts) {
+            window.app.refreshStockAlerts = () => window.app.stockAlerts.refreshAlerts();
+            window.app.openStockAlertsSettings = () => window.app.stockAlerts.openSettingsModal();
+            window.app.hideStockAlerts = () => window.app.stockAlerts.hideAlertsPanel();
+            console.log('✅ [APP.JS] Funções do StockAlerts expostas globalmente!');
+            return true;
+        } else {
+            console.warn('⚠️ [APP.JS] StockAlerts ainda não está pronto, tentando novamente...');
+            return false;
+        }
+    };
 
     // Tentar expor as funções com retry
     let tentativas = 0;
     const maxTentativas = 10;
     const intervaloExposicao = setInterval(() => {
         tentativas++;
-        if (exponerFuncoesStockManager()) {
+        const stockManagerOk = exponerFuncoesStockManager();
+        const stockAlertsOk = exponerFuncoesStockAlerts();
+        
+        if (stockManagerOk && stockAlertsOk) {
             clearInterval(intervaloExposicao);
         } else if (tentativas >= maxTentativas) {
-            console.error('❌ [APP.JS] Falha ao expor funções do StockManager após', maxTentativas, 'tentativas');
+            console.error('❌ [APP.JS] Falha ao expor funções após', maxTentativas, 'tentativas');
             clearInterval(intervaloExposicao);
         }
     }, 100);

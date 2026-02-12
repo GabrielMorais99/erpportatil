@@ -718,6 +718,58 @@
             <!-- Tab: Painel de Vendas -->
             <div id="salesPanelTab" class="tab-content">
                 <div class="sales-panel-layout">
+                    
+                    <!-- PAINEL DE ALERTAS DE ESTOQUE CRÍTICO -->
+                    <div class="panel-section" id="stockAlertsPanel" style="display: none;">
+                        <div class="panel-header" style="background: linear-gradient(135deg, #dc3545, #c82333);">
+                            <h2 style="color: white;">
+                                <i class="fas fa-exclamation-triangle"></i> Alertas de Estoque
+                            </h2>
+                            <div style="display: flex; gap: 0.5rem;">
+                                <button class="btn-secondary" onclick="app.refreshStockAlerts()" title="Atualizar Alertas">
+                                    <i class="fas fa-sync-alt"></i>
+                                </button>
+                                <button class="btn-secondary" onclick="app.openStockAlertsSettings()" title="Configurar Alertas">
+                                    <i class="fas fa-cog"></i>
+                                </button>
+                                <button class="btn-secondary" onclick="app.hideStockAlerts()" title="Ocultar Alertas">
+                                    <i class="fas fa-times"></i>
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div style="padding: 1.5rem;">
+                            <!-- Alertas Críticos (0 unidades) -->
+                            <div id="criticalStockSection" style="display: none; margin-bottom: 1.5rem;">
+                                <div style="background: #f8d7da; border-left: 4px solid #dc3545; padding: 1rem; border-radius: 6px; margin-bottom: 1rem;">
+                                    <h3 style="margin: 0 0 0.75rem 0; color: #721c24; font-size: 1rem; display: flex; align-items: center; gap: 0.5rem;">
+                                        <i class="fas fa-exclamation-circle"></i>
+                                        CRÍTICO - Produtos sem estoque
+                                    </h3>
+                                    <div id="criticalStockList" class="stock-alert-list"></div>
+                                </div>
+                            </div>
+                            
+                            <!-- Alertas Baixos (1-5 unidades) -->
+                            <div id="lowStockSection" style="display: none;">
+                                <div style="background: #fff3cd; border-left: 4px solid #ffc107; padding: 1rem; border-radius: 6px;">
+                                    <h3 style="margin: 0 0 0.75rem 0; color: #856404; font-size: 1rem; display: flex; align-items: center; gap: 0.5rem;">
+                                        <i class="fas fa-exclamation-triangle"></i>
+                                        BAIXO - Estoque abaixo do mínimo
+                                    </h3>
+                                    <div id="lowStockList" class="stock-alert-list"></div>
+                                </div>
+                            </div>
+                            
+                            <!-- Mensagem quando não há alertas -->
+                            <div id="noAlertsMessage" style="text-align: center; padding: 2rem; color: #28a745;">
+                                <i class="fas fa-check-circle" style="font-size: 3rem; margin-bottom: 1rem; opacity: 0.5;"></i>
+                                <h3 style="margin: 0; font-size: 1.1rem;">Tudo certo com o estoque!</h3>
+                                <p style="margin: 0.5rem 0 0 0; color: #6c757d;">Nenhum produto precisa de atenção no momento.</p>
+                            </div>
+                        </div>
+                    </div>
+                    
                     <!-- Seção de Grupos Mensais -->
                     <div class="panel-section">
                         <div class="panel-header">
@@ -7017,6 +7069,89 @@
                         </tbody>
                     </table>
                 </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL DE CONFIGURAÇÕES DE ALERTAS DE ESTOQUE -->
+    <div id="stockAlertsSettingsModal" class="modal">
+        <div class="modal-content" style="max-width: 600px;">
+            <div class="modal-header">
+                <h2><i class="fas fa-cog"></i> Configurações de Alertas de Estoque</h2>
+                <span class="close" onclick="if(app && app.stockAlerts) { app.stockAlerts.closeSettingsModal(); }" aria-label="Fechar modal" role="button" tabindex="0">&times;</span>
+            </div>
+            <div class="modal-body">
+                <form id="stockAlertsSettingsForm" onsubmit="if(app && app.stockAlerts) { app.stockAlerts.saveSettings(event); }">
+                    
+                    <div class="form-group">
+                        <label for="criticalStockLevel">
+                            <i class="fas fa-exclamation-circle" style="color: #dc3545;"></i>
+                            Nível Crítico (0 unidades)
+                        </label>
+                        <p style="font-size: 0.85rem; color: #6c757d; margin: 0.25rem 0 0.5rem 0;">
+                            Produtos sem estoque serão sempre alertados
+                        </p>
+                        <div style="background: #f8d7da; padding: 0.75rem; border-radius: 6px; border: 1px solid #dc3545;">
+                            <i class="fas fa-info-circle"></i> Este nível é fixo em 0 unidades
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="lowStockLevel">
+                            <i class="fas fa-exclamation-triangle" style="color: #ffc107;"></i>
+                            Nível Baixo (alerta amarelo)
+                        </label>
+                        <input type="number" id="lowStockLevel" class="form-control" min="1" max="100" value="5" required />
+                        <p style="font-size: 0.85rem; color: #6c757d; margin: 0.5rem 0 0 0;">
+                            Alertar quando o estoque estiver igual ou abaixo deste valor
+                        </p>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>
+                            <i class="fas fa-bell"></i>
+                            Notificações
+                        </label>
+                        <div style="display: flex; flex-direction: column; gap: 0.75rem;">
+                            <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+                                <input type="checkbox" id="alertNotifyInApp" checked />
+                                <span>Mostrar alertas no app</span>
+                            </label>
+                            <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+                                <input type="checkbox" id="alertNotifyBadge" checked />
+                                <span>Mostrar badge de notificação</span>
+                            </label>
+                            <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+                                <input type="checkbox" id="alertAutoShow" checked />
+                                <span>Exibir painel automaticamente ao abrir vendas</span>
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="alertCheckInterval">
+                            <i class="fas fa-clock"></i>
+                            Verificar estoque a cada
+                        </label>
+                        <select id="alertCheckInterval" class="form-control">
+                            <option value="300000">5 minutos</option>
+                            <option value="600000">10 minutos</option>
+                            <option value="1800000">30 minutos</option>
+                            <option value="3600000" selected>1 hora</option>
+                            <option value="21600000">6 horas</option>
+                            <option value="86400000">24 horas</option>
+                        </select>
+                    </div>
+                    
+                    <div class="modal-actions">
+                        <button type="button" class="btn-secondary" onclick="if(app && app.stockAlerts) { app.stockAlerts.closeSettingsModal(); }">
+                            <i class="fas fa-times"></i> Cancelar
+                        </button>
+                        <button type="submit" class="btn-primary">
+                            <i class="fas fa-save"></i> Salvar Configurações
+                        </button>
+                    </div>
+                </form>
             </div>
         </div>
     </div>
