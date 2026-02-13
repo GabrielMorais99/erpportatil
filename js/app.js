@@ -1046,6 +1046,9 @@ class LojaApp {
         // Sistema de Alertas de Estoque
         this.stockAlerts = null; // Será inicializado após DOM estar pronto
         
+        // Sistema de Histórico de Movimentações
+        this.movementHistory = null; // Será inicializado após DOM estar pronto
+        
         this.currentSaleDay = null;
         this.currentEditingCost = null;
         this.currentEditingGoal = null;
@@ -34401,6 +34404,428 @@ class StockAlertsSystem {
     }
 }
 
+// ========================================
+// SISTEMA DE HISTÓRICO DE MOVIMENTAÇÕES POR PERÍODO
+// ========================================
+class MovementHistory {
+    constructor(app) {
+        this.app = app;
+        this.currentFilters = {
+            dateStart: null,
+            dateEnd: null,
+            type: 'all',
+            product: ''
+        };
+        this.allMovements = [];
+        this.filteredMovements = [];
+    }
+
+    // Abrir modal
+    openModal() {
+        const modal = document.getElementById('movementHistoryModal');
+        if (!modal) {
+            console.error('[HISTORY] Modal não encontrado');
+            return;
+        }
+
+        // Definir data padrão (último mês)
+        const today = new Date();
+        const lastMonth = new Date(today.getFullYear(), today.getMonth() - 1, 1);
+        
+        const dateStartInput = document.getElementById('historyDateStart');
+        const dateEndInput = document.getElementById('historyDateEnd');
+        
+        if (dateStartInput) dateStartInput.value = this.formatDateToInput(lastMonth);
+        if (dateEndInput) dateEndInput.value = this.formatDateToInput(today);
+
+        // Carregar dados
+        this.loadAllMovements();
+        this.applyFilters();
+
+        this.app.openModalSafely(modal);
+        console.log('✅ [HISTORY] Modal aberto');
+    }
+
+    // Fechar modal
+    closeModal() {
+        const modal = document.getElementById('movementHistoryModal');
+        if (modal) {
+            this.app.closeModalSafely(modal);
+            console.log('✅ [HISTORY] Modal fechado');
+        }
+    }
+
+    // Formatar data para input
+    formatDateToInput(date) {
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const day = String(date.getDate()).padStart(2, '0');
+        return `${year}-${month}-${day}`;
+    }
+
+    // Carregar todas as movimentações de todos os meses
+    loadAllMovements() {
+        const usuario = sessionStorage.getItem('username');
+        if (!usuario) return;
+
+        this.allMovements = [];
+
+        // Percorrer todos os grupos (meses)
+        this.app.groups.forEach(group => {
+            // 1. Vendas do mês
+            const sales = this.app.carregarVendas(usuario, group.month) || [];
+            sales.forEach(venda => {
+                if (venda.items && Array.isArray(venda.items)) {
+                    venda.items.forEach(itemVenda => {
+                        const item = this.app.items.find(i => i.id === itemVenda.id);
+                        this.allMovements.push({
+                            date: venda.dataVenda || venda.timestamp || new Date().toISOString(),
+                            productId: itemVenda.id,
+                            productName: item?.name || 'Produto desconhecido',
+                            sku: itemVenda.id,
+                            type: 'sale',
+                            quantity: -(itemVenda.quantity || 0), // Negativo para vendas
+                            value: (itemVenda.price || 0) * (itemVenda.quantity || 0),
+                            observation: `Venda #${venda.id || 'N/A'} - ${venda.formaPagamento || ''}`
+                        });
+                    });
+                }
+            });
+
+            // 2. Movimentações de estoque (entradas/saídas)
+            this.app.items.forEach(item => {
+                const estoque = this.app.carregarEstoque(usuario, group.month, item.id);
+                if (estoque && estoque.movimentacoes && Array.isArray(estoque.movimentacoes)) {
+                    estoque.movimentacoes.forEach(mov => {
+                        this.allMovements.push({
+                            date: mov.data || new Date().toISOString(),
+                            productId: item.id,
+                            productName: item.name || 'Produto desconhecido',
+                            sku: item.id,
+                            type: mov.tipo === 'entrada' ? 'entry' : 'exit',
+                            quantity: Math.abs(mov.qtd || 0) * (mov.tipo === 'entrada' ? 1 : -1),
+                            value: 0, // Movimentações de estoque não têm valor monetário direto
+                            observation: mov.observacao || '-'
+                        });
+                    });
+                }
+            });
+        });
+
+        // Ordenar por data (mais recente primeiro)
+        this.allMovements.sort((a, b) => new Date(b.date) - new Date(a.date));
+
+        console.log(`📊 [HISTORY] ${this.allMovements.length} movimentações carregadas`);
+    }
+
+    // Aplicar filtros
+    applyFilters() {
+        const dateStartInput = document.getElementById('historyDateStart');
+        const dateEndInput = document.getElementById('historyDateEnd');
+        const typeInput = document.getElementById('historyMovementType');
+        const productInput = document.getElementById('historyProductSearch');
+
+        this.currentFilters = {
+            dateStart: dateStartInput?.value ? new Date(dateStartInput.value + 'T00:00:00') : null,
+            dateEnd: dateEndInput?.value ? new Date(dateEndInput.value + 'T23:59:59') : null,
+            type: typeInput?.value || 'all',
+            product: (productInput?.value || '').toLowerCase().trim()
+        };
+
+        this.filteredMovements = this.allMovements.filter(mov => {
+            // Filtro de data
+            const movDate = new Date(mov.date);
+            if (this.currentFilters.dateStart && movDate < this.currentFilters.dateStart) return false;
+            if (this.currentFilters.dateEnd && movDate > this.currentFilters.dateEnd) return false;
+
+            // Filtro de tipo
+            if (this.currentFilters.type !== 'all' && mov.type !== this.currentFilters.type) return false;
+
+            // Filtro de produto
+            if (this.currentFilters.product) {
+                const searchTerm = this.currentFilters.product;
+                const nameMatch = mov.productName.toLowerCase().includes(searchTerm);
+                const skuMatch = mov.sku.toLowerCase().includes(searchTerm);
+                if (!nameMatch && !skuMatch) return false;
+            }
+
+            return true;
+        });
+
+        console.log(`📊 [HISTORY] ${this.filteredMovements.length} movimentações após filtros`);
+
+        this.updateSummary();
+        this.renderTable();
+    }
+
+    // Limpar filtros
+    clearFilters() {
+        document.getElementById('historyDateStart').value = '';
+        document.getElementById('historyDateEnd').value = '';
+        document.getElementById('historyMovementType').value = 'all';
+        document.getElementById('historyProductSearch').value = '';
+
+        this.applyFilters();
+    }
+
+    // Atualizar resumo
+    updateSummary() {
+        let totalSales = 0;
+        let totalSalesValue = 0;
+        let totalEntries = 0;
+        let totalEntriesCount = 0;
+        let totalExits = 0;
+        let totalExitsCount = 0;
+
+        this.filteredMovements.forEach(mov => {
+            if (mov.type === 'sale') {
+                totalSales++;
+                totalSalesValue += mov.value;
+            } else if (mov.type === 'entry') {
+                totalEntries += Math.abs(mov.quantity);
+                totalEntriesCount++;
+            } else if (mov.type === 'exit') {
+                totalExits += Math.abs(mov.quantity);
+                totalExitsCount++;
+            }
+        });
+
+        // Atualizar elementos
+        const summaryTotalSales = document.getElementById('summaryTotalSales');
+        const summaryTotalSalesValue = document.getElementById('summaryTotalSalesValue');
+        const summaryTotalEntries = document.getElementById('summaryTotalEntries');
+        const summaryTotalEntriesCount = document.getElementById('summaryTotalEntriesCount');
+        const summaryTotalExits = document.getElementById('summaryTotalExits');
+        const summaryTotalExitsCount = document.getElementById('summaryTotalExitsCount');
+        const summaryTotalMovements = document.getElementById('summaryTotalMovements');
+        const summaryDateRange = document.getElementById('summaryDateRange');
+
+        if (summaryTotalSales) summaryTotalSales.textContent = totalSales;
+        if (summaryTotalSalesValue) summaryTotalSalesValue.textContent = `R$ ${totalSalesValue.toFixed(2).replace('.', ',')}`;
+        if (summaryTotalEntries) summaryTotalEntries.textContent = `${totalEntries} un`;
+        if (summaryTotalEntriesCount) summaryTotalEntriesCount.textContent = `${totalEntriesCount} movimentações`;
+        if (summaryTotalExits) summaryTotalExits.textContent = `${totalExits} un`;
+        if (summaryTotalExitsCount) summaryTotalExitsCount.textContent = `${totalExitsCount} movimentações`;
+        if (summaryTotalMovements) summaryTotalMovements.textContent = this.filteredMovements.length;
+
+        // Range de datas
+        if (summaryDateRange) {
+            if (this.currentFilters.dateStart || this.currentFilters.dateEnd) {
+                const start = this.currentFilters.dateStart ? this.formatDateBR(this.currentFilters.dateStart) : 'Início';
+                const end = this.currentFilters.dateEnd ? this.formatDateBR(this.currentFilters.dateEnd) : 'Hoje';
+                summaryDateRange.textContent = `${start} a ${end}`;
+            } else {
+                summaryDateRange.textContent = 'Todos os períodos';
+            }
+        }
+    }
+
+    // Renderizar tabela
+    renderTable() {
+        const tbody = document.getElementById('historyTableBody');
+        const countElement = document.getElementById('historyResultCount');
+
+        if (!tbody) return;
+
+        if (countElement) countElement.textContent = this.filteredMovements.length;
+
+        if (this.filteredMovements.length === 0) {
+            tbody.innerHTML = `
+                <tr>
+                    <td colspan="7" style="text-align: center; padding: 2rem; color: #999;">
+                        <i class="fas fa-info-circle" style="font-size: 2rem; opacity: 0.3; display: block; margin-bottom: 0.5rem;"></i>
+                        Nenhuma movimentação encontrada para o período selecionado
+                    </td>
+                </tr>
+            `;
+            return;
+        }
+
+        tbody.innerHTML = this.filteredMovements.map(mov => {
+            const dateObj = new Date(mov.date);
+            const dateStr = this.formatDateTimeBR(dateObj);
+            const typeLabel = this.getTypeLabel(mov.type);
+            const typeBadgeClass = this.getTypeBadgeClass(mov.type);
+            const quantityDisplay = mov.quantity >= 0 ? `+${mov.quantity}` : mov.quantity;
+            const quantityColor = mov.quantity >= 0 ? '#28a745' : '#dc3545';
+            const valueDisplay = mov.value > 0 ? `R$ ${mov.value.toFixed(2).replace('.', ',')}` : '-';
+
+            return `
+                <tr>
+                    <td>${dateStr}</td>
+                    <td>${this.app.escapeHtml(mov.productName)}</td>
+                    <td><code style="font-size: 0.85em; background: #f1f3f5; padding: 2px 6px; border-radius: 4px;">${this.app.escapeHtml(mov.sku)}</code></td>
+                    <td><span class="movement-type-badge ${typeBadgeClass}">${typeLabel}</span></td>
+                    <td style="text-align: right; font-weight: 600; color: ${quantityColor};">${quantityDisplay} un</td>
+                    <td style="text-align: right; font-weight: 600;">${valueDisplay}</td>
+                    <td style="max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="${this.app.escapeHtml(mov.observation)}">${this.app.escapeHtml(mov.observation)}</td>
+                </tr>
+            `;
+        }).join('');
+    }
+
+    // Obter label do tipo
+    getTypeLabel(type) {
+        const labels = {
+            'sale': '🛒 Venda',
+            'entry': '⬇️ Entrada',
+            'exit': '⬆️ Saída'
+        };
+        return labels[type] || type;
+    }
+
+    // Obter classe do badge do tipo
+    getTypeBadgeClass(type) {
+        const classes = {
+            'sale': 'movement-type-sale',
+            'entry': 'movement-type-entry',
+            'exit': 'movement-type-exit'
+        };
+        return classes[type] || '';
+    }
+
+    // Formatar data BR
+    formatDateBR(date) {
+        const day = String(date.getDate()).padStart(2, '0');
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const year = date.getFullYear();
+        return `${day}/${month}/${year}`;
+    }
+
+    // Formatar data e hora BR
+    formatDateTimeBR(date) {
+        const dateStr = this.formatDateBR(date);
+        const hours = String(date.getHours()).padStart(2, '0');
+        const minutes = String(date.getMinutes()).padStart(2, '0');
+        return `${dateStr} ${hours}:${minutes}`;
+    }
+
+    // Atualizar dados
+    refreshData() {
+        console.log('🔄 [HISTORY] Atualizando dados...');
+        this.loadAllMovements();
+        this.applyFilters();
+        
+        if (typeof toast !== 'undefined' && toast) {
+            toast.info('Histórico atualizado!');
+        }
+    }
+
+    // Exportar para CSV
+    exportToCSV() {
+        if (this.filteredMovements.length === 0) {
+            if (typeof toast !== 'undefined' && toast) {
+                toast.warning('Nenhuma movimentação para exportar');
+            }
+            return;
+        }
+
+        const headers = ['Data/Hora', 'Produto', 'SKU', 'Tipo', 'Quantidade', 'Valor', 'Observação'];
+        const rows = this.filteredMovements.map(mov => [
+            this.formatDateTimeBR(new Date(mov.date)),
+            mov.productName,
+            mov.sku,
+            this.getTypeLabel(mov.type).replace(/[🛒⬇️⬆️]/g, '').trim(),
+            mov.quantity,
+            mov.value > 0 ? mov.value.toFixed(2) : '0',
+            mov.observation
+        ]);
+
+        let csvContent = headers.join(';') + '\n';
+        rows.forEach(row => {
+            csvContent += row.map(cell => `"${cell}"`).join(';') + '\n';
+        });
+
+        // Adicionar BOM para UTF-8
+        const BOM = '\uFEFF';
+        const blob = new Blob([BOM + csvContent], { type: 'text/csv;charset=utf-8;' });
+        const link = document.createElement('a');
+        const url = URL.createObjectURL(blob);
+        
+        const filename = `historico_movimentacoes_${new Date().toISOString().slice(0, 10)}.csv`;
+        link.setAttribute('href', url);
+        link.setAttribute('download', filename);
+        link.style.visibility = 'hidden';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+
+        console.log('✅ [HISTORY] CSV exportado:', filename);
+        
+        if (typeof toast !== 'undefined' && toast) {
+            toast.success('CSV exportado com sucesso!');
+        }
+    }
+
+    // Exportar para Excel (usando HTML table)
+    exportToExcel() {
+        if (this.filteredMovements.length === 0) {
+            if (typeof toast !== 'undefined' && toast) {
+                toast.warning('Nenhuma movimentação para exportar');
+            }
+            return;
+        }
+
+        let html = `
+            <html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel">
+            <head><meta charset="UTF-8"></head>
+            <body>
+            <table border="1">
+                <thead>
+                    <tr>
+                        <th>Data/Hora</th>
+                        <th>Produto</th>
+                        <th>SKU</th>
+                        <th>Tipo</th>
+                        <th>Quantidade</th>
+                        <th>Valor</th>
+                        <th>Observação</th>
+                    </tr>
+                </thead>
+                <tbody>
+        `;
+
+        this.filteredMovements.forEach(mov => {
+            html += `
+                <tr>
+                    <td>${this.formatDateTimeBR(new Date(mov.date))}</td>
+                    <td>${this.app.escapeHtml(mov.productName)}</td>
+                    <td>${this.app.escapeHtml(mov.sku)}</td>
+                    <td>${this.getTypeLabel(mov.type).replace(/[🛒⬇️⬆️]/g, '').trim()}</td>
+                    <td>${mov.quantity}</td>
+                    <td>${mov.value > 0 ? mov.value.toFixed(2) : '0'}</td>
+                    <td>${this.app.escapeHtml(mov.observation)}</td>
+                </tr>
+            `;
+        });
+
+        html += `
+                </tbody>
+            </table>
+            </body>
+            </html>
+        `;
+
+        const blob = new Blob([html], { type: 'application/vnd.ms-excel' });
+        const link = document.createElement('a');
+        const url = URL.createObjectURL(blob);
+        
+        const filename = `historico_movimentacoes_${new Date().toISOString().slice(0, 10)}.xls`;
+        link.setAttribute('href', url);
+        link.setAttribute('download', filename);
+        link.style.visibility = 'hidden';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+
+        console.log('✅ [HISTORY] Excel exportado:', filename);
+        
+        if (typeof toast !== 'undefined' && toast) {
+            toast.success('Excel exportado com sucesso!');
+        }
+    }
+}
+
 // Inicializar aplicação
 let app;
 
@@ -34441,6 +34866,15 @@ function inicializarApp() {
             console.log('✅ [APP.JS] StockAlerts inicializado!');
         } else {
             console.log('ℹ️ [APP.JS] StockAlerts já existe');
+        }
+        
+        // Inicializar MovementHistory (sempre, mesmo se app já existir)
+        if (!window.app.movementHistory) {
+            console.log('📜 [APP.JS] Inicializando MovementHistory...');
+            window.app.movementHistory = new MovementHistory(window.app);
+            console.log('✅ [APP.JS] MovementHistory inicializado!');
+        } else {
+            console.log('ℹ️ [APP.JS] MovementHistory já existe');
         }
     } catch (error) {
         console.error('❌ [APP.JS] ERRO ao criar LojaApp:', error);
@@ -34488,6 +34922,19 @@ document.addEventListener('DOMContentLoaded', () => {
             return false;
         }
     };
+    
+    // Expor funções do MovementHistory globalmente para o HTML
+    const exponerFuncoesMovementHistory = () => {
+        if (window.app && window.app.movementHistory) {
+            window.app.openMovementHistory = () => window.app.movementHistory.openModal();
+            window.app.closeMovementHistory = () => window.app.movementHistory.closeModal();
+            console.log('✅ [APP.JS] Funções do MovementHistory expostas globalmente!');
+            return true;
+        } else {
+            console.warn('⚠️ [APP.JS] MovementHistory ainda não está pronto, tentando novamente...');
+            return false;
+        }
+    };
 
     // Tentar expor as funções com retry
     let tentativas = 0;
@@ -34496,8 +34943,9 @@ document.addEventListener('DOMContentLoaded', () => {
         tentativas++;
         const stockManagerOk = exponerFuncoesStockManager();
         const stockAlertsOk = exponerFuncoesStockAlerts();
+        const movementHistoryOk = exponerFuncoesMovementHistory();
         
-        if (stockManagerOk && stockAlertsOk) {
+        if (stockManagerOk && stockAlertsOk && movementHistoryOk) {
             clearInterval(intervaloExposicao);
         } else if (tentativas >= maxTentativas) {
             console.error('❌ [APP.JS] Falha ao expor funções após', maxTentativas, 'tentativas');

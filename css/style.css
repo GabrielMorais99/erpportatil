@@ -7696,3 +7696,241 @@ body.dark-mode .skeleton-line {
         font-size: 0.9rem;
     }
 }
+
+/* ========================================
+   MODAL DE HISTÓRICO DE MOVIMENTAÇÕES
+   ======================================== */
+#movementHistoryModal .modal-content {
+    background: white;
+}
+
+.history-filters-section {
+    background: #f8f9fa;
+    padding: 1.5rem;
+    border-radius: 8px;
+    margin-bottom: 1.5rem;
+    border: 1px solid #e9ecef;
+}
+
+.filters-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+}
+
+.history-summary-section {
+    margin-bottom: 1.5rem;
+}
+
+.summary-cards-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 1rem;
+}
+
+.summary-card {
+    background: white;
+    border-radius: 8px;
+    padding: 1.25rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    border: 2px solid #e9ecef;
+    transition: all 0.2s;
+}
+
+.summary-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+.summary-icon {
+    width: 50px;
+    height: 50px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    color: white;
+}
+
+.summary-sales .summary-icon {
+    background: linear-gradient(135deg, #28a745, #20c997);
+}
+
+.summary-entries .summary-icon {
+    background: linear-gradient(135deg, #007bff, #0056b3);
+}
+
+.summary-exits .summary-icon {
+    background: linear-gradient(135deg, #ffc107, #ff9800);
+}
+
+.summary-total .summary-icon {
+    background: linear-gradient(135deg, #6f42c1, #5a32a3);
+}
+
+.summary-content {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.summary-label {
+    font-size: 0.8rem;
+    color: #6c757d;
+    text-transform: uppercase;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+}
+
+.summary-value {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--gray-800);
+}
+
+.summary-detail {
+    font-size: 0.85rem;
+    color: #6c757d;
+}
+
+.history-table-section {
+    margin-top: 1.5rem;
+}
+
+.history-table-container {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    border-radius: 8px;
+    border: 1px solid #dee2e6;
+}
+
+.history-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.9rem;
+    background: white;
+}
+
+.history-table thead {
+    background: linear-gradient(135deg, #495057, #343a40);
+    color: white;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+}
+
+.history-table th {
+    padding: 1rem 0.75rem;
+    text-align: left;
+    font-weight: 600;
+    font-size: 0.85rem;
+    white-space: nowrap;
+    border-bottom: 2px solid #dee2e6;
+}
+
+.history-table tbody tr {
+    border-bottom: 1px solid #f1f3f5;
+    transition: background 0.2s;
+}
+
+.history-table tbody tr:hover {
+    background: #f8f9fa;
+}
+
+.history-table td {
+    padding: 0.85rem 0.75rem;
+    vertical-align: middle;
+}
+
+.history-table tbody tr:last-child {
+    border-bottom: none;
+}
+
+/* Badges de tipo de movimentação */
+.movement-type-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    padding: 0.35rem 0.75rem;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.movement-type-sale {
+    background: #d4edda;
+    color: #155724;
+}
+
+.movement-type-entry {
+    background: #cce5ff;
+    color: #004085;
+}
+
+.movement-type-exit {
+    background: #fff3cd;
+    color: #856404;
+}
+
+/* Responsividade do modal de histórico */
+@media (max-width: 768px) {
+    #movementHistoryModal .modal-content {
+        max-width: 95%;
+        margin: 1rem;
+    }
+    
+    .filters-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .summary-cards-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .summary-card {
+        padding: 1rem;
+    }
+    
+    .summary-icon {
+        width: 40px;
+        height: 40px;
+        font-size: 1.2rem;
+    }
+    
+    .summary-value {
+        font-size: 1.25rem;
+    }
+    
+    .history-table {
+        font-size: 0.75rem;
+        min-width: 800px;
+    }
+    
+    .history-table th,
+    .history-table td {
+        padding: 0.5rem 0.35rem;
+        white-space: nowrap;
+    }
+    
+    .history-table-container::-webkit-scrollbar {
+        height: 6px;
+    }
+    
+    .history-table-container::-webkit-scrollbar-track {
+        background: #f1f1f1;
+        border-radius: 10px;
+    }
+    
+    .history-table-container::-webkit-scrollbar-thumb {
+        background: #888;
+        border-radius: 10px;
+    }
+    
+    .history-filters-section {
+        padding: 1rem;
+    }
+}
