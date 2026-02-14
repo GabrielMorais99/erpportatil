@@ -1049,6 +1049,12 @@ class LojaApp {
         // Sistema de Histórico de Movimentações
         this.movementHistory = null; // Será inicializado após DOM estar pronto
         
+        // Dashboard de Análise de Vendas
+        this.salesDashboard = null; // Será inicializado após DOM estar pronto
+        
+        // Sistema de Backup e Restauração
+        this.backupManager = null; // Será inicializado após DOM estar pronto
+        
         this.currentSaleDay = null;
         this.currentEditingCost = null;
         this.currentEditingGoal = null;
@@ -33680,369 +33686,8 @@ class StockManager {
 }
 
 // ========================================
-// SISTEMA DE ALERTAS DE ESTOQUE
-// ========================================
-
-class StockAlertsSystem {
-    constructor(app) {
-        this.app = app;
-        this.settings = this.loadSettings();
-        this.checkInterval = null;
-        this.alertsCache = null;
-        this.lastCheck = null;
-    }
-
-    // Carregar configurações
-    loadSettings() {
-        const usuario = sessionStorage.getItem('username');
-        const key = `stockAlertsSettings_${usuario}`;
-        const saved = localStorage.getItem(key);
-        
-        if (saved) {
-            return JSON.parse(saved);
-        }
-        
-        // Configurações padrão
-        return {
-            lowStockLevel: 5,
-            criticalStockLevel: 0,
-            notifyInApp: true,
-            notifyBadge: true,
-            autoShow: true,
-            checkInterval: 3600000 // 1 hora
-        };
-    }
-
-    // Salvar configurações
-    saveSettings(event) {
-        if (event) event.preventDefault();
-        
-        const usuario = sessionStorage.getItem('username');
-        
-        this.settings = {
-            lowStockLevel: parseInt(document.getElementById('lowStockLevel')?.value) || 5,
-            criticalStockLevel: 0,
-            notifyInApp: document.getElementById('alertNotifyInApp')?.checked || false,
-            notifyBadge: document.getElementById('alertNotifyBadge')?.checked || false,
-            autoShow: document.getElementById('alertAutoShow')?.checked || false,
-            checkInterval: parseInt(document.getElementById('alertCheckInterval')?.value) || 3600000
-        };
-        
-        const key = `stockAlertsSettings_${usuario}`;
-        localStorage.setItem(key, JSON.stringify(this.settings));
-        
-        console.log('✅ [ALERTS] Configurações salvas:', this.settings);
-        
-        if (typeof toast !== 'undefined' && toast) {
-            toast.success('Configurações de alertas salvas!');
-        }
-        
-        // Fechar modal
-        this.closeSettingsModal();
-        
-        // Reiniciar verificação automática
-        this.startAutoCheck();
-        
-        // Atualizar alertas imediatamente
-        this.checkAndShowAlerts();
-    }
-
-    // Abrir modal de configurações
-    openSettingsModal() {
-        const modal = document.getElementById('stockAlertsSettingsModal');
-        if (!modal) return;
-        
-        // Preencher valores atuais
-        const lowLevel = document.getElementById('lowStockLevel');
-        const notifyApp = document.getElementById('alertNotifyInApp');
-        const notifyBadge = document.getElementById('alertNotifyBadge');
-        const autoShow = document.getElementById('alertAutoShow');
-        const interval = document.getElementById('alertCheckInterval');
-        
-        if (lowLevel) lowLevel.value = this.settings.lowStockLevel;
-        if (notifyApp) notifyApp.checked = this.settings.notifyInApp;
-        if (notifyBadge) notifyBadge.checked = this.settings.notifyBadge;
-        if (autoShow) autoShow.checked = this.settings.autoShow;
-        if (interval) interval.value = this.settings.checkInterval;
-        
-        this.app.openModalSafely(modal);
-    }
-
-    // Fechar modal de configurações
-    closeSettingsModal() {
-        const modal = document.getElementById('stockAlertsSettingsModal');
-        if (modal) {
-            this.app.closeModalSafely(modal);
-        }
-    }
-
-    // Verificar estoque e retornar alertas
-    checkStock() {
-        const usuario = sessionStorage.getItem('username');
-        if (!usuario) return { critical: [], low: [] };
-        
-        console.log('🔍 [ALERTS] Verificando estoque de todos os produtos...');
-        
-        const critical = [];
-        const low = [];
-        
-        // Verificar todos os produtos cadastrados
-        this.app.items.forEach(item => {
-            // Verificar estoque em todos os meses
-            this.app.groups.forEach(group => {
-                const estoque = this.app.carregarEstoque(usuario, group.month, item.id);
-                if (!estoque) return;
-                
-                // Calcular estoque disponível
-                const estoqueInicial = estoque.totalInicial || 0;
-                const movimentacoes = estoque.movimentacoes || [];
-                
-                const totalEntradas = movimentacoes
-                    .filter(m => m.tipo === 'entrada' && m.qtd > 0)
-                    .reduce((acc, m) => acc + Math.abs(m.qtd), 0);
-                
-                const totalSaidas = movimentacoes
-                    .filter(m => m.tipo === 'saida' && m.qtd < 0)
-                    .reduce((acc, m) => acc + Math.abs(m.qtd), 0);
-                
-                // Calcular vendas do produto no mês
-                const totalVendas = this.app.stockManager ? 
-                    this.app.stockManager.calculateSalesForProduct(item.id) : 0;
-                
-                const estoqueAtual = estoqueInicial + totalEntradas - totalSaidas - totalVendas;
-                
-                // Verificar níveis
-                if (estoqueAtual <= this.settings.criticalStockLevel) {
-                    critical.push({
-                        itemId: item.id,
-                        itemName: item.name || 'Produto sem nome',
-                        month: group.month,
-                        monthLabel: this.formatMonthLabel(group.month),
-                        currentStock: estoqueAtual
-                    });
-                } else if (estoqueAtual <= this.settings.lowStockLevel) {
-                    low.push({
-                        itemId: item.id,
-                        itemName: item.name || 'Produto sem nome',
-                        month: group.month,
-                        monthLabel: this.formatMonthLabel(group.month),
-                        currentStock: estoqueAtual
-                    });
-                }
-            });
-        });
-        
-        this.lastCheck = new Date();
-        this.alertsCache = { critical, low };
-        
-        console.log(`🔍 [ALERTS] Verificação concluída: ${critical.length} críticos, ${low.length} baixos`);
-        
-        return { critical, low };
-    }
-
-    // Formatar label do mês
-    formatMonthLabel(monthStr) {
-        const [year, month] = monthStr.split('-');
-        const monthNames = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun',
-                            'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
-        return `${monthNames[parseInt(month) - 1]}/${year}`;
-    }
-
-    // Verificar e mostrar alertas
-    checkAndShowAlerts() {
-        const alerts = this.checkStock();
-        const totalAlerts = alerts.critical.length + alerts.low.length;
-        
-        console.log(`🔔 [ALERTS] Total de alertas: ${totalAlerts}`);
-        
-        // Atualizar UI
-        this.renderAlerts(alerts);
-        
-        // Atualizar badge
-        this.updateBadge(totalAlerts);
-        
-        // Mostrar painel se configurado e houver alertas
-        if (this.settings.autoShow && totalAlerts > 0) {
-            this.showAlertsPanel();
-        }
-        
-        return alerts;
-    }
-
-    // Renderizar alertas na tela
-    renderAlerts(alerts) {
-        const panel = document.getElementById('stockAlertsPanel');
-        const criticalSection = document.getElementById('criticalStockSection');
-        const lowSection = document.getElementById('lowStockSection');
-        const noAlertsMsg = document.getElementById('noAlertsMessage');
-        const criticalList = document.getElementById('criticalStockList');
-        const lowList = document.getElementById('lowStockList');
-        
-        if (!panel) return;
-        
-        const hasCritical = alerts.critical.length > 0;
-        const hasLow = alerts.low.length > 0;
-        const hasAlerts = hasCritical || hasLow;
-        
-        // Mostrar/ocultar seções
-        if (criticalSection) criticalSection.style.display = hasCritical ? 'block' : 'none';
-        if (lowSection) lowSection.style.display = hasLow ? 'block' : 'none';
-        if (noAlertsMsg) noAlertsMsg.style.display = hasAlerts ? 'none' : 'block';
-        
-        // Renderizar alertas críticos
-        if (criticalList && hasCritical) {
-            criticalList.innerHTML = alerts.critical.map(alert => `
-                <div class="stock-alert-item critical">
-                    <div class="alert-item-info">
-                        <strong>${alert.itemName}</strong>
-                        <span class="alert-item-details">SKU: ${alert.itemId} | ${alert.monthLabel} | ${alert.currentStock} un</span>
-                    </div>
-                    <div class="alert-item-actions">
-                        <button class="btn-small btn-primary" onclick="if(app && app.stockManager) { app.stockManager.openStockManagementModal(app.groups.find(g => g.month === '${alert.month}')?.id); }" title="Gerenciar Estoque">
-                            <i class="fas fa-warehouse"></i>
-                        </button>
-                    </div>
-                </div>
-            `).join('');
-        }
-        
-        // Renderizar alertas baixos
-        if (lowList && hasLow) {
-            lowList.innerHTML = alerts.low.map(alert => `
-                <div class="stock-alert-item low">
-                    <div class="alert-item-info">
-                        <strong>${alert.itemName}</strong>
-                        <span class="alert-item-details">SKU: ${alert.itemId} | ${alert.monthLabel} | ${alert.currentStock} un</span>
-                    </div>
-                    <div class="alert-item-actions">
-                        <button class="btn-small btn-secondary" onclick="if(app && app.stockManager) { app.stockManager.openStockManagementModal(app.groups.find(g => g.month === '${alert.month}')?.id); }" title="Gerenciar Estoque">
-                            <i class="fas fa-warehouse"></i>
-                        </button>
-                    </div>
-                </div>
-            `).join('');
-        }
-    }
-
-    // Mostrar painel de alertas
-    showAlertsPanel() {
-        const panel = document.getElementById('stockAlertsPanel');
-        if (panel) {
-            panel.style.display = 'block';
-            console.log('📢 [ALERTS] Painel de alertas exibido');
-        }
-    }
-
-    // Ocultar painel de alertas
-    hideAlertsPanel() {
-        const panel = document.getElementById('stockAlertsPanel');
-        if (panel) {
-            panel.style.display = 'none';
-            console.log('🔇 [ALERTS] Painel de alertas ocultado');
-        }
-    }
-
-    // Atualizar badge de notificações
-    updateBadge(count) {
-        if (!this.settings.notifyBadge) {
-            count = 0;
-        }
-        
-        // Atualizar badge no botão de vendas (se existir)
-        const salesBtn = document.querySelector('[data-tab="salesPanel"]');
-        if (!salesBtn) return;
-        
-        // Remover badge existente
-        const existingBadge = salesBtn.querySelector('.notification-badge');
-        if (existingBadge) {
-            existingBadge.remove();
-        }
-        
-        // Adicionar novo badge se houver alertas
-        if (count > 0) {
-            const badge = document.createElement('span');
-            badge.className = 'notification-badge';
-            badge.textContent = count;
-            badge.style.cssText = `
-                position: absolute;
-                top: 8px;
-                right: 8px;
-                background: #dc3545;
-                color: white;
-                border-radius: 50%;
-                width: 20px;
-                height: 20px;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                font-size: 0.7rem;
-                font-weight: 700;
-                box-shadow: 0 2px 4px rgba(220, 53, 69, 0.4);
-                animation: pulse 2s infinite;
-            `;
-            
-            salesBtn.style.position = 'relative';
-            salesBtn.appendChild(badge);
-            
-            console.log(`🔔 [ALERTS] Badge atualizado: ${count} alertas`);
-        }
-    }
-
-    // Iniciar verificação automática
-    startAutoCheck() {
-        // Limpar intervalo anterior
-        if (this.checkInterval) {
-            clearInterval(this.checkInterval);
-        }
-        
-        // Criar novo intervalo
-        this.checkInterval = setInterval(() => {
-            console.log('⏰ [ALERTS] Verificação automática disparada');
-            this.checkAndShowAlerts();
-        }, this.settings.checkInterval);
-        
-        console.log(`⏰ [ALERTS] Verificação automática iniciada (a cada ${this.settings.checkInterval / 1000 / 60} minutos)`);
-    }
-
-    // Parar verificação automática
-    stopAutoCheck() {
-        if (this.checkInterval) {
-            clearInterval(this.checkInterval);
-            this.checkInterval = null;
-            console.log('⏰ [ALERTS] Verificação automática parada');
-        }
-    }
-
-    // Atualizar alertas (botão refresh)
-    refreshAlerts() {
-        console.log('🔄 [ALERTS] Atualizando alertas manualmente...');
-        this.checkAndShowAlerts();
-        
-        if (typeof toast !== 'undefined' && toast) {
-            toast.info('Alertas de estoque atualizados!');
-        }
-    }
-
-    // Inicializar sistema
-    init() {
-        console.log('🔔 [ALERTS] Inicializando sistema de alertas...');
-        
-        // Verificar imediatamente
-        setTimeout(() => {
-            this.checkAndShowAlerts();
-        }, 3000);
-        
-        // Iniciar verificação automática
-        this.startAutoCheck();
-        
-        console.log('✅ [ALERTS] Sistema de alertas inicializado');
-    }
-}
-
-// ========================================
 // SISTEMA DE ALERTAS DE ESTOQUE CRÍTICO
 // ========================================
-
 class StockAlertsSystem {
     constructor(app) {
         this.app = app;
@@ -34826,6 +34471,1516 @@ class MovementHistory {
     }
 }
 
+// ========================================
+// DASHBOARD DE ANÁLISE DE VENDAS
+// ========================================
+class SalesDashboard {
+    constructor(app) {
+        this.app = app;
+        this.currentPeriod = 'current';
+        this.customDateStart = null;
+        this.customDateEnd = null;
+        this.revenueChart = null;
+        this.categoryChart = null;
+        this.data = {
+            totalRevenue: 0,
+            totalSales: 0,
+            avgTicket: 0,
+            profitMargin: 0,
+            dailyRevenue: [],
+            categories: {},
+            topProducts: [],
+            paymentMethods: {}
+        };
+    }
+
+    // Abrir modal
+    openModal() {
+        const modal = document.getElementById('salesDashboardModal');
+        if (!modal) {
+            console.error('[DASHBOARD] Modal não encontrado');
+            return;
+        }
+
+        // Carregar dados do período atual
+        this.setQuickFilter('current');
+
+        this.app.openModalSafely(modal);
+        console.log('✅ [DASHBOARD] Modal aberto');
+    }
+
+    // Fechar modal
+    closeModal() {
+        const modal = document.getElementById('salesDashboardModal');
+        if (modal) {
+            this.app.closeModalSafely(modal);
+            console.log('✅ [DASHBOARD] Modal fechado');
+        }
+    }
+
+    // Definir filtro rápido
+    setQuickFilter(period) {
+        this.currentPeriod = period;
+        
+        // Atualizar botões ativos
+        document.querySelectorAll('.btn-quick-filter').forEach(btn => {
+            btn.classList.remove('active');
+        });
+        
+        const activeBtn = document.querySelector(`.btn-quick-filter[data-period="${period}"]`);
+        if (activeBtn) activeBtn.classList.add('active');
+
+        // Mostrar/ocultar inputs customizados
+        const customInputs = document.getElementById('customPeriodInputs');
+        if (customInputs) {
+            customInputs.style.display = period === 'custom' ? 'block' : 'none';
+        }
+
+        if (period !== 'custom') {
+            this.calculatePeriodDates(period);
+            this.loadData();
+        }
+    }
+
+    // Calcular datas do período
+    calculatePeriodDates(period) {
+        const today = new Date();
+        let start, end;
+
+        switch (period) {
+            case 'current':
+                start = new Date(today.getFullYear(), today.getMonth(), 1);
+                end = new Date(today.getFullYear(), today.getMonth() + 1, 0);
+                break;
+            case 'last':
+                start = new Date(today.getFullYear(), today.getMonth() - 1, 1);
+                end = new Date(today.getFullYear(), today.getMonth(), 0);
+                break;
+            case 'quarter':
+                start = new Date(today.getFullYear(), today.getMonth() - 2, 1);
+                end = new Date(today.getFullYear(), today.getMonth() + 1, 0);
+                break;
+            default:
+                start = new Date(today.getFullYear(), today.getMonth(), 1);
+                end = today;
+        }
+
+        this.customDateStart = start;
+        this.customDateEnd = end;
+    }
+
+    // Aplicar período customizado
+    applyCustomPeriod() {
+        const startInput = document.getElementById('dashboardDateStart');
+        const endInput = document.getElementById('dashboardDateEnd');
+
+        if (!startInput?.value || !endInput?.value) {
+            if (typeof toast !== 'undefined' && toast) {
+                toast.warning('Selecione data inicial e final');
+            }
+            return;
+        }
+
+        // Converter YYYY-MM para Date
+        const [startYear, startMonth] = startInput.value.split('-').map(Number);
+        const [endYear, endMonth] = endInput.value.split('-').map(Number);
+
+        this.customDateStart = new Date(startYear, startMonth - 1, 1);
+        this.customDateEnd = new Date(endYear, endMonth, 0);
+
+        this.loadData();
+    }
+
+    // Carregar dados
+    loadData() {
+        console.log('📊 [DASHBOARD] Carregando dados...', {
+            start: this.customDateStart,
+            end: this.customDateEnd
+        });
+
+        const usuario = sessionStorage.getItem('username');
+        if (!usuario) return;
+
+        // Reset data
+        this.data = {
+            totalRevenue: 0,
+            totalSales: 0,
+            avgTicket: 0,
+            profitMargin: 0,
+            dailyRevenue: {},
+            categories: {},
+            topProducts: {},
+            paymentMethods: {
+                'Dinheiro': { value: 0, count: 0 },
+                'Cartão': { value: 0, count: 0 },
+                'PIX': { value: 0, count: 0 },
+                'Outros': { value: 0, count: 0 }
+            }
+        };
+
+        let totalCost = 0;
+
+        // Percorrer todos os grupos no período
+        this.app.groups.forEach(group => {
+            const [year, month] = group.month.split('-').map(Number);
+            const groupDate = new Date(year, month - 1, 1);
+
+            // Verificar se o grupo está no período
+            if (groupDate >= this.customDateStart && groupDate <= this.customDateEnd) {
+                const sales = this.app.carregarVendas(usuario, group.month) || [];
+
+                sales.forEach(venda => {
+                    const vendaDate = venda.dataVenda ? new Date(venda.dataVenda) : new Date(venda.timestamp);
+                    const dateKey = vendaDate.toISOString().split('T')[0];
+
+                    // Faturamento total
+                    const vendaValue = venda.total || 0;
+                    this.data.totalRevenue += vendaValue;
+                    this.data.totalSales++;
+
+                    // Faturamento diário
+                    if (!this.data.dailyRevenue[dateKey]) {
+                        this.data.dailyRevenue[dateKey] = 0;
+                    }
+                    this.data.dailyRevenue[dateKey] += vendaValue;
+
+                    // Formas de pagamento
+                    let paymentMethod = venda.formaPagamento || 'Outros';
+                    if (paymentMethod.toLowerCase().includes('dinheiro')) {
+                        paymentMethod = 'Dinheiro';
+                    } else if (paymentMethod.toLowerCase().includes('cartão') || paymentMethod.toLowerCase().includes('cartao')) {
+                        paymentMethod = 'Cartão';
+                    } else if (paymentMethod.toLowerCase().includes('pix')) {
+                        paymentMethod = 'PIX';
+                    } else {
+                        paymentMethod = 'Outros';
+                    }
+
+                    if (!this.data.paymentMethods[paymentMethod]) {
+                        this.data.paymentMethods[paymentMethod] = { value: 0, count: 0 };
+                    }
+                    this.data.paymentMethods[paymentMethod].value += vendaValue;
+                    this.data.paymentMethods[paymentMethod].count++;
+
+                    // Processar itens da venda
+                    if (venda.items && Array.isArray(venda.items)) {
+                        venda.items.forEach(itemVenda => {
+                            const item = this.app.items.find(i => i.id === itemVenda.id);
+                            if (!item) return;
+
+                            const category = item.category || 'Sem Categoria';
+                            const itemRevenue = (itemVenda.price || 0) * (itemVenda.quantity || 0);
+                            const itemCost = (item.cost || 0) * (itemVenda.quantity || 0);
+
+                            totalCost += itemCost;
+
+                            // Vendas por categoria
+                            if (!this.data.categories[category]) {
+                                this.data.categories[category] = 0;
+                            }
+                            this.data.categories[category] += itemRevenue;
+
+                            // Top produtos
+                            if (!this.data.topProducts[item.id]) {
+                                this.data.topProducts[item.id] = {
+                                    name: item.name,
+                                    quantity: 0,
+                                    revenue: 0,
+                                    cost: 0
+                                };
+                            }
+                            this.data.topProducts[item.id].quantity += itemVenda.quantity || 0;
+                            this.data.topProducts[item.id].revenue += itemRevenue;
+                            this.data.topProducts[item.id].cost += itemCost;
+                        });
+                    }
+                });
+            }
+        });
+
+        // Calcular métricas
+        this.data.avgTicket = this.data.totalSales > 0 ? this.data.totalRevenue / this.data.totalSales : 0;
+        this.data.profitMargin = this.data.totalRevenue > 0 ? ((this.data.totalRevenue - totalCost) / this.data.totalRevenue) * 100 : 0;
+
+        console.log('📊 [DASHBOARD] Dados carregados:', this.data);
+
+        this.updateMetrics();
+        this.updateCharts();
+        this.updateTopProducts();
+        this.updatePaymentMethods();
+    }
+
+    // Atualizar métricas
+    updateMetrics() {
+        const totalRevenueEl = document.getElementById('dashboardTotalRevenue');
+        const totalSalesEl = document.getElementById('dashboardTotalSales');
+        const avgTicketEl = document.getElementById('dashboardAvgTicket');
+        const profitMarginEl = document.getElementById('dashboardProfitMargin');
+
+        if (totalRevenueEl) totalRevenueEl.textContent = `R$ ${this.formatMoney(this.data.totalRevenue)}`;
+        if (totalSalesEl) totalSalesEl.textContent = this.data.totalSales;
+        if (avgTicketEl) avgTicketEl.textContent = `R$ ${this.formatMoney(this.data.avgTicket)}`;
+        if (profitMarginEl) profitMarginEl.textContent = `${this.data.profitMargin.toFixed(1)}%`;
+    }
+
+    // Atualizar gráficos
+    updateCharts() {
+        this.updateRevenueChart();
+        this.updateCategoryChart();
+    }
+
+    // Gráfico de faturamento diário
+    updateRevenueChart() {
+        const canvas = document.getElementById('revenueChart');
+        if (!canvas) return;
+
+        // Destruir gráfico anterior
+        if (this.revenueChart) {
+            this.revenueChart.destroy();
+        }
+
+        // Preparar dados
+        const sortedDates = Object.keys(this.data.dailyRevenue).sort();
+        const labels = sortedDates.map(date => {
+            const d = new Date(date + 'T00:00:00');
+            return `${d.getDate()}/${d.getMonth() + 1}`;
+        });
+        const data = sortedDates.map(date => this.data.dailyRevenue[date]);
+
+        // Criar gráfico
+        const ctx = canvas.getContext('2d');
+        this.revenueChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'Faturamento (R$)',
+                    data: data,
+                    borderColor: '#28a745',
+                    backgroundColor: 'rgba(40, 167, 69, 0.1)',
+                    borderWidth: 2,
+                    fill: true,
+                    tension: 0.4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: false
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            callback: (value) => `R$ ${value.toFixed(0)}`
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+    // Gráfico de vendas por categoria
+    updateCategoryChart() {
+        const canvas = document.getElementById('categoryChart');
+        if (!canvas) return;
+
+        // Destruir gráfico anterior
+        if (this.categoryChart) {
+            this.categoryChart.destroy();
+        }
+
+        // Preparar dados
+        const categories = Object.keys(this.data.categories);
+        const values = Object.values(this.data.categories);
+
+        if (categories.length === 0) {
+            return;
+        }
+
+        // Cores
+        const colors = [
+            '#007bff', '#28a745', '#ffc107', '#dc3545', '#6f42c1',
+            '#17a2b8', '#fd7e14', '#20c997', '#e83e8c', '#6c757d'
+        ];
+
+        // Criar gráfico
+        const ctx = canvas.getContext('2d');
+        this.categoryChart = new Chart(ctx, {
+            type: 'doughnut',
+            data: {
+                labels: categories,
+                datasets: [{
+                    data: values,
+                    backgroundColor: colors.slice(0, categories.length),
+                    borderWidth: 2,
+                    borderColor: '#fff'
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom'
+                    }
+                }
+            }
+        });
+    }
+
+    // Atualizar top produtos
+    updateTopProducts() {
+        const tbody = document.getElementById('topProductsTableBody');
+        if (!tbody) return;
+
+        // Converter para array e ordenar
+        const products = Object.values(this.data.topProducts)
+            .sort((a, b) => b.revenue - a.revenue)
+            .slice(0, 10);
+
+        if (products.length === 0) {
+            tbody.innerHTML = `
+                <tr>
+                    <td colspan="5" style="text-align: center; padding: 2rem; color: #999;">
+                        Nenhum produto vendido no período
+                    </td>
+                </tr>
+            `;
+            return;
+        }
+
+        tbody.innerHTML = products.map((product, index) => {
+            const margin = product.revenue > 0 ? ((product.revenue - product.cost) / product.revenue) * 100 : 0;
+            const marginColor = margin > 30 ? '#28a745' : margin > 15 ? '#ffc107' : '#dc3545';
+
+            return `
+                <tr>
+                    <td style="text-align: center; font-weight: 700;">
+                        ${index === 0 ? '🥇' : index === 1 ? '🥈' : index === 2 ? '🥉' : index + 1}
+                    </td>
+                    <td>${this.app.escapeHtml(product.name)}</td>
+                    <td style="text-align: center; font-weight: 600;">${product.quantity} un</td>
+                    <td style="text-align: right; font-weight: 600; color: #28a745;">R$ ${this.formatMoney(product.revenue)}</td>
+                    <td style="text-align: right; font-weight: 600; color: ${marginColor};">${margin.toFixed(1)}%</td>
+                </tr>
+            `;
+        }).join('');
+    }
+
+    // Atualizar formas de pagamento
+    updatePaymentMethods() {
+        const methods = ['Dinheiro', 'Cartão', 'PIX', 'Outros'];
+        const ids = ['Cash', 'Card', 'Pix', 'Others'];
+
+        methods.forEach((method, index) => {
+            const data = this.data.paymentMethods[method] || { value: 0, count: 0 };
+            const valueEl = document.getElementById(`payment${ids[index]}`);
+            const countEl = document.getElementById(`payment${ids[index]}Count`);
+
+            if (valueEl) valueEl.textContent = `R$ ${this.formatMoney(data.value)}`;
+            if (countEl) countEl.textContent = `${data.count} venda${data.count !== 1 ? 's' : ''}`;
+        });
+    }
+
+    // Atualizar dados
+    refreshData() {
+        console.log('🔄 [DASHBOARD] Atualizando dados...');
+        this.loadData();
+        
+        if (typeof toast !== 'undefined' && toast) {
+            toast.info('Dashboard atualizado!');
+        }
+    }
+
+    // Formatar dinheiro
+    formatMoney(value) {
+        return value.toFixed(2).replace('.', ',').replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+    }
+}
+
+// ========================================
+// DASHBOARD DE ANÁLISE DE VENDAS
+// ========================================
+class SalesDashboard {
+    constructor(app) {
+        this.app = app;
+        this.currentPeriod = 'current';
+        this.customStart = null;
+        this.customEnd = null;
+        this.salesData = [];
+        this.charts = {
+            revenue: null,
+            category: null
+        };
+    }
+
+    // Abrir modal
+    openModal() {
+        const modal = document.getElementById('salesDashboardModal');
+        if (!modal) {
+            console.error('[DASHBOARD] Modal não encontrado');
+            return;
+        }
+
+        // Definir período padrão
+        this.setQuickFilter('current');
+
+        this.app.openModalSafely(modal);
+        console.log('✅ [DASHBOARD] Modal aberto');
+    }
+
+    // Fechar modal
+    closeModal() {
+        const modal = document.getElementById('salesDashboardModal');
+        if (modal) {
+            // Destruir gráficos para evitar vazamento de memória
+            if (this.charts.revenue) {
+                this.charts.revenue.destroy();
+                this.charts.revenue = null;
+            }
+            if (this.charts.category) {
+                this.charts.category.destroy();
+                this.charts.category = null;
+            }
+            
+            this.app.closeModalSafely(modal);
+            console.log('✅ [DASHBOARD] Modal fechado');
+        }
+    }
+
+    // Definir filtro rápido
+    setQuickFilter(period) {
+        this.currentPeriod = period;
+        
+        // Atualizar botões ativos
+        document.querySelectorAll('.btn-quick-filter').forEach(btn => {
+            btn.classList.remove('active');
+        });
+        const activeBtn = document.querySelector(`.btn-quick-filter[data-period="${period}"]`);
+        if (activeBtn) activeBtn.classList.add('active');
+
+        // Mostrar/ocultar inputs customizados
+        const customInputs = document.getElementById('customPeriodInputs');
+        if (customInputs) {
+            customInputs.style.display = period === 'custom' ? 'block' : 'none';
+        }
+
+        // Se não for custom, aplicar período
+        if (period !== 'custom') {
+            this.applyQuickPeriod(period);
+        }
+    }
+
+    // Aplicar período rápido
+    applyQuickPeriod(period) {
+        const today = new Date();
+        let startDate, endDate;
+
+        switch (period) {
+            case 'current':
+                // Mês atual
+                startDate = new Date(today.getFullYear(), today.getMonth(), 1);
+                endDate = today;
+                break;
+            case 'last':
+                // Mês anterior
+                startDate = new Date(today.getFullYear(), today.getMonth() - 1, 1);
+                endDate = new Date(today.getFullYear(), today.getMonth(), 0);
+                break;
+            case 'quarter':
+                // Últimos 3 meses
+                startDate = new Date(today.getFullYear(), today.getMonth() - 2, 1);
+                endDate = today;
+                break;
+            default:
+                startDate = new Date(today.getFullYear(), today.getMonth(), 1);
+                endDate = today;
+        }
+
+        this.customStart = this.formatDateToMonth(startDate);
+        this.customEnd = this.formatDateToMonth(endDate);
+
+        this.loadAndRenderData();
+    }
+
+    // Aplicar período customizado
+    applyCustomPeriod() {
+        const startInput = document.getElementById('dashboardDateStart');
+        const endInput = document.getElementById('dashboardDateEnd');
+
+        if (!startInput?.value || !endInput?.value) {
+            if (typeof toast !== 'undefined' && toast) {
+                toast.warning('Selecione o período inicial e final');
+            }
+            return;
+        }
+
+        this.customStart = startInput.value;
+        this.customEnd = endInput.value;
+
+        this.loadAndRenderData();
+    }
+
+    // Formatar data para YYYY-MM
+    formatDateToMonth(date) {
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        return `${year}-${month}`;
+    }
+
+    // Carregar e renderizar dados
+    loadAndRenderData() {
+        console.log('📊 [DASHBOARD] Carregando dados do período:', this.customStart, 'a', this.customEnd);
+        
+        this.salesData = this.loadSalesData();
+        
+        this.calculateMetrics();
+        this.renderCharts();
+        this.renderTopProducts();
+        this.renderPaymentMethods();
+    }
+
+    // Carregar dados de vendas do período
+    loadSalesData() {
+        const usuario = sessionStorage.getItem('username');
+        if (!usuario) return [];
+
+        const sales = [];
+        
+        // Filtrar grupos dentro do período
+        this.app.groups.forEach(group => {
+            if (this.isMonthInPeriod(group.month)) {
+                const groupSales = this.app.carregarVendas(usuario, group.month) || [];
+                groupSales.forEach(sale => {
+                    sales.push({
+                        ...sale,
+                        month: group.month
+                    });
+                });
+            }
+        });
+
+        console.log(`📊 [DASHBOARD] ${sales.length} vendas carregadas`);
+        return sales;
+    }
+
+    // Verificar se mês está no período
+    isMonthInPeriod(month) {
+        if (!this.customStart || !this.customEnd) return false;
+        return month >= this.customStart && month <= this.customEnd;
+    }
+
+    // Calcular métricas
+    calculateMetrics() {
+        let totalRevenue = 0;
+        let totalSales = this.salesData.length;
+        let totalCost = 0;
+
+        this.salesData.forEach(sale => {
+            const saleTotal = sale.total || 0;
+            totalRevenue += saleTotal;
+
+            // Calcular custo (se disponível nos itens)
+            if (sale.items && Array.isArray(sale.items)) {
+                sale.items.forEach(item => {
+                    const product = this.app.items.find(p => p.id === item.id);
+                    if (product && product.cost) {
+                        totalCost += (product.cost || 0) * (item.quantity || 0);
+                    }
+                });
+            }
+        });
+
+        const avgTicket = totalSales > 0 ? totalRevenue / totalSales : 0;
+        const profitMargin = totalRevenue > 0 ? ((totalRevenue - totalCost) / totalRevenue) * 100 : 0;
+
+        // Atualizar UI
+        const revenueEl = document.getElementById('dashboardTotalRevenue');
+        const salesEl = document.getElementById('dashboardTotalSales');
+        const ticketEl = document.getElementById('dashboardAvgTicket');
+        const marginEl = document.getElementById('dashboardProfitMargin');
+
+        if (revenueEl) revenueEl.textContent = `R$ ${totalRevenue.toFixed(2).replace('.', ',')}`;
+        if (salesEl) salesEl.textContent = totalSales;
+        if (ticketEl) ticketEl.textContent = `R$ ${avgTicket.toFixed(2).replace('.', ',')}`;
+        if (marginEl) marginEl.textContent = `${profitMargin.toFixed(1)}%`;
+
+        // Trends (comparação com período anterior - placeholder por enquanto)
+        this.updateTrends();
+    }
+
+    // Atualizar trends
+    updateTrends() {
+        // Placeholder - em implementação futura calcular comparação com período anterior
+        const trendEls = document.querySelectorAll('.metric-trend');
+        trendEls.forEach(el => {
+            el.textContent = '';
+            el.style.display = 'none';
+        });
+    }
+
+    // Renderizar gráficos
+    renderCharts() {
+        this.renderRevenueChart();
+        this.renderCategoryChart();
+    }
+
+    // Renderizar gráfico de faturamento
+    renderRevenueChart() {
+        const canvas = document.getElementById('revenueChart');
+        if (!canvas) return;
+
+        const ctx = canvas.getContext('2d');
+
+        // Destruir gráfico anterior
+        if (this.charts.revenue) {
+            this.charts.revenue.destroy();
+        }
+
+        // Agrupar vendas por dia
+        const revenueByDay = {};
+        this.salesData.forEach(sale => {
+            const date = sale.dataVenda || sale.timestamp || new Date().toISOString();
+            const day = date.substring(0, 10); // YYYY-MM-DD
+            
+            if (!revenueByDay[day]) {
+                revenueByDay[day] = 0;
+            }
+            revenueByDay[day] += sale.total || 0;
+        });
+
+        // Ordenar por data
+        const sortedDays = Object.keys(revenueByDay).sort();
+        const labels = sortedDays.map(day => {
+            const [year, month, dayNum] = day.split('-');
+            return `${dayNum}/${month}`;
+        });
+        const data = sortedDays.map(day => revenueByDay[day]);
+
+        // Criar gráfico
+        this.charts.revenue = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'Faturamento (R$)',
+                    data: data,
+                    borderColor: 'rgb(75, 192, 192)',
+                    backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                    tension: 0.4,
+                    fill: true
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: false
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                return `R$ ${context.parsed.y.toFixed(2).replace('.', ',')}`;
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            callback: function(value) {
+                                return 'R$ ' + value.toFixed(0);
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+    // Renderizar gráfico de categorias
+    renderCategoryChart() {
+        const canvas = document.getElementById('categoryChart');
+        if (!canvas) return;
+
+        const ctx = canvas.getContext('2d');
+
+        // Destruir gráfico anterior
+        if (this.charts.category) {
+            this.charts.category.destroy();
+        }
+
+        // Agrupar vendas por categoria
+        const salesByCategory = {};
+        this.salesData.forEach(sale => {
+            if (sale.items && Array.isArray(sale.items)) {
+                sale.items.forEach(item => {
+                    const product = this.app.items.find(p => p.id === item.id);
+                    const category = product?.category || 'Sem categoria';
+                    
+                    if (!salesByCategory[category]) {
+                        salesByCategory[category] = 0;
+                    }
+                    salesByCategory[category] += (item.price || 0) * (item.quantity || 0);
+                });
+            }
+        });
+
+        const labels = Object.keys(salesByCategory);
+        const data = Object.values(salesByCategory);
+
+        // Cores para o gráfico
+        const colors = [
+            'rgba(255, 99, 132, 0.8)',
+            'rgba(54, 162, 235, 0.8)',
+            'rgba(255, 206, 86, 0.8)',
+            'rgba(75, 192, 192, 0.8)',
+            'rgba(153, 102, 255, 0.8)',
+            'rgba(255, 159, 64, 0.8)',
+            'rgba(199, 199, 199, 0.8)',
+            'rgba(83, 102, 255, 0.8)',
+            'rgba(40, 159, 64, 0.8)',
+            'rgba(210, 99, 132, 0.8)'
+        ];
+
+        // Criar gráfico
+        this.charts.category = new Chart(ctx, {
+            type: 'doughnut',
+            data: {
+                labels: labels,
+                datasets: [{
+                    data: data,
+                    backgroundColor: colors,
+                    borderWidth: 2,
+                    borderColor: '#fff'
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'right',
+                        labels: {
+                            padding: 15,
+                            font: {
+                                size: 12
+                            }
+                        }
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                const label = context.label || '';
+                                const value = context.parsed || 0;
+                                const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                const percentage = ((value / total) * 100).toFixed(1);
+                                return `${label}: R$ ${value.toFixed(2).replace('.', ',')} (${percentage}%)`;
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+    // Renderizar top produtos
+    renderTopProducts() {
+        const tbody = document.getElementById('topProductsTableBody');
+        if (!tbody) return;
+
+        // Agrupar vendas por produto
+        const productSales = {};
+        this.salesData.forEach(sale => {
+            if (sale.items && Array.isArray(sale.items)) {
+                sale.items.forEach(item => {
+                    if (!productSales[item.id]) {
+                        const product = this.app.items.find(p => p.id === item.id);
+                        productSales[item.id] = {
+                            id: item.id,
+                            name: product?.name || 'Produto desconhecido',
+                            quantity: 0,
+                            revenue: 0,
+                            cost: 0
+                        };
+                    }
+                    
+                    productSales[item.id].quantity += item.quantity || 0;
+                    productSales[item.id].revenue += (item.price || 0) * (item.quantity || 0);
+                    
+                    // Calcular custo
+                    const product = this.app.items.find(p => p.id === item.id);
+                    if (product && product.cost) {
+                        productSales[item.id].cost += (product.cost || 0) * (item.quantity || 0);
+                    }
+                });
+            }
+        });
+
+        // Ordenar por faturamento (top 10)
+        const topProducts = Object.values(productSales)
+            .sort((a, b) => b.revenue - a.revenue)
+            .slice(0, 10);
+
+        if (topProducts.length === 0) {
+            tbody.innerHTML = `
+                <tr>
+                    <td colspan="5" style="text-align: center; padding: 2rem; color: #999;">
+                        Nenhuma venda no período selecionado
+                    </td>
+                </tr>
+            `;
+            return;
+        }
+
+        tbody.innerHTML = topProducts.map((product, index) => {
+            const margin = product.revenue > 0 ? ((product.revenue - product.cost) / product.revenue) * 100 : 0;
+            const marginColor = margin >= 30 ? '#28a745' : margin >= 15 ? '#ffc107' : '#dc3545';
+            
+            return `
+                <tr>
+                    <td style="text-align: center; font-weight: 700; color: ${index < 3 ? '#ffc107' : '#6c757d'};">
+                        ${index < 3 ? '🏆' : ''} ${index + 1}
+                    </td>
+                    <td>${this.app.escapeHtml(product.name)}</td>
+                    <td style="text-align: center; font-weight: 600;">${product.quantity} un</td>
+                    <td style="text-align: right; font-weight: 600;">R$ ${product.revenue.toFixed(2).replace('.', ',')}</td>
+                    <td style="text-align: right; font-weight: 600; color: ${marginColor};">${margin.toFixed(1)}%</td>
+                </tr>
+            `;
+        }).join('');
+    }
+
+    // Renderizar formas de pagamento
+    renderPaymentMethods() {
+        const paymentData = {
+            cash: { value: 0, count: 0 },
+            card: { value: 0, count: 0 },
+            pix: { value: 0, count: 0 },
+            others: { value: 0, count: 0 }
+        };
+
+        this.salesData.forEach(sale => {
+            const payment = (sale.formaPagamento || '').toLowerCase();
+            const value = sale.total || 0;
+
+            if (payment.includes('dinheiro')) {
+                paymentData.cash.value += value;
+                paymentData.cash.count++;
+            } else if (payment.includes('cartão') || payment.includes('cartao') || payment.includes('card')) {
+                paymentData.card.value += value;
+                paymentData.card.count++;
+            } else if (payment.includes('pix')) {
+                paymentData.pix.value += value;
+                paymentData.pix.count++;
+            } else {
+                paymentData.others.value += value;
+                paymentData.others.count++;
+            }
+        });
+
+        // Atualizar UI
+        const cashValue = document.getElementById('paymentCash');
+        const cashCount = document.getElementById('paymentCashCount');
+        const cardValue = document.getElementById('paymentCard');
+        const cardCount = document.getElementById('paymentCardCount');
+        const pixValue = document.getElementById('paymentPix');
+        const pixCount = document.getElementById('paymentPixCount');
+        const othersValue = document.getElementById('paymentOthers');
+        const othersCount = document.getElementById('paymentOthersCount');
+
+        if (cashValue) cashValue.textContent = `R$ ${paymentData.cash.value.toFixed(2).replace('.', ',')}`;
+        if (cashCount) cashCount.textContent = `${paymentData.cash.count} vendas`;
+        if (cardValue) cardValue.textContent = `R$ ${paymentData.card.value.toFixed(2).replace('.', ',')}`;
+        if (cardCount) cardCount.textContent = `${paymentData.card.count} vendas`;
+        if (pixValue) pixValue.textContent = `R$ ${paymentData.pix.value.toFixed(2).replace('.', ',')}`;
+        if (pixCount) pixCount.textContent = `${paymentData.pix.count} vendas`;
+        if (othersValue) othersValue.textContent = `R$ ${paymentData.others.value.toFixed(2).replace('.', ',')}`;
+        if (othersCount) othersCount.textContent = `${paymentData.others.count} vendas`;
+    }
+
+    // Atualizar dados
+    refreshData() {
+        console.log('🔄 [DASHBOARD] Atualizando dados...');
+        this.loadAndRenderData();
+        
+        if (typeof toast !== 'undefined' && toast) {
+            toast.info('Dashboard atualizado!');
+        }
+    }
+}
+
+// ========================================
+// SISTEMA DE BACKUP E RESTAURAÇÃO
+// ========================================
+class BackupManager {
+    constructor(app) {
+        this.app = app;
+        this.selectedFile = null;
+        this.autoBackupInterval = null;
+        this.settings = this.loadSettings();
+    }
+
+    // Carregar configurações
+    loadSettings() {
+        const saved = localStorage.getItem('backupSettings');
+        if (saved) {
+            try {
+                return JSON.parse(saved);
+            } catch (e) {
+                console.error('[BACKUP] Erro ao carregar configurações:', e);
+            }
+        }
+        return {
+            autoBackupEnabled: false,
+            interval: 86400000, // 24 horas
+            lastAutoBackup: null
+        };
+    }
+
+    // Salvar configurações
+    saveSettings() {
+        localStorage.setItem('backupSettings', JSON.stringify(this.settings));
+    }
+
+    // Abrir modal
+    openModal() {
+        const modal = document.getElementById('backupManagerModal');
+        if (!modal) {
+            console.error('[BACKUP] Modal não encontrado');
+            return;
+        }
+
+        // Atualizar UI com configurações atuais
+        const autoBackupCheckbox = document.getElementById('autoBackupEnabled');
+        const autoBackupInterval = document.getElementById('autoBackupInterval');
+        const autoBackupSettings = document.getElementById('autoBackupSettings');
+        const lastAutoBackupTime = document.getElementById('lastAutoBackupTime');
+
+        if (autoBackupCheckbox) autoBackupCheckbox.checked = this.settings.autoBackupEnabled;
+        if (autoBackupInterval) autoBackupInterval.value = this.settings.interval;
+        if (autoBackupSettings) autoBackupSettings.style.display = this.settings.autoBackupEnabled ? 'block' : 'none';
+        
+        if (lastAutoBackupTime) {
+            if (this.settings.lastAutoBackup) {
+                const date = new Date(this.settings.lastAutoBackup);
+                lastAutoBackupTime.textContent = date.toLocaleString('pt-BR');
+            } else {
+                lastAutoBackupTime.textContent = 'Nunca';
+            }
+        }
+
+        this.refreshBackupHistory();
+        this.app.openModalSafely(modal);
+        console.log('✅ [BACKUP] Modal aberto');
+    }
+
+    // Fechar modal
+    closeModal() {
+        const modal = document.getElementById('backupManagerModal');
+        if (modal) {
+            this.clearFileSelection();
+            this.app.closeModalSafely(modal);
+            console.log('✅ [BACKUP] Modal fechado');
+        }
+    }
+
+    // Exportar backup completo
+    exportFullBackup() {
+        console.log('📦 [BACKUP] Iniciando exportação completa...');
+        
+        const statusEl = document.getElementById('exportStatus');
+        if (statusEl) {
+            statusEl.style.display = 'block';
+            statusEl.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Preparando backup...';
+            statusEl.className = 'backup-status backup-status-info';
+        }
+
+        // Simular delay para UX
+        setTimeout(() => {
+            try {
+                const usuario = sessionStorage.getItem('username');
+                
+                // Coletar todos os dados do localStorage
+                const backupData = {
+                    version: '1.0.0',
+                    timestamp: new Date().toISOString(),
+                    user: usuario,
+                    data: {}
+                };
+
+                // Iterar por todas as chaves do localStorage
+                for (let i = 0; i < localStorage.length; i++) {
+                    const key = localStorage.key(i);
+                    const value = localStorage.getItem(key);
+                    
+                    // Tentar parsear como JSON, senão guardar como string
+                    try {
+                        backupData.data[key] = JSON.parse(value);
+                    } catch (e) {
+                        backupData.data[key] = value;
+                    }
+                }
+
+                // Criar arquivo para download
+                const blob = new Blob([JSON.stringify(backupData, null, 2)], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                const link = document.createElement('a');
+                
+                const filename = `backup_erp_${usuario}_${new Date().toISOString().slice(0, 19).replace(/:/g, '-')}.json`;
+                link.setAttribute('href', url);
+                link.setAttribute('download', filename);
+                link.style.visibility = 'hidden';
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+
+                console.log('✅ [BACKUP] Backup exportado:', filename);
+
+                if (statusEl) {
+                    statusEl.innerHTML = `<i class="fas fa-check-circle"></i> Backup exportado com sucesso! <br><small>Arquivo: ${filename}</small>`;
+                    statusEl.className = 'backup-status backup-status-success';
+                }
+
+                if (typeof toast !== 'undefined' && toast) {
+                    toast.success('Backup exportado com sucesso!');
+                }
+
+            } catch (error) {
+                console.error('[BACKUP] Erro ao exportar:', error);
+                
+                if (statusEl) {
+                    statusEl.innerHTML = `<i class="fas fa-times-circle"></i> Erro ao exportar backup: ${error.message}`;
+                    statusEl.className = 'backup-status backup-status-error';
+                }
+
+                if (typeof toast !== 'undefined' && toast) {
+                    toast.error('Erro ao exportar backup');
+                }
+            }
+        }, 500);
+    }
+
+    // Exportar backup seletivo
+    exportPartialBackup() {
+        if (typeof toast !== 'undefined' && toast) {
+            toast.info('Funcionalidade de backup seletivo em desenvolvimento');
+        }
+    }
+
+    // Manipular seleção de arquivo
+    handleFileSelect(event) {
+        const file = event.target.files[0];
+        if (!file) return;
+
+        if (!file.name.endsWith('.json')) {
+            if (typeof toast !== 'undefined' && toast) {
+                toast.error('Arquivo inválido. Selecione um arquivo .json');
+            }
+            return;
+        }
+
+        this.selectedFile = file;
+        
+        // Mostrar informações do arquivo
+        const fileInfo = document.getElementById('backupFileInfo');
+        const restoreActions = document.getElementById('restoreActions');
+        
+        if (fileInfo) {
+            const sizeKB = (file.size / 1024).toFixed(2);
+            fileInfo.innerHTML = `
+                <div style="display: flex; align-items: center; gap: 1rem;">
+                    <i class="fas fa-file-archive" style="font-size: 2rem; color: #007bff;"></i>
+                    <div>
+                        <strong>${this.app.escapeHtml(file.name)}</strong><br>
+                        <small>Tamanho: ${sizeKB} KB | Modificado: ${new Date(file.lastModified).toLocaleString('pt-BR')}</small>
+                    </div>
+                </div>
+            `;
+            fileInfo.style.display = 'block';
+        }
+        
+        if (restoreActions) {
+            restoreActions.style.display = 'flex';
+        }
+    }
+
+    // Limpar seleção de arquivo
+    clearFileSelection() {
+        this.selectedFile = null;
+        
+        const fileInput = document.getElementById('backupFileInput');
+        const fileInfo = document.getElementById('backupFileInfo');
+        const restoreActions = document.getElementById('restoreActions');
+        const restoreStatus = document.getElementById('restoreStatus');
+        
+        if (fileInput) fileInput.value = '';
+        if (fileInfo) fileInfo.style.display = 'none';
+        if (restoreActions) restoreActions.style.display = 'none';
+        if (restoreStatus) restoreStatus.style.display = 'none';
+    }
+
+    // Confirmar restauração
+    async confirmRestore() {
+        if (!this.selectedFile) {
+            if (typeof toast !== 'undefined' && toast) {
+                toast.error('Nenhum arquivo selecionado');
+            }
+            return;
+        }
+
+        const confirmed = confirm(
+            '⚠️ ATENÇÃO!\n\n' +
+            'Esta ação irá SUBSTITUIR todos os dados atuais pelos dados do backup.\n\n' +
+            'Recomendamos fazer um backup dos dados atuais antes de continuar.\n\n' +
+            'Deseja continuar com a restauração?'
+        );
+
+        if (!confirmed) return;
+
+        const statusEl = document.getElementById('restoreStatus');
+        if (statusEl) {
+            statusEl.style.display = 'block';
+            statusEl.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Lendo arquivo de backup...';
+            statusEl.className = 'backup-status backup-status-info';
+        }
+
+        try {
+            // Ler arquivo
+            const content = await this.readFileContent(this.selectedFile);
+            const backupData = JSON.parse(content);
+
+            // Validar estrutura do backup
+            if (!backupData.version || !backupData.data) {
+                throw new Error('Arquivo de backup inválido ou corrompido');
+            }
+
+            if (statusEl) {
+                statusEl.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Restaurando dados...';
+            }
+
+            // Simular delay para UX
+            await new Promise(resolve => setTimeout(resolve, 1000));
+
+            // Restaurar dados
+            let restoredCount = 0;
+            for (const key in backupData.data) {
+                try {
+                    const value = backupData.data[key];
+                    const stringValue = typeof value === 'string' ? value : JSON.stringify(value);
+                    localStorage.setItem(key, stringValue);
+                    restoredCount++;
+                } catch (e) {
+                    console.warn(`[BACKUP] Erro ao restaurar chave ${key}:`, e);
+                }
+            }
+
+            console.log(`✅ [BACKUP] ${restoredCount} itens restaurados`);
+
+            if (statusEl) {
+                statusEl.innerHTML = `
+                    <i class="fas fa-check-circle"></i> 
+                    Backup restaurado com sucesso!<br>
+                    <small>${restoredCount} itens restaurados</small><br>
+                    <small style="color: #ffc107;"><i class="fas fa-info-circle"></i> Recarregue a página para aplicar as mudanças</small>
+                `;
+                statusEl.className = 'backup-status backup-status-success';
+            }
+
+            if (typeof toast !== 'undefined' && toast) {
+                toast.success('Backup restaurado! Recarregue a página.');
+            }
+
+            // Perguntar se quer recarregar agora
+            setTimeout(() => {
+                const reload = confirm('Backup restaurado com sucesso!\n\nDeseja recarregar a página agora para aplicar as mudanças?');
+                if (reload) {
+                    location.reload();
+                }
+            }, 2000);
+
+        } catch (error) {
+            console.error('[BACKUP] Erro ao restaurar:', error);
+            
+            if (statusEl) {
+                statusEl.innerHTML = `<i class="fas fa-times-circle"></i> Erro ao restaurar backup: ${error.message}`;
+                statusEl.className = 'backup-status backup-status-error';
+            }
+
+            if (typeof toast !== 'undefined' && toast) {
+                toast.error('Erro ao restaurar backup');
+            }
+        }
+    }
+
+    // Ler conteúdo do arquivo
+    readFileContent(file) {
+        return new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onload = (e) => resolve(e.target.result);
+            reader.onerror = (e) => reject(new Error('Erro ao ler arquivo'));
+            reader.readAsText(file);
+        });
+    }
+
+    // Toggle backup automático
+    toggleAutoBackup(enabled) {
+        this.settings.autoBackupEnabled = enabled;
+        this.saveSettings();
+
+        const settingsDiv = document.getElementById('autoBackupSettings');
+        if (settingsDiv) {
+            settingsDiv.style.display = enabled ? 'block' : 'none';
+        }
+
+        if (enabled) {
+            this.startAutoBackup();
+            if (typeof toast !== 'undefined' && toast) {
+                toast.success('Backup automático ativado');
+            }
+        } else {
+            this.stopAutoBackup();
+            if (typeof toast !== 'undefined' && toast) {
+                toast.info('Backup automático desativado');
+            }
+        }
+    }
+
+    // Atualizar intervalo de backup automático
+    updateAutoBackupInterval(interval) {
+        this.settings.interval = parseInt(interval);
+        this.saveSettings();
+
+        if (this.settings.autoBackupEnabled) {
+            this.stopAutoBackup();
+            this.startAutoBackup();
+            
+            if (typeof toast !== 'undefined' && toast) {
+                toast.success('Intervalo de backup atualizado');
+            }
+        }
+    }
+
+    // Iniciar backup automático
+    startAutoBackup() {
+        // Limpar intervalo anterior se existir
+        this.stopAutoBackup();
+
+        this.autoBackupInterval = setInterval(() => {
+            console.log('🔄 [BACKUP] Executando backup automático...');
+            this.performAutoBackup();
+        }, this.settings.interval);
+
+        console.log(`✅ [BACKUP] Backup automático iniciado (intervalo: ${this.settings.interval / 1000}s)`);
+    }
+
+    // Parar backup automático
+    stopAutoBackup() {
+        if (this.autoBackupInterval) {
+            clearInterval(this.autoBackupInterval);
+            this.autoBackupInterval = null;
+        }
+    }
+
+    // Executar backup automático
+    performAutoBackup() {
+        try {
+            const usuario = sessionStorage.getItem('username');
+            
+            const backupData = {
+                version: '1.0.0',
+                timestamp: new Date().toISOString(),
+                user: usuario,
+                type: 'auto',
+                data: {}
+            };
+
+            // Coletar dados
+            for (let i = 0; i < localStorage.length; i++) {
+                const key = localStorage.key(i);
+                const value = localStorage.getItem(key);
+                
+                try {
+                    backupData.data[key] = JSON.parse(value);
+                } catch (e) {
+                    backupData.data[key] = value;
+                }
+            }
+
+            // Salvar no localStorage com chave específica
+            const backupKey = `autoBackup_${usuario}_${Date.now()}`;
+            localStorage.setItem(backupKey, JSON.stringify(backupData));
+
+            // Limitar número de backups automáticos (manter apenas os 5 mais recentes)
+            this.cleanOldAutoBackups(usuario, 5);
+
+            this.settings.lastAutoBackup = new Date().toISOString();
+            this.saveSettings();
+
+            console.log('✅ [BACKUP] Backup automático concluído:', backupKey);
+
+        } catch (error) {
+            console.error('[BACKUP] Erro no backup automático:', error);
+        }
+    }
+
+    // Limpar backups automáticos antigos
+    cleanOldAutoBackups(usuario, keepCount) {
+        const backupKeys = [];
+        
+        for (let i = 0; i < localStorage.length; i++) {
+            const key = localStorage.key(i);
+            if (key.startsWith(`autoBackup_${usuario}_`)) {
+                backupKeys.push(key);
+            }
+        }
+
+        // Ordenar por timestamp (mais recente primeiro)
+        backupKeys.sort().reverse();
+
+        // Remover backups excedentes
+        for (let i = keepCount; i < backupKeys.length; i++) {
+            localStorage.removeItem(backupKeys[i]);
+            console.log(`🗑️ [BACKUP] Removido backup antigo: ${backupKeys[i]}`);
+        }
+    }
+
+    // Atualizar histórico de backups
+    refreshBackupHistory() {
+        const listEl = document.getElementById('backupHistoryList');
+        if (!listEl) return;
+
+        const usuario = sessionStorage.getItem('username');
+        const backups = [];
+
+        // Buscar backups automáticos
+        for (let i = 0; i < localStorage.length; i++) {
+            const key = localStorage.key(i);
+            if (key.startsWith(`autoBackup_${usuario}_`)) {
+                try {
+                    const data = JSON.parse(localStorage.getItem(key));
+                    backups.push({
+                        key: key,
+                        timestamp: data.timestamp,
+                        size: localStorage.getItem(key).length
+                    });
+                } catch (e) {
+                    console.warn('[BACKUP] Erro ao ler backup:', key);
+                }
+            }
+        }
+
+        if (backups.length === 0) {
+            listEl.innerHTML = '<div style="text-align: center; padding: 2rem; color: #999;">Nenhum backup automático encontrado</div>';
+            return;
+        }
+
+        // Ordenar por data (mais recente primeiro)
+        backups.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+
+        listEl.innerHTML = backups.map(backup => {
+            const date = new Date(backup.timestamp);
+            const sizeKB = (backup.size / 1024).toFixed(2);
+            
+            return `
+                <div class="backup-history-item">
+                    <div class="backup-history-info">
+                        <i class="fas fa-database"></i>
+                        <div>
+                            <strong>${date.toLocaleString('pt-BR')}</strong><br>
+                            <small>Tamanho: ${sizeKB} KB</small>
+                        </div>
+                    </div>
+                    <div class="backup-history-actions">
+                        <button class="btn-icon-small" onclick="if(app && app.backupManager) { app.backupManager.downloadAutoBackup('${backup.key}'); }" title="Baixar">
+                            <i class="fas fa-download"></i>
+                        </button>
+                        <button class="btn-icon-small" onclick="if(app && app.backupManager) { app.backupManager.deleteAutoBackup('${backup.key}'); }" title="Excluir">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                </div>
+            `;
+        }).join('');
+    }
+
+    // Baixar backup automático
+    downloadAutoBackup(key) {
+        try {
+            const data = localStorage.getItem(key);
+            if (!data) {
+                if (typeof toast !== 'undefined' && toast) {
+                    toast.error('Backup não encontrado');
+                }
+                return;
+            }
+
+            const blob = new Blob([data], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            
+            const backupData = JSON.parse(data);
+            const date = new Date(backupData.timestamp).toISOString().slice(0, 19).replace(/:/g, '-');
+            const filename = `backup_auto_${backupData.user}_${date}.json`;
+            
+            link.setAttribute('href', url);
+            link.setAttribute('download', filename);
+            link.style.visibility = 'hidden';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+
+            if (typeof toast !== 'undefined' && toast) {
+                toast.success('Backup baixado com sucesso!');
+            }
+
+        } catch (error) {
+            console.error('[BACKUP] Erro ao baixar:', error);
+            if (typeof toast !== 'undefined' && toast) {
+                toast.error('Erro ao baixar backup');
+            }
+        }
+    }
+
+    // Excluir backup automático
+    deleteAutoBackup(key) {
+        const confirmed = confirm('Deseja realmente excluir este backup?');
+        if (!confirmed) return;
+
+        try {
+            localStorage.removeItem(key);
+            this.refreshBackupHistory();
+
+            if (typeof toast !== 'undefined' && toast) {
+                toast.success('Backup excluído');
+            }
+
+        } catch (error) {
+            console.error('[BACKUP] Erro ao excluir:', error);
+            if (typeof toast !== 'undefined' && toast) {
+                toast.error('Erro ao excluir backup');
+            }
+        }
+    }
+
+    // Inicializar sistema
+    init() {
+        console.log('💾 [BACKUP] Inicializando sistema de backup...');
+        
+        if (this.settings.autoBackupEnabled) {
+            this.startAutoBackup();
+        }
+        
+        console.log('✅ [BACKUP] Sistema de backup inicializado!');
+    }
+}
+
 // Inicializar aplicação
 let app;
 
@@ -34875,6 +36030,25 @@ function inicializarApp() {
             console.log('✅ [APP.JS] MovementHistory inicializado!');
         } else {
             console.log('ℹ️ [APP.JS] MovementHistory já existe');
+        }
+        
+        // Inicializar SalesDashboard (sempre, mesmo se app já existir)
+        if (!window.app.salesDashboard) {
+            console.log('📊 [APP.JS] Inicializando SalesDashboard...');
+            window.app.salesDashboard = new SalesDashboard(window.app);
+            console.log('✅ [APP.JS] SalesDashboard inicializado!');
+        } else {
+            console.log('ℹ️ [APP.JS] SalesDashboard já existe');
+        }
+        
+        // Inicializar BackupManager (sempre, mesmo se app já existir)
+        if (!window.app.backupManager) {
+            console.log('💾 [APP.JS] Inicializando BackupManager...');
+            window.app.backupManager = new BackupManager(window.app);
+            window.app.backupManager.init();
+            console.log('✅ [APP.JS] BackupManager inicializado!');
+        } else {
+            console.log('ℹ️ [APP.JS] BackupManager já existe');
         }
     } catch (error) {
         console.error('❌ [APP.JS] ERRO ao criar LojaApp:', error);
@@ -34935,6 +36109,32 @@ document.addEventListener('DOMContentLoaded', () => {
             return false;
         }
     };
+    
+    // Expor funções do SalesDashboard globalmente para o HTML
+    const exponerFuncoesSalesDashboard = () => {
+        if (window.app && window.app.salesDashboard) {
+            window.app.openSalesDashboard = () => window.app.salesDashboard.openModal();
+            window.app.closeSalesDashboard = () => window.app.salesDashboard.closeModal();
+            console.log('✅ [APP.JS] Funções do SalesDashboard expostas globalmente!');
+            return true;
+        } else {
+            console.warn('⚠️ [APP.JS] SalesDashboard ainda não está pronto, tentando novamente...');
+            return false;
+        }
+    };
+    
+    // Expor funções do BackupManager globalmente para o HTML
+    const exponerFuncoesBackupManager = () => {
+        if (window.app && window.app.backupManager) {
+            window.app.openBackupManager = () => window.app.backupManager.openModal();
+            window.app.closeBackupManager = () => window.app.backupManager.closeModal();
+            console.log('✅ [APP.JS] Funções do BackupManager expostas globalmente!');
+            return true;
+        } else {
+            console.warn('⚠️ [APP.JS] BackupManager ainda não está pronto, tentando novamente...');
+            return false;
+        }
+    };
 
     // Tentar expor as funções com retry
     let tentativas = 0;
@@ -34944,8 +36144,10 @@ document.addEventListener('DOMContentLoaded', () => {
         const stockManagerOk = exponerFuncoesStockManager();
         const stockAlertsOk = exponerFuncoesStockAlerts();
         const movementHistoryOk = exponerFuncoesMovementHistory();
+        const salesDashboardOk = exponerFuncoesSalesDashboard();
+        const backupManagerOk = exponerFuncoesBackupManager();
         
-        if (stockManagerOk && stockAlertsOk && movementHistoryOk) {
+        if (stockManagerOk && stockAlertsOk && movementHistoryOk && salesDashboardOk && backupManagerOk) {
             clearInterval(intervaloExposicao);
         } else if (tentativas >= maxTentativas) {
             console.error('❌ [APP.JS] Falha ao expor funções após', maxTentativas, 'tentativas');

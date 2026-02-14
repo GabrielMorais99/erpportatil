@@ -839,6 +839,11 @@
                                             title="Ver histórico completo de movimentações">
                                             <i class="fas fa-history"></i> Histórico
                                         </button>
+                                        <button type="button" class="btn-success btn-sm"
+                                            onclick="if(app && app.salesDashboard) { app.salesDashboard.openModal(); }"
+                                            title="Dashboard de análise de vendas">
+                                            <i class="fas fa-chart-line"></i> Dashboard
+                                        </button>
                                     </div>
                                 </div>
 
@@ -1716,6 +1721,62 @@
                         </div>
                         <div id="adminUsersUsageDashboard" class="admin-dashboard-content">
                             <!-- Dashboard será preenchido via JavaScript -->
+                        </div>
+                    </div>
+
+                    <!-- Seção de Backup e Restauração -->
+                    <div class="panel-section">
+                        <div class="panel-header">
+                            <h2>
+                                <i class="fas fa-hdd"></i> Backup e Restauração de Dados
+                            </h2>
+                            <button class="btn-primary" onclick="if(app && app.backupManager) { app.backupManager.openModal(); }" title="Gerenciar Backups">
+                                <i class="fas fa-download"></i>
+                                <span class="btn-text">Gerenciar Backups</span>
+                            </button>
+                        </div>
+                        <div style="padding: 1.5rem;">
+                            <div style="background: #e7f3ff; border-left: 4px solid #007bff; padding: 1rem; border-radius: 6px; margin-bottom: 1rem;">
+                                <h4 style="margin: 0 0 0.5rem 0; color: #004085; font-size: 1rem;">
+                                    <i class="fas fa-info-circle"></i> Proteção de Dados
+                                </h4>
+                                <p style="margin: 0; color: #004085; font-size: 0.9rem;">
+                                    Faça backup regular dos seus dados para evitar perda de informações importantes. 
+                                    Você pode exportar todos os dados do sistema e restaurá-los quando necessário.
+                                </p>
+                            </div>
+                            
+                            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1rem;">
+                                <div class="info-card">
+                                    <div class="info-card-icon" style="background: linear-gradient(135deg, #28a745, #20c997);">
+                                        <i class="fas fa-download"></i>
+                                    </div>
+                                    <div class="info-card-content">
+                                        <h4>Exportar Backup</h4>
+                                        <p>Baixe uma cópia completa de todos os seus dados em formato JSON</p>
+                                    </div>
+                                </div>
+                                
+                                <div class="info-card">
+                                    <div class="info-card-icon" style="background: linear-gradient(135deg, #007bff, #0056b3);">
+                                        <i class="fas fa-upload"></i>
+                                    </div>
+                                    <div class="info-card-content">
+                                        <h4>Restaurar Backup</h4>
+                                        <p>Importe dados de um arquivo de backup previamente exportado</p>
+                                    </div>
+                                </div>
+                                
+                                <div class="info-card">
+                                    <div class="info-card-icon" style="background: linear-gradient(135deg, #6f42c1, #5a32a3);">
+                                        <i class="fas fa-clock"></i>
+                                    </div>
+                                    <div class="info-card-content">
+                                        <h4>Backup Automático</h4>
+                                        <p>Configure backups automáticos periódicos para maior segurança</p>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
 
@@ -7519,6 +7580,363 @@
                                 </tr>
                             </tbody>
                         </table>
+                    </div>
+                </div>
+                
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL DE DASHBOARD DE ANÁLISE DE VENDAS -->
+    <div id="salesDashboardModal" class="modal">
+        <div class="modal-content" style="max-width: 1400px; max-height: 90vh;">
+            <div class="modal-header">
+                <h2>
+                    <i class="fas fa-chart-line"></i> Dashboard de Análise de Vendas
+                </h2>
+                <span class="close"
+                    onclick="if(app && app.salesDashboard) { app.salesDashboard.closeModal(); }"
+                    aria-label="Fechar modal" role="button" tabindex="0">&times;</span>
+            </div>
+            <div class="modal-body" style="overflow-y: auto; max-height: calc(90vh - 80px); padding: 1.5rem;">
+                
+                <!-- FILTROS DE PERÍODO -->
+                <div class="dashboard-filters-section">
+                    <div class="filters-header">
+                        <h3><i class="fas fa-filter"></i> Período de Análise</h3>
+                        <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+                            <button class="btn-quick-filter active" data-period="current" onclick="if(app && app.salesDashboard) { app.salesDashboard.setQuickFilter('current'); }">
+                                Mês Atual
+                            </button>
+                            <button class="btn-quick-filter" data-period="last" onclick="if(app && app.salesDashboard) { app.salesDashboard.setQuickFilter('last'); }">
+                                Mês Anterior
+                            </button>
+                            <button class="btn-quick-filter" data-period="quarter" onclick="if(app && app.salesDashboard) { app.salesDashboard.setQuickFilter('quarter'); }">
+                                Últimos 3 Meses
+                            </button>
+                            <button class="btn-quick-filter" data-period="custom" onclick="if(app && app.salesDashboard) { app.salesDashboard.setQuickFilter('custom'); }">
+                                Personalizado
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div id="customPeriodInputs" style="display: none; margin-top: 1rem;">
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;">
+                            <div class="form-group">
+                                <label for="dashboardDateStart"><i class="fas fa-calendar-alt"></i> Data Inicial</label>
+                                <input type="month" id="dashboardDateStart" class="form-control" />
+                            </div>
+                            <div class="form-group">
+                                <label for="dashboardDateEnd"><i class="fas fa-calendar-check"></i> Data Final</label>
+                                <input type="month" id="dashboardDateEnd" class="form-control" />
+                            </div>
+                            <div class="form-group" style="display: flex; align-items: flex-end;">
+                                <button class="btn-primary" onclick="if(app && app.salesDashboard) { app.salesDashboard.applyCustomPeriod(); }">
+                                    <i class="fas fa-check"></i> Aplicar
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- CARDS DE MÉTRICAS PRINCIPAIS -->
+                <div class="dashboard-metrics-grid">
+                    <!-- Faturamento Total -->
+                    <div class="metric-card metric-revenue">
+                        <div class="metric-icon">
+                            <i class="fas fa-dollar-sign"></i>
+                        </div>
+                        <div class="metric-content">
+                            <span class="metric-label">Faturamento Total</span>
+                            <span class="metric-value" id="dashboardTotalRevenue">R$ 0,00</span>
+                            <span class="metric-trend" id="dashboardRevenueTrend"></span>
+                        </div>
+                    </div>
+                    
+                    <!-- Total de Vendas -->
+                    <div class="metric-card metric-sales">
+                        <div class="metric-icon">
+                            <i class="fas fa-shopping-cart"></i>
+                        </div>
+                        <div class="metric-content">
+                            <span class="metric-label">Total de Vendas</span>
+                            <span class="metric-value" id="dashboardTotalSales">0</span>
+                            <span class="metric-trend" id="dashboardSalesTrend"></span>
+                        </div>
+                    </div>
+                    
+                    <!-- Ticket Médio -->
+                    <div class="metric-card metric-ticket">
+                        <div class="metric-icon">
+                            <i class="fas fa-receipt"></i>
+                        </div>
+                        <div class="metric-content">
+                            <span class="metric-label">Ticket Médio</span>
+                            <span class="metric-value" id="dashboardAvgTicket">R$ 0,00</span>
+                            <span class="metric-trend" id="dashboardTicketTrend"></span>
+                        </div>
+                    </div>
+                    
+                    <!-- Margem de Lucro -->
+                    <div class="metric-card metric-margin">
+                        <div class="metric-icon">
+                            <i class="fas fa-percentage"></i>
+                        </div>
+                        <div class="metric-content">
+                            <span class="metric-label">Margem de Lucro</span>
+                            <span class="metric-value" id="dashboardProfitMargin">0%</span>
+                            <span class="metric-trend" id="dashboardMarginTrend"></span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- GRÁFICOS -->
+                <div class="dashboard-charts-section">
+                    <!-- Gráfico de Faturamento por Dia -->
+                    <div class="chart-card">
+                        <div class="chart-header">
+                            <h3><i class="fas fa-chart-area"></i> Faturamento Diário</h3>
+                            <button class="btn-icon-small" onclick="if(app && app.salesDashboard) { app.salesDashboard.refreshData(); }" title="Atualizar">
+                                <i class="fas fa-sync-alt"></i>
+                            </button>
+                        </div>
+                        <div class="chart-container">
+                            <canvas id="revenueChart"></canvas>
+                        </div>
+                    </div>
+                    
+                    <!-- Gráfico de Vendas por Categoria -->
+                    <div class="chart-card">
+                        <div class="chart-header">
+                            <h3><i class="fas fa-chart-pie"></i> Vendas por Categoria</h3>
+                        </div>
+                        <div class="chart-container">
+                            <canvas id="categoryChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- PRODUTOS MAIS VENDIDOS -->
+                <div class="dashboard-products-section">
+                    <div class="section-header">
+                        <h3><i class="fas fa-trophy"></i> Top 10 Produtos Mais Vendidos</h3>
+                    </div>
+                    <div class="products-table-container">
+                        <table class="products-ranking-table">
+                            <thead>
+                                <tr>
+                                    <th style="width: 50px;">#</th>
+                                    <th>Produto</th>
+                                    <th style="text-align: center;">Quantidade</th>
+                                    <th style="text-align: right;">Faturamento</th>
+                                    <th style="text-align: right;">Margem</th>
+                                </tr>
+                            </thead>
+                            <tbody id="topProductsTableBody">
+                                <tr>
+                                    <td colspan="5" style="text-align: center; padding: 2rem; color: #999;">
+                                        Carregando dados...
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                
+                <!-- FORMAS DE PAGAMENTO -->
+                <div class="dashboard-payment-section">
+                    <div class="section-header">
+                        <h3><i class="fas fa-credit-card"></i> Distribuição por Forma de Pagamento</h3>
+                    </div>
+                    <div class="payment-grid">
+                        <div class="payment-card">
+                            <div class="payment-icon" style="background: linear-gradient(135deg, #28a745, #20c997);">
+                                <i class="fas fa-money-bill-wave"></i>
+                            </div>
+                            <div class="payment-info">
+                                <span class="payment-label">Dinheiro</span>
+                                <span class="payment-value" id="paymentCash">R$ 0,00</span>
+                                <span class="payment-count" id="paymentCashCount">0 vendas</span>
+                            </div>
+                        </div>
+                        
+                        <div class="payment-card">
+                            <div class="payment-icon" style="background: linear-gradient(135deg, #007bff, #0056b3);">
+                                <i class="fas fa-credit-card"></i>
+                            </div>
+                            <div class="payment-info">
+                                <span class="payment-label">Cartão</span>
+                                <span class="payment-value" id="paymentCard">R$ 0,00</span>
+                                <span class="payment-count" id="paymentCardCount">0 vendas</span>
+                            </div>
+                        </div>
+                        
+                        <div class="payment-card">
+                            <div class="payment-icon" style="background: linear-gradient(135deg, #6f42c1, #5a32a3);">
+                                <i class="fas fa-mobile-alt"></i>
+                            </div>
+                            <div class="payment-info">
+                                <span class="payment-label">PIX</span>
+                                <span class="payment-value" id="paymentPix">R$ 0,00</span>
+                                <span class="payment-count" id="paymentPixCount">0 vendas</span>
+                            </div>
+                        </div>
+                        
+                        <div class="payment-card">
+                            <div class="payment-icon" style="background: linear-gradient(135deg, #ffc107, #ff9800);">
+                                <i class="fas fa-ellipsis-h"></i>
+                            </div>
+                            <div class="payment-info">
+                                <span class="payment-label">Outros</span>
+                                <span class="payment-value" id="paymentOthers">R$ 0,00</span>
+                                <span class="payment-count" id="paymentOthersCount">0 vendas</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL DE BACKUP E RESTAURAÇÃO -->
+    <div id="backupManagerModal" class="modal">
+        <div class="modal-content" style="max-width: 900px; max-height: 90vh;">
+            <div class="modal-header">
+                <h2>
+                    <i class="fas fa-hdd"></i> Gerenciamento de Backup e Restauração
+                </h2>
+                <span class="close"
+                    onclick="if(app && app.backupManager) { app.backupManager.closeModal(); }"
+                    aria-label="Fechar modal" role="button" tabindex="0">&times;</span>
+            </div>
+            <div class="modal-body" style="overflow-y: auto; max-height: calc(90vh - 80px); padding: 1.5rem;">
+                
+                <!-- SEÇÃO DE EXPORTAÇÃO -->
+                <div class="backup-section">
+                    <div class="backup-section-header">
+                        <h3><i class="fas fa-download"></i> Exportar Backup</h3>
+                    </div>
+                    
+                    <div class="backup-info-box">
+                        <i class="fas fa-info-circle"></i>
+                        <div>
+                            <strong>Exporta todos os dados do sistema:</strong>
+                            <ul style="margin: 0.5rem 0 0 0; padding-left: 1.5rem;">
+                                <li>Produtos, clientes, fornecedores</li>
+                                <li>Vendas, pedidos, serviços</li>
+                                <li>Metas, custos e configurações</li>
+                                <li>Estoque e movimentações</li>
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <div class="backup-actions">
+                        <button class="btn-primary btn-large" onclick="if(app && app.backupManager) { app.backupManager.exportFullBackup(); }">
+                            <i class="fas fa-download"></i> Exportar Backup Completo
+                        </button>
+                        <button class="btn-secondary" onclick="if(app && app.backupManager) { app.backupManager.exportPartialBackup(); }">
+                            <i class="fas fa-filter"></i> Exportar Backup Seletivo
+                        </button>
+                    </div>
+                    
+                    <div id="exportStatus" class="backup-status" style="display: none;"></div>
+                </div>
+                
+                <!-- SEÇÃO DE IMPORTAÇÃO -->
+                <div class="backup-section">
+                    <div class="backup-section-header">
+                        <h3><i class="fas fa-upload"></i> Restaurar Backup</h3>
+                    </div>
+                    
+                    <div class="backup-warning-box">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <div>
+                            <strong>Atenção:</strong> A restauração irá <strong>substituir</strong> os dados atuais pelos dados do backup. 
+                            Recomendamos fazer um backup dos dados atuais antes de restaurar.
+                        </div>
+                    </div>
+                    
+                    <div class="backup-upload-area">
+                        <input type="file" id="backupFileInput" accept=".json" style="display: none;" 
+                            onchange="if(app && app.backupManager) { app.backupManager.handleFileSelect(event); }" />
+                        <button class="btn-upload" onclick="document.getElementById('backupFileInput').click();">
+                            <i class="fas fa-file-upload"></i>
+                            <span>Selecionar Arquivo de Backup</span>
+                            <small>Formato: .json</small>
+                        </button>
+                    </div>
+                    
+                    <div id="backupFileInfo" class="backup-file-info" style="display: none;"></div>
+                    
+                    <div id="restoreActions" class="backup-actions" style="display: none;">
+                        <button class="btn-danger btn-large" onclick="if(app && app.backupManager) { app.backupManager.confirmRestore(); }">
+                            <i class="fas fa-exclamation-circle"></i> Restaurar Dados do Backup
+                        </button>
+                        <button class="btn-secondary" onclick="if(app && app.backupManager) { app.backupManager.clearFileSelection(); }">
+                            <i class="fas fa-times"></i> Cancelar
+                        </button>
+                    </div>
+                    
+                    <div id="restoreStatus" class="backup-status" style="display: none;"></div>
+                </div>
+                
+                <!-- SEÇÃO DE BACKUP AUTOMÁTICO -->
+                <div class="backup-section">
+                    <div class="backup-section-header">
+                        <h3><i class="fas fa-clock"></i> Backup Automático</h3>
+                    </div>
+                    
+                    <div class="backup-auto-config">
+                        <div class="form-group">
+                            <label for="autoBackupEnabled">
+                                <input type="checkbox" id="autoBackupEnabled" 
+                                    onchange="if(app && app.backupManager) { app.backupManager.toggleAutoBackup(this.checked); }" />
+                                Ativar backup automático
+                            </label>
+                        </div>
+                        
+                        <div id="autoBackupSettings" style="display: none;">
+                            <div class="form-group">
+                                <label for="autoBackupInterval">Frequência do Backup</label>
+                                <select id="autoBackupInterval" class="form-control" 
+                                    onchange="if(app && app.backupManager) { app.backupManager.updateAutoBackupInterval(this.value); }">
+                                    <option value="3600000">A cada 1 hora</option>
+                                    <option value="21600000">A cada 6 horas</option>
+                                    <option value="43200000">A cada 12 horas</option>
+                                    <option value="86400000" selected>Diariamente</option>
+                                    <option value="604800000">Semanalmente</option>
+                                </select>
+                            </div>
+                            
+                            <div class="backup-info-box" style="background: #fff3cd; border-color: #ffc107;">
+                                <i class="fas fa-lightbulb" style="color: #856404;"></i>
+                                <div style="color: #856404;">
+                                    <strong>Dica:</strong> Os backups automáticos serão salvos no armazenamento local do navegador. 
+                                    Faça download manual periodicamente para garantir segurança extra.
+                                </div>
+                            </div>
+                            
+                            <div id="lastAutoBackup" style="margin-top: 1rem; padding: 0.75rem; background: #f8f9fa; border-radius: 6px; font-size: 0.9rem;">
+                                <strong>Último backup automático:</strong> <span id="lastAutoBackupTime">Nunca</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- HISTÓRICO DE BACKUPS -->
+                <div class="backup-section">
+                    <div class="backup-section-header">
+                        <h3><i class="fas fa-history"></i> Histórico de Backups Locais</h3>
+                        <button class="btn-icon-small" onclick="if(app && app.backupManager) { app.backupManager.refreshBackupHistory(); }" title="Atualizar">
+                            <i class="fas fa-sync-alt"></i>
+                        </button>
+                    </div>
+                    
+                    <div id="backupHistoryList" class="backup-history-list">
+                        <div style="text-align: center; padding: 2rem; color: #999;">
+                            Nenhum backup automático encontrado
+                        </div>
                     </div>
                 </div>
                 

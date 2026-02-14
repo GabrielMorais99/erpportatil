@@ -7934,3 +7934,887 @@ body.dark-mode .skeleton-line {
         padding: 1rem;
     }
 }
+
+/* ========================================
+   DASHBOARD DE ANÁLISE DE VENDAS
+   ======================================== */
+#salesDashboardModal .modal-content {
+    background: #f8f9fa;
+}
+
+.dashboard-filters-section {
+    background: white;
+    padding: 1.5rem;
+    border-radius: 8px;
+    margin-bottom: 1.5rem;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+}
+
+.filters-header h3 {
+    margin: 0 0 1rem 0;
+    color: var(--gray-700);
+    font-size: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.btn-quick-filter {
+    padding: 0.5rem 1rem;
+    border: 2px solid #dee2e6;
+    background: white;
+    border-radius: 6px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.btn-quick-filter:hover {
+    border-color: var(--primary-color);
+    color: var(--primary-color);
+}
+
+.btn-quick-filter.active {
+    background: var(--primary-color);
+    border-color: var(--primary-color);
+    color: white;
+}
+
+.dashboard-metrics-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.metric-card {
+    background: white;
+    border-radius: 8px;
+    padding: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    transition: all 0.2s;
+}
+
+.metric-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 4px 16px rgba(0,0,0,0.12);
+}
+
+.metric-icon {
+    width: 60px;
+    height: 60px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.75rem;
+    color: white;
+    flex-shrink: 0;
+}
+
+.metric-revenue .metric-icon {
+    background: linear-gradient(135deg, #28a745, #20c997);
+}
+
+.metric-sales .metric-icon {
+    background: linear-gradient(135deg, #007bff, #0056b3);
+}
+
+.metric-ticket .metric-icon {
+    background: linear-gradient(135deg, #6f42c1, #5a32a3);
+}
+
+.metric-margin .metric-icon {
+    background: linear-gradient(135deg, #ffc107, #ff9800);
+}
+
+.metric-content {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.metric-label {
+    font-size: 0.8rem;
+    color: #6c757d;
+    text-transform: uppercase;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+}
+
+.metric-value {
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: var(--gray-800);
+}
+
+.metric-trend {
+    font-size: 0.85rem;
+    font-weight: 600;
+}
+
+.dashboard-charts-section {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.chart-card {
+    background: white;
+    border-radius: 8px;
+    padding: 1.5rem;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+}
+
+.chart-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+}
+
+.chart-header h3 {
+    margin: 0;
+    color: var(--gray-700);
+    font-size: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.chart-container {
+    position: relative;
+    height: 300px;
+}
+
+.dashboard-products-section,
+.dashboard-payment-section {
+    background: white;
+    border-radius: 8px;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+}
+
+.section-header h3 {
+    margin: 0 0 1.5rem 0;
+    color: var(--gray-700);
+    font-size: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.products-table-container {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    border-radius: 6px;
+    border: 1px solid #dee2e6;
+}
+
+.products-ranking-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.9rem;
+}
+
+.products-ranking-table thead {
+    background: linear-gradient(135deg, #495057, #343a40);
+    color: white;
+}
+
+.products-ranking-table th {
+    padding: 1rem 0.75rem;
+    text-align: left;
+    font-weight: 600;
+    font-size: 0.85rem;
+    white-space: nowrap;
+}
+
+.products-ranking-table tbody tr {
+    border-bottom: 1px solid #f1f3f5;
+    transition: background 0.2s;
+}
+
+.products-ranking-table tbody tr:hover {
+    background: #f8f9fa;
+}
+
+.products-ranking-table td {
+    padding: 0.85rem 0.75rem;
+    vertical-align: middle;
+}
+
+.payment-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+}
+
+.payment-card {
+    background: #f8f9fa;
+    border-radius: 8px;
+    padding: 1.25rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    transition: all 0.2s;
+}
+
+.payment-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+.payment-icon {
+    width: 50px;
+    height: 50px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    color: white;
+    flex-shrink: 0;
+}
+
+.payment-info {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.payment-label {
+    font-size: 0.8rem;
+    color: #6c757d;
+    font-weight: 600;
+}
+
+.payment-value {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--gray-800);
+}
+
+.payment-count {
+    font-size: 0.8rem;
+    color: #6c757d;
+}
+
+/* Responsividade do Dashboard */
+@media (max-width: 768px) {
+    #salesDashboardModal .modal-content {
+        max-width: 95%;
+        margin: 1rem;
+    }
+    
+    .dashboard-metrics-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .metric-card {
+        padding: 1rem;
+    }
+    
+    .metric-icon {
+        width: 50px;
+        height: 50px;
+        font-size: 1.5rem;
+    }
+    
+    .metric-value {
+        font-size: 1.5rem;
+    }
+    
+    .dashboard-charts-section {
+        grid-template-columns: 1fr;
+    }
+    
+    .chart-container {
+        height: 250px;
+    }
+    
+    .payment-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .products-ranking-table {
+        font-size: 0.75rem;
+        min-width: 600px;
+    }
+    
+    .products-ranking-table th,
+    .products-ranking-table td {
+        padding: 0.5rem 0.35rem;
+    }
+    
+    .products-table-container::-webkit-scrollbar {
+        height: 6px;
+    }
+    
+    .products-table-container::-webkit-scrollbar-track {
+        background: #f1f1f1;
+        border-radius: 10px;
+    }
+    
+    .products-table-container::-webkit-scrollbar-thumb {
+        background: #888;
+        border-radius: 10px;
+    }
+    
+    .dashboard-filters-section {
+        padding: 1rem;
+    }
+    
+    .btn-quick-filter {
+        font-size: 0.8rem;
+        padding: 0.4rem 0.8rem;
+    }
+}
+
+/* ========================================
+   SISTEMA DE BACKUP E RESTAURAÇÃO
+   ======================================== */
+.backup-section {
+    background: white;
+    border-radius: 8px;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+}
+
+.backup-section-header {
+    margin-bottom: 1.5rem;
+    padding-bottom: 1rem;
+    border-bottom: 2px solid #f1f3f5;
+}
+
+.backup-section-header h3 {
+    margin: 0;
+    color: var(--gray-700);
+    font-size: 1.1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.backup-info-box {
+    background: #e7f3ff;
+    border-left: 4px solid #007bff;
+    padding: 1rem;
+    border-radius: 6px;
+    margin-bottom: 1.5rem;
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+    font-size: 0.9rem;
+}
+
+.backup-info-box i {
+    color: #007bff;
+    font-size: 1.2rem;
+    margin-top: 0.2rem;
+}
+
+.backup-warning-box {
+    background: #fff3cd;
+    border-left: 4px solid #ffc107;
+    padding: 1rem;
+    border-radius: 6px;
+    margin-bottom: 1.5rem;
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+    font-size: 0.9rem;
+}
+
+.backup-warning-box i {
+    color: #ffc107;
+    font-size: 1.2rem;
+    margin-top: 0.2rem;
+}
+
+.backup-actions {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+    align-items: center;
+}
+
+.backup-upload-area {
+    border: 2px dashed #dee2e6;
+    border-radius: 8px;
+    padding: 2rem;
+    text-align: center;
+    margin-bottom: 1rem;
+    transition: all 0.3s;
+}
+
+.backup-upload-area:hover {
+    border-color: var(--primary-color);
+    background: #f8f9fa;
+}
+
+.btn-upload {
+    background: white;
+    border: 2px solid #dee2e6;
+    padding: 1.5rem 2rem;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+    width: 100%;
+}
+
+.btn-upload:hover {
+    border-color: var(--primary-color);
+    color: var(--primary-color);
+    transform: translateY(-2px);
+}
+
+.btn-upload i {
+    font-size: 2rem;
+}
+
+.btn-upload span {
+    font-weight: 600;
+    font-size: 1rem;
+}
+
+.btn-upload small {
+    color: #6c757d;
+    font-size: 0.85rem;
+}
+
+.backup-file-info {
+    background: #f8f9fa;
+    border: 1px solid #dee2e6;
+    border-radius: 6px;
+    padding: 1rem;
+    margin-bottom: 1rem;
+}
+
+.backup-status {
+    padding: 1rem;
+    border-radius: 6px;
+    margin-top: 1rem;
+    font-size: 0.9rem;
+}
+
+.backup-status-info {
+    background: #e7f3ff;
+    border-left: 4px solid #007bff;
+    color: #004085;
+}
+
+.backup-status-success {
+    background: #d4edda;
+    border-left: 4px solid #28a745;
+    color: #155724;
+}
+
+.backup-status-error {
+    background: #f8d7da;
+    border-left: 4px solid #dc3545;
+    color: #721c24;
+}
+
+.backup-auto-config {
+    margin-top: 1rem;
+}
+
+.backup-history-list {
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+.backup-history-item {
+    background: #f8f9fa;
+    border: 1px solid #dee2e6;
+    border-radius: 6px;
+    padding: 1rem;
+    margin-bottom: 0.75rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+    transition: all 0.2s;
+}
+
+.backup-history-item:hover {
+    background: white;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.backup-history-info {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    flex: 1;
+}
+
+.backup-history-info i {
+    font-size: 1.5rem;
+    color: #007bff;
+}
+
+.backup-history-actions {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.info-card {
+    background: white;
+    border: 1px solid #dee2e6;
+    border-radius: 8px;
+    padding: 1.25rem;
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+    transition: all 0.2s;
+}
+
+.info-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+.info-card-icon {
+    width: 50px;
+    height: 50px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    color: white;
+    flex-shrink: 0;
+}
+
+.info-card-content h4 {
+    margin: 0 0 0.5rem 0;
+    color: var(--gray-800);
+    font-size: 1rem;
+}
+
+.info-card-content p {
+    margin: 0;
+    color: #6c757d;
+    font-size: 0.85rem;
+    line-height: 1.5;
+}
+
+/* Responsividade do Backup */
+@media (max-width: 768px) {
+    #backupManagerModal .modal-content {
+        max-width: 95%;
+        margin: 1rem;
+    }
+    
+    .backup-section {
+        padding: 1rem;
+    }
+    
+    .backup-actions {
+        flex-direction: column;
+    }
+    
+    .backup-actions button {
+        width: 100%;
+    }
+    
+    .btn-upload {
+        padding: 1rem;
+    }
+    
+    .backup-upload-area {
+        padding: 1rem;
+    }
+}
+
+/* ========================================
+   SISTEMA DE BACKUP E RESTAURAÇÃO
+   ======================================== */
+#backupManagerModal .modal-content {
+    background: #f8f9fa;
+}
+
+.backup-section {
+    background: white;
+    border-radius: 8px;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+}
+
+.backup-section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+    padding-bottom: 1rem;
+    border-bottom: 2px solid #e9ecef;
+}
+
+.backup-section-header h3 {
+    margin: 0;
+    color: var(--gray-700);
+    font-size: 1.1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.backup-info-box {
+    background: #e7f3ff;
+    border-left: 4px solid #007bff;
+    padding: 1rem;
+    border-radius: 6px;
+    margin-bottom: 1.5rem;
+    display: flex;
+    gap: 1rem;
+    align-items: flex-start;
+}
+
+.backup-info-box i {
+    font-size: 1.5rem;
+    color: #007bff;
+    flex-shrink: 0;
+}
+
+.backup-warning-box {
+    background: #fff3cd;
+    border-left: 4px solid #ffc107;
+    padding: 1rem;
+    border-radius: 6px;
+    margin-bottom: 1.5rem;
+    display: flex;
+    gap: 1rem;
+    align-items: flex-start;
+}
+
+.backup-warning-box i {
+    font-size: 1.5rem;
+    color: #856404;
+    flex-shrink: 0;
+}
+
+.backup-actions {
+    display: flex;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+    margin-top: 1rem;
+}
+
+.btn-large {
+    padding: 0.75rem 1.5rem;
+    font-size: 1rem;
+    font-weight: 600;
+}
+
+.btn-upload {
+    width: 100%;
+    padding: 2rem;
+    border: 2px dashed #dee2e6;
+    background: white;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.btn-upload:hover {
+    border-color: var(--primary-color);
+    background: #f8f9fa;
+}
+
+.btn-upload i {
+    font-size: 3rem;
+    color: var(--primary-color);
+}
+
+.btn-upload span {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--gray-700);
+}
+
+.btn-upload small {
+    font-size: 0.85rem;
+    color: #6c757d;
+}
+
+.backup-upload-area {
+    margin-bottom: 1rem;
+}
+
+.backup-file-info {
+    padding: 1rem;
+    background: #e7f3ff;
+    border-radius: 6px;
+    margin-bottom: 1rem;
+}
+
+.backup-status {
+    padding: 1rem;
+    border-radius: 6px;
+    margin-top: 1rem;
+    font-weight: 600;
+}
+
+.backup-status-info {
+    background: #e7f3ff;
+    color: #004085;
+    border-left: 4px solid #007bff;
+}
+
+.backup-status-success {
+    background: #d4edda;
+    color: #155724;
+    border-left: 4px solid #28a745;
+}
+
+.backup-status-error {
+    background: #f8d7da;
+    color: #721c24;
+    border-left: 4px solid #dc3545;
+}
+
+.backup-auto-config {
+    padding: 1rem 0;
+}
+
+.backup-history-list {
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+.backup-history-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem;
+    background: #f8f9fa;
+    border-radius: 6px;
+    margin-bottom: 0.75rem;
+    transition: all 0.2s;
+}
+
+.backup-history-item:hover {
+    background: #e9ecef;
+}
+
+.backup-history-info {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.backup-history-info i {
+    font-size: 1.5rem;
+    color: var(--primary-color);
+}
+
+.backup-history-actions {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.info-card {
+    background: white;
+    border-radius: 8px;
+    padding: 1.25rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    border: 1px solid #e9ecef;
+    transition: all 0.2s;
+}
+
+.info-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+.info-card-icon {
+    width: 50px;
+    height: 50px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    color: white;
+    flex-shrink: 0;
+}
+
+.info-card-content h4 {
+    margin: 0 0 0.5rem 0;
+    color: var(--gray-800);
+    font-size: 1rem;
+}
+
+.info-card-content p {
+    margin: 0;
+    font-size: 0.85rem;
+    color: #6c757d;
+}
+
+/* Responsividade do Backup */
+@media (max-width: 768px) {
+    #backupManagerModal .modal-content {
+        max-width: 95%;
+        margin: 1rem;
+    }
+    
+    .backup-section {
+        padding: 1rem;
+    }
+    
+    .backup-section-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.75rem;
+    }
+    
+    .backup-actions {
+        flex-direction: column;
+    }
+    
+    .backup-actions button {
+        width: 100%;
+    }
+    
+    .backup-info-box,
+    .backup-warning-box {
+        flex-direction: column;
+        text-align: center;
+    }
+    
+    .backup-history-item {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+    }
+    
+    .backup-history-actions {
+        width: 100%;
+        justify-content: flex-end;
+    }
+    
+    .info-card {
+        flex-direction: column;
+        text-align: center;
+    }
+}
