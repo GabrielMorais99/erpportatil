@@ -1042,18 +1042,21 @@ class LojaApp {
 
         // Sistema de Gerenciamento de Estoque por SKU
         this.stockManager = null; // Será inicializado após DOM estar pronto
-        
+
         // Sistema de Alertas de Estoque
         this.stockAlerts = null; // Será inicializado após DOM estar pronto
-        
+
         // Sistema de Histórico de Movimentações
         this.movementHistory = null; // Será inicializado após DOM estar pronto
-        
+
         // Dashboard de Análise de Vendas
         this.salesDashboard = null; // Será inicializado após DOM estar pronto
-        
+
         // Sistema de Backup e Restauração
         this.backupManager = null; // Será inicializado após DOM estar pronto
+        
+        // Sistema de Notificações e Lembretes
+        this.notificationCenter = null; // Será inicializado após DOM estar pronto
         
         this.currentSaleDay = null;
         this.currentEditingCost = null;
@@ -33701,7 +33704,7 @@ class StockAlertsSystem {
         const usuario = sessionStorage.getItem('username');
         const key = `stockAlertsSettings_${usuario}`;
         const saved = localStorage.getItem(key);
-        
+
         if (saved) {
             try {
                 return JSON.parse(saved);
@@ -33709,7 +33712,7 @@ class StockAlertsSystem {
                 console.error('Erro ao carregar configurações de alertas:', e);
             }
         }
-        
+
         // Configurações padrão
         return {
             lowStockLevel: 5,
@@ -33724,7 +33727,7 @@ class StockAlertsSystem {
     // Salvar configurações
     saveSettings(event) {
         if (event) event.preventDefault();
-        
+
         const settings = {
             lowStockLevel: Number(document.getElementById('lowStockLevel')?.value || 5),
             criticalStockLevel: 0, // Sempre 0
@@ -33733,24 +33736,24 @@ class StockAlertsSystem {
             autoShow: document.getElementById('alertAutoShow')?.checked || true,
             checkInterval: Number(document.getElementById('alertCheckInterval')?.value || 3600000)
         };
-        
+
         this.settings = settings;
-        
+
         const usuario = sessionStorage.getItem('username');
         const key = `stockAlertsSettings_${usuario}`;
         localStorage.setItem(key, JSON.stringify(settings));
-        
+
         console.log('✅ [ALERTS] Configurações salvas:', settings);
-        
+
         if (typeof toast !== 'undefined' && toast) {
             toast.success('Configurações de alertas salvas!');
         }
-        
+
         this.closeSettingsModal();
-        
+
         // Reiniciar verificação com novo intervalo
         this.startAutoCheck();
-        
+
         // Atualizar alertas imediatamente
         this.checkAndDisplayAlerts();
     }
@@ -33759,20 +33762,20 @@ class StockAlertsSystem {
     openSettingsModal() {
         const modal = document.getElementById('stockAlertsSettingsModal');
         if (!modal) return;
-        
+
         // Preencher valores atuais
         const lowStockInput = document.getElementById('lowStockLevel');
         const notifyInAppCb = document.getElementById('alertNotifyInApp');
         const notifyBadgeCb = document.getElementById('alertNotifyBadge');
         const autoShowCb = document.getElementById('alertAutoShow');
         const intervalSelect = document.getElementById('alertCheckInterval');
-        
+
         if (lowStockInput) lowStockInput.value = this.settings.lowStockLevel;
         if (notifyInAppCb) notifyInAppCb.checked = this.settings.notifyInApp;
         if (notifyBadgeCb) notifyBadgeCb.checked = this.settings.notifyBadge;
         if (autoShowCb) autoShowCb.checked = this.settings.autoShow;
         if (intervalSelect) intervalSelect.value = this.settings.checkInterval;
-        
+
         this.app.openModalSafely(modal);
     }
 
@@ -33791,38 +33794,38 @@ class StockAlertsSystem {
 
         const critical = [];
         const low = [];
-        
+
         console.log('🔍 [ALERTS] Verificando estoque de', this.app.items.length, 'produtos');
 
         this.app.items.forEach(item => {
             // Calcular estoque atual considerando todos os meses
             let estoqueTotal = 0;
-            
+
             this.app.groups.forEach(group => {
                 const estoque = this.app.carregarEstoque(usuario, group.month, item.id);
-                
+
                 if (estoque) {
                     const estoqueInicial = estoque.totalInicial || 0;
                     const movimentacoes = estoque.movimentacoes || [];
-                    
+
                     const totalEntradas = movimentacoes
                         .filter(m => m.tipo === 'entrada' && m.qtd > 0)
                         .reduce((acc, m) => acc + Math.abs(m.qtd), 0);
-                    
+
                     const totalSaidas = movimentacoes
                         .filter(m => m.tipo === 'saida' && m.qtd < 0)
                         .reduce((acc, m) => acc + Math.abs(m.qtd), 0);
-                    
+
                     // Calcular vendas do produto no mês
                     let totalVendas = 0;
                     if (this.app.stockManager) {
                         totalVendas = this.app.stockManager.calculateSalesForProduct(item.id);
                     }
-                    
+
                     estoqueTotal += estoqueInicial + totalEntradas - totalSaidas - totalVendas;
                 }
             });
-            
+
             const produto = {
                 id: item.id,
                 name: item.name || 'Produto sem nome',
@@ -33830,38 +33833,38 @@ class StockAlertsSystem {
                 brand: item.brand,
                 category: item.category
             };
-            
+
             if (estoqueTotal <= this.settings.criticalStockLevel) {
                 critical.push(produto);
             } else if (estoqueTotal <= this.settings.lowStockLevel) {
                 low.push(produto);
             }
         });
-        
+
         console.log('📊 [ALERTS] Resultado:', {
             critical: critical.length,
             low: low.length
         });
-        
+
         this.alertsCache = {
             critical,
             low,
             timestamp: Date.now()
         };
-        
+
         return { critical, low };
     }
 
     // Atualizar display de alertas
     checkAndDisplayAlerts() {
         const { critical, low } = this.checkStockLevels();
-        
+
         // Atualizar badge de notificação
         this.updateBadge(critical.length + low.length);
-        
+
         // Renderizar alertas no painel
         this.renderAlerts(critical, low);
-        
+
         // Mostrar painel se tiver alertas e configuração ativa
         if ((critical.length > 0 || low.length > 0) && this.settings.autoShow) {
             this.showAlertsPanel();
@@ -33869,14 +33872,14 @@ class StockAlertsSystem {
             // Se não houver alertas, pode ocultar
             // this.hideAlertsPanel(); // Comentado para não ocultar automaticamente
         }
-        
+
         // Toasts para alertas críticos
         if (critical.length > 0 && this.settings.notifyInApp) {
             if (typeof toast !== 'undefined' && toast) {
                 toast.error(`⚠️ ${critical.length} produto(s) sem estoque!`, 8000);
             }
         }
-        
+
         return { critical, low };
     }
 
@@ -33887,16 +33890,16 @@ class StockAlertsSystem {
         const noAlertsMsg = document.getElementById('noAlertsMessage');
         const criticalList = document.getElementById('criticalStockList');
         const lowList = document.getElementById('lowStockList');
-        
+
         if (!criticalSection || !lowSection || !noAlertsMsg) return;
-        
+
         const hasAlerts = critical.length > 0 || low.length > 0;
-        
+
         // Mostrar/ocultar seções
         if (criticalSection) criticalSection.style.display = critical.length > 0 ? 'block' : 'none';
         if (lowSection) lowSection.style.display = low.length > 0 ? 'block' : 'none';
         if (noAlertsMsg) noAlertsMsg.style.display = hasAlerts ? 'none' : 'block';
-        
+
         // Renderizar produtos críticos
         if (criticalList && critical.length > 0) {
             criticalList.innerHTML = critical.map(produto => `
@@ -33922,7 +33925,7 @@ class StockAlertsSystem {
                 </div>
             `).join('');
         }
-        
+
         // Renderizar produtos baixos
         if (lowList && low.length > 0) {
             lowList.innerHTML = low.map(produto => `
@@ -33971,17 +33974,17 @@ class StockAlertsSystem {
     // Atualizar badge de notificação
     updateBadge(count) {
         if (!this.settings.notifyBadge) return;
-        
+
         // Atualizar badge no ícone de vendas (se existir)
         const salesBtn = document.querySelector('[data-tab="salesPanel"]');
         if (!salesBtn) return;
-        
+
         // Remover badge existente
         const existingBadge = salesBtn.querySelector('.notification-badge');
         if (existingBadge) {
             existingBadge.remove();
         }
-        
+
         // Adicionar novo badge se houver alertas
         if (count > 0) {
             const badge = document.createElement('span');
@@ -34001,7 +34004,7 @@ class StockAlertsSystem {
                 text-align: center;
                 box-shadow: 0 2px 4px rgba(0,0,0,0.3);
             `;
-            
+
             salesBtn.style.position = 'relative';
             salesBtn.appendChild(badge);
         }
@@ -34013,13 +34016,13 @@ class StockAlertsSystem {
         if (this.checkInterval) {
             clearInterval(this.checkInterval);
         }
-        
+
         // Configurar novo intervalo
         this.checkInterval = setInterval(() => {
             console.log('🔍 [ALERTS] Verificação automática de estoque');
             this.checkAndDisplayAlerts();
         }, this.settings.checkInterval);
-        
+
         console.log(`✅ [ALERTS] Verificação automática iniciada (intervalo: ${this.settings.checkInterval / 1000}s)`);
     }
 
@@ -34027,7 +34030,7 @@ class StockAlertsSystem {
     refreshAlerts() {
         console.log('🔄 [ALERTS] Atualizando alertas manualmente...');
         this.checkAndDisplayAlerts();
-        
+
         if (typeof toast !== 'undefined' && toast) {
             toast.info('Alertas atualizados!');
         }
@@ -34036,15 +34039,15 @@ class StockAlertsSystem {
     // Inicializar sistema de alertas
     init() {
         console.log('🔔 [ALERTS] Inicializando sistema de alertas...');
-        
+
         // Verificar alertas pela primeira vez
         setTimeout(() => {
             this.checkAndDisplayAlerts();
         }, 2000);
-        
+
         // Iniciar verificação automática
         this.startAutoCheck();
-        
+
         console.log('✅ [ALERTS] Sistema de alertas inicializado!');
     }
 }
@@ -34076,10 +34079,10 @@ class MovementHistory {
         // Definir data padrão (último mês)
         const today = new Date();
         const lastMonth = new Date(today.getFullYear(), today.getMonth() - 1, 1);
-        
+
         const dateStartInput = document.getElementById('historyDateStart');
         const dateEndInput = document.getElementById('historyDateEnd');
-        
+
         if (dateStartInput) dateStartInput.value = this.formatDateToInput(lastMonth);
         if (dateEndInput) dateEndInput.value = this.formatDateToInput(today);
 
@@ -34350,7 +34353,7 @@ class MovementHistory {
         console.log('🔄 [HISTORY] Atualizando dados...');
         this.loadAllMovements();
         this.applyFilters();
-        
+
         if (typeof toast !== 'undefined' && toast) {
             toast.info('Histórico atualizado!');
         }
@@ -34386,7 +34389,7 @@ class MovementHistory {
         const blob = new Blob([BOM + csvContent], { type: 'text/csv;charset=utf-8;' });
         const link = document.createElement('a');
         const url = URL.createObjectURL(blob);
-        
+
         const filename = `historico_movimentacoes_${new Date().toISOString().slice(0, 10)}.csv`;
         link.setAttribute('href', url);
         link.setAttribute('download', filename);
@@ -34396,7 +34399,7 @@ class MovementHistory {
         document.body.removeChild(link);
 
         console.log('✅ [HISTORY] CSV exportado:', filename);
-        
+
         if (typeof toast !== 'undefined' && toast) {
             toast.success('CSV exportado com sucesso!');
         }
@@ -34454,7 +34457,7 @@ class MovementHistory {
         const blob = new Blob([html], { type: 'application/vnd.ms-excel' });
         const link = document.createElement('a');
         const url = URL.createObjectURL(blob);
-        
+
         const filename = `historico_movimentacoes_${new Date().toISOString().slice(0, 10)}.xls`;
         link.setAttribute('href', url);
         link.setAttribute('download', filename);
@@ -34464,441 +34467,10 @@ class MovementHistory {
         document.body.removeChild(link);
 
         console.log('✅ [HISTORY] Excel exportado:', filename);
-        
+
         if (typeof toast !== 'undefined' && toast) {
             toast.success('Excel exportado com sucesso!');
         }
-    }
-}
-
-// ========================================
-// DASHBOARD DE ANÁLISE DE VENDAS
-// ========================================
-class SalesDashboard {
-    constructor(app) {
-        this.app = app;
-        this.currentPeriod = 'current';
-        this.customDateStart = null;
-        this.customDateEnd = null;
-        this.revenueChart = null;
-        this.categoryChart = null;
-        this.data = {
-            totalRevenue: 0,
-            totalSales: 0,
-            avgTicket: 0,
-            profitMargin: 0,
-            dailyRevenue: [],
-            categories: {},
-            topProducts: [],
-            paymentMethods: {}
-        };
-    }
-
-    // Abrir modal
-    openModal() {
-        const modal = document.getElementById('salesDashboardModal');
-        if (!modal) {
-            console.error('[DASHBOARD] Modal não encontrado');
-            return;
-        }
-
-        // Carregar dados do período atual
-        this.setQuickFilter('current');
-
-        this.app.openModalSafely(modal);
-        console.log('✅ [DASHBOARD] Modal aberto');
-    }
-
-    // Fechar modal
-    closeModal() {
-        const modal = document.getElementById('salesDashboardModal');
-        if (modal) {
-            this.app.closeModalSafely(modal);
-            console.log('✅ [DASHBOARD] Modal fechado');
-        }
-    }
-
-    // Definir filtro rápido
-    setQuickFilter(period) {
-        this.currentPeriod = period;
-        
-        // Atualizar botões ativos
-        document.querySelectorAll('.btn-quick-filter').forEach(btn => {
-            btn.classList.remove('active');
-        });
-        
-        const activeBtn = document.querySelector(`.btn-quick-filter[data-period="${period}"]`);
-        if (activeBtn) activeBtn.classList.add('active');
-
-        // Mostrar/ocultar inputs customizados
-        const customInputs = document.getElementById('customPeriodInputs');
-        if (customInputs) {
-            customInputs.style.display = period === 'custom' ? 'block' : 'none';
-        }
-
-        if (period !== 'custom') {
-            this.calculatePeriodDates(period);
-            this.loadData();
-        }
-    }
-
-    // Calcular datas do período
-    calculatePeriodDates(period) {
-        const today = new Date();
-        let start, end;
-
-        switch (period) {
-            case 'current':
-                start = new Date(today.getFullYear(), today.getMonth(), 1);
-                end = new Date(today.getFullYear(), today.getMonth() + 1, 0);
-                break;
-            case 'last':
-                start = new Date(today.getFullYear(), today.getMonth() - 1, 1);
-                end = new Date(today.getFullYear(), today.getMonth(), 0);
-                break;
-            case 'quarter':
-                start = new Date(today.getFullYear(), today.getMonth() - 2, 1);
-                end = new Date(today.getFullYear(), today.getMonth() + 1, 0);
-                break;
-            default:
-                start = new Date(today.getFullYear(), today.getMonth(), 1);
-                end = today;
-        }
-
-        this.customDateStart = start;
-        this.customDateEnd = end;
-    }
-
-    // Aplicar período customizado
-    applyCustomPeriod() {
-        const startInput = document.getElementById('dashboardDateStart');
-        const endInput = document.getElementById('dashboardDateEnd');
-
-        if (!startInput?.value || !endInput?.value) {
-            if (typeof toast !== 'undefined' && toast) {
-                toast.warning('Selecione data inicial e final');
-            }
-            return;
-        }
-
-        // Converter YYYY-MM para Date
-        const [startYear, startMonth] = startInput.value.split('-').map(Number);
-        const [endYear, endMonth] = endInput.value.split('-').map(Number);
-
-        this.customDateStart = new Date(startYear, startMonth - 1, 1);
-        this.customDateEnd = new Date(endYear, endMonth, 0);
-
-        this.loadData();
-    }
-
-    // Carregar dados
-    loadData() {
-        console.log('📊 [DASHBOARD] Carregando dados...', {
-            start: this.customDateStart,
-            end: this.customDateEnd
-        });
-
-        const usuario = sessionStorage.getItem('username');
-        if (!usuario) return;
-
-        // Reset data
-        this.data = {
-            totalRevenue: 0,
-            totalSales: 0,
-            avgTicket: 0,
-            profitMargin: 0,
-            dailyRevenue: {},
-            categories: {},
-            topProducts: {},
-            paymentMethods: {
-                'Dinheiro': { value: 0, count: 0 },
-                'Cartão': { value: 0, count: 0 },
-                'PIX': { value: 0, count: 0 },
-                'Outros': { value: 0, count: 0 }
-            }
-        };
-
-        let totalCost = 0;
-
-        // Percorrer todos os grupos no período
-        this.app.groups.forEach(group => {
-            const [year, month] = group.month.split('-').map(Number);
-            const groupDate = new Date(year, month - 1, 1);
-
-            // Verificar se o grupo está no período
-            if (groupDate >= this.customDateStart && groupDate <= this.customDateEnd) {
-                const sales = this.app.carregarVendas(usuario, group.month) || [];
-
-                sales.forEach(venda => {
-                    const vendaDate = venda.dataVenda ? new Date(venda.dataVenda) : new Date(venda.timestamp);
-                    const dateKey = vendaDate.toISOString().split('T')[0];
-
-                    // Faturamento total
-                    const vendaValue = venda.total || 0;
-                    this.data.totalRevenue += vendaValue;
-                    this.data.totalSales++;
-
-                    // Faturamento diário
-                    if (!this.data.dailyRevenue[dateKey]) {
-                        this.data.dailyRevenue[dateKey] = 0;
-                    }
-                    this.data.dailyRevenue[dateKey] += vendaValue;
-
-                    // Formas de pagamento
-                    let paymentMethod = venda.formaPagamento || 'Outros';
-                    if (paymentMethod.toLowerCase().includes('dinheiro')) {
-                        paymentMethod = 'Dinheiro';
-                    } else if (paymentMethod.toLowerCase().includes('cartão') || paymentMethod.toLowerCase().includes('cartao')) {
-                        paymentMethod = 'Cartão';
-                    } else if (paymentMethod.toLowerCase().includes('pix')) {
-                        paymentMethod = 'PIX';
-                    } else {
-                        paymentMethod = 'Outros';
-                    }
-
-                    if (!this.data.paymentMethods[paymentMethod]) {
-                        this.data.paymentMethods[paymentMethod] = { value: 0, count: 0 };
-                    }
-                    this.data.paymentMethods[paymentMethod].value += vendaValue;
-                    this.data.paymentMethods[paymentMethod].count++;
-
-                    // Processar itens da venda
-                    if (venda.items && Array.isArray(venda.items)) {
-                        venda.items.forEach(itemVenda => {
-                            const item = this.app.items.find(i => i.id === itemVenda.id);
-                            if (!item) return;
-
-                            const category = item.category || 'Sem Categoria';
-                            const itemRevenue = (itemVenda.price || 0) * (itemVenda.quantity || 0);
-                            const itemCost = (item.cost || 0) * (itemVenda.quantity || 0);
-
-                            totalCost += itemCost;
-
-                            // Vendas por categoria
-                            if (!this.data.categories[category]) {
-                                this.data.categories[category] = 0;
-                            }
-                            this.data.categories[category] += itemRevenue;
-
-                            // Top produtos
-                            if (!this.data.topProducts[item.id]) {
-                                this.data.topProducts[item.id] = {
-                                    name: item.name,
-                                    quantity: 0,
-                                    revenue: 0,
-                                    cost: 0
-                                };
-                            }
-                            this.data.topProducts[item.id].quantity += itemVenda.quantity || 0;
-                            this.data.topProducts[item.id].revenue += itemRevenue;
-                            this.data.topProducts[item.id].cost += itemCost;
-                        });
-                    }
-                });
-            }
-        });
-
-        // Calcular métricas
-        this.data.avgTicket = this.data.totalSales > 0 ? this.data.totalRevenue / this.data.totalSales : 0;
-        this.data.profitMargin = this.data.totalRevenue > 0 ? ((this.data.totalRevenue - totalCost) / this.data.totalRevenue) * 100 : 0;
-
-        console.log('📊 [DASHBOARD] Dados carregados:', this.data);
-
-        this.updateMetrics();
-        this.updateCharts();
-        this.updateTopProducts();
-        this.updatePaymentMethods();
-    }
-
-    // Atualizar métricas
-    updateMetrics() {
-        const totalRevenueEl = document.getElementById('dashboardTotalRevenue');
-        const totalSalesEl = document.getElementById('dashboardTotalSales');
-        const avgTicketEl = document.getElementById('dashboardAvgTicket');
-        const profitMarginEl = document.getElementById('dashboardProfitMargin');
-
-        if (totalRevenueEl) totalRevenueEl.textContent = `R$ ${this.formatMoney(this.data.totalRevenue)}`;
-        if (totalSalesEl) totalSalesEl.textContent = this.data.totalSales;
-        if (avgTicketEl) avgTicketEl.textContent = `R$ ${this.formatMoney(this.data.avgTicket)}`;
-        if (profitMarginEl) profitMarginEl.textContent = `${this.data.profitMargin.toFixed(1)}%`;
-    }
-
-    // Atualizar gráficos
-    updateCharts() {
-        this.updateRevenueChart();
-        this.updateCategoryChart();
-    }
-
-    // Gráfico de faturamento diário
-    updateRevenueChart() {
-        const canvas = document.getElementById('revenueChart');
-        if (!canvas) return;
-
-        // Destruir gráfico anterior
-        if (this.revenueChart) {
-            this.revenueChart.destroy();
-        }
-
-        // Preparar dados
-        const sortedDates = Object.keys(this.data.dailyRevenue).sort();
-        const labels = sortedDates.map(date => {
-            const d = new Date(date + 'T00:00:00');
-            return `${d.getDate()}/${d.getMonth() + 1}`;
-        });
-        const data = sortedDates.map(date => this.data.dailyRevenue[date]);
-
-        // Criar gráfico
-        const ctx = canvas.getContext('2d');
-        this.revenueChart = new Chart(ctx, {
-            type: 'line',
-            data: {
-                labels: labels,
-                datasets: [{
-                    label: 'Faturamento (R$)',
-                    data: data,
-                    borderColor: '#28a745',
-                    backgroundColor: 'rgba(40, 167, 69, 0.1)',
-                    borderWidth: 2,
-                    fill: true,
-                    tension: 0.4
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: {
-                        display: false
-                    }
-                },
-                scales: {
-                    y: {
-                        beginAtZero: true,
-                        ticks: {
-                            callback: (value) => `R$ ${value.toFixed(0)}`
-                        }
-                    }
-                }
-            }
-        });
-    }
-
-    // Gráfico de vendas por categoria
-    updateCategoryChart() {
-        const canvas = document.getElementById('categoryChart');
-        if (!canvas) return;
-
-        // Destruir gráfico anterior
-        if (this.categoryChart) {
-            this.categoryChart.destroy();
-        }
-
-        // Preparar dados
-        const categories = Object.keys(this.data.categories);
-        const values = Object.values(this.data.categories);
-
-        if (categories.length === 0) {
-            return;
-        }
-
-        // Cores
-        const colors = [
-            '#007bff', '#28a745', '#ffc107', '#dc3545', '#6f42c1',
-            '#17a2b8', '#fd7e14', '#20c997', '#e83e8c', '#6c757d'
-        ];
-
-        // Criar gráfico
-        const ctx = canvas.getContext('2d');
-        this.categoryChart = new Chart(ctx, {
-            type: 'doughnut',
-            data: {
-                labels: categories,
-                datasets: [{
-                    data: values,
-                    backgroundColor: colors.slice(0, categories.length),
-                    borderWidth: 2,
-                    borderColor: '#fff'
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: {
-                        position: 'bottom'
-                    }
-                }
-            }
-        });
-    }
-
-    // Atualizar top produtos
-    updateTopProducts() {
-        const tbody = document.getElementById('topProductsTableBody');
-        if (!tbody) return;
-
-        // Converter para array e ordenar
-        const products = Object.values(this.data.topProducts)
-            .sort((a, b) => b.revenue - a.revenue)
-            .slice(0, 10);
-
-        if (products.length === 0) {
-            tbody.innerHTML = `
-                <tr>
-                    <td colspan="5" style="text-align: center; padding: 2rem; color: #999;">
-                        Nenhum produto vendido no período
-                    </td>
-                </tr>
-            `;
-            return;
-        }
-
-        tbody.innerHTML = products.map((product, index) => {
-            const margin = product.revenue > 0 ? ((product.revenue - product.cost) / product.revenue) * 100 : 0;
-            const marginColor = margin > 30 ? '#28a745' : margin > 15 ? '#ffc107' : '#dc3545';
-
-            return `
-                <tr>
-                    <td style="text-align: center; font-weight: 700;">
-                        ${index === 0 ? '🥇' : index === 1 ? '🥈' : index === 2 ? '🥉' : index + 1}
-                    </td>
-                    <td>${this.app.escapeHtml(product.name)}</td>
-                    <td style="text-align: center; font-weight: 600;">${product.quantity} un</td>
-                    <td style="text-align: right; font-weight: 600; color: #28a745;">R$ ${this.formatMoney(product.revenue)}</td>
-                    <td style="text-align: right; font-weight: 600; color: ${marginColor};">${margin.toFixed(1)}%</td>
-                </tr>
-            `;
-        }).join('');
-    }
-
-    // Atualizar formas de pagamento
-    updatePaymentMethods() {
-        const methods = ['Dinheiro', 'Cartão', 'PIX', 'Outros'];
-        const ids = ['Cash', 'Card', 'Pix', 'Others'];
-
-        methods.forEach((method, index) => {
-            const data = this.data.paymentMethods[method] || { value: 0, count: 0 };
-            const valueEl = document.getElementById(`payment${ids[index]}`);
-            const countEl = document.getElementById(`payment${ids[index]}Count`);
-
-            if (valueEl) valueEl.textContent = `R$ ${this.formatMoney(data.value)}`;
-            if (countEl) countEl.textContent = `${data.count} venda${data.count !== 1 ? 's' : ''}`;
-        });
-    }
-
-    // Atualizar dados
-    refreshData() {
-        console.log('🔄 [DASHBOARD] Atualizando dados...');
-        this.loadData();
-        
-        if (typeof toast !== 'undefined' && toast) {
-            toast.info('Dashboard atualizado!');
-        }
-    }
-
-    // Formatar dinheiro
-    formatMoney(value) {
-        return value.toFixed(2).replace('.', ',').replace(/\B(?=(\d{3})+(?!\d))/g, '.');
     }
 }
 
@@ -34946,7 +34518,7 @@ class SalesDashboard {
                 this.charts.category.destroy();
                 this.charts.category = null;
             }
-            
+
             this.app.closeModalSafely(modal);
             console.log('✅ [DASHBOARD] Modal fechado');
         }
@@ -34955,7 +34527,7 @@ class SalesDashboard {
     // Definir filtro rápido
     setQuickFilter(period) {
         this.currentPeriod = period;
-        
+
         // Atualizar botões ativos
         document.querySelectorAll('.btn-quick-filter').forEach(btn => {
             btn.classList.remove('active');
@@ -35035,9 +34607,9 @@ class SalesDashboard {
     // Carregar e renderizar dados
     loadAndRenderData() {
         console.log('📊 [DASHBOARD] Carregando dados do período:', this.customStart, 'a', this.customEnd);
-        
+
         this.salesData = this.loadSalesData();
-        
+
         this.calculateMetrics();
         this.renderCharts();
         this.renderTopProducts();
@@ -35050,7 +34622,7 @@ class SalesDashboard {
         if (!usuario) return [];
 
         const sales = [];
-        
+
         // Filtrar grupos dentro do período
         this.app.groups.forEach(group => {
             if (this.isMonthInPeriod(group.month)) {
@@ -35146,7 +34718,7 @@ class SalesDashboard {
         this.salesData.forEach(sale => {
             const date = sale.dataVenda || sale.timestamp || new Date().toISOString();
             const day = date.substring(0, 10); // YYYY-MM-DD
-            
+
             if (!revenueByDay[day]) {
                 revenueByDay[day] = 0;
             }
@@ -35184,7 +34756,7 @@ class SalesDashboard {
                     },
                     tooltip: {
                         callbacks: {
-                            label: function(context) {
+                            label: function (context) {
                                 return `R$ ${context.parsed.y.toFixed(2).replace('.', ',')}`;
                             }
                         }
@@ -35194,7 +34766,7 @@ class SalesDashboard {
                     y: {
                         beginAtZero: true,
                         ticks: {
-                            callback: function(value) {
+                            callback: function (value) {
                                 return 'R$ ' + value.toFixed(0);
                             }
                         }
@@ -35223,7 +34795,7 @@ class SalesDashboard {
                 sale.items.forEach(item => {
                     const product = this.app.items.find(p => p.id === item.id);
                     const category = product?.category || 'Sem categoria';
-                    
+
                     if (!salesByCategory[category]) {
                         salesByCategory[category] = 0;
                     }
@@ -35276,7 +34848,7 @@ class SalesDashboard {
                     },
                     tooltip: {
                         callbacks: {
-                            label: function(context) {
+                            label: function (context) {
                                 const label = context.label || '';
                                 const value = context.parsed || 0;
                                 const total = context.dataset.data.reduce((a, b) => a + b, 0);
@@ -35310,10 +34882,10 @@ class SalesDashboard {
                             cost: 0
                         };
                     }
-                    
+
                     productSales[item.id].quantity += item.quantity || 0;
                     productSales[item.id].revenue += (item.price || 0) * (item.quantity || 0);
-                    
+
                     // Calcular custo
                     const product = this.app.items.find(p => p.id === item.id);
                     if (product && product.cost) {
@@ -35342,7 +34914,7 @@ class SalesDashboard {
         tbody.innerHTML = topProducts.map((product, index) => {
             const margin = product.revenue > 0 ? ((product.revenue - product.cost) / product.revenue) * 100 : 0;
             const marginColor = margin >= 30 ? '#28a745' : margin >= 15 ? '#ffc107' : '#dc3545';
-            
+
             return `
                 <tr>
                     <td style="text-align: center; font-weight: 700; color: ${index < 3 ? '#ffc107' : '#6c757d'};">
@@ -35409,7 +34981,7 @@ class SalesDashboard {
     refreshData() {
         console.log('🔄 [DASHBOARD] Atualizando dados...');
         this.loadAndRenderData();
-        
+
         if (typeof toast !== 'undefined' && toast) {
             toast.info('Dashboard atualizado!');
         }
@@ -35466,7 +35038,7 @@ class BackupManager {
         if (autoBackupCheckbox) autoBackupCheckbox.checked = this.settings.autoBackupEnabled;
         if (autoBackupInterval) autoBackupInterval.value = this.settings.interval;
         if (autoBackupSettings) autoBackupSettings.style.display = this.settings.autoBackupEnabled ? 'block' : 'none';
-        
+
         if (lastAutoBackupTime) {
             if (this.settings.lastAutoBackup) {
                 const date = new Date(this.settings.lastAutoBackup);
@@ -35494,7 +35066,7 @@ class BackupManager {
     // Exportar backup completo
     exportFullBackup() {
         console.log('📦 [BACKUP] Iniciando exportação completa...');
-        
+
         const statusEl = document.getElementById('exportStatus');
         if (statusEl) {
             statusEl.style.display = 'block';
@@ -35506,7 +35078,7 @@ class BackupManager {
         setTimeout(() => {
             try {
                 const usuario = sessionStorage.getItem('username');
-                
+
                 // Coletar todos os dados do localStorage
                 const backupData = {
                     version: '1.0.0',
@@ -35519,7 +35091,7 @@ class BackupManager {
                 for (let i = 0; i < localStorage.length; i++) {
                     const key = localStorage.key(i);
                     const value = localStorage.getItem(key);
-                    
+
                     // Tentar parsear como JSON, senão guardar como string
                     try {
                         backupData.data[key] = JSON.parse(value);
@@ -35532,7 +35104,7 @@ class BackupManager {
                 const blob = new Blob([JSON.stringify(backupData, null, 2)], { type: 'application/json' });
                 const url = URL.createObjectURL(blob);
                 const link = document.createElement('a');
-                
+
                 const filename = `backup_erp_${usuario}_${new Date().toISOString().slice(0, 19).replace(/:/g, '-')}.json`;
                 link.setAttribute('href', url);
                 link.setAttribute('download', filename);
@@ -35554,7 +35126,7 @@ class BackupManager {
 
             } catch (error) {
                 console.error('[BACKUP] Erro ao exportar:', error);
-                
+
                 if (statusEl) {
                     statusEl.innerHTML = `<i class="fas fa-times-circle"></i> Erro ao exportar backup: ${error.message}`;
                     statusEl.className = 'backup-status backup-status-error';
@@ -35587,11 +35159,11 @@ class BackupManager {
         }
 
         this.selectedFile = file;
-        
+
         // Mostrar informações do arquivo
         const fileInfo = document.getElementById('backupFileInfo');
         const restoreActions = document.getElementById('restoreActions');
-        
+
         if (fileInfo) {
             const sizeKB = (file.size / 1024).toFixed(2);
             fileInfo.innerHTML = `
@@ -35605,7 +35177,7 @@ class BackupManager {
             `;
             fileInfo.style.display = 'block';
         }
-        
+
         if (restoreActions) {
             restoreActions.style.display = 'flex';
         }
@@ -35614,12 +35186,12 @@ class BackupManager {
     // Limpar seleção de arquivo
     clearFileSelection() {
         this.selectedFile = null;
-        
+
         const fileInput = document.getElementById('backupFileInput');
         const fileInfo = document.getElementById('backupFileInfo');
         const restoreActions = document.getElementById('restoreActions');
         const restoreStatus = document.getElementById('restoreStatus');
-        
+
         if (fileInput) fileInput.value = '';
         if (fileInfo) fileInfo.style.display = 'none';
         if (restoreActions) restoreActions.style.display = 'none';
@@ -35707,7 +35279,7 @@ class BackupManager {
 
         } catch (error) {
             console.error('[BACKUP] Erro ao restaurar:', error);
-            
+
             if (statusEl) {
                 statusEl.innerHTML = `<i class="fas fa-times-circle"></i> Erro ao restaurar backup: ${error.message}`;
                 statusEl.className = 'backup-status backup-status-error';
@@ -35760,7 +35332,7 @@ class BackupManager {
         if (this.settings.autoBackupEnabled) {
             this.stopAutoBackup();
             this.startAutoBackup();
-            
+
             if (typeof toast !== 'undefined' && toast) {
                 toast.success('Intervalo de backup atualizado');
             }
@@ -35792,7 +35364,7 @@ class BackupManager {
     performAutoBackup() {
         try {
             const usuario = sessionStorage.getItem('username');
-            
+
             const backupData = {
                 version: '1.0.0',
                 timestamp: new Date().toISOString(),
@@ -35805,7 +35377,7 @@ class BackupManager {
             for (let i = 0; i < localStorage.length; i++) {
                 const key = localStorage.key(i);
                 const value = localStorage.getItem(key);
-                
+
                 try {
                     backupData.data[key] = JSON.parse(value);
                 } catch (e) {
@@ -35833,7 +35405,7 @@ class BackupManager {
     // Limpar backups automáticos antigos
     cleanOldAutoBackups(usuario, keepCount) {
         const backupKeys = [];
-        
+
         for (let i = 0; i < localStorage.length; i++) {
             const key = localStorage.key(i);
             if (key.startsWith(`autoBackup_${usuario}_`)) {
@@ -35887,7 +35459,7 @@ class BackupManager {
         listEl.innerHTML = backups.map(backup => {
             const date = new Date(backup.timestamp);
             const sizeKB = (backup.size / 1024).toFixed(2);
-            
+
             return `
                 <div class="backup-history-item">
                     <div class="backup-history-info">
@@ -35924,11 +35496,11 @@ class BackupManager {
             const blob = new Blob([data], { type: 'application/json' });
             const url = URL.createObjectURL(blob);
             const link = document.createElement('a');
-            
+
             const backupData = JSON.parse(data);
             const date = new Date(backupData.timestamp).toISOString().slice(0, 19).replace(/:/g, '-');
             const filename = `backup_auto_${backupData.user}_${date}.json`;
-            
+
             link.setAttribute('href', url);
             link.setAttribute('download', filename);
             link.style.visibility = 'hidden';
@@ -35972,12 +35544,560 @@ class BackupManager {
     // Inicializar sistema
     init() {
         console.log('💾 [BACKUP] Inicializando sistema de backup...');
-        
+
         if (this.settings.autoBackupEnabled) {
             this.startAutoBackup();
         }
-        
+
         console.log('✅ [BACKUP] Sistema de backup inicializado!');
+    }
+}
+
+// ========================================
+// SISTEMA DE NOTIFICAÇÕES E LEMBRETES
+// ========================================
+class NotificationCenter {
+    constructor(app) {
+        this.app = app;
+        this.notifications = [];
+        this.settings = this.loadSettings();
+        this.checkInterval = null;
+        this.currentTab = 'all';
+    }
+
+    // Carregar configurações
+    loadSettings() {
+        const saved = localStorage.getItem('notificationSettings');
+        if (saved) {
+            try {
+                return JSON.parse(saved);
+            } catch (e) {
+                console.error('[NOTIFICATIONS] Erro ao carregar configurações:', e);
+            }
+        }
+        return {
+            browserEnabled: false,
+            stockLow: true,
+            goalsDeadline: true,
+            salesHighValue: true,
+            backupReminder: true,
+            checkInterval: 300000, // 5 minutos
+            salesThreshold: 500,
+            goalsDaysBefore: 7
+        };
+    }
+
+    // Salvar configurações
+    saveSettings(event) {
+        if (event) event.preventDefault();
+
+        this.settings = {
+            browserEnabled: document.getElementById('notifyBrowserEnabled')?.checked || false,
+            stockLow: document.getElementById('notifyStockLow')?.checked || false,
+            goalsDeadline: document.getElementById('notifyGoalsDeadline')?.checked || false,
+            salesHighValue: document.getElementById('notifySalesHighValue')?.checked || false,
+            backupReminder: document.getElementById('notifyBackupReminder')?.checked || false,
+            checkInterval: parseInt(document.getElementById('notifyCheckInterval')?.value) || 300000,
+            salesThreshold: parseFloat(document.getElementById('notifySalesThreshold')?.value) || 500,
+            goalsDaysBefore: parseInt(document.getElementById('notifyGoalsDaysBefore')?.value) || 7
+        };
+
+        localStorage.setItem('notificationSettings', JSON.stringify(this.settings));
+
+        console.log('✅ [NOTIFICATIONS] Configurações salvas:', this.settings);
+
+        if (typeof toast !== 'undefined' && toast) {
+            toast.success('Configurações de notificações salvas!');
+        }
+
+        this.closeSettings();
+
+        // Reiniciar verificação com novo intervalo
+        this.startAutoCheck();
+
+        // Atualizar permissão do navegador se necessário
+        if (this.settings.browserEnabled) {
+            this.requestBrowserPermission();
+        }
+    }
+
+    // Abrir configurações
+    openSettings() {
+        const modal = document.getElementById('notificationsSettingsModal');
+        if (!modal) return;
+
+        // Preencher valores atuais
+        const browserEnabled = document.getElementById('notifyBrowserEnabled');
+        const stockLow = document.getElementById('notifyStockLow');
+        const goalsDeadline = document.getElementById('notifyGoalsDeadline');
+        const salesHighValue = document.getElementById('notifySalesHighValue');
+        const backupReminder = document.getElementById('notifyBackupReminder');
+        const checkInterval = document.getElementById('notifyCheckInterval');
+        const salesThreshold = document.getElementById('notifySalesThreshold');
+        const goalsDaysBefore = document.getElementById('notifyGoalsDaysBefore');
+
+        if (browserEnabled) browserEnabled.checked = this.settings.browserEnabled;
+        if (stockLow) stockLow.checked = this.settings.stockLow;
+        if (goalsDeadline) goalsDeadline.checked = this.settings.goalsDeadline;
+        if (salesHighValue) salesHighValue.checked = this.settings.salesHighValue;
+        if (backupReminder) backupReminder.checked = this.settings.backupReminder;
+        if (checkInterval) checkInterval.value = this.settings.checkInterval;
+        if (salesThreshold) salesThreshold.value = this.settings.salesThreshold;
+        if (goalsDaysBefore) goalsDaysBefore.value = this.settings.goalsDaysBefore;
+
+        // Atualizar status do navegador
+        this.updateBrowserStatus();
+
+        this.app.openModalSafely(modal);
+    }
+
+    // Fechar configurações
+    closeSettings() {
+        const modal = document.getElementById('notificationsSettingsModal');
+        if (modal) {
+            this.app.closeModalSafely(modal);
+        }
+    }
+
+    // Atualizar status do navegador
+    updateBrowserStatus() {
+        const statusEl = document.getElementById('browserNotificationStatus');
+        if (!statusEl) return;
+
+        if (!('Notification' in window)) {
+            statusEl.innerHTML = '<i class="fas fa-exclamation-triangle"></i> Seu navegador não suporta notificações';
+            statusEl.style.color = '#dc3545';
+            document.getElementById('notifyBrowserEnabled').disabled = true;
+            return;
+        }
+
+        const permission = Notification.permission;
+        switch (permission) {
+            case 'granted':
+                statusEl.innerHTML = '<i class="fas fa-check-circle"></i> Permissão concedida';
+                statusEl.style.color = '#28a745';
+                break;
+            case 'denied':
+                statusEl.innerHTML = '<i class="fas fa-times-circle"></i> Permissão negada. Ative nas configurações do navegador.';
+                statusEl.style.color = '#dc3545';
+                break;
+            default:
+                statusEl.innerHTML = '<i class="fas fa-info-circle"></i> Clique em "Salvar" para solicitar permissão';
+                statusEl.style.color = '#007bff';
+        }
+    }
+
+    // Solicitar permissão do navegador
+    async requestBrowserPermission() {
+        if (!('Notification' in window)) {
+            console.warn('[NOTIFICATIONS] Navegador não suporta notificações');
+            return false;
+        }
+
+        if (Notification.permission === 'granted') {
+            return true;
+        }
+
+        if (Notification.permission !== 'denied') {
+            const permission = await Notification.requestPermission();
+            return permission === 'granted';
+        }
+
+        return false;
+    }
+
+    // Toggle painel
+    togglePanel() {
+        const panel = document.getElementById('notificationsPanel');
+        if (!panel) return;
+
+        const isVisible = panel.style.display === 'block';
+        panel.style.display = isVisible ? 'none' : 'block';
+
+        if (!isVisible) {
+            this.renderNotifications();
+        }
+    }
+
+    // Trocar aba
+    switchTab(tab) {
+        this.currentTab = tab;
+
+        // Atualizar botões ativos
+        document.querySelectorAll('.notifications-tab').forEach(btn => {
+            btn.classList.remove('active');
+        });
+        const activeBtn = document.querySelector(`.notifications-tab[data-tab="${tab}"]`);
+        if (activeBtn) activeBtn.classList.add('active');
+
+        this.renderNotifications();
+    }
+
+    // Adicionar notificação
+    addNotification(notification) {
+        const newNotification = {
+            id: Date.now() + Math.random(),
+            timestamp: new Date().toISOString(),
+            read: false,
+            ...notification
+        };
+
+        this.notifications.unshift(newNotification);
+        this.saveNotifications();
+        this.updateBadge();
+        this.renderNotifications();
+
+        // Notificação do navegador se ativada
+        if (this.settings.browserEnabled && Notification.permission === 'granted') {
+            this.showBrowserNotification(newNotification);
+        }
+
+        return newNotification;
+    }
+
+    // Mostrar notificação do navegador
+    showBrowserNotification(notification) {
+        try {
+            const options = {
+                body: notification.message,
+                icon: '/images/icon-192.png',
+                badge: '/images/icon-72.png',
+                tag: notification.id,
+                requireInteraction: false,
+                silent: false
+            };
+
+            const n = new Notification(notification.title, options);
+
+            n.onclick = () => {
+                window.focus();
+                this.markAsRead(notification.id);
+                n.close();
+            };
+
+            // Fechar automaticamente após 5 segundos
+            setTimeout(() => n.close(), 5000);
+
+        } catch (error) {
+            console.error('[NOTIFICATIONS] Erro ao mostrar notificação do navegador:', error);
+        }
+    }
+
+    // Marcar como lida
+    markAsRead(notificationId) {
+        const notification = this.notifications.find(n => n.id === notificationId);
+        if (notification) {
+            notification.read = true;
+            this.saveNotifications();
+            this.updateBadge();
+            this.renderNotifications();
+        }
+    }
+
+    // Marcar todas como lidas
+    markAllAsRead() {
+        this.notifications.forEach(n => n.read = true);
+        this.saveNotifications();
+        this.updateBadge();
+        this.renderNotifications();
+
+        if (typeof toast !== 'undefined' && toast) {
+            toast.success('Todas as notificações foram marcadas como lidas');
+        }
+    }
+
+    // Salvar notificações
+    saveNotifications() {
+        // Manter apenas as últimas 100 notificações
+        if (this.notifications.length > 100) {
+            this.notifications = this.notifications.slice(0, 100);
+        }
+
+        localStorage.setItem('notifications', JSON.stringify(this.notifications));
+    }
+
+    // Carregar notificações
+    loadNotifications() {
+        try {
+            const saved = localStorage.getItem('notifications');
+            if (saved) {
+                this.notifications = JSON.parse(saved);
+            }
+        } catch (e) {
+            console.error('[NOTIFICATIONS] Erro ao carregar notificações:', e);
+            this.notifications = [];
+        }
+    }
+
+    // Atualizar badge
+    updateBadge() {
+        const unreadCount = this.notifications.filter(n => !n.read).length;
+        const badge = document.getElementById('notificationsBadge');
+
+        if (badge) {
+            if (unreadCount > 0) {
+                badge.textContent = unreadCount > 99 ? '99+' : unreadCount;
+                badge.style.display = 'flex';
+            } else {
+                badge.style.display = 'none';
+            }
+        }
+
+        // Atualizar contadores nas abas
+        const allCount = document.getElementById('notificationsCountAll');
+        const unreadCountEl = document.getElementById('notificationsCountUnread');
+
+        if (allCount) allCount.textContent = this.notifications.length;
+        if (unreadCountEl) unreadCountEl.textContent = unreadCount;
+    }
+
+    // Renderizar notificações
+    renderNotifications() {
+        const list = document.getElementById('notificationsList');
+        if (!list) return;
+
+        let filteredNotifications = this.notifications;
+        if (this.currentTab === 'unread') {
+            filteredNotifications = this.notifications.filter(n => !n.read);
+        }
+
+        if (filteredNotifications.length === 0) {
+            list.innerHTML = `
+                <div class="notifications-empty">
+                    <i class="fas fa-bell-slash"></i>
+                    <p>${this.currentTab === 'unread' ? 'Nenhuma notificação não lida' : 'Nenhuma notificação'}</p>
+                </div>
+            `;
+            return;
+        }
+
+        list.innerHTML = filteredNotifications.map(notification => {
+            const date = new Date(notification.timestamp);
+            const timeAgo = this.getTimeAgo(date);
+            const icon = this.getNotificationIcon(notification.type);
+            const typeClass = notification.type || 'info';
+
+            return `
+                <div class="notification-item ${notification.read ? 'read' : 'unread'} notification-${typeClass}" data-id="${notification.id}">
+                    <div class="notification-icon">
+                        <i class="${icon}"></i>
+                    </div>
+                    <div class="notification-content">
+                        <div class="notification-title">${this.app.escapeHtml(notification.title)}</div>
+                        <div class="notification-message">${this.app.escapeHtml(notification.message)}</div>
+                        <div class="notification-time">${timeAgo}</div>
+                    </div>
+                    <div class="notification-actions">
+                        ${!notification.read ? `
+                            <button class="btn-icon-small" onclick="if(app && app.notificationCenter) { app.notificationCenter.markAsRead(${notification.id}); }" title="Marcar como lida">
+                                <i class="fas fa-check"></i>
+                            </button>
+                        ` : ''}
+                        <button class="btn-icon-small" onclick="if(app && app.notificationCenter) { app.notificationCenter.removeNotification(${notification.id}); }" title="Remover">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                </div>
+            `;
+        }).join('');
+    }
+
+    // Remover notificação
+    removeNotification(notificationId) {
+        this.notifications = this.notifications.filter(n => n.id !== notificationId);
+        this.saveNotifications();
+        this.updateBadge();
+        this.renderNotifications();
+    }
+
+    // Obter ícone da notificação
+    getNotificationIcon(type) {
+        const icons = {
+            'stock': 'fas fa-box',
+            'goal': 'fas fa-target',
+            'sale': 'fas fa-shopping-cart',
+            'backup': 'fas fa-hdd',
+            'warning': 'fas fa-exclamation-triangle',
+            'success': 'fas fa-check-circle',
+            'info': 'fas fa-info-circle',
+            'error': 'fas fa-times-circle'
+        };
+        return icons[type] || icons.info;
+    }
+
+    // Tempo relativo
+    getTimeAgo(date) {
+        const seconds = Math.floor((new Date() - date) / 1000);
+
+        const intervals = {
+            ano: 31536000,
+            mês: 2592000,
+            semana: 604800,
+            dia: 86400,
+            hora: 3600,
+            minuto: 60,
+            segundo: 1
+        };
+
+        for (const [name, value] of Object.entries(intervals)) {
+            const interval = Math.floor(seconds / value);
+            if (interval >= 1) {
+                return `há ${interval} ${name}${interval > 1 ? (name === 'mês' ? 'es' : 's') : ''}`;
+            }
+        }
+
+        return 'agora mesmo';
+    }
+
+    // Verificar notificações automaticamente
+    checkForNotifications() {
+        console.log('🔔 [NOTIFICATIONS] Verificando notificações...');
+
+        // Verificar estoque baixo
+        if (this.settings.stockLow && this.app.stockAlerts) {
+            const alerts = this.app.stockAlerts.checkStockLevels();
+            const newCritical = alerts.critical.filter(item => {
+                return !this.notifications.some(n => 
+                    n.type === 'stock' && 
+                    n.itemId === item.id && 
+                    !n.read
+                );
+            });
+
+            newCritical.forEach(item => {
+                this.addNotification({
+                    type: 'stock',
+                    title: 'Estoque Crítico',
+                    message: `${item.name} está sem estoque!`,
+                    itemId: item.id
+                });
+            });
+        }
+
+        // Verificar metas próximas do prazo
+        if (this.settings.goalsDeadline) {
+            this.checkGoalsDeadlines();
+        }
+
+        // Verificar lembrete de backup
+        if (this.settings.backupReminder) {
+            this.checkBackupReminder();
+        }
+    }
+
+    // Verificar prazos de metas
+    checkGoalsDeadlines() {
+        const today = new Date();
+        const daysBeforeMs = this.settings.goalsDaysBefore * 24 * 60 * 60 * 1000;
+
+        this.app.goals.forEach(goal => {
+            if (goal.deadline) {
+                const deadline = new Date(goal.deadline);
+                const daysUntilDeadline = Math.floor((deadline - today) / (24 * 60 * 60 * 1000));
+
+                if (daysUntilDeadline <= this.settings.goalsDaysBefore && daysUntilDeadline >= 0) {
+                    // Verificar se já existe notificação para esta meta
+                    const alreadyNotified = this.notifications.some(n => 
+                        n.type === 'goal' && 
+                        n.goalId === goal.id && 
+                        !n.read &&
+                        new Date(n.timestamp) > new Date(Date.now() - 24 * 60 * 60 * 1000) // Nas últimas 24h
+                    );
+
+                    if (!alreadyNotified) {
+                        this.addNotification({
+                            type: 'goal',
+                            title: 'Meta Próxima do Prazo',
+                            message: `A meta "${goal.description}" vence em ${daysUntilDeadline} dia${daysUntilDeadline !== 1 ? 's' : ''}!`,
+                            goalId: goal.id
+                        });
+                    }
+                }
+            }
+        });
+    }
+
+    // Verificar lembrete de backup
+    checkBackupReminder() {
+        const lastBackup = localStorage.getItem('lastManualBackup');
+        const daysSinceBackup = lastBackup ? 
+            Math.floor((Date.now() - new Date(lastBackup)) / (24 * 60 * 60 * 1000)) : 
+            999;
+
+        if (daysSinceBackup >= 7) {
+            const alreadyNotified = this.notifications.some(n => 
+                n.type === 'backup' && 
+                !n.read &&
+                new Date(n.timestamp) > new Date(Date.now() - 24 * 60 * 60 * 1000)
+            );
+
+            if (!alreadyNotified) {
+                this.addNotification({
+                    type: 'backup',
+                    title: 'Lembrete de Backup',
+                    message: `Faz ${daysSinceBackup} dias desde o último backup. Recomendamos fazer um backup dos seus dados.`,
+                });
+            }
+        }
+    }
+
+    // Notificar venda de alto valor
+    notifyHighValueSale(sale) {
+        if (!this.settings.salesHighValue) return;
+        if (!sale || !sale.total) return;
+
+        if (sale.total >= this.settings.salesThreshold) {
+            this.addNotification({
+                type: 'sale',
+                title: 'Venda de Alto Valor',
+                message: `Nova venda de R$ ${sale.total.toFixed(2).replace('.', ',')} registrada!`,
+                saleId: sale.id
+            });
+        }
+    }
+
+    // Iniciar verificação automática
+    startAutoCheck() {
+        // Limpar intervalo anterior
+        if (this.checkInterval) {
+            clearInterval(this.checkInterval);
+        }
+
+        // Criar novo intervalo
+        this.checkInterval = setInterval(() => {
+            this.checkForNotifications();
+        }, this.settings.checkInterval);
+
+        console.log(`🔔 [NOTIFICATIONS] Verificação automática iniciada (a cada ${this.settings.checkInterval / 1000 / 60} minutos)`);
+    }
+
+    // Parar verificação automática
+    stopAutoCheck() {
+        if (this.checkInterval) {
+            clearInterval(this.checkInterval);
+            this.checkInterval = null;
+        }
+    }
+
+    // Inicializar sistema
+    init() {
+        console.log('🔔 [NOTIFICATIONS] Inicializando sistema de notificações...');
+
+        // Carregar notificações
+        this.loadNotifications();
+
+        // Atualizar badge
+        this.updateBadge();
+
+        // Iniciar verificação automática
+        this.startAutoCheck();
+
+        // Verificar imediatamente
+        setTimeout(() => {
+            this.checkForNotifications();
+        }, 3000);
+
+        console.log('✅ [NOTIFICATIONS] Sistema de notificações inicializado!');
     }
 }
 
@@ -36012,7 +36132,7 @@ function inicializarApp() {
         } else {
             console.log('ℹ️ [APP.JS] StockManager já existe');
         }
-        
+
         // Inicializar StockAlerts (sempre, mesmo se app já existir)
         if (!window.app.stockAlerts) {
             console.log('🔔 [APP.JS] Inicializando StockAlerts...');
@@ -36022,7 +36142,7 @@ function inicializarApp() {
         } else {
             console.log('ℹ️ [APP.JS] StockAlerts já existe');
         }
-        
+
         // Inicializar MovementHistory (sempre, mesmo se app já existir)
         if (!window.app.movementHistory) {
             console.log('📜 [APP.JS] Inicializando MovementHistory...');
@@ -36031,7 +36151,7 @@ function inicializarApp() {
         } else {
             console.log('ℹ️ [APP.JS] MovementHistory já existe');
         }
-        
+
         // Inicializar SalesDashboard (sempre, mesmo se app já existir)
         if (!window.app.salesDashboard) {
             console.log('📊 [APP.JS] Inicializando SalesDashboard...');
@@ -36040,7 +36160,7 @@ function inicializarApp() {
         } else {
             console.log('ℹ️ [APP.JS] SalesDashboard já existe');
         }
-        
+
         // Inicializar BackupManager (sempre, mesmo se app já existir)
         if (!window.app.backupManager) {
             console.log('💾 [APP.JS] Inicializando BackupManager...');
@@ -36049,6 +36169,16 @@ function inicializarApp() {
             console.log('✅ [APP.JS] BackupManager inicializado!');
         } else {
             console.log('ℹ️ [APP.JS] BackupManager já existe');
+        }
+        
+        // Inicializar NotificationCenter (sempre, mesmo se app já existir)
+        if (!window.app.notificationCenter) {
+            console.log('🔔 [APP.JS] Inicializando NotificationCenter...');
+            window.app.notificationCenter = new NotificationCenter(window.app);
+            window.app.notificationCenter.init();
+            console.log('✅ [APP.JS] NotificationCenter inicializado!');
+        } else {
+            console.log('ℹ️ [APP.JS] NotificationCenter já existe');
         }
     } catch (error) {
         console.error('❌ [APP.JS] ERRO ao criar LojaApp:', error);
@@ -36082,7 +36212,7 @@ document.addEventListener('DOMContentLoaded', () => {
             return false;
         }
     };
-    
+
     // Expor funções do StockAlerts globalmente para o HTML
     const exponerFuncoesStockAlerts = () => {
         if (window.app && window.app.stockAlerts) {
@@ -36096,7 +36226,7 @@ document.addEventListener('DOMContentLoaded', () => {
             return false;
         }
     };
-    
+
     // Expor funções do MovementHistory globalmente para o HTML
     const exponerFuncoesMovementHistory = () => {
         if (window.app && window.app.movementHistory) {
@@ -36109,7 +36239,7 @@ document.addEventListener('DOMContentLoaded', () => {
             return false;
         }
     };
-    
+
     // Expor funções do SalesDashboard globalmente para o HTML
     const exponerFuncoesSalesDashboard = () => {
         if (window.app && window.app.salesDashboard) {
@@ -36122,7 +36252,7 @@ document.addEventListener('DOMContentLoaded', () => {
             return false;
         }
     };
-    
+
     // Expor funções do BackupManager globalmente para o HTML
     const exponerFuncoesBackupManager = () => {
         if (window.app && window.app.backupManager) {
@@ -36146,7 +36276,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const movementHistoryOk = exponerFuncoesMovementHistory();
         const salesDashboardOk = exponerFuncoesSalesDashboard();
         const backupManagerOk = exponerFuncoesBackupManager();
-        
+
         if (stockManagerOk && stockAlertsOk && movementHistoryOk && salesDashboardOk && backupManagerOk) {
             clearInterval(intervaloExposicao);
         } else if (tentativas >= maxTentativas) {

@@ -621,6 +621,14 @@
                 Gestão Financeira
             </h1>
             <div class="header-actions flex gap-3 items-center">
+                <!-- Botão de Notificações -->
+                <button id="notificationsBtn" class="btn-notifications inline-flex items-center justify-center"
+                    onclick="if(app && app.notificationCenter) { app.notificationCenter.togglePanel(); }"
+                    title="Central de Notificações" aria-label="Abrir central de notificações">
+                    <i class="fas fa-bell"></i>
+                    <span class="notifications-badge" id="notificationsBadge" style="display: none;">0</span>
+                </button>
+                
                 <button id="helpBtn" class="btn-secondary inline-flex items-center justify-center gap-2"
                     title="Como usar" aria-label="Abrir ajuda e instruções de uso">
                     <i class="fas fa-question-circle"></i>
@@ -7940,6 +7948,130 @@
                     </div>
                 </div>
                 
+            </div>
+        </div>
+    </div>
+
+    <!-- PAINEL DE NOTIFICAÇÕES -->
+    <div id="notificationsPanel" class="notifications-panel" style="display: none;">
+        <div class="notifications-header">
+            <h3><i class="fas fa-bell"></i> Notificações</h3>
+            <div class="notifications-header-actions">
+                <button class="btn-icon-small" onclick="if(app && app.notificationCenter) { app.notificationCenter.markAllAsRead(); }" title="Marcar todas como lidas">
+                    <i class="fas fa-check-double"></i>
+                </button>
+                <button class="btn-icon-small" onclick="if(app && app.notificationCenter) { app.notificationCenter.openSettings(); }" title="Configurações">
+                    <i class="fas fa-cog"></i>
+                </button>
+                <button class="btn-icon-small" onclick="if(app && app.notificationCenter) { app.notificationCenter.togglePanel(); }" title="Fechar">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+        </div>
+        
+        <div class="notifications-tabs">
+            <button class="notifications-tab active" data-tab="all" onclick="if(app && app.notificationCenter) { app.notificationCenter.switchTab('all'); }">
+                Todas (<span id="notificationsCountAll">0</span>)
+            </button>
+            <button class="notifications-tab" data-tab="unread" onclick="if(app && app.notificationCenter) { app.notificationCenter.switchTab('unread'); }">
+                Não lidas (<span id="notificationsCountUnread">0</span>)
+            </button>
+        </div>
+        
+        <div class="notifications-list" id="notificationsList">
+            <div class="notifications-empty">
+                <i class="fas fa-bell-slash"></i>
+                <p>Nenhuma notificação</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL DE CONFIGURAÇÕES DE NOTIFICAÇÕES -->
+    <div id="notificationsSettingsModal" class="modal">
+        <div class="modal-content" style="max-width: 700px;">
+            <div class="modal-header">
+                <h2><i class="fas fa-cog"></i> Configurações de Notificações</h2>
+                <span class="close"
+                    onclick="if(app && app.notificationCenter) { app.notificationCenter.closeSettings(); }"
+                    aria-label="Fechar modal" role="button" tabindex="0">&times;</span>
+            </div>
+            <div class="modal-body">
+                <form id="notificationsSettingsForm" onsubmit="if(app && app.notificationCenter) { app.notificationCenter.saveSettings(event); }">
+                    
+                    <div class="form-group">
+                        <label>
+                            <i class="fas fa-browser"></i> Notificações do Navegador
+                        </label>
+                        <div style="display: flex; flex-direction: column; gap: 0.75rem;">
+                            <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+                                <input type="checkbox" id="notifyBrowserEnabled" />
+                                <span>Ativar notificações push do navegador</span>
+                            </label>
+                            <div id="browserNotificationStatus" style="font-size: 0.85rem; color: #6c757d;"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>
+                            <i class="fas fa-bullhorn"></i> Tipos de Notificação
+                        </label>
+                        <div style="display: flex; flex-direction: column; gap: 0.75rem;">
+                            <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+                                <input type="checkbox" id="notifyStockLow" checked />
+                                <span>Estoque baixo ou crítico</span>
+                            </label>
+                            <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+                                <input type="checkbox" id="notifyGoalsDeadline" checked />
+                                <span>Metas próximas do prazo</span>
+                            </label>
+                            <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+                                <input type="checkbox" id="notifySalesHighValue" checked />
+                                <span>Vendas de alto valor</span>
+                            </label>
+                            <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+                                <input type="checkbox" id="notifyBackupReminder" checked />
+                                <span>Lembrete de backup</span>
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="notifyCheckInterval">
+                            <i class="fas fa-clock"></i> Verificar notificações a cada
+                        </label>
+                        <select id="notifyCheckInterval" class="form-control">
+                            <option value="60000">1 minuto</option>
+                            <option value="300000" selected>5 minutos</option>
+                            <option value="600000">10 minutos</option>
+                            <option value="1800000">30 minutos</option>
+                            <option value="3600000">1 hora</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="notifySalesThreshold">
+                            <i class="fas fa-dollar-sign"></i> Valor mínimo para notificar vendas
+                        </label>
+                        <input type="number" id="notifySalesThreshold" class="form-control" min="0" step="0.01" value="500" />
+                        <small style="color: #6c757d; font-size: 0.85rem;">Notificar vendas acima deste valor</small>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="notifyGoalsDaysBefore">
+                            <i class="fas fa-calendar-alt"></i> Avisar sobre metas com quantos dias de antecedência
+                        </label>
+                        <input type="number" id="notifyGoalsDaysBefore" class="form-control" min="1" max="30" value="7" />
+                    </div>
+                    
+                    <div class="modal-actions">
+                        <button type="button" class="btn-secondary" onclick="if(app && app.notificationCenter) { app.notificationCenter.closeSettings(); }">
+                            <i class="fas fa-times"></i> Cancelar
+                        </button>
+                        <button type="submit" class="btn-primary">
+                            <i class="fas fa-save"></i> Salvar Configurações
+                        </button>
+                    </div>
+                </form>
             </div>
         </div>
     </div>
