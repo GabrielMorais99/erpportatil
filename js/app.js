@@ -24805,45 +24805,30 @@ class LojaApp {
 
     // Mostrar banner de consentimento de cookies
     showCookieConsentBanner() {
-        // Remover banner existente se houver
         const existingBanner = document.getElementById('cookieConsentBanner');
-        if (existingBanner) {
-            existingBanner.remove();
-        }
+        if (existingBanner) existingBanner.remove();
 
         const banner = document.createElement('div');
         banner.id = 'cookieConsentBanner';
-        banner.style.cssText = `
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            background: var(--dark-gray);
-            color: var(--white);
-            padding: 1rem 1.5rem;
-            z-index: 10000;
-            box-shadow: 0 -2px 10px rgba(0,0,0,0.2);
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 1rem;
-            flex-wrap: wrap;
-        `;
+        banner.className = 'cookie-consent-banner';
 
         banner.innerHTML = `
-            <div style="flex: 1; min-width: 250px;">
-                <p style="margin: 0; font-size: 0.9rem;">
-                    <i class="fas fa-cookie-bite"></i> Este site utiliza cookies e armazenamento local para melhorar sua experiência. 
-                    <a href="#" onclick="app.openPrivacyPolicyModal(); return false;" style="color: var(--primary-color); text-decoration: underline;">Saiba mais</a>
-                </p>
-            </div>
-            <div style="display: flex; gap: 0.5rem;">
-                <button onclick="app.acceptCookieConsent()" style="padding: 0.5rem 1rem; background: var(--primary-color); color: var(--white); border: none; border-radius: var(--radius-sm); cursor: pointer; font-weight: 600;">
-                    Aceitar
-                </button>
-                <button onclick="app.rejectCookieConsent()" style="padding: 0.5rem 1rem; background: transparent; color: var(--white); border: 1px solid var(--white); border-radius: var(--radius-sm); cursor: pointer;">
-                    Recusar
-                </button>
+            <div class="cookie-consent-content">
+                <div class="cookie-consent-icon">
+                    <i class="fas fa-shield-alt"></i>
+                </div>
+                <div class="cookie-consent-text">
+                    <p>Utilizamos cookies e armazenamento local para melhorar sua experiência.</p>
+                    <a href="#" onclick="if(app) app.openPrivacyPolicyModal(); return false;" class="cookie-consent-link">Saiba mais</a>
+                </div>
+                <div class="cookie-consent-actions">
+                    <button type="button" class="btn-primary btn-sm" onclick="if(app) app.acceptCookieConsent();">
+                        Aceitar
+                    </button>
+                    <button type="button" class="btn-secondary btn-sm" onclick="if(app) app.rejectCookieConsent();">
+                        Recusar
+                    </button>
+                </div>
             </div>
         `;
 

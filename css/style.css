@@ -9046,3 +9046,99 @@ body.dark-mode .skeleton-line {
         flex-wrap: wrap;
     }
 }
+
+/* ========================================
+   BANNER DE CONSENTIMENTO DE COOKIES
+   (Estilo alinhado ao layout do projeto)
+   ======================================== */
+.cookie-consent-banner {
+    position: fixed;
+    bottom: 20px;
+    left: 20px;
+    right: 20px;
+    max-width: 420px;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.15);
+    border: 1px solid #e9ecef;
+    z-index: 10000;
+    font-family: inherit;
+    animation: cookieBannerSlide 0.4s ease-out;
+}
+
+@keyframes cookieBannerSlide {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.cookie-consent-content {
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+    padding: 1.25rem;
+}
+
+.cookie-consent-icon {
+    width: 44px;
+    height: 44px;
+    min-width: 44px;
+    background: linear-gradient(135deg, var(--primary-color), var(--primary-color-dark));
+    color: white;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.25rem;
+}
+
+.cookie-consent-text {
+    flex: 1;
+    min-width: 0;
+}
+
+.cookie-consent-text p {
+    margin: 0 0 0.5rem 0;
+    font-size: 0.9rem;
+    color: var(--gray-700);
+    line-height: 1.5;
+}
+
+.cookie-consent-link {
+    color: var(--primary-color);
+    text-decoration: none;
+    font-size: 0.85rem;
+    font-weight: 600;
+}
+
+.cookie-consent-link:hover {
+    text-decoration: underline;
+}
+
+.cookie-consent-actions {
+    display: flex;
+    gap: 0.5rem;
+    flex-shrink: 0;
+}
+
+@media (max-width: 480px) {
+    .cookie-consent-banner {
+        left: 10px;
+        right: 10px;
+        bottom: 10px;
+    }
+    
+    .cookie-consent-content {
+        flex-direction: column;
+    }
+    
+    .cookie-consent-actions {
+        width: 100%;
+        justify-content: flex-end;
+    }
+}
