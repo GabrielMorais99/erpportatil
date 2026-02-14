@@ -367,6 +367,276 @@ button i.fab,
     align-items: center;
 }
 
+/* ========================================
+   PADRÃO DE LAYOUT - BOTÕES E COMPONENTES
+   Centralização, sem corte de texto/botões
+   ======================================== */
+button,
+.btn-primary,
+.btn-secondary,
+.btn-small,
+.btn-success,
+.btn-danger,
+[class*='btn'] {
+    text-align: center;
+    white-space: normal;
+    word-wrap: break-word;
+    overflow: visible;
+    min-height: 44px;
+    padding: 0.5rem 1rem;
+}
+
+button span,
+.btn-primary span,
+.btn-secondary span,
+[class*='btn'] span {
+    text-align: center;
+    white-space: normal;
+    word-wrap: break-word;
+}
+
+/* Grupos de botões - centralizar e evitar overflow */
+.backup-actions,
+.modal-actions,
+.confirm-modal-actions,
+.backup-section-header .notifications-header-actions,
+[class*='actions'] {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    justify-content: center;
+    align-items: center;
+}
+
+.panel-header {
+    flex-wrap: wrap;
+    gap: 0.75rem;
+}
+
+.panel-header .btn-primary,
+.panel-header .btn-secondary {
+    white-space: normal;
+    min-width: 0;
+}
+
+/* Containers de botões no layout */
+.filters-header,
+.chart-header,
+.section-header,
+.backup-section-header {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.filters-header > div,
+.chart-header > div {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    justify-content: center;
+}
+
+/* Botões em linha - evitar corte */
+.header-actions,
+.month-controls,
+.history-filters-section .backup-actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+}
+
+/* Grid de botões em cards */
+.summary-cards-grid,
+.payment-grid,
+.filters-grid {
+    display: grid;
+    gap: 1rem;
+    align-items: stretch;
+}
+
+/* Botão de gerenciamento de estoque - texto completo */
+#manageStockBtn,
+button[id*='manage'],
+button[id*='Stock'] {
+    white-space: normal !important;
+    word-wrap: break-word !important;
+    text-align: center !important;
+    min-width: 0;
+    max-width: 100%;
+}
+
+/* ========================================
+   MOBILE - CENTRALIZAÇÃO E LAYOUT EM CELULARES
+   Breakpoints: 768px | 640px | 480px
+   Conformidade total em view de celulares
+   ======================================== */
+
+/* Base: evitar overflow horizontal em qualquer viewport */
+.app-container,
+.main-content,
+.content-area,
+.panel,
+.card,
+.modal-content {
+    max-width: 100%;
+    overflow-x: hidden;
+}
+
+/* Tablets e celulares (até 768px) */
+@media (max-width: 768px) {
+    .modal-actions,
+    .backup-actions,
+    .confirm-modal-actions,
+    .backup-section-header .notifications-header-actions,
+    .group-actions,
+    .cost-actions,
+    .goal-actions,
+    .panel-actions,
+    .cookie-consent-actions,
+    .notification-actions,
+    .backup-history-actions {
+        flex-direction: column;
+        width: 100%;
+        justify-content: center;
+        align-items: stretch;
+    }
+
+    .modal-actions button,
+    .backup-actions button,
+    .confirm-modal-actions button,
+    .group-actions .btn-small,
+    .cost-actions .btn-small,
+    .goal-actions .btn-small,
+    .panel-actions button,
+    .cookie-consent-actions button,
+    .notification-actions button,
+    .backup-history-actions button {
+        width: 100%;
+        max-width: 100%;
+    }
+
+    .panel-header {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .panel-header .btn-primary,
+    .panel-header .btn-secondary {
+        width: 100%;
+        max-width: 100%;
+    }
+
+    .header-actions {
+        justify-content: center;
+        flex-wrap: wrap;
+        align-items: center;
+    }
+
+    .filters-header,
+    .chart-header,
+    .section-header,
+    .backup-section-header {
+        flex-direction: column;
+        align-items: stretch;
+        width: 100%;
+    }
+
+    .filters-header > div,
+    .chart-header > div {
+        justify-content: center;
+    }
+
+    .btn-group-filtros {
+        flex-direction: column;
+        width: 100%;
+    }
+
+    .btn-group-filtros button {
+        width: 100%;
+        max-width: 100%;
+    }
+
+    .summary-cards-grid,
+    .payment-grid,
+    .filters-grid {
+        grid-template-columns: 1fr;
+        width: 100%;
+    }
+
+    button,
+    .btn-primary,
+    .btn-secondary {
+        min-width: 0;
+        max-width: 100%;
+    }
+
+    /* Safe-area para celulares com notch */
+    .modal-content,
+    .panel,
+    .cookie-consent-banner {
+        padding-left: max(1rem, env(safe-area-inset-left));
+        padding-right: max(1rem, env(safe-area-inset-right));
+    }
+}
+
+/* Celulares (até 640px) */
+@media (max-width: 640px) {
+    .month-controls,
+    .history-filters-section .backup-actions,
+    .item-actions,
+    .item-actions-row {
+        flex-direction: column;
+        width: 100%;
+        align-items: stretch;
+    }
+
+    .month-controls button,
+    .history-filters-section .backup-actions button,
+    .item-actions .btn-small,
+    .item-actions-row .btn-edit,
+    .item-actions-row .btn-delete {
+        width: 100%;
+        max-width: 100%;
+    }
+}
+
+/* Celulares pequenos (até 480px) */
+@media (max-width: 480px) {
+    button,
+    .btn-primary,
+    .btn-secondary,
+    .btn-small {
+        min-height: 44px;
+        padding: 0.75rem 1rem;
+        font-size: 0.9375rem;
+    }
+
+    .modal-actions,
+    .backup-actions,
+    .confirm-modal-actions,
+    .group-actions,
+    .cost-actions,
+    .goal-actions {
+        gap: 0.5rem;
+    }
+
+    .panel-header,
+    .filters-header,
+    .section-header {
+        gap: 0.5rem;
+    }
+
+    /* Safe-area para bottom em celulares pequenos */
+    .cookie-consent-banner,
+    .modal-content {
+        padding-bottom: max(1rem, env(safe-area-inset-bottom));
+    }
+}
+
 /* Padronizar cores da tela de login para preto e branco */
 .login-container .logo h1 {
     color: #000000;
