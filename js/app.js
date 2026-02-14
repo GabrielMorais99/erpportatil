@@ -35115,6 +35115,8 @@ class BackupManager {
 
                 console.log('✅ [BACKUP] Backup exportado:', filename);
 
+                localStorage.setItem('lastManualBackup', new Date().toISOString());
+
                 if (statusEl) {
                     statusEl.innerHTML = `<i class="fas fa-check-circle"></i> Backup exportado com sucesso! <br><small>Arquivo: ${filename}</small>`;
                     statusEl.className = 'backup-status backup-status-success';
@@ -35709,6 +35711,7 @@ class NotificationCenter {
     // Toggle painel
     togglePanel() {
         const panel = document.getElementById('notificationsPanel');
+        const btn = document.getElementById('notificationsBtn');
         if (!panel) return;
 
         const isVisible = panel.style.display === 'block';
@@ -35716,6 +35719,15 @@ class NotificationCenter {
 
         if (!isVisible) {
             this.renderNotifications();
+            setTimeout(() => {
+                const closeOnClickOutside = (e) => {
+                    if (panel.style.display !== 'block') return;
+                    if (panel.contains(e.target) || (btn && btn.contains(e.target))) return;
+                    document.removeEventListener('click', closeOnClickOutside);
+                    panel.style.display = 'none';
+                };
+                document.addEventListener('click', closeOnClickOutside);
+            }, 100);
         }
     }
 
@@ -35736,7 +35748,7 @@ class NotificationCenter {
     // Adicionar notificação
     addNotification(notification) {
         const newNotification = {
-            id: Date.now() + Math.random(),
+            id: 'n_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9),
             timestamp: new Date().toISOString(),
             read: false,
             ...notification
@@ -35785,7 +35797,8 @@ class NotificationCenter {
 
     // Marcar como lida
     markAsRead(notificationId) {
-        const notification = this.notifications.find(n => n.id === notificationId);
+        const id = String(notificationId);
+        const notification = this.notifications.find(n => String(n.id) === id);
         if (notification) {
             notification.read = true;
             this.saveNotifications();
@@ -35889,11 +35902,11 @@ class NotificationCenter {
                     </div>
                     <div class="notification-actions">
                         ${!notification.read ? `
-                            <button class="btn-icon-small" onclick="if(app && app.notificationCenter) { app.notificationCenter.markAsRead(${notification.id}); }" title="Marcar como lida">
+                            <button class="btn-icon-small" onclick="if(app && app.notificationCenter) { app.notificationCenter.markAsRead(this.closest('[data-id]').dataset.id); }" title="Marcar como lida">
                                 <i class="fas fa-check"></i>
                             </button>
                         ` : ''}
-                        <button class="btn-icon-small" onclick="if(app && app.notificationCenter) { app.notificationCenter.removeNotification(${notification.id}); }" title="Remover">
+                        <button class="btn-icon-small" onclick="if(app && app.notificationCenter) { app.notificationCenter.removeNotification(this.closest('[data-id]').dataset.id); }" title="Remover">
                             <i class="fas fa-trash"></i>
                         </button>
                     </div>
@@ -35904,7 +35917,8 @@ class NotificationCenter {
 
     // Remover notificação
     removeNotification(notificationId) {
-        this.notifications = this.notifications.filter(n => n.id !== notificationId);
+        const id = String(notificationId);
+        this.notifications = this.notifications.filter(n => String(n.id) !== id);
         this.saveNotifications();
         this.updateBadge();
         this.renderNotifications();
@@ -36266,6 +36280,19 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
+    // Expor funções do NotificationCenter globalmente para o HTML
+    const exponerFuncoesNotificationCenter = () => {
+        if (window.app && window.app.notificationCenter) {
+            window.app.toggleNotificationsPanel = () => window.app.notificationCenter.togglePanel();
+            window.app.openNotificationsSettings = () => window.app.notificationCenter.openSettings();
+            console.log('✅ [APP.JS] Funções do NotificationCenter expostas globalmente!');
+            return true;
+        } else {
+            console.warn('⚠️ [APP.JS] NotificationCenter ainda não está pronto, tentando novamente...');
+            return false;
+        }
+    };
+
     // Tentar expor as funções com retry
     let tentativas = 0;
     const maxTentativas = 10;
@@ -36276,8 +36303,9 @@ document.addEventListener('DOMContentLoaded', () => {
         const movementHistoryOk = exponerFuncoesMovementHistory();
         const salesDashboardOk = exponerFuncoesSalesDashboard();
         const backupManagerOk = exponerFuncoesBackupManager();
+        const notificationCenterOk = exponerFuncoesNotificationCenter();
 
-        if (stockManagerOk && stockAlertsOk && movementHistoryOk && salesDashboardOk && backupManagerOk) {
+        if (stockManagerOk && stockAlertsOk && movementHistoryOk && salesDashboardOk && backupManagerOk && notificationCenterOk) {
             clearInterval(intervaloExposicao);
         } else if (tentativas >= maxTentativas) {
             console.error('❌ [APP.JS] Falha ao expor funções após', maxTentativas, 'tentativas');
