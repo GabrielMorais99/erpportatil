@@ -626,21 +626,28 @@ button[id*='Stock'] {
 /* Celulares (até 640px) */
 @media (max-width: 640px) {
     .month-controls,
-    .history-filters-section .backup-actions,
-    .item-actions,
-    .item-actions-row {
+    .history-filters-section .backup-actions {
         flex-direction: column;
         width: 100%;
         align-items: stretch;
     }
 
     .month-controls button,
-    .history-filters-section .backup-actions button,
-    .item-actions .btn-small,
-    .item-actions-row .btn-edit,
-    .item-actions-row .btn-delete {
+    .history-filters-section .backup-actions button {
         width: 100%;
         max-width: 100%;
+    }
+
+    /* item-actions e item-actions-row permanecem em linha no card (edit/delete lado a lado) */
+    .item-card .item-actions {
+        flex-direction: row;
+        flex-wrap: wrap;
+        justify-content: flex-start;
+    }
+
+    .item-card .item-actions-row {
+        flex-direction: row;
+        flex-wrap: nowrap;
     }
 }
 
