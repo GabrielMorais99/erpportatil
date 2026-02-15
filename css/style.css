@@ -560,6 +560,13 @@ button[id*='Stock'] {
         max-width: 100%;
     }
 
+    /* Header Estoque Consolidado - evitar ícone cortado em mobile */
+    .estoque-consolidado-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.75rem;
+    }
+
     .summary-cards-grid,
     .payment-grid,
     .filters-grid {
@@ -2067,7 +2074,8 @@ body.theme-blue .login-container #entrarBtn:focus {
 
     .item-category-badge {
         top: 0.4rem;
-        right: 0.4rem;
+        left: 0.75rem;
+        right: auto;
         font-size: 0.55rem;
         padding: 0.25rem 0.5rem;
     }
@@ -2458,7 +2466,7 @@ body.theme-blue .login-container #entrarBtn:focus {
     margin: auto;
 }
 
-/* Garantir que viewGroupModal não bloqueie o recibo */
+/* viewGroupModal - z-index base (sem !important para permitir hierarquia dinâmica via updateModalStackZIndexes) */
 #viewGroupModal {
     z-index: 1000;
     position: fixed;
@@ -2799,6 +2807,7 @@ body.theme-blue .login-container #entrarBtn:focus {
     display: flex;
     justify-content: center;
     align-items: center;
+    overflow-x: hidden;
     opacity: 1;
     background-color: rgba(0, 0, 0, 0.5);
     backdrop-filter: blur(8px);
@@ -2946,11 +2955,13 @@ body.theme-blue .login-container #entrarBtn:focus {
     transition: all var(--transition-fast);
     width: 32px;
     height: 32px;
+    min-width: 44px;
+    min-height: 44px;
     display: flex;
     align-items: center;
     justify-content: center;
     border-radius: 50%;
-    /* Garantir que o botão de fechar sempre seja clicável */
+    flex-shrink: 0;
     pointer-events: auto !important;
     position: absolute;
     top: 1rem;
@@ -2963,11 +2974,10 @@ body.theme-blue .login-container #entrarBtn:focus {
     transform: rotate(90deg);
 }
 
-/* Garantir que o botão de fechar do viewGroupModal sempre funcione */
+/* Garantir que o botão de fechar do viewGroupModal sempre funcione (mantém absolute para alinhamento) */
 #viewGroupModal .close {
     pointer-events: auto !important;
     z-index: 1001 !important;
-    position: relative !important;
     opacity: 1 !important;
 }
 
@@ -3569,9 +3579,18 @@ body.theme-blue .login-container #entrarBtn:focus {
     }
 
     /* Padrões do Emergente - Font scaling responsivo em modais */
+    .modal-header {
+        padding-right: 3.5rem;
+    }
+
     .modal-header h2 {
         font-size: clamp(1.1rem, 3vw, 1.5rem);
-        /* Responsivo com clamp */
+        padding-right: 2rem;
+    }
+
+    .modal-header .close {
+        min-width: 44px;
+        min-height: 44px;
     }
 
     .form-group {
@@ -5208,12 +5227,18 @@ body.theme-blue .login-container #entrarBtn:focus {
         gap: 1rem;
     }
 
-    /* Modais responsivos */
+    /* Modais responsivos - evitar deslocamento e corte em mobile */
+    .modal-content {
+        box-sizing: border-box;
+        overflow-x: hidden;
+    }
+
     #viewServiceGroupModal .modal-content.large,
     #viewGroupModal .modal-content.large {
-        width: 95%;
-        max-width: 95%;
+        width: 95vw;
+        max-width: calc(100vw - 2rem);
         min-width: auto;
+        margin: 1rem;
     }
 
     /* Cards de resumo responsivos */
