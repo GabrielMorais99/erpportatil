@@ -1,10 +1,10 @@
 {
-    "version": "4.12.6",
+    "version": "4.12.7",
     "buildDate": "2026-01-31",
-    "buildTime": "18:30:00",
+    "buildTime": "19:15:00",
     "commit": "pending",
     "branch": "main",
-    "commitMessage": "style: centralizacao e layout responsivo - botoes, paineis e mobile (768px/640px/480px) - safe-area para celulares com notch",
+    "commitMessage": "fix: responsividade mobile - modal sem corte, Estoque Consolidado, badge ROUPAS em 768px",
     "description": "ERP Portátil - Sistema de Gestão Financeira",
-    "updatedAt": "2026-01-31T18:30:00.000Z"
+    "updatedAt": "2026-01-31T19:15:00.000Z"
 }
